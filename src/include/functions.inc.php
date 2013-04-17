@@ -8,7 +8,7 @@
 /**
 * Include additional functions
 */
-include_once("functions_arrays.inc.php");
+//include_once("functions_arrays.inc.php");
 //include_once("functions_files.inc.php");
 
 /**
