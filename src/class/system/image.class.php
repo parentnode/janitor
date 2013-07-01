@@ -37,7 +37,7 @@ class Image {
 		// get input file info
 		// TODO: unsafe - what if getimagesize fails
 		$gd = getimagesize($input_file);
-		if(count($gd) > 6) {
+		if(count($gd) > 4) {
 			$input_width = $gd[0];
 			$input_height = $gd[1];
 			$input_format = mimetypeToExtension($gd["mime"]);
@@ -228,6 +228,8 @@ class Image {
 		}
 		else if($input_format == "png") {
 			$input_image = imagecreatefrompng($input_file);
+			// add aplha state (required for transparent png's)
+			imageAlphaBlending($output_image, false);
 		}
 		else if($input_format == "gif") {
 			$input_image = imagecreatefromgif($input_file);
@@ -247,6 +249,9 @@ class Image {
 			return imagejpeg($output_image, $output_file, $output_compression);
 		}
 		else if($output_format == "png") {
+			// save alpha state to image before writing to disk
+			imageSaveAlpha($output_image, true);
+
 			return imagepng($output_image, $output_file);
 		}
 		else if($output_format == "gif") {
@@ -255,7 +260,6 @@ class Image {
 		else {
 			return false;
 		}
-
 
 
 
