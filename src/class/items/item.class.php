@@ -398,25 +398,28 @@ class Item {
 			$query = new Query();
 
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
+			$status = is_numeric(getPost("status")) ? getPost("status") : 0;
 
 			// create item
-			$query->sql("INSERT INTO ".UT_ITE." VALUES(DEFAULT, DEFAULT, 0, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")");
+			$query->sql("INSERT INTO ".UT_ITE." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")");
 			$new_id = $query->lastInsertId();
 
 			if($new_id && $typeObject->save($new_id)) {
 
 				// add tags
 				$tags = getPost("tags");
-				foreach($tags as $tag) {
-					if($tag) {
-						$this->addTag($new_id, $tag);
+				if($tags) {
+					foreach($tags as $tag) {
+						if($tag) {
+							$this->addTag($new_id, $tag);
+						}
 					}
 				}
 
 				// create sindex
 				$this->sindex($new_id);
 
-				return true;
+				return $new_id;
 			}
 			else if($new_id) {
 
@@ -471,6 +474,14 @@ class Item {
 	// supports video, audio, image
 	function upload($item_id, $type, $variant=false) {
 
+		$uploads = array();
+
+		// print "files:<br>";
+		// print_r($_FILES);
+		// print "post:<br>";
+		// print_r($_POST);
+
+
 		if(isset($_FILES["files"])) {
 //			print_r($_FILES["files"]);
 
@@ -511,6 +522,9 @@ class Item {
 								FileSystem::makeDirRecursively(dirname($output_file));
 
 								copy($temp_file, $output_file);
+								$upload["file"] = $output_file;
+								$upload["format"] = "mov";
+								$uploads[] = $upload;
 								unlink($temp_file);
 							}
 
@@ -533,6 +547,9 @@ class Item {
  								FileSystem::makeDirRecursively(dirname($output_file));
 
 								copy($temp_file, $output_file);
+								$upload["file"] = $output_file;
+								$upload["format"] = "mp3";
+								$uploads[] = $upload;
 								unlink($temp_file);
 							}
 
@@ -554,6 +571,11 @@ class Item {
 									FileSystem::makeDirRecursively(dirname($output_file));
 
 									copy($temp_file, $output_file);
+									$upload["file"] = $output_file;
+									$upload["format"] = $extension;
+									$upload["width"] = $gd[0];
+									$upload["height"] = $gd[1];
+									$uploads[] = $upload;
 									unlink($temp_file);
 								}
 							}
@@ -567,8 +589,7 @@ class Item {
 			}
 
 		}
-
-
+		return $uploads;
 	}
 
 
@@ -588,7 +609,10 @@ class Item {
 			$query->sql("DELETE FROM ".UT_ITE." WHERE id = $item_id");
 			FileSystem::removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
 			FileSystem::removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
+			return true;
 		}
+
+		return false;
 	}
 
 
