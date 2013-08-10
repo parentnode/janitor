@@ -400,6 +400,7 @@ class Item {
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
 			$status = is_numeric(getPost("status")) ? getPost("status") : 0;
 
+//			print "INSERT INTO ".UT_ITE." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")";
 			// create item
 			$query->sql("INSERT INTO ".UT_ITE." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")");
 			$new_id = $query->lastInsertId();
@@ -419,6 +420,7 @@ class Item {
 				// create sindex
 				$this->sindex($new_id);
 
+				message()->addMessage("Item saved");
 				return $new_id;
 			}
 			else if($new_id) {
@@ -429,6 +431,7 @@ class Item {
 			}
 
 		}
+		message()->addMessage("Item could not be saved", array("type" => "error"));
 		return false;
 	}
 
@@ -594,10 +597,25 @@ class Item {
 
 
 	function disableItem($item_id) {
+		$query = new Query();
+
+		// delete item + itemtype + files
+		if($query->sql("SELECT id FROM ".UT_ITE." WHERE id = $item_id")) {
+			$query->sql("UPDATE ".UT_ITE." SET status = 0 WHERE id = $item_id");
+
+			message()->addMessage("Item disabled");
+		}
 
 	}
 	function enableItem($item_id) {
+		$query = new Query();
 
+		// delete item + itemtype + files
+		if($query->sql("SELECT id FROM ".UT_ITE." WHERE id = $item_id")) {
+			$query->sql("UPDATE ".UT_ITE." SET status = 1 WHERE id = $item_id");
+
+			message()->addMessage("Item enabled");
+		}
 	}
 
 	function deleteItem($item_id) {
@@ -679,7 +697,14 @@ class Item {
 
 		if(isset($tag_id)) {
 			$query->sql("INSERT INTO ".UT_TAGGINGS." VALUES(DEFAULT, $item_id, $tag_id)");
+
+			message()->addMessage("Tag added");
+			return true;
 		}
+
+
+		message()->addMessage("Tag could not be added", array("type" => "error"));
+		return false;
 	}
 
 	// delete tag - tag can be complete context:value or tag_id (number)
@@ -709,8 +734,13 @@ class Item {
 
 		if(isset($tag_id)) {
 			$query->sql("DELETE FROM ".UT_TAGGINGS." WHERE item_id = $item_id AND tag_id = $tag_id");
+
+			message()->addMessage("Tag deleted");
+			return true;
 		}
 
+		message()->addMessage("Tag could not be deleted", array("type" => "error"));
+		return false;
 	}
 
 

@@ -479,10 +479,7 @@ function mimetypeToExtension($mimetype) {
 
 function toTimestamp($timestamp) {
 
-//	print $timestamp . "<br>";
 	$parts = explode('-', preg_replace("/[\/\.\-\s\:]+/", '-', $timestamp));
-
-//	print_r($parts);
 
 	$year = isset($parts[0]) && $parts[0] ? $parts[0] : date("Y", time());
 	$month = isset($parts[1]) && $parts[1] ? $parts[1] : date("n", time());

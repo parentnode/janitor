@@ -214,6 +214,8 @@ class Validator {
 			}
 			else {
 				$this->setError($element, $rule["error"]);
+
+				message()->addMessage($rule["error"], array("type" => "error"));
 				return false;
 			}
 		}

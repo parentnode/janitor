@@ -3,8 +3,6 @@
 /**
 * Set file paths constants
 * FRAMEWORK_PATH -> Server path to framework files
-* GLOBAL_PATH -> Server path to global files
-* REGIONAL_PATH -> Server path to regional files
 * LOCAL_PATH -> Server path to files specific for this site
 * ADMIN_PATH -> Server path to adminroot
 * WWW_PATH -> Server path to webroot
@@ -15,12 +13,6 @@
 */
 if(isset($_SERVER["FRAMEWORK_PATH"])) {
 	define("FRAMEWORK_PATH", $_SERVER["FRAMEWORK_PATH"]);
-}
-if(isset($_SERVER["GLOBAL_PATH"])) {
-	define("GLOBAL_PATH", $_SERVER["GLOBAL_PATH"]);
-}
-if(isset($_SERVER["REGIONAL_PATH"])) {
-	define("REGIONAL_PATH", $_SERVER["REGIONAL_PATH"]);
 }
 if(isset($_SERVER["LOCAL_PATH"])) {
 	define("LOCAL_PATH", $_SERVER["LOCAL_PATH"]);
@@ -38,8 +30,6 @@ if(defined("LOCAL_PATH")) {
 
 $path = "";
 $path .= (defined("LOCAL_PATH") ? (":".LOCAL_PATH) : "");
-$path .= (defined("REGIONAL_PATH") ? (":".REGIONAL_PATH) : "");
-$path .= (defined("GLOBAL_PATH") ? (":".GLOBAL_PATH) : "");
 $path .= (defined("FRAMEWORK_PATH") ? (":".FRAMEWORK_PATH) : "");
 
 ini_set("include_path", "." . $path);

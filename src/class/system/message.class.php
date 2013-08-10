@@ -7,28 +7,28 @@ class Message {
 	private $errorMessages = array();
 	private $statusMessages = array();
 
-	private $errors = false;
-	private $messages = false;
-	private $lastMessage = false;
+	private $messages = array();
+	private $message_history = false;
 
 	/**
 	* Add status message
 	*
 	* @param string $string Status message
 	*/
-	function addStatusMessage($string) {
-		$this->statusMessages[] = $string;
-		$this->messages = true;
-	}
+	function addMessage($message, $options = false) {
 
-	/**
-	* Add error message
-	*
-	* @param string $string Error message
-	*/
-	function addErrorMessage($string) {
-		$this->errorMessages[] = $string;
-		$this->errors = true;
+		$type = "message";
+
+		if($options !== false) {
+			foreach($options as $option => $value) {
+				switch($option) {
+					case "type" : $type = $value; break;
+				}
+			}
+		}
+
+
+		$this->messages[$type][] = $message;
 	}
 
 	/**
@@ -37,48 +37,23 @@ class Message {
 	* @param string $type Message delivery type
 	* @return string Messages
 	*/
-	function getMessages($type = false) {
-		$_ = '';
-		$this->lastMessage = '';
+	function getMessages($options = false) {
 
-		// if delivery type is JavaScript
-		if($type == "js") {
-			// always clear existing messages
-			$_ .= '<script type="text/javascript">Util.clearMessageBoard();</script>';
-			// get errors
-			if($this->errors) {
-				foreach($this->errorMessages as $value) {
-					$_ .= "<script type=\"text/javascript\">Util.addMessageBoard('".htmlentities(stripslashes($value), ENT_QUOTES, "UTF-8")."', 'error');</script>";
-					$this->lastMessage .= $value;
-				}
-			}
-			// get messages
-			if($this->messages) {
-				foreach($this->statusMessages as $value) {
-					$_ .= "<script type=\"text/javascript\">Util.addMessageBoard('".htmlentities(stripslashes($value), ENT_QUOTES, "UTF-8")."');</script>";
-					$this->lastMessage .= $value;
+		$type = false;
+
+		if($options !== false) {
+			foreach($options as $option => $value) {
+				switch($option) {
+					case "type" : $type = $value; break;
 				}
 			}
 		}
-		// else delivery as plain HTML
-		else {
-			// get errors
-			if($this->errors) {
-				foreach($this->errorMessages as $value) {
-					$_ .= '<p class="error">'.$value.'</p>';
-					$this->lastMessage .= $value;
-				}
-			}
-			// get messages
-			if($this->messages) {
-				foreach($this->statusMessages as $value) {
-					$_ .= "<p>$value</p>";
-					$this->lastMessage .= $value;
-				}
-			}
+
+		if($type && isset($this->messages[$type])) {
+			return $this->messages[$type];
 		}
-		$this->resetMessages();
-		return $_;
+
+		return $this->messages;
 	}
 
 	/**
@@ -86,32 +61,48 @@ class Message {
 	*
 	* @return bool
 	*/
-	function hasMessages() {
-		if($this->errors || $this->messages) {
-			return true;
+	function hasMessages($options = false) {
+
+		$type = false;
+
+		if($options !== false) {
+			foreach($options as $option => $value) {
+				switch($option) {
+					case "type" : $type = $value; break;
+				}
+			}
 		}
-		else {
-			return false;
+
+		if($type && isset($this->messages[$type])) {
+			return count($this->messages[$type]);
 		}
+
+		return count($this->messages);
 	}
 
-	/**
-	* Get last delivered message
-	*
-	* @return string Last message
-	*/
-	function getLastMessage() {
-		return $this->lastMessage ? $this->lastMessage : "";
-	}
 
 	/**
 	* Reset (delete) all stored messages
 	*/
-	function resetMessages() {
-		$this->errors = false;
-		$this->messages = false;
-		$this->errorMessages = array();
-		$this->statusMessages = array();
+	function resetMessages($options = false) {
+
+		$type = false;
+
+		if($options !== false) {
+			foreach($options as $option => $value) {
+				switch($option) {
+					case "type" : $type = $value; break;
+				}
+			}
+		}
+
+		if($type && isset($this->messages[$type])) {
+			$this->messages[$type] = null;
+		}
+		else if(!$type && $this->messages) {
+			$this->messages = array();
+		}
+
 	}
 
 }
