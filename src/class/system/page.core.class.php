@@ -55,8 +55,8 @@ class PageCore {
 		if(getVar("language")) {
 			$this->language(getVar("language"));
 		}
-		// dev mode
-		if(getVar("dev")) {
+		// dev mode (dev can be 0)
+		if(getVar("dev") !== false) {
 			Session::value("dev", getVar("dev"));
 		}
 
