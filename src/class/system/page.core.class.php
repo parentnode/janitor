@@ -218,7 +218,9 @@ class PageCore {
 			}
 		}
 	
-		$this->template("shell.header.php");
+		// TODO: check for login and server admin header
+
+		$this->template("www.header.php");
 	}
 
 	/**
@@ -227,7 +229,7 @@ class PageCore {
 	* @return String HTML footer
 	*/
 	function footer() {
-		$this->template("shell.footer.php");
+		$this->template("www.footer.php");
 	}
 
 

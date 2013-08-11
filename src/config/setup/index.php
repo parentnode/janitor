@@ -24,7 +24,7 @@ function import_database_tables($db_name, $names) {
 
 		if(!mysql_select_db($db_name)) {
 			print '<h1>Creating database</h1>';
-			mysql_query("GRANT ALL PRIVILEGES ON supersonic.* TO 'supersonic'@'localhost' IDENTIFIED BY 'su9ErS0n' WITH GRANT OPTION;");
+//			mysql_query("GRANT ALL PRIVILEGES ON supersonic.* TO 'supersonic'@'localhost' IDENTIFIED BY 'su9ErS0n' WITH GRANT OPTION;");
 			
 			mysql_query("CREATE DATABASE `$db_name` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci");
 		} 
