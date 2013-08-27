@@ -5,7 +5,8 @@ if(isset($read_access) && $read_access) {
 	return;
 }
 
-include_once("../config/config.php");
+//include_once("../config/config.php");
+include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 // script needs to be able to handle following extensions:
@@ -26,84 +27,24 @@ include_once("../config/config.php");
 // ogg
 
 
-include_once("class/system/filesystem.class.php");
+//include_once("class/system/filesystem.class.php");
 
 
 // error handling
 function conversionFailed($reason) {
+	global $page;
 
 	// TODO: add missing image instead of 404
-	print "conversion failed:" . $reason;
+//	print "conversion failed:" . $reason;
+	$page->mail("Autoconversion failed", $reason, array("template" => "system"));
 
 //	header("Location: /404");
 	exit();
-	
 }
 
+// collect log autoconvertion for bundled notification
+$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
 
-$fileSystem = new FileSystem();
-
-
-// control abuse by keeping an eye on imageproduction
-$log_path = LOG_FILE_PATH."/autoconversion";
-$log_file = $log_path."/log";
-
-$fileSystem->makeDirRecursively($log_path);
-
-if(file_exists($log_file)) {
-	$requests = file($log_file);
-}
-else {
-	$requests = "";
-}
-
-
-// continue logging if less than 50 requests
-if(count($requests) < 50) {
-
-	$ip = getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR");
-	$fp = fopen($log_file, "a+");
-	fwrite($fp, "$ip ".date("y-m-d H:i:s", time())." ".$_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"]."\n");
-	fclose($fp);
-	
-}
-// send report and reset log
-else {
-
-	require_once("include/phpmailer/class.phpmailer.php");
-
-	$message = "";
-	foreach($requests as $request) {
-		$message .= $request;
-	}
-
-	$mail             = new PHPMailer();
-	$mail->Subject    = "Image generation report: ".$_SERVER["HTTP_HOST"];
-
-	//$mail->SMTPDebug  = 1;                     // enables SMTP debug information (for testing)
-
-	$mail->CharSet    = "UTF-8";
-	$mail->IsSMTP();
-
-	$mail->SMTPAuth   = true;
-	$mail->SMTPSecure = "ssl";
-	$mail->Host       = "smtp.gmail.com";
-	$mail->Port       = 465;
-	$mail->Username   = "mailer@think.dk";
-	$mail->Password   = "mi8y6td";
-
-	$mail->SetFrom('mailer@think.dk', 'Think Postmaster');
-	$mail->AddAddress("martin@think.dk");
-
-	$mail->Body = $message;
-
-	// if report sending was successful, reset log
-	if($mail->Send()) {
-		$fp = fopen($log_file, "w");
-		fclose($fp);
-	}
-
-}
 
 
 
@@ -124,7 +65,11 @@ if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>\w*)\/(?P<w
 	$format = $matches["format"];
 	$variant = "/".$matches["variant"];
 
-//	print $request_type . ":" . $id . ":" . $width . ":" . $height .":". $format .":".$variant."<br>";
+	//	print $request_type . ":" . $id . ":" . $width . ":" . $height .":". $format .":".$variant."<br>";
+
+
+	// max size detection (2000x1500 or similar amount of pixels)
+	$max_pixels = 3000000;
 }
 // IMAGE
 // /images/{id}/{width}x.{format}
@@ -140,8 +85,11 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P
 	$format = $matches["format"];
 	$variant = "";
 
-//	print $request_type . ":" . $id . ":" . $width . ":" . $height .":". $format .":".$variant."<br>";
+	//	print $request_type . ":" . $id . ":" . $width . ":" . $height .":". $format .":".$variant."<br>";
 
+
+	// max size detection (1500x1000 or similar amount of pixels)
+	$max_pixels = 1500000;
 }
 // AUDIO
 // /audios/{id}/{bitrate}.{format}
@@ -152,7 +100,10 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d*).(
 	$bitrate = $matches["bitrate"];
 	$format = $matches["format"];
 
-//	print $id . ":" . $bitrate .":". $format ."<br>";
+	//	print $id . ":" . $bitrate .":". $format ."<br>";
+
+	// TODO: implement bitrate control in audio class first
+	// $max_bitrate = 320;
 }
 // ERROR - MISSING INFO
 else {
@@ -204,7 +155,7 @@ if($format == "jpg" || $format == "png" || $format == "gif") {
 //	print $input_file . ":" . $output_file . "<br>";
 
 	// scale image (will autoconvert)
-	if($Image->convert($input_file, $output_file, array("allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "compression" => 90))) {
+	if($Image->convert($input_file, $output_file, array("allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "compression" => 90, "max_pixels" => $max_pixels))) {
 
 		// redirect to new image
 		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format);
@@ -267,7 +218,7 @@ else if($format == "mp4" || $format == "ogv" || $format == "mov" || $format == "
 
 
 		// scale image (will autoconvert)
-		if($Video->convert($input_file, $output_file, array("allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format))) {
+		if($Video->convert($input_file, $output_file, array("allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
 
 			// redirect to new image
 			header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format);
@@ -277,10 +228,6 @@ else if($format == "mp4" || $format == "ogv" || $format == "mov" || $format == "
 		else {
 			conversionFailed("Video->convert failed");
 		}
-
-
-
-
 
 }
 
@@ -311,7 +258,7 @@ else if($format == "mp3" || $format == "ogg") {
 
 	// scale image (will autoconvert)
 	if($Audio->convert($input_file, $output_file, array("bitrate" => $bitrate, "format" => $format))) {
-
+		// TODO: implement bit rate control in audio class first, "max_bitrate" => $max_bitrate
 		// redirect to new image
 		header("Location: /".$request_type."/".$id."/".$bitrate.".".$format);
 		exit();

@@ -18,24 +18,27 @@ class Image {
 		$allow_stretching = false;
 		$allow_padding = false;
 
+		$max_pixels = 0;
+
 		if($options !== false) {
 			foreach($options as $option => $value) {
 				switch($option) {
-					case "width"       : $output_width = $value; break;
-					case "height"      : $output_height = $value; break;
-					case "format"      : $output_format = $value; break;
-					case "compression" : $output_compression = $value; break;
+					case "width"            : $output_width           = $value; break;
+					case "height"           : $output_height          = $value; break;
+					case "format"           : $output_format          = $value; break;
+					case "compression"      : $output_compression     = $value; break;
 
-					case "allow_conversion" : $allow_conversion = $value; break;
-					case "allow_cropping"   : $allow_cropping = $value; break;
-					case "allow_stretching" : $allow_stretching = $value; break;
-					case "allow_padding"    : $allow_padding = $value; break;
+					case "allow_conversion" : $allow_conversion       = $value; break;
+					case "allow_cropping"   : $allow_cropping         = $value; break;
+					case "allow_stretching" : $allow_stretching       = $value; break;
+					case "allow_padding"    : $allow_padding          = $value; break;
+
+					case "max_pixels"    : $max_pixels                = $value; break;
 				}
 			}
 		}
 
 		// get input file info
-		// TODO: unsafe - what if getimagesize fails
 		$gd = getimagesize($input_file);
 		if(count($gd) > 4) {
 			$input_width = $gd[0];
@@ -45,6 +48,9 @@ class Image {
 
 		// not able to read input_file properly
 		if(!$input_width || !$input_height || !$input_format) {
+			// critical error - report to admin
+			global $page;
+			$page->mail("getimagesize failed", "GD image failed to read source image proporties", array("template" => "system"));
 			return false;
 		}
 
@@ -71,6 +77,14 @@ class Image {
 				$output_width = $output_height / ($input_height / $input_width);
 			}
 
+		}
+
+		// max pixels detection
+		if($max_pixels && $output_width * $output_height > $max_pixels) {
+			// critical error - report to admin
+			global $page;
+			$page->mail("Image failed ($output_width x $output_height)", "Image size too big", array("template" => "system"));
+			return false;
 		}
 
 		// remember actual canvas size

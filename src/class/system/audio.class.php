@@ -48,6 +48,8 @@ class Audio {
 
 		}
 
+		global $page;
+		$page->mail("ffmpeg failed", "Could not output audio file (could be missing codec or filepermissions issue)", array("template" => "system"));
 		return false;
 
 	}

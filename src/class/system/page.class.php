@@ -1,6 +1,7 @@
 <?php
 /**
 * This file contains the site custom backbone, the Page Class.
+* This class basically only exists to make it easy to add custom page functionality or overwrite behaviours.
 */
 
 
@@ -15,6 +16,7 @@ class Page extends PageCore {
 	function __construct() {
 		parent::__construct();
 	}
+
 
 }
 

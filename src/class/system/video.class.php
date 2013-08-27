@@ -17,18 +17,22 @@ class Video {
 		$allow_stretching = false;
 		$allow_padding = false;
 
+		$max_pixels = 0;
+
 		if($options !== false) {
 			foreach($options as $option => $value) {
 				switch($option) {
-					case "width"       : $output_width = $value; break;
-					case "height"      : $output_height = $value; break;
-					case "format"      : $output_format = $value; break;
-					case "bitrate"     : $output_bitrate = $value; break;
+					case "width"             : $output_width       = $value; break;
+					case "height"            : $output_height      = $value; break;
+					case "format"            : $output_format      = $value; break;
+					case "bitrate"           : $output_bitrate     = $value; break;
 
-					case "allow_conversion" : $allow_conversion = $value; break;
-					case "allow_cropping"   : $allow_cropping = $value; break;
-					case "allow_stretching" : $allow_stretching = $value; break;
-					case "allow_padding"    : $allow_padding = $value; break;
+					case "allow_conversion"  : $allow_conversion   = $value; break;
+					case "allow_cropping"    : $allow_cropping     = $value; break;
+					case "allow_stretching"  : $allow_stretching   = $value; break;
+					case "allow_padding"     : $allow_padding      = $value; break;
+
+					case "max_pixels"        : $max_pixels         = $value; break;
 				}
 			}
 		}
@@ -36,18 +40,22 @@ class Video {
 		$ffmpeg_path = $this->ffmpegPath();
 
 		$info = $this->info($input_file);
-		if($info) {
+		if(is_array($info)) {
 			$input_width = $info["width"];
 			$input_height = $info["height"];
 		}
 		$input_format = substr($input_file, -3);
 
 
-		// print "input_format:" . $input_format.", output_format:" . $output_format . "<br>";
+//		print "input_format:" . $input_format.", output_format:" . $output_format . "<br>";
 
 
 		// is input format different from output format - AND conversion not allowed
 		if($input_format != $output_format && !$allow_conversion) {
+			// critical error - report to admin
+			global $page;
+			$page->mail("ffmpeg failed", "ffmpeg failed to read source video proporties", array("template" => "system"));
+
 			return false;
 		}
 
@@ -58,13 +66,21 @@ class Video {
 
 			// height defined by width
 			if($output_width) {
-				$output_height = $output_width / ($input_width / $input_height);
+				$output_height = round($output_width / ($input_width / $input_height));
 			}
 			// width defined by height
 			else {
-				$output_width = $output_height / ($input_height / $input_width);
+				$output_width = round($output_height / ($input_height / $input_width));
 			}
 
+		}
+
+		// max pixels detection
+		if($max_pixels && $output_width * $output_height > $max_pixels) {
+			// critical error - report to admin
+			global $page;
+			$page->mail("Video failed ($output_width x $output_height)", "Video size too big", array("template" => "system"));
+			return false;
 		}
 
 		// remember actual canvas size
@@ -288,7 +304,7 @@ class Video {
 
 				// -r 20 and -g 40 gives audio/video sync issues
 				// added duration to avoid small noise bit in end of video
-				// print $ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec libfaac -ar 48000 -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file . "<br>";
+				print $ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file . "<br>";
 				system($ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
 //				system($ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec libfaac -ar 48000 -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
 			}
@@ -312,6 +328,8 @@ class Video {
 
 		}
 
+		global $page;
+		$page->mail("ffmpeg failed", "Could not output video file (could be missing codec or filepermissions issue)", array("template" => "system"));
 		return false;
 
 	}

@@ -1,27 +1,22 @@
 <?php
 /**
-* @package wires
+* @package janitor.tags
 */
+
 /**
+* TODO: enclose in Items or keep separate? 
+* TODO: What about CMS functionality - separate controller?
+* Tag helper class
 *
 */
 
-/**
-* includes
-*/
-
-//include_once("class/basics/itemtype.core.class.php");
-
-/**
-* This class holds Item functionallity.
-*
-*/
 class Tag {
 
 	/**
 	* Init, set varnames, validation rules
 	*/
 	function __construct() {
+
 	}
 
 
@@ -58,6 +53,18 @@ class Tag {
 		return false;
 	}
 
+	function addTag($context, $value) {
+		
+	}
+
+	function updateTag($context, $value) {
+		
+	}
+
+
+	function deleteTag($context, $value) {
+		
+	}
 
 }
 

@@ -243,12 +243,14 @@ class FileSystem {
 	* @return bool
 	*/
 	function makeDirRecursively($path) {
-		$parts = explode("/", $path);
-		$verify_path = "";
-		for($i = 1; $i < count($parts); $i++) {
-			$verify_path .= "/".$parts[$i];
-			if(!file_exists($verify_path)) {
-				mkdir($verify_path);
+		if(!file_exists($path)) {
+			$parts = explode("/", $path);
+			$verify_path = "";
+			for($i = 1; $i < count($parts); $i++) {
+				$verify_path .= "/".$parts[$i];
+				if(!file_exists($verify_path)) {
+					mkdir($verify_path);
+				}
 			}
 		}
 	}

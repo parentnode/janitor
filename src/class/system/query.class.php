@@ -190,16 +190,52 @@ class Query {
 	}
 
 
+	/**
+	* Create DB-table if it does not already exist
+	* Content classes uses this to auto-add tables when new content is added for the first time
+	*
+	* @param String $table Table to check existance of
+	*/
+	function checkDbExistance($table) {
+
+		list($db, $table) = explode(".", $table);
+		$query = new Query();
+		
+		// alternate query
+		//"SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'"
+
+		// check if database exists
+		if(!$query->sql("SHOW TABLES LIKE '$table'")) {
+
+			if(file_exists($_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql')) {
+				$db_file = $_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql';
+			}
+			else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/' . $table . '.sql')) {
+				$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/' . $table . '.sql';
+			}
+
+			if($db_file) {
+				
+			}
+			$sql = file_get_contents($db_file);
+			//$sql = str_replace("GLOBAL_DB", DB_GLO, $sql);
+			//$sql = str_replace("REGIONAL_DB", DB_REG, $sql);
+//			print $sql . "##";
+			$query->sql($sql);
+		}
+	}
 
 
-	function get($db, $order=false) {
+
+
+	function get($table, $order=false) {
 
 		$items = array();
 
 		$order = $order ? " ORDER BY $order" : "";
 
-		print "SELECT * FROM $db".$order;
-		$this->sql("SELECT * FROM $db".$order);
+		print "SELECT * FROM $table".$order;
+		$this->sql("SELECT * FROM $table".$order);
 		
 		$test = mysql_fetch_array($this->result_resource);
 		print_r($test);
@@ -244,39 +280,7 @@ class Query {
 	}
 
 
-	/**
-	* Create DB-table if it does not already exist
-	* Content classes uses this to auto-add tables when new content is added for the first time
-	*
-	* @param String $table Table to check existance of
-	*/
-	function dbExistsElseCreate($table) {
 
-		list($db, $table) = explode(".", $table);
-		$query = new Query();
-		
-		// alternate query
-		//"SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'"
-
-		// check if database exists
-		if(!$query->sql("SHOW TABLES LIKE '$table'")) {
-
-			if(file_exists($_SERVER["GLOBAL_PATH"].'/config/db/'.$db.'/'.$table.'.sql')) {
-				$db_file = $_SERVER["GLOBAL_PATH"].'/config/db/'.$db.'/'.$table.'.sql';
-			}
-			else if(file_exists($_SERVER["GLOBAL_PATH"].'/config/db/' . $table . '.sql')) {
-				$db_file = $_SERVER["GLOBAL_PATH"].'/config/db/' . $table . '.sql';
-			}
-			else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/' . $table . '.sql')) {
-				$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/' . $table . '.sql';
-			}
-			$sql = file_get_contents($db_file);
-			$sql = str_replace("GLOBAL_DB", DB_GLO, $sql);
-			$sql = str_replace("REGIONAL_DB", DB_REG, $sql);
-//			print $sql . "##";
-			$query->sql($sql);
-		}
-	}
 
 
 	/**

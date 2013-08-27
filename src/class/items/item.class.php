@@ -1,21 +1,30 @@
 <?php
 /**
-* @package wires
+* @package janitor.items
 */
-/**
-*
-*/
-
-/**
-* includes
-*/
-
-//include_once("class/basics/itemtype.core.class.php");
 
 /**
 * This class holds Item functionallity.
 *
 */
+
+// define default database name constants
+// base DB tables
+define("UT_ITEMS",              SITE_DB.".items");                             // Items
+
+define("UT_TAG",                SITE_DB.".tags");                              // Item tags
+define("UT_TAGGINGS",           SITE_DB.".taggings");                          // Item tags relations
+
+// SHOP EXTENSIONS
+define("UT_PRICES",             SITE_DB.".prices");                            // Item prices
+
+define("UT_COUNTRIES",          SITE_DB.".countries");                         // Countries
+define("UT_CURRENCIES",         SITE_DB.".currencies");                        // Currencies
+define("UT_LANGUAGES",          SITE_DB.".languages");                         // Languages
+define("UT_VAT_RATES",          SITE_DB.".vat_rates");                         // Vat rates
+
+
+
 class Item {
 
 	/**
@@ -31,44 +40,13 @@ class Item {
 	}
 
 	/**
-	* Set itemtype
-	* Sets both this->itemtype and this->itemtype_id
-	*
-	* @param $index Itemtype or itemtype_id (both will work)
-	* @param $update Optional parameter to indicate resetting of itemtype (not part of an iteration, thus it cannot result in mixed type)
-	*/
-/*	function setItemtype($index, $update = false) {
-
-		// no index
-		if(!$index) {
-			$this->itemtype = false;
-			$this->itemtype_id = false;
-		}
-		// multiple itemtypes
-		else if(!$update && $this->itemtype && $this->itemtype_id != $index && $this->itemtype != $index) {
-			$this->itemtype = "mixed";
-			$this->itemtype_id = false;
-		}
-		// numeric index
-		else if(is_numeric($index)) {
-			$this->itemtype = $this->itemtypes["values"][array_search($index, $this->itemtypes["id"])];
-			$this->itemtype_id = $index;
-		}
-		// itemname index
-		else {
-			$this->itemtype = $index;
-			$this->itemtype_id = $this->itemtypes["id"][array_search($index, $this->itemtypes["values"])];
-		}
-
-	}
-*/
-	/**
 	* Get matching type object instance
 	*
 	* @return return instance of type object
 	*/
 	function TypeObject($itemtype) {
 
+		// TODO: is mixed needed anymore?
 		// include generic type (for mixed itemtypes)
 		if($itemtype == "mixed" || !$itemtype) {
 			$itemtype = "mixed";
@@ -93,12 +71,12 @@ class Item {
 	* @param $id Item id or sindex to get
 	*/
 	function getItem($id) {
-//		print "get item:" . "SELECT * FROM ".UT_ITE." WHERE sindex = '$id' OR id = '$id'";
+//		print "get item:" . "SELECT * FROM ".UT_ITEMS." WHERE sindex = '$id' OR id = '$id'";
 
 		$item = array();
 
 		$query = new Query();
-		if($query->sql("SELECT * FROM ".UT_ITE." WHERE sindex = '$id' OR id = '$id'")) {
+		if($query->sql("SELECT * FROM ".UT_ITEMS." WHERE sindex = '$id' OR id = '$id'")) {
 
 
 			$item["id"] = $query->result(0, "id");
@@ -192,13 +170,13 @@ class Item {
 		// sindex mapped to nav items
 		// if(isset($sindex)) {
 		// 	$SELECT[] = UT_NAV_ITE.".sequence";
-		// 	$FROM[] = UT_ITE." as items LEFT JOIN ".UT_NAV_ITE." ON items.id = ".UT_NAV_ITE.".item_id  AND ".UT_NAV_ITE.".sindex = '$sindex'";
+		// 	$FROM[] = UT_ITEMS." as items LEFT JOIN ".UT_NAV_ITE." ON items.id = ".UT_NAV_ITE.".item_id  AND ".UT_NAV_ITE.".sindex = '$sindex'";
 		// 	$ORDER[] = UT_NAV_ITE.".sequence";
 		// 
 		// 	$tags .= ",".$this->getNavTags($sindex);
 		// }
 		// else {
-	 	$FROM[] = UT_ITE." as items";
+	 	$FROM[] = UT_ITEMS." as items";
 		// }
 
 		if(isset($status)) {
@@ -304,39 +282,39 @@ class Item {
 	}
 
 
-	function getSetItems($set) {
-
-		$items = array();
-
-		$query = new Query();
-//		print "SELECT * FROM ".UT_ITE." as items, " . UT_ITE_SET . " as item_set, " . UT_ITE_SET_ITE . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at<br>";
-		$query->sql("SELECT * FROM ".UT_ITE." as items, " . UT_ITE_SET . " as item_set, " . UT_ITE_SET_ITE . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at");
-		$results = $query->results();
-
-//		foreach($results as $item);
-		for($i = 0; $i < $query->count(); $i++){
-
-			$item = array();
-
-			$item["id"] = $query->result($i, "items.id");
-			$item["itemtype"] = $query->result($i, "items.itemtype");
-
-//			$item_sindex = $query->result($i, "items.sindex");
-			$item["sindex"] = $query->result($i, "items.sindex"); //$item_sindex ? $item_sindex : $this->sindex($item["id"]);
-
-			$item["status"] = $query->result($i, "items.status");
-
-			$item["user_id"] = $query->result($i, "items.user_id");
-
-			$item["created_at"] = $query->result($i, "items.created_at");
-			$item["modified_at"] = $query->result($i, "items.modified_at");
-			$item["published_at"] = $query->result($i, "items.published_at");
-
-			$items[] = $item;
-		}
-
-		return $items;
-	}
+// 	function getSetItems($set) {
+// 
+// 		$items = array();
+// 
+// 		$query = new Query();
+// //		print "SELECT * FROM ".UT_ITEMS." as items, " . UT_ITEMS_SET . " as item_set, " . UT_ITEMS_SET_ITEMS . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at<br>";
+// 		$query->sql("SELECT * FROM ".UT_ITEMS." as items, " . UT_ITEMS_SET . " as item_set, " . UT_ITEMS_SET_ITEMS . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at");
+// 		$results = $query->results();
+// 
+// //		foreach($results as $item);
+// 		for($i = 0; $i < $query->count(); $i++){
+// 
+// 			$item = array();
+// 
+// 			$item["id"] = $query->result($i, "items.id");
+// 			$item["itemtype"] = $query->result($i, "items.itemtype");
+// 
+// //			$item_sindex = $query->result($i, "items.sindex");
+// 			$item["sindex"] = $query->result($i, "items.sindex"); //$item_sindex ? $item_sindex : $this->sindex($item["id"]);
+// 
+// 			$item["status"] = $query->result($i, "items.status");
+// 
+// 			$item["user_id"] = $query->result($i, "items.user_id");
+// 
+// 			$item["created_at"] = $query->result($i, "items.created_at");
+// 			$item["modified_at"] = $query->result($i, "items.modified_at");
+// 			$item["published_at"] = $query->result($i, "items.published_at");
+// 
+// 			$items[] = $item;
+// 		}
+// 
+// 		return $items;
+// 	}
 
 
 
@@ -356,17 +334,17 @@ class Item {
 			$sindex = superNormalize(substr($sindex, 0, 40));
 
 			// check for existance
-			if(!$query->sql("SELECT sindex FROM ".UT_ITE." WHERE sindex = '$sindex' AND id != $item_id")) {
-				$query->sql("UPDATE ".UT_ITE." SET sindex = '$sindex' WHERE id = $item_id");
+			if(!$query->sql("SELECT sindex FROM ".UT_ITEMS." WHERE sindex = '$sindex' AND id != $item_id")) {
+				$query->sql("UPDATE ".UT_ITEMS." SET sindex = '$sindex' WHERE id = $item_id");
 			}
 			// try with timestamped variation
 			else {
-				$query->sql("SELECT published_at FROM ".UT_ITE." WHERE id = $item_id");
+				$query->sql("SELECT published_at FROM ".UT_ITEMS." WHERE id = $item_id");
 				$sindex = $this->sindex($item_id, $query->result(0, "published_at")."_".$sindex);
 			}
 		}
 		else {
-			$query->sql("SELECT itemtype FROM ".UT_ITE." WHERE id = $item_id");
+			$query->sql("SELECT itemtype FROM ".UT_ITEMS." WHERE id = $item_id");
 			$itemtype = $query->result(0, "itemtype");
 
 			$typeObject = $this->TypeObject($itemtype);
@@ -400,9 +378,9 @@ class Item {
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
 			$status = is_numeric(getPost("status")) ? getPost("status") : 0;
 
-//			print "INSERT INTO ".UT_ITE." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")";
+//			print "INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")";
 			// create item
-			$query->sql("INSERT INTO ".UT_ITE." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")");
+			$query->sql("INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")");
 			$new_id = $query->lastInsertId();
 
 			if($new_id && $typeObject->save($new_id)) {
@@ -426,7 +404,7 @@ class Item {
 			else if($new_id) {
 
 				// save failed, remove item again
-				$query->sql("DELETE FROM ".UT_ITE." WHERE id = $new_id");
+				$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $new_id");
 
 			}
 
@@ -456,9 +434,9 @@ class Item {
 
 //			print "published_at:" . $published_at ."<br>";
 
-//			print "UPDATE ".UT_ITE." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? "published_at=$published_at" : "")." WHERE id = $id<br>";
+//			print "UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? "published_at=$published_at" : "")." WHERE id = $id<br>";
 			// create item
-			$query->sql("UPDATE ".UT_ITE." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? ",published_at='$published_at'" : "")." WHERE id = $id");
+			$query->sql("UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? ",published_at='$published_at'" : "")." WHERE id = $id");
 
 			if($typeObject->update($id)) {
 
@@ -470,6 +448,77 @@ class Item {
 
 		}
 		return false;
+	}
+
+	function identifyUploads() {
+
+		$uploads = array();
+
+		if(isset($_FILES["files"])) {
+//			print_r($_FILES["files"]);
+
+			foreach($_FILES["files"]["name"] as $index => $value) {
+				if(!$_FILES["files"]["error"][$index]) {
+
+					$temp_file = $_FILES["files"]["tmp_name"][$index];
+					$temp_type = $_FILES["files"]["type"][$index];
+
+					$upload = array();
+
+					if(preg_match("/video/", $temp_type)) {
+
+						include_once("class/system/video.class.php");
+						$Video = new Video();
+						$info = $Video->info($temp_file);
+						// check if we can get relevant info about movie
+						if($info) {
+							// TODO: add format detection to Video Class
+							// TODO: add bitrate detection to Video Class
+
+							$upload["type"] = "movie";
+							$upload["format"] = "mov";
+							$upload["width"] = $info["width"];
+							$upload["height"] = $info["height"];
+							$uploads[] = $upload;
+						}
+					}
+					// audio upload
+					else if(preg_match("/audio/", $temp_type)) {
+
+						include_once("class/system/audio.class.php");
+						$Audio = new Audio();
+						// check if we can get relevant info about audio
+						$info = $Audio->info($temp_file);
+						if($info) {
+							// TODO: add format detection to Audio Class
+							// TODO: add bitrate detection to Audio Class
+
+							$upload["type"] = "audio";
+							$upload["format"] = "mp3";
+							$uploads[] = $upload;
+						}
+
+					}
+					// image upload
+					else if(preg_match("/image/", $temp_type)) {
+
+						$info = getimagesize($temp_file);
+						// is image valid format
+						if(isset($info["mime"])) {
+							$extension = mimetypeToExtension($info["mime"]);
+
+							$upload["type"] = "image";
+							$upload["format"] = $extension;
+							$upload["width"] = $info[0];
+							$upload["height"] = $info[1];
+							$uploads[] = $upload;
+						}
+					}
+				}
+			}
+		}
+
+		return $uploads;
 	}
 
 	// upload to item_id/variant
@@ -600,8 +649,8 @@ class Item {
 		$query = new Query();
 
 		// delete item + itemtype + files
-		if($query->sql("SELECT id FROM ".UT_ITE." WHERE id = $item_id")) {
-			$query->sql("UPDATE ".UT_ITE." SET status = 0 WHERE id = $item_id");
+		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
+			$query->sql("UPDATE ".UT_ITEMS." SET status = 0 WHERE id = $item_id");
 
 			message()->addMessage("Item disabled");
 		}
@@ -611,8 +660,8 @@ class Item {
 		$query = new Query();
 
 		// delete item + itemtype + files
-		if($query->sql("SELECT id FROM ".UT_ITE." WHERE id = $item_id")) {
-			$query->sql("UPDATE ".UT_ITE." SET status = 1 WHERE id = $item_id");
+		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
+			$query->sql("UPDATE ".UT_ITEMS." SET status = 1 WHERE id = $item_id");
 
 			message()->addMessage("Item enabled");
 		}
@@ -622,9 +671,9 @@ class Item {
 		$query = new Query();
 
 		// delete item + itemtype + files
-		if($query->sql("SELECT id FROM ".UT_ITE." WHERE id = $item_id")) {
+		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
 			
-			$query->sql("DELETE FROM ".UT_ITE." WHERE id = $item_id");
+			$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $item_id");
 			FileSystem::removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
 			FileSystem::removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
 			return true;
@@ -636,7 +685,7 @@ class Item {
 
 
 	// get tag, optionally limited to context, or just check if specific tag exists
-	function getTags($id, $options=false) {
+	function getTags($item_id, $options=false) {
 
 		$tag_context = false;
 		$tag_value = false;
@@ -651,22 +700,25 @@ class Item {
 		}
 
 		$query = new Query();
+
+		// specific tag exists?
 		if($tag_context && $tag_value) {
-			return $query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id AND taggings.item_id = $id");
+			return $query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id");
 		}
+		// get all tags with context
 		else if($tag_context) {
-			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.id = taggings.tag_id AND taggings.item_id = $id")) {
+			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id")) {
 				return $query->results();
 			}
 		}
+		// all tags
 		else {
-			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $id")) {
+			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id")) {
 				return $query->results();
 			}
 		}
 		return false;
 	}
-
 
 	// add tag to item, create tag if it does not exist
 	// tag can be tag-string or tag_id
@@ -744,29 +796,58 @@ class Item {
 	}
 
 
+	// get prices, optionally limited to context, or just check if specific tag exists
+	function getPrices($item_id, $options=false) {
 
+		$currency = false;
 
-	/**
-	* Clean up files - delete files that are no longer assiciated with items (someone forgot to cleanup)
-	*/
-	// function cleanupFiles($item_id, $file_tmp) {
-	// 
-	// 
-	// }
+		if($options !== false) {
+			foreach($options as $option => $value) {
+				switch($option) {
+					case "currency" : $currency = $value; break;
+				}
+			}
+		}
 
+		$query = new Query();
+		if($currency) {
+			if($query->sql("SELECT * FROM ".UT_PRICES." WHERE currency = '$currency' AND item_id = $item_id")) {
+				return $query->results();
+			}
+		}
+		else {
+			if($query->sql("SELECT * FROM ".UT_PRICES." WHERE item_id = $item_id")) {
+				return $query->results();
+			}
+		}
+		return false;
+	}
 
-	/**
-	* Get status for selected item (1: enabled / 0: disabled)
-	*
-	* @param int $item_id Item id
-	* @return int Status
-	*/
-	// function getStatus($item_id)	{
-	// 	$query = new Query();
-	// 	$query->sql("SELECT status FROM ".UT_ITE." WHERE id = $item_id");
-	// 	return $query->getQueryResult(0, "status"); 
-	// }
+	// add price to item
+	// tag can be tag-string or tag_id
+ 	function addPrice($item_id, $price, $currency) {
 
+		$query = new Query();
+
+		// check if price in currency exists - if it does update price
+		if($query->sql("SELECT id FROM ".UT_PRICES." WHERE currency = '$currency'")) {
+			$price_id = $query->result(0, "id");
+			if($query->sql("UPDATE ".UT_PRICES." SET price = $price WHERE id = $price_id")) {
+				message()->addMessage("Price updated");
+				return true;
+			}
+		}
+		// insert price
+		else {
+			if($query->sql("INSERT INTO ".UT_PRICES." VALUES(DEFAULT, $item_id, $price, '$currency')")) {
+				message()->addMessage("Price added");
+				return true;
+			}
+		}
+
+		message()->addMessage("Price could not be added", array("type" => "error"));
+		return false;
+	}
 }
 
 ?>
