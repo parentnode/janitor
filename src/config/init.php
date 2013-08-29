@@ -46,6 +46,7 @@ include_once("class/system/validator.class.php");
 // Extend with items model - not required for static sites
 if(defined("SITE_ITEMS") && SITE_ITEMS) {
 
+	include_once("class/items/item.core.class.php");
 	include_once("class/items/item.class.php");
 	include_once("class/items/tag.class.php");
 	

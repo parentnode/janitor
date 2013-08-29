@@ -35,7 +35,7 @@ class PageCore {
 
 
 	// current action - used for access validation
-	private $action;
+	private $actions;
 
 
 	// page output variables
@@ -78,7 +78,8 @@ class PageCore {
 		$this->url = str_replace("?".$_SERVER['QUERY_STRING'], "", $_SERVER['REQUEST_URI']);
 
 		// check access
-		$this->access(RESTParams());
+		$this->setActions(RESTParams());
+//		$this->access();
 
 		// login in progress
 		if(getVar("login") == "true") {
@@ -164,10 +165,21 @@ class PageCore {
 			if($this->page_title) {
 				return $this->page_title;
 			}
-			// last resort - use constant
-			else {
-				return SITE_NAME;
+			else if($this->actions(-1) && class_exists("Item")) {
+ 
+				$IC = new Item();
+				$item = $IC->getCompleteItem($this->actions(-1));
+
+				// update page description if not already set (since we have a rather good option at hand)
+				if(!$this->page_description && isset($item["description"])) {
+					$this->pageDescription($item["description"]);
+				}
+
+				return $item["name"];
 			}
+
+			// last resort - use constant
+			return SITE_NAME;
 		}
 	}
 
@@ -234,6 +246,30 @@ class PageCore {
 	}
 
 
+	/**
+	* Get content class
+	* this can be sat via page->header
+	* 
+	* @return String body class
+	*/
+	function contentClass($value = false) {
+		// set
+		if($value !== false) {
+			$this->content_class = $value;
+		}
+		// get
+		else {
+			// if body_class already set
+			if($this->content_class) {
+				return $this->content_class;
+			}
+			else {
+				return "";
+			}
+		}
+	}
+
+
 
 	/**
 	* Add page header
@@ -242,12 +278,14 @@ class PageCore {
 	*/
 
 	function header($options = false) {
+
 		if($options !== false) {
 			foreach($options as $option => $value) {
 				switch($option) {
 					case "body_class" : $this->bodyClass($value); break;
 					case "page_title" : $this->pageTitle($value); break;
 					case "page_descriptiton" : $this->pageDescription($value); break;
+					case "content_class" : $this->contentClass($value); break;
 				}
 			}
 		}
@@ -328,22 +366,50 @@ class PageCore {
 	}
 
 
+	function setActions($actions=false) {
+
+		// TODO: Security check on action - the only required accesscheck, bacause all requests load page and page checks makes this call
+
+//		if($actions) {
+			$this->actions = $actions;
+//		}
+
+	}
+
+
 	/**
-	* Get page status
+	* Page actions, security check on page action level
 	*
-	* @param String $action action parameter to check for in status (status can be combined page,list)
-	* @return bool Page status
+	* -param String $action action parameter to check for in status (status can be combined page,list)
+	* -return bool Page status
 	*/
-	function access($action = false) {
+	function actions($index=false) {
 
-		// TODO: Security check on action - only required accesscheck, bacause all requests load page and page checks makes this call
+		// TODO: Security check on action - the only required accesscheck, bacause all requests load page and page checks makes this call
 
-		if($action) {
-			$this->action = $action;
+		if($this->actions) {
+
+			// index less than zero, count from back
+			if($index < 0) {
+
+				if(isset($this->actions[count($this->actions) + $index])) {
+					return $this->actions[count($this->actions) + $index];
+				}
+
+			}
+			// return from the normal actions order
+			else if($index !== false && isset($this->actions[$index])) {
+
+				return $this->actions[$index];
+
+			}
+			// return actions array
+			else {
+				return $this->actions;
+			}
 		}
-		else {
-			return $this->action;
-		}
+
+		return false;
 	}
 
 

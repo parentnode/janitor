@@ -7,7 +7,7 @@ if(isset($read_access) && $read_access) {
 
 include_once($_SERVER["LOCAL_PATH"]."/config/config.php");
 
-$action = $page->access();
+$action = $page->actionTokens();
 
 
 

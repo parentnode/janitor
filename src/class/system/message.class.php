@@ -8,6 +8,8 @@ class Message {
 	private $statusMessages = array();
 
 	private $messages = array();
+
+	// TODO: implement message history
 	private $message_history = false;
 
 	/**
