@@ -800,6 +800,7 @@ class ItemCore {
 	function getPrices($item_id, $options=false) {
 
 		$currency = false;
+		$prices = false;
 
 		if($options !== false) {
 			foreach($options as $option => $value) {
@@ -812,25 +813,21 @@ class ItemCore {
 		$query = new Query();
 		if($currency) {
 			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES." WHERE currency = '$currency' AND item_id = $item_id")) {
-
 				$prices = $query->results();
-				foreach($prices as $index => $price) {
-					$prices[$index]["formatted"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . $price["price"] . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
-				}
-				return $prices;
 			}
 		}
 		else {
 			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES." WHERE item_id = $item_id")) {
-
 				$prices = $query->results();
-				foreach($prices as $index => $price) {
-					$prices[$index]["formatted"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . $price["price"] . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
-				}
-				return $prices;
 			}
 		}
-		return false;
+		if($prices) {
+			foreach($prices as $index => $price) {
+				$prices[$index]["formatted"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . number_format($price["price"], $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]) . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
+			}
+		}
+
+		return $prices;
 	}
 
 	// add price to item
