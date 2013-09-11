@@ -372,6 +372,9 @@ class ItemCore {
 		if($typeObject) {
 			$query = new Query();
 
+			// standard Item values
+			// - published at
+			// - status
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
 			$status = is_numeric(getPost("status")) ? getPost("status") : 0;
 
@@ -380,6 +383,7 @@ class ItemCore {
 			$query->sql("INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")");
 			$new_id = $query->lastInsertId();
 
+			// attempt typeObject save
 			if($new_id && $typeObject->save($new_id)) {
 
 				// add tags
@@ -414,19 +418,23 @@ class ItemCore {
 
 
 	// update item - does not update tags which is a separate process entirely
-	function updateItem($id) {
+	function updateItem($item_id) {
 //		print "update item<br>";
 
 		// TODO: user_id
 		// TODO: access validation
 		// TODO: format of published_at
 
-		$item = $this->getItem($id);
+		$item = $this->getItem($item_id);
 		$typeObject = $this->TypeObject($item["itemtype"]);
 
 		if($typeObject) {
 //			print "typeobject:" . $item["itemtype"] . "<br>";
 			$query = new Query();
+
+
+			// update individual values, so any value can be posted on it's own
+
 
 			// is published_at posted?
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
@@ -435,12 +443,27 @@ class ItemCore {
 
 //			print "UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? "published_at=$published_at" : "")." WHERE id = $id<br>";
 			// create item
-			$query->sql("UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? ",published_at='$published_at'" : "")." WHERE id = $id");
+			$query->sql("UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? ",published_at='$published_at'" : "")." WHERE id = $item_id");
 
-			if($typeObject->update($id)) {
+			// add tags
+			$tags = getPost("tags");
+			if($tags) {
+				if(is_array($tags)) {
+					foreach($tags as $tag) {
+						if($tag) {
+							$this->addTag($item_id, $tag);
+						}
+					}
+				}
+				else {
+					$this->addTag($item_id, $tags);
+				}
+			}
+
+			if($typeObject->update($item_id)) {
 
 				// update sindex
-				$this->sindex($id);
+				$this->sindex($item_id);
 
 				return true;
 			}
@@ -523,7 +546,34 @@ class ItemCore {
 	// upload to item_id/variant
 	// checks content of $_FILES, looks for uploaded file where type matches $type and uploads
 	// supports video, audio, image
-	function upload($item_id, $type, $variant=false) {
+	function upload($item_id, $options) {
+
+		$variant = false;                     // variantname to save files under
+		$proportion = false;                  // specific proportion for images and videos
+		$width = false;                       // specific file width for images and videos
+		$height = false;                      // specific file height for images and videos
+
+		$min_height = false;                  // specific file min-height for images and videos
+		$max_height = false;                  // specific file max-height for images and videos
+
+		$min_bitrate = false;                 // specific file max-height for images and videos
+
+		$filetypes = false;                   // jpg,png,git,mov,mp4,pdf,etc
+		$filegroup = false;                   // image,video
+
+
+		if($options !== false) {
+			foreach($options as $option => $value) {
+				switch($option) {
+					case "variant"             : $variant          = $value; break;
+					case "proportion"          : $proportion       = $value; break;
+					case "width"               : $width            = $value; break;
+					case "height"              : $height           = $value; break;
+
+					case "filetypes"           : $filetypes        = $value; break;
+				}
+			}
+		}
 
 		$uploads = array();
 
@@ -537,13 +587,13 @@ class ItemCore {
 //			print_r($_FILES["files"]);
 
 			foreach($_FILES["files"]["name"] as $index => $value) {
-				if(!$_FILES["files"]["error"][$index]) {
+				if(!$_FILES["files"]["error"][$index] && file_exists($_FILES["files"]["tmp_name"][$index])) {
 
 					$extension = false;
 					$temp_file = $_FILES["files"]["tmp_name"][$index];
 					$temp_type = $_FILES["files"]["type"][$index];
 
-					if(preg_match("/".$type."/", $temp_type)) {
+					if(preg_match("/".$filegroup."/", $temp_type)) {
 
 						$variant = $variant ? "/".$variant : "";
 
@@ -608,13 +658,23 @@ class ItemCore {
 						// image upload
 						else if(preg_match("/image/", $temp_type)) {
 
+//							print "uploaded image<br>";
+
 							$gd = getimagesize($temp_file);
 							// is image valid format
 							if(isset($gd["mime"])) {
-								$extension = mimetypeToExtension($gd["mime"]);
 
-								if(isset($extension)) {
-									$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$extension;
+								$upload["format"] = mimetypeToExtension($gd["mime"]);
+								$upload["width"] = $gd[0];
+								$upload["height"] = $gd[1];
+
+//								print round($proportion, 2) . "==" . round($upload["width"] / $upload["height"], 2);
+								if(
+									isset($upload["format"]) &&
+									(!$proportion || round($proportion, 2) == round($upload["width"] / $upload["height"], 2))
+								) {
+
+									$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
 
 //									print $output_file . "<br>";
 									FileSystem::removeDirRecursively(dirname($output_file));
@@ -623,9 +683,6 @@ class ItemCore {
 
 									copy($temp_file, $output_file);
 									$upload["file"] = $output_file;
-									$upload["format"] = $extension;
-									$upload["width"] = $gd[0];
-									$upload["height"] = $gd[1];
 									$uploads[] = $upload;
 									unlink($temp_file);
 								}
@@ -650,9 +707,11 @@ class ItemCore {
 		// delete item + itemtype + files
 		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
 			$query->sql("UPDATE ".UT_ITEMS." SET status = 0 WHERE id = $item_id");
+			return true;
 
 			message()->addMessage("Item disabled");
 		}
+		return false;
 
 	}
 	function enableItem($item_id) {
@@ -661,9 +720,10 @@ class ItemCore {
 		// delete item + itemtype + files
 		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
 			$query->sql("UPDATE ".UT_ITEMS." SET status = 1 WHERE id = $item_id");
-
+			return true;
 			message()->addMessage("Item enabled");
 		}
+		return false;
 	}
 
 	function deleteItem($item_id) {

@@ -26,6 +26,7 @@ class Query {
 
 		// get result
 		$this->result_resource = mysql_query($query);
+//		print mysql_errno()."<br>";
 		// get number of results
 		$this->result_count = (is_resource($this->result_resource)) ? mysql_num_rows($this->result_resource) : ($this->result_resource ? $this->result_resource : 0);
 
@@ -199,29 +200,37 @@ class Query {
 	function checkDbExistance($table) {
 
 		list($db, $table) = explode(".", $table);
-		$query = new Query();
-		
+//		$query = new Query();
+
+//		print $db."-".$table."<br>";
 		// alternate query
 		//"SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'"
 
 		// check if database exists
-		if(!$query->sql("SHOW TABLES LIKE '$table'")) {
+		if(!$this->sql("SHOW TABLES LIKE '$table'")) {
+
+//			print "dont exist";
 
 			if(file_exists($_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql')) {
 				$db_file = $_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql';
 			}
-			else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/' . $table . '.sql')) {
-				$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/' . $table . '.sql';
+			else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql')) {
+				$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql';
 			}
 
+
 			if($db_file) {
-				
+//				print $db_file."<br>";
+				$sql = file_get_contents($db_file);
+				$sql = str_replace("SITE_DB", SITE_DB, $sql);
+				//$sql = str_replace("REGIONAL_DB", DB_REG, $sql);
+//				print $sql . "##";
+				$this->sql($sql);
 			}
-			$sql = file_get_contents($db_file);
-			//$sql = str_replace("GLOBAL_DB", DB_GLO, $sql);
-			//$sql = str_replace("REGIONAL_DB", DB_REG, $sql);
-//			print $sql . "##";
-			$query->sql($sql);
+			else {
+				print "failed creating database table<br>";
+				exit();
+			}
 		}
 	}
 

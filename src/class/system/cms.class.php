@@ -32,7 +32,7 @@ class CMS {
 
 				// TODO: Find better way to return values
 
-				$page->template("admin.header.php");
+//				$page->header(array("type" => "admin"));
 
 				$new_item = $IC->saveItem();
 				if($new_item) {
@@ -43,7 +43,7 @@ class CMS {
 					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
 
-				$page->template("admin.footer.php");
+//				$page->footer(array("type" => "admin"));
 
 				exit();
 			}
@@ -52,92 +52,115 @@ class CMS {
 			// Requires minimum to parameters /save/#item_id#
 			else if(count($action) > 1 && $action[0] == "update") {
 
-				$page->template("admin.header.php");
+//				$page->header(array("type" => "admin"));
 
 				if($IC->updateItem($action[1])) {
 					$item = $IC->getCompleteItem($action[1]);
-					$item["status"] = "success";
+					$item["cms_status"] = "success";
 					print json_encode($item);
 				}
 				else {
-					print '{"status":"error", "message":"An error occured. Please reload."}';
+					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
 
-				$page->template("admin.footer.php");
+//				$page->footer(array("type" => "admin"));
 
 				exit();
 			}
 
 			// DELETE ITEM
 			// Requires minimum to parameters /delete/#item_id#
-			else if(count($action) > 1 && $action[0] == "delete") {
+			else if(count($action) == 2 && $action[0] == "delete") {
 
-				$page->template("admin.header.php");
+//				$page->header(array("type" => "admin"));
 
 				if($IC->deleteItem($action[1])) {
-					print '{"status":"success", "message":"Item deleted"}';
+					print '{"cms_status":"success", "message":"Item deleted"}';
 				}
 				else {
-					print '{"status":"error", "message":"An error occured. Please reload."}';
+					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
 
-				$page->template("admin.footer.php");
+//				$page->footer(array("type" => "admin"));
 
 				exit();
 			}
 			else if(count($action) > 1 && $action[0] == "enable") {
 
-				$page->template("admin.header.php");
+//				$page->header(array("type" => "admin"));
 
-				$IC->enableItem($action[1]);
-				print json_encode(message()->getMessages());
+				if($IC->enableItem($action[1])) {
+					print '{"cms_status":"success", "message":"Item enabled"}';
+				}
+				else {
+					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
+				}
 
-				message()->resetMessages();
+				// $IC->enableItem($action[1]);
+				// print '{"cms_status":"success", "message":"Item deleted"}';
+				// 
+				// print json_encode(message()->getMessages());
+				// 
+				// message()->resetMessages();
 
-				$page->template("admin.footer.php");
+//				$page->footer(array("type" => "admin"));
 
 				exit();
 			}
 			else if(count($action) > 1 && $action[0] == "disable") {
 
 
-				$page->template("admin.header.php");
+//				$page->header(array("type" => "admin"));
 
-				$IC->disableItem($action[1]);
-				print json_encode(message()->getMessages());
-
-				message()->resetMessages();
-
-				$page->template("admin.footer.php");
-				exit();
-			}
-
-
-			else if(count($action) > 2 && $action[0] == "tags" && $action[1] == "add") {
-
-				$page->template("admin.header.php");
-
-				if($IC->addTag($action[2], getPost("tag"))) {
-
+				if($IC->disableItem($action[1])) {
+					print '{"cms_status":"success", "message":"Item disabled"}';
 				}
 				else {
-
+					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
-				$page->template("admin.footer.php");
 
+				// $IC->disableItem($action[1]);
+				// print json_encode(message()->getMessages());
+				// 
+				// message()->resetMessages();
+
+//				$page->footer(array("type" => "admin"));
 				exit();
 			}
+
+
+			// else if(count($action) > 2 && $action[0] == "tags" && $action[1] == "add") {
+			// 
+			// 	$page->header(array("type" => "admin"));
+			// 
+			// 	if($IC->addTag($action[2], getPost("tag"))) {
+			// 
+			// 	}
+			// 	else {
+			// 
+			// 	}
+			// 	$page->footer(array("type" => "admin"));
+			// 
+			// 	exit();
+			// }
 			else if(count($action) > 3 && $action[0] == "tags" && $action[1] == "delete") {
 
-				$page->template("admin.header.php");
-	
-				if($IC->deleteTag($action[2], $action[3])) {
+//				$page->header(array("type" => "admin"));
 
+				if($IC->deleteTag($action[2], $action[3])) {
+					print '{"cms_status":"success", "message":"Tag deleted"}';
 				}
 				else {
-
+					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
-				$page->template("admin.footer.php");
+
+				// if($IC->deleteTag($action[2], $action[3])) {
+				// 
+				// }
+				// else {
+				// 
+				// }
+//				$page->footer(array("type" => "admin"));
 
 				exit();
 			}

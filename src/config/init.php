@@ -40,7 +40,7 @@ include_once("class/system/filesystem.class.php");
 include_once("class/system/page.core.class.php");
 include_once("class/system/page.class.php");
 include_once("class/system/html.class.php");
-include_once("class/system/validator.class.php");
+include_once("class/system/model.class.php");
 
 
 // Extend with items model - not required for static sites

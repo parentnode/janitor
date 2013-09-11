@@ -64,14 +64,14 @@ function RESTParams($index=false) {
 *
 * @param string $which
 * @return string|false
-* @uses stripForDB
+* @uses prepareForDB
 */
 function getVar($which) {
 	if(isset($_POST[$which])) {
-		return stripForDB($_POST[$which]);
+		return prepareForDB($_POST[$which]);
 	}
 	else if(isset($_GET[$which])) {
-		return stripForDB($_GET[$which]);
+		return prepareForDB($_GET[$which]);
 	}
 	else {
 		return false;
@@ -81,15 +81,14 @@ function getVar($which) {
 
 /**
 * Get a variable which
-* Looking for var in $_SESSION, $_POST, $_GET
 *
 * @param string $which
 * @return string|false
-* @uses stripForDB
+* @uses prepareForDB
 */
 function getPost($which) {
 	if(isset($_POST[$which])) {
-		return stripForDB($_POST[$which]);
+		return prepareForDB($_POST[$which]);
 	}
 	else {
 		return false;
@@ -97,24 +96,58 @@ function getPost($which) {
 }
 
 
+
+
 /**
-* Correcting quotes and removes bad HTML tags and attributes
+* Prepare variables to be returned to page (because of error or like)
+*/
+function prepareForHTML($string) {
+
+	if(is_array($string)) {
+		// loop through array
+		foreach($string as $key => $array) {
+			// if(is_array($array) && isset($array["value"])) {
+			// 	$array["value"] = stripslashes($array["value"]);
+			// 	$string[$key] = $array;
+			// }
+			// else {
+				$array = stripslashes($array);
+				$string[$key] = $array;
+//			}
+		}
+	}
+	else {
+		$string = stripslashes($string);
+	}
+	return $string;
+}
+
+/**
+* Prepare Correcting quotes and removes bad HTML tags and attributes
 *
 * @param string $string
 * @return string
 */
-function stripForDB($string) {
-	if(!is_array($string)) {
-		$string = strip_safe($string);
-		$string = mysql_real_escape_string($string);
-	}
-	// loop through array
-	else {
-		foreach($string as $key => $value) {
-			$value = strip_safe($value);
-			$value = mysql_real_escape_string($value);
-			$string[$key] = $value;
+function prepareForDB($string) {
+
+	if(is_array($string)) {
+		// loop through array
+		foreach($string as $key => $array) {
+			// if(is_array($array) && isset($array["value"])) {
+			// 	$array["value"] = stripDisallowed($array["value"]);
+			// 	$array["value"] = mysql_real_escape_string($array["value"]);
+			// 	$string[$key] = $array;
+			// }
+			// else {
+				$array = stripDisallowed($array);
+				$array = mysql_real_escape_string($array);
+				$string[$key] = $array;
+//			}
 		}
+	}
+	else {
+		$string = stripDisallowed($string);
+		$string = mysql_real_escape_string($string);
 	}
 	return $string;
 }
@@ -126,7 +159,7 @@ function stripForDB($string) {
 * @return string
 */
 
-function strip_safe($string) {
+function stripDisallowed($string) {
 	// strip tags
 	$allowed_tags = '<a><strong><em><h1><h2><h3><h4><h5><h6><p><label><br><hr><ul><li><dd><dl><dt><span><img><div><table><tr><td><th>';
 	$string = strip_tags($string, $allowed_tags);
@@ -195,23 +228,6 @@ function strip_safe($string) {
 
 
 
-/**
-* Getting all vars defined through the varnames array
-* Inserts the values of variables defined in vars-array
-*
-* @param array $varnames Array of variable names
-* @return array Vars array
-* @uses getVar
-*/
-function getVars($varnames) {
-	$vars = array();
-	if(is_array($varnames)) {
-		foreach($varnames as $key => $value) {
-			$vars[$key] = getPost($key);
-		}
-	}
-	return $vars;
-}
 
 
 /**
@@ -467,7 +483,11 @@ function superNormalize($string) {
 
 // get extension for mimetype
 function mimetypeToExtension($mimetype) {
-	$extensions = array("image/gif" => "gif", "image/jpeg" => "jpg", "image/png" => "png");
+	$extensions = array(
+		"image/gif" => "gif", 
+		"image/jpeg" => "jpg", 
+		"image/png" => "png"
+	);
 
 	if(isset($extensions[$mimetype])) {
 		return $extensions[$mimetype];
@@ -478,6 +498,9 @@ function mimetypeToExtension($mimetype) {
 
 
 function toTimestamp($timestamp) {
+
+	// $timestamp = $timestamp ? $timestamp : date("Y-n-j G-i-s");
+	// print $timestamp;
 
 	$parts = explode('-', preg_replace("/[\/\.\-\s\:]+/", '-', $timestamp));
 

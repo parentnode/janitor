@@ -279,20 +279,24 @@ class PageCore {
 
 	function header($options = false) {
 
+		$type = "www";
+
 		if($options !== false) {
 			foreach($options as $option => $value) {
 				switch($option) {
-					case "body_class" : $this->bodyClass($value); break;
-					case "page_title" : $this->pageTitle($value); break;
+					case "type"              : $type = $value; break;
+
+					case "body_class"        : $this->bodyClass($value); break;
+					case "page_title"        : $this->pageTitle($value); break;
 					case "page_descriptiton" : $this->pageDescription($value); break;
-					case "content_class" : $this->contentClass($value); break;
+					case "content_class"     : $this->contentClass($value); break;
 				}
 			}
 		}
 	
 		// TODO: check for login and server admin header
 
-		$this->template("www.header.php");
+		$this->template($type.".header.php");
 	}
 
 	/**
@@ -300,8 +304,19 @@ class PageCore {
 	*
 	* @return String HTML footer
 	*/
-	function footer() {
-		$this->template("www.footer.php");
+	function footer($options = false) {
+
+		$type = "www";
+
+		if($options !== false) {
+			foreach($options as $option => $value) {
+				switch($option) {
+					case "type"              : $type = $value; break;
+				}
+			}
+		}
+
+		$this->template($type.".footer.php");
 	}
 
 
