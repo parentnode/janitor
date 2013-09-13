@@ -60,6 +60,8 @@ class HTML {
 		$hint_message = $this->getEntityProperty($name, "hint_message");
 		$error_message = $this->getEntityProperty($name, "error_message");
 
+		$currency = $this->getEntityProperty($name, "currency");
+
 		if($options !== false) {
 			foreach($options as $option => $_value) {
 				switch($option) {
@@ -78,6 +80,8 @@ class HTML {
 
 					case "class"           : $class            = $_value; break;
 					case "id"              : $id               = $_value; break;
+
+					case "currency"        : $currency         = $_value; break;
 
 				}
 			}
@@ -105,6 +109,8 @@ class HTML {
 
 		$_ .= '<div'.$att_class.'>';
 			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
+
+			// DATE
 			if($type == "date") {
 				$att_value = $this->attribute("value", $value);
 				$att_max = $this->attribute("max", $max);
@@ -112,6 +118,8 @@ class HTML {
 
 				$_ .= '<input type="date"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 			}
+
+			// DATETIME
 			else if($type == "datetime") {
 				$att_value = $this->attribute("value", $value);
 				$att_max = $this->attribute("max", $max);
@@ -119,6 +127,8 @@ class HTML {
 
 				$_ .= '<input type="datetime"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 			}
+
+			// EMAIL
 			else if($type == "email") {
 				$att_value = $this->attribute("value", $value);
 				$att_max = $this->attribute("max", $max);
@@ -126,6 +136,8 @@ class HTML {
 
 				$_ .= '<input type="email"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 			}
+
+			// TEL
 			else if($type == "tel") {
 				$att_value = $this->attribute("value", $value);
 				$att_max = $this->attribute("max", $max);
@@ -133,6 +145,8 @@ class HTML {
 
 				$_ .= '<input type="tel"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 			}
+
+			// PASSWORD
 			else if($type == "password") {
 				$att_value = $this->attribute("value", $value);
 				$att_max = $this->attribute("max", $max);
@@ -140,35 +154,57 @@ class HTML {
 
 				$_ .= '<input type="password"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 			}
+
+			// STRING
 			else if($type == "string") {
 				$att_value = $this->attribute("value", $value);
 				$att_max = $this->attribute("maxlength", $max);
 
 				$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_pattern.' />';
 			}
+
+			// NUMBER OR INTEGER
 			else if($type == "number" || $type == "integer") {
 				$att_value = $this->attribute("value", $value);
 				$att_max = $this->attribute("maxlength", $max);
 
 				$_ .= '<input type="number"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_pattern.' />';
 			}
+
+			// FILES
 			else if($type == "files") {
 
 				$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_pattern.$att_multiple.' />';
 			}
+
+			// TEXT
 			else if($type == "text") {
 				$att_max = $this->attribute("maxlength", $max);
 
 				$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.'>'.$value.'</textarea>';
 			}
+
+			// TAGS 
 			else if($type == "tags") {
 				$att_name = $this->attribute("name", $name);
 
 				$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
 			}
 
-			$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
-			$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
+			// PRICES
+			else if($type == "prices") {
+				$att_name = $this->attribute("name", $name);
+
+				$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
+				$_ .= '<input type="hidden" value="'.$currency.'" name="currency" />';
+			}
+
+			// HINT AND ERROR MESSAGE
+			$_ .= '<div'.$this->attribute("class", "help").'>';
+				$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
+				$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
+			$_ .= '</div>';
+
 		$_ .= '</div>';
 
 

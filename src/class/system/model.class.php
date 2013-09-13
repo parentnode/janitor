@@ -89,6 +89,7 @@ class Model extends HTML {
 		$allowed_sizes = "*";
 
 		$unique = false;
+		$pattern = false;
 
 		// dates
 		$is_before = false;
@@ -97,7 +98,10 @@ class Model extends HTML {
 		// passwords
 		$must_match = false;
 
-		$pattern = false;
+		// currency
+		$currency = false;
+
+
 
 		if($options !== false) {
 			foreach($options as $option => $_value) {
@@ -126,6 +130,7 @@ class Model extends HTML {
 					case "unique"                : $unique                = $_value; break;
 					case "pattern"               : $pattern               = $_value; break;
 
+					case "currency"              : $currency              = $_value; break;
 				}
 			}
 		}
@@ -152,6 +157,7 @@ class Model extends HTML {
 		$this->data_entities[$name]["must_match"] = $must_match;
 		$this->data_entities[$name]["unique"] = $unique;
 		$this->data_entities[$name]["pattern"] = $pattern;
+		$this->data_entities[$name]["currency"] = $currency;
 
 		// $this->setValidationIndication($element);
 	}
@@ -195,7 +201,7 @@ class Model extends HTML {
 	* @param string Optional elements to skip can be passed as parameters
 	* @return bool
 	*/
-	function validateAll($execpt = false) {
+	function validateAll($execpt = false, $item_id = false) {
 		$this->data_errors = array();
 
 //		print "<p>";
@@ -206,8 +212,8 @@ class Model extends HTML {
 
 				if(!$execpt || array_search($name, $execpt) === false) {
 //					print "validationg name: $name<br>";
-					
-					if(!$this->validate($name)) {
+
+					if(!$this->validate($name, $item_id)) {
 //						print "error:<br>";
 						$this->data_errors[$name] = true;
 					}
@@ -233,12 +239,12 @@ class Model extends HTML {
 	* @param string Elements to validate
 	* @return bool
 	*/
-	function validateList() {
+	function validateList($list = false, $item_id = false) {
 		$this->data_errors = array();
-		$list = func_get_args();
+
 		foreach($list as $name) {
 			if(isset($this->data_entities[$name])) {
-				if(!$this->validate($name)) {
+				if(!$this->validate($name, $item_id)) {
 					$this->data_errors[$name] = true;
 				}
 			}
@@ -258,14 +264,15 @@ class Model extends HTML {
 	* Execute validation rule (rules defined in data object)
 	*
 	* @param String $Element Element to validate
-	* @param Array $rule Validation rule information
+	* @param Integer $item_id Optional item_id to check aganist (in case of uniqueness)
 	* @return bool
 	*/
-	function validate($name) {
+	function validate($name, $item_id = false) {
+//		print "validate:".$name;
 
 		// check uniqueness
 		if($this->data_entities[$name]["unique"]) {
-			if(!$this->isUnique($name)) {
+			if(!$this->isUnique($name, $item_id)) {
 				return false;
 			}
 		}
@@ -350,18 +357,16 @@ class Model extends HTML {
 	* @param array $rule Rule array
 	* @return bool
 	*/
-	function isUnique($name) {
+	function isUnique($name, $item_id) {
 		$entity = $this->data_entities[$name];
 
 		$query = new Query();
-		$query->sql("SELECT id FROM ".$entity["unique"]." WHERE $name = '".$entity["value"]."'");
+		// does other value exist
+		if($query->sql("SELECT id FROM ".$entity["unique"]." WHERE $name = '".$entity["value"]."'".$item_id ? " AND item_id != ".$item_id : "")) {
+			return false;
+		}
 
-		// if($string && (!$query->count() || $id == $query->result(0, "id"))) {
 		return true;
-		// }
-		// else {
-		// 	return false;
-		// }
 	}
 
 	/**
@@ -588,14 +593,17 @@ class Model extends HTML {
 
 	function isTags($name) {
 		$entity = $this->data_entities[$name];
-		
+
 		return true;
 	}
 	function isPrices($name) {
 		$entity = $this->data_entities[$name];
-		
+
 		return true;
 	}
+
+
+
 
 
 	// TODO: UPDATE getPostVars name and functionallity

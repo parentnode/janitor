@@ -73,16 +73,12 @@ class ItemCore {
 		$query = new Query();
 		if($query->sql("SELECT * FROM ".UT_ITEMS." WHERE sindex = '$id' OR id = '$id'")) {
 
-
 			$item["id"] = $query->result(0, "id");
 
-			// create sindex value if it doesn't exist (backwards compatibility)
+			// TODO: create sindex value if it doesn't exist (backwards compatibility)
 			$item["itemtype"] = $query->result(0, "itemtype");
-//			$sindex = $query->result(0, "sindex");
 			$item["sindex"] = $query->result(0, "sindex");
-
 			$item["status"] = $query->result(0, "status");
-
 
 			$item["user_id"] = $query->result(0, "user_id");
 
@@ -90,7 +86,6 @@ class ItemCore {
 			$item["modified_at"] = $query->result(0, "modified_at");
 			$item["published_at"] = $query->result(0, "published_at");
 
-//			$this->setItemtype($this->item["itemtype_id"], true);
 			return $item;
 		}
 		return false;
@@ -101,20 +96,43 @@ class ItemCore {
 	*
 	* @param $id Item id or sindex to get
 	*/
-	function getCompleteItem($id) {
-		$item = $this->getItem($id);
+	function getCompleteItem($item_id) {
+		$item = $this->getItem($item_id);
 		if($item) {
-			$item = array_merge($item, $this->TypeObject($item["itemtype"])->get($item["id"]));
+
+			$typeObject = $this->TypeObject($item["itemtype"]);
+			if(method_exists($typeObject, "get")) {
+				$item = array_merge($item, $typeObject->get($item["id"]));
+			}
+			else {
+				$item = array_merge($item, $this->getSimpleType($item["id"], $typeObject));
+			}
+
 			$item["prices"] = $this->getPrices($item["id"]);
 			$item["tags"] = $this->getTags($item["id"]);
-
-			// get item tags
-			// $item["tags"] = $this->getTags($id);
 
 			return $item;
 		}
 		return false;
 	}
+
+
+	/**
+	* Get simple (flat) item type
+	*/
+	function getSimpleType($item_id, $typeObject) {
+		$query = new Query();
+		if($query->sql("SELECT * FROM ".$typeObject->db." WHERE item_id = $item_id LIMIT 1")) {
+			$results = $query->results();
+			if($results) {
+				// remove type id from index
+				unset($results[0]["id"]);
+				return $results[0];
+			}
+		}
+		return false;
+	}
+
 
 	/**
 	* Get all matching items
@@ -279,43 +297,6 @@ class ItemCore {
 	}
 
 
-// 	function getSetItems($set) {
-// 
-// 		$items = array();
-// 
-// 		$query = new Query();
-// //		print "SELECT * FROM ".UT_ITEMS." as items, " . UT_ITEMS_SET . " as item_set, " . UT_ITEMS_SET_ITEMS . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at<br>";
-// 		$query->sql("SELECT * FROM ".UT_ITEMS." as items, " . UT_ITEMS_SET . " as item_set, " . UT_ITEMS_SET_ITEMS . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at");
-// 		$results = $query->results();
-// 
-// //		foreach($results as $item);
-// 		for($i = 0; $i < $query->count(); $i++){
-// 
-// 			$item = array();
-// 
-// 			$item["id"] = $query->result($i, "items.id");
-// 			$item["itemtype"] = $query->result($i, "items.itemtype");
-// 
-// //			$item_sindex = $query->result($i, "items.sindex");
-// 			$item["sindex"] = $query->result($i, "items.sindex"); //$item_sindex ? $item_sindex : $this->sindex($item["id"]);
-// 
-// 			$item["status"] = $query->result($i, "items.status");
-// 
-// 			$item["user_id"] = $query->result($i, "items.user_id");
-// 
-// 			$item["created_at"] = $query->result($i, "items.created_at");
-// 			$item["modified_at"] = $query->result($i, "items.modified_at");
-// 			$item["published_at"] = $query->result($i, "items.published_at");
-// 
-// 			$items[] = $item;
-// 		}
-// 
-// 		return $items;
-// 	}
-
-
-
-
 
 	/**
 	* set sIndex value for item
@@ -384,7 +365,12 @@ class ItemCore {
 			$new_id = $query->lastInsertId();
 
 			// attempt typeObject save
-			if($new_id && $typeObject->save($new_id)) {
+			if($new_id && 
+				(
+					(method_exists($typeObject, "save") && $typeObject->save($new_id)) ||
+					$this->saveSimpleType($new_id, $typeObject)
+				)
+			) {
 
 				// add tags
 				$tags = getPost("tags");
@@ -416,6 +402,44 @@ class ItemCore {
 		return false;
 	}
 
+	/**
+	* Save simple (flat) item type
+	*/
+	function saveSimpleType($item_id, $typeObject) {
+
+		// does values validate
+		if($typeObject->validateAll()) {
+
+			$query = new Query();
+
+			// make sure type tables exist
+			$query->checkDbExistance($typeObject->db);
+
+			$entities = $typeObject->data_entities;
+			$names = array();
+			$values = array();
+
+			foreach($entities as $name => $entity) {
+				if($entity["value"] && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
+					$names[] = $name;
+					$values[] = $name."='".$entity["value"]."'";
+				}
+			}
+
+			if($values) {
+				$sql = "INSERT INTO ".$typeObject->db." SET id = DEFAULT,item_id = $item_id," . implode(",", $values);
+//				print $sql;
+
+				if($query->sql($sql)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
 
 	// update item - does not update tags which is a separate process entirely
 	function updateItem($item_id) {
@@ -429,12 +453,7 @@ class ItemCore {
 		$typeObject = $this->TypeObject($item["itemtype"]);
 
 		if($typeObject) {
-//			print "typeobject:" . $item["itemtype"] . "<br>";
 			$query = new Query();
-
-
-			// update individual values, so any value can be posted on it's own
-
 
 			// is published_at posted?
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
@@ -460,8 +479,26 @@ class ItemCore {
 				}
 			}
 
-			if($typeObject->update($item_id)) {
+			// add prices
+			$prices = getPost("prices");
+			$currency = getPost("currency");
+			if($prices) {
+				if(is_array($prices)) {
+					foreach($prices as $price) {
+						if($price) {
+							$this->addPrice($item_id, $price, $currency);
+						}
+					}
+				}
+				else {
+					$this->addPrice($item_id, $prices, $currency);
+				}
+			}
 
+			if(
+				(method_exists($typeObject, "update") && $typeObject->update($item_id)) ||
+				$this->updateSimpleType($item_id, $typeObject)
+			) {
 				// update sindex
 				$this->sindex($item_id);
 
@@ -471,6 +508,45 @@ class ItemCore {
 		}
 		return false;
 	}
+
+	/**
+	* Update simple (flat) item type
+	* TODO: extend with one file handling
+	*/
+	function updateSimpleType($item_id, $typeObject) {
+		$query = new Query();
+
+		// make sure type tables exist
+		$query->checkDbExistance($typeObject->db);
+
+		$entities = $typeObject->data_entities;
+		$names = array();
+		$values = array();
+
+		foreach($entities as $name => $entity) {
+			if($entity["value"] && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
+				$names[] = $name;
+				$values[] = $name."='".$entity["value"]."'";
+			}
+		}
+
+		if($typeObject->validateList($names, $item_id)) {
+			if($values) {
+				$sql = "UPDATE ".$typeObject->db." SET ".implode(",", $values)." WHERE item_id = ".$item_id;
+//					print $sql;
+			}
+
+			if(!$values || $query->sql($sql)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+
+
 
 	function identifyUploads() {
 
@@ -555,22 +631,32 @@ class ItemCore {
 
 		$min_height = false;                  // specific file min-height for images and videos
 		$max_height = false;                  // specific file max-height for images and videos
+		$min_width = false;                   // specific file min-width for images and videos
+		$max_width = false;                   // specific file max-width for images and videos
 
 		$min_bitrate = false;                 // specific file max-height for images and videos
 
 		$filetypes = false;                   // jpg,png,git,mov,mp4,pdf,etc
 		$filegroup = false;                   // image,video
 
+		$auto_add_variant = false;            // automatically add variant-key for each file - true for unlimited images, TODO: or state max number of files
+
 
 		if($options !== false) {
 			foreach($options as $option => $value) {
 				switch($option) {
-					case "variant"             : $variant          = $value; break;
-					case "proportion"          : $proportion       = $value; break;
-					case "width"               : $width            = $value; break;
-					case "height"              : $height           = $value; break;
+					case "variant"             : $variant              = $value; break;
+					case "proportion"          : $proportion           = $value; break;
+					case "width"               : $width                = $value; break;
+					case "height"              : $height               = $value; break;
+					case "min_width"           : $min_width            = $value; break;
+					case "min_height"          : $min_height           = $value; break;
+					case "max_width"           : $max_width            = $value; break;
+					case "max_height"          : $max_height           = $value; break;
 
-					case "filetypes"           : $filetypes        = $value; break;
+					case "filetypes"           : $filetypes            = $value; break;
+
+					case "auto_add_variant"    : $auto_add_variant     = $value; break;
 				}
 			}
 		}
@@ -584,10 +670,13 @@ class ItemCore {
 
 
 		if(isset($_FILES["files"])) {
-//			print_r($_FILES["files"]);
+			print_r($_FILES["files"]);
 
 			foreach($_FILES["files"]["name"] as $index => $value) {
 				if(!$_FILES["files"]["error"][$index] && file_exists($_FILES["files"]["tmp_name"][$index])) {
+
+					$upload = array();
+					$upload["name"] = $value;
 
 					$extension = false;
 					$temp_file = $_FILES["files"]["tmp_name"][$index];
@@ -595,8 +684,20 @@ class ItemCore {
 
 					if(preg_match("/".$filegroup."/", $temp_type)) {
 
-						$variant = $variant ? "/".$variant : "";
+//						print "correct group";
 
+						if($auto_add_variant) {
+							$upload["variant"] = randomKey(8);
+							$variant = "/".$upload["variant"];
+						}
+						else if($variant) {
+							$upload["variant"] = $variant;
+							$variant = "/".$upload["variant"];
+						}
+						else {
+							$variant = "";
+							$upload["variant"] = $variant;
+						}
 
 						// video upload
 						if(preg_match("/video/", $temp_type)) {
@@ -664,6 +765,7 @@ class ItemCore {
 							// is image valid format
 							if(isset($gd["mime"])) {
 
+//								print $gd["mime"].", ". mimetypeToExtension($gd["mime"]);
 								$upload["format"] = mimetypeToExtension($gd["mime"]);
 								$upload["width"] = $gd[0];
 								$upload["height"] = $gd[1];
@@ -671,7 +773,13 @@ class ItemCore {
 //								print round($proportion, 2) . "==" . round($upload["width"] / $upload["height"], 2);
 								if(
 									isset($upload["format"]) &&
-									(!$proportion || round($proportion, 2) == round($upload["width"] / $upload["height"], 2))
+									(!$proportion || round($proportion, 2) == round($upload["width"] / $upload["height"], 2)) &&
+									(!$width || $width == $upload["width"]) &&
+									(!$height || $height == $upload["height"]) &&
+									(!$min_width || $min_width <= $upload["width"]) &&
+									(!$min_height || $min_height <= $upload["height"]) &&
+									(!$max_width || $max_width >= $upload["width"]) &&
+									(!$max_height || $max_height >= $upload["height"])
 								) {
 
 									$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
@@ -857,20 +965,30 @@ class ItemCore {
 
 	// get prices, optionally limited to context, or just check if specific tag exists
 	// TODO: add correct comma/point formatting
-	function getPrices($item_id, $options=false) {
+	function getPrices($item_id, $options = false) {
+
+		$prices = false;
 
 		$currency = false;
-		$prices = false;
+		$country = false;
 
 		if($options !== false) {
 			foreach($options as $option => $value) {
 				switch($option) {
 					case "currency" : $currency = $value; break;
+					case "country"  : $country  = $value; break;
 				}
 			}
 		}
 
 		$query = new Query();
+
+		if($country && !$currency) {
+			if($query->sql("SELECT currency FROM ".UT_COUNTRIES." WHERE id = '$country' LIMIT 1")) {
+				$currency = $query->result(0, "currency");
+			}
+		}
+
 		if($currency) {
 			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES." WHERE currency = '$currency' AND item_id = $item_id")) {
 				$prices = $query->results();
@@ -891,13 +1009,12 @@ class ItemCore {
 	}
 
 	// add price to item
-	// tag can be tag-string or tag_id
  	function addPrice($item_id, $price, $currency) {
 
 		$query = new Query();
 
 		// check if price in currency exists - if it does update price
-		if($query->sql("SELECT id FROM ".UT_PRICES." WHERE currency = '$currency'")) {
+		if($query->sql("SELECT id FROM ".UT_PRICES." WHERE currency = '$currency' AND item_id = $item_id")) {
 			$price_id = $query->result(0, "id");
 			if($query->sql("UPDATE ".UT_PRICES." SET price = $price WHERE id = $price_id")) {
 				message()->addMessage("Price updated");
@@ -915,6 +1032,60 @@ class ItemCore {
 		message()->addMessage("Price could not be added", array("type" => "error"));
 		return false;
 	}
+
+	// delete price
+ 	function deletePrice($item_id, $price_id) {
+
+		$query = new Query();
+
+
+		if($query->sql("DELETE FROM ".UT_PRICES." WHERE item_id = $item_id AND price_id = $price_id")) {
+			message()->addMessage("Price deleted");
+			return true;
+		}
+
+		message()->addMessage("Price could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+
+
+	// 	function getSetItems($set) {
+	// 
+	// 		$items = array();
+	// 
+	// 		$query = new Query();
+	// //		print "SELECT * FROM ".UT_ITEMS." as items, " . UT_ITEMS_SET . " as item_set, " . UT_ITEMS_SET_ITEMS . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at<br>";
+	// 		$query->sql("SELECT * FROM ".UT_ITEMS." as items, " . UT_ITEMS_SET . " as item_set, " . UT_ITEMS_SET_ITEMS . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at");
+	// 		$results = $query->results();
+	// 
+	// //		foreach($results as $item);
+	// 		for($i = 0; $i < $query->count(); $i++){
+	// 
+	// 			$item = array();
+	// 
+	// 			$item["id"] = $query->result($i, "items.id");
+	// 			$item["itemtype"] = $query->result($i, "items.itemtype");
+	// 
+	// //			$item_sindex = $query->result($i, "items.sindex");
+	// 			$item["sindex"] = $query->result($i, "items.sindex"); //$item_sindex ? $item_sindex : $this->sindex($item["id"]);
+	// 
+	// 			$item["status"] = $query->result($i, "items.status");
+	// 
+	// 			$item["user_id"] = $query->result($i, "items.user_id");
+	// 
+	// 			$item["created_at"] = $query->result($i, "items.created_at");
+	// 			$item["modified_at"] = $query->result($i, "items.modified_at");
+	// 			$item["published_at"] = $query->result($i, "items.published_at");
+	// 
+	// 			$items[] = $item;
+	// 		}
+	// 
+	// 		return $items;
+	// 	}
+
+
+
 
 }
 

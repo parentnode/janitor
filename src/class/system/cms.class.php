@@ -17,6 +17,10 @@ class CMS {
 
 	}
 
+
+	// TODO: Find better way to return values
+
+
 	function processRequest() {
 		global $page;
 
@@ -30,10 +34,6 @@ class CMS {
 			// Requires minimum to parameters /save/#itemtype#
 			if(count($action) > 1 && $action[0] == "save") {
 
-				// TODO: Find better way to return values
-
-//				$page->header(array("type" => "admin"));
-
 				$new_item = $IC->saveItem();
 				if($new_item) {
 					$new_item["cms_status"] = "success";
@@ -42,17 +42,12 @@ class CMS {
 				else {
 					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
-
-//				$page->footer(array("type" => "admin"));
-
 				exit();
 			}
 
 			// UPDATE ITEM
-			// Requires minimum to parameters /save/#item_id#
+			// Requires minimum two parameters /save/#item_id#
 			else if(count($action) > 1 && $action[0] == "update") {
-
-//				$page->header(array("type" => "admin"));
 
 				if($IC->updateItem($action[1])) {
 					$item = $IC->getCompleteItem($action[1]);
@@ -62,17 +57,12 @@ class CMS {
 				else {
 					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
-
-//				$page->footer(array("type" => "admin"));
-
 				exit();
 			}
 
 			// DELETE ITEM
-			// Requires minimum to parameters /delete/#item_id#
+			// Requires minimum two parameters /delete/#item_id#
 			else if(count($action) == 2 && $action[0] == "delete") {
-
-//				$page->header(array("type" => "admin"));
 
 				if($IC->deleteItem($action[1])) {
 					print '{"cms_status":"success", "message":"Item deleted"}';
@@ -80,14 +70,12 @@ class CMS {
 				else {
 					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
-
-//				$page->footer(array("type" => "admin"));
-
 				exit();
 			}
-			else if(count($action) > 1 && $action[0] == "enable") {
 
-//				$page->header(array("type" => "admin"));
+			// ENABLE ITEM
+			// Requires minimum two parameters /enable/#item_id#
+			else if(count($action) > 1 && $action[0] == "enable") {
 
 				if($IC->enableItem($action[1])) {
 					print '{"cms_status":"success", "message":"Item enabled"}';
@@ -95,22 +83,12 @@ class CMS {
 				else {
 					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
-
-				// $IC->enableItem($action[1]);
-				// print '{"cms_status":"success", "message":"Item deleted"}';
-				// 
-				// print json_encode(message()->getMessages());
-				// 
-				// message()->resetMessages();
-
-//				$page->footer(array("type" => "admin"));
-
 				exit();
 			}
+
+			// DISABLE ITEM
+			// Requires minimum two parameters /enable/#item_id#
 			else if(count($action) > 1 && $action[0] == "disable") {
-
-
-//				$page->header(array("type" => "admin"));
 
 				if($IC->disableItem($action[1])) {
 					print '{"cms_status":"success", "message":"Item disabled"}';
@@ -118,34 +96,12 @@ class CMS {
 				else {
 					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
-
-				// $IC->disableItem($action[1]);
-				// print json_encode(message()->getMessages());
-				// 
-				// message()->resetMessages();
-
-//				$page->footer(array("type" => "admin"));
 				exit();
 			}
 
-
-			// else if(count($action) > 2 && $action[0] == "tags" && $action[1] == "add") {
-			// 
-			// 	$page->header(array("type" => "admin"));
-			// 
-			// 	if($IC->addTag($action[2], getPost("tag"))) {
-			// 
-			// 	}
-			// 	else {
-			// 
-			// 	}
-			// 	$page->footer(array("type" => "admin"));
-			// 
-			// 	exit();
-			// }
+			// DELETE TAG
+			// Requires minimum 4 parameters /tags/delete/#item_id#/#tag_id#
 			else if(count($action) > 3 && $action[0] == "tags" && $action[1] == "delete") {
-
-//				$page->header(array("type" => "admin"));
 
 				if($IC->deleteTag($action[2], $action[3])) {
 					print '{"cms_status":"success", "message":"Tag deleted"}';
@@ -153,17 +109,23 @@ class CMS {
 				else {
 					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
-
-				// if($IC->deleteTag($action[2], $action[3])) {
-				// 
-				// }
-				// else {
-				// 
-				// }
-//				$page->footer(array("type" => "admin"));
-
 				exit();
 			}
+
+			// DELETE PRICE
+			// Requires minimum 4 parameters /prices/delete/#item_id#/#price_id#
+			else if(count($action) > 3 && $action[0] == "prices" && $action[1] == "delete") {
+
+				if($IC->deleteTag($action[2], $action[3])) {
+					print '{"cms_status":"success", "message":"Price deleted"}';
+				}
+				else {
+					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
+				}
+				exit();
+			}
+
+
 
 		}
 
