@@ -329,7 +329,7 @@ class PageCore {
 		// get
 		else {
 			if(!Session::value("language")) {
-				Session::value("language", defined(DEFAULT_LANGUAGE_ISO) ? DEFAULT_LANGUAGE_ISO : "dk");
+				Session::value("language", defined("DEFAULT_LANGUAGE_ISO") ? DEFAULT_LANGUAGE_ISO : "DA");
 			}
 			return Session::value("language");
 		}
@@ -343,7 +343,7 @@ class PageCore {
 		// get
 		else {
 			if(!Session::value("country")) {
-				Session::value("country", defined(DEFAULT_COUNTRY_ISO) ? DEFAULT_COUNTRY_ISO : "dk");
+				Session::value("country", defined("DEFAULT_COUNTRY_ISO") ? DEFAULT_COUNTRY_ISO : "dk");
 			}
 			return Session::value("country");
 		}
