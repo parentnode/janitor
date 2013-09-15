@@ -670,7 +670,7 @@ class ItemCore {
 
 
 		if(isset($_FILES["files"])) {
-			print_r($_FILES["files"]);
+//			print_r($_FILES["files"]);
 
 			foreach($_FILES["files"]["name"] as $index => $value) {
 				if(!$_FILES["files"]["error"][$index] && file_exists($_FILES["files"]["tmp_name"][$index])) {
@@ -852,6 +852,7 @@ class ItemCore {
 
 
 	// get tag, optionally limited to context, or just check if specific tag exists
+	// TODO: make item_id optional - then function can provide complete tag list for autocomplete input
 	function getTags($item_id, $options=false) {
 
 		$tag_context = false;
@@ -990,18 +991,20 @@ class ItemCore {
 		}
 
 		if($currency) {
-			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES." WHERE currency = '$currency' AND item_id = $item_id")) {
+			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES.", ".UT_VAT_RATES." WHERE vatrate = ".UT_VAT_RATES.".id AND currency = '$currency' AND item_id = $item_id")) {
 				$prices = $query->results();
 			}
 		}
 		else {
-			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES." WHERE item_id = $item_id")) {
+			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES.", ".UT_VAT_RATES." WHERE vatrate = ".UT_VAT_RATES.".id AND item_id = $item_id")) {
 				$prices = $query->results();
 			}
 		}
+
 		if($prices) {
 			foreach($prices as $index => $price) {
 				$prices[$index]["formatted"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . number_format($price["price"], $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]) . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
+				$prices[$index]["formatted_with_vat"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . number_format($price["price"]* (1 + ($price["vat_rate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]) . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
 			}
 		}
 
@@ -1009,21 +1012,21 @@ class ItemCore {
 	}
 
 	// add price to item
- 	function addPrice($item_id, $price, $currency) {
+ 	function addPrice($item_id, $price, $currency, $vatrate) {
 
 		$query = new Query();
 
 		// check if price in currency exists - if it does update price
 		if($query->sql("SELECT id FROM ".UT_PRICES." WHERE currency = '$currency' AND item_id = $item_id")) {
 			$price_id = $query->result(0, "id");
-			if($query->sql("UPDATE ".UT_PRICES." SET price = $price WHERE id = $price_id")) {
+			if($query->sql("UPDATE ".UT_PRICES." SET price = $price, vatrate = $vatrate WHERE id = $price_id")) {
 				message()->addMessage("Price updated");
 				return true;
 			}
 		}
 		// insert price
 		else {
-			if($query->sql("INSERT INTO ".UT_PRICES." VALUES(DEFAULT, $item_id, $price, '$currency')")) {
+			if($query->sql("INSERT INTO ".UT_PRICES." VALUES(DEFAULT, $item_id, $price, '$currency', '$vatrate')")) {
 				message()->addMessage("Price added");
 				return true;
 			}
