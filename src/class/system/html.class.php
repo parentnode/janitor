@@ -61,6 +61,7 @@ class HTML {
 		$error_message = $this->getEntityProperty($name, "error_message");
 
 		$currency = $this->getEntityProperty($name, "currency");
+		$vatrate = $this->getEntityProperty($name, "vatrate");
 
 		if($options !== false) {
 			foreach($options as $option => $_value) {
@@ -82,6 +83,7 @@ class HTML {
 					case "id"              : $id               = $_value; break;
 
 					case "currency"        : $currency         = $_value; break;
+					case "vatrate"         : $vatrate          = $_value; break;
 
 				}
 			}
@@ -197,6 +199,7 @@ class HTML {
 
 				$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
 				$_ .= '<input type="hidden" value="'.$currency.'" name="currency" />';
+				$_ .= '<input type="hidden" value="'.$vatrate.'" name="vatrate" />';
 			}
 
 			// HINT AND ERROR MESSAGE
