@@ -88,7 +88,7 @@ class CMS {
 
 			// DISABLE ITEM
 			// Requires exactly two parameters /enable/#item_id#
-			else if(count($action) == 1 && $action[0] == "disable") {
+			else if(count($action) == 2 && $action[0] == "disable") {
 
 				if($IC->disableItem($action[1])) {
 					print '{"cms_status":"success", "message":"Item disabled"}';
