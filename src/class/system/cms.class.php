@@ -128,7 +128,7 @@ class CMS {
 			// custom loopback to itemtype
 			// TODO: consider alternative syntax'
 			// alternative: /#itemtype#/#action#/#item_id#/#additional_parameters#
-
+			// alternative: /#itemtype#/#item_id#/#action#/#additional_parameters#
 
 			// Requires minimum 2 parameters /#item_id#/#action#
 			else if(count($action) > 1 && is_numeric($action[0])) {
