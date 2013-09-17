@@ -68,7 +68,7 @@ class Model extends HTML {
 	* 1: after timestamp
 	* 2: before timestamp
 	*/
-	function addToModel($name, $options = false) {
+	function addToModel($name, $_options = false) {
 
 		$id = false;
 
@@ -100,12 +100,14 @@ class Model extends HTML {
 
 		// currency
 		$currency = false;
+		$vatrate = false;
+
+		$options = false;
 
 
-
-		if($options !== false) {
-			foreach($options as $option => $_value) {
-				switch($option) {
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
 
 					case "id"                    : $id                    = $_value; break;
 					case "value"                 : $value                 = $_value; break;
@@ -131,6 +133,9 @@ class Model extends HTML {
 					case "pattern"               : $pattern               = $_value; break;
 
 					case "currency"              : $currency              = $_value; break;
+					case "vatrate"               : $vatrate               = $_value; break;
+
+					case "options"               : $options               = $_value; break;
 				}
 			}
 		}
@@ -157,7 +162,11 @@ class Model extends HTML {
 		$this->data_entities[$name]["must_match"] = $must_match;
 		$this->data_entities[$name]["unique"] = $unique;
 		$this->data_entities[$name]["pattern"] = $pattern;
+
 		$this->data_entities[$name]["currency"] = $currency;
+		$this->data_entities[$name]["vatrate"] = $vatrate;
+
+		$this->data_entities[$name]["options"] = $options;
 
 		// $this->setValidationIndication($element);
 	}

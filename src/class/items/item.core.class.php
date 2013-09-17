@@ -420,7 +420,7 @@ class ItemCore {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
+				if($entity["value"] !== false && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
 				}
@@ -523,17 +523,32 @@ class ItemCore {
 		$names = array();
 		$values = array();
 
+		print "fisk";
+
 		foreach($entities as $name => $entity) {
-			if($entity["value"] && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
+
+			// type files (simple type can handle one file)
+			// TODO: file input can only be named "files" due to JS and upload names - needs to be more flexible
+			if($entity["type"] == "files") {
+				$uploads = $this->upload($item_id, $entity);
+				if($uploads) {
+					$names[] = $name;
+					$values[] = $name."='".$uploads[0]["format"]."'";
+				}
+			}
+			else if($entity["value"] && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
+
 				$names[] = $name;
 				$values[] = $name."='".$entity["value"]."'";
 			}
 		}
 
+
+
 		if($typeObject->validateList($names, $item_id)) {
 			if($values) {
 				$sql = "UPDATE ".$typeObject->db." SET ".implode(",", $values)." WHERE item_id = ".$item_id;
-//					print $sql;
+					print $sql;
 			}
 
 			if(!$values || $query->sql($sql)) {

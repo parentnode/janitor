@@ -41,7 +41,7 @@ class HTML {
 	*
 	* @return string Input element
 	*/
-	function input($name = false, $options = false) {
+	function input($name = false, $_options = false) {
 		// print "<p>";
 		// print_r($this->data_entities);
 		// print "</p>";
@@ -60,12 +60,16 @@ class HTML {
 		$hint_message = $this->getEntityProperty($name, "hint_message");
 		$error_message = $this->getEntityProperty($name, "error_message");
 
+		// price specifics
 		$currency = $this->getEntityProperty($name, "currency");
 		$vatrate = $this->getEntityProperty($name, "vatrate");
 
-		if($options !== false) {
-			foreach($options as $option => $_value) {
-				switch($option) {
+
+		$options = $this->getEntityProperty($name, "options");
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
 
 					case "type"            : $type             = $_value; break;
 					case "value"           : $value            = $_value; break;
@@ -84,6 +88,8 @@ class HTML {
 
 					case "currency"        : $currency         = $_value; break;
 					case "vatrate"         : $vatrate          = $_value; break;
+
+					case "options"         : $options          = $_value; break;
 
 				}
 			}
@@ -200,6 +206,19 @@ class HTML {
 				$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
 				$_ .= '<input type="hidden" value="'.$currency.'" name="currency" />';
 				$_ .= '<input type="hidden" value="'.$vatrate.'" name="vatrate" />';
+			}
+
+			// SELECT
+			// TODO: Refine select output
+			// TODO: Add radio output
+			// TODO: Add checkbox output
+			else if($type == "select") {
+
+				$_ .= '<select'.$att_name.$att_id.$att_disabled.$att_readonly.'>';
+				foreach($options as $option) {
+					$_ .= '<option value="'.$option[0].'"'.($value == $option[0] ? ' selected="selected"' : '').'>'.$option[1].'</option>';
+				}
+				$_ .= '</select>';
 			}
 
 			// HINT AND ERROR MESSAGE

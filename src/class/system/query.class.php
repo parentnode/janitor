@@ -203,11 +203,10 @@ class Query {
 //		$query = new Query();
 
 //		print $db."-".$table."<br>";
-		// alternate query
-		//"SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'"
 
 		// check if database exists
-		if(!$this->sql("SHOW TABLES LIKE '$table'")) {
+//		print "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'";
+		if(!$this->sql("SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'")) {
 
 //			print "dont exist";
 
@@ -225,12 +224,13 @@ class Query {
 				$sql = str_replace("SITE_DB", SITE_DB, $sql);
 				//$sql = str_replace("REGIONAL_DB", DB_REG, $sql);
 //				print $sql . "##";
-				$this->sql($sql);
+				if($this->sql($sql)) {
+					return true;
+				}
 			}
-			else {
-				print "failed creating database table<br>";
-				exit();
-			}
+
+			print "failed creating database table<br>";
+			exit();
 		}
 	}
 
