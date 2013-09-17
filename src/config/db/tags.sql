@@ -6,4 +6,4 @@ CREATE TABLE `tags` (
   `description` text,
 
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=33 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

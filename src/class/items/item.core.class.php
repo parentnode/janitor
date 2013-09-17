@@ -523,8 +523,6 @@ class ItemCore {
 		$names = array();
 		$values = array();
 
-		print "fisk";
-
 		foreach($entities as $name => $entity) {
 
 			// type files (simple type can handle one file)
@@ -548,7 +546,7 @@ class ItemCore {
 		if($typeObject->validateList($names, $item_id)) {
 			if($values) {
 				$sql = "UPDATE ".$typeObject->db." SET ".implode(",", $values)." WHERE item_id = ".$item_id;
-					print $sql;
+//				print $sql;
 			}
 
 			if(!$values || $query->sql($sql)) {
