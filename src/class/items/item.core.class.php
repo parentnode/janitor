@@ -133,7 +133,7 @@ class ItemCore {
 		return false;
 	}
 
-
+	// TODO: how to order by itemtype value ?
 	/**
 	* Get all matching items
 	*
@@ -205,6 +205,10 @@ class ItemCore {
 
 		if(isset($itemtype)) {
 			$WHERE[] = "items.itemtype = '$itemtype'";
+
+			// add main itemtype table to enable sorting based on local values
+			$FROM[] = $this->typeObject($itemtype)->db." as ".$itemtype;
+			$WHERE[] = "items.id = ".$itemtype.".item_id";
 		}
 
 		if(isset($tags)) {
@@ -635,7 +639,9 @@ class ItemCore {
 	// upload to item_id/variant
 	// checks content of $_FILES, looks for uploaded file where type matches $type and uploads
 	// supports video, audio, image
-	function upload($item_id, $options) {
+	function upload($item_id, $_options) {
+
+		$input_name = "files";                // input name to check for files (default is files)
 
 		$variant = false;                     // variantname to save files under
 		$proportion = false;                  // specific proportion for images and videos
@@ -655,21 +661,23 @@ class ItemCore {
 		$auto_add_variant = false;            // automatically add variant-key for each file - true for unlimited images, TODO: or state max number of files
 
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "variant"             : $variant              = $value; break;
-					case "proportion"          : $proportion           = $value; break;
-					case "width"               : $width                = $value; break;
-					case "height"              : $height               = $value; break;
-					case "min_width"           : $min_width            = $value; break;
-					case "min_height"          : $min_height           = $value; break;
-					case "max_width"           : $max_width            = $value; break;
-					case "max_height"          : $max_height           = $value; break;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "input_name"          : $input_name           = $_value; break;
 
-					case "filetypes"           : $filetypes            = $value; break;
+					case "variant"             : $variant              = $_value; break;
+					case "proportion"          : $proportion           = $_value; break;
+					case "width"               : $width                = $_value; break;
+					case "height"              : $height               = $_value; break;
+					case "min_width"           : $min_width            = $_value; break;
+					case "min_height"          : $min_height           = $_value; break;
+					case "max_width"           : $max_width            = $_value; break;
+					case "max_height"          : $max_height           = $_value; break;
 
-					case "auto_add_variant"    : $auto_add_variant     = $value; break;
+					case "filetypes"           : $filetypes            = $_value; break;
+
+					case "auto_add_variant"    : $auto_add_variant     = $_value; break;
 				}
 			}
 		}
@@ -682,18 +690,18 @@ class ItemCore {
 		// print_r($_POST);
 
 
-		if(isset($_FILES["files"])) {
+		if(isset($_FILES[$input_name])) {
 //			print_r($_FILES["files"]);
 
-			foreach($_FILES["files"]["name"] as $index => $value) {
-				if(!$_FILES["files"]["error"][$index] && file_exists($_FILES["files"]["tmp_name"][$index])) {
+			foreach($_FILES[$input_name]["name"] as $index => $value) {
+				if(!$_FILES[$input_name]["error"][$index] && file_exists($_FILES[$input_name]["tmp_name"][$index])) {
 
 					$upload = array();
 					$upload["name"] = $value;
 
 					$extension = false;
-					$temp_file = $_FILES["files"]["tmp_name"][$index];
-					$temp_type = $_FILES["files"]["type"][$index];
+					$temp_file = $_FILES[$input_name]["tmp_name"][$index];
+					$temp_type = $_FILES[$input_name]["type"][$index];
 
 					if(preg_match("/".$filegroup."/", $temp_type)) {
 
