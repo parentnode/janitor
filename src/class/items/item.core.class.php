@@ -133,12 +133,17 @@ class ItemCore {
 		return false;
 	}
 
-	// TODO: how to order by itemtype value ?
 	/**
 	* Get all matching items
 	*
-	* @param String $itemtype Item type name
-	* @param String $order 
+	* @param String $options
+	* $order      String  - 
+	* $status     Int 
+	* $tags       
+	* $sindex
+	* $itemtype  
+	* $limit
+	*
 	* @param String $sindex Optional navigation index - s(earch)index
 	*
 	* @return Array [id][] + [itemtype][]
@@ -395,7 +400,6 @@ class ItemCore {
 				return $this->getCompleteItem($new_id);
 			}
 			else if($new_id) {
-
 				// save failed, remove item again
 				$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $new_id");
 
