@@ -229,7 +229,7 @@ class Query {
 				}
 			}
 
-			print "failed creating database table<br>";
+			print "failed creating database table: $db_file <br>";
 			exit();
 		}
 	}
