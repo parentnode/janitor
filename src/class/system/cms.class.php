@@ -146,7 +146,9 @@ class CMS {
 						}
 					}
 				}
-				print '{"cms_status":"error", "message":"An error occured. Please reload."}';
+				$errors = message()->getMessages(array("type"=>"error"));
+				message()->resetMessages();
+				print '{"cms_status":"error", "message":'.($errors ? '"'.implode(", ", $errors).'"' : '"An error occured. Please reload."').'}';
 				exit();
 			}
 
