@@ -128,22 +128,20 @@ class CMS {
 			// custom loopback to itemtype
 			// TODO: consider alternative syntax'
 			// alternative: /#itemtype#/#action#/#item_id#/#additional_parameters#
+
 			// alternative: /#itemtype#/#item_id#/#action#/#additional_parameters#
+			// Requires minimum 3 parameters /#item_id#/#action#
+			else if(count($action) > 2 && preg_match("/[a-z]+\/[0-9]+\/[a-zA-Z]+/", implode("/", $action))) {
 
-			// Requires minimum 2 parameters /#item_id#/#action#
-			else if(count($action) > 1 && is_numeric($action[0])) {
+				// get type object
+				$typeObject = $IC->typeObject($action[0]);
+				// check if custom function exists on typeObject
+				if($typeObject && method_exists($typeObject, $action[2])) {
 
-				// attempt to get Item
-				$item = $IC->getItem($action[0]);
-				if($item) {
-					$typeObject = $IC->typeObject($item["itemtype"]);
-					// check if custom function exists on typeObject
-					if($typeObject && method_exists($typeObject, $action[1])) {
-						
-						if($typeObject->$action[1]($action)) {
-							print '{"cms_status":"success", "message":"something correct"}';
-							exit();
-						}
+					// pass actions to function
+					if($typeObject->$action[2]($action)) {
+						print '{"cms_status":"success", "message":"something correct"}';
+						exit();
 					}
 				}
 				$errors = message()->getMessages(array("type"=>"error"));
@@ -151,6 +149,30 @@ class CMS {
 				print '{"cms_status":"error", "message":'.($errors ? '"'.implode(", ", $errors).'"' : '"An error occured. Please reload."').'}';
 				exit();
 			}
+
+			// INITIAL VERSION
+			// alternative: /#item_id#/#action#/#additional_parameters#
+			// Requires minimum 2 parameters /#item_id#/#action#
+			// else if(count($action) > 1 && is_numeric($action[0])) {
+			// 
+			// 	// attempt to get Item
+			// 	$item = $IC->getItem($action[0]);
+			// 	if($item) {
+			// 		$typeObject = $IC->typeObject($item["itemtype"]);
+			// 		// check if custom function exists on typeObject
+			// 		if($typeObject && method_exists($typeObject, $action[1])) {
+			// 			
+			// 			if($typeObject->$action[1]($action)) {
+			// 				print '{"cms_status":"success", "message":"something correct"}';
+			// 				exit();
+			// 			}
+			// 		}
+			// 	}
+			// 	$errors = message()->getMessages(array("type"=>"error"));
+			// 	message()->resetMessages();
+			// 	print '{"cms_status":"error", "message":'.($errors ? '"'.implode(", ", $errors).'"' : '"An error occured. Please reload."').'}';
+			// 	exit();
+			// }
 
 
 		}
