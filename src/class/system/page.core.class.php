@@ -343,9 +343,23 @@ class PageCore {
 		// get
 		else {
 			if(!Session::value("country")) {
-				Session::value("country", defined("DEFAULT_COUNTRY_ISO") ? DEFAULT_COUNTRY_ISO : "dk");
+				Session::value("country", defined("DEFAULT_COUNTRY_ISO") ? DEFAULT_COUNTRY_ISO : "DK");
 			}
 			return Session::value("country");
+		}
+	}
+
+	function currency($value = false) {
+		// set
+		if($value !== false) {
+			Session::value("currency", $value);
+		}
+		// get
+		else {
+			if(!Session::value("currency")) {
+				Session::value("currency", defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK");
+			}
+			return Session::value("currency");
 		}
 	}
 
