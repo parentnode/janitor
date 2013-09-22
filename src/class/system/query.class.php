@@ -140,9 +140,22 @@ class Query {
 	* @param string $name Field name
 	* @return string value|false Result value, with " replaced by &quot; (for HTML display)
 	*/
-	function result($i, $name) {
-		if($i < $this->result_count){
-			return mysql_result($this->result_resource, $i, $name);
+	function result($i, $name=false) {
+		if($i < $this->result_count) {
+			if($name) {
+				return mysql_result($this->result_resource, $i, $name);
+			}
+			// all fields
+			else {
+				$fields = array();
+				$nfields = mysql_num_fields($this->result_resource);
+				for($n = 0; $n < $nfields; $n++) {
+					$name = mysql_field_name($this->result_resource, $n);
+					$fields[$name] = mysql_result($this->result_resource, $i, $name);
+				}
+				return $fields;
+			}
+	
 		}
 		else {
 			return false;
