@@ -21,7 +21,7 @@ define("UT_PRICES",             SITE_DB.".prices");                            /
 define("UT_COUNTRIES",          SITE_DB.".countries");                         // Countries
 define("UT_CURRENCIES",         SITE_DB.".currencies");                        // Currencies
 define("UT_LANGUAGES",          SITE_DB.".languages");                         // Languages
-define("UT_VAT_RATES",          SITE_DB.".vat_rates");                         // Vat rates
+define("UT_VATRATES",           SITE_DB.".vatrates");                          // Vatrates
 
 
 class ItemCore {
@@ -490,16 +490,17 @@ class ItemCore {
 			// add prices
 			$prices = getPost("prices");
 			$currency = getPost("currency");
+			$vatrate = getPost("vatrate");
 			if($prices) {
 				if(is_array($prices)) {
 					foreach($prices as $price) {
 						if($price) {
-							$this->addPrice($item_id, $price, $currency);
+							$this->addPrice($item_id, $price, $currency, $vatrate);
 						}
 					}
 				}
 				else {
-					$this->addPrice($item_id, $prices, $currency);
+					$this->addPrice($item_id, $prices, $currency, $vatrate);
 				}
 			}
 
@@ -738,21 +739,33 @@ class ItemCore {
 //								$extension = $info["extension"];
 //								$bitrate = $info["bitrate"];
 
-								$width = $info["width"];
-								$height = $info["height"];
-
-								$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/mov";
-
-//								print $output_file . "<br>";
-								FileSystem::removeDirRecursively(dirname($output_file));
-								FileSystem::removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-								FileSystem::makeDirRecursively(dirname($output_file));
-
-								copy($temp_file, $output_file);
-								$upload["file"] = $output_file;
 								$upload["format"] = "mov";
-								$uploads[] = $upload;
-								unlink($temp_file);
+								$upload["width"] = $info["width"];
+								$upload["height"] = $info["height"];
+
+								if(
+									isset($upload["format"]) &&
+									(!$proportion || round($proportion, 2) == round($upload["width"] / $upload["height"], 2)) &&
+									(!$width || $width == $upload["width"]) &&
+									(!$height || $height == $upload["height"]) &&
+									(!$min_width || $min_width <= $upload["width"]) &&
+									(!$min_height || $min_height <= $upload["height"]) &&
+									(!$max_width || $max_width >= $upload["width"]) &&
+									(!$max_height || $max_height >= $upload["height"])
+								) {
+								
+									$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
+
+	//								print $output_file . "<br>";
+									FileSystem::removeDirRecursively(dirname($output_file));
+									FileSystem::removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+									FileSystem::makeDirRecursively(dirname($output_file));
+
+									copy($temp_file, $output_file);
+									$upload["file"] = $output_file;
+									$uploads[] = $upload;
+									unlink($temp_file);
+								}
 							}
 
 						}
@@ -1016,20 +1029,21 @@ class ItemCore {
 		}
 
 		if($currency) {
-			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES.", ".UT_VAT_RATES." WHERE vatrate = ".UT_VAT_RATES.".id AND currency = '$currency' AND item_id = $item_id")) {
+			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES.", ".UT_VATRATES." WHERE vatrate_id = ".UT_VATRATES.".id AND currency = '$currency' AND item_id = $item_id")) {
 				$prices = $query->results();
 			}
 		}
 		else {
-			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES.", ".UT_VAT_RATES." WHERE vatrate = ".UT_VAT_RATES.".id AND item_id = $item_id")) {
+			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES.", ".UT_VATRATES." WHERE vatrate_id = ".UT_VATRATES.".id AND item_id = $item_id")) {
 				$prices = $query->results();
 			}
 		}
 
 		if($prices) {
 			foreach($prices as $index => $price) {
-				$prices[$index]["formatted"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . number_format($price["price"], $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]) . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
-				$prices[$index]["formatted_with_vat"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . number_format($price["price"]* (1 + ($price["vat_rate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]) . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
+				$prices[$index]["price_with_vat"] = $price["price"]* (1 + ($price["vatrate"]/100));
+				$prices[$index]["formatted"] = formatPrice($price["price"], $price);
+				$prices[$index]["formatted_with_vat"] = formatPrice($prices[$index]["price_with_vat"], $price); 
 			}
 		}
 
@@ -1040,11 +1054,12 @@ class ItemCore {
  	function addPrice($item_id, $price, $currency, $vatrate) {
 
 		$query = new Query();
+//		print "INSERT INTO ".UT_PRICES." VALUES(DEFAULT, $item_id, $price, '$currency', '$vatrate')";
 
 		// check if price in currency exists - if it does update price
 		if($query->sql("SELECT id FROM ".UT_PRICES." WHERE currency = '$currency' AND item_id = $item_id")) {
 			$price_id = $query->result(0, "id");
-			if($query->sql("UPDATE ".UT_PRICES." SET price = $price, vatrate = $vatrate WHERE id = $price_id")) {
+			if($query->sql("UPDATE ".UT_PRICES." SET price = $price, vatrate_id = $vatrate WHERE id = $price_id")) {
 				message()->addMessage("Price updated");
 				return true;
 			}
