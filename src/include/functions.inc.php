@@ -518,6 +518,23 @@ function toTimestamp($timestamp) {
 }
 
 
+// select correct form, based on $count
+function pluralize($count, $singular, $plural) {
+	if($count >= 2) {
+		return $count . " " . $plural;
+	}
+	
+	return $count . " " . $singular;
+}
+
+// price formatting - uses internal $price object for information
+function formatPrice($price, $currency) {
+	return ($currency["abbreviation_position"] == "before" ? $currency["abbreviation"]." " : "") . number_format($price, $currency["decimals"], $currency["decimal_separator"], $currency["grouping_separator"]) . ($currency["abbreviation_position"] == "after" ? " ".$currency["abbreviation"] : "");
+}
+// ;
+// $prices[$index]["formatted_with_vat"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . number_format($price["price"]* (1 + ($price["vatrate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]) . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
+// $prices[$index]["price_with_vat"] = number_format($price["price"]* (1 + ($price["vatrate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]);
+
 
 
 
