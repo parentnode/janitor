@@ -549,9 +549,14 @@ class Model extends HTML {
 	* @param string $element Element identifier
 	* @param array $rule Rule array
 	* @return bool
+	*
+	* TODO: update validation
 	*/
 	function isDate($name) {
 		$entity = $this->data_entities[$name];
+
+
+		return true;
 
 		$after = $this->getRuleDetails($rule, 0);
 		$before = $this->getRuleDetails($rule, 1);
