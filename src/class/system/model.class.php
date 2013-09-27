@@ -323,6 +323,11 @@ class Model extends HTML {
 				return true;
 			}
 		}
+		else if($this->data_entities[$name]["type"] == "tel") {
+			if($this->isTelephone($name)) {
+				return true;
+			}
+		}
 		else if($this->data_entities[$name]["type"] == "password") {
 			if($this->comparePassword($name)) {
 				return true;
@@ -507,16 +512,35 @@ class Model extends HTML {
 			$this->data_entities[$name]["error"] = true;
 			return false;
 		}
-
-		// 
-		// $string = $this->obj->vars[$element];
-		// if(preg_match(, $string)) {
-		// 	return true;
-		// }
-		// else {
-		// 	return false;
-		// }
 	}
+
+
+	/**
+	* Check if email is correctly formatted
+	*
+	* @param string $element Element identifier
+	* @param array $rule Rule array
+	* @return bool
+	*/
+	function isTelephone($name) {
+		$entity = $this->data_entities[$name];
+
+		$value = $entity["value"];
+
+		$pattern = stringOr($entity["pattern"], "([\+0-9\-\.\s\(\)]){5,18}");
+
+		if($value && is_string($value) && 
+			(!$pattern || preg_match("/^".$pattern."$/", $value))
+		) {
+			$this->data_entities[$name]["error"] = false;
+			return true;
+		}
+		else {
+			$this->data_entities[$name]["error"] = true;
+			return false;
+		}
+	}
+
 
 	/**
 	* Compare two passwords (to check if password and repeat password are identical)
