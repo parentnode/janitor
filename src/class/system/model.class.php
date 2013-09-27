@@ -493,13 +493,29 @@ class Model extends HTML {
 	function isEmail($name) {
 		$entity = $this->data_entities[$name];
 
-		$string = $this->obj->vars[$element];
-		if(preg_match('/^[\w\.\-\_]+@[\w-\.]+\.\w{2,4}$/i', $string)) {
+		$value = $entity["value"];
+
+		$pattern = stringOr($entity["pattern"], "[\w\.\-\_]+@[\w-\.]+\.\w{2,4}");
+
+		if($value && is_string($value) && 
+			(!$pattern || preg_match("/^".$pattern."$/", $value))
+		) {
+			$this->data_entities[$name]["error"] = false;
 			return true;
 		}
 		else {
+			$this->data_entities[$name]["error"] = true;
 			return false;
 		}
+
+		// 
+		// $string = $this->obj->vars[$element];
+		// if(preg_match(, $string)) {
+		// 	return true;
+		// }
+		// else {
+		// 	return false;
+		// }
 	}
 
 	/**

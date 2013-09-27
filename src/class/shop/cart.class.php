@@ -78,6 +78,21 @@ class Cart {
 			}
 		}
 
+		// return cart all carts
+		if(!$cart_id && !$item_id) {
+			if($query->sql("SELECT * FROM ".UT_CARTS." as items")) {
+				$carts = $query->results();
+
+				foreach($carts as $i => $cart) {
+					$carts[$i]["items"] = false;
+					if($query->sql("SELECT * FROM ".UT_CART_ITEMS." as items WHERE items.cart_id = ".$cart["id"])) {
+						$carts[$i]["items"] = $query->results();
+					}
+				}
+				return $carts;
+			}
+		}
+
 		return false;
 	}
 
