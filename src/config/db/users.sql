@@ -1,4 +1,4 @@
-CREATE TABLE `users` (
+CREATE TABLE `SITE_DB`.`users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_group_id` int(11) DEFAULT NULL,
 

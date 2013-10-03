@@ -38,6 +38,8 @@ class Cart {
 		$before = false;
 		$after = false;
 
+		$order = "status DESC, id DESC";
+
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
@@ -45,6 +47,8 @@ class Cart {
 					case "item_id"  : $item_id    = $_value; break;
 					case "before"   : $before     = $_value; break;
 					case "after"    : $after      = $_value; break;
+
+					case "order"    : $order      = $_value; break;
 				}
 			}
 		}
@@ -54,7 +58,8 @@ class Cart {
 		// get specific cart
 		if($cart_id) {
 
-			if($query->sql("SELECT * FROM ".UT_CARTS." as carts WHERE carts.id = ".$cart_id." LIMIT 1")) {
+//			print "SELECT * FROM ".UT_CARTS." as carts WHERE carts.id = ".$cart_id." LIMIT 1";
+			if($query->sql("SELECT * FROM ".UT_CARTS." WHERE id = ".$cart_id." LIMIT 1")) {
 				$cart = $query->result(0);
 				$cart["items"] = false;
 
@@ -68,7 +73,7 @@ class Cart {
 		// get all carts with item_id in it
 		if($item_id) {
 
-			if($query->sql("SELECT * FROM ".UT_CART_ITEMS." as items WHERE items.item_id = $item_id GROUP BY cart_id")) {
+			if($query->sql("SELECT * FROM ".UT_CART_ITEMS." WHERE item_id = $item_id GROUP BY cart_id")) {
 				$results = $query->results();
 				$carts = false;
 				foreach($results as $result) {
@@ -78,14 +83,14 @@ class Cart {
 			}
 		}
 
-		// return cart all carts
+		// return all carts
 		if(!$cart_id && !$item_id) {
-			if($query->sql("SELECT * FROM ".UT_CARTS." as items")) {
+			if($query->sql("SELECT * FROM ".UT_CARTS." ORDER BY $order")) {
 				$carts = $query->results();
 
 				foreach($carts as $i => $cart) {
 					$carts[$i]["items"] = false;
-					if($query->sql("SELECT * FROM ".UT_CART_ITEMS." as items WHERE items.cart_id = ".$cart["id"])) {
+					if($query->sql("SELECT * FROM ".UT_CART_ITEMS." WHERE cart_id = ".$cart["id"])) {
 						$carts[$i]["items"] = $query->results();
 					}
 				}
@@ -114,13 +119,13 @@ class Cart {
 		// no cart id - create new cart
 		if(!$cart_id) {
 			// TODO: add user id to cart creation when users are implemented
-			$query->sql("INSERT INTO ".UT_CARTS." VALUES(DEFAULT, '".$page->country()."', '".$page->currency()."', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+			$query->sql("INSERT INTO ".UT_CARTS." VALUES(DEFAULT, '".$page->country()."', '".$page->currency()."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 			$cart_id = $query->lastInsertId();
 			Session::value("cart_id", $cart_id);
 		}
 		// update cart modified at
 		else {
-			$query->sql("UPDATE ".UT_CARTS." SET modified_at = CURRENT_TIMESTAMP WHERE id = ".$cart_id);
+			$query->sql("UPDATE ".UT_CARTS." SET modified_at = CURRENT_TIMESTAMP, status = 1 WHERE id = ".$cart_id);
 		}
 
 		$item_id = getPost("item_id");
@@ -163,7 +168,7 @@ class Cart {
 
 			if($quantity) {
 				// INSERT current quantity+1
-				$query->sql("UPDATE ".UT_CART_ITEMS." SET quantity = ".$quantity." WHERE id = ".$cart_item["id"]);
+				$query->sql("UPDATE ".UT_CART_ITEMS." SET quantity = ".$quantity.", status = 1 WHERE id = ".$cart_item["id"]);
 			}
 			else {
 				// DELETE

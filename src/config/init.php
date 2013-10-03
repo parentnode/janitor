@@ -49,6 +49,10 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 	include_once("class/items/item.core.class.php");
 	include_once("class/items/item.class.php");
 
+
+	include_once("class/users/user.class.php");
+	include_once("class/users/user_group.class.php");
+
 	// TODO: should tags have it own class
 	include_once("class/items/tag.class.php");
 	

@@ -96,6 +96,17 @@ function getPost($which) {
 }
 
 
+function getPosts($which) {
+	$posts = array();
+	foreach($which as $name) {
+		if(isset($_POST[$name])) {
+			$posts[$name] = prepareForDB($_POST[$name]);
+		}
+	}
+	return $posts;
+}
+
+
 
 
 /**
@@ -520,13 +531,14 @@ function toTimestamp($timestamp) {
 
 // select correct form, based on $count
 function pluralize($count, $singular, $plural) {
-	if($count >= 2) {
+	if($count != 1) {
 		return $count . " " . $plural;
 	}
 	
 	return $count . " " . $singular;
 }
 
+// TODO: maybe send only Currency ISO and look up the rest
 // price formatting - uses internal $price object for information
 function formatPrice($price, $currency) {
 	return ($currency["abbreviation_position"] == "before" ? $currency["abbreviation"]." " : "") . number_format($price, $currency["decimals"], $currency["decimal_separator"], $currency["grouping_separator"]) . ($currency["abbreviation_position"] == "after" ? " ".$currency["abbreviation"] : "");

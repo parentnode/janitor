@@ -13,7 +13,7 @@ class Model extends HTML {
 	function __construct() {
 
 		// TODO: get base elements from Item (published_at, status, etc.?)
-
+		// TODO: Should be handled here? Consider to put in cms and non item models or make sure it is not possible to inject values 
 		$this->getPostedEntities();
 		
 	}
@@ -338,7 +338,7 @@ class Model extends HTML {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "date") {
+		else if($this->data_entities[$name]["type"] == "date" || $this->data_entities[$name]["type"] == "datetime") {
 			if($this->isDate($name)) {
 				return true;
 			}
@@ -360,6 +360,9 @@ class Model extends HTML {
 		}
 		
 		// either type was not found or validation failed
+		$error_message = $this->data_entities[$name]["error_message"];
+		$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occured";
+		message()->addMessage($error_message, array("type" => "error"));
 		return false;
 	}
 
@@ -484,6 +487,29 @@ class Model extends HTML {
 			return true;
 		}
 		else {
+			return false;
+		}
+	}
+
+	function isInteger($name) {
+		$entity = $this->data_entities[$name];
+
+		$value = $entity["value"];
+
+		$min = $entity["min"];
+		$max = $entity["max"];
+		$pattern = $entity["pattern"];
+
+		if($value && !($value%1) && 
+			(!$min || $value >= $min) && 
+			(!$max || $value <= $max) &&
+			(!$pattern || preg_match("/^".$pattern."$/", $value))
+		) {
+			$this->data_entities[$name]["error"] = false;
+			return true;
+		}
+		else {
+			$this->data_entities[$name]["error"] = true;
 			return false;
 		}
 	}

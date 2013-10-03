@@ -5,6 +5,7 @@ CREATE TABLE `carts` (
   `currency` varchar(3) NOT NULL,
 
   `user_id` int(11) DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 0,
 
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_at` timestamp NULL DEFAULT NULL,

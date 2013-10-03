@@ -109,7 +109,10 @@ class HTML {
 
 		$att_class = $this->attribute("class", "field", $type, $class, ($required ? "required" : ""), ($min ? "min:".$min : ""), ($max ? "max:".$max : ""));
 
-		$att_pattern = $this->attribute("pattern", $pattern);
+		// attribute strips value for slashes etc - cannot be used for patterns
+		$att_pattern = $pattern ? ' pattern="'.$pattern.'"' : '';
+
+
 		$att_multiple = $this->attribute("multiple", ($max && $max > 1 ? "multiple" : ""));
 
 		// strings length

@@ -140,14 +140,15 @@ class CMS {
 
 					// pass actions to function
 					if($typeObject->$action[2]($action)) {
-						print '{"cms_status":"success", "message":"something correct"}';
+
+						print '{"cms_status":"success", "message":"'.implode(", ", message()->getMessages(array("type"=>"message"))).'"}';
+						message()->resetMessages();
 						exit();
 					}
 				}
 				$errors = message()->getMessages(array("type"=>"error"));
 				message()->resetMessages();
 				print '{"cms_status":"error", "message":'.($errors ? '"'.implode(", ", $errors).'"' : '"An error occured. Please reload."').'}';
-				exit();
 			}
 
 			// INITIAL VERSION
