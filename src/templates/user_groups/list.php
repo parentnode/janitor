@@ -1,22 +1,12 @@
 <?php
-$access_item = false;
-if(isset($read_access) && $read_access) {
-	return;
-}
 
-include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
+$action = $this->actions();
 
-$action = $page->actions();
-
-$UGC = new UserGroup();
-// check if custom function exists on cart class
-$user_groups = $UGC->getUserGroups();
-
-// print_r($carts);
+$model = new UserGroup();
+$user_groups = $model->getUserGroups();
 
 ?>
-<? $page->header(array("type" => "admin")) ?>
-<div class="scene i:defaultList defaultList usersList">
+<div class="scene i:defaultList defaultList userGroupsList">
 	<h1>User groups</h1>
 
 	<ul class="actions">
@@ -49,4 +39,3 @@ $user_groups = $UGC->getUserGroups();
 	</div>
 
 </div>
-<? $page->footer(array("type" => "admin")) ?>

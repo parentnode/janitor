@@ -1,17 +1,10 @@
 <?php
-$access_item = false;
-if(isset($read_access) && $read_access) {
-	return;
-}
-
-include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 $action = $this->actions();
 
-$UC = new User();
+$model = new User();
 // check if custom function exists on cart class
-$item = $UC->getUsers(array("user_id" => $action[1]));
-$model = $UC;
+$item = $model->getUsers(array("user_id" => $action[1]));
 
 ?>
 

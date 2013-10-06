@@ -99,6 +99,7 @@ class UserGroup extends Model {
 //				print $sql;
 
 				if($query->sql($sql)) {
+					message()->addMessage("User group created");
 					return true;
 				}
 			}

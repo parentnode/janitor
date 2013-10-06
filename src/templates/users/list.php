@@ -2,9 +2,9 @@
 
 $action = $this->actions();
 
-$UC = new User();
+$model = new User();
 // check if custom function exists on cart class
-$users = $UC->getUsers();
+$users = $model->getUsers();
 
 // print_r($carts);
 

@@ -1,22 +1,10 @@
 <?php
-$access_item = false;
-if(isset($read_access) && $read_access) {
-	return;
-}
 
-include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
-
-$action = $page->actions();
+$action = $this->actions();
 
 $model = new UserGroup();
 
-if($action && $action[0] == "save" && $model->save()) {
-	print '{"cms_status":"success", "message":"something correct"}';
-	exit();
-
-}
 ?>
-<? $page->header(array("type" => "admin")) ?>
 
 	<div class="scene defaultNew">
 		<h1>New user group</h1>
@@ -25,7 +13,7 @@ if($action && $action[0] == "save" && $model->save()) {
 			<li class="cancel"><a href="/admin/user_groups/list" class="button">Back</a></li>
 		</ul>
 
-		<form action="/admin/user_groups/new/save" class="i:formDefaultNew labelstyle:inject" method="post" enctype="multipart/form-data">
+		<form action="/admin/user_groups/save" class="i:formDefaultNew labelstyle:inject" method="post" enctype="multipart/form-data">
 
 			<fieldset>
 				<?= $model->input("name") ?>
@@ -39,4 +27,3 @@ if($action && $action[0] == "save" && $model->save()) {
 		</form>
 	</div>
 
-<? $page->footer(array("type" => "admin")) ?>
