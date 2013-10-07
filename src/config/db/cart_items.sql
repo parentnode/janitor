@@ -1,4 +1,4 @@
-CREATE TABLE `cart_items` (
+CREATE TABLE `SITE_DB`.`cart_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `item_id` int(11) NOT NULL,
 
