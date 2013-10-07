@@ -115,7 +115,7 @@ class Cart {
 		global $page;
 
 		$query->checkDbExistance($this->db);
-		$query->checkDbExistance($user->db_items);
+		$query->checkDbExistance($this->db_items);
 
 		// if cart_id from form, prioritize it
 		$cart_id = stringOr(getPost("cart_id"), Session::value("cart_id"));
