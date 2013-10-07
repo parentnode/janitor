@@ -16,6 +16,11 @@ class User extends Model {
 	function __construct() {
 
 		$this->db = SITE_DB.".users";
+		$this->db_usernames = SITE_DB.".user_usernames";
+		$this->db_addresses = SITE_DB.".user_addresses";
+		$this->db_passwords = SITE_DB.".user_passwords";
+		$this->db_newsletters = SITE_DB.".user_newsletters";
+
 
 		// Nickname
 		$this->addToModel("nickname", array(
@@ -58,12 +63,99 @@ class User extends Model {
 			"error_message" => "Invalid status command"
 		));
 
-		// Status
+		// Language
 		$this->addToModel("language", array(
 			"type" => "string",
 			"label" => "Your preferred language",
 			"hint_message" => "Select your preferred language",
 			"error_message" => "Invalid language"
+		));
+
+
+
+		// email
+		$this->addToModel("email", array(
+			"type" => "email",
+			"label" => "Your email",
+			"hint_message" => "You can log in using your email",
+			"error_message" => "Invalid email"
+		));
+
+		// mobile
+		$this->addToModel("mobile", array(
+			"type" => "tel",
+			"label" => "Your mobile",
+			"hint_message" => "Write your mobile number ",
+			"error_message" => "Invalid number"
+		));
+
+
+
+		// address label
+		$this->addToModel("label", array(
+			"type" => "string",
+			"label" => "Address label",
+			"hint_message" => "Give this address a label (home, office, parents, etc.)",
+			"error_message" => "Invalid label"
+		));
+
+		// address label
+		$this->addToModel("address_name", array(
+			"type" => "string",
+			"label" => "Name",
+			"hint_message" => "Name on door at address",
+			"error_message" => "Invalid name"
+		));
+		// att
+		$this->addToModel("att", array(
+			"type" => "string",
+			"label" => "Att",
+			"hint_message" => "Att for address",
+			"error_message" => "Invalid att"
+		));
+		// address 1
+		$this->addToModel("address1", array(
+			"type" => "string",
+			"label" => "Address",
+			"hint_message" => "Address",
+			"error_message" => "Invalid address"
+		));
+		// address 2
+		$this->addToModel("address2", array(
+			"type" => "string",
+			"label" => "Additional address",
+			"hint_message" => "Additional address info",
+			"error_message" => "Invalid address"
+		));
+		// city
+		$this->addToModel("city", array(
+			"type" => "string",
+			"label" => "City",
+			"hint_message" => "Write your city",
+			"error_message" => "Invalid city"
+		));
+		// postal code
+		$this->addToModel("postal", array(
+			"type" => "string",
+			"label" => "Postal code",
+			"hint_message" => "Postalcode of your city",
+			"error_message" => "Invalid postal code"
+		));
+
+		// state
+		$this->addToModel("state", array(
+			"type" => "string",
+			"label" => "State",
+			"hint_message" => "Write your state if applicaple",
+			"error_message" => "Invalid state"
+		));
+
+		// country
+		$this->addToModel("country", array(
+			"type" => "string",
+			"label" => "Country",
+			"hint_message" => "Country",
+			"error_message" => "Invalid country"
 		));
 
 		parent::__construct();
@@ -105,12 +197,15 @@ class User extends Model {
 			$sql = "SELECT * FROM ".$this->db." WHERE id = $user_id";
 //			print $sql;
 			if($query->sql($sql)) {
-				return $query->result(0);
+				 
+				$user = $query->result(0);
+
+				return $user;
 			}
 
 		}
 
-		// return all carts
+		// return all users
 		else {
 			if($query->sql("SELECT * FROM ".$this->db." ORDER BY $order")) {
 				 return $query->results();
@@ -138,7 +233,8 @@ class User extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false) {
+				if($entity["value"] !== false && preg_match("/^(user_group_id|firstname|lastname|nickname|status|language)$/", $name)) {
+//				if($entity["value"] !== false) {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
 				}
@@ -150,7 +246,7 @@ class User extends Model {
 
 				if($query->sql($sql)) {
 					message()->addMessage("User created");
-					return true;
+					return $query->lastInsertId();
 				}
 			}
 			message()->addMessage("Creating user failed", array("type" => "error"));
@@ -168,7 +264,7 @@ class User extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"]) {
+				if($entity["value"] !== false && preg_match("/^(user_group_id|firstname|lastname|nickname|status|language)$/", $name)) {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
 				}
@@ -185,7 +281,7 @@ class User extends Model {
 					return true;
 				}
 			}
-			message()->addMessage("Creating user failed", array("type" => "error"));
+			message()->addMessage("Updating user failed", array("type" => "error"));
 		}
 		return false;
 	}
@@ -229,14 +325,119 @@ class User extends Model {
 	}
 
 
-	function getUsernames($_options) {}
+	function getUsernames($_options) {
 
-	function addUsername() {}
+		$user_id = false;
+		$type = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"  : $user_id    = $_value; break;
+					case "type"     : $type       = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($user_id) {
+
+			if($type) {
+				$sql = "SELECT * FROM ".$this->db_usernames." WHERE user_id = $user_id AND type = '$type'";
+				if($query->sql($sql)) {
+					return $query->result(0);
+				}
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db_usernames." WHERE user_id = $user_id";
+				if($query->sql($sql)) {
+					return $query->results();
+				}
+			}
+
+		}
+
+	}
+
+	function getNewsletters($_options) {
+
+		$user_id = false;
+		$newsletter = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"        : $user_id          = $_value; break;
+					case "newsletter"     : $newsletter       = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($user_id) {
+
+			if($newsletter) {
+				$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id AND newsletter = '$newsletter'";
+				if($query->sql($sql)) {
+					return $query->result(0);
+				}
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id";
+				if($query->sql($sql)) {
+					return $query->results();
+				}
+			}
+
+		}
+
+	}
+
+	// create from posted values
+	function addUsername($user_id) {
+
+	}
 
 	function deleteUsername() {}
 
 
-	function getAddresses($_options) {}
+	function getAddresses($_options) {
+
+		$user_id = false;
+		$address_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"     : $user_id       = $_value; break;
+					case "address_id"  : $address_id    = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($user_id) {
+
+			if($type) {
+				$sql = "SELECT * FROM ".$this->db_addresses." WHERE address_id = $address_id";
+				if($query->sql($sql)) {
+					return $query->result(0);
+				}
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db_addresses." WHERE user_id = $user_id";
+				if($query->sql($sql)) {
+					return $query->results();
+				}
+			}
+
+		}
+		
+		
+	}
 
 	function addAddress() {
 		if(count($action) == 2) {
@@ -257,7 +458,7 @@ class User extends Model {
 			$values = array();
 
 			foreach($posted as $name => $value) {
-				if($entity["value"]) {
+				if($entity["value"] && preg_match("/^(user_group_id|firstname|lastname|nickname|status|language)$/", $name)) {
 					$names[] = $name;
 					$values[] = $name."='".$value."'";
 				}

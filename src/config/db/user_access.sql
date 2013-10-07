@@ -1,4 +1,4 @@
-CREATE TABLE `SITE_DB`.`access` (
+CREATE TABLE `SITE_DB`.`user_access` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_group_id` int(11) NOT NULL,
   `action` varchar(255) NOT NULL,

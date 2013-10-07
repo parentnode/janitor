@@ -1,4 +1,4 @@
-CREATE TABLE `addresses` (
+CREATE TABLE `SITE_DB`.`user_addresses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `status` int(11) NOT NULL,

@@ -117,9 +117,17 @@ class HTML {
 
 		// strings length
 
+		// hidden field
+		if($type == "hidden") {
+			$att_value = $this->attribute("value", $value);
+			return '<input type="hidden"'.$att_name.$att_id.$att_value.' />';
+		}
+
 
 		$_ .= '<div'.$att_class.'>';
 			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
+
+			// DATE
 
 			// DATE
 			if($type == "date") {
