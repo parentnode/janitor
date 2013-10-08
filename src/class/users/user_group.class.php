@@ -16,7 +16,7 @@ class UserGroup extends Model {
 	function __construct() {
 
 		$this->db = SITE_DB.".user_groups";
-		$this->db_access = SITE_DB.".access";
+		$this->db_access = SITE_DB.".user_access";
 
 		// Nickname
 		$this->addToModel("name", array(
