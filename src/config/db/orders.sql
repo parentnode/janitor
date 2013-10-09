@@ -1,5 +1,6 @@
 CREATE TABLE `SITE_DB`.`orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_no` varchar(10) NOT NULL,
   `cart_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
 

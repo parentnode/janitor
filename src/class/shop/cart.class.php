@@ -127,7 +127,11 @@ class Cart {
 			// TODO: add user id to cart creation when users are implemented
 			$query->sql("INSERT INTO ".$this->db." VALUES(DEFAULT, '".$page->country()."', '".$page->currency()."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 			$cart_id = $query->lastInsertId();
+
 			Session::value("cart_id", $cart_id);
+			// save cookie
+			setcookie("cart_id", $cart_id);
+
 		}
 		// update cart modified at
 		else {
@@ -191,6 +195,8 @@ class Cart {
 
 	function getOrders($_options=false) {
 
+		$user = new User();
+
 		// get specific cart
 		$cart_id = false;
 
@@ -211,31 +217,48 @@ class Cart {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "cart_id"  : $cart_id    = $_value; break;
-					case "user_id"  : $cart_id    = $_value; break;
-					case "order_id"  : $cart_id    = $_value; break;
-					case "item_id"  : $item_id    = $_value; break;
-					case "before"   : $before     = $_value; break;
-					case "after"    : $after      = $_value; break;
+					case "cart_id"    : $cart_id    = $_value; break;
+					case "user_id"    : $user_id    = $_value; break;
+					case "order_id"   : $order_id    = $_value; break;
+					case "item_id"    : $item_id    = $_value; break;
+					case "before"     : $before     = $_value; break;
+					case "after"      : $after      = $_value; break;
 
-					case "order"    : $order      = $_value; break;
+					case "order"      : $order      = $_value; break;
 				}
 			}
 		}
 
 		$query = new Query();
 
-		// get specific cart
+		// get specific order
 		if($order_id) {
 
-//			print "SELECT * FROM ".UT_CARTS." as carts WHERE carts.id = ".$cart_id." LIMIT 1";
-			if($query->sql("SELECT * FROM ".$this->db_orders." WHERE order_id = ".$order_id." LIMIT 1")) {
+//			print "SELECT * FROM ".$this->db_orders." WHERE id = ".$order_id." LIMIT 1";
+			if($query->sql("SELECT * FROM ".$this->db_orders." WHERE id = ".$order_id." LIMIT 1")) {
 				$order = $query->result(0);
 				$order["items"] = false;
 
 				if($query->sql("SELECT * FROM ".$this->db_order_items." as items WHERE items.order_id = ".$order_id)) {
 					$order["items"] = $query->results();
 				}
+
+				$email = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+				if($email) {
+					$order["email"] = $email["username"];
+				}
+				else {
+					$order["email"] = "n/a";
+				}
+
+				$mobile = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+				if($mobile) {
+					$order["mobile"] = $mobile["username"];
+				}
+				else {
+					$order["mobile"] = "n/a";
+				}
+
 				return $order;
 			}
 		}
@@ -251,11 +274,29 @@ class Cart {
 				if($query->sql("SELECT * FROM ".$this->db_order_items." as items WHERE items.order_id = ".$order["id"])) {
 					$order["items"] = $query->results();
 				}
+
+				// get email and mobile from user
+				$email = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+				if($email) {
+					$order["email"] = $email["username"];
+				}
+				else {
+					$order["email"] = "n/a";
+				}
+
+				$mobile = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+				if($mobile) {
+					$order["mobile"] = $mobile["username"];
+				}
+				else {
+					$order["mobile"] = "n/a";
+				}
+
 				return $order;
 			}
 		}
 
-		// get all carts with item_id in it
+		// TODO: get all carts with item_id in it
 		if($item_id) {
 
 			// if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE item_id = $item_id GROUP BY cart_id")) {
@@ -278,8 +319,26 @@ class Cart {
 					if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE order_id = ".$order["id"])) {
 						$orders[$i]["items"] = $query->results();
 					}
+
+					// get email and mobile from user
+					$email = $user->getUsernames(array("user_id" => $orders[$i]["user_id"], "type" => "email"));
+					if($email) {
+						$orders[$i]["email"] = $email["username"];
+					}
+					else {
+						$orders[$i]["email"] = "n/a";
+					}
+
+					$mobile = $user->getUsernames(array("user_id" => $orders[$i]["user_id"], "type" => "mobile"));
+					if($mobile) {
+						$orders[$i]["mobile"] = $mobile["username"];
+					}
+					else {
+						$orders[$i]["mobile"] = "n/a";
+					}
+
 				}
-				return $carts;
+				return $orders;
 			}
 		}
 
@@ -322,14 +381,17 @@ class Cart {
 				if($entities["nickname"]["value"] && $entities["email"]["value"] && $entities["mobile"]["value"]) {
 
 					// create user
-					$sql = "INSERT INTO ".$user->db." SET id = DEFAULT,nickname = '".$entities["nickname"]["value"]."'";
+					$sql = "INSERT INTO ".$user->db." SET id=DEFAULT, nickname='".$entities["nickname"]["value"]."'";
 					if($query->sql($sql)) {
 						$user_id = $query->lastInsertId();
 
+						$order_no = randomKey(10);
 						// create order
-						$sql = "INSERT INTO ".$this->db_orders." SET id = DEFAULT,user_id = $user_id,cart_id = $cart_id";
+						$sql = "INSERT INTO ".$this->db_orders." SET id=DEFAULT,order_no='$order_no', user_id=$user_id, cart_id=$cart_id";
 						if($query->sql($sql)) {
+
 							$order_id = $query->lastInsertId();
+							Session::value("order_id", $order_id);
 						}
 					}
 				}
@@ -340,6 +402,11 @@ class Cart {
 
 				$cart = $this->getCarts(array("cart_id" => $cart_id));
 //				print_r($cart);
+
+				// update modified timestamp for order
+				$sql = "UPDATE ".$user->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = $order_id";
+				$query->sql($sql);
+
 
 				// remove existing order items
 				$sql = "DELETE FROM ".$this->db_order_items." WHERE order_id = $order_id";
@@ -376,6 +443,10 @@ class Cart {
 						$query->sql($sql);
 					}
 				}
+
+
+				// TODO: add address as user_addresses if it does not exist already
+
 
 				// update general order info
 				$sql = "UPDATE ".$this->db_orders." SET ";

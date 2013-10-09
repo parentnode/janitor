@@ -37,6 +37,7 @@ class CMS {
 				$new_item = $IC->saveItem();
 				if($new_item) {
 					$new_item["cms_status"] = "success";
+					$new_item["message"] = implode(", ", message()->getMessages(array("type"=>"message")));
 					print json_encode($new_item);
 				}
 				else {
@@ -52,6 +53,7 @@ class CMS {
 				if($IC->updateItem($action[1])) {
 					$item = $IC->getCompleteItem($action[1]);
 					$item["cms_status"] = "success";
+					$item["message"] = implode(", ", message()->getMessages(array("type"=>"message")));
 					print json_encode($item);
 				}
 				else {
