@@ -557,7 +557,7 @@ class PageCore {
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
-				switch($option) {
+				switch($_option) {
 					case "recipients" : $recipients = $_value; break;
 					case "template"   : $template   = $_value; break;
 					case "object"     : $object     = $_value; break;
@@ -578,7 +578,7 @@ class PageCore {
 		}
 
 		// only attmempt sending if recipient is specified
-		if($recipients) {
+		if($message && $recipients) {
 			require_once("include/phpmailer/class.phpmailer.php");
 
 			$mail             = new PHPMailer();
