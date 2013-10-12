@@ -478,7 +478,11 @@ class PageCore {
 
 		// TODO: Compile more information and send in email
 		$this->addLog("Throwoff - insufficient privileges:".$this->url." ". UT_USE);
-		$this->mail("Throwoff - " . SITE_URL, "insufficient privileges:".$this->url, array("template" => "system"));
+		$this->mail(array(
+			"subject" => "Throwoff - " . SITE_URL, 
+			"message" => "insufficient privileges:".$this->url, 
+			"template" => "system"
+		));
 
 		//$this->user_id = "";
 		Session::resetLogin();
@@ -538,19 +542,27 @@ class PageCore {
 	/**
 	* send mail
 	*/
-	
+	// all parameters in array structure
+	// object can be any type of object providing details for email template
 	// TODO: add mail templates?
 
-	function mail($subject, $message, $options = false) {
+	function mail($_options = false) {
 
+		$subject = "Mail from ".SITE_URL;
+		$message = "";
+		$object = false;
 		$recipients = false;
 		$template = false;
+		$object = false;
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
 				switch($option) {
-					case "recipients" : $recipients = $value; break;
-					case "template"   : $template   = $value; break;
+					case "recipients" : $recipients = $_value; break;
+					case "template"   : $template   = $_value; break;
+					case "object"     : $object     = $_value; break;
+					case "message"    : $message    = $_value; break;
+					case "subject"    : $subject    = $_value; break;
 				}
 			}
 		}
@@ -680,7 +692,10 @@ class PageCore {
 			@include("templates/mails/notifications/$collection.php");
 
 			// send and reset collection
-			if($this->mail("NOTIFICATION: $collection", $message)) {
+			if($this->mail(array(
+				"subject" => "NOTIFICATION: $collection", 
+				"message" => $message
+			))) {
 				$fp = fopen($collection_file, "w");
 				fclose($fp);
 			}

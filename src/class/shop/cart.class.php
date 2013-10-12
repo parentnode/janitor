@@ -345,6 +345,28 @@ class Cart {
 		return false;
 	}
 
+	// calculate total order price
+	function getTotalOrderPrice($order_id) {
+		$order = $this->getOrders(array("order_id" => $order_id));
+		$total = 0;
+
+		if($order["items"]) {
+			foreach($order["items"] as $item) {
+				$total += ($item["total_price"] + $item["total_vat"]);
+			}
+		}
+		// TODO: update priceFormat function to look up these details
+		// get currency details
+		$query = new Query();
+		if($query->sql("SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$order["currency"]."'")) {
+			$currency = $query->result(0);
+
+			return formatPrice($total, $currency);
+		}
+
+		return $total;
+	}
+
 	function updateOrder() {
 
 		$user = new User();

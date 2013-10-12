@@ -50,7 +50,11 @@ class Image {
 		if(!$input_width || !$input_height || !$input_format) {
 			// critical error - report to admin
 			global $page;
-			$page->mail("getimagesize failed", "GD image failed to read source image proporties", array("template" => "system"));
+			$page->mail(array(
+				"subject" => "getimagesize failed", 
+				"message" => "GD image failed to read source image proporties", 
+				"template" => "system"
+			));
 			return false;
 		}
 
@@ -83,7 +87,11 @@ class Image {
 		if($max_pixels && $output_width * $output_height > $max_pixels) {
 			// critical error - report to admin
 			global $page;
-			$page->mail("Image failed ($output_width x $output_height)", "Image size too big", array("template" => "system"));
+			$page->mail(array(
+				"subject" => "Image failed ($output_width x $output_height)", 
+				"message" => "Image size too big", 
+				"template" => "system"
+			));
 			return false;
 		}
 

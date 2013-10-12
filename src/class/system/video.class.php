@@ -54,7 +54,11 @@ class Video {
 		if($input_format != $output_format && !$allow_conversion) {
 			// critical error - report to admin
 			global $page;
-			$page->mail("ffmpeg failed", "ffmpeg failed to read source video proporties", array("template" => "system"));
+			$page->mail(array(
+				"subject" => "ffmpeg failed", 
+				"messsage" => "ffmpeg failed to read source video proporties", 
+				"template" => "system"
+			));
 
 			return false;
 		}
@@ -79,7 +83,11 @@ class Video {
 		if($max_pixels && $output_width * $output_height > $max_pixels) {
 			// critical error - report to admin
 			global $page;
-			$page->mail("Video failed ($output_width x $output_height)", "Video size too big", array("template" => "system"));
+			$page->mail(array(
+				"subject" => "Video failed ($output_width x $output_height)", 
+				"message" => "Video size too big", 
+				"template" => "system"
+			));
 			return false;
 		}
 
@@ -329,7 +337,11 @@ class Video {
 		}
 
 		global $page;
-		$page->mail("ffmpeg failed", "Could not output video file (could be missing codec or filepermissions issue)", array("template" => "system"));
+		$page->mail(array(
+			"subject" => "ffmpeg failed", 
+			"message" => "Could not output video file (could be missing codec or filepermissions issue)", 
+			"template" => "system"
+		));
 		return false;
 
 	}

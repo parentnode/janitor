@@ -36,7 +36,11 @@ function conversionFailed($reason) {
 
 	// TODO: add missing image instead of 404
 //	print "conversion failed:" . $reason;
-	$page->mail("Autoconversion failed", $reason, array("template" => "system"));
+	$page->mail(array(
+		"subject" => "Autoconversion failed", 
+		"message" => $reason,
+		"template" => "system"
+	));
 
 //	header("Location: /404");
 	exit();

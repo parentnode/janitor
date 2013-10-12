@@ -5,7 +5,7 @@ $action = $this->actions();
 $TC = new Tag();
 $tags = $TC->getTags();
 ?>
-<div class="scene">
+<div class="scene defaultList tagsList">
 	<h1>Tags</h1>
 
 	<ul class="list">
