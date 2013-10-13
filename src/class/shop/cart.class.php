@@ -120,6 +120,7 @@ class Cart {
 		$query->checkDbExistance($this->db_order_items);
 
 		// if cart_id from form, prioritize it
+		// TODO: Is cart_id ever sent as post?
 		$cart_id = stringOr(getPost("cart_id"), Session::value("cart_id"));
 
 		// no cart id - create new cart
