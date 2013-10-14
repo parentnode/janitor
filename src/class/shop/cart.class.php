@@ -347,7 +347,7 @@ class Cart {
 	}
 
 	// calculate total order price
-	function getTotalOrderPrice($order_id) {
+	function getTotalOrderPrice($order_id, $clean = false) {
 		$order = $this->getOrders(array("order_id" => $order_id));
 		$total = 0;
 
@@ -358,13 +358,14 @@ class Cart {
 		}
 		// TODO: update priceFormat function to look up these details
 		// get currency details
-		$query = new Query();
-		if($query->sql("SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$order["currency"]."'")) {
-			$currency = $query->result(0);
+		if(!$clean) {
+			$query = new Query();
+			if($query->sql("SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$order["currency"]."'")) {
+				$currency = $query->result(0);
 
-			return formatPrice($total, $currency);
+				return formatPrice($total, $currency);
+			}
 		}
-
 		return $total;
 	}
 
