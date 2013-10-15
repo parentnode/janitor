@@ -69,10 +69,9 @@ class Model extends HTML {
 	* 2: before timestamp
 	*/
 	function addToModel($name, $_options = false) {
-
 		$id = false;
 
-		$value = "";
+		$value = false;
 		$type = "string";
 		$label = false;
 		$required = false;
@@ -144,6 +143,8 @@ class Model extends HTML {
 		$this->data_entities[$name]["value"] = $value;
 		$this->data_entities[$name]["type"] = $type;
 		$this->data_entities[$name]["label"] = $label;
+//		print "ADD TO MODEL:" . $this->data_entities[$name]["value"];
+
 
 		$this->data_entities[$name]["required"] = $required;
 		$this->data_entities[$name]["error_message"] = $error_message;
@@ -194,8 +195,11 @@ class Model extends HTML {
 	function getPostedEntities() {
 		if(count($this->data_entities)) {
 			foreach($this->data_entities as $name => $entity) {
-				$entity["value"] = getPost($name);
-				$this->data_entities[$name]["value"] = getPost($name);
+//				$entity["value"] = getPost($name);
+				$value = getPost($name);
+				if($value !== false) {
+					$this->data_entities[$name]["value"] = getPost($name);
+				}
 			}
 		}
 	}
@@ -282,6 +286,9 @@ class Model extends HTML {
 		// check uniqueness
 		if($this->data_entities[$name]["unique"]) {
 			if(!$this->isUnique($name, $item_id)) {
+				$error_message = $this->data_entities[$name]["error_message"];
+				$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occured";
+				message()->addMessage($error_message, array("type" => "error"));
 				return false;
 			}
 		}
@@ -380,9 +387,11 @@ class Model extends HTML {
 		$query = new Query();
 		// does other value exist
 		if($query->sql("SELECT id FROM ".$entity["unique"]." WHERE $name = '".$entity["value"]."'".$item_id ? " AND item_id != ".$item_id : "")) {
+			$this->data_entities[$name]["error"] = true;
 			return false;
 		}
 
+		$this->data_entities[$name]["error"] = false;
 		return true;
 	}
 

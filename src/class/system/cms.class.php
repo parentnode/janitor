@@ -41,7 +41,9 @@ class CMS {
 					print json_encode($new_item);
 				}
 				else {
-					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
+					print '{"cms_status":"error", "message":"'.implode(", ", message()->getMessages(array("type"=>"error"))).'"}';
+//					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
+					message()->resetMessages();
 				}
 				exit();
 			}

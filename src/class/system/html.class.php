@@ -48,6 +48,8 @@ class HTML {
 
 		$type = $this->getEntityProperty($name, "type");
 		$value = $this->getEntityProperty($name, "value");
+//		print "###".$value."###";
+
 		$label = $this->getEntityProperty($name, "label");
 
 		$class = false;

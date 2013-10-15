@@ -402,7 +402,6 @@ class ItemCore {
 			else if($new_id) {
 				// save failed, remove item again
 				$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $new_id");
-
 			}
 
 		}
