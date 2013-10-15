@@ -39,6 +39,7 @@ class CMS {
 					$new_item["cms_status"] = "success";
 					$new_item["message"] = implode(", ", message()->getMessages(array("type"=>"message")));
 					print json_encode($new_item);
+					message()->resetMessages();
 				}
 				else {
 					print '{"cms_status":"error", "message":"'.implode(", ", message()->getMessages(array("type"=>"error"))).'"}';
@@ -57,9 +58,12 @@ class CMS {
 					$item["cms_status"] = "success";
 					$item["message"] = implode(", ", message()->getMessages(array("type"=>"message")));
 					print json_encode($item);
+					message()->resetMessages();
 				}
 				else {
-					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
+					print '{"cms_status":"error", "message":"'.implode(", ", message()->getMessages(array("type"=>"error"))).'"}';
+//					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
+					message()->resetMessages();
 				}
 				exit();
 			}
