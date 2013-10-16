@@ -4,6 +4,9 @@
 * This class basically only exists to make it easy to add custom page functionality or overwrite behaviours.
 */
 
+// include the output class for output method support
+include_once("class/system/output.class.php");
+
 
 /**
 * Item custom backbone - extends the ItemCore base functionality
@@ -26,6 +29,7 @@ class CMS {
 
 		$IC = new Item();
 		$action = $page->actions();
+		$output = new Output();
 
 		// any actions
 		if(isset($action)) {
@@ -34,18 +38,20 @@ class CMS {
 			// Requires exactly to parameters /save/#itemtype#
 			if(count($action) == 2 && $action[0] == "save") {
 
-				$new_item = $IC->saveItem();
-				if($new_item) {
-					$new_item["cms_status"] = "success";
-					$new_item["message"] = implode(", ", message()->getMessages(array("type"=>"message")));
-					print json_encode($new_item);
-					message()->resetMessages();
-				}
-				else {
-					print '{"cms_status":"error", "message":"'.implode(", ", message()->getMessages(array("type"=>"error"))).'"}';
-//					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
-					message()->resetMessages();
-				}
+				$output->screen($IC->saveItem());
+
+// 				$new_item = $IC->saveItem();
+// 				if($new_item) {
+// 					$new_item["cms_status"] = "success";
+// 					$new_item["message"] = implode(", ", message()->getMessages(array("type"=>"message")));
+// 					print json_encode($new_item);
+// 					message()->resetMessages();
+// 				}
+// 				else {
+// 					print '{"cms_status":"error", "message":"'.implode(", ", message()->getMessages(array("type"=>"error"))).'"}';
+// //					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
+// 					message()->resetMessages();
+// 				}
 				exit();
 			}
 
@@ -117,6 +123,22 @@ class CMS {
 				else {
 					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
 				}
+				exit();
+			}
+
+			// GET TAGS based on context
+			// Requires just the tags parameter /tags/#context#
+			else if(count($action) == 2 && $action && $action[0] == "tags") {
+
+				$output->screen($IC->getTags(array("context" => $action[1])));
+				exit();
+			}
+
+			// GET TAGS
+			// Requires just the tags parameter /tags[/#context#/#value#]
+			else if(count($action) == 1 && $action[0] == "tags") {
+
+				$output->screen($IC->getTags());
 				exit();
 			}
 

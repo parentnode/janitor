@@ -320,7 +320,6 @@ class PageCore {
 	}
 
 
-
 	function language($value = false) {
 		// set
 		if($value !== false) {

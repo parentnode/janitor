@@ -109,7 +109,7 @@ class ItemCore {
 			}
 
 			$item["prices"] = $this->getPrices($item["id"]);
-			$item["tags"] = $this->getTags($item["id"]);
+			$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
 
 			return $item;
 		}
@@ -890,37 +890,60 @@ class ItemCore {
 
 	// get tag, optionally limited to context, or just check if specific tag exists
 	// TODO: make item_id optional - then function can provide complete tag list for autocomplete input
-	function getTags($item_id, $options=false) {
+	function getTags($_options=false) {
 
+		$item_id = false;
 		$tag_context = false;
 		$tag_value = false;
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "context" : $tag_context = $value; break;
-					case "value" : $tag_value = $value; break;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"    : $item_id        = $_value; break;
+					case "context"    : $tag_context    = $_value; break;
+					case "value"      : $tag_value      = $_value; break;
 				}
 			}
 		}
 
 		$query = new Query();
 
-		// specific tag exists?
-		if($tag_context && $tag_value) {
-			return $query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id");
-		}
-		// get all tags with context
-		else if($tag_context) {
-			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id")) {
-				return $query->results();
+		if($item_id) {
+			// specific tag exists?
+			if($tag_context && $tag_value) {
+				return $query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id");
+			}
+			// get all tags with context
+			else if($tag_context) {
+				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id")) {
+					return $query->results();
+				}
+			}
+			// all tags
+			else {
+				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id")) {
+					return $query->results();
+				}
 			}
 		}
-		// all tags
+		else if($tag_context && $tag_value) {
+			return $query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id");
+		}
+		// get all tags
 		else {
-			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id")) {
-				return $query->results();
+			// get all tags with context
+			if($tag_context) {
+				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags WHERE tags.context = '$tag_context'")) {
+					return $query->results();
+				}
 			}
+			// all tags
+			else {
+				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG)) {
+					return $query->results();
+				}
+			}
+			
 		}
 		return false;
 	}
@@ -1003,6 +1026,7 @@ class ItemCore {
 
 	// get prices, optionally limited to context, or just check if specific tag exists
 	// TODO: add correct comma/point formatting
+	// TODO: update to getTags format as part of price function fix
 	function getPrices($item_id, $options = false) {
 
 		$prices = false;
