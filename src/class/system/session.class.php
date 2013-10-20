@@ -21,13 +21,16 @@ class Session {
 	*/
 	function value($key, $value = false) {
 		if($value !== false) {
-			$_SESSION["SV"][$key] = $value;
+			$_SESSION["SV"][$key] = json_encode($value);
 		}
 		else {
 			if(!isset($_SESSION["SV"]) || !isset($_SESSION["SV"][$key])) {
 				return false;
 			}
-			return $_SESSION["SV"][$key];
+//			print "€$key=".$_SESSION["SV"][$key]."€";
+//			print_r(json_decode($_SESSION["SV"][$key], true));
+			return json_decode($_SESSION["SV"][$key], true);
+
 		}
 	}
 

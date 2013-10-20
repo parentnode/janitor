@@ -510,16 +510,20 @@ class ItemCore {
 				// update sindex
 				$this->sindex($item_id);
 
-				return true;
+				message()->addMessage("Item updated");
+
+				return $this->getCompleteItem($item_id);
+//				return true;
 			}
 
 		}
+		message()->addMessage("Item could not be updated", array("type" => "error"));
 		return false;
 	}
 
 	/**
 	* Update simple (flat) item type
-	* TODO: extend with one file handling
+	* TODO: extend with one file handling - still missing parts
 	*/
 	function updateSimpleType($item_id, $typeObject) {
 		$query = new Query();
@@ -568,7 +572,7 @@ class ItemCore {
 
 
 
-
+	// does this still have a purpose
 	function identifyUploads() {
 
 		$uploads = array();
@@ -852,10 +856,11 @@ class ItemCore {
 		// delete item + itemtype + files
 		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
 			$query->sql("UPDATE ".UT_ITEMS." SET status = 0 WHERE id = $item_id");
-			return true;
 
 			message()->addMessage("Item disabled");
+			return true;
 		}
+		message()->addMessage("Item could not be disabled", array("type" => "error"));
 		return false;
 
 	}
@@ -865,9 +870,11 @@ class ItemCore {
 		// delete item + itemtype + files
 		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
 			$query->sql("UPDATE ".UT_ITEMS." SET status = 1 WHERE id = $item_id");
-			return true;
+
 			message()->addMessage("Item enabled");
+			return true;
 		}
+		message()->addMessage("Item could not be enabled", array("type" => "error"));
 		return false;
 	}
 
@@ -880,16 +887,18 @@ class ItemCore {
 			$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $item_id");
 			FileSystem::removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
 			FileSystem::removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
+
+			message()->addMessage("Item deleted");
 			return true;
 		}
 
+		message()->addMessage("Item could not be deleted", array("type" => "error"));
 		return false;
 	}
 
 
 
-	// get tag, optionally limited to context, or just check if specific tag exists
-	// TODO: make item_id optional - then function can provide complete tag list for autocomplete input
+	// get tag, optionally based on item_id, limited to context, or just check if specific tag exists
 	function getTags($_options=false) {
 
 		$item_id = false;
@@ -1065,8 +1074,8 @@ class ItemCore {
 		if($prices) {
 			foreach($prices as $index => $price) {
 				$prices[$index]["price_with_vat"] = $price["price"]* (1 + ($price["vatrate"]/100));
-				$prices[$index]["formatted"] = formatPrice($price["price"], $price);
-				$prices[$index]["formatted_with_vat"] = formatPrice($prices[$index]["price_with_vat"], $price); 
+				// $prices[$index]["formatted"] = formatPrice($price["price"], $price["currency"]);
+				// $prices[$index]["formatted_with_vat"] = formatPrice($prices[$index]["price_with_vat"], $price["currency"]); 
 			}
 		}
 
@@ -1104,8 +1113,7 @@ class ItemCore {
 
 		$query = new Query();
 
-
-		if($query->sql("DELETE FROM ".UT_PRICES." WHERE item_id = $item_id AND price_id = $price_id")) {
+		if($query->sql("DELETE FROM ".UT_PRICES." WHERE item_id = $item_id AND id = $price_id")) {
 			message()->addMessage("Price deleted");
 			return true;
 		}
@@ -1113,45 +1121,6 @@ class ItemCore {
 		message()->addMessage("Price could not be deleted", array("type" => "error"));
 		return false;
 	}
-
-
-
-	// 	function getSetItems($set) {
-	// 
-	// 		$items = array();
-	// 
-	// 		$query = new Query();
-	// //		print "SELECT * FROM ".UT_ITEMS." as items, " . UT_ITEMS_SET . " as item_set, " . UT_ITEMS_SET_ITEMS . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at<br>";
-	// 		$query->sql("SELECT * FROM ".UT_ITEMS." as items, " . UT_ITEMS_SET . " as item_set, " . UT_ITEMS_SET_ITEMS . " as set_items WHERE item_set.name = '$set' AND item_set.item_id = set_items.set_id AND items.id = set_items.item_id ORDER BY set_items.position, items.published_at");
-	// 		$results = $query->results();
-	// 
-	// //		foreach($results as $item);
-	// 		for($i = 0; $i < $query->count(); $i++){
-	// 
-	// 			$item = array();
-	// 
-	// 			$item["id"] = $query->result($i, "items.id");
-	// 			$item["itemtype"] = $query->result($i, "items.itemtype");
-	// 
-	// //			$item_sindex = $query->result($i, "items.sindex");
-	// 			$item["sindex"] = $query->result($i, "items.sindex"); //$item_sindex ? $item_sindex : $this->sindex($item["id"]);
-	// 
-	// 			$item["status"] = $query->result($i, "items.status");
-	// 
-	// 			$item["user_id"] = $query->result($i, "items.user_id");
-	// 
-	// 			$item["created_at"] = $query->result($i, "items.created_at");
-	// 			$item["modified_at"] = $query->result($i, "items.modified_at");
-	// 			$item["published_at"] = $query->result($i, "items.published_at");
-	// 
-	// 			$items[] = $item;
-	// 		}
-	// 
-	// 		return $items;
-	// 	}
-
-
-
 
 }
 

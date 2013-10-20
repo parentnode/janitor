@@ -385,8 +385,12 @@ class Model extends HTML {
 		$entity = $this->data_entities[$name];
 
 		$query = new Query();
+		$sql = "SELECT id FROM ".$entity["unique"]." WHERE $name = '".$entity["value"]."'".($item_id ? " AND item_id != ".$item_id : "");
+		if($item_id) {
+			
+		}
 		// does other value exist
-		if($query->sql("SELECT id FROM ".$entity["unique"]." WHERE $name = '".$entity["value"]."'".$item_id ? " AND item_id != ".$item_id : "")) {
+		if($query->sql($sql)) {
 			$this->data_entities[$name]["error"] = true;
 			return false;
 		}

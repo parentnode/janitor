@@ -39,19 +39,6 @@ class CMS {
 			if(count($action) == 2 && $action[0] == "save") {
 
 				$output->screen($IC->saveItem());
-
-// 				$new_item = $IC->saveItem();
-// 				if($new_item) {
-// 					$new_item["cms_status"] = "success";
-// 					$new_item["message"] = implode(", ", message()->getMessages(array("type"=>"message")));
-// 					print json_encode($new_item);
-// 					message()->resetMessages();
-// 				}
-// 				else {
-// 					print '{"cms_status":"error", "message":"'.implode(", ", message()->getMessages(array("type"=>"error"))).'"}';
-// //					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
-// 					message()->resetMessages();
-// 				}
 				exit();
 			}
 
@@ -59,18 +46,7 @@ class CMS {
 			// Requires exactly two parameters /save/#item_id#
 			else if(count($action) == 2 && $action[0] == "update") {
 
-				if($IC->updateItem($action[1])) {
-					$item = $IC->getCompleteItem($action[1]);
-					$item["cms_status"] = "success";
-					$item["message"] = implode(", ", message()->getMessages(array("type"=>"message")));
-					print json_encode($item);
-					message()->resetMessages();
-				}
-				else {
-					print '{"cms_status":"error", "message":"'.implode(", ", message()->getMessages(array("type"=>"error"))).'"}';
-//					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
-					message()->resetMessages();
-				}
+				$output->screen($IC->updateItem($action[1]));
 				exit();
 			}
 
@@ -78,54 +54,38 @@ class CMS {
 			// Requires exactly two parameters /delete/#item_id#
 			else if(count($action) == 2 && $action[0] == "delete") {
 
-				if($IC->deleteItem($action[1])) {
-					print '{"cms_status":"success", "message":"Item deleted"}';
-				}
-				else {
-					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
-				}
+				$output->screen($IC->deleteItem($action[1]));
 				exit();
 			}
 
+
+			// STATUS
+			//
 			// ENABLE ITEM
 			// Requires exactly two parameters /enable/#item_id#
 			else if(count($action) == 2 && $action[0] == "enable") {
 
-				if($IC->enableItem($action[1])) {
-					print '{"cms_status":"success", "message":"Item enabled"}';
-				}
-				else {
-					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
-				}
+				$output->screen($IC->enableItem($action[1]));
 				exit();
 			}
-
 			// DISABLE ITEM
 			// Requires exactly two parameters /enable/#item_id#
 			else if(count($action) == 2 && $action[0] == "disable") {
 
-				if($IC->disableItem($action[1])) {
-					print '{"cms_status":"success", "message":"Item disabled"}';
-				}
-				else {
-					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
-				}
+				$output->screen($IC->disableItem($action[1]));
 				exit();
 			}
 
+
+			// TAGS
+			//
 			// DELETE TAG
 			// Requires exactly 4 parameters /tags/delete/#item_id#/#tag_id#
 			else if(count($action) == 4 && $action[0] == "tags" && $action[1] == "delete") {
 
-				if($IC->deleteTag($action[2], $action[3])) {
-					print '{"cms_status":"success", "message":"Tag deleted"}';
-				}
-				else {
-					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
-				}
+				$output->screen($IC->deleteTag($action[2], $action[3]));
 				exit();
 			}
-
 			// GET TAGS based on context
 			// Requires just the tags parameter /tags/#context#
 			else if(count($action) == 2 && $action && $action[0] == "tags") {
@@ -133,7 +93,6 @@ class CMS {
 				$output->screen($IC->getTags(array("context" => $action[1])));
 				exit();
 			}
-
 			// GET TAGS
 			// Requires just the tags parameter /tags[/#context#/#value#]
 			else if(count($action) == 1 && $action[0] == "tags") {
@@ -142,24 +101,25 @@ class CMS {
 				exit();
 			}
 
+
+			// PRICES
+			//
 			// DELETE PRICE
 			// Requires exactly 4 parameters /prices/delete/#item_id#/#price_id#
 			else if(count($action) == 4 && $action[0] == "prices" && $action[1] == "delete") {
 
-				if($IC->deleteTag($action[2], $action[3])) {
-					print '{"cms_status":"success", "message":"Price deleted"}';
-				}
-				else {
-					print '{"cms_status":"error", "message":"An error occured. Please reload."}';
-				}
+				$output->screen($IC->deletePrice($action[2], $action[3]));
 				exit();
 			}
 
+
+			// CUSTOM
+			//
 			// custom loopback to itemtype
 			// TODO: consider alternative syntax'
 			// alternative: /#itemtype#/#action#/#item_id#/#additional_parameters#
 
-			// alternative: /#itemtype#/#item_id#/#action#/#additional_parameters#
+			// current alternative: /#itemtype#/#item_id#/#action#/#additional_parameters#
 			// Requires minimum 3 parameters /#item_id#/#action#
 			else if(count($action) > 2 && preg_match("/[a-z]+\/[0-9]+\/[a-zA-Z]+/", implode("/", $action))) {
 
@@ -168,17 +128,12 @@ class CMS {
 				// check if custom function exists on typeObject
 				if($typeObject && method_exists($typeObject, $action[2])) {
 
-					// pass actions to function
-					if($typeObject->$action[2]($action)) {
-
-						print '{"cms_status":"success", "message":"'.implode(", ", message()->getMessages(array("type"=>"message"))).'"}';
-						message()->resetMessages();
-						exit();
-					}
+					$output->screen($typeObject->$action[2]($action));
+					exit();
 				}
-				$errors = message()->getMessages(array("type"=>"error"));
-				message()->resetMessages();
-				print '{"cms_status":"error", "message":'.($errors ? '"'.implode(", ", $errors).'"' : '"An error occured. Please reload."').'}';
+
+				$output->screen();
+				exit();
 			}
 
 			// INITIAL VERSION
@@ -192,6 +147,8 @@ class CMS {
 			// 		$typeObject = $IC->typeObject($item["itemtype"]);
 			// 		// check if custom function exists on typeObject
 			// 		if($typeObject && method_exists($typeObject, $action[1])) {
+
+			//			$output->screen($typeObject->$action[1]($action));
 			// 			
 			// 			if($typeObject->$action[1]($action)) {
 			// 				print '{"cms_status":"success", "message":"something correct"}';
@@ -199,6 +156,10 @@ class CMS {
 			// 			}
 			// 		}
 			// 	}
+
+			// $output->screen();
+			// exit();
+
 			// 	$errors = message()->getMessages(array("type"=>"error"));
 			// 	message()->resetMessages();
 			// 	print '{"cms_status":"error", "message":'.($errors ? '"'.implode(", ", $errors).'"' : '"An error occured. Please reload."').'}';

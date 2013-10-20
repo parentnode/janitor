@@ -47,6 +47,7 @@ class Output {
 //			print_r(message()->getMessages());
 		//if($type == "success") {
 			$output["cms_status"] = "success";
+//			print_r(message()->getMessages());
 			$output["cms_message"] = message()->getMessages();
 			// $messages = message()->getMessages();
 			// foreach($messages as $type => $message) {

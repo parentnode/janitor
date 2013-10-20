@@ -538,11 +538,55 @@ function pluralize($count, $singular, $plural) {
 	return $count . " " . $singular;
 }
 
+
+// price formatting - uses $page and currency db-table for information
+function formatPrice($price, $currency = false) {
+	global $page;
+
+//	print "formatPrice currency".$currency;
+	$default_currency = $page->currency();
+//	print_r($default_currency);
+//	print "default_decimals:" . $default_currency["decimals"];
+
+	if(!$currency || (is_string($currency) && $currency == $default_currency["id"])) {
+		$currency = $default_currency;
+	}
+//	print_r($default_currency);
+	else if(is_string($currency)) {
+		$query = new Query();
+//		print "SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$currency."'";
+		if($query->sql("SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$currency."'")) {
+			$currency = $query->result(0);
+		}
+	}
+
+	// // $currency_id = $currency_id ? $currency_id : 
+	// // print "currency_id 2".$currency_id;
+	// 
+	// $query = new Query();
+	// print "SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$currency_id."'";
+	// if($query->sql("SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$currency_id."'")) {
+	// 	print "true";
+	// 	$currency = $query->result(0);
+//		print_r($currency);
+//		print "decimals:" . $currency["decimals"];
+		$formatted_price = ($currency["abbreviation_position"] == "before" ? $currency["abbreviation"]." " : "");
+		$formatted_price .= number_format($price, parseInt($currency["decimals"]), $currency["decimal_separator"], $currency["grouping_separator"]);
+		$formatted_price .= ($currency["abbreviation_position"] == "after" ? " ".$currency["abbreviation"] : "");
+
+//		print $formatted_price;
+		return $formatted_price;
+	// }
+	// 
+	// return $price;
+}
+
+
 // TODO: maybe send only Currency ISO and look up the rest
 // price formatting - uses internal $price object for information
-function formatPrice($price, $currency) {
-	return ($currency["abbreviation_position"] == "before" ? $currency["abbreviation"]." " : "") . number_format($price, $currency["decimals"], $currency["decimal_separator"], $currency["grouping_separator"]) . ($currency["abbreviation_position"] == "after" ? " ".$currency["abbreviation"] : "");
-}
+// function formatPrice($price, $currency) {
+// 	return ($currency["abbreviation_position"] == "before" ? $currency["abbreviation"]." " : "") . number_format($price, $currency["decimals"], $currency["decimal_separator"], $currency["grouping_separator"]) . ($currency["abbreviation_position"] == "after" ? " ".$currency["abbreviation"] : "");
+// }
 // ;
 // $prices[$index]["formatted_with_vat"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . number_format($price["price"]* (1 + ($price["vatrate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]) . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
 // $prices[$index]["price_with_vat"] = number_format($price["price"]* (1 + ($price["vatrate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]);

@@ -126,7 +126,8 @@ class Cart {
 		// no cart id - create new cart
 		if(!$cart_id) {
 			// TODO: add user id to cart creation when users are implemented
-			$query->sql("INSERT INTO ".$this->db." VALUES(DEFAULT, '".$page->country()."', '".$page->currency()."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+			$currency = $page->currency();
+			$query->sql("INSERT INTO ".$this->db." VALUES(DEFAULT, '".$page->country()."', '".$currency["id"]."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 			$cart_id = $query->lastInsertId();
 
 			Session::value("cart_id", $cart_id);
@@ -347,7 +348,7 @@ class Cart {
 	}
 
 	// calculate total order price
-	function getTotalOrderPrice($order_id, $clean = false) {
+	function getTotalOrderPrice($order_id) {
 		$order = $this->getOrders(array("order_id" => $order_id));
 		$total = 0;
 
@@ -356,18 +357,12 @@ class Cart {
 				$total += ($item["total_price"] + $item["total_vat"]);
 			}
 		}
-		// TODO: update priceFormat function to look up these details
-		// get currency details
-		if(!$clean) {
-			$query = new Query();
-			if($query->sql("SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$order["currency"]."'")) {
-				$currency = $query->result(0);
-
-				return formatPrice($total, $currency);
-			}
-		}
 		return $total;
 	}
+
+	// ;
+	// $prices[$index]["formatted_with_vat"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . number_format($price["price"]* (1 + ($price["vatrate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]) . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
+	// $prices[$index]["price_with_vat"] = number_format($price["price"]* (1 + ($price["vatrate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]);
 
 	function updateOrder() {
 
@@ -415,7 +410,7 @@ class Cart {
 						if($query->sql($sql)) {
 
 							$order_id = $query->lastInsertId();
-							Session::value("order_id", $order_id);
+//							Session::value("order_id", $order_id);
 						}
 					}
 				}
@@ -423,6 +418,8 @@ class Cart {
 
 			// we have enough info to update order
 			if($order_id && $user_id && $cart_id) {
+
+				Session::value("order_id", $order_id);
 
 				$cart = $this->getCarts(array("cart_id" => $cart_id));
 //				print_r($cart);

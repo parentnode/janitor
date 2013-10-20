@@ -356,7 +356,15 @@ class PageCore {
 		// get
 		else {
 			if(!Session::value("currency")) {
-				Session::value("currency", defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK");
+				$currency_id = defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK";
+
+				$query = new Query();
+				if($query->sql("SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$currency_id."'")) {
+					$currency = $query->result(0);
+				}
+//				print_r($currency);
+
+				Session::value("currency", $currency);
 			}
 			return Session::value("currency");
 		}

@@ -51,8 +51,13 @@ class Message {
 			}
 		}
 
-		if($type && isset($this->messages[$type])) {
-			return $this->messages[$type];
+		if($type) {
+			if(isset($this->messages[$type])) {
+				return $this->messages[$type];
+			}
+			else {
+				return array();
+			}
 		}
 
 		return $this->messages;
