@@ -684,6 +684,7 @@ class ItemCore {
 					case "max_height"          : $max_height           = $_value; break;
 
 					case "filetypes"           : $filetypes            = $_value; break;
+					case "filegroup"           : $filegroup            = $_value; break;
 
 					case "auto_add_variant"    : $auto_add_variant     = $_value; break;
 				}
@@ -711,9 +712,10 @@ class ItemCore {
 					$temp_file = $_FILES[$input_name]["tmp_name"][$index];
 					$temp_type = $_FILES[$input_name]["type"][$index];
 
+//					print preg_match("/".$filegroup."/", $temp_type)."#";
+
 					if(preg_match("/".$filegroup."/", $temp_type)) {
 
-//						print "correct group";
 
 						if($auto_add_variant) {
 							$upload["variant"] = randomKey(8);
@@ -727,6 +729,8 @@ class ItemCore {
 							$variant = "";
 							$upload["variant"] = $variant;
 						}
+
+//						print "correct group:" . $filegroup . ", " . $temp_type . ", " . $variant;
 
 						// video upload
 						if(preg_match("/video/", $temp_type)) {
