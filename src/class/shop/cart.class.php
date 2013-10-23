@@ -132,8 +132,7 @@ class Cart {
 
 			Session::value("cart_id", $cart_id);
 			// save cookie
-			setcookie("cart_id", $cart_id);
-
+			setcookie("cart_id", $cart_id, time()+60*60*24*60, "/");
 		}
 		// update cart modified at
 		else {
