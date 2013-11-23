@@ -906,6 +906,7 @@ class ItemCore {
 	function getTags($_options=false) {
 
 		$item_id = false;
+		$tag_id = false;
 		$tag_context = false;
 		$tag_value = false;
 
@@ -913,6 +914,7 @@ class ItemCore {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "item_id"    : $item_id        = $_value; break;
+					case "tag_id"     : $tag_id         = $_value; break;
 					case "context"    : $tag_context    = $_value; break;
 					case "value"      : $tag_value      = $_value; break;
 				}
@@ -939,8 +941,20 @@ class ItemCore {
 				}
 			}
 		}
+		// get tag and items using tag_id
+		else if($tag_id) {
+			$query->sql("SELECT * FROM ".UT_TAG." as tags WHERE tags.id = '$tag_id'");
+			$tag = $query->result(0);
+			
+			$query->sql("SELECT * FROM ".UT_TAGGINGS." as taggings, ".UT_ITEMS." as items WHERE taggings.tag_id = '$tag_id' AND taggings.item_id = items.id");
+			$tag["items"] = $query->results();
+//			print "SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = '$tag_id' AND tags.id = taggings.tag_id";
+			return $tag;
+		}
+		// get items using tag with context and value
 		else if($tag_context && $tag_value) {
-			return $query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id");
+			$query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id");
+			return $query->results();
 		}
 		// get all tags
 		else {
@@ -952,7 +966,7 @@ class ItemCore {
 			}
 			// all tags
 			else {
-				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG)) {
+				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." ORDER BY tags.context, tags.value")) {
 					return $query->results();
 				}
 			}
@@ -983,7 +997,7 @@ class ItemCore {
 		}
 		else if(is_numeric($tag)) {
 			// is it a valid tag_id
-			if($query->sql("SELECT id FROM ".UT_TAG." WHERE id = $tag)")) {
+			if($query->sql("SELECT id FROM ".UT_TAG." WHERE id = $tag")) {
 				$tag_id = $tag;
 			}
 		}
@@ -1002,7 +1016,6 @@ class ItemCore {
 
 	// delete tag - tag can be complete context:value or tag_id (number)
 	// TODO: or just context to delete all context tags for item
-	// TODO: delete unused tags automatically?
  	function deleteTag($item_id, $tag) {
 //		print "Delete tag:" . $item_id . ":" . $tag . ":" . is_numeric($tag) . "<br>";
 
@@ -1035,6 +1048,38 @@ class ItemCore {
 		message()->addMessage("Tag could not be deleted", array("type" => "error"));
 		return false;
 	}
+
+
+	// delete tag globally 
+ 	function globalDeleteTag($tag_id) {
+		$query = new Query();
+
+		if($query->sql("DELETE FROM ".UT_TAG." WHERE id = $tag_id")) {
+			message()->addMessage("Tag deleted");
+			return true;
+		}
+
+		message()->addMessage("Tag could not be deleted", array("type" => "error"));
+		return false;
+ 	}
+
+	// update tag globally
+ 	function globalUpdateTag($tag_id) {
+		$query = new Query();
+		
+		$context = getPost("context");
+		$value = getPost("value");
+		$description = getPost("description");
+
+		if($query->sql("SELECT id FROM ".UT_TAG." WHERE id = $tag_id")) {
+			$query->sql("UPDATE ".UT_TAG." SET context = '$context', value = '$value', description = '$description' WHERE id = $tag_id");
+
+			message()->addMessage("Tag updated");
+			return true;
+		}
+		message()->addMessage("Tag could not be updated", array("type" => "error"));
+		return false;
+ 	}
 
 
 	// get prices, optionally limited to context, or just check if specific tag exists

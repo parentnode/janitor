@@ -287,7 +287,7 @@ class Model extends HTML {
 		if($this->data_entities[$name]["unique"]) {
 			if(!$this->isUnique($name, $item_id)) {
 				$error_message = $this->data_entities[$name]["error_message"];
-				$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occured";
+				$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occured (uniqueness)";
 				message()->addMessage($error_message, array("type" => "error"));
 				return false;
 			}
@@ -513,7 +513,7 @@ class Model extends HTML {
 		$max = $entity["max"];
 		$pattern = $entity["pattern"];
 
-		if($value && !($value%1) && 
+		if(($value || $value == 0) && !($value%1) && 
 			(!$min || $value >= $min) && 
 			(!$max || $value <= $max) &&
 			(!$pattern || preg_match("/^".$pattern."$/", $value))

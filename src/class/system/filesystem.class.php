@@ -35,7 +35,7 @@ class FileSystem {
 		$files = array();
 
 		$handle = opendir("$path");
-		while($file = readdir($handle)) {
+		while(($file = readdir($handle)) !== false) {
 
 //			print $file . "<br>";
 			$current_path = "$path/$file";

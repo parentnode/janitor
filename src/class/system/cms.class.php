@@ -102,6 +102,24 @@ class CMS {
 			}
 
 
+			// TAG MAINTENANCE
+			//
+			// DELETE TAG - WILL DELETE TAG AND ALL OCCURENCES OF TAG
+			// Requires exactly 3 parameters /tag/delete//#tag_id#
+			else if(count($action) == 3 && $action[0] == "tag" && $action[1] == "delete") {
+
+				$output->screen($IC->globalDeleteTag($action[2]));
+				exit();
+			}
+			// UPDATE TAG - WILL CHANGE TAG AND ALL OCCURENCES OF TAG
+			// Requires exactly 3 parameters /tag/edit//#tag_id#
+			else if(count($action) == 3 && $action[0] == "tag" && $action[1] == "update") {
+
+				$output->screen($IC->globalUpdateTag($action[2]));
+				exit();
+			}
+
+
 			// PRICES
 			//
 			// DELETE PRICE
