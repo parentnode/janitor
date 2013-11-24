@@ -312,17 +312,28 @@ class Video {
 
 				// -r 20 and -g 40 gives audio/video sync issues
 				// added duration to avoid small noise bit in end of video
-				print $ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file . "<br>";
-				system($ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
-//				system($ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec libfaac -ar 48000 -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
+
+
+				// FOR VERSION 1.1.2
+				//print $ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file . "<br>";
+//	latest			system($ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
+
+
+				// FOR VERSION 2.1.1
+				system($ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -qmin 10 -qmax 40 -crf 30 -vcodec libx264 -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
+
+
+//	old			system($ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec libfaac -ar 48000 -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
 			}
 			else if($output_format == "ogv") {
+
 
 				// print $ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec libvorbis -ar 48000 -ab 128k -vcodec libtheora -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file . "<br>";
 				system($ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libvorbis -ab 128k -vcodec libtheora -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
 //				system($ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec libvorbis -ar 48000 -ab 128k -vcodec libtheora -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
 			}
 			else if($output_format == "3gp") {
+
 
 				// print $ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec aac -ac 1 -ar 8000 -r 25 -ab 32 -vcodec h263 -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file . "<br>";
 				system($ffmpeg_path . " -y -i ".$input_file." -acodec aac -ac 1 -ar 8000 -r 25 -ab 32 -vcodec h263 -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
