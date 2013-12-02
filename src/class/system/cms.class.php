@@ -150,7 +150,7 @@ class CMS {
 					exit();
 				}
 
-				$output->screen();
+				$output->screen(false);
 				exit();
 			}
 

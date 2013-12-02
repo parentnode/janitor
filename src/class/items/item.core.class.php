@@ -148,20 +148,21 @@ class ItemCore {
 	*
 	* @return Array [id][] + [itemtype][]
 	*/
-	function getItems($options = false) {
+	function getItems($_options = false) {
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "itemtype" : $itemtype = $value; break;
-					case "status" : $status = $value; break;
-					case "tags" : $tags = $value; break;
-					case "sindex" : $sindex = $value; break;
-					case "order" : $order = $value; break;
-					case "limit" : $limit = $value; break;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "itemtype"   : $itemtype   = $_value; break;
+					case "status"     : $status     = $_value; break;
+					case "tags"       : $tags       = $_value; break;
+					case "sindex"     : $sindex     = $_value; break;
+					case "order"      : $order      = $_value; break;
+					case "limit"      : $limit      = $_value; break;
 					
 					// TODO: implement date ranges
 
+					// TODO: implement search patterns which can also look in local databases
 				}
 
 			}
