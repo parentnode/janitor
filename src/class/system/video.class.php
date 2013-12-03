@@ -92,8 +92,8 @@ class Video {
 		}
 
 		// remember actual canvas size
-		$canvas_width = $output_width;
-		// canvas height must be divisible with 2
+		// canvas width and height must be divisible with 2
+		$canvas_width = $output_width%2 ? $output_width-1 : $output_width;
 		$canvas_height = $output_height%2 ? $output_height-1 : $output_height;
 
 
