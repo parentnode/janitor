@@ -2,8 +2,6 @@
 include_once("class/system/filesystem.class.php");
 include_once("include/functions.inc.php");
 
-
-// ImageMagick interface
 class Image {
 
 
@@ -19,7 +17,6 @@ class Image {
 		$allow_cropping = false;
 		$allow_stretching = false;
 		$allow_padding = false;
-		$background = false;
 
 		$max_pixels = 0;
 
@@ -28,30 +25,25 @@ class Image {
 				switch($option) {
 					case "width"            : $output_width           = $value; break;
 					case "height"           : $output_height          = $value; break;
-					case "format"           : $output_format          = preg_replace("/JPG/", "JPEG", strtoupper($value)); break;
+					case "format"           : $output_format          = $value; break;
 					case "compression"      : $output_compression     = $value; break;
 
 					case "allow_conversion" : $allow_conversion       = $value; break;
 					case "allow_cropping"   : $allow_cropping         = $value; break;
 					case "allow_stretching" : $allow_stretching       = $value; break;
 					case "allow_padding"    : $allow_padding          = $value; break;
-					case "background"       : $background             = $value; break;
 
-					case "max_pixels"       : $max_pixels             = $value; break;
+					case "max_pixels"    : $max_pixels                = $value; break;
 				}
 			}
 		}
 
-		// create imagemagick object
-		$image = new Imagick($input_file);
-
 		// get input file info
-		$info = $image->getImageFormat();
-
-		if($info) {
-			$input_width = $image->getImageWidth();
-			$input_height = $image->getImageHeight();
-			$input_format = $info;
+		$gd = getimagesize($input_file);
+		if(count($gd) > 4) {
+			$input_width = $gd[0];
+			$input_height = $gd[1];
+			$input_format = mimetypeToExtension($gd["mime"]);
 		}
 
 		// not able to read input_file properly
@@ -59,27 +51,21 @@ class Image {
 			// critical error - report to admin
 			global $page;
 			$page->mail(array(
-				"subject" => "getImageFormat, getImageWidth or getImageHeight failed", 
-				"message" => "ImageMagick failed to read source image proporties", 
+				"subject" => "getimagesize failed", 
+				"message" => "GD image failed to read source image proporties", 
 				"template" => "system"
 			));
 			return false;
 		}
 
-		if(!$output_format) {
-			$output_format = $info;
-		}
 
-		print "input_format:" . $input_format.", output_format:" . $output_format . "<br>";
+//		print "input_format:" . $input_format.", output_format:" . $output_format . "<br>";
 
 
 		// is input format different from output format - AND conversion not allowed
 		if($input_format != $output_format && !$allow_conversion) {
 			return false;
 		}
-
-		// SET IMAGE FORMAT
-		$image->setImageFormat($output_format);
 
 
 		// only width OR height stated
@@ -156,25 +142,9 @@ class Image {
 						$input_height = round($input_width /  $output_proportions);
 					}
 
-					// CROP IMAGE
-					$image->cropImage($input_width, $input_height, $input_left, $input_top);
-
 				}
 				else if($allow_padding) {
 //					print "allow padding<br>";
-
-					$page->mail(array(
-						"subject" => "Image failed ($output_width x $output_height)", 
-						"message" => "Image padding attempted - not supported yet", 
-						"template" => "system"
-					));
-
-					return false;
-
-					if($background) {
-						$image->setImageBackgroundColor($background);
-					}
-					$image->setImageGravity("center");
 
 					// pad height
 					if($input_proportions > $output_proportions) {
@@ -183,7 +153,6 @@ class Image {
 						$output_top = round(($output_height - ($output_width / $input_proportions))/2);
 						$input_height = round($input_width /  $output_proportions);
 					}
-
 					// pad width
 					else {
 //						print "height is limit, pad width<br>";
@@ -228,21 +197,10 @@ class Image {
 						$input_top = round(($input_height - ($input_width /  $output_proportions))/2);
 						$input_height = round($input_width /  $output_proportions);
 					}
-
-					// CROP IMAGE
-					$image->cropImage($input_width, $input_height, $input_left, $input_top);
 				}
 
 				else if($allow_padding) {
 //					print "allow padding<br>";
-
-					$page->mail(array(
-						"subject" => "Image failed ($output_width x $output_height)", 
-						"message" => "Image padding attempted - not supported yet", 
-						"template" => "system"
-					));
-
-					return false;
 
 					// pad height
 					if($input_height < $output_height) {
@@ -281,61 +239,65 @@ class Image {
 		// START CONVERSION
 
 		// output image canvas
-//		$output_image = imagecreatetruecolor($canvas_width, $canvas_height);
+		$output_image = imagecreatetruecolor($canvas_width, $canvas_height);
 
 		// make sure output path exists
 		FileSystem::makeDirRecursively(dirname($output_file));
 
-
-
-
-
-		// // read input file
-		// if($input_format == "jpg") {
-		// 
-		// 	$input_image = imagecreatefromjpeg($input_file);
-		// }
-		// else if($input_format == "png") {
-		// 	$input_image = imagecreatefrompng($input_file);
-		// 	// add aplha state (required for transparent png's)
-		// 	imageAlphaBlending($output_image, false);
-		// }
-		// else if($input_format == "gif") {
-		// 	$input_image = imagecreatefromgif($input_file);
-		// }
-		// // unknown input format
-		// else {
-		// 	return false;
-		// }
+		// read input file
+		if($input_format == "jpg") {
+			$input_image = imagecreatefromjpeg($input_file);
+		}
+		else if($input_format == "png") {
+			$input_image = imagecreatefrompng($input_file);
+			// add aplha state (required for transparent png's)
+			imageAlphaBlending($output_image, false);
+		}
+		else if($input_format == "gif") {
+			$input_image = imagecreatefromgif($input_file);
+		}
+		// unknown input format
+		else {
+			return false;
+		}
 
 		// resample image
 //		imagecopyresampled($output_image, $input_image, 0, 0, 0, 0, $output_width, $output_height, $input_width, $input_height);
-//		imagecopyresampled($output_image, $input_image, $output_left, $output_top, $input_left, $input_top, $output_width, $output_height, $input_width, $input_height);
+		imagecopyresampled($output_image, $input_image, $output_left, $output_top, $input_left, $input_top, $output_width, $output_height, $input_width, $input_height);
 
 
 		// output image
-		if($output_format == "JPEG") {
-
-			$image->scaleImage($output_width, $output_height);
-			$image->setImageCompressionQuality(90);
-			$image->stripImage();
-			return $image->writeImage($output_file);
+		if($output_format == "jpg") {
+			return imagejpeg($output_image, $output_file, $output_compression);
 		}
-		else if($output_format == "PNG") {
+		else if($output_format == "png") {
+			// save alpha state to image before writing to disk
+			imageSaveAlpha($output_image, true);
 
-			$image->scaleImage($output_width, $output_height);
-			$image->stripImage();
-			return $image->writeImage($output_file);
+			return imagepng($output_image, $output_file);
 		}
-		else if($output_format == "GIF") {
-
-			$image->scaleImage($output_width, $output_height);
-			$image->stripImage();
-			return $image->writeImage($output_file);
+		else if($output_format == "gif") {
+			return imagegif($output_image, $output_file);
 		}
 		else {
 			return false;
 		}
+
+
+
+		// TODO: implement cropping, stretching and padding
+		// // input is smaller than output
+		// if($input_width < $output_width || $input_height < $output_height) {
+		// 
+		// 	return false;
+		// }
+		// 
+		// // proportions 
+		// if($input_width/$input_height != $output_width/$output_height) {
+		// 
+		// }
+		// 
+
 
 	}
 }
