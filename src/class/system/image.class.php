@@ -317,7 +317,7 @@ class Image {
 		if($output_format == "JPEG") {
 
 			$image->scaleImage($output_width, $output_height);
-			$image->setImageCompressionQuality(90);
+			$image->setImageCompressionQuality($output_compression);
 			$image->stripImage();
 			return $image->writeImage($output_file);
 		}
