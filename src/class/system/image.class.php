@@ -317,6 +317,9 @@ class Image {
 		if($output_format == "JPEG") {
 
 			$image->scaleImage($output_width, $output_height);
+
+			$image->sharpenImage(0);
+
 			$image->setImageCompressionQuality($output_compression);
 			$image->stripImage();
 			return $image->writeImage($output_file);
@@ -324,12 +327,18 @@ class Image {
 		else if($output_format == "PNG") {
 
 			$image->scaleImage($output_width, $output_height);
+
+//			$image->sharpenImage(0);
+
 			$image->stripImage();
 			return $image->writeImage($output_file);
 		}
 		else if($output_format == "GIF") {
 
 			$image->scaleImage($output_width, $output_height);
+
+//			$image->sharpenImage(0);
+
 			$image->stripImage();
 			return $image->writeImage($output_file);
 		}
