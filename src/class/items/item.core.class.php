@@ -281,7 +281,7 @@ class ItemCore {
 
 		$items = array();
 
-		print $query->compileQuery($SELECT, $FROM, array("WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit;
+//		print $query->compileQuery($SELECT, $FROM, array("WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit;
 		$query->sql($query->compileQuery($SELECT, $FROM, array("WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit);
 		for($i = 0; $i < $query->count(); $i++){
 
