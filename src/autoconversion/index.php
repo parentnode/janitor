@@ -159,7 +159,7 @@ if($format == "jpg" || $format == "png" || $format == "gif") {
 //	print $input_file . ":" . $output_file . "<br>";
 
 	// scale image (will autoconvert)
-	if($Image->convert($input_file, $output_file, array("compression" => 90, "allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
+	if($Image->convert($input_file, $output_file, array("compression" => 93, "allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
 
 		// redirect to new image
 		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format);
