@@ -522,6 +522,7 @@ class Model extends HTML {
 			return true;
 		}
 		else {
+			$this->data_entities[$name]["error_message"] = "$name value: $value;";
 			$this->data_entities[$name]["error"] = true;
 			return false;
 		}
