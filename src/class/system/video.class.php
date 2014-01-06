@@ -240,8 +240,11 @@ class Video {
 		if(!$output_bitrate) {
 
 			// should be adjusted for framerate (25), quality (2), and input_bitrate 
+//			$output_bitrate = ($output_width * $output_height * 25 * 2 * 0.07) / 1000;
 			$output_bitrate = ($output_width * $output_height * 25 * 2 * 0.07) / 1000;
 
+			// print $output_bitrate."<br>";
+			// exit();
 			// mostly ogv's needs higher bitrate when converting from compressed source
 			if($output_format == "ogv") {
 				$output_bitrate = $output_bitrate*1.5;
