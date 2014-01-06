@@ -557,7 +557,6 @@ class PageCore {
 
 		$subject = "Mail from ".SITE_URL;
 		$message = "";
-		$object = false;
 		$recipients = false;
 		$template = false;
 		$object = false;
@@ -646,8 +645,8 @@ class PageCore {
 
 		// year-month as folder
 		// day as file
-		$log_position = LOG_FILE_PATH."/framework/".date("Y/m", $timestamp);
-		$log_cursor = LOG_FILE_PATH."/framework/".date("Y/m/Y-m-d", $timestamp);
+		$log_position = LOG_FILE_PATH."/".$collection."/".date("Y/m", $timestamp);
+		$log_cursor = LOG_FILE_PATH."/".$collection."/".date("Y/m/Y-m-d", $timestamp);
 		FileSystem::makeDirRecursively($log_position);
 
 		$fp = fopen($log_cursor, "a+");
