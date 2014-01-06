@@ -100,6 +100,8 @@ class ItemCore {
 		$item = $this->getItem($item_id);
 		if($item) {
 
+
+			// get the specific type data
 			$typeObject = $this->TypeObject($item["itemtype"]);
 			if(method_exists($typeObject, "get")) {
 				$item = array_merge($item, $typeObject->get($item["id"]));
@@ -108,6 +110,7 @@ class ItemCore {
 				$item = array_merge($item, $this->getSimpleType($item["id"], $typeObject));
 			}
 
+			// add prices and tags
 			$item["prices"] = $this->getPrices($item["id"]);
 			$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
 
@@ -162,7 +165,7 @@ class ItemCore {
 					
 					// TODO: implement date ranges
 
-					// TODO: implement search patterns which can also look in local databases
+					// TODO: implement search patterns which can also look in local databases - first experiment made in local device search (type.device.class.php)
 				}
 
 			}
@@ -218,9 +221,11 @@ class ItemCore {
 		}
 
 		if(isset($tags)) {
-			$FROM[] = UT_TAGGINGS . " as item_tags";
-			$FROM[] = UT_TAG . " as tags";
-			$tag_array = explode(",", $tags);
+//			$FROM[] = UT_TAGGINGS . " as item_tags";
+//			$FROM[] = UT_TAG . " as tags";
+//			$tag_array = explode(",", $tags);
+			// UPDATED: changed tags separator to ;
+			$tag_array = explode(";", $tags);
 			foreach($tag_array as $tag) {
 //				$exclude = false;
 				// tag id
@@ -282,6 +287,7 @@ class ItemCore {
 		$items = array();
 
 //		print $query->compileQuery($SELECT, $FROM, array("WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit;
+//		return array();
 		$query->sql($query->compileQuery($SELECT, $FROM, array("WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit);
 		for($i = 0; $i < $query->count(); $i++){
 
@@ -1007,6 +1013,10 @@ class ItemCore {
 		if(isset($tag_id)) {
 			$query->sql("INSERT INTO ".UT_TAGGINGS." VALUES(DEFAULT, $item_id, $tag_id)");
 
+
+			// TODO: update device modified timestamp
+
+
 			message()->addMessage("Tag added");
 			return true;
 		}
@@ -1042,6 +1052,10 @@ class ItemCore {
 
 		if(isset($tag_id)) {
 			$query->sql("DELETE FROM ".UT_TAGGINGS." WHERE item_id = $item_id AND tag_id = $tag_id");
+
+
+			// TODO: update device modified timestamp
+
 
 			message()->addMessage("Tag deleted");
 			return true;
