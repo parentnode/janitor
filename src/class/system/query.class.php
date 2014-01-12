@@ -56,12 +56,17 @@ class Query {
 		if($options !== false) {
 			foreach($options as $option => $value) {
 				switch($option) {
-					case "WHERE" : $WHERE = $value; break;
-					case "GROUP_BY" : $GROUP_BY = $value; break;
-					case "ORDER" : $ORDER = $value; break;
+					case "LEFTJOIN"   : $LEFTJOIN    = $value; break;
+					case "WHERE"      : $WHERE       = $value; break;
+					case "GROUP_BY"   : $GROUP_BY    = $value; break;
+					case "ORDER"      : $ORDER       = $value; break;
 				}
 			}
 		}
+
+
+		// TODO: LEFT JOIN
+
 
 		if($SELECT) {
 			$sql .= "SELECT ";
@@ -77,6 +82,15 @@ class Query {
 			$values = "";
 			foreach($FROM as $value) {
 				$values .= ($values ? ", " : "") . $value;
+			}
+			$sql .= $values;
+		}
+
+		if(isset($LEFTJOIN) && $LEFTJOIN) {
+
+			$values = "";
+			foreach($LEFTJOIN as $value) {
+				$values .= " LEFT JOIN " . $value;
 			}
 			$sql .= $values;
 		}
