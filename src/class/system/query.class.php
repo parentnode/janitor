@@ -59,6 +59,7 @@ class Query {
 					case "LEFTJOIN"   : $LEFTJOIN    = $value; break;
 					case "WHERE"      : $WHERE       = $value; break;
 					case "GROUP_BY"   : $GROUP_BY    = $value; break;
+					case "HAVING"     : $HAVING      = $value; break;
 					case "ORDER"      : $ORDER       = $value; break;
 				}
 			}
@@ -106,6 +107,10 @@ class Query {
 
 		if(isset($GROUP_BY) && $GROUP_BY) {
 			$sql .= " GROUP BY $GROUP_BY";
+		}
+
+		if(isset($HAVING) && $HAVING) {
+			$sql .= " HAVING $HAVING";
 		}
 
 		if(isset($ORDER) && $ORDER) {
