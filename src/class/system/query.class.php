@@ -26,7 +26,7 @@ class Query {
 
 		// get result
 		$this->result_resource = mysql_query($query);
-//		print mysql_errno()."<br>";
+
 		// get number of results
 		$this->result_count = (is_resource($this->result_resource)) ? mysql_num_rows($this->result_resource) : ($this->result_resource ? $this->result_resource : 0);
 
