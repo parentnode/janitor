@@ -29,6 +29,15 @@ $path .= (defined("FRAMEWORK_PATH") ? (":".FRAMEWORK_PATH) : "");
 ini_set("include_path", "." . $path);
 
 
+
+// extremely simple debugging tool - writes debug message to library/debug file
+function writeToFile($message) {
+	$fp = fopen(LOCAL_PATH."/library/debug", "a+");
+	fwrite($fp, $message." - FROM:" . $_SERVER["REQUEST_URI"] ."\n");
+	fclose($fp);
+}
+
+
 // page class + extension
 include_once("config/config.php");
 
