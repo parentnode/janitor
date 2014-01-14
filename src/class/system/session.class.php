@@ -21,14 +21,16 @@ class Session {
 	*/
 	function value($key, $value = false) {
 		if($value !== false) {
+
+			// writeToFile("set value:" . $key ."=".$value);
 			$_SESSION["SV"][$key] = json_encode($value);
 		}
 		else {
+			// writeToFile("get value:" . $key);
+
 			if(!isset($_SESSION["SV"]) || !isset($_SESSION["SV"][$key])) {
 				return false;
 			}
-//			print "€$key=".$_SESSION["SV"][$key]."€";
-//			print_r(json_decode($_SESSION["SV"][$key], true));
 			return json_decode($_SESSION["SV"][$key], true);
 
 		}
@@ -40,6 +42,8 @@ class Session {
 	* @param String $key Key
 	*/
 	function reset($key = false) {
+		// writeToFile("reset:" . $key);
+
 		if($key) {
 			unset($_SESSION["SV"][$key]);
 		}
