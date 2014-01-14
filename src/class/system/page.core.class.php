@@ -111,7 +111,7 @@ class PageCore {
 		// get segment
 		// because I want to gather information about all device-useragents for devices.dearapi.com, 
 		// also on sites not having segmentation implemented in the templates
-		$this->segment();
+//		$this->segment();
 
 	}
 
@@ -378,14 +378,19 @@ class PageCore {
 	*/
 	// returns currently used browser info to be stored in session
 	function segment($value = false) {
+		// writeToFile("segment function:" . $value);
+
 		if($value !== false) {
 			Session::value("segment", $value);
 		}
 		else {
 			if(!Session::value("segment")) {
+				// writeToFile("request new segment:" . $value);
+
 				$device_id = @file_get_contents("http://devices.dearapi.com/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
 		//		$device_id = file_get_contents("http://devices.local/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
 				$device = (array) simplexml_load_string($device_id);
+//				print_r($device);
 
 				if($device && isset($device["segment"])) {
 					Session::value("segment", $device["segment"]);
