@@ -176,8 +176,10 @@ class ItemCore {
 
 		$SELECT = array();
 		$FROM = array();
+		$LEFTJOIN = array();
 		$WHERE = array();
 		$GROUP_BY = "";
+		$HAVING = "";
 		$ORDER = array();
 
 
@@ -191,17 +193,7 @@ class ItemCore {
 		$SELECT[] = "items.modified_at";
 		$SELECT[] = "items.published_at";
 
-		// sindex mapped to nav items
-		// if(isset($sindex)) {
-		// 	$SELECT[] = UT_NAV_ITE.".sequence";
-		// 	$FROM[] = UT_ITEMS." as items LEFT JOIN ".UT_NAV_ITE." ON items.id = ".UT_NAV_ITE.".item_id  AND ".UT_NAV_ITE.".sindex = '$sindex'";
-		// 	$ORDER[] = UT_NAV_ITE.".sequence";
-		// 
-		// 	$tags .= ",".$this->getNavTags($sindex);
-		// }
-		// else {
 	 	$FROM[] = UT_ITEMS." as items";
-		// }
 
 		if(isset($status)) {
 			$WHERE[] = "items.status = $status";
@@ -216,16 +208,25 @@ class ItemCore {
 			$WHERE[] = "items.itemtype = '$itemtype'";
 
 			// add main itemtype table to enable sorting based on local values
-			$FROM[] = $this->typeObject($itemtype)->db." as ".$itemtype;
-			$WHERE[] = "items.id = ".$itemtype.".item_id";
+			$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
 		}
 
-		if(isset($tags)) {
+		// tag query
+
+		if(isset($tags) && is_string($tags)) {
+
+			$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
+			$LEFTJOIN[] = UT_TAG." as tags ON tags.id = taggings.tag_id";
+
+
 //			$FROM[] = UT_TAGGINGS . " as item_tags";
 //			$FROM[] = UT_TAG . " as tags";
 //			$tag_array = explode(",", $tags);
 			// UPDATED: changed tags separator to ;
 			$tag_array = explode(";", $tags);
+			$tag_sql = "";
+
+
 			foreach($tag_array as $tag) {
 //				$exclude = false;
 				// tag id
@@ -253,17 +254,25 @@ class ItemCore {
 					if($context || $value) {
 						// Negative !tag
 						if($exclude) {
-							$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = tags.id" . ($context ? " AND tags.context = '$context'" : "") . ($value ? " AND tags.value = '$value'" : "") . ")";
+//							$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = tags.id" . ($context ? " AND tags.context = '$context'" : "") . ($value ? " AND tags.value = '$value'" : "") . ")";
 //							$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = tags.id" . ($context ? " AND tags.context = '$context'" : "") . ($value ? " AND tags.value = '$value'" : "") . ")";
 						}
 						// positive tag
 						else {
-							$WHERE[] = "items.id IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = tags.id" . ($context ? " AND tags.context = '$context'" : "") . ($value ? " AND tags.value = '$value'" : "") . ")";
+							if($context && $value) {
+								$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '$context' AND tags.value = '$value'";
+							}
+							else if($context) {
+								$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '$context'";
+							}
+//							$WHERE[] = "items.id IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = tags.id" . ($context ? " AND tags.context = '$context'" : "") . ($value ? " AND tags.value = '$value'" : "") . ")";
 	//						$WHERE[] = "items.id IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = '$tag' OR (item_tags.tag_id = tags.id AND tags.name = '$tag'))";
 						}
 					}
 				}
 			}
+			$WHERE[] = "(".$tag_sql.")";
+			$HAVING = "count(*) = ".count($tag_array);
 		}
 
 
@@ -286,9 +295,9 @@ class ItemCore {
 
 		$items = array();
 
-//		print $query->compileQuery($SELECT, $FROM, array("WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit;
+//		print $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit;
 //		return array();
-		$query->sql($query->compileQuery($SELECT, $FROM, array("WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit);
+		$query->sql($query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit);
 		for($i = 0; $i < $query->count(); $i++){
 
 			$item = array();
