@@ -21,6 +21,9 @@ class User extends Model {
 		$this->db_passwords = SITE_DB.".user_passwords";
 		$this->db_newsletters = SITE_DB.".user_newsletters";
 
+		$this->db_user_groups = SITE_DB.".user_groups";
+		$this->db_access = SITE_DB.".user_access";
+
 
 		// Nickname
 		$this->addToModel("nickname", array(
@@ -28,7 +31,7 @@ class User extends Model {
 			"label" => "Nickname",
 			"required" => true,
 			"hint_message" => "Write your nickname or whatever you want us to use to greet you", 
-			"error_message" => "Nickname must to be filled out"
+			"error_message" => "Nickname must be filled out"
 		));
 
 		// Firstname
@@ -51,7 +54,7 @@ class User extends Model {
 		$this->addToModel("user_group_id", array(
 			"type" => "integer",
 			"label" => "User group",
-			"hint_message" => "Select user group TODO: Make select with user_groups",
+			"hint_message" => "Select user group",
 			"error_message" => "Invalid user group"
 		));
 
@@ -85,10 +88,17 @@ class User extends Model {
 		$this->addToModel("mobile", array(
 			"type" => "tel",
 			"label" => "Your mobile",
-			"hint_message" => "Write your mobile number ",
+			"hint_message" => "Write your mobile number",
 			"error_message" => "Invalid number"
 		));
 
+		// password
+		$this->addToModel("password", array(
+			"type" => "password",
+			"label" => "Your new password",
+			"hint_message" => "Type your new password - must be 8-20 characters",
+			"error_message" => "Invalid password"
+		));
 
 
 		// address label
@@ -158,6 +168,17 @@ class User extends Model {
 			"error_message" => "Invalid country"
 		));
 
+
+		// User groups Model
+		// Usergroup
+		$this->addToModel("user_group", array(
+			"type" => "string",
+			"label" => "Groupname",
+			"required" => true,
+			"hint_message" => "Name of user group - Admins, customers, etc", 
+			"error_message" => "Name must to be filled out"
+		));
+
 		parent::__construct();
 	}
 
@@ -221,7 +242,7 @@ class User extends Model {
 	function save() {
 
 		// does values validate
-		if($this->validateAll()) {
+		if($this->validateList(array("nickname", "user_group_id"))) {
 
 			$query = new Query();
 
@@ -233,7 +254,7 @@ class User extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && preg_match("/^(user_group_id|firstname|lastname|nickname|status|language)$/", $name)) {
+				if($entity["value"] !== false && preg_match("/^(user_group_id|nickname)$/", $name)) {
 //				if($entity["value"] !== false) {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
@@ -241,20 +262,26 @@ class User extends Model {
 			}
 
 			if($values) {
-				$sql = "INSERT INTO ".$this->db." SET id = DEFAULT," . implode(",", $values);
+				$sql = "INSERT INTO ".$this->db." SET " . implode(",", $values);
 //				print $sql;
 
 				if($query->sql($sql)) {
 					message()->addMessage("User created");
-					return $query->lastInsertId();
+					return array("item_id" => $query->lastInsertId());
 				}
 			}
-			message()->addMessage("Creating user failed", array("type" => "error"));
 		}
+
+		message()->addMessage("Creating user failed", array("type" => "error"));
 		return false;
 	}
 
+
+	// update user
+	// /user/update/#user_id#
+	// post values
 	function update($action) {
+
 		if(count($action) == 2) {
 			$user_id = $action[1];
 			$query = new Query();
@@ -264,7 +291,7 @@ class User extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && preg_match("/^(user_group_id|firstname|lastname|nickname|status|language)$/", $name)) {
+				if($entity["value"] !== false && preg_match("/^(user_group_id|firstname|lastname|nickname|language)$/", $name)) {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
 				}
@@ -281,11 +308,36 @@ class User extends Model {
 					return true;
 				}
 			}
-			message()->addMessage("Updating user failed", array("type" => "error"));
 		}
+		message()->addMessage("Updating user failed", array("type" => "error"));
 		return false;
 	}
 
+
+	// TODO: not used due to performance considerations
+	function checkUserConstraints($user_id) {
+		$query = new Query();
+		$user_constraints = array();
+
+		if($query->sql("SELECT * FROM ".UT_ITEMS." WHERE user_id = $user_id")) {
+			$user_constraints["items"] = $query->results();
+		}
+
+		if(class_exists("Shop")) {
+			$shop = new Shop();
+			if($query->sql("SELECT * FROM ".$shop->db_orders." WHERE user_id = $user_id")) {
+				$user_constraints["orders"] = $query->results();
+			}
+			if($query->sql("SELECT * FROM ".$shop->db_carts." WHERE user_id = $user_id")) {
+				$user_constraints["carts"] = $query->results();
+			}
+		}
+		return $user_constraints;
+	}
+
+
+	// delete user
+	// /admin/user/delete/#user_id#
 	function delete($action) {
 		if(count($action) == 2) {
 			$query = new Query();
@@ -293,11 +345,22 @@ class User extends Model {
 				message()->addMessage("User deleted");
 				return true;
 			}
-			message()->addMessage("Created user failed", array("type" => "error"));
+			$db_errors = $query->dbError();
+			if($db_errors) {
+				message()->addMessage("Deleting user failed (".$db_errors.")", array("type" => "error"));
+				if(strpos($db_errors, "constraint")) {
+					return array("constraint_error" => $db_errors);
+				}
+				return false;
+			}
 		}
+		message()->addMessage("Deleting user failed", array("type" => "error"));
 		return false;
 	}
 
+
+	// disable user
+	// /admin/user/disable/#user_id#
 	function disable($action) {
 		if(count($action) == 2) {
 			$query = new Query();
@@ -310,12 +373,14 @@ class User extends Model {
 		return false;
 	}
 
+	// enable user
+	// /admin/user/enable/#user_id#
 	function enable($action) {
 		if(count($action) == 2) {
 			$query = new Query();
 			if($query->sql("UPDATE $this->db SET status = 1 WHERE id = ".$action[1])) {
-				return true;
 				message()->addMessage("User enabled");
+				return true;
 			}
 			else {
 				message()->addMessage("Could not enable user", array("type" => "error"));
@@ -323,6 +388,7 @@ class User extends Model {
 		}
 		return false;
 	}
+
 
 
 	function getUsernames($_options) {
@@ -480,9 +546,255 @@ class User extends Model {
 
 
 
-	function addPassword($password, $type) {}
+	function setPassword($action) {
+		
+		$password;
+	}
 
-	function deletePassword() {}
+	function resetPassword() {}
+
+
+
+	// USER GROUPS
+
+	// get user groups or specific user group
+	function getUserGroups($_options=false) {
+
+		$order = "user_group DESC, id DESC";
+		$user_group_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "order"           : $order              = $_value; break;
+					case "user_group_id"   : $user_group_id      = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		// get specific user group
+		if($user_group_id) {
+
+			if($query->sql("SELECT * FROM ".$this->db_user_groups." WHERE id = $user_group_id")) {
+				return $query->result(0);
+			}
+
+		}
+
+		// return all user groups
+		else {
+			if($query->sql("SELECT * FROM ".$this->db_user_groups." ORDER BY $order")) {
+				 return $query->results();
+			}
+		}
+
+		return false;
+	}
+
+	// save user group
+	function saveUserGroup() {
+
+		// does values validate
+		if($this->validateList(array("user_group"))) {
+
+			$query = new Query();
+
+			// make sure type tables exist
+			$query->checkDbExistance($this->db_user_groups);
+			$query->checkDbExistance($this->db_access);
+
+			$entities = $this->data_entities;
+			$names = array();
+			$values = array();
+
+			foreach($entities as $name => $entity) {
+				if($entity["value"] !== false) {
+					$names[] = $name;
+					$values[] = $name."='".$entity["value"]."'";
+				}
+			}
+
+			if($values) {
+				$sql = "INSERT INTO ".$this->db_user_groups." SET id = DEFAULT," . implode(",", $values);
+//				print $sql;
+
+				if($query->sql($sql)) {
+					message()->addMessage("User group created");
+					return array("item_id" => $query->lastInsertId());
+				}
+			}
+		}
+
+		message()->addMessage("User group could not be created", array("type" => "error"));
+		return false;
+
+	}
+
+	// update user group
+	function updateUserGroup($action) {
+
+		if(count($action) == 2) {
+
+			// does values validate
+			$entities = $this->data_entities;
+			$names = array();
+			$values = array();
+
+			foreach($entities as $name => $entity) {
+				if($entity["value"] !== false) {
+					$names[] = $name;
+					$values[] = $name."='".$entity["value"]."'";
+				}
+			}
+
+			if($this->validateList(array("user_group"), $action[1])) {
+				if($values) {
+					$query = new Query();
+					$sql = "UPDATE ".$this->db_user_groups." SET ".implode(",", $values)." WHERE id = ".$action[1];
+//					print $sql;
+
+					if($query->sql($sql)) {
+						message()->addMessage("User group updated");
+						return array("item_id" => $query->lastInsertId());
+					}
+				}
+			}
+		}
+
+		message()->addMessage("User group could not be updated", array("type" => "error"));
+		return false;
+
+	}
+
+	// delete user group - 2 parameters exactly
+	// /deleteUserGroup/#user_group_id#
+	function deleteUserGroup($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			if($query->sql("DELETE FROM ".$this->db_user_groups." WHERE id = ".$action[1])) {
+				message()->addMessage("User group deleted");
+				return true;
+			}
+
+		}
+
+		message()->addMessage("User group could not be deleted - refresh your browser", array("type" => "error"));
+		return false;
+
+	}
+
+
+
+	// ACCESS
+
+	// get user groups or specific user group
+	function getAccessPoints($_options=false) {
+
+		$user_group_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "user_group_id"   : $user_group_id      = $_value; break;
+				}
+			}
+		}
+
+		// get all controllers
+		$fs = new FileSystem();
+		$controllers = $fs->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
+		// print_r($controllers);
+
+		$access = array();
+		$access["points"] = array();
+
+		// indicate access read state
+		$read_access = true;
+		foreach($controllers as $controller) {
+
+			include_once($controller);
+			if($access_item) {
+				// print_r($access_item);
+
+				$access["points"][$controller] = array();
+				
+				foreach($access_item as $action => $restricted) {
+					if($restricted === true) {
+						$access["points"][$controller][] = $action;
+					}
+				}
+			}
+		}
+
+		// get settings for specific user group id
+		if($user_group_id) {
+
+			$access["permissions"] = array();
+
+			$query = new Query();
+			// make sure type tables exist
+			$query->checkDbExistance($this->db_access);
+
+
+			if($query->sql("SELECT * FROM ".$this->db_access." WHERE user_group_id = $user_group_id")) {
+				$results = $query->results();
+				foreach($results as $result) {
+					$access["permissions"][$result["action"]] = 1;
+				}
+			}
+
+		}
+
+		return $access;
+	}
+
+	// update user group
+	// /updageAccess/#user_group_id#
+	// post grants in grants array
+	function updateAccess($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$grants = getPost("grant");
+
+//			print_r($grants);
+
+			// remove existing grants
+			$query->sql("DELETE FROM ".$this->db_access." WHERE user_group_id = " . $action[1]);
+
+			$create_count = 0;
+			// set new grants
+			if($grants) {
+				foreach($grants as $path => $grant) {
+					if($grant == 1) {
+						if($query->sql("INSERT INTO ".$this->db_access." SET user_group_id = ".$action[1].", action = '$path'")) {
+							$create_count++;
+						}
+					}
+					else {
+						$create_count++;
+					}
+				}
+			}
+
+			if($create_count == count($grants)) {
+				message()->addMessage("Access grants updated");
+				return true;
+			}
+		}
+
+		message()->addMessage("Access grants could not be updated", array("type" => "error"));
+		return false;
+
+	}
+
 
 }
 

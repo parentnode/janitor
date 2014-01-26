@@ -68,6 +68,7 @@ class HTML {
 
 
 		$options = $this->getEntityProperty($name, "options");
+		$checked = $this->getEntityProperty($name, "checked");
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -92,6 +93,8 @@ class HTML {
 					case "vatrate"         : $vatrate          = $_value; break;
 
 					case "options"         : $options          = $_value; break;
+
+					case "checked"         : $checked          = $_value; break;
 
 				}
 			}
@@ -127,9 +130,25 @@ class HTML {
 
 
 		$_ .= '<div'.$att_class.'>';
+
+			// CHECKBOX/BOOLEAN
+			// checkbox in front of label
+			if($type == "checkbox" || $type == "boolean") {
+				$att_value = $this->attribute("value", $value);
+				$att_name = $this->attribute("name", $name);
+				$att_checked = $this->attribute("checked", $checked);
+
+				$_ .= '<input type="hidden"'.$att_name.' value="0" />';
+				$_ .= '<input type="checkbox"'.$att_name.$att_id.$att_value.$att_checked.$att_disabled.$att_readonly.$att_pattern.' />';
+			}
+
+
+			// TODO: Add radio output
+
+
+			// LABEL
 			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
 
-			// DATE
 
 			// DATE
 			if($type == "date") {
@@ -223,8 +242,6 @@ class HTML {
 
 			// SELECT
 			// TODO: Refine select output
-			// TODO: Add radio output
-			// TODO: Add checkbox output
 			else if($type == "select") {
 
 				$_ .= '<select'.$att_name.$att_id.$att_disabled.$att_readonly.'>';

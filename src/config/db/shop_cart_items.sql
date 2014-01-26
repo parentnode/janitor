@@ -1,4 +1,4 @@
-CREATE TABLE `SITE_DB`.`cart_items` (
+CREATE TABLE `SITE_DB`.`shop_cart_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `item_id` int(11) NOT NULL,
 
@@ -9,7 +9,7 @@ CREATE TABLE `SITE_DB`.`cart_items` (
   KEY `item_id` (`item_id`),
   KEY `cart_id` (`cart_id`),
   CONSTRAINT `cart_items_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`cart_id`) REFERENCES `carts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `cart_items_ibfk_2` FOREIGN KEY (`cart_id`) REFERENCES `shop_carts` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 

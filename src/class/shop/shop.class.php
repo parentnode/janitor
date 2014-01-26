@@ -1,25 +1,25 @@
 <?php
 /**
-* @package janitor.cart
+* @package janitor.shop
 */
 
 
 
 /**
-* Cart helper class
+* Cart and Order helper class
 *
 */
 
-class Cart {
+class Shop {
 
 	/**
 	*
 	*/
 	function __construct() {
-		$this->db = SITE_DB.".carts";
-		$this->db_items = SITE_DB.".cart_items";
-		$this->db_orders = SITE_DB.".orders";
-		$this->db_order_items = SITE_DB.".order_items";
+		$this->db_carts = SITE_DB.".shop_carts";
+		$this->db_items = SITE_DB.".shop_cart_items";
+		$this->db_orders = SITE_DB.".shop_orders";
+		$this->db_order_items = SITE_DB.".shop_order_items";
 
 	}
 
@@ -59,8 +59,8 @@ class Cart {
 		// get specific cart
 		if($cart_id) {
 
-//			print "SELECT * FROM ".UT_CARTS." as carts WHERE carts.id = ".$cart_id." LIMIT 1";
-			if($query->sql("SELECT * FROM ".$this->db." WHERE id = ".$cart_id." LIMIT 1")) {
+//			print "SELECT * FROM ".$this->db_carts." as carts WHERE carts.id = ".$cart_id." LIMIT 1";
+			if($query->sql("SELECT * FROM ".$this->db_carts." WHERE id = ".$cart_id." LIMIT 1")) {
 				$cart = $query->result(0);
 				$cart["items"] = false;
 
@@ -86,7 +86,7 @@ class Cart {
 
 		// return all carts
 		if(!$cart_id && !$item_id) {
-			if($query->sql("SELECT * FROM ".$this->db." ORDER BY $order")) {
+			if($query->sql("SELECT * FROM ".$this->db_carts." ORDER BY $order")) {
 				$carts = $query->results();
 
 				foreach($carts as $i => $cart) {
@@ -114,7 +114,7 @@ class Cart {
 		$IC = new Item();
 		global $page;
 
-		$query->checkDbExistance($this->db);
+		$query->checkDbExistance($this->db_carts);
 		$query->checkDbExistance($this->db_items);
 		$query->checkDbExistance($this->db_orders);
 		$query->checkDbExistance($this->db_order_items);
@@ -127,7 +127,7 @@ class Cart {
 		if(!$cart_id) {
 			// TODO: add user id to cart creation when users are implemented
 			$currency = $page->currency();
-			$query->sql("INSERT INTO ".$this->db." VALUES(DEFAULT, '".$page->country()."', '".$currency["id"]."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+			$query->sql("INSERT INTO ".$this->db_carts." VALUES(DEFAULT, '".$page->country()."', '".$currency["id"]."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 			$cart_id = $query->lastInsertId();
 
 			Session::value("cart_id", $cart_id);
@@ -136,7 +136,7 @@ class Cart {
 		}
 		// update cart modified at
 		else {
-			$query->sql("UPDATE ".$this->db." SET modified_at = CURRENT_TIMESTAMP, status = 1 WHERE id = ".$cart_id);
+			$query->sql("UPDATE ".$this->db_carts." SET modified_at = CURRENT_TIMESTAMP, status = 1 WHERE id = ".$cart_id);
 		}
 
 		$item_id = getPost("item_id");
@@ -159,8 +159,8 @@ class Cart {
 	}
 
 
-	// update cart - 4 parameters minimum
-	// /cart-controller/updateQuantity/
+	// update cart quantity
+	// posting item_id + quantity
 	function updateQuantity() {
 
 		$query = new Query();
@@ -188,10 +188,23 @@ class Cart {
 		}
 	}
 
-	// delete cart - 3 parameters exactly
-	// /cart-controller/deleteCart/#item_id#
-	function deleteCart() {
-		
+	// delete cart - 2 parameters exactly
+	// /deleteCart/#cart_id#
+	function deleteCart($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			if($query->sql("DELETE FROM ".$this->db_carts." WHERE id = ".$action[1])) {
+				message()->addMessage("Cart deleted");
+				return true;
+			}
+
+		}
+
+		message()->addMessage("Cart could not be deleted - refresh your browser", array("type" => "error"));
+		return false;
+
 	}
 
 	function getOrders($_options=false) {
@@ -536,6 +549,29 @@ class Cart {
 
 		return false;
 	}
+
+
+	// // delete cart - 2 parameters exactly
+	// // /deleteOrder/#order_id#
+	// function deleteOrder($action) {
+	// 
+	// 	print_r($action);
+	// 
+	// 	if(count($action) == 2) {
+	// 
+	// 		$query = new Query();
+	// 		print "DELETE FROM ".$this->db_orders." WHERE id = ".$action[1];
+	// 		if($query->sql("DELETE FROM ".$this->db_orders." WHERE id = ".$action[1])) {
+	// 			message()->addMessage("Order deleted");
+	// 			return true;
+	// 		}
+	// 
+	// 	}
+	// 
+	// 	message()->addMessage("Order could not be deleted - refresh your browser", array("type" => "error"));
+	// 	return false;
+	// 
+	// }
 
 }
 

@@ -1,4 +1,4 @@
-CREATE TABLE `SITE_DB`.`carts` (
+CREATE TABLE `SITE_DB`.`shop_carts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
 
   `country` varchar(2) NOT NULL,

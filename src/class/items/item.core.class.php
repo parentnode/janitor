@@ -18,10 +18,12 @@ define("UT_TAGGINGS",           SITE_DB.".taggings");                          /
 // SHOP EXTENSIONS
 define("UT_PRICES",             SITE_DB.".prices");                            // Item prices
 
-define("UT_COUNTRIES",          SITE_DB.".countries");                         // Countries
-define("UT_CURRENCIES",         SITE_DB.".currencies");                        // Currencies
 define("UT_LANGUAGES",          SITE_DB.".languages");                         // Languages
+define("UT_COUNTRIES",          SITE_DB.".countries");                         // Countries
+
+define("UT_CURRENCIES",         SITE_DB.".currencies");                        // Currencies
 define("UT_VATRATES",           SITE_DB.".vatrates");                          // Vatrates
+
 
 
 class ItemCore {
@@ -96,6 +98,7 @@ class ItemCore {
 	*
 	* @param $id Item id or sindex to get
 	*/
+	// TODO: add options parameter to skip prices and tags in complete item (no_tags, no_prices)
 	function getCompleteItem($item_id) {
 		$item = $this->getItem($item_id);
 		if($item) {
@@ -1107,7 +1110,7 @@ class ItemCore {
  	}
 
 
-	// get prices, optionally limited to context, or just check if specific tag exists
+	// get prices, 
 	// TODO: add correct comma/point formatting
 	// TODO: update to getTags format as part of price function fix
 	function getPrices($item_id, $options = false) {

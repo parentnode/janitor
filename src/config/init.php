@@ -60,21 +60,19 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 
 
 	include_once("class/users/user.class.php");
-	include_once("class/users/user_group.class.php");
 
-	// TODO: should tags have it own class
-	include_once("class/items/tag.class.php");
-	
 	//include_once("class/system/security.class.php");
 	//include_once("class/system/performance.class.php");
+
+
+	// Extend with cart and order
+	if(defined("SITE_SHOP") && SITE_SHOP) {
+
+		include_once("class/shop/shop.class.php");
+
+	}
+
 }
 
-// Extend with cart and order
-if(defined("SITE_SHOP") && SITE_SHOP) {
-
-	include_once("class/shop/cart.class.php");
-//	include_once("class/shop/order.class.php");
-
-}
 
 ?>
