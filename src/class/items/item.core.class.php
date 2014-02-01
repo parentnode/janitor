@@ -124,6 +124,59 @@ class ItemCore {
 
 
 	/**
+	* Extend item (already having base information)
+	*
+	*
+	*/
+	function extendItem($item, $_options = false) {
+		if(isset($item["id"]) && isset($item["itemtype"])) {
+
+			$no_tags = false;
+			$no_prices = false;
+			$no_ratings = false;
+			$no_comments = false;
+
+			// global setting for no tags, prices, comments or ratings
+			$type_only = false;
+
+			if($_options !== false) {
+				foreach($_options as $_option => $_value) {
+					switch($_option) {
+						case "no_tags"       : $no_tags       = $_value; break;
+						case "no_prices"     : $no_prices     = $_value; break;
+						case "no_ratings"    : $no_ratings    = $_value; break;
+						case "no_comments"   : $no_comments   = $_value; break;
+
+						case "type_only"     : $type_only     = $_value; break;
+					}
+				}
+			}
+
+
+			// get the specific type data
+			$typeObject = $this->TypeObject($item["itemtype"]);
+			if(method_exists($typeObject, "get")) {
+				$item = array_merge($item, $typeObject->get($item["id"]));
+			}
+			else {
+				$item = array_merge($item, $this->getSimpleType($item["id"], $typeObject));
+			}
+
+			// add prices and tags
+			if(!$type_only && !$no_prices) {
+				$item["prices"] = $this->getPrices($item["id"]);
+			}
+			if(!$type_only && !$no_tags) {
+				$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
+			}
+
+			return $item;
+		}
+		return false;
+	}
+
+
+	/**
 	* Get simple (flat) item type
 	*/
 	function getSimpleType($item_id, $typeObject) {
