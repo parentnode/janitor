@@ -61,6 +61,7 @@ class Query {
 					case "GROUP_BY"   : $GROUP_BY    = $value; break;
 					case "HAVING"     : $HAVING      = $value; break;
 					case "ORDER"      : $ORDER       = $value; break;
+					case "LIMIT"      : $LIMIT       = $value; break;
 				}
 			}
 		}
@@ -120,6 +121,10 @@ class Query {
 				$values .= ($values ? ", " : "") . $value;
 			}
 			$sql .= $values;
+		}
+
+		if(isset($LIMIT) && $LIMIT) {
+			$sql .= " LIMIT $LIMIT";
 		}
 
 		return $sql;
