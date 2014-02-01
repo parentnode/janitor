@@ -550,7 +550,6 @@ class PageCore {
 	}
 
 
-
 	/**
 	* send mail
 	*/
@@ -673,15 +672,11 @@ class PageCore {
 		FileSystem::makeDirRecursively($collection_path);
 
 
-		$notifications = array();
-
-		// existing notifications
-		$collection_file = $collection_path.$collection;
-		if(file_exists($collection_file)) {
-			$notifications = file($collection_file);
-		}
-
 		// TODO: add user_id
+
+		// notifications file
+		$collection_file = $collection_path.$collection;
+
 
 		$timestamp = time();
 		$user_ip = getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR");
@@ -693,6 +688,12 @@ class PageCore {
 		fwrite($fp, $log."\n");
 		fclose($fp);
 
+
+		// existing notifications
+		$notifications = array();
+		if(file_exists($collection_file)) {
+			$notifications = file($collection_file);
+		}
 
 		// send report and reset collection
 		if(count($notifications) >= (defined("SITE_COLLECT_NOTIFICATIONS") ? SITE_COLLECT_NOTIFICATIONS : 10)) {
