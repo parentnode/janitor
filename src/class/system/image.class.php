@@ -70,7 +70,7 @@ class Image {
 			$output_format = $info;
 		}
 
-		print "input_format:" . $input_format.", output_format:" . $output_format . "<br>";
+//		print "input_format:" . $input_format.", output_format:" . $output_format . "<br>";
 
 
 		// is input format different from output format - AND conversion not allowed
