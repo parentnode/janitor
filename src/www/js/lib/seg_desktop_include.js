@@ -1,9 +1,9 @@
-document.write('<script type="text/javascript" src="/janitor/js/jes/v0_7_5/full/seg_desktop.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/js/manipulator/v0_7_5/full/seg_desktop.js"></script>');
 
-document.write('<script type="text/javascript" src="/js/jes/src/beta-u-navigation.js"></script>');
-document.write('<script type="text/javascript" src="/js/jes/src/beta-u-sortable.js"></script>');
-document.write('<script type="text/javascript" src="/js/jes/src/beta-u-video.js"></script>');
-document.write('<script type="text/javascript" src="/js/jes/src/beta-u-keys.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-navigation.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-sortable.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-video.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-keys.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/js/lib/desktop/i-page.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/js/lib/desktop/i-form.js"></script>');

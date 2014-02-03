@@ -487,19 +487,17 @@ class User extends Model {
 
 		if($user_id) {
 
-			if($type) {
-				$sql = "SELECT * FROM ".$this->db_addresses." WHERE address_id = $address_id";
-				if($query->sql($sql)) {
-					return $query->result(0);
-				}
-			}
-			else {
-				$sql = "SELECT * FROM ".$this->db_addresses." WHERE user_id = $user_id";
-				if($query->sql($sql)) {
-					return $query->results();
-				}
+			$sql = "SELECT * FROM ".$this->db_addresses." WHERE user_id = $user_id";
+			if($query->sql($sql)) {
+				return $query->results();
 			}
 
+		}
+		else if($address_id) {
+			$sql = "SELECT * FROM ".$this->db_addresses." WHERE address_id = $address_id";
+			if($query->sql($sql)) {
+				return $query->result(0);
+			}
 		}
 		
 		
