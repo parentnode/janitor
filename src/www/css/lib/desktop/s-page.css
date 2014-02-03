@@ -1,0 +1,52 @@
+* {
+	-webkit-text-size-adjust: none;
+}
+
+html {height: 100%;}
+body {background: #ffffff; margin: 0; min-height: 100%; overflow-y: scroll; background-color: #f5f7f8;}
+
+
+/* BASE * BUSE */
+h1, h2, h3, h4, h5, h6, p, ul, li, dl, dd, dt {color: #313942; padding: 0; margin: 0;}
+
+ul {list-style: none;}
+a {text-decoration: none; cursor: pointer;}
+a:hover {}
+
+img {border: 0; display: block;}
+form, fieldset, label, input, select, textarea {padding: 0; margin: 0;}
+fieldset {border: none;}
+input, textarea {outline: none;}
+
+
+a, span {font-size: inherit; font-family: inherit; font-weight: inherit; color: inherit; text-transform: inherit;}
+
+
+h1 {padding: 20px 30px; text-transform: uppercase;}
+h2 {padding: 0 30px 10px;}
+h3 {padding: 0 30px 10px;}
+h4 {padding: 0 30px;}
+h5 {padding: 0 30px;}
+h6 {padding: 0 30px;}
+
+p {padding: 0 30px 25px; color: #7d848c;} 
+
+ul {font-size: 0;}
+li {display: inline-block; vertical-align: top; color: #7d848c;}
+
+dl {font-size: 0;} 
+dd, 
+dt {color: #7d848c; display: inline-block; vertical-align: top;}
+
+
+/* GRID SYSTEM */
+.c {clear: both; font-size: 0;}
+.c400, .c300, .c266, .c200, .c150, .c133, .c100, .c75, .c50 {display: inline-block; min-height: 10px; vertical-align: top;}
+.c400 {width: 100%;}
+.c300 {width: 75%;}
+.c266 {width: 66%;}
+.c200 {width: 50%;}
+.c133 {width: 34%;}
+.c100 {width: 25%;}
+
+#page {position: relative; margin-left: 230px;}

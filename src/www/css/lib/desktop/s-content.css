@@ -1,0 +1,48 @@
+#content {margin-bottom: 50px;}
+#content a {text-decoration: underline;}
+#content .link {cursor: pointer;}
+
+
+/* DEFAULT TOP */
+#content .scene {position: relative; min-height: 200px;}
+#content .scene > h1 {height: 46px; padding-bottom: 0; background: #ffffff;}
+
+/* DEFAULT TOP ACTIONS */
+#content .scene h1 + ul.actions {border-bottom: 1px solid #dedede; padding: 25px 30px 0; height: 49px; background: #ffffff;}
+#content .scene h1 + ul.actions li {padding-bottom: 0;}
+#content .scene h2 {padding: 10px 30px 11px;}
+
+
+/* PAGE WITH NO TOP ACTIONS */
+#content .scene.front h1 {padding-bottom: 74px; border-bottom: 1px solid #dedede;}
+
+
+/* PRIMITIVE LISTS */
+#content ul.list {padding: 21px 30px;}
+#content ul.list li {display: block;}
+
+#content dl.list {padding: 21px 30px; width: 600px;}
+#content dl.list dt,
+#content dl.list dd {padding: 5px 0; border-bottom: 1px solid #dbdfe5; height: 14px;}
+#content dl.list dt {width: 100px;}
+#content dl.list dt:after {content: ":";}
+#content dl.list dd {width: 170px; margin: 0 30px 0 0;}
+
+
+/* ACTIONS */
+#content .scene > ul.actions {padding-bottom: 20px; padding-top: 20px; text-align: left;}
+#content .scene > ul.actions li {padding: 0 10px 10px 0;}
+
+
+/* COMMON SECTION DEVIDERS */
+#content .scene > div.item {padding: 10px 0 20px; border-bottom: 1px solid #dedede;}
+#content .scene > div.tags {padding: 10px 0 20px; border-bottom: 1px solid #dedede;}
+#content .scene > div.prices {padding: 10px 0 20px; border-bottom: 1px solid #dedede;}
+
+
+/* DEV AID */
+#content .wtferror * {color: red !important;}
+#content .todo * {color: orange !important;}
+
+
+

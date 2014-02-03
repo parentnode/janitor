@@ -1,0 +1,4 @@
+/* NEW VIEW */
+#content .scene.defaultNew > form {padding-top: 20px;}
+#content .scene.defaultNew > form .actions {text-align: left;}
+#content .scene.defaultNew > form .actions li {padding: 0 5px 10px;}

@@ -1,0 +1,27 @@
+/* Cart */
+#content .defaultList.cartList ul.items > li h3 {padding-bottom: 16px;}
+#content .defaultList.cartList ul.items > li ul.products {display: none;}
+
+#content .defaultView.cartView ul.products {padding: 0 30px;}
+#content .defaultView.cartView ul.products li {display: block;}
+
+/* Order */
+#content .defaultList.orderList ul.items > li dl.details {padding: 3px 30px 16px; display: block;}
+#content .defaultList.orderList ul.items > li dl.details dt {display: none;}
+#content .defaultList.orderList ul.items > li dl.details dd.name,
+#content .defaultList.orderList ul.items > li dl.details dd.price {display: none;}
+#content .defaultList.orderList ul.items > li dl.details dd.email:after {content: ",\00a0";}
+
+
+#content .defaultView.orderView dl.list {padding-top: 3px;}
+#content .defaultView.orderView dl.list dt {width: 200px;}
+#content .defaultView.orderView dl.list dt:after {content: ":";}
+#content .defaultView.orderView dl.list dd {width: 370px; margin: 0 30px 0 0;}
+
+#content .defaultView.orderView ul.list {padding-top: 3px;}
+#content .defaultView.orderView ul.list li {display: block; overflow: hidden; border-bottom: 1px solid #dedede;}
+#content .defaultView.orderView ul.list li span {display: inline-block; vertical-align: top; padding: 9px 15px 0 0;}
+#content .defaultView.orderView ul.list li span.title {width: 400px; padding-bottom: 9px; word-wrap: break-word;}
+#content .defaultView.orderView ul.list li span.price_piece {width: 200px;}
+#content .defaultView.orderView ul.list li span.price {float: right; padding-right: 0px;}
+

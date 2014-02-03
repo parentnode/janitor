@@ -1,0 +1,5 @@
+#header {background-color: #313942; position: fixed; top: 0; left: 0; width: 230px; height: 100%;}
+#header .servicenavigation {display: block; background-color: #64ad8e; height: 80px; padding: 30px 10px;}
+#header .servicenavigation li.front {display: block; color: #ffffff; padding: 0 10px;}
+#header .servicenavigation li.navigation {display: none;}
+#header .servicenavigation li.help {display: none;}

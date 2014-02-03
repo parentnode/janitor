@@ -1,0 +1,12 @@
+* {font-family: "OpenSansRegular", Arial, Verdana, sans-serif;
+	font-size: 13px;
+}
+
+h1 {font-size: 2rem;}
+h2 {font-size: 1.50rem;}
+h3 {font-size: 1.25rem;}
+
+#content .defaultList ul.items > li ul.tags li.add,
+#content .defaultList ul.items > li ul.tags li span,
+#content .defaultList ul.taggable > li ul.taglist li span,
+#content .defaultEdit > div.tags ul.taglist li span {font-size: 12px;}

@@ -1,0 +1,243 @@
+#content {margin-bottom: 50px;}
+#content .scene {position: relative; min-height: 200px;}
+
+
+
+#content a {text-decoration: underline;}
+
+
+
+
+
+#content .scene > h1 {height: 46px; padding-bottom: 0; background: #ffffff;}
+#content .scene h1 + ul.actions {border-bottom: 1px solid #dedede; padding: 25px 30px 0; height: 49px; background: #ffffff;}
+#content .scene h1 + ul.actions li {padding-bottom: 0;}
+#content .scene h2 {padding: 10px 30px 11px; 
+/*	border-bottom: 1px solid #dedede;*/
+}
+
+#content ul.list {padding: 21px 30px;}
+#content ul.list li {display: block;}
+
+#content dl.list {padding: 21px 30px; width: 600px;}
+
+#content dl.list dt,
+#content dl.list dd {padding: 5px 0; border-bottom: 1px solid #dbdfe5; height: 14px;}
+#content dl.list dt {width: 100px;}
+#content dl.list dt:after {content: ":";}
+#content dl.list dd {width: 170px; margin: 0 30px 0 0;}
+
+#content .scene > ul.actions {padding-bottom: 20px; padding-top: 20px; text-align: left;}
+#content .scene > ul.actions li {padding: 0 10px 10px 0;}
+
+
+
+
+
+/* DEFAULT FORM SETUP */
+
+/* LIST VIEWS */
+#content .defaultList .all_items > h2,
+#content .defaultList .enabled_items > h2,
+#content .defaultList .disabled_items > h2 {padding: 10px 30px 11px;}
+
+#content .defaultList .all_items > p,
+#content .defaultList .enabled_items > p,
+#content .defaultList .disabled_items > p {padding: 10px 30px 11px;}
+
+
+/* LIST */
+#content .defaultList ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede;}
+#content .defaultList ul.items > li:hover {background-color: #edf0f2;}
+#content .defaultList ul.items > li h3 {padding: 16px 30px 0px 30px;}
+#content .defaultList ul.items > li .description {display: none;}
+
+#content .defaultList ul.items > li .actions {position: absolute; top: 0px; padding: 0; right: 20px;}
+#content .defaultList ul.items > li .actions li {padding: 10px 0 10px 10px;}
+
+
+#content .defaultList ul.items > li ul.tags {padding: 10px 125px 16px 25px;}
+#content .defaultList ul.items > li ul.tags li {display: inline-block; vertical-align: top; margin: 3px; border-radius: 13px; background-color: #313942; padding: 7px 10px; color: #ffffff; font-size: 0;}
+
+#content .defaultList ul.items > li ul.tags li.add {padding: 7px; cursor: pointer; width: 10px; text-align: center;}
+#content .defaultList ul.items > li ul.tags li.add:hover {background-color: #64ad8e;}
+
+#content .defaultList ul.items > li ul.tags li span.context {text-transform: uppercase;}
+#content .defaultList ul.items > li ul.tags li span.context:after {content: ":";}
+#content .defaultList ul.items > li ul.tags li span.value {}
+
+
+/* TAGGABLE */
+/* ADD TAGS ACTIVE */
+#content .defaultList ul.taggable > li.addTags ul.tags li {cursor: pointer;}
+#content .defaultList ul.taggable > li.addTags ul.tags li:hover,
+#content .defaultList ul.taggable > li.addTags ul.tags li.add:hover {background-color: #df0000;}
+#content .defaultList ul.taggable > li.addTags ul.tags li.add {padding: 6px 7px 8px;}
+
+#content .defaultList ul.taggable > li.addTags ul.taglist {display: block;}
+
+/* ADD TAGS LIST */
+#content .defaultList ul.taggable > li ul.taglist {padding: 0 125px 16px 25px; margin-top: -16px; display: none;}
+#content .defaultList ul.taggable > li ul.taglist li {display: inline-block; vertical-align: top; margin: 3px; border-radius: 13px; background-color: #dedede; padding: 7px 10px; color: #ffffff; cursor: pointer; font-size: 0;}
+#content .defaultList ul.taggable > li ul.taglist li:hover {background-color: #64ad8e;}
+#content .defaultList ul.taggable > li ul.taglist li.selected {background-color: #313942;}
+#content .defaultList ul.taggable > li ul.taglist li.selected:hover {background-color: #df0000;}
+
+#content .defaultList ul.taggable > li ul.taglist li span.context {text-transform: uppercase;}
+#content .defaultList ul.taggable > li ul.taglist li span.context:after {content: ":";}
+#content .defaultList ul.taggable > li ul.taglist li span.value {}
+
+
+/* SORTABLE */
+#content .defaultList ul.sortable > li.item h2 {padding-left: 60px;}
+#content .defaultList ul.sortable > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 8px; left: 20px; background: transparent url(/janitor/img/bg_icons2.png) no-repeat 10px -445px; cursor: move;}
+
+
+
+
+/* GRID */
+#content .defaultList ul.items.grid > li {width: 33.3333%; height: 48px; position: relative; border-right: 1px solid #dedede; margin-right: -1px; border-bottom: 1px solid #dedede; margin-bottom: -1px;}
+
+
+
+@media (max-width: 1000px) {#content .defaultList ul.items.grid > li {width: 50%;}}
+@media (min-width: 1500px) {#content .defaultList ul.items.grid > li {width: 25%;}}
+
+#content .defaultList ul.items.grid > li h3 {padding-top: 20px;}
+
+/* FLOATING ACTIONS */
+#content .defaultList ul.items.grid > li .actions {background-color: rgba(220,220,220,0.7); opacity: 0; position: absolute; top: 0px; width: 100%; padding: 0; right: 0;}
+#content .defaultList ul.items.grid > li:hover .actions {opacity: 1;}
+#content .defaultList ul.items.grid > li .actions li {padding: 10px 10px 10px 0;}
+
+/* ENABLED AND DISABLED GROUPS */
+#content .defaultList .enabled_items,
+#content .defaultList .disabled_items {border-bottom: 1px solid #dedede; margin-bottom: 20px;}
+#content .defaultList .enabled_items > p,
+#content .defaultList .disabled_items > p {padding-top: 20px;}
+
+#content .defaultList ul.items.grid > li .prices {text-align: right; position: absolute; bottom: 20px; right: 0;}
+#content .defaultList ul.items.grid > li .prices li {padding: 0 20px; line-height: 1.2em;}
+
+
+
+
+
+
+/* NEW VIEW */
+#content .scene.defaultNew > form {padding-top: 20px; 
+	/*
+	margin: 0 auto; width: 400px;
+	*/
+}
+#content .scene.defaultNew > form .actions {text-align: left;
+	/* text-align: center; */
+}
+#content .scene.defaultNew > form .actions li {padding: 0 5px 10px;}
+
+
+/* EDIT VIEW */
+#content .scene.defaultEdit div > form {
+/*	margin: 0 auto; width: 400px;*/
+}
+
+
+/* EDIT VIEW - ITEM */
+#content .scene.defaultEdit > div.item {padding: 20px 0;}
+#content .scene.defaultEdit > div.item .actions {text-align: left;}
+#content .scene.defaultEdit > div.item .actions li {padding: 0 5px 10px;}
+
+
+/* EDIT VIEW - PRICES */
+#content .scene.defaultEdit > div.prices {padding: 20px 0;}
+#content .scene.defaultEdit > div.prices .field input[type=text] {width: 262px;}
+#content .scene.defaultEdit > div.prices .field .actions {display: inline-block; padding: 0;}
+#content .scene.defaultEdit > div.prices .field .actions li {padding-bottom: 0;}
+#content .scene.defaultEdit > div.prices .field .actions li.save input {width: 90px;}
+#content .scene.defaultEdit > div.prices .field.focus .actions li.save input,
+#content .scene.defaultEdit > div.prices .field.error .actions li.save input {margin: 2px;}
+
+#content .scene.defaultEdit > div.prices ul.prices {margin: 0 auto; width: 380px; padding: 0 10px;}
+#content .scene.defaultEdit > div.prices ul.prices li {font-size: 0; display: block; padding-bottom: 3px;}
+#content .scene.defaultEdit > div.prices ul.prices li h3 {font-size: 14px; display: inline-block; vertical-align: top; padding: 0 5px 0 0; line-height: 20px;}
+#content .scene.defaultEdit > div.prices ul.prices li form {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.prices ul.prices li input.delete {font-size: 13px; padding: 0; margin: 0; line-height: 20px; cursor: pointer; color: #999999; text-decoration: underline; box-shadow: none; text-shadow: none; border: none; background: none; border-radius: 0;}
+#content .scene.defaultEdit > div.prices ul.prices li input.delete:hover {color: #000000;}
+
+
+/* EDIT VIEW - TAGS */
+#content .scene.defaultEdit > div.tags {padding: 20px 0;}
+#content .scene.defaultEdit > div.tags .field input[type=text] {width: 262px;}
+#content .scene.defaultEdit > div.tags .field .actions {display: inline-block; padding: 0;}
+#content .scene.defaultEdit > div.tags .field .actions li {padding-bottom: 0;}
+#content .scene.defaultEdit > div.tags .field .actions li.save input {width: 90px; box-shadow: none; margin: 4px 0;}
+#content .scene.defaultEdit > div.tags .field.focus .actions li.save input,
+#content .scene.defaultEdit > div.tags .field.error .actions li.save input {margin: 2px;}
+
+
+#content .scene.defaultEdit > div.tags ul.tags {display: block; padding: 0px 30px;}
+#content .scene.defaultEdit > div.tags ul.tags li {width: 40%; padding: 3px 0px 2px; font-size: 0;}
+#content .scene.defaultEdit > div.tags ul.tags li h3 {font-size: 0; display: inline-block; vertical-align: top; padding: 0 5px 0 0; 
+	/*line-height: 20px;*/
+}
+#content .scene.defaultEdit > div.tags ul.tags li h3 span {display: inline-block; font-size: 14px; line-height: 20px;}
+#content .scene.defaultEdit > div.tags ul.tags li h3 span.context {text-transform: uppercase; /*width: 30%;*/}
+#content .scene.defaultEdit > div.tags ul.tags li h3 span.context:after {content: ":";}
+#content .scene.defaultEdit > div.tags ul.tags li h3 span.value {/*width: 65%;*/}
+
+/*
+#content .scene.defaultEdit > div.tags ul.tags {margin: 0 auto; width: 380px; padding: 0 10px;}
+#content .scene.defaultEdit > div.tags ul.tags li {font-size: 0; display: block; padding-bottom: 3px;}
+*/
+#content .scene.defaultEdit > div.tags ul.tags li form {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.tags ul.tags li input.delete {font-size: 13px; padding: 0; margin: 0; line-height: 20px; cursor: pointer; color: #999999; text-decoration: underline; box-shadow: none; text-shadow: none; border: none; background: none; border-radius: 0;}
+#content .scene.defaultEdit > div.tags ul.tags li input.delete:hover {color: #000000;}
+
+#content .scene.defaultEdit > div.tags ul.taglist {padding: 0 30px 20px;}
+#content .scene.defaultEdit > div.tags ul.taglist li {display: inline-block; vertical-align: top; margin: 3px; border-radius: 13px; background-color: #dedede; padding: 7px 10px; color: #ffffff; cursor: pointer;}
+#content .scene.defaultEdit > div.tags ul.taglist li:hover {background-color: #64ad8e;}
+#content .scene.defaultEdit > div.tags ul.taglist li.selected {background-color: #313942;}
+#content .scene.defaultEdit > div.tags ul.taglist li.selected:hover {background-color: #df0000;}
+#content .scene.defaultEdit > div.tags ul.taglist li span.context {text-transform: uppercase; /*width: 30%;*/}
+#content .scene.defaultEdit > div.tags ul.taglist li span.context:after {content: ":";}
+#content .scene.defaultEdit > div.tags ul.taglist li span.value {/*width: 65%;*/}
+#content .scene.defaultEdit > div.tags.controlledTags ul.tags {display: none;}
+
+
+#content .scene.defaultEdit > div.images {padding: 20px 0; text-align: center;}
+#content .scene.defaultEdit > div.images .field {border: 3px dashed #dedede; display: inline-block; width: 390px; border-radius: 5px; position: relative; padding: 0;}
+#content .scene.defaultEdit > div.images .field input {opacity: 0;}
+#content .scene.defaultEdit > div.images .field label {display: block; color: #aaaaaa; position: absolute; width: 100%; padding-top: 8px;}
+#content .scene.defaultEdit > div.images .actions {display: none;}
+#content .scene.defaultEdit > div.images ul.images {padding: 20px 0;}
+#content .scene.defaultEdit > div.images ul.images li {margin: 0 10px; position: relative;}
+
+#content .scene.defaultEdit > div.images ul.images li form {background-color: rgba(220,220,220,0.7); opacity: 0; position: absolute; top: 0px; width: 100%; padding: 0; right: 0;}
+#content .scene.defaultEdit > div.images ul.images li:hover form {opacity: 1;}
+
+
+
+
+
+
+
+
+
+/* NOTIFICATIONS */
+#notifications {z-index: 1001; position: fixed; left: 50%; margin-left: -150px; width: 300px; top: 0; text-align: center;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#D7D7D7), to(#B0B0B0));
+	background: -webkit-linear-gradient(top, #D7D7D7, #B0B0B0);
+	background: -moz-linear-gradient(top, #D7D7D7, #B0B0B0);
+}
+#notifications div {padding: 10px 25px; text-decoration: none; width: auto; display: inline-block; height: auto; cursor: pointer;}
+#notifications .notice {color: #333333; font-weight: bold; text-shadow: -1px 1px 1px #dedede; box-shadow: 1px 1px 3px #dedede; border-left: 1px solid #dedede; border-bottom: 1px solid #dedede; border-right: 1px solid #dedede;
+}
+
+#notifications .error {color: #df0000;}
+
+#content .link {cursor: pointer;}
+
+#content .error * {color: red;}
+
+
+
