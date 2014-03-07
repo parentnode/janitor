@@ -245,8 +245,8 @@ class HTML {
 			else if($type == "select") {
 
 				$_ .= '<select'.$att_name.$att_id.$att_disabled.$att_readonly.'>';
-				foreach($options as $option) {
-					$_ .= '<option value="'.$option[0].'"'.($value == $option[0] ? ' selected="selected"' : '').'>'.$option[1].'</option>';
+				foreach($options as $select_option => $select_value) {
+					$_ .= '<option value="'.$select_option.'"'.($value == $select_option ? ' selected="selected"' : '').'>'.$select_value.'</option>';
 				}
 				$_ .= '</select>';
 			}
