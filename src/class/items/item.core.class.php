@@ -441,9 +441,12 @@ class ItemCore {
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
 			$status = is_numeric(getPost("status")) ? getPost("status") : 0;
 
-//			print "INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")";
 			// create item
-			$query->sql("INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")");
+			$sql = "INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")";
+
+//			print $sql;
+
+			$query->sql($sql);
 			$new_id = $query->lastInsertId();
 
 			// attempt typeObject save
