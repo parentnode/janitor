@@ -253,6 +253,9 @@ class Query {
 			else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql')) {
 				$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql';
 			}
+			else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/items/'.$table.'.sql')) {
+				$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/items/'.$table.'.sql';
+			}
 
 
 			if($db_file) {
