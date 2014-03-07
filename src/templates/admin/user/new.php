@@ -18,11 +18,14 @@ foreach($user_groups as $user_group) {
 		<h1>New user</h1>
 
 		<ul class="actions">
-			<li class="cancel"><a href="/admin/user/list" class="button">Back</a></li>
+			<li class="cancel"><a href="/admin/user/list" class="button">List</a></li>
 		</ul>
 
-		<form action="/admin/user/save" class="i:formDefaultNew labelstyle:inject" method="post" enctype="multipart/form-data">
+		<h2>Let's start with some very basic information</h2>
 
+
+		<form action="/admin/user/save" class="i:formDefaultNew labelstyle:inject" method="post" enctype="multipart/form-data">
+			<h3>Name and user group</h3>
 			<fieldset>
 				<?= $model->input("nickname") ?>
 				<?= $model->input("user_group_id", array("type" => "select", "options" => $user_groups_options)) ?>

@@ -4,7 +4,17 @@ $action = $this->actions();
 
 $model = new User();
 // check if custom function exists on cart class
-$users = $model->getUsers();
+$user_groups = $model->getUserGroups();
+
+if(count($action) > 1) {
+	$user_group_id = $action[1];
+}
+else {
+	// simple users are always user_group 1
+	$user_group_id = 1;
+}
+
+$users = $model->getUsers(array("user_group_id" => $user_group_id));
 
 // print_r($carts);
 
@@ -15,6 +25,12 @@ $users = $model->getUsers();
 	<ul class="actions">
 		<li class="new"><a href="/admin/user/new" class="button primary">New user</a></li>
 		<li class="usergroup"><a href="/admin/user/group/list" class="button">User groups</a></li>
+	</ul>
+
+	<ul class="userGroups">
+<?		foreach($user_groups as $user_group): ?>
+		<li class="<?= $user_group["id"] == $user_group_id ? "selected" : "" ?>"><a href="/admin/user/list/<?= $user_group["id"] ?>"><?= $user_group["user_group"] ?></a></li>
+<?		endforeach; ?>
 	</ul>
 
 	<div class="all_items i:defaultList filters">

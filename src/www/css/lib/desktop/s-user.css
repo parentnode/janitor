@@ -1,6 +1,73 @@
 /* Users and usergroups */
 
 /*
+
 #content .defaultList.userList > .actions {position: relative;}
 #content .defaultList.userList > .actions li.usergroup {right: 30px; position: absolute; padding: 0;}
 */
+
+/* DELETE BUTTON */
+#content .defaultEdit.userEdit > .actions li.delete {position: absolute; right: 20px; top: 91px;}
+
+/* VIEWS */
+#content .defaultEdit.userEdit .views {}
+#content .defaultEdit.userEdit .views li {padding: 15px 30px; border-right: 1px solid #dedede;}
+#content .defaultEdit.userEdit .views li a {text-decoration: none;}
+#content .defaultEdit.userEdit .views li.selected {background-color: #dedede; color: #aaaaaa;}
+
+
+/* STATUS */
+#content .defaultEdit.userEdit > div.status {
+	/*background: #F5F7F8; */
+	border-top: 1px solid #dedede;
+	border-bottom: 1px solid #dedede;
+}
+#content .defaultEdit.userEdit > div.status .actions {
+	padding: 0;
+	
+}
+#content .defaultEdit.userEdit > div.status .actions li.status {display: block; 
+/*	margin-top: 23px; margin-left: -30px; margin-right: -30px;*/
+
+	padding: 10px 0px; 
+	text-align: right;
+}
+#content .defaultEdit.userEdit > div.status .actions li.status form {display: inline-block; vertical-align: top; padding-right: 30px;}
+#content .defaultEdit.userEdit > div.status .actions li.status form h3 {padding-top: 5px; padding-bottom: 0; font-size: 13px;}
+#content .defaultEdit.userEdit > div.status .actions li.status.disabled {background: orange;}
+#content .defaultEdit.userEdit > div.status .actions li.status.disabled form.disable {display: none;}
+#content .defaultEdit.userEdit > div.status .actions li.status.enabled form.enable {display: none;}
+
+
+
+#content .scene.userEdit > .actions {}
+
+#content .scene.userEdit > div.status .actions li.status h3 {display: inline-block; vertical-align: top;}
+#content .scene.userEdit > div.status .actions li.status input {display: inline-block; vertical-align: top;}
+
+#content .scene.userEdit > div.usernames {padding: 0 0 20px 0; border-bottom: 1px solid #dedede;}
+#content .scene.userEdit > div.usernames {}
+
+#content .scene.userEdit > div.usernames .actions {text-align: left;}
+#content .scene.userEdit > div.usernames .actions li {padding: 0 5px 10px;}
+
+#content .scene.userEdit > div.password {padding: 0 0 20px 0; border-bottom: 1px solid #dedede;}
+
+#content .scene.userEdit > div.password .actions {text-align: left;}
+#content .scene.userEdit > div.password .actions li {padding: 0 5px 10px;}
+
+#content .scene.userEdit > div.newsletters {padding: 0 0 20px 0; border-bottom: 1px solid #dedede;}
+
+#content .scene.userEdit > div.addresses {padding: 0; border-bottom: 1px solid #dedede;}
+#content .scene.userEdit > div.addresses ul.addresses {padding: 0 30px;}
+#content .scene.userEdit > div.addresses ul.addresses > li {display: inline-block; vertical-align: top; width: 250px; margin-right: 30px; height: 120px; padding: 20px 0; border-top: 1px solid #dedede; position: relative;}
+#content .scene.userEdit > div.addresses ul.addresses > li h3 {padding: 0 0 5px;}
+#content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; top: 20px; right: 0; padding: 0;}
+#content .scene.userEdit > div.addresses ul.addresses > li .actions li {padding-left: 0;}
+
+#content .defaultList.userList .userGroups {}
+#content .defaultList.userList .userGroups li {padding: 15px 30px; border-right: 1px solid #dedede;}
+#content .defaultList.userList .userGroups li a {text-decoration: none;}
+#content .defaultList.userList .userGroups li.selected {background-color: #dedede; color: #aaaaaa;}
+
+#content .scene.defaultNew.userAddress > form {padding: 0;}

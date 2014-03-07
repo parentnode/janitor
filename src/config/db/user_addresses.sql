@@ -1,11 +1,11 @@
 CREATE TABLE `SITE_DB`.`user_addresses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `status` int(11) NOT NULL,
+  `status` int(11) DEFAULT 1,
 
-  `label` varchar(255) DEFAULT NULL,
+  `address_label` varchar(255) DEFAULT NULL,
 
-  `name` varchar(255) DEFAULT NULL,
+  `address_name` varchar(255) DEFAULT NULL,
   `att` varchar(255) DEFAULT NULL,
   `address1` varchar(255) DEFAULT NULL,
   `address2` varchar(255) DEFAULT NULL,

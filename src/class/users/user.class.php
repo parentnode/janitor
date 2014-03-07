@@ -102,7 +102,7 @@ class User extends Model {
 
 
 		// address label
-		$this->addToModel("label", array(
+		$this->addToModel("address_label", array(
 			"type" => "string",
 			"label" => "Address label",
 			"hint_message" => "Give this address a label (home, office, parents, etc.)",
@@ -112,8 +112,8 @@ class User extends Model {
 		// address label
 		$this->addToModel("address_name", array(
 			"type" => "string",
-			"label" => "Name",
-			"hint_message" => "Name on door at address",
+			"label" => "Name/Company",
+			"hint_message" => "Name on door at address, your name or company name",
 			"error_message" => "Invalid name"
 		));
 		// att
@@ -155,9 +155,9 @@ class User extends Model {
 		// state
 		$this->addToModel("state", array(
 			"type" => "string",
-			"label" => "State",
-			"hint_message" => "Write your state if applicaple",
-			"error_message" => "Invalid state"
+			"label" => "State/region",
+			"hint_message" => "Write your state/region, if applicaple",
+			"error_message" => "Invalid state/region"
 		));
 
 		// country
@@ -189,39 +189,44 @@ class User extends Model {
 	// - optional multiple carts, based on content match
 	function getUsers($_options=false) {
 
-		// get all carts containing $item_id
 		$user_id = false;
+		$user_group_id = false;
 
-		// get carts based on timestamps
-		$before = false;
-		$after = false;
 
 		$order = "status DESC, id DESC";
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "user_id"  : $user_id    = $_value; break;
-					case "before"   : $before     = $_value; break;
-					case "after"    : $after      = $_value; break;
+					case "user_group_id"  : $user_group_id    = $_value; break;
 
-					case "order"    : $order      = $_value; break;
+					case "user_id"        : $user_id          = $_value; break;
+
+					case "order"          : $order            = $_value; break;
 				}
 			}
 		}
 
 		$query = new Query();
 
-		// get all carts with item_id in it
+		// get specific user
 		if($user_id) {
 
 			$sql = "SELECT * FROM ".$this->db." WHERE id = $user_id";
 //			print $sql;
 			if($query->sql($sql)) {
-				 
 				$user = $query->result(0);
-
 				return $user;
+			}
+
+		}
+		else if($user_group_id) {
+
+			$sql = "SELECT * FROM ".$this->db." WHERE user_group_id = $user_group_id";
+//			print $sql;
+			if($query->sql($sql)) {
+				$users = $query->results();
+				return $users;
 			}
 
 		}
@@ -462,13 +467,17 @@ class User extends Model {
 	}
 
 	// create from posted values
-	function addUsername($user_id) {
+	function updateUsername($user_id) {
+
 
 	}
 
 	function deleteUsername() {}
 
 
+	// return addresses
+	// can return all addresses for a user, or a specific address
+	// TODO: translate country ISO to country text
 	function getAddresses($_options) {
 
 		$user_id = false;
@@ -503,12 +512,41 @@ class User extends Model {
 		
 	}
 
-	function addAddress() {
+	// create a new address
+	function addAddress($action) {
 		if(count($action) == 2) {
 			$query = new Query();
 
+			// does values validate
+			if($this->validateList(array("address_label","address_name","address1","postal","city","country"))) {
+
+				$query = new Query();
+
+				$entities = getPosts(array("user_id","address_label","address_name","att","address1","address2","city","postal","state","country"));
+				$names = array();
+				$values = array();
+
+				foreach($entities as $name => $entity) {
+//					if($entity["value"] && preg_match("/^()$/", $name)) {
+						$names[] = $name;
+						$values[] = $name."='".$entity."'";
+//					}
+				}
+
+				if($values) {
+					$sql = "INSERT INTO ".$this->db_addresses." SET ".implode(",", $values);
+//					print $sql;
+				}
+
+				if(!$values || $query->sql($sql)) {
+					return array("address_id" => $query->lastInsertId());
+//					return true;
+				}
+			}
 		}
 	}
+
+
 
 	function updateAddress() {
 		if(count($action) == 2) {
@@ -543,13 +581,20 @@ class User extends Model {
 	function deleteAddress() {}
 
 
+	// check if password exists
+	function issetPassword($user_id) {
+		//
+	}
 
+	// set new password for user
 	function setPassword($action) {
 		
 		$password;
 	}
 
+	// start reset password procedure
 	function resetPassword() {}
+
 
 
 
