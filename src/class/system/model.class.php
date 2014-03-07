@@ -300,7 +300,7 @@ class Model extends HTML {
 		}
 
 		// string or text field
-		if($this->data_entities[$name]["type"] == "string" || $this->data_entities[$name]["type"] == "text") {
+		if($this->data_entities[$name]["type"] == "string" || $this->data_entities[$name]["type"] == "text" || $this->data_entities[$name]["type"] == "select") {
 			if($this->isString($name)) {
 				return true;
 			}
@@ -469,7 +469,7 @@ class Model extends HTML {
 		$max_length = $entity["max"];
 		$pattern = $entity["pattern"];
 
-		if($value && is_string($value) && 
+		if(($value || $value === "0") && is_string($value) && 
 			(!$min_length || strlen($value) >= $min_length) && 
 			(!$max_length || strlen($value) <= $max_length) &&
 			(!$pattern || preg_match("/^".$pattern."$/", $value))
