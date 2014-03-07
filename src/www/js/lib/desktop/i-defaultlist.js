@@ -6,6 +6,10 @@ Util.Objects["defaultList"] = new function() {
 		var i, node;
 
 		div.list = u.qs("ul.items", div);
+		if(!div.list) {
+			div.list = u.ae(div, "ul", {"class":"items"});
+		}
+
 		div.nodes = u.qsa("li.item", div);
 		//scene.list.scene = scene;
 
