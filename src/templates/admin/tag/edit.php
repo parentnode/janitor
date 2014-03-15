@@ -1,12 +1,11 @@
 <?php
+global $action;
+global $IC;
 
-$action = $this->actions();
-
-$IC = new Item();
+// model for custom inputs
 $model = new Model();
 
 $tag = $IC->getTags(array("tag_id" => $action[1]));
-
 ?>
 <div class="scene defaultEdit tagEdit">
 	<h1>Edit tag</h1>
@@ -57,7 +56,7 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 <? 		if($tag["items"]): ?>
 		<ul class="tag_items">
 <? 			foreach($tag["items"] as $item):
-				$item = $IC->getCompleteItem($item["item_id"]); ?>
+				$item = $IC->extendItem($item); ?>
 			<li>
 				<dl>
 					<dt class="name">Name</dt>

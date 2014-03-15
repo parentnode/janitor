@@ -4,7 +4,7 @@ global $IC;
 global $model;
 global $itemtype;
 
-$item = $IC->getCompleteItem($action[1]);
+$item = $IC->getCompleteItem(array("id" => $action[1]));
 $item_id = $item["item_id"];
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
@@ -13,6 +13,21 @@ $item_id = $item["item_id"];
 	<ul class="actions">
 		<li class="cancel"><a href="/admin/<?= $itemtype ?>/list" class="button">Back</a></li>
 	</ul>
+
+	<div class="status">
+		<ul class="actions">
+			<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>">
+				<form action="/admin/cms/disable/<?= $item["id"] ?>" class="disable i:formDefaultStatus" method="post" enctype="multipart/form-data">
+					<h3>Enabled</h3>
+					<input type="submit" value="Disable" class="button status disable" />
+				</form>
+				<form action="/admin/cms/enable/<?= $item["id"] ?>" class="enable i:formDefaultStatus" method="post" enctype="multipart/form-data">
+					<h3>Disabled</h3>
+					<input type="submit" value="Enable" class="button status enable" />
+				</form>
+			</li>
+		</ul>
+	</div>
 
 	<div class="item i:defaultEdit">
 		<form action="/admin/cms/update/<?= $item_id ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">

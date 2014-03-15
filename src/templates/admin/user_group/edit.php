@@ -1,9 +1,7 @@
 <?php
+global $action;
+global $model;
 
-$action = $this->actions();
-
-$model = new User();
-// check if custom function exists on cart class
 $item = $model->getUserGroups(array("user_group_id" => $action[2]));
 
 ?>

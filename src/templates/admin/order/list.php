@@ -1,12 +1,8 @@
 <?php
+global $action;
+global $model;
 
-$action = $this->actions();
-
-$CC = new Shop();
-$orders = $CC->getOrders();
-
-// print_r($carts);
-
+$orders = $model->getOrders();
 ?>
 <div class="scene defaultList orderList">
 	<h1>Orders</h1>
@@ -18,16 +14,14 @@ $orders = $CC->getOrders();
 	<div class="all_items i:defaultList filters">
 <?		if($orders): ?>
 		<ul class="items">
-<?			foreach($orders as $order): 
-				//$item = $IC->getCompleteItem($item["id"]); 
-				?>
+<?			foreach($orders as $order): ?>
 			<li class="item">
 				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items" ) ?>)</h3>
 				<dl class="details">
 					<dt class="name">Name</dt>
 					<dd class="name"><?= $order["delivery_name"] ?></dd>
 					<dt class="price">Total price</dt>
-					<dd class="price"><?= formatPrice($CC->getTotalOrderPrice($order["id"]), $order["currency"]) ?></dd>
+					<dd class="price"><?= formatPrice($model->getTotalOrderPrice($order["id"]), $order["currency"]) ?></dd>
 					<dt class="email">Email</dt>
 					<dd class="email"><?= $order["email"] ?></dd>
 					<dt class="mobile">Mobile</dt>

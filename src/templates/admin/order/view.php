@@ -1,10 +1,8 @@
 <?php
+global $action;
+global $model;
 
-$action = $this->actions();
-
-$CC = new Shop();
-$order = $CC->getOrders(array("order_id" => $action[2]));
-
+$order = $model->getOrders(array("order_id" => $action[2]));
 ?>
 <div class="scene defaultView orderView">
 	<h1>View order</h1>
@@ -21,7 +19,7 @@ $order = $CC->getOrders(array("order_id" => $action[2]));
 			<dt>Created at</dt>
 			<dd><?= $order["created_at"] ?></dd>
 			<dt>Total price</dt>
-			<dd><?= formatPrice($CC->getTotalOrderPrice($order["id"]), $order["currency"]) ?></dd>
+			<dd><?= formatPrice($model->getTotalOrderPrice($order["id"]), $order["currency"]) ?></dd>
 		</dl>
 
 		<h3>Contact</h3>

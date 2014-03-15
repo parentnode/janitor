@@ -18,7 +18,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position A
 <?		if($all_items): ?>
 		<ul class="items targets:draggable" data-save-order="/admin/<?= $itemtype ?>/updateOrder">
 <?			foreach($all_items as $item): 
-				$item = $IC->getCompleteItem($item["id"]); ?>
+				$item = $IC->extendItem($item, array("tags" => true)); ?>
 			<li class="item draggable id:<?= $item["item_id"] ?>">
 				<div class="drag"></div>
 				<h3><?= $item["name"] ?></h3>

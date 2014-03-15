@@ -1,10 +1,8 @@
 <?php
+global $action;
+global $model;
 
-$action = $this->actions();
-
-$model = new Shop();
 $IC = new Item();
-
 $carts = $model->getCarts();
 
 ?>
@@ -25,7 +23,7 @@ $carts = $model->getCarts();
 <?				if($cart["items"]): ?>
 				<ul class="products">
 <?					foreach($cart["items"] as $product): 
-						$product = $IC->getCompleteItem($product["item_id"]); ?>
+						$product = $IC->getCompleteItem(array("id" => $product["item_id"])); ?>
 					<li class="product"><?= $product["name"] ?>, <?= $product["ean"] ?></li>
 <?					endforeach; ?>
 				</ul>

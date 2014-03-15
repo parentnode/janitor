@@ -1,10 +1,8 @@
 <?php
+global $action;
+global $IC;
 
-$action = $this->actions();
-
-$IC = new Item();
 $tags = $IC->getTags();
-
 ?>
 <div class="scene defaultList tagList">
 	<h1>Tags</h1>

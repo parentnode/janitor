@@ -1,8 +1,7 @@
 <?php
+global $action;
+global $model;
 
-$action = $this->actions();
-
-$model = new User();
 $user_groups = $model->getUserGroups();
 
 ?>
@@ -17,9 +16,7 @@ $user_groups = $model->getUserGroups();
 	<div class="all_items i:defaultList filters">
 <?		if($user_groups): ?>
 		<ul class="items">
-<?			foreach($user_groups as $user_group): 
-				//$item = $IC->getCompleteItem($item["id"]); 
-				?>
+<?			foreach($user_groups as $user_group): ?>
 			<li class="item">
 				<h2><?= $user_group["user_group"] ?>
 

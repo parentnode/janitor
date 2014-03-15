@@ -17,8 +17,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.stat
 <?		if($all_items): ?>
 		<ul class="items">
 <?			foreach($all_items as $item): 
-				$item = $IC->getCompleteItem($item["id"]);
-				 ?>
+				$item = $IC->extendItem($item, array("tags" => true)); ?>
 			<li class="item item_id:<?= $item["id"] ?>">
 				<h3><?= $item["name"] ?></h3>
 				<dl>

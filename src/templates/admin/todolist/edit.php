@@ -4,7 +4,7 @@ global $IC;
 global $model;
 global $itemtype;
 
-$item = $IC->getCompleteItem($action[1]);
+$item = $IC->getCompleteItem(array("id" => $action[1]));
 $item_id = $item["item_id"];
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
