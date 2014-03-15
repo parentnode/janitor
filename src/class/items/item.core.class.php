@@ -64,45 +64,56 @@ class ItemCore {
 
 	/**
 	* Global getItem
+	* Get item data from items db - does not did any deeper into type object
 	*
-	* @param $id Item id or sindex to get
+	* @param $_options Named Array containing id or sindex to get
 	*/
-	function getItem($id) {
-//		print "get item:" . "SELECT * FROM ".UT_ITEMS." WHERE sindex = '$id' OR id = '$id'";
+	function getItem($_options = false) {
 
-		$item = array();
+		$id = false;
+		$sindex = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "id"        : $id             = $_value; break;
+					case "sindex"    : $sindex         = $_value; break;
+				}
+			}
+		}
+
 
 		$query = new Query();
-		if($query->sql("SELECT * FROM ".UT_ITEMS." WHERE sindex = '$id' OR id = '$id'")) {
+		$sql = false;
+		if($id) {
+			$sql = "SELECT * FROM ".UT_ITEMS." WHERE id = '$id'";
+		}
+		else if($sindex) {
+			$sql = "SELECT * FROM ".UT_ITEMS." WHERE sindex = '$sindex'";
+		}
+//		print $sql."<br>";
 
-			$item["id"] = $query->result(0, "id");
-
-			// TODO: create sindex value if it doesn't exist (backwards compatibility)
-			$item["itemtype"] = $query->result(0, "itemtype");
-			$item["sindex"] = $query->result(0, "sindex");
-			$item["status"] = $query->result(0, "status");
-
-			$item["user_id"] = $query->result(0, "user_id");
-
-			$item["created_at"] = $query->result(0, "created_at");
-			$item["modified_at"] = $query->result(0, "modified_at");
-			$item["published_at"] = $query->result(0, "published_at");
-
+		if($sql && $query->sql($sql)) {
+			$item = $query->result(0);
 			return $item;
 		}
+
 		return false;
 	}
 
 	/**
-	* Global getCompleteItem (both getItem and get on itemtype) + tags + prices
+	* Global getCompleteItem (both getItem and get on itemtype)
+	* + tags
+	* + prices
+	* + ratings
+	* + comments
 	*
-	* @param $id Item id or sindex to get
+	* @param $_options Named Array containing id or sindex to get
 	*/
-	// TODO: add options parameter to skip prices and tags in complete item (no_tags, no_prices)
-	function getCompleteItem($item_id) {
-		$item = $this->getItem($item_id);
-		if($item) {
+	function getCompleteItem($_options = false) {
 
+		$item = $this->getItem($_options);
+		if($item) {
 
 			// get the specific type data
 			$typeObject = $this->TypeObject($item["itemtype"]);
@@ -117,6 +128,10 @@ class ItemCore {
 			$item["prices"] = $this->getPrices($item["id"]);
 			$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
 
+			// TODO: add comments and ratings
+			// $item["ratiings"] = $this->getRatings(array("item_id" => $item["id"]));
+			// $item["comments"] = $this->getComments(array("item_id" => $item["id"]));
+
 			return $item;
 		}
 		return false;
@@ -125,29 +140,32 @@ class ItemCore {
 
 	/**
 	* Extend item (already having base information)
+	* Defined to be able to limit queries when getting information
 	*
+	* Default only gets type data
 	*
+	* Optional data
 	*/
 	function extendItem($item, $_options = false) {
 		if(isset($item["id"]) && isset($item["itemtype"])) {
 
-			$no_tags = false;
-			$no_prices = false;
-			$no_ratings = false;
-			$no_comments = false;
+			$tags = false;
+			$prices = false;
+			$ratings = false;
+			$comments = false;
 
-			// global setting for no tags, prices, comments or ratings
-			$type_only = false;
+			// global setting for getting everything
+			$everything = false;
 
 			if($_options !== false) {
 				foreach($_options as $_option => $_value) {
 					switch($_option) {
-						case "no_tags"       : $no_tags       = $_value; break;
-						case "no_prices"     : $no_prices     = $_value; break;
-						case "no_ratings"    : $no_ratings    = $_value; break;
-						case "no_comments"   : $no_comments   = $_value; break;
+						case "tags"         : $tags           = $_value; break;
+						case "prices"       : $prices         = $_value; break;
+						case "ratings"      : $ratings        = $_value; break;
+						case "comments"     : $comments       = $_value; break;
 
-						case "type_only"     : $type_only     = $_value; break;
+						case "everything"   : $everything     = $_value; break;
 					}
 				}
 			}
@@ -163,12 +181,21 @@ class ItemCore {
 			}
 
 			// add prices and tags
-			if(!$type_only && !$no_prices) {
+			if($everything || $prices) {
 				$item["prices"] = $this->getPrices($item["id"]);
 			}
-			if(!$type_only && !$no_tags) {
+			if($everything || $tags) {
 				$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
 			}
+
+			// TODO: Implement ratings and comments
+			// NOT IMPLEMENTED YET
+			// if($everything || $ratings) {
+			//	$item["ratings"] = $this->getRatings(array("item_id" => $item["id"]));
+			// }
+			// if($everything || $comments) {
+			//	$item["comments"] = $this->getComments(array("item_id" => $item["id"]));
+			// }
 
 			return $item;
 		}
@@ -178,10 +205,15 @@ class ItemCore {
 
 	/**
 	* Get simple (flat) item type
+	* Defined to handle basic type data - a replacement for having a Get in all type objects
+	*
+	* To overwrite this, add a get function to your type object
 	*/
 	function getSimpleType($item_id, $typeObject) {
 		$query = new Query();
-		if($query->sql("SELECT * FROM ".$typeObject->db." WHERE item_id = $item_id LIMIT 1")) {
+		$sql = "SELECT * FROM ".$typeObject->db." WHERE item_id = $item_id LIMIT 1";
+//		print $sql."<br>";
+		if($query->sql($sql)) {
 			$results = $query->results();
 			if($results) {
 				// remove type id from index
@@ -1022,9 +1054,10 @@ class ItemCore {
 			$query->sql("SELECT * FROM ".UT_TAG." as tags WHERE tags.id = '$tag_id'");
 			$tag = $query->result(0);
 			
-			$query->sql("SELECT * FROM ".UT_TAGGINGS." as taggings, ".UT_ITEMS." as items WHERE taggings.tag_id = '$tag_id' AND taggings.item_id = items.id");
+			$sql = "SELECT item_id as id, itemtype, status FROM ".UT_TAGGINGS." as taggings, ".UT_ITEMS." as items WHERE taggings.tag_id = '$tag_id' AND taggings.item_id = items.id";
+//			print $sql;
+			$query->sql($sql);
 			$tag["items"] = $query->results();
-//			print "SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = '$tag_id' AND tags.id = taggings.tag_id";
 			return $tag;
 		}
 		// get items using tag with context and value
