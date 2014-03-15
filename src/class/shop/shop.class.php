@@ -60,11 +60,14 @@ class Shop {
 		if($cart_id) {
 
 //			print "SELECT * FROM ".$this->db_carts." as carts WHERE carts.id = ".$cart_id." LIMIT 1";
-			if($query->sql("SELECT * FROM ".$this->db_carts." WHERE id = ".$cart_id." LIMIT 1")) {
+			$sql = "SELECT * FROM ".$this->db_carts." WHERE id = ".$cart_id." LIMIT 1";
+			if($query->sql($sql)) {
 				$cart = $query->result(0);
 				$cart["items"] = false;
 
-				if($query->sql("SELECT * FROM ".$this->db_items." as items WHERE items.cart_id = ".$cart_id)) {
+				$sql = "SELECT * FROM ".$this->db_items." as items WHERE items.cart_id = ".$cart_id;
+//				print $sql;
+				if($query->sql($sql)) {
 					$cart["items"] = $query->results();
 				}
 				return $cart;
