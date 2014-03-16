@@ -79,6 +79,7 @@ class PageCore {
 
 		// check access
 		$this->setActions(RESTParams());
+		
 //		$this->access();
 
 		// login in progress
@@ -406,15 +407,94 @@ class PageCore {
 
 	}
 
-
+	/**
+	* Page actions, security check on controller action level
+	*
+	* This function is automatically called when controller is loaded
+	* The actions are validated and made available to the controller if validation is ok
+	*
+	* If validation fails, user is redirected to login page
+	*
+	* The access grants are based on path fragments
+	*
+	* If a user tries to access /admin/cms/save/product 
+	* the system will look for for this full path in access_item of the controller
+	* if the full path does not exist, one fragment will be removed until a match is found
+	* Thus testing, /admin/cms/save, /admin/cms, /admin, /
+	* until a match is found. 
+	*
+	* If no match is found, no access is granted. Default restriction when access_item is not false!
+	*
+	* If a match is found, it will be tested in the access table against the current users group access.
+	*/
 	function setActions($actions=false) {
 
 		// TODO: Security check on action - the only required accesscheck, bacause all requests load page and page checks makes this call
+		
+		// TODO: Should be re-written - was made in a rush!
 
-//		if($actions) {
-			$this->actions = $actions;
-//		}
+		// get $access_item from controller
+		global $access_item;
 
+		// if controller has access_item setting, perform access validation
+		if($access_item) {
+
+			// dummy data, only works on local DB
+			Session::value("user_id", 99);
+			Session::value("user_group_id", 99);
+
+
+			// any access restriction requires a user to be logged in
+			// no need to do any validation if no user_id or user_group_id is found
+			if(!Session::value("user_id") || !Session::value("user_group_id")) {
+				header("Location: /login");
+				exit();
+			}
+
+
+			// generate appropriate validation action string to check in database
+			// implode actions, prepend / and remove trailing /
+			if($actions) {
+				$validation_action = preg_replace("/\/$/", "", "/".implode("/", $actions));
+				$controller = str_replace($_SERVER["PATH_INFO"], "", $_SERVER["REQUEST_URI"]);
+			}
+			// otherwise assume /
+			else {
+				$validation_action = "/";
+				$controller = preg_replace("/\/$/", "", $_SERVER["REQUEST_URI"]);
+			}
+
+
+			// look for matching access entry
+			while(!isset($access_item[$validation_action]) && $validation_action && $validation_action != "/") {
+				$validation_action = dirname($validation_action);
+			}
+
+			// no entry found - no access
+			if(!isset($access_item[$validation_action])) {
+				header("Location: /login");
+				exit();
+			}
+			else {
+
+				// matching access item requires access check
+				if($access_item[$validation_action] !== false) {
+
+//					print_r($_SERVER);
+					$query = new Query();
+					$sql = "SELECT * FROM ".SITE_DB.".user_access WHERE user_group_id = ".Session::value("user_group_id")." AND action = '".$controller.$validation_action."'";
+//					print $sql;
+					if(!$query->sql($sql)) {
+						header("Location: /login");
+						exit();
+					}
+				}
+			}
+		}
+
+		// no access_item in controller - everything is allowed
+		// OR validation passed
+		$this->actions = $actions;
 	}
 
 
@@ -428,29 +508,29 @@ class PageCore {
 
 		// TODO: Security check on action - the only required accesscheck, bacause all requests load page and page checks makes this call
 
-		if($this->actions) {
-
-			// index less than zero, count from back
-			if($index < 0) {
-
-				if(isset($this->actions[count($this->actions) + $index])) {
-					return $this->actions[count($this->actions) + $index];
-				}
-
-			}
-			// return from the normal actions order
-			else if($index !== false && isset($this->actions[$index])) {
-
-				return $this->actions[$index];
-
-			}
-			// return actions array
-			else {
+		// if($this->actions) {
+// 
+// 			// index less than zero, count from back
+// 			if($index < 0) {
+// 
+// 				if(isset($this->actions[count($this->actions) + $index])) {
+// 					return $this->actions[count($this->actions) + $index];
+// 				}
+// 
+// 			}
+// 			// return from the normal actions order
+// 			else if($index !== false && isset($this->actions[$index])) {
+// 
+// 				return $this->actions[$index];
+// 
+// 			}
+// 			// return actions array
+// 			else {
 				return $this->actions;
-			}
-		}
-
-		return false;
+		// 	}
+		// }
+		// 
+		// return false;
 	}
 
 
