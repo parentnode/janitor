@@ -43,7 +43,11 @@ function utf8Encode($string) {
 function RESTParams($index=false) {
 	// no path
 	if(!isset($_SERVER["PATH_INFO"]) || $_SERVER["PATH_INFO"] == "/") {
-		return false;
+		// TODO:Check if this works everywhere 
+
+		// EXPERIMENTAL: Testing if returning empty array will suffice
+//		return false;
+		return array();
 	}
 	else {
 		// get params
