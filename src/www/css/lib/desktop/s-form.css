@@ -26,7 +26,7 @@
 #content .field.checkbox,
 #content .field.boolean {}
 #content .field.checkbox input,
-#content .field.boolean input {display: inline-block; vertical-align: top; width: auto; height: auto; padding: 0; margin: 0 10px 0 0; border: 0;}
+#content .field.boolean input {display: inline-block; vertical-align: top; width: auto; height: auto; padding: 0; margin: 0 10px 0 3px; border: 0;}
 #content .field.checkbox label,
 #content .field.boolean label {width: auto; display: inline-block; vertical-align: top;}
 
@@ -61,7 +61,7 @@
 
 #content .field.radio_buttons.focus input,
 #content .field.checkbox.focus input,
-#content .field.boolean.focus input {margin: 0px 10px 0 0; border: none;}
+#content .field.boolean.focus input {margin: 0px 10px 0 3px; border: none;}
 
 
 /* DEFAULT STATE - BEFORE TEXT IS MODIFIED */
@@ -100,13 +100,13 @@
 
 #content .field.radio_buttons.error input,
 #content .field.checkbox.error input,
-#content .field.boolean.error input {margin: 0px 10px 0 0; border: none;}
+#content .field.boolean.error input {margin: 0px 10px 0 3px; border: none;}
 
 
 
 /* BUTTONS */
-#content ul.actions {padding: 0 25px; text-align: right;}
-#content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 0 10px 10px ; vertical-align: top;}
+#content ul.actions {padding: 0 25px;}
+#content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px; vertical-align: top;}
 
 /*
 #content ul.actions li a {display: inline-block; vertical-align: top;}
