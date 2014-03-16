@@ -13,6 +13,7 @@ class Model extends HTML {
 	function __construct() {
 
 		// TODO: get base elements from Item (published_at, status, etc.?)
+
 		// TODO: Should be handled here? Consider to put in cms and non item models or make sure it is not possible to inject values 
 		$this->getPostedEntities();
 		
@@ -69,14 +70,21 @@ class Model extends HTML {
 	* 2: before timestamp
 	*/
 	function addToModel($name, $_options = false) {
-		$id = false;
 
+		// Defining default values
+
+		$label = false;
 		$value = false;
 		$type = "string";
-		$label = false;
+		$options = false;
+
+
+		$id = false;
+
+		// validation
 		$required = false;
-		$hint_message = "Must be " . $type;
-		$error_message = "*";
+		$unique = false;
+		$pattern = false;
 
 		// string lengt, file count, number value
 		$min = false;
@@ -87,9 +95,6 @@ class Model extends HTML {
 		$allowed_proportions = "*";
 		$allowed_sizes = "*";
 
-		$unique = false;
-		$pattern = false;
-
 		// dates
 		$is_before = false;
 		$is_after = false;
@@ -97,28 +102,42 @@ class Model extends HTML {
 		// passwords
 		$must_match = false;
 
+
+		// messages
+		$hint_message = "Must be " . $type;
+		$error_message = "*";
+
+
 		// currency
 		$currency = false;
 		$vatrate = false;
 
-		$options = false;
+
+		// only relates to frontend output, not really meaningful to include on model level
+		// $class = false;
+		// $readonly = false;
+		// $disabled = false;
+
 
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "id"                    : $id                    = $_value; break;
-					case "value"                 : $value                 = $_value; break;
-					case "type"                  : $type                  = $_value; break;
 					case "label"                 : $label                 = $_value; break;
+					case "type"                  : $type                  = $_value; break;
+					case "value"                 : $value                 = $_value; break;
+					case "options"               : $options               = $_value; break;
+
+					case "id"                    : $id                    = $_value; break;
+
 					case "required"              : $required              = $_value; break;
-					case "error_message"         : $error_message         = $_value; break;
-					case "hint_message"          : $hint_message          = $_value; break;
+					case "unique"                : $unique                = $_value; break;
+					case "pattern"               : $pattern               = $_value; break;
+
 
 					case "min"                   : $min                   = $_value; break;
 					case "max"                   : $max                   = $_value; break;
-
 
 					case "allowed_formats"       : $allowed_formats       = $_value; break;
 					case "allowed_proportions"   : $allowed_proportions   = $_value; break;
@@ -128,27 +147,30 @@ class Model extends HTML {
 					case "is_after"              : $is_after              = $_value; break;
 
 					case "must_match"            : $must_match            = $_value; break;
-					case "unique"                : $unique                = $_value; break;
-					case "pattern"               : $pattern               = $_value; break;
+
+					case "error_message"         : $error_message         = $_value; break;
+					case "hint_message"          : $hint_message          = $_value; break;
 
 					case "currency"              : $currency              = $_value; break;
 					case "vatrate"               : $vatrate               = $_value; break;
 
-					case "options"               : $options               = $_value; break;
 				}
 			}
 		}
-	
-		$this->data_entities[$name]["id"] = $id;
-		$this->data_entities[$name]["value"] = $value;
-		$this->data_entities[$name]["type"] = $type;
+
+
 		$this->data_entities[$name]["label"] = $label;
+		$this->data_entities[$name]["type"] = $type;
+		$this->data_entities[$name]["value"] = $value;
+		$this->data_entities[$name]["options"] = $options;
+
 //		print "ADD TO MODEL:" . $this->data_entities[$name]["value"];
 
+		$this->data_entities[$name]["id"] = $id;
 
 		$this->data_entities[$name]["required"] = $required;
-		$this->data_entities[$name]["error_message"] = $error_message;
-		$this->data_entities[$name]["hint_message"] = $hint_message;
+		$this->data_entities[$name]["unique"] = $unique;
+		$this->data_entities[$name]["pattern"] = $pattern;
 
 		$this->data_entities[$name]["min"] = $min;
 		$this->data_entities[$name]["max"] = $max;
@@ -161,13 +183,14 @@ class Model extends HTML {
 		$this->data_entities[$name]["is_after"] = $is_after;
 
 		$this->data_entities[$name]["must_match"] = $must_match;
-		$this->data_entities[$name]["unique"] = $unique;
-		$this->data_entities[$name]["pattern"] = $pattern;
+
+		$this->data_entities[$name]["error_message"] = $error_message;
+		$this->data_entities[$name]["hint_message"] = $hint_message;
+
 
 		$this->data_entities[$name]["currency"] = $currency;
 		$this->data_entities[$name]["vatrate"] = $vatrate;
 
-		$this->data_entities[$name]["options"] = $options;
 
 		// $this->setValidationIndication($element);
 	}
@@ -279,6 +302,8 @@ class Model extends HTML {
 	* @param String $Element Element to validate
 	* @param Integer $item_id Optional item_id to check aganist (in case of uniqueness)
 	* @return bool
+	*
+	* TODO: some validation rules are not done!
 	*/
 	function validate($name, $item_id = false) {
 //		print "validate:".$name;
@@ -365,7 +390,7 @@ class Model extends HTML {
 				return true;
 			}
 		}
-		
+
 		// either type was not found or validation failed
 		$error_message = $this->data_entities[$name]["error_message"];
 		$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occured";
@@ -421,6 +446,7 @@ class Model extends HTML {
 	* @param string $element Element identifier
 	* @param array $rule Rule array
 	* @return bool
+	* TODO: Faulty file validation
 	*/
 	function isFiles($name) {
 		$entity = $this->data_entities[$name];
@@ -489,6 +515,7 @@ class Model extends HTML {
 	* @param string $element Element identifier
 	* @param array $rule Rule array
 	* @return bool
+	* TODO: Faulty number validation
 	*/
 	function isNumber($name) {
 		$entity = $this->data_entities[$name];
@@ -588,6 +615,7 @@ class Model extends HTML {
 	* @param string $element Element identifier
 	* @param array $rule Rule array
 	* @return bool
+	* TODO: Faulty password validation
 	*/
 	function comparePassword($name) {
 
@@ -609,6 +637,7 @@ class Model extends HTML {
 	* @param string $element Element identifier
 	* @param array $rule Rule array
 	* @return bool
+	* TODO: Faulty Array validation
 	*/
 	function isArray($name) {
 		$entity = $this->data_entities[$name];
@@ -630,7 +659,7 @@ class Model extends HTML {
 	* @param array $rule Rule array
 	* @return bool
 	*
-	* TODO: update validation
+	* TODO: Faulty date validation
 	*/
 	function isDate($name) {
 		$entity = $this->data_entities[$name];
@@ -655,11 +684,30 @@ class Model extends HTML {
 	}
 
 	/**
+	* Check if GeoLocation is entered correctly
+	*
+	* @param string $element Element identifier
+	* @param array $rule Rule array
+	* @return bool
+	*
+	* TODO: faulty geolocation validation - maybe it should be deleted
+	*/
+	function isGeoLocation($name) {
+		$entity = $this->data_entities[$name];
+
+
+		return true;
+
+	}
+
+
+	/**
 	* Check if timestamp is entered correctly
 	*
 	* @param string $element Element identifier
 	* @param array $rule Rule array
 	* @return bool
+	* TODO: Faulty timestamp validation
 	*/
 	function isTimestamp($name) {
 		$entity = $this->data_entities[$name];
@@ -685,11 +733,14 @@ class Model extends HTML {
 		return false;
 	}
 
+	// TODO: Faulty tags validation
 	function isTags($name) {
 		$entity = $this->data_entities[$name];
 
 		return true;
 	}
+
+	// TODO: Faulty price validation
 	function isPrices($name) {
 		$entity = $this->data_entities[$name];
 

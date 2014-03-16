@@ -42,6 +42,7 @@ class HTML {
 	* Is it separate fields or one field with two inputs? 
 	* It gets complicated, what are pros and cons
 	* Consider thoroughly before adding a custom field
+	* TODO: consider moving custom fields to their own function - would provide better overview and better performance
 	*
 	* When building model, pros:
 	* - declare only one input
