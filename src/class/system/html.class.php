@@ -3,6 +3,9 @@
 * This file contains HTML-elements
 *
 *
+* Create status input (full with form and everything - will limit HTML in templates)
+* Create delete input (full with form and everything - will limit HTML in templates)
+*
 */
 
 class HTML {
@@ -34,7 +37,21 @@ class HTML {
 		}
 	}
 
+	/**
+	* Convert multidimentional array to options array
+	*
+	* Objects are typically contained in array of arrays, while selects need simple named array
+	* This function facilitates the conversion between the two types
+	*/
+	function toOptions($multi_array, $value_index, $text_index) {
 
+		$options = array();
+		foreach($multi_array as $array) {
+			$options[$array[$value_index]] = $array[$text_index];
+		}
+
+		return $options;
+	}
 
 
 	/**
