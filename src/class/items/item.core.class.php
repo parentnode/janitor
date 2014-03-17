@@ -506,7 +506,7 @@ class ItemCore {
 				message()->addMessage("Item saved");
 
 				// return new item
-				return $this->getCompleteItem($new_id);
+				return $this->getCompleteItem(array("id" => $new_id));
 			}
 			else if($new_id) {
 				// save failed, remove item again
@@ -621,7 +621,7 @@ class ItemCore {
 
 				message()->addMessage("Item updated");
 
-				return $this->getCompleteItem($item_id);
+				return $this->getCompleteItem(array("id" => $item_id));
 //				return true;
 			}
 

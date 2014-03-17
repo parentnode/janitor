@@ -504,7 +504,7 @@ class Shop {
 				if($cart["items"]) {
 					$IC = new Item();
 					foreach($cart["items"] as $cart_item) {
-						$item = $IC->getCompleteItem($cart_item["item_id"]);
+						$item = $IC->getCompleteItem(array("id" => $cart_item["item_id"]));
 
 						$name = $item["name"];
 						$quantity = $cart_item["quantity"];

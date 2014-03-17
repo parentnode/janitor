@@ -161,18 +161,19 @@ class PageCore {
 			if($this->page_title) {
 				return $this->page_title;
 			}
-			else if($this->actions(-1) && class_exists("Item")) {
- 
-				$IC = new Item();
-				$item = $IC->getCompleteItem($this->actions(-1));
 
-				// update page description if not already set (since we have a rather good option at hand)
-				if(!$this->page_description && isset($item["description"])) {
-					$this->pageDescription($item["description"]);
-				}
-
-				return $item["name"];
-			}
+			// else if($this->actions(-1) && class_exists("Item")) {
+			//  
+			// 	$IC = new Item();
+			// 	$item = $IC->getCompleteItem($this->actions(-1));
+			// 
+			// 	// update page description if not already set (since we have a rather good option at hand)
+			// 	if(!$this->page_description && isset($item["description"])) {
+			// 		$this->pageDescription($item["description"]);
+			// 	}
+			// 
+			// 	return $item["name"];
+			// }
 
 			// last resort - use constant
 			return SITE_NAME;
