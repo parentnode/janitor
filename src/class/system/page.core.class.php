@@ -109,11 +109,6 @@ class PageCore {
 			Session::value("dev", getVar("dev"));
 		}
 
-		// get segment
-		// because I want to gather information about all device-useragents for devices.dearapi.com, 
-		// also on sites not having segmentation implemented in the templates
-//		$this->segment();
-
 	}
 
 
@@ -321,6 +316,11 @@ class PageCore {
 	}
 
 
+	/**
+	* Get/set current language
+	*
+	* Pass value to set language
+	*/
 	function language($value = false) {
 		// set
 		if($value !== false) {
@@ -335,6 +335,11 @@ class PageCore {
 		}
 	}
 
+	/**
+	* Get/set current country
+	*
+	* Pass value to set country
+	*/
 	function country($value = false) {
 		// set
 		if($value !== false) {
@@ -349,6 +354,11 @@ class PageCore {
 		}
 	}
 
+	/**
+	* Get/set current currency
+	*
+	* Pass value to set currency
+	*/
 	function currency($value = false) {
 		// set
 		if($value !== false) {
