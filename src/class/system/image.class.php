@@ -318,7 +318,7 @@ class Image {
 
 			$image->scaleImage($output_width, $output_height);
 
-			$image->sharpenImage(0);
+			$image->sharpenImage(1.5, 1);
 
 			$image->setImageCompressionQuality($output_compression);
 			$image->stripImage();
