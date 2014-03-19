@@ -565,7 +565,7 @@ class ItemCore {
 		// TODO: access validation
 		// TODO: format of published_at
 
-		$item = $this->getItem($item_id);
+		$item = $this->getItem(array("id" => $item_id));
 		$typeObject = $this->TypeObject($item["itemtype"]);
 
 		if($typeObject) {
