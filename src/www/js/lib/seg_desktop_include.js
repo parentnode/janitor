@@ -13,6 +13,8 @@ document.write('<script type="text/javascript" src="/janitor/js/lib/desktop/i-fo
 
 document.write('<script type="text/javascript" src="/janitor/js/lib/desktop/i-defaultlist.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/js/lib/desktop/i-defaultedit.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/js/lib/desktop/i-defaulteditstatus.js"></script>');
+
 document.write('<script type="text/javascript" src="/janitor/js/lib/desktop/i-defaulttags.js"></script>');
 
 

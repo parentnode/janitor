@@ -1,7 +1,7 @@
 
 Util.Objects["defaultList"] = new function() {
 	this.init = function(div) {
-		u.bug("init defaultList")
+		u.bug("init defaultList 22")
 
 		var i, node;
 
@@ -23,32 +23,119 @@ Util.Objects["defaultList"] = new function() {
 
 				abs_y = u.absY(node);
 
-				if(!node._ready && node._image_src && abs_y - 200 < scroll_y+browser_h && abs_y + 200 > scroll_y) {
-//					u.bug("load image:" + i);
-
-					u.as(node, "backgroundImage", "url("+node._image_src+")");
-					node._ready = true;
-
+				if(!node._ready && abs_y - 200 < scroll_y+browser_h && abs_y + 200 > scroll_y) {
+					this.buildNode(node);
 				}
 			}
-//			u.bug("update after scrolling")
-
 		}
 
-		div.scrollHandler = function() {
-			var all_items = u.qs(".all_items");
-			u.t.resetTimer(all_items.t_scroll);
-			all_items.t_scroll = u.t.setTimer(all_items, all_items.scrolled, 500);
+		// executed on window
+		div._scrollHandler = function() {
+			var div = u.qs(".scrollingListHandler");
+			u.t.resetTimer(div.t_scroll);
+//			div.t_scroll = u.t.setTimer(div, div.scrolled, 100);
+			div.scrolled();
 		}
 		// set scroll handler
-		u.e.addEvent(window, "scroll", div.scrollHandler);
+		u.ac(div, "scrollingListHandler");
+		u.e.addEvent(window, "scroll", div._scrollHandler);
 
 
+		div.buildNode = function(node) {
+			u.bug("build node")
 
-		for(i = 0; node = div.nodes[i]; i++) {
 			node._item_id = u.cv(node, "item_id");
-
 			node._variant = u.cv(node, "variant");
+
+
+			// action injection for predefined action types (to minimize page load and initialization time)
+			node._actions = u.qsa(".actions li", node);
+			var i, action, form, bn_detele;
+			for(i = 0; action = node._actions[i]; i++) {
+				// do not inject if li already has content
+				if(!action.childNodes.length) {
+
+					// predefindes actions
+
+					// status
+					if(u.hc(action, "status")) {
+						form = u.f.addForm(action, {"action":"/admin/cms/disable/"+node._item_id, "class":"disable"});
+						u.f.addAction(form, {"value":"Disable", "class":"button status"});
+
+						u.f.init(form);
+						form.submitted = function() {
+							this.response = function(response) {
+								page.notify(response.cms_message);
+								if(response.cms_status == "success") {
+									u.ac(this.parentNode, "disabled");
+									u.rc(this.parentNode, "enabled");
+								}
+							}
+							u.request(this, this.action);
+						}
+
+						form = u.f.addForm(action, {"action":"/admin/cms/enable/"+node._item_id, "class":"enable"});
+						u.f.addAction(form, {"value":"Enable", "class":"button status"});
+
+						u.f.init(form);
+						form.submitted = function() {
+							this.response = function(response) {
+								page.notify(response.cms_message);
+								if(response.cms_status == "success") {
+									u.rc(this.parentNode, "disabled");
+									u.ac(this.parentNode, "enabled");
+								}
+							}
+							u.request(this, this.action);
+						}
+
+					}
+					else if(u.hc(action, "delete")) {
+
+						form = u.f.addForm(action, {"action":"/admin/cms/delete/"+node._item_id, "class":"delete"});
+						form.node = node;
+						bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
+
+						u.f.init(form);
+
+						form.restore = function(event) {
+							this.actions["delete"].value = "Delete";
+							u.rc(this.actions["delete"], "confirm");
+						}
+		
+						form.submitted = function() {
+
+							// first click
+							if(!u.hc(this.actions["delete"], "confirm")) {
+								u.ac(this.actions["delete"], "confirm");
+								this.actions["delete"].value = "Confirm";
+								this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+							}
+							// confirm click
+							else {
+								u.t.resetTimer(this.t_confirm);
+
+
+								this.response = function(response) {
+									page.notify(response.cms_message);
+
+									if(response.cms_status == "success") {
+										// check for constraint error preventing row from actually being deleted
+										if(response.cms_object && response.cms_object.constraint_error) {
+											this.value = "Delete";
+											u.ac(this, "disabled");
+										}
+										else {
+											this.node.parentNode.removeChild(this.node);
+										}
+									}
+								}
+								u.request(this, this.action);
+							}
+						}
+					}
+				}
+			}
 
 
 			// show node image
@@ -68,6 +155,9 @@ Util.Objects["defaultList"] = new function() {
 				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+"x"+node._height+"."+node._image;
 			}
 
+			if(node._image_src) {
+				u.as(node, "backgroundImage", "url("+node._image_src+")");
+			}
 
 
 			// show audio player
@@ -108,6 +198,8 @@ Util.Objects["defaultList"] = new function() {
 
 			}
 
+
+			node._ready = true;
 		}
 
 

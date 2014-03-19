@@ -143,9 +143,10 @@
 
 /* CUSTOM STATUS BUTTON */
 #content ul.actions li.status input.button {font-size: 0; height: 26px; width: 26px;}
-#content ul.actions li.status input.button[value=Disable] {background-color: #f4f5f5; border-left: 3px solid #64ad8e; border-top: 3px solid #64ad8e; border-right: 30px solid #64ad8e; border-bottom: 3px solid #64ad8e;}
-#content ul.actions li.status input.button[value=Enable] {background-color: #f4f5f5; border-right: 3px solid #8c9399; border-top: 3px solid #8c9399; border-left: 30px solid #8c9399; border-bottom: 3px solid #8c9399;}
-
+#content ul.actions li.status form.disable input.button {background-color: #f4f5f5; border-left: 3px solid #64ad8e; border-top: 3px solid #64ad8e; border-right: 30px solid #64ad8e; border-bottom: 3px solid #64ad8e;}
+#content ul.actions li.status form.enable input.button {background-color: #f4f5f5; border-right: 3px solid #8c9399; border-top: 3px solid #8c9399; border-left: 30px solid #8c9399; border-bottom: 3px solid #8c9399;}
+#content ul.actions li.status.enabled form.enable {display: none;}
+#content ul.actions li.status.disabled form.disable {display: none;}
 
 /* CUSTOM DELETE BUTTON */
 #content form input.button.delete.confirm {color: #ffffff; background-color: #df0000;}
