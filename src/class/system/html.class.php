@@ -114,7 +114,7 @@ class HTML {
 		// see note above before adding more custom fields
 
 		// price specifics
-		if(!$type || $type == "geolocation") {
+		if(!$type || $type == "prices") {
 			$currency = $this->getEntityProperty($name, "currency");
 			$vatrate = $this->getEntityProperty($name, "vatrate");
 		}
@@ -352,6 +352,52 @@ class HTML {
 
 
 	}
+
+
+	// Custom Janitor extended input combinations/constructions
+
+
+	function status($_options = false) {
+
+		$item = false;
+
+		$item_id = false;
+		$status = false;
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item"           : $item            = $_value; break;
+
+					case "item_id"        : $item_id         = $_value; break;
+					case "status"         : $status          = $_value; break;
+
+				}
+			}
+		}
+
+		// INCLUDE LI???? OR ADD DIV?
+		// OR INJECT PURELY WITH JS? (MAYBE WITH NEW u.f.addField function)
+		// <li class="status <//?= ($item["status"] == 1 ? "enabled" : "disabled") ?//>">
+		// 
+		// 
+		// <form action="/admin/cms/disable/<//?= $item["id"] ?//>" class="disable i:formDefaultStatus" method="post" enctype="multipart/form-data">
+		// 	<h3>Enabled</h3>
+		// 	<input type="submit" value="Disable" class="button status disable" />
+		// </form>
+		// <form action="/admin/cms/enable/<//?= $item["id"] ?//>" class="enable i:formDefaultStatus" method="post" enctype="multipart/form-data">
+		// 	<h3>Disabled</h3>
+		// 	<input type="submit" value="Enable" class="button status enable" />
+		// </form>
+
+
+
+		
+	}
+
 
 }
 
