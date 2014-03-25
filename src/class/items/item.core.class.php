@@ -101,6 +101,7 @@ class ItemCore {
 		return false;
 	}
 
+
 	/**
 	* Global getCompleteItem (both getItem and get on itemtype)
 	* + tags
@@ -225,6 +226,7 @@ class ItemCore {
 		}
 		return false;
 	}
+
 
 	/**
 	* Get all matching items
@@ -463,7 +465,13 @@ class ItemCore {
 		return $next_items;
 	}
 
-	// get older items
+	/**
+	* Get previous item(s)
+	*
+	* Can receive items array to use for finding previous item(s) 
+	* or receive query syntax to perform getItems request on it own
+	* TODO: This implementation is far from performance optimized, but works - consider alternate implementations
+	*/
 	function getPrev($item_id, $_options=false) {
 
 		$items = false;
@@ -613,6 +621,7 @@ class ItemCore {
 		return false;
 	}
 
+
 	/**
 	* Save simple (flat) item type
 	*/
@@ -725,6 +734,7 @@ class ItemCore {
 		message()->addMessage("Item could not be updated", array("type" => "error"));
 		return false;
 	}
+
 
 	/**
 	* Update simple (flat) item type
