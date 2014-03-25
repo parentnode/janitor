@@ -125,7 +125,7 @@ class ItemCore {
 			}
 
 			// add prices and tags
-			$item["prices"] = $this->getPrices($item["id"]);
+			$item["prices"] = $this->getPrices(array("item_id" => $item["id"]));
 			$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
 
 			// TODO: add comments and ratings
@@ -180,10 +180,12 @@ class ItemCore {
 				$item = array_merge($item, $this->getSimpleType($item["id"], $typeObject));
 			}
 
-			// add prices and tags
+			// add prices
 			if($everything || $prices) {
-				$item["prices"] = $this->getPrices($item["id"]);
+				$item["prices"] = $this->getPrices(array("item_id" => $item["id"]));
 			}
+
+			// add tags
 			if($everything || $tags) {
 				$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
 			}
@@ -414,6 +416,99 @@ class ItemCore {
 
 
 	/**
+	* Get next item(s)
+	*
+	* Can receive items array to use for finding next item(s) 
+	* or receive query syntax to perform getItems request on it own
+	* TODO: This implementation is far from performance optimized, but works - consider alternate implementations
+	*/
+	function getNext($item_id, $_options=false) {
+
+		$items = false;
+		$count = 1;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "items"   : $items    = $_value; break;
+					case "count"   : $count    = $_value; break;
+				}
+			}
+		}
+
+		if(!$items) {
+			$items = $this->getItems($_options);
+		}
+
+		$next_items = array();
+		$item_found = false;
+		$counted = 0;
+		for($i = 0; $i < count($items); $i++) {
+
+			if($item_found) {
+				$counted++;
+
+				$next_items[] = $items[$i];
+
+				if($counted == $count) {
+					break;
+				}
+			}
+			else if($item_id == $items[$i]["id"]) {
+				$item_found = true;
+			}
+		}
+
+
+		return $next_items;
+	}
+
+	// get older items
+	function getPrev($item_id, $_options=false) {
+
+		$items = false;
+		$count = 1;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "items"   : $items    = $_value; break;
+					case "count"   : $count    = $_value; break;
+				}
+			}
+		}
+
+		if(!$items) {
+			$items = $this->getItems($_options);
+		}
+
+		$prev_items = array();
+		$item_found = false;
+		$counted = 0;
+		for($i = count($items)-1; $i >= 0; $i--) {
+
+			if($item_found) {
+				$counted++;
+
+				$prev_items[] = $items[$i];
+
+				if($counted == $count) {
+					break;
+				}
+			}
+			else if($item_id == $items[$i]["id"]) {
+				$item_found = true;
+			}
+		}
+
+
+		return $prev_items;
+	}
+
+
+
+
+	/**
 	* set sIndex value for item
 	*
 	* @param string $item_id Item id
@@ -574,7 +669,8 @@ class ItemCore {
 			// is published_at posted?
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
 
-//			print "published_at:" . $published_at ."<br>";
+			print getPost("published_at");
+			print "published_at:" . $published_at ."<br>";
 
 //			print "UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? "published_at=$published_at" : "")." WHERE id = $id<br>";
 			// create item
@@ -1200,25 +1296,71 @@ class ItemCore {
  	}
 
 
-	// get prices, 
-	// TODO: add correct comma/point formatting
-	// TODO: update to getTags format as part of price function fix
-	function getPrices($item_id, $options = false) {
 
-		$prices = false;
+	// TODO: temporary price handler (should be updated when currencies are finalized)
+	// extend price array with calulations
+	// if currency is stated, just return one price
+	//
+	function extendPrices($prices, $_options = false) {
 
 		$currency = false;
-		$country = false;
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "currency" : $currency = $value; break;
-					case "country"  : $country  = $value; break;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "currency"  : $currency   = $_value; break;
 				}
 			}
 		}
 
+		if($currency) {
+
+			foreach($prices as $index => $price) {
+				if($currency == $prices[$index]["currency"]) {
+					$prices[$index]["price_with_vat"] = $price["price"] * (1 + ($price["vatrate"]/100));
+					$prices[$index]["vat_of_price"] = $price["price"] * ($price["vatrate"]/100);
+
+					return $prices[$index];
+				}
+			}
+		}
+		else {
+
+			foreach($prices as $index => $price) {
+				if(!$currency || $currency == $prices[$index]["currency"]) {
+					$prices[$index]["price_with_vat"] = $price["price"]* (1 + ($price["vatrate"]/100));
+					$prices[$index]["vat_of_price"] = $price["price"] * ($price["vatrate"]/100);
+				}
+			}
+		}
+
+		return $prices;
+
+	}
+
+	// get prices, 
+	// TODO: extend to be able to get items ordered by price if possible
+	// TODO: could/should be merged with extendPrices when currencies are finalized
+	function getPrices($_options = false) {
+
+		$item_id = false;
+
+		$currency = false;
+		$country = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"   : $item_id    = $_value; break;
+
+					case "currency"  : $currency   = $_value; break;
+					case "country"   : $country    = $_value; break;
+				}
+			}
+		}
+
+		$prices = array();
 		$query = new Query();
 
 		if($country && !$currency) {
@@ -1235,14 +1377,6 @@ class ItemCore {
 		else {
 			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES.", ".UT_VATRATES." WHERE vatrate_id = ".UT_VATRATES.".id AND item_id = $item_id")) {
 				$prices = $query->results();
-			}
-		}
-
-		if($prices) {
-			foreach($prices as $index => $price) {
-				$prices[$index]["price_with_vat"] = $price["price"]* (1 + ($price["vatrate"]/100));
-				// $prices[$index]["formatted"] = formatPrice($price["price"], $price["currency"]);
-				// $prices[$index]["formatted_with_vat"] = formatPrice($prices[$index]["price_with_vat"], $price["currency"]); 
 			}
 		}
 
