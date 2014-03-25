@@ -669,8 +669,8 @@ class ItemCore {
 			// is published_at posted?
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
 
-			print getPost("published_at");
-			print "published_at:" . $published_at ."<br>";
+			// print getPost("published_at");
+			// print "published_at:" . $published_at ."<br>";
 
 //			print "UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? "published_at=$published_at" : "")." WHERE id = $id<br>";
 			// create item
