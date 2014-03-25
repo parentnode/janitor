@@ -218,10 +218,10 @@ class Model extends HTML {
 	function getPostedEntities() {
 		if(count($this->data_entities)) {
 			foreach($this->data_entities as $name => $entity) {
-//				$entity["value"] = getPost($name);
+//				print $name."=".getPost($name)."<br>";
 				$value = getPost($name);
 				if($value !== false) {
-					$this->data_entities[$name]["value"] = getPost($name);
+					$this->data_entities[$name]["value"] = $value;
 				}
 			}
 		}
@@ -278,6 +278,7 @@ class Model extends HTML {
 	function validateList($list = false, $item_id = false) {
 		$this->data_errors = array();
 
+//		print_r($this->data_entities);
 		foreach($list as $name) {
 			if(isset($this->data_entities[$name])) {
 				if(!$this->validate($name, $item_id)) {
