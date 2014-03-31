@@ -678,12 +678,10 @@ class ItemCore {
 			// is published_at posted?
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
 
-			// print getPost("published_at");
-			// print "published_at:" . $published_at ."<br>";
-
-//			print "UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? "published_at=$published_at" : "")." WHERE id = $id<br>";
 			// create item
-			$query->sql("UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? ",published_at='$published_at'" : "")." WHERE id = $item_id");
+			$sql = "UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP ".($published_at ? ",published_at='$published_at'" : "")." WHERE id = $item_id";
+//			print $sql;
+			$query->sql($sql);
 
 			// add tags
 			$tags = getPost("tags");
@@ -761,14 +759,14 @@ class ItemCore {
 					$values[] = $name."='".$uploads[0]["format"]."'";
 				}
 			}
-			else if($entity["value"] && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
+			else if($entity["value"] !== false && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
 
 				$names[] = $name;
 				$values[] = $name."='".$entity["value"]."'";
 			}
 		}
 
-
+//		print_r($names);
 
 		if($typeObject->validateList($names, $item_id)) {
 			if($values) {
