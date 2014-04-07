@@ -218,9 +218,9 @@ class Model extends HTML {
 	function getPostedEntities() {
 		if(count($this->data_entities)) {
 			foreach($this->data_entities as $name => $entity) {
-//				print $name."=".getPost($name)."<br>";
 				$value = getPost($name);
 				if($value !== false) {
+//					print $name."=".$value."<br>";
 					$this->data_entities[$name]["value"] = $value;
 				}
 			}
@@ -362,7 +362,12 @@ class Model extends HTML {
 			}
 		}
 		else if($this->data_entities[$name]["type"] == "password") {
-			if($this->comparePassword($name)) {
+			if(isset($this->data_entities[$name]["compare_to"])) {
+				if($this->comparePassword($name, $this->data_entities[$name]["compare_to"])) {
+					return true;
+				}
+			}
+			else if($this->isString($name)) {
 				return true;
 			}
 		}
