@@ -496,6 +496,64 @@ function superNormalize($string) {
 	return $string;
 }
 
+
+function _uniord($c) {
+    if (ord($c{0}) >=0 && ord($c{0}) <= 127)
+        return ord($c{0});
+    if (ord($c{0}) >= 192 && ord($c{0}) <= 223)
+        return (ord($c{0})-192)*64 + (ord($c{1})-128);
+    if (ord($c{0}) >= 224 && ord($c{0}) <= 239)
+        return (ord($c{0})-224)*4096 + (ord($c{1})-128)*64 + (ord($c{2})-128);
+    if (ord($c{0}) >= 240 && ord($c{0}) <= 247)
+        return (ord($c{0})-240)*262144 + (ord($c{1})-128)*4096 + (ord($c{2})-128)*64 + (ord($c{3})-128);
+    if (ord($c{0}) >= 248 && ord($c{0}) <= 251)
+        return (ord($c{0})-248)*16777216 + (ord($c{1})-128)*262144 + (ord($c{2})-128)*4096 + (ord($c{3})-128)*64 + (ord($c{4})-128);
+    if (ord($c{0}) >= 252 && ord($c{0}) <= 253)
+        return (ord($c{0})-252)*1073741824 + (ord($c{1})-128)*16777216 + (ord($c{2})-128)*262144 + (ord($c{3})-128)*4096 + (ord($c{4})-128)*64 + (ord($c{5})-128);
+    if (ord($c{0}) >= 254 && ord($c{0}) <= 255)    //  error
+        return FALSE;
+    return 0;
+}
+function _unichr($o) {
+    if (function_exists('mb_convert_encoding')) {
+        return mb_convert_encoding('&#'.intval($o).';', 'UTF-8', 'HTML-ENTITIES');
+    } else {
+        return chr(intval($o));
+    }
+}
+
+// Emoji handling (unicode out of UTF range)
+function mb_ord($string) {
+	mb_language('Neutral');
+	mb_internal_encoding('UTF-8');
+	mb_detect_order(array('UTF-8', 'ISO-8859-15', 'ISO-8859-1', 'ASCII'));
+	$result = unpack('N', mb_convert_encoding($string, 'UCS-4BE', 'UTF-8'));
+	if(is_array($result) === true) {
+		return $result[1];
+	}
+	return ord($string);
+}
+function mb_chr($string) {
+	mb_language('Neutral');
+	mb_internal_encoding('UTF-8');
+	mb_detect_order(array('UTF-8', 'ISO-8859-15', 'ISO-8859-1', 'ASCII'));
+	return mb_convert_encoding('&#' . intval($string) . ';', 'UTF-8', 'HTML-ENTITIES');
+}
+function decodeEmoji($string, $system) {
+	global $__decode_emoji_system;
+	$__decode_emoji_system = $system;
+	return preg_replace_callback('/([0-9|#][\x{20E3}])|[\x{e022}|\x{00ae}|\x{00a9}|\x{203C}|\x{2047}|\x{2048}|\x{2049}|\x{3030}|\x{303D}|\x{2139}|\x{2122}|\x{3297}|\x{3299}][\x{FE00}-\x{FEFF}]?|[\x{2190}-\x{21FF}][\x{FE00}-\x{FEFF}]?|[\x{2300}-\x{23FF}][\x{FE00}-\x{FEFF}]?|[\x{2460}-\x{24FF}][\x{FE00}-\x{FEFF}]?|[\x{25A0}-\x{25FF}][\x{FE00}-\x{FEFF}]?|[\x{2600}-\x{27BF}][\x{FE00}-\x{FEFF}]?|[\x{2900}-\x{297F}][\x{FE00}-\x{FEFF}]?|[\x{2B00}-\x{2BF0}][\x{FE00}-\x{FEFF}]?|[\x{1F000}-\x{1F6FF}][\x{FE00}-\x{FEFF}]?/u', function($matches) {global $__decode_emoji_system; return "##".$__decode_emoji_system."-EMOJI".mb_ord($matches[0])."EMOJI##";}, $string);
+
+	// simplified version (not covering all icons)
+	//return preg_replace_callback("/([^\x{0000}-\x{FFFF}\x]+)/u", function($matches) {return "##EMOJI".mb_ord($matches[1])."EMOJI##";}, $string);
+}
+function encodeEmoji($string, $system) {
+	return preg_replace_callback("/##".$system."-EMOJI([0-9]+)EMOJI##/", function($matches) {return '<span class="emoji sb-'.dechex($matches[1]).'">'.mb_chr($matches[1]).'</span>';}, $string);
+}
+
+
+
+
 // get extension for mimetype
 function mimetypeToExtension($mimetype) {
 	$extensions = array(
