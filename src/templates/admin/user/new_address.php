@@ -1,8 +1,7 @@
 <?php
+global $action;
+global $model;
 
-$action = $this->actions();
-
-$model = new User();
 $countries = array(array("dk","Denmark"));
 ?>
 <div class="scene defaultNew userAddress">

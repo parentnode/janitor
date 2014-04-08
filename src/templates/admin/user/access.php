@@ -5,9 +5,7 @@ global $model;
 
 $user_group = $model->getUserGroups(array("user_group_id" => $action[2]));
 $access = $model->getAccessPoints(array("user_group_id" => $action[2]));
-
 ?>
-
 <div class="scene defaultEdit accessEdit">
 	<h1>Access for <?= $user_group["user_group"] ?></h1>
 
@@ -22,19 +20,22 @@ $access = $model->getAccessPoints(array("user_group_id" => $action[2]));
 		<form action="/admin/user/updateAccess/<?= $action[2] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
 			<fieldset>
 				<ul class="points">
-<? 			foreach($access["points"] as $point => $actions): 
-			//	$short_point = str_replace(".php", "", str_replace(LOCAL_PATH."/www", "", $point));
-				 ?>
-					<li>
+<?			foreach($access["points"] as $point => $actions): ?>
+
+<?					if($actions): ?>
+					<li class="action">
 						<h3><?= $point ?></h3>
-<?						foreach($actions as $action): 
-//							$access_granted = isset($access["permissions"][$short_point."/".$action]) ? true : false; 
-							$access_granted = isset($access["permissions"][$point.$action]) ? true : false; 
-							
-							?>
-						<?= $model->input("grant[".$point.$action."]", array("type" => "checkbox", "label" => $action, "value" => 1, "checked" => $access_granted)) ?>
+<?						foreach($actions as $access_action):
+							$access_granted = isset($access["permissions"][$point.$access_action]) ? true : false; ?>
+						<?= $model->input("grant[".$point.$access_action."]", array("type" => "checkbox", "label" => $access_action, "value" => 1, "checked" => $access_granted)) ?>
 <?						endforeach; ?>
 					</li>
+<?					else: ?>
+					<li>
+						<?= $model->input("grant[".$point."/]", array("type" => "hidden", "value" => 1)) ?>
+					</li>
+<?					endif; ?>
+
 <?			endforeach; ?>
 				</ul>
 			</fieldset>

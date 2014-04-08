@@ -327,28 +327,166 @@ class HTML {
 	}
 
 
+
 	/**
-	* Basic input type="submit" element
+	* Create a simple A HREF link with access validation
 	*
-	* @return string Input element
+	* @param $value String text value for A-tag
+	* @param $action String HREF value to be validated
+	* @param $_options Array of optional settings
 	*/
-	function submit($name = false, $options = false) {
-		// print "<p>";
-		// print_r($this->data_entities);
-		// print "</p>";
+	function link($value, $action, $_options = false) {
 
+		global $page;
+		if(!$page->validateAction($action)) {
+			return "";
+		}
 
+		$class = false;
+		$id = false;
+		$target = false;
+
+		$wrap = false;
+		$wrap_class = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "class"         : $class          = $_value; break;
+					case "id"            : $id             = $_value; break;
+
+					case "target"        : $target         = $_value; break;
+
+					case "wrap"          : $wrap           = $_value; break;
+					case "wrap_class"    : $wrap_class     = $_value; break;
+				}
+			}
+		}
+
+		$_ = "";
+
+		$att_id = $this->attribute("id", $id);
+		$att_class = $this->attribute("class", $class);
+		$att_target = $this->attribute("target", $target);
+
+		if($wrap) {
+			$att_wrap_class = $this->attribute("class", $wrap_class);
+			$_ .= '<'.$wrap.$att_wrap_class.'>';
+		}
+
+		$_ .= '<a href="'.$action.'"'.$att_id.$att_class.$att_target.'>'.$value.'</a>';
+
+		if($wrap) {
+			$_ .= '</'.$wrap.'>';
+		}
+
+		return $_;
 	}
+
+
+	function actionsLink($value, $action, $_options = false) {
+		global $page;
+		if(!$page->validateAction($action)) {
+			return "";
+		}
+
+		$class = false;
+		$id = false;
+		$target = false;
+
+		$li_class = superNormalize($value);
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "class"         : $class          = $_value; break;
+					case "id"            : $id             = $_value; break;
+
+					case "target"        : $target         = $_value; break;
+
+					case "li_class"      : $li_class       = $_value; break;
+				}
+			}
+		}
+
+		$_ = "";
+
+		$att_href = $this->attribute("href", $action);
+
+		$att_id = $this->attribute("id", $id);
+		$att_class = $this->attribute("class", $class);
+		$att_target = $this->attribute("target", $target);
+
+		$att_li_class = $this->attribute("class", $li_class);
+
+		$_ .= '<li'.$att_li_class.'><a'.$action.$att_id.$att_class.$att_target.'>'.$value.'</a></li>';
+
+		return $_;
+	}
+
+	function actionsLinkPrimary($value, $action, $_options = false) {
+		
+	}
+
 
 	/**
 	* Basic input type="button" element
 	*
 	* @return string Input element
 	*/
-	function button($name = false, $options = false) {
-		// print "<p>";
-		// print_r($this->data_entities);
-		// print "</p>";
+	function button($value = false, $_options = false) {
+
+		global $page;
+		if(!$page->validateAction($action)) {
+			return "";
+		}
+
+		$type = "submit";
+		$name = false;
+		$class = false;
+
+		$wrap = "li";
+		$wrap_class = stringOr($name, strtolower($value));
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "type"          : $type           = $_value; break;
+					case "name"          : $name           = $_value; break;
+
+					case "class"         : $class          = $_value; break;
+
+					case "wrap"          : $wrap           = $_value; break;
+					case "wrap_class"    : $wrap_class     = $_value; break;
+				}
+			}
+		}
+
+		$_ = "";
+
+		$att_value = $this->attribute("value", $value);
+		$att_type = $this->attribute("type", $type);
+		$att_class = $this->attribute("class", "button", $class);
+		$att_name = $this->attribute("name", $name);
+
+		if($wrap) {
+			$att_wrap_class = $this->attribute("class", $wrap_class);
+			$_ .= '<'.$wrap.$att_wrap_class.'>';
+		}
+
+		$_ .= '<input'.$att_value.$att_name.$att_class.$att_value.' />';
+
+		if($wrap) {
+			$_ .= '</'.$wrap.'>';
+		}
+
+		return $_;
 
 
 	}
@@ -356,6 +494,50 @@ class HTML {
 
 	// Custom Janitor extended input combinations/constructions
 
+
+	// wrapped in li
+	function actionSubmit() {}
+
+	function actionDelete() {}
+	function actionStatus() {}
+
+
+	// DEPRECATED
+
+
+
+
+	/**
+	* Basic input type="submit" element
+	*
+	* @return string Input element
+	*/
+	function submit($name = false, $_options = false) {
+
+		$type = "a";
+		$action = false;
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item"           : $item            = $_value; break;
+
+					case "item_id"        : $item_id         = $_value; break;
+					case "status"         : $status          = $_value; break;
+
+				}
+			}
+		}
+
+		// print "<p>";
+		// print_r($this->data_entities);
+		// print "</p>";
+
+
+	}
 
 	function status($_options = false) {
 

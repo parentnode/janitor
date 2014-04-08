@@ -36,6 +36,7 @@ class PageCore {
 
 	// current action - used for access validation
 	private $actions;
+	private $permissions;
 
 
 	// page output variables
@@ -85,7 +86,9 @@ class PageCore {
 		// login in progress
 		if(getVar("login") == "true") {
 
+			
 			// TODO: add login
+			$this->logIn();
 
 		}
 		// logoff
@@ -450,15 +453,18 @@ class PageCore {
 		// if controller has access_item setting, perform access validation
 		if($access_item) {
 
-			// dummy data, only works on local DB
-			Session::value("user_id", 99);
-			Session::value("user_group_id", 99);
-
+			$user_id = Session::value("user_id");
+			$user_group_id = Session::value("user_group_id");
 
 			// any access restriction requires a user to be logged in
 			// no need to do any validation if no user_id or user_group_id is found
-			if(!Session::value("user_id") || !Session::value("user_group_id")) {
-				header("Location: /login");
+			if(!$user_id || !$user_group_id) {
+
+				// save current url, to be able to redirect after login
+				Session::value("login_forward", $this->url);
+
+				print "no user info";
+//				header("Location: /login");
 				exit();
 			}
 
@@ -483,7 +489,9 @@ class PageCore {
 
 			// no entry found - no access
 			if(!isset($access_item[$validation_action])) {
-				header("Location: /login");
+				print "no access item entry";
+
+//				header("Location: /login");
 				exit();
 			}
 			else {
@@ -491,12 +499,9 @@ class PageCore {
 				// matching access item requires access check
 				if($access_item[$validation_action] !== false) {
 
-//					print_r($_SERVER);
-					$query = new Query();
-					$sql = "SELECT * FROM ".SITE_DB.".user_access WHERE user_group_id = ".Session::value("user_group_id")." AND action = '".$controller.$validation_action."'";
-//					print $sql;
-					if(!$query->sql($sql)) {
-						header("Location: /login");
+					if(!$this->validateAction($controller.$validation_action)) {
+						print "no db entry";
+//						header("Location: /login");
 						exit();
 					}
 				}
@@ -510,38 +515,59 @@ class PageCore {
 
 
 	/**
+	*
+	*/
+	// how do I validate action without knowing what is controller and what is action 
+	// and not loading controller to figure out validation scheme? - maybe like this?
+	
+	// ???
+	
+	function validateAction($action) {
+
+//		print "validateAction:".$action."<br>";
+
+		$user_group_id = Session::value("user_group_id");
+
+		if(!$this->permissions) {
+			$query = new Query();
+			$sql = "SELECT action, permission FROM ".SITE_DB.".user_access WHERE user_group_id = ".$user_group_id;
+			if($query->sql($sql)) {
+				$results = $query->results();
+				foreach($results as $result) {
+					$this->permissions[$result["action"]] = $result["permission"];
+				}
+			}
+		}
+
+		$chunks = explode("/", preg_replace("/\/$/", "", $action));
+
+		while($chunks) {
+
+//			print implode("/", $chunks)."/<br>\n";
+
+			if(isset($this->permissions[implode("/", $chunks)."/"])) {
+				if($this->permissions[implode("/", $chunks)."/"]) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			array_pop($chunks);
+		}
+
+		return false;
+
+	}
+
+	/**
 	* Page actions, security check on page action level
 	*
 	* -param String $action action parameter to check for in status (status can be combined page,list)
 	* -return bool Page status
 	*/
-	function actions($index=false) {
-
-		// TODO: Security check on action - the only required accesscheck, bacause all requests load page and page checks makes this call
-
-		// if($this->actions) {
-// 
-// 			// index less than zero, count from back
-// 			if($index < 0) {
-// 
-// 				if(isset($this->actions[count($this->actions) + $index])) {
-// 					return $this->actions[count($this->actions) + $index];
-// 				}
-// 
-// 			}
-// 			// return from the normal actions order
-// 			else if($index !== false && isset($this->actions[$index])) {
-// 
-// 				return $this->actions[$index];
-// 
-// 			}
-// 			// return actions array
-// 			else {
-				return $this->actions;
-		// 	}
-		// }
-		// 
-		// return false;
+	function actions() {
+		return $this->actions;
 	}
 
 
@@ -550,13 +576,48 @@ class PageCore {
 	*
 	* @param string|bool $status Page status
 	*/
-	function setStatus($status){
-		// if(!Secuity::hasAccess($status)) {
-		// 	$this->throwOff($_SERVER["REQUEST_URI"]);
-		// }
-		// else {
-			$this->status = $status;
-		// }
+	// function setStatus($status){
+	// 	// if(!Secuity::hasAccess($status)) {
+	// 	// 	$this->throwOff($_SERVER["REQUEST_URI"]);
+	// 	// }
+	// 	// else {
+	// 		$this->status = $status;
+	// 	// }
+	// }
+
+
+	/**
+	* Log in
+	*/
+	function logIn() {
+
+		$username = getPost("username");
+		$password = getPost("password");
+
+		if($username && $password) {
+			$query = new Query();
+
+			// make login query
+			// look for user with username and password
+			$sql = "SELECT users.id as id, users.user_group_id as user_group_id FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND password='".sha1($password)."' AND username='$username'";
+//			print $sql;
+			if($query->sql($sql)) {
+
+				// add user_id and user_group_id to session
+				Session::value("user_id", $query->result(0, "id"));
+				Session::value("user_group_id", $query->result(0, "user_group_id"));
+
+				// redirect to originally requested page
+				$login_forward = stringOr(Session::value("login_forward"), "/");
+				Session::reset("login_forward");
+
+				header("Location: " . $login_forward);
+				exit();
+			}
+		}
+
+		message()->addMessage("Wrong username or password. Try again.", array("type" => "error"));
+		return false;
 	}
 
 
@@ -565,9 +626,13 @@ class PageCore {
 	* Logoff user and redirect to login page
 	*/
 	function logOff() {
-		$this->addLog("Logoff ". UT_USE);
+
+		$this->addLog("Logoff: ".$user_id);
 		//$this->user_id = "";
-		Session::reset();
+
+		Session::reset("user_id");
+		Session::reset("user_group_id");
+
 		header("Location: /index.php");
 		exit();
 	}

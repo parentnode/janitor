@@ -10,17 +10,165 @@
 *
 */
 
-class Shop {
+class Shop extends Model {
 
 	/**
 	*
 	*/
 	function __construct() {
+
+		// cart databases
 		$this->db_carts = SITE_DB.".shop_carts";
-		$this->db_items = SITE_DB.".shop_cart_items";
+		$this->db_cart_items = SITE_DB.".shop_cart_items";
 		$this->db_orders = SITE_DB.".shop_orders";
 		$this->db_order_items = SITE_DB.".shop_order_items";
 
+
+		// Nickname
+		$this->addToModel("billing_name", array(
+			"type" => "string",
+			"label" => "Full name",
+			"required" => true,
+			"hint_message" => "Write your full name for the invoice", 
+			"error_message" => "Name must be filled out"
+		));
+		// email
+		$this->addToModel("email", array(
+			"type" => "email",
+			"label" => "Your email",
+			"required" => true,
+			"hint_message" => "Write your email so we can contact you regarding your order",
+			"error_message" => "Invalid email"
+		));
+		// mobile
+		$this->addToModel("mobile", array(
+			"type" => "tel",
+			"label" => "Your mobile",
+			"required" => true,
+			"hint_message" => "Write your mobile number so we can contact you regarding your order",
+			"error_message" => "Invalid number"
+		));
+
+
+		// BILLING ADDRESS
+		// att
+		$this->addToModel("billing_att", array(
+			"type" => "string",
+			"label" => "Att",
+			"hint_message" => "Att - contact person at destination"
+		));
+		// address 1
+		$this->addToModel("billing_address1", array(
+			"type" => "string",
+			"label" => "Address",
+			"required" => true,
+			"hint_message" => "Address",
+			"error_message" => "Invalid address"
+		));
+		// address 2
+		$this->addToModel("billing_address2", array(
+			"type" => "string",
+			"label" => "Additional address",
+			"hint_message" => "Additional address info",
+			"error_message" => "Invalid address"
+		));
+		// city
+		$this->addToModel("billing_city", array(
+			"type" => "string",
+			"label" => "City",
+			"required" => true,
+			"hint_message" => "Write your city",
+			"error_message" => "Invalid city"
+		));
+		// postal code
+		$this->addToModel("billing_postal", array(
+			"type" => "string",
+			"label" => "Postal code",
+			"required" => true,
+			"hint_message" => "Postalcode of your city",
+			"error_message" => "Invalid postal code"
+		));
+		// state
+		$this->addToModel("billing_state", array(
+			"type" => "string",
+			"label" => "State/region",
+			"hint_message" => "Write your state/region, if applicaple",
+			"error_message" => "Invalid state/region"
+		));
+		// country
+		$this->addToModel("billing_country", array(
+			"type" => "string",
+			"label" => "Country",
+			"required" => true,
+			"hint_message" => "Country",
+			"error_message" => "Invalid country"
+		));
+
+
+		// DELIVERY ADDRESS
+		// address name
+		$this->addToModel("delivery_name", array(
+			"type" => "string",
+			"label" => "Name/Company",
+			"required" => true,
+			"hint_message" => "Name on door at address, your name or company name",
+			"error_message" => "Invalid name"
+		));
+		// att
+		$this->addToModel("delivery_att", array(
+			"type" => "string",
+			"label" => "Att",
+			"hint_message" => "Att for delivery address",
+			"error_message" => "Invalid att"
+		));
+		// address 1
+		$this->addToModel("delivery_address1", array(
+			"type" => "string",
+			"label" => "Address",
+			"required" => true,
+			"hint_message" => "Address",
+			"error_message" => "Invalid address"
+		));
+		// address 2
+		$this->addToModel("delivery_address2", array(
+			"type" => "string",
+			"label" => "Additional address",
+			"hint_message" => "Additional address info",
+			"error_message" => "Invalid address"
+		));
+		// city
+		$this->addToModel("delivery_city", array(
+			"type" => "string",
+			"label" => "City",
+			"required" => true,
+			"hint_message" => "Write your city",
+			"error_message" => "Invalid city"
+		));
+		// postal code
+		$this->addToModel("delivery_postal", array(
+			"type" => "string",
+			"label" => "Postal code",
+			"required" => true,
+			"hint_message" => "Postalcode of your city",
+			"error_message" => "Invalid postal code"
+		));
+		// state
+		$this->addToModel("delivery_state", array(
+			"type" => "string",
+			"label" => "State/region",
+			"hint_message" => "Write your state/region, if applicaple",
+			"error_message" => "Invalid state/region"
+		));
+		// country
+		$this->addToModel("delivery_country", array(
+			"type" => "string",
+			"label" => "Country",
+			"required" => true,
+			"hint_message" => "Country",
+			"error_message" => "Invalid country"
+		));
+
+		parent::__construct();
 	}
 
 
@@ -31,6 +179,7 @@ class Shop {
 
 		// get specific cart
 		$cart_id = false;
+		$cart_reference = false;
 
 		// get all carts containing $item_id
 		$item_id = false;
@@ -44,12 +193,14 @@ class Shop {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "cart_id"  : $cart_id    = $_value; break;
-					case "item_id"  : $item_id    = $_value; break;
-					case "before"   : $before     = $_value; break;
-					case "after"    : $after      = $_value; break;
+					case "cart_reference"  : $cart_reference    = $_value; break;
 
-					case "order"    : $order      = $_value; break;
+					case "cart_id"         : $cart_id           = $_value; break;
+					case "item_id"         : $item_id           = $_value; break;
+					case "before"          : $before            = $_value; break;
+					case "after"           : $after             = $_value; break;
+
+					case "order"           : $order             = $_value; break;
 				}
 			}
 		}
@@ -57,18 +208,36 @@ class Shop {
 		$query = new Query();
 
 		// get specific cart
-		if($cart_id) {
+		if($cart_id || $cart_reference) {
 
-//			print "SELECT * FROM ".$this->db_carts." as carts WHERE carts.id = ".$cart_id." LIMIT 1";
-			$sql = "SELECT * FROM ".$this->db_carts." WHERE id = ".$cart_id." LIMIT 1";
+			if($cart_id) {
+				$sql = "SELECT * FROM ".$this->db_carts." WHERE id = $cart_id LIMIT 1";
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db_carts." WHERE cart_reference = '$cart_reference' LIMIT 1";
+			}
+
+//			print $sql."<br>";
+
+			// get cart items
 			if($query->sql($sql)) {
 				$cart = $query->result(0);
 				$cart["items"] = false;
 
-				$sql = "SELECT * FROM ".$this->db_items." as items WHERE items.cart_id = ".$cart_id;
+				$sql = "SELECT * FROM ".$this->db_cart_items." as items WHERE items.cart_id = ".$cart["id"];
 //				print $sql;
 				if($query->sql($sql)) {
+
 					$cart["items"] = $query->results();
+
+					// calculate total quantity
+					$sql = "SELECT SUM(quantity) as q FROM ".$this->db_cart_items." as items WHERE items.cart_id = ".$cart["id"];
+					if($query->sql($sql)) {
+						$cart["total_quantity"] = $query->result(0, "q");
+					}
+					else {
+						$cart["total_quantity"] = 0;
+					}
 				}
 				return $cart;
 			}
@@ -77,7 +246,7 @@ class Shop {
 		// get all carts with item_id in it
 		if($item_id) {
 
-			if($query->sql("SELECT * FROM ".$this->db_items." WHERE item_id = $item_id GROUP BY cart_id")) {
+			if($query->sql("SELECT * FROM ".$this->db_cart_items." WHERE item_id = $item_id GROUP BY cart_id")) {
 				$results = $query->results();
 				$carts = false;
 				foreach($results as $result) {
@@ -88,13 +257,13 @@ class Shop {
 		}
 
 		// return all carts
-		if(!$cart_id && !$item_id) {
+		if(!isset($_options["cart_id"]) && !isset($_options["item_id"]) && !isset($_options["cart_reference"])) {
 			if($query->sql("SELECT * FROM ".$this->db_carts." ORDER BY $order")) {
 				$carts = $query->results();
 
 				foreach($carts as $i => $cart) {
 					$carts[$i]["items"] = false;
-					if($query->sql("SELECT * FROM ".$this->db_items." WHERE cart_id = ".$cart["id"])) {
+					if($query->sql("SELECT * FROM ".$this->db_cart_items." WHERE cart_id = ".$cart["id"])) {
 						$carts[$i]["items"] = $query->results();
 					}
 				}
@@ -106,90 +275,191 @@ class Shop {
 	}
 
 
-	// if no cart in session - create new cart
+	/**
+	* Create new cart
+	*
+	* @return Array of cart_id and cart_reference
+	*/
+	// TODO: add user id to cart creation when users are implemented
+	function createCart() {
 
-	// add product to cart - 4 parameters exactly
-	// /cart-controller/addToCart/
-	// posting: item_id, quantity, cart_id
-	function addToCart() {
-
-		$query = new Query();
-		$IC = new Item();
 		global $page;
 
+		$query = new Query();
+
 		$query->checkDbExistance($this->db_carts);
-		$query->checkDbExistance($this->db_items);
+		$query->checkDbExistance($this->db_cart_items);
 		$query->checkDbExistance($this->db_orders);
 		$query->checkDbExistance($this->db_order_items);
 
-		// if cart_id from form, prioritize it
-		// TODO: Is cart_id ever sent as post?
-		$cart_id = stringOr(getPost("cart_id"), Session::value("cart_id"));
+		$currency = $page->currency();
 
-		// no cart id - create new cart
-		if(!$cart_id) {
-			// TODO: add user id to cart creation when users are implemented
-			$currency = $page->currency();
-			$query->sql("INSERT INTO ".$this->db_carts." VALUES(DEFAULT, '".$page->country()."', '".$currency["id"]."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-			$cart_id = $query->lastInsertId();
-
-			Session::value("cart_id", $cart_id);
-			// save cookie
-			setcookie("cart_id", $cart_id, time()+60*60*24*60, "/");
-		}
-		// update cart modified at
-		else {
-			$query->sql("UPDATE ".$this->db_carts." SET modified_at = CURRENT_TIMESTAMP, status = 1 WHERE id = ".$cart_id);
+		// find valid cart_reference
+		$cart_reference = randomKey(12);
+		while($query->sql("SELECT id FROM ".$this->db_carts." WHERE cart_reference = '".$cart_reference."'")) {
+			$cart_reference = randomKey(12);
 		}
 
-		$item_id = getPost("item_id");
-		// add item to cart, if item exists
-		if($item_id && $IC->getItem($item_id)) {
+		$query->sql("INSERT INTO ".$this->db_carts." VALUES(DEFAULT, '$cart_reference', '".$page->country()."', '".$currency["id"]."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
+		$cart_id = $query->lastInsertId();
 
-			// item already exists in cart, update quantity
-			if($query->sql("SELECT * FROM ".$this->db_items." items WHERE items.cart_id = ".$cart_id." AND item_id = ".$item_id)) {
-				$cart_item = $query->result(0);
+		Session::value("cart", $cart_reference);
+		// save cookie
+		setcookie("cart", $cart_reference, time()+60*60*24*60, "/");
 
-				// INSERT current quantity+1
-				$query->sql("UPDATE ".$this->db_items." SET quantity = ".($cart_item["quantity"]+1)." WHERE id = ".$cart_item["id"]);
-			}
-			// just add item to cart
-			else {
-
-				$query->sql("INSERT INTO ".$this->db_items." VALUES(DEFAULT, '".$item_id."', '".$cart_id."', 1)");
-			}
-		}
+		return array($cart_id, $cart_reference);
 	}
 
 
-	// update cart quantity
-	// posting item_id + quantity
-	function updateQuantity() {
+	/**
+	* Check cart_reference and create new cart if validation fails
+	* Optional create to auto create new cart in case of validation failure
+	*
+	* @return Array of cart_id and cart_reference if create option is true, otherwise true|false
+	*/
+	function validateCart($cart_reference, $_options=false) {
+
+		$create = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "create"    : $create    = $_value; break;
+				}
+			}
+		}
 
 		$query = new Query();
-		$IC = new Item();
-		global $page;
 
-		// if cart_id from form, prioritize it
-		$cart_id = stringOr(getPost("cart_id"), Session::value("cart_id"));
+		// if cart_reference is in action, prioritize it
+		$cart_reference = stringOr($cart_reference, Session::value("cart"));
 
-		$item_id = getPost("item_id");
-		$quantity = getPost("quantity");
+		print $cart_reference."<br>";
 
-		// update quantity if item exists in cart
-		if($query->sql("SELECT * FROM ".$this->db_items." as items WHERE items.cart_id = ".$cart_id." AND item_id = ".$item_id)) {
-			$cart_item = $query->result(0);
-
-			if($quantity) {
-				// INSERT current quantity+1
-				$query->sql("UPDATE ".$this->db_items." SET quantity = ".$quantity." WHERE id = ".$cart_item["id"]);
+		// no cart_reference
+		// create new cart
+		if(!$cart_reference) {
+			if($create) {
+				list($cart_id, $cart_reference) = $this->createCart();
 			}
 			else {
-				// DELETE
-				$query->sql("DELETE FROM ".$this->db_items." WHERE id = ".$cart_item["id"]);
+				return false;
+			}
+		}
+		// has cart_reference
+		else {
+
+			// cart validation
+			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+
+			// no cart was found
+			if(!$cart) {
+				if($create) {
+					list($cart_id, $cart_reference) = $this->createCart();
+				}
+				else {
+					return false;
+				}
+			}
+			// proceed with validation
+			else {
+
+				// get cart_id for cart_reference
+				$cart_id = $cart["id"];
+
+				// check if cart is associated with order and that order has not yet been paid
+				// otherwise create new cart
+				if($query->sql("SELECT * FROM ".$this->db_orders." WHERE cart_id = $cart_id AND status != 0")) {
+					if($create) {
+						list($cart_id, $cart_reference) = $this->createCart();
+					}
+					else {
+						return false;
+					}
+				}
+				else {
+					// update cart modified_at column
+					$query->sql("UPDATE ".$this->db_carts." SET modified_at = CURRENT_TIMESTAMP, status = 1 WHERE cart_id = $cart_id");
+				}
+			}
+
+		}
+
+		return array($cart_id, $cart_reference);
+	}
+
+
+	// add product to cart - 2 parameters minimum
+	// addItemToCart/#item_id#/[#cart_id#]
+	function addItemToCart($action) {
+
+		if(count($action) >= 2) {
+
+			$query = new Query();
+			$IC = new Item();
+
+			$query->checkDbExistance($this->db_carts);
+			$query->checkDbExistance($this->db_cart_items);
+			$query->checkDbExistance($this->db_orders);
+			$query->checkDbExistance($this->db_order_items);
+
+
+			$item_id = $action[1];
+			list($cart_id, $cart_reference) = $this->validateCart($action[2], array("create" => true));
+
+
+			// add item or add one to existing item_id in cart
+			if($item_id && $IC->getItem(array("id" => $item_id))) {
+				// item already exists in cart, update quantity
+				if($query->sql("SELECT * FROM ".$this->db_cart_items." items WHERE items.cart_id = ".$cart_id." AND item_id = ".$item_id)) {
+					$cart_item = $query->result(0);
+
+					// INSERT current quantity+1
+					$query->sql("UPDATE ".$this->db_cart_items." SET quantity = ".($cart_item["quantity"]+1)." WHERE id = ".$cart_item["id"]);
+				}
+				// just add item to cart
+				else {
+
+					$query->sql("INSERT INTO ".$this->db_cart_items." VALUES(DEFAULT, '".$item_id."', '".$cart_id."', 1)");
+				}
 			}
 		}
 	}
+
+
+	// update cart quantity - 2 parameters minimum
+	// updateQuantity/#item_id#/[#cart_id#]
+	// quantity is posted
+	function updateQuantity($action) {
+
+		if(count($action) >= 2) {
+
+			$query = new Query();
+			$IC = new Item();
+
+			$item_id = $action[1];
+			list($cart_id, $cart_reference) = $this->validateCart($action[2], array("create" => true));
+
+			// Quantity
+			$quantity = getPost("quantity");
+
+			// update quantity if item exists in cart
+			if($query->sql("SELECT * FROM ".$this->db_cart_items." as items WHERE items.cart_id = ".$cart_id." AND item_id = ".$item_id)) {
+				$cart_item = $query->result(0);
+
+				if($quantity) {
+					// INSERT current quantity+1
+					$query->sql("UPDATE ".$this->db_cart_items." SET quantity = ".$quantity." WHERE id = ".$cart_item["id"]);
+				}
+				// no quantity value, must mean delete item from cart (quantity = 0)
+				else {
+					// DELETE
+					$query->sql("DELETE FROM ".$this->db_cart_items." WHERE id = ".$cart_item["id"]);
+				}
+			}
+		}
+	}
+
 
 	// delete cart - 2 parameters exactly
 	// /deleteCart/#cart_id#
@@ -210,13 +480,28 @@ class Shop {
 
 	}
 
+
+
+
+
+	/**
+	* get orders
+	*
+	* get all orders
+	* get orders by cart_id or cart_reference
+	* get orders by order_id
+	* get orders for user_id
+	* get orders containing specific item_id
+	*
+	* TODO: implement timeranges
+	*/
 	function getOrders($_options=false) {
 
-		$user = new User();
+		$user = new Simpleuser();
 
 		// get specific cart
 		$cart_id = false;
-
+		$cart_reference = false;
 		$order_id = false;
 
 		// get all orders containing $user_id
@@ -234,14 +519,18 @@ class Shop {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "cart_id"    : $cart_id    = $_value; break;
-					case "user_id"    : $user_id    = $_value; break;
-					case "order_id"   : $order_id    = $_value; break;
-					case "item_id"    : $item_id    = $_value; break;
-					case "before"     : $before     = $_value; break;
-					case "after"      : $after      = $_value; break;
+					case "cart_id"           : $cart_id             = $_value; break;
+					case "cart_reference"    : $cart_reference      = $_value; break;
+					case "order_id"          : $order_id            = $_value; break;
 
-					case "order"      : $order      = $_value; break;
+					case "user_id"           : $user_id             = $_value; break;
+
+					case "item_id"           : $item_id             = $_value; break;
+
+					case "before"            : $before              = $_value; break;
+					case "after"             : $after               = $_value; break;
+
+					case "order"             : $order               = $_value; break;
 				}
 			}
 		}
@@ -260,31 +549,30 @@ class Shop {
 					$order["items"] = $query->results();
 				}
 
-				$email = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
-				if($email) {
-					$order["email"] = $email["username"];
-				}
-				else {
-					$order["email"] = "n/a";
-				}
-
-				$mobile = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
-				if($mobile) {
-					$order["mobile"] = $mobile["username"];
-				}
-				else {
-					$order["mobile"] = "n/a";
-				}
+				$order["email"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+				$order["mobile"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+				$order["newsletter"] = $user->getNewsletters(array("user_id" => $order["user_id"], "newsletter" => "general"));
 
 				return $order;
+			}
+		}
+
+		// get cart_id from cart_reference
+		if($cart_reference) {
+
+			$sql = "SELECT id FROM ".$this->db_carts." WHERE cart_reference = '$cart_reference'";
+//			print $sql."<br>";
+			if($query->sql($sql)) {
+				$cart_id = $query->result(0, "id");
 			}
 		}
 
 		// get specific cart
 		if($cart_id) {
 
-//			print "SELECT * FROM ".UT_CARTS." as carts WHERE carts.id = ".$cart_id." LIMIT 1";
-			if($query->sql("SELECT * FROM ".$this->db_orders." WHERE cart_id = ".$cart_id." LIMIT 1")) {
+			$sql = "SELECT * FROM ".$this->db_orders." WHERE cart_id = ".$cart_id." LIMIT 1";
+//			print $sql."<br>";
+			if($query->sql($sql)) {
 				$order = $query->result(0);
 				$order["items"] = false;
 
@@ -292,42 +580,25 @@ class Shop {
 					$order["items"] = $query->results();
 				}
 
-				// get email and mobile from user
-				$email = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
-				if($email) {
-					$order["email"] = $email["username"];
-				}
-				else {
-					$order["email"] = "n/a";
-				}
-
-				$mobile = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
-				if($mobile) {
-					$order["mobile"] = $mobile["username"];
-				}
-				else {
-					$order["mobile"] = "n/a";
-				}
+				$order["email"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+				$order["mobile"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+				$order["newsletter"] = $user->getNewsletters(array("user_id" => $order["user_id"], "newsletter" => "general"));
 
 				return $order;
 			}
 		}
 
-		// TODO: get all carts with item_id in it
+		// TODO: get all orders with item_id in it - not tested
 		if($item_id) {
 
-			// if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE item_id = $item_id GROUP BY cart_id")) {
-			// 	$results = $query->results();
-			// 	$carts = false;
-			// 	foreach($results as $result) {
-			// 		$carts[] = $this->getCarts(array("cart_id" => $result["cart_id"]));
-			// 	}
-			// 	return $carts;
-			// }
+			if($query->sql("SELECT order_id as id FROM ".$this->db_order_items." WHERE item_id = $item_id GROUP BY order_id")) {
+				return $query->results();
+			}
 		}
 
 		// return all carts
-		if(!$cart_id && !$item_id && !$user_id && !$order_id) {
+		if(!isset($_options["cart_id"]) && !isset($_options["item_id"]) && !isset($_options["user_id"]) && !isset($_options["order_id"]) && !isset($_options["cart_reference"])) {
+
 			if($query->sql("SELECT * FROM ".$this->db_orders." ORDER BY $order")) {
 				$orders = $query->results();
 
@@ -337,23 +608,10 @@ class Shop {
 						$orders[$i]["items"] = $query->results();
 					}
 
-					// get email and mobile from user
-					$email = $user->getUsernames(array("user_id" => $orders[$i]["user_id"], "type" => "email"));
-					if($email) {
-						$orders[$i]["email"] = $email["username"];
-					}
-					else {
-						$orders[$i]["email"] = "n/a";
-					}
+					$order["email"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+					$order["mobile"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+					$order["newsletter"] = $user->getNewsletters(array("user_id" => $order["user_id"], "newsletter" => "general"));
 
-					$mobile = $user->getUsernames(array("user_id" => $orders[$i]["user_id"], "type" => "mobile"));
-					if($mobile) {
-						$orders[$i]["mobile"] = $mobile["username"];
-					}
-					else {
-						$orders[$i]["mobile"] = "n/a";
-					}
-					
 				}
 				return $orders;
 			}
@@ -362,7 +620,14 @@ class Shop {
 		return false;
 	}
 
-	// calculate total order price
+
+	/**
+	* Get total order price
+	*
+	* Calculate total order price by adding each order item + vat
+	*
+	* @return float total price
+	*/
 	function getTotalOrderPrice($order_id) {
 		$order = $this->getOrders(array("order_id" => $order_id));
 		$total = 0;
@@ -375,206 +640,291 @@ class Shop {
 		return $total;
 	}
 
-	// ;
-	// $prices[$index]["formatted_with_vat"] = ($price["abbreviation_position"] == "before" ? $price["abbreviation"]." " : "") . number_format($price["price"]* (1 + ($price["vatrate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]) . ($price["abbreviation_position"] == "after" ? " ".$price["abbreviation"] : "");
-	// $prices[$index]["price_with_vat"] = number_format($price["price"]* (1 + ($price["vatrate"]/100)), $price["decimals"], $price["decimal_separator"], $price["grouping_separator"]);
-
-	function updateOrder() {
-
-		$user = new User();
 
 
-		$cart_id = getPost("cart_id");
-		// does values validate
-		if($cart_id && $user->validateList(array("nickname","email","mobile","att","address1","address2","city","address1"))) {
 
+
+	// update order
+	// if order does not exist, look for user matching email or mobile
+	// 	if user is found
+	// 	- what to do if email and mobile does not match
+	// 	update user info
+	// 	create order
+
+	// update order
+	// update order_items
+	// check for address label match
+	// update or add address(es)
+
+	// BIG QUESTION 
+	// - HOW TO HANDLE EXISTING USER WITHOUT LOGIN-REQUIREMENT
+	// - HOW TO AVOID ABUSE (if I type a wrong email, should I then be able to overwrite account information?)
+
+	// MAYBE SEPARATE CREATE ORDER FUNCTION TO MAKE IT LESS COMPLEX (SPLIT FORM IN TWO - BUT KEEP IN SAME PAGE)?
+
+
+
+
+	// TODO: update all functionality
+	function updateOrder($action) {
+
+		if(count($action) == 2) {
+
+			$user = new Simpleuser();
+			$IC = new Item();
 			$query = new Query();
-			$entities = $user->data_entities;
-
-			// make sure type tables exist
-			$query->checkDbExistance($user->db);
-			$query->checkDbExistance($user->db_usernames);
-			$query->checkDbExistance($user->db_addresses);
-			$query->checkDbExistance($user->db_newsletters);
-
-			$query->checkDbExistance($this->db_orders);
-			$query->checkDbExistance($this->db_order_items);
-
-			// check for existing order
-			$order = $this->getOrders(array("cart_id" => $cart_id));
-			if($order) {
-				$user_id = $order["user_id"];
-				$order_id = $order["id"];
-			}
 
 
-			// if order do not exist
-			if(!$order_id) {
+			$cart_reference = $action[1];
 
-				// enough info to create user
-				if($entities["nickname"]["value"] && $entities["email"]["value"] && $entities["mobile"]["value"]) {
+			// get cart
+			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+			$cart_id = $cart["id"];
 
-					// create user
-					$sql = "INSERT INTO ".$user->db." SET id=DEFAULT, nickname='".$entities["nickname"]["value"]."'";
-					if($query->sql($sql)) {
-						$user_id = $query->lastInsertId();
+
+			// does values validate
+			if($cart_id && $this->validateList(array(
+				"billing_name",
+				"email",
+				"mobile",
+
+				"billing_att",
+				"billing_address1",
+				"billing_address2",
+				"billing_city",
+				"billing_postal",
+				"billing_state",
+				"billing_country"
+			))) {
+
+
+				// separate delivery address
+				$delivery_address = getPost("delivery_address");
+				// validate delivery address content
+				if($delivery_address && !$this->validateList(array(
+					"delivery_name",
+					"delivery_att",
+					"delivery_address1",
+					"delivery_address2",
+					"delivery_city",
+					"delivery_postal",
+					"delivery_state",
+					"delivery_country"
+				))) {
+					return false;
+				}
+
+				// continue with processing order data
+				$entities = $this->data_entities;
+
+
+				// make sure order tables exist
+				$query->checkDbExistance($this->db_orders);
+				$query->checkDbExistance($this->db_order_items);
+
+
+				// check for existing order
+				$order = $this->getOrders(array("cart_id" => $cart_id));
+				if($order) {
+					$user_id = $order["user_id"];
+					$order_id = $order["id"];
+				}
+				// if order do not exist
+				// create order, but look for existing user before creating new one for this order
+				else {
+
+					$user_id = $user->matchUsernames(array("email" => $entities["email"]["value"], "mobile" => $entities["mobile"]["value"]));
+
+					print "found user:".$user_id."<br>";
+
+					// no matching user, create a new one
+					if(!$user_id) {
+
+						$user_id = $user->createUser(array(
+							"nickname" => $entities["billing_name"]["value"],
+							"email"    => $entities["email"]["value"],
+							"mobile"   => $entities["mobile"]["value"]
+						));
+					}
+
+					// need user_id to continue order creation
+					// create order
+					if($user_id && $cart_id) {
 
 						$order_no = randomKey(10);
 						// create order
-						$sql = "INSERT INTO ".$this->db_orders." SET id=DEFAULT,order_no='$order_no', user_id=$user_id, cart_id=$cart_id";
+						$sql = "INSERT INTO ".$this->db_orders." SET order_no = '$order_no', user_id = $user_id, cart_id = $cart_id";
 						if($query->sql($sql)) {
-
 							$order_id = $query->lastInsertId();
-//							Session::value("order_id", $order_id);
 						}
 					}
 				}
-			}
-
-			// we have enough info to update order
-			if($order_id && $user_id && $cart_id) {
-
-				Session::value("order_id", $order_id);
-
-				$cart = $this->getCarts(array("cart_id" => $cart_id));
-//				print_r($cart);
-
-				// update modified timestamp for order
-				$sql = "UPDATE ".$user->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = $order_id";
-				$query->sql($sql);
 
 
-				// remove existing order items
-				$sql = "DELETE FROM ".$this->db_order_items." WHERE order_id = $order_id";
-				$query->sql($sql);
+				// we should have enough info to update order
+				// this will update both user info and order
+				//
+				// TODO: there is a slight chance that this is not the intended action
+				// but it is likely more ofter so than not 
+				// (could be situations where new information should be added to new user or addressses)
+				if($order_id && $user_id && $cart_id) {
 
-				// update user nickname
-				$sql = "UPDATE ".$user->db." SET nickname='".$entities["nickname"]["value"]."' WHERE id = ".$user_id;
-				$query->sql($sql);
+					Session::value("order_id", $order_id);
 
-				// update usernames (email+mobile)
-				$email = $user->getUsernames(array("user_id" => $user_id, "type" => "email"));
-				if($email) {
-					$sql = "UPDATE ".$user->db_usernames." SET username='".$entities["email"]["value"]."' WHERE id = ".$email["id"];
-				}
-				else {
-					$sql = "INSERT INTO ".$user->db_usernames." SET id=DEFAULT, user_id=$user_id, username='".$entities["email"]["value"]."', type='email'";
-				}
-				$query->sql($sql);
 
-				$mobile = $user->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
-				if($mobile) {
-					$sql = "UPDATE ".$user->db_usernames." SET username='".$entities["mobile"]["value"]."' WHERE id = ".$mobile["id"];
-				}
-				else {
-					$sql = "INSERT INTO ".$user->db_usernames." SET id=DEFAULT, user_id=$user_id, username='".$entities["mobile"]["value"]."', type='mobile'";
-				}
-				$query->sql($sql);
+					// update user info
+					$user->updateUser($user_id, array(
+						"nickname" => $entities["billing_name"]["value"],
+						"email"    => $entities["email"]["value"],
+						"mobile"   => $entities["mobile"]["value"]
+					));
 
-				// add newsletter
-				$newsletter = getPost("newsletter");
-				if($newsletter) {
-					if(!$query->sql("SELECT * FROM ".$user->db_newsletters." WHERE user_id = $user_id AND newsletter = 'general'")) {
-						$sql = "INSERT INTO ".$user->db_newsletters." SET id=DEFAULT, user_id=$user_id,newsletter='general'";
-						$query->sql($sql);
+
+					// update newsletters
+					$newsletters = getPost("newsletters");
+					$user->updateNewsletters($user_id, $newsletters);
+
+
+					// update/add addresses
+					// billing address
+					$billing_address_label = getPost("billing_address_label");
+					$billing_address = array(
+						"address_label" => $billing_address_label,
+						"address_name"  => $entities["billing_name"]["value"],
+						"att"           => $entities["billing_att"]["value"],
+						"address1"      => $entities["billing_address1"]["value"],
+						"address2"      => $entities["billing_address2"]["value"],
+						"city"          => $entities["billing_city"]["value"],
+						"postal"        => $entities["billing_postal"]["value"],
+						"state"         => $entities["billing_state"]["value"],
+						"country"       => $entities["billing_country"]["value"]
+					);
+
+					// looking for matching address label
+					$billing_address_id = $user->matchAddress($user_id, array("address_label" => $billing_address_label));
+					// update existing billing address
+					if($billing_address_id) {
+						$user->updateAddress($billing_address_id, $billing_address);
 					}
-				}
+					// add new billing address
+					else {
+						$user->addAddress($user_id, $billing_address);
+					}
+
+					// delivery address
+					// is delivery address specified
+					if($delivery_address) {
+						$delivery_address_label = getPost("delivery_address_label");
+						$delivery_address = array(
+							"address_label" => $delivery_address_label,
+							"address_name"  => $entities["delivery_name"]["value"],
+							"att"           => $entities["delivery_att"]["value"],
+							"address1"      => $entities["delivery_address1"]["value"],
+							"address2"      => $entities["delivery_address2"]["value"],
+							"city"          => $entities["delivery_city"]["value"],
+							"postal"        => $entities["delivery_postal"]["value"],
+							"state"         => $entities["delivery_state"]["value"],
+							"country"       => $entities["delivery_country"]["value"]
+						);
+
+						// looking for matching address label
+						$delivery_address_id = $user->matchAddress($user_id, array("address_label" => $delivery_address_label));
+						// update existing delivery address
+						if($delivery_address_id) {
+							$user->updateAddress($delivery_address_id, $delivery_address);
+						}
+						// add new delivery address
+						else {
+							$user->addAddress($user_id, $delivery_address);
+						}
+					}
 
 
-				// TODO: add address as user_addresses if it does not exist already
+					// update general order info
+					$sql = "UPDATE ".$this->db_orders." SET ";
+					$sql .= "country='".$cart["country"]."',";
+					$sql .= "currency='".$cart["currency"]."',";
+
+					$sql .= "billing_name='".$entities["billing_name"]["value"]."',";
+					$sql .= "billing_att='".$entities["billing_att"]["value"]."',";
+					$sql .= "billing_address1='".$entities["billing_address1"]["value"]."',";
+					$sql .= "billing_address2='".$entities["billing_address2"]["value"]."',";
+					$sql .= "billing_city='".$entities["billing_city"]["value"]."',";
+					$sql .= "billing_postal='".$entities["billing_postal"]["value"]."',";
+					$sql .= "billing_state='".$entities["billing_state"]["value"]."',";
+					$sql .= "billing_country='".$entities["billing_country"]["value"]."',";
+
+					if($delivery_address) {
+						$sql .= "delivery_name='".$entities["delivery_name"]["value"]."',";
+						$sql .= "delivery_att='".$entities["delivery_att"]["value"]."',";
+						$sql .= "delivery_address1='".$entities["delivery_address1"]["value"]."',";
+						$sql .= "delivery_address2='".$entities["delivery_address2"]["value"]."',";
+						$sql .= "delivery_city='".$entities["delivery_city"]["value"]."',";
+						$sql .= "delivery_postal='".$entities["delivery_postal"]["value"]."',";
+						$sql .= "delivery_state='".$entities["delivery_state"]["value"]."',";
+						$sql .= "delivery_country='".$entities["delivery_country"]["value"]."',";
+					}
+
+					$sql .= "modified_at=CURRENT_TIMESTAMP";
+					$sql .= " WHERE id=$order_id";
+
+					$query->sql($sql);
 
 
-				// update general order info
-				$sql = "UPDATE ".$this->db_orders." SET ";
-				$sql .= "country='".$cart["country"]."',";
-				$sql .= "currency='".$cart["currency"]."',";
-				$sql .= "delivery_name='".$entities["nickname"]["value"]."',";
-				$sql .= "delivery_address1='".$entities["address1"]["value"]."',";
-				$sql .= "delivery_address2='".$entities["address2"]["value"]."',";
-				$sql .= "delivery_city='".$entities["city"]["value"]."',";
-				$sql .= "delivery_postal='".$entities["postal"]["value"]."',";
-//				$sql .= "delivery_country='".$entities["country"]["value"]."'";
-				// TODO: make country dynamic
-				$sql .= "delivery_country='Danmark'";
-				$sql .= " WHERE id=$order_id";
-//				print $sql."<br>";
-				$query->sql($sql);
+					// remove existing order items
+					$sql = "DELETE FROM ".$this->db_order_items." WHERE order_id = $order_id";
+					$query->sql($sql);
 
-				// update order item
-				if($cart["items"]) {
-					$IC = new Item();
-					foreach($cart["items"] as $cart_item) {
-						$item = $IC->getCompleteItem(array("id" => $cart_item["item_id"]));
+					// update order items
+					if($cart["items"]) {
+						foreach($cart["items"] as $cart_item) {
 
-						$name = $item["name"];
-						$quantity = $cart_item["quantity"];
+							$item = $IC->getCompleteItem(array("id" => $cart_item["item_id"]));
+							$price = $IC->extendPrices($item["prices"], array("currency" => $cart["currency"]));
 
-						// TODO: update price handling
-						foreach($item["prices"] as $price_in_currency) {
-							if($price_in_currency["currency"] == $cart["currency"]) {
-								$price = $price_in_currency["price"];
-								$vat = $price*($price_in_currency["vatrate"]/100);
+							$name = $item["name"];
+							$quantity = $cart_item["quantity"];
 
-								$total_price = $price*$quantity;
-								$total_vat = $vat*$quantity;
+							// TODO: update price handling, when currencies are finalized
+							if($price) {
+								$item_price = $price["price"];
+								$item_vat = $price["vat_of_price"];
+								$total_price = $item_price * $quantity;
+								$total_vat = $item_vat * $quantity;
 							}
-						}
+							// no price - how did it end up a cart??
+							else {
+								$price = 0;
+								$vat = 0;
+								$total_price = 0;
+								$total_vat = 0;
+							}
 
-						// no price??
-						if(!$price) {
-							$price = 0;
-							$vat = 0;
-							
-							$total_price = 0;
-							$total_vat = 0;
+							$sql = "INSERT INTO ".$this->db_order_items." SET ";
+							$sql .= "id=DEFAULT, ";
+							$sql .= "order_id=$order_id, ";
+							$sql .= "item_id=".$cart_item["item_id"].",";
+							$sql .= "name='".$name."',";
+							$sql .= "quantity='".$quantity."',";
+							$sql .= "price='".$item_price."',";
+							$sql .= "vat='".$item_vat."',";
+							$sql .= "total_price='".$total_price."',";
+							$sql .= "total_vat='".$total_vat."'";
+					
+	//						print $sql."<br>";
+							$query->sql($sql);
 						}
-
-						$sql = "INSERT INTO ".$this->db_order_items." SET ";
-						$sql .= "id=DEFAULT, ";
-						$sql .= "order_id=$order_id, ";
-						$sql .= "item_id=".$cart_item["item_id"].",";
-						$sql .= "name='".$name."',";
-						$sql .= "quantity='".$quantity."',";
-						$sql .= "price='".$price."',";
-						$sql .= "vat='".$vat."',";
-						$sql .= "total_price='".$total_price."',";
-						$sql .= "total_vat='".$total_vat."'";
-						
-//						print $sql."<br>";
-						$query->sql($sql);
 					}
+
+
+					return true;
 				}
-
-
-				return true;
 			}
 		}
 
 		return false;
 	}
 
-
-	// // delete cart - 2 parameters exactly
-	// // /deleteOrder/#order_id#
-	// function deleteOrder($action) {
-	// 
-	// 	print_r($action);
-	// 
-	// 	if(count($action) == 2) {
-	// 
-	// 		$query = new Query();
-	// 		print "DELETE FROM ".$this->db_orders." WHERE id = ".$action[1];
-	// 		if($query->sql("DELETE FROM ".$this->db_orders." WHERE id = ".$action[1])) {
-	// 			message()->addMessage("Order deleted");
-	// 			return true;
-	// 		}
-	// 
-	// 	}
-	// 
-	// 	message()->addMessage("Order could not be deleted - refresh your browser", array("type" => "error"));
-	// 	return false;
-	// 
-	// }
 
 }
 

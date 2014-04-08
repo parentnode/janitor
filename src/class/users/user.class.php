@@ -183,65 +183,11 @@ class User extends Model {
 	}
 
 
+	/**
+	* CONTROLLER FUNCTIONS
+	*
+	*/
 
-
-	// get carts
-	// - optional multiple carts, based on content match
-	function getUsers($_options=false) {
-
-		$user_id = false;
-		$user_group_id = false;
-
-
-		$order = "status DESC, id DESC";
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "user_group_id"  : $user_group_id    = $_value; break;
-
-					case "user_id"        : $user_id          = $_value; break;
-
-					case "order"          : $order            = $_value; break;
-				}
-			}
-		}
-
-		$query = new Query();
-
-		// get specific user
-		if($user_id) {
-
-			$sql = "SELECT * FROM ".$this->db." WHERE id = $user_id";
-//			print $sql;
-			if($query->sql($sql)) {
-				$user = $query->result(0);
-				return $user;
-			}
-
-		}
-		else if($user_group_id) {
-
-			$sql = "SELECT * FROM ".$this->db." WHERE user_group_id = $user_group_id";
-//			print $sql;
-			if($query->sql($sql)) {
-				$users = $query->results();
-				return $users;
-			}
-
-		}
-
-		// return all users
-		else {
-			if($query->sql("SELECT * FROM ".$this->db." ORDER BY $order")) {
-				 return $query->results();
-			}
-		}
-
-		return false;
-	}
-
-	
 	// save new user
 	// gets values from posted model values
 	function save() {
@@ -281,7 +227,6 @@ class User extends Model {
 		return false;
 	}
 
-
 	// update user
 	// /user/update/#user_id#
 	// post values
@@ -318,6 +263,65 @@ class User extends Model {
 		return false;
 	}
 
+	// disable user
+	// /admin/user/disable/#user_id#
+	function disable($action) {
+
+		if(count($action) == 2) {
+			$query = new Query();
+			if($query->sql("UPDATE $this->db SET status = 0 WHERE id = ".$action[1])) {
+				message()->addMessage("User disabled");
+				return true;
+			}
+			message()->addMessage("Could not disable user", array("type" => "error"));
+		}
+		return false;
+	}
+
+	// enable user
+	// /admin/user/enable/#user_id#
+	function enable($action) {
+
+		if(count($action) == 2) {
+			$query = new Query();
+			if($query->sql("UPDATE $this->db SET status = 1 WHERE id = ".$action[1])) {
+				message()->addMessage("User enabled");
+				return true;
+			}
+			else {
+				message()->addMessage("Could not enable user", array("type" => "error"));
+			}
+		}
+		return false;
+	}
+
+	// delete user
+	// /admin/user/delete/#user_id#
+	// TODO: Extend constraint detection
+	function delete($action) {
+
+		if(count($action) == 2) {
+			$query = new Query();
+			if($query->sql("DELETE FROM $this->db WHERE id = ".$action[1])) {
+				message()->addMessage("User deleted");
+				return true;
+			}
+
+			$db_errors = $query->dbError();
+			if($db_errors) {
+				message()->addMessage("Deleting user failed (".$db_errors.")", array("type" => "error"));
+				if(strpos($db_errors, "constraint")) {
+					return array("constraint_error" => $db_errors);
+				}
+				return false;
+			}
+		}
+
+		message()->addMessage("Deleting user failed", array("type" => "error"));
+		return false;
+	}
+
+
 
 	// TODO: not used due to performance considerations
 	function checkUserConstraints($user_id) {
@@ -341,61 +345,97 @@ class User extends Model {
 	}
 
 
-	// delete user
-	// /admin/user/delete/#user_id#
-	function delete($action) {
-		if(count($action) == 2) {
-			$query = new Query();
-			if($query->sql("DELETE FROM $this->db WHERE id = ".$action[1])) {
-				message()->addMessage("User deleted");
-				return true;
-			}
-			$db_errors = $query->dbError();
-			if($db_errors) {
-				message()->addMessage("Deleting user failed (".$db_errors.")", array("type" => "error"));
-				if(strpos($db_errors, "constraint")) {
-					return array("constraint_error" => $db_errors);
+	
+
+
+	/**
+	* Get users
+	*
+	* get all users
+	* Get all users in user_group
+	* Get specific user_id
+	* Get users with email as username
+	* Get users with mobile as username
+	*/
+	function getUsers($_options=false) {
+
+		// default values
+		$user_id = false;
+		$user_group_id = false;
+		$order = "status DESC, id DESC";
+
+		$email = false;
+		$mobile = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "user_group_id"  : $user_group_id    = $_value; break;
+					case "user_id"        : $user_id          = $_value; break;
+					case "order"          : $order            = $_value; break;
+
+					case "email"          : $email            = $_value; break;
+					case "mobile"       : $mobile           = $_value; break;
 				}
-				return false;
 			}
 		}
-		message()->addMessage("Deleting user failed", array("type" => "error"));
+
+		$query = new Query();
+
+		// get specific user
+		if($user_id) {
+
+			$sql = "SELECT * FROM ".$this->db." WHERE id = $user_id";
+//			print $sql;
+			if($query->sql($sql)) {
+				$user = $query->result(0);
+				return $user;
+			}
+		}
+
+		// get users for user_group
+		else if($user_group_id) {
+
+			$sql = "SELECT * FROM ".$this->db." WHERE user_group_id = $user_group_id";
+//			print $sql;
+			if($query->sql($sql)) {
+				$users = $query->results();
+				return $users;
+			}
+		}
+
+		// get users with email as username
+		else if($email) {
+
+			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE type = 'email' AND username = '$email'";
+//			print $sql;
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+		}
+		// get users with mobile as username
+		else if($mobile) {
+
+			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE type = 'mobile' AND username = '$mobile'";
+//			print $sql;
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+		}
+
+		// return all users
+		else if(!isset($_options["user_id"]) && !isset($_options["user_id"]) && !isset($_options["user_group_id"]) && !isset($_options["email"]) && !isset($_options["mobile"])) {
+			if($query->sql("SELECT * FROM ".$this->db." ORDER BY $order")) {
+				 return $query->results();
+			}
+		}
+
 		return false;
 	}
 
 
-	// disable user
-	// /admin/user/disable/#user_id#
-	function disable($action) {
-		if(count($action) == 2) {
-			$query = new Query();
-			if($query->sql("UPDATE $this->db SET status = 0 WHERE id = ".$action[1])) {
-				message()->addMessage("User disabled");
-				return true;
-			}
-			message()->addMessage("Could not disable user", array("type" => "error"));
-		}
-		return false;
-	}
-
-	// enable user
-	// /admin/user/enable/#user_id#
-	function enable($action) {
-		if(count($action) == 2) {
-			$query = new Query();
-			if($query->sql("UPDATE $this->db SET status = 1 WHERE id = ".$action[1])) {
-				message()->addMessage("User enabled");
-				return true;
-			}
-			else {
-				message()->addMessage("Could not enable user", array("type" => "error"));
-			}
-		}
-		return false;
-	}
-
-
-
+	// get usernames or specific username
 	function getUsernames($_options) {
 
 		$user_id = false;
@@ -414,12 +454,15 @@ class User extends Model {
 
 		if($user_id) {
 
+			// return specific username
 			if($type) {
 				$sql = "SELECT * FROM ".$this->db_usernames." WHERE user_id = $user_id AND type = '$type'";
 				if($query->sql($sql)) {
-					return $query->result(0);
+					return $query->result(0, "username");
 				}
+				return false;
 			}
+			// return all usernames for user
 			else {
 				$sql = "SELECT * FROM ".$this->db_usernames." WHERE user_id = $user_id";
 				if($query->sql($sql)) {
@@ -429,50 +472,121 @@ class User extends Model {
 
 		}
 
+		return false;
 	}
 
-	function getNewsletters($_options) {
+	// Update usernames from posted values
+	function updateUsernames($action) {
 
-		$user_id = false;
-		$newsletter = false;
+		if(count($action) == 2) {
 
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "user_id"        : $user_id          = $_value; break;
-					case "newsletter"     : $newsletter       = $_value; break;
-				}
-			}
-		}
+			$user_id = $action[1];
+			$query = new Query();
 
-		$query = new Query();
+			// make sure type tables exist
+			$query->checkDbExistance($this->db_usernames);
 
-		if($user_id) {
+			$entities = $this->data_entities;
 
-			if($newsletter) {
-				$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id AND newsletter = '$newsletter'";
+			$email = $entities["email"]["value"];
+			$mobile = $entities["mobile"]["value"];
+
+			$current_email = $this->getUsernames(array("user_id" => $user_id, "type" => "email"));
+			$current_mobile = $this->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
+
+			// email does not exist
+			if(!$current_email) {
+				$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, type = 'email', user_id = $user_id";
 				if($query->sql($sql)) {
-					return $query->result(0);
+					message()->addMessage("Email added");
+				}
+				else {
+					message()->addMessage("Could not add email", array("type" => "error"));
 				}
 			}
-			else {
-				$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id";
+			// is email changed?
+			else if($email != $current_email) {
+
+				$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0 WHERE type = 'email' AND user_id = $user_id";
+				print $sql;
 				if($query->sql($sql)) {
-					return $query->results();
+					message()->addMessage("Email updated");
+				}
+				else {
+					message()->addMessage("Could not update email", array("type" => "error"));
+				}
+			}
+
+			// mobile does not exist
+			if(!$current_email) {
+				$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 0, type = 'mobile', user_id = $user_id";
+				if($query->sql($sql)) {
+					message()->addMessage("Mobile added");
+				}
+				else {
+					message()->addMessage("Could not add mobile", array("type" => "error"));
+				}
+			}
+			// is mobile changed?
+			if($mobile != $current_mobile) {
+
+				$sql = "UPDATE $this->db_usernames SET username = '$mobile', verified = 0 WHERE type = 'mobile' AND user_id = $user_id";
+				if($query->sql($sql)) {
+					message()->addMessage("Mobile updated");
+				}
+				else {
+					message()->addMessage("Could not update mobile", array("type" => "error"));
 				}
 			}
 
 		}
-
+		return true;
 	}
 
-	// create from posted values
-	function updateUsername($user_id) {
-
-
-	}
-
+	// NOT NEEDED YET
 	function deleteUsername() {}
+
+
+
+	// check if password exists
+	function issetPassword($user_id) {
+		//
+	}
+
+	// set new password for user
+	// user/setPassword/#user_id#
+	function setPassword($action) {
+
+		if(count($action) == 2) {
+
+			// does values validate
+			if($this->validateList(array("password"))) {
+
+				$user_id = $action[1];
+				$query = new Query();
+
+				// make sure type tables exist
+				$query->checkDbExistance($this->db_passwords);
+
+
+				$entities = $this->data_entities;
+
+				$password = sha1($entities["password"]["value"]);
+				$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
+				if($query->sql($sql)) {
+					message()->addMessage("password saved");
+					return true;
+				}
+			}
+		}
+
+		message()->addMessage("Password could not be saved", array("type" => "error"));
+		return false;
+	}
+
+
+	// start reset password procedure
+	function resetPassword() {}
 
 
 	// return addresses
@@ -518,9 +632,11 @@ class User extends Model {
 			$query = new Query();
 
 			// does values validate
-			if($this->validateList(array("address_label","address_name","address1","postal","city","country"))) {
+			if($this->validateList(array("address_label","address_name","address_att","address1","postal","city","state","country"))) {
 
 				$query = new Query();
+
+				// TODO: get values from entities instead of post
 
 				$entities = getPosts(array("user_id","address_label","address_name","att","address1","address2","city","postal","state","country"));
 				$names = array();
@@ -581,19 +697,57 @@ class User extends Model {
 	function deleteAddress() {}
 
 
-	// check if password exists
-	function issetPassword($user_id) {
-		//
+
+	// get newsletter info
+	// get all newsletters (list of available newsletters)
+	// get newsletters for user
+	// get state of specific newsletter for specific user
+	function getNewsletters($_options) {
+
+		$user_id = false;
+		$newsletter = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"        : $user_id          = $_value; break;
+					case "newsletter"     : $newsletter       = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($user_id) {
+
+			// check for specific newsletter for specific user
+			if($newsletter) {
+				$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id AND newsletter = '$newsletter'";
+				if($query->sql($sql)) {
+					return true;
+				}
+			}
+			// get newsletters for specific user
+			else {
+				$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id";
+				if($query->sql($sql)) {
+					return $query->results();
+				}
+			}
+
+		}
+		// get list of all newsletters
+		else {
+			$sql = "SELECT newsletter FROM ".$this->db_newsletters." GROUP BY newsletter";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+		}
+
 	}
 
-	// set new password for user
-	function setPassword($action) {
-		
-		$password;
-	}
 
-	// start reset password procedure
-	function resetPassword() {}
+	function updateNewsletters($action){}
 
 
 
@@ -733,6 +887,7 @@ class User extends Model {
 
 
 
+
 	// ACCESS
 
 	// get user groups or specific user group
@@ -751,25 +906,64 @@ class User extends Model {
 
 		// get all controllers
 		$fs = new FileSystem();
-		$controllers = $fs->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
-		// print_r($controllers);
+
+		// indicate access read state (used when parsing controllers)
+		$read_access = true;
 
 		$access = array();
 		$access["points"] = array();
 
-		// indicate access read state
-		$read_access = true;
+		// local controllers
+		$controllers = $fs->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
+//		print_r($controllers);
+
 		foreach($controllers as $controller) {
+			$access_item = array();
 
 			include_once($controller);
-			if($access_item) {
-				// print_r($access_item);
+//			if($access_item) {
+//				print_r($access_item);
 
-				$access["points"][$controller] = array();
-				
+			// replace local path
+			$short_point = str_replace(".php", "", str_replace(LOCAL_PATH."/www", "", $controller));
+			// remove index path, because it is not being used in requests
+			$short_point = preg_replace("/\/index$/", "", $short_point);
+
+			$access["points"][$short_point] = array();
+	
+			if($access_item) {
+				// access restriction on any type of request
 				foreach($access_item as $action => $restricted) {
 					if($restricted === true) {
-						$access["points"][$controller][] = $action;
+						$access["points"][$short_point][] = $action;
+					}
+				}
+			}
+		}
+
+		// framework controllers
+		$controllers = $fs->files(FRAMEWORK_PATH."/www", array("allow_extensions" => "php"));
+//		print_r($controllers);
+		foreach($controllers as $controller) {
+			$access_item = array();
+
+			// TODO: Check if controller is enabled via Apache Alias (don't know how - find a way)
+
+			include_once($controller);
+//				print_r($access_item);
+
+			// replace Framework path, but add Admin because that is reprensentative for how they are accessed
+			$short_point = str_replace(".php", "", str_replace(FRAMEWORK_PATH."/www", "/admin", $controller));
+			// remove index path, because it is not being used in requests
+			$short_point = preg_replace("/\/index$/", "", $short_point);
+
+			$access["points"][$short_point] = array();
+
+			if($access_item) {
+				// access restriction on any type of request
+				foreach($access_item as $action => $restricted) {
+					if($restricted === true) {
+						$access["points"][$short_point][] = $action;
 					}
 				}
 			}
@@ -785,7 +979,7 @@ class User extends Model {
 			$query->checkDbExistance($this->db_access);
 
 
-			if($query->sql("SELECT * FROM ".$this->db_access." WHERE user_group_id = $user_group_id")) {
+			if($query->sql("SELECT * FROM ".$this->db_access." WHERE user_group_id=$user_group_id AND permission=1")) {
 				$results = $query->results();
 				foreach($results as $result) {
 					$access["permissions"][$result["action"]] = 1;
@@ -793,6 +987,8 @@ class User extends Model {
 			}
 
 		}
+
+//		print_r($access);
 
 		return $access;
 	}
@@ -806,23 +1002,30 @@ class User extends Model {
 
 			$query = new Query();
 			$grants = getPost("grant");
+			$user_group_id = $action[1];
 
 //			print_r($grants);
 
 			// remove existing grants
-			$query->sql("DELETE FROM ".$this->db_access." WHERE user_group_id = " . $action[1]);
+			$query->sql("DELETE FROM ".$this->db_access." WHERE user_group_id = " . $user_group_id);
 
 			$create_count = 0;
 			// set new grants
 			if($grants) {
 				foreach($grants as $path => $grant) {
 					if($grant == 1) {
-						if($query->sql("INSERT INTO ".$this->db_access." SET user_group_id = ".$action[1].", action = '$path'")) {
+						$sql = "INSERT INTO ".$this->db_access." SET permission=1, user_group_id = $user_group_id, action = '$path'";
+//						print $sql."<br>";
+						if($query->sql($sql)) {
 							$create_count++;
 						}
 					}
 					else {
-						$create_count++;
+						$sql = "INSERT INTO ".$this->db_access." SET permission=0, user_group_id=$user_group_id, action = '$path'";
+//						print $sql."<br>";
+						if($query->sql($sql)) {
+							$create_count++;
+						}
 					}
 				}
 			}
@@ -838,6 +1041,145 @@ class User extends Model {
 
 	}
 
+
+
+
+
+	/**
+	* Validate username info to avoid too many unneccesary duplet users
+	* Look for users with same email and mobile because such combinations indicates same user
+	*/
+	function matchUsernames($_options) {
+
+		$email = false;
+		$mobile = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "email"         : $email          = $_value; break;
+					case "mobile"        : $mobile         = $_value; break;
+
+				}
+			}
+		}
+
+		// user with matching email and mobile
+		if($email && $mobile) {
+
+			$email_matches = $this->getUsers(array("email" => $email));
+			$mobile_matches = $this->getUsers(array("mobile" => $mobile));
+
+			if($email_matches && $mobile_matches) {
+				foreach($email_matches as $user) {
+					if(array_search($user, $mobile_matches) !== -1) {
+						return $user["user_id"];
+					}
+				}
+			}
+		}
+		else if($email) {
+
+			$email_matches = $this->getUsers(array("email" => $email));
+			if($email_matches) {
+				return $email_matches[0]["user_id"];
+			}
+		}
+		else if($mobile) {
+
+			$mobile_matches = $this->getUsers(array("mobile" => $mobile));
+			if($mobile_matches) {
+				return $mobile_matches[0]["user_id"];
+			}
+			
+		}
+
+
+		return false;
+	}
+
+
+	/**
+	* Validate address info to avoid too many unneccesary duplet addresses
+	* Look for addresses with same user_id and label because such combinations indicates same address
+	*/
+	function matchAddress($_options) {
+
+		$user_id = false;
+
+		$address_label = false;
+		$address1 = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "user_id"        : $user_id          = $_value; break;
+
+					case "address_label"  : $address_label    = $_value; break;
+					case "address1"       : $address1         = $_value; break;
+
+				}
+			}
+		}
+
+		$query = new Query();
+
+		// user_id specific
+		if($user_id) {
+
+			// look for matching address_label and address1
+			if($address_label && $address1) {
+
+				$sql = "SELECT id WHERE user_id = $user_id AND address_label = '$address_label' AND address1 =  '$address1'";
+				if($query->sql($sql)) {
+					return $query->result(0, "id");
+				}
+				else {
+					return false;
+				}
+			}
+			// matching address_label
+			else if($address_label) {
+				$sql = "SELECT id WHERE user_id = $user_id AND address_label = '$address_label'";
+				if($query->sql($sql)) {
+					return $query->result(0, "id");
+				}
+				else {
+					return false;
+				}
+			}
+		}
+		
+		if(!isset($_options["user_id"])) {
+
+			// look for matching address_label and address1
+			if($address_label && $address1) {
+
+				$sql = "SELECT id WHERE address_label = '$address_label' AND address1 =  '$address1'";
+				if($query->sql($sql)) {
+					return $query->results("id");
+				}
+				else {
+					return false;
+				}
+			}
+			// matching address_label
+			else if($address_label) {
+				$sql = "SELECT id WHERE address_label = '$address_label'";
+				if($query->sql($sql)) {
+					return $query->results("id");
+				}
+				else {
+					return false;
+				}
+			}
+			
+		}
+
+		return false;
+	}
 
 }
 

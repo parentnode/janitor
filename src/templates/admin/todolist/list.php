@@ -4,13 +4,52 @@ global $IC;
 global $model;
 global $itemtype;
 
+/**
+* IMPLEMENT SECURITY
+* 
+* wrapped in li or standalone
+* - maybe leave wrapper out of function but how to avoid empty wrappers
+*
+* a href links with and without button class
+* input type submit with/without form
+* javascript enabled action with multiple class references like sortable
+* disable/enable buttons (should js always read url from HTML, to avoid having url twice)
+*
+* How to access functions
+* - through model or directly through HTML (should HTML always be available)
+* - should validation function be in security class
+*
+*
+* Conclusions/considarations
+* - I want to have simple function calls
+*
+*
+* EXAMPLES/TEXT SYNTAX
+* HTML->link("back", action, array("wrap" => "li", "class" => "button primary"))
+* <li class="back"><a href="action" class="button primary">back</a></li>
+*
+*/
+
 $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC"));
 ?>
 <div class="scene defaultList <?= $itemtype ?>List">
 	<h1>TODO lists</h1>
 
 	<ul class="actions">
-		<li class="new"><a href="/admin/<?= $itemtype ?>/new" class="button primary key:n">New list</a></li>
+		<?= $model->actionslink("New list", "/admin/".$itemtype."/new", array("class" => "button primary key:n", "li_class" => "new")) ?>
+		if($page->)
+		<li class="back"><a href="action" class="button primary">back</a></li>
+
+		<?= $model->li_a("New list", "/admin/".$itemtype."/new", array("key" => "key:n", "class" => "new")) ?>
+		<?= $model->li_input("New list", "/admin/".$itemtype."/new", array("key" => "key:n", "class" => "new")) ?>
+
+		<?= $model->li_primary_button("New list", "/admin/".$itemtype."/new", array("key" => "key:n", "class" => "new")) ?>
+		<?= $model->li_input("New list", "/admin/".$itemtype."/new", array("key" => "key:n", "class" => "new")) ?>
+		<?= $model->li_button("New list", "/admin/".$itemtype."/new", array("key" => "key:n", "class" => "new")) ?>
+
+		<?= $model->actionPriA("New list", "/admin/".$itemtype."/new", array("key" => "key:n", "class" => "new")) ?>
+		<?= $model->actionPriI("New list", "/admin/".$itemtype."/new", array("key" => "key:n", "class" => "new")) ?>
+
 	</ul>
 
 

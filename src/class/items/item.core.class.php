@@ -498,7 +498,7 @@ class ItemCore {
 			if($item_found) {
 				$counted++;
 
-				$prev_items[] = $items[$i];
+				array_unshift($prev_items, $items[$i]);
 
 				if($counted == $count) {
 					break;

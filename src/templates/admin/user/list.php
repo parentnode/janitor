@@ -1,9 +1,7 @@
 <?php
+global $action;
+global $model;
 
-$action = $this->actions();
-
-$model = new User();
-// check if custom function exists on cart class
 $user_groups = $model->getUserGroups();
 
 if(count($action) > 1) {
@@ -27,11 +25,16 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 		<li class="usergroup"><a href="/admin/user/group/list" class="button">User groups</a></li>
 	</ul>
 
+<?	if($user_groups): ?>
 	<ul class="userGroups">
 <?		foreach($user_groups as $user_group): ?>
 		<li class="<?= $user_group["id"] == $user_group_id ? "selected" : "" ?>"><a href="/admin/user/list/<?= $user_group["id"] ?>"><?= $user_group["user_group"] ?></a></li>
 <?		endforeach; ?>
 	</ul>
+<?	else: ?>
+	<p>You have no user groups. Create at least one user group before you continue.</p>
+<?	endif; ?>
+
 
 	<div class="all_items i:defaultList filters">
 <?		if($users): ?>

@@ -1,42 +1,28 @@
 <?php
+global $action;
+global $model;
 
-$action = $this->actions();
-
-$model = new User();
-// check if custom function exists on cart class
 $item = $model->getUsers(array("user_id" => $action[1]));
 
-// TODO: Create global function for this
-$user_groups = $model->getUserGroups();
-$user_groups_options = array();
-foreach($user_groups as $user_group) {
-	$option = array();
-	$option[0] = $user_group["id"];
-	$option[1] = $user_group["user_group"];
-	$user_groups_options[] = $option;
-}
+$user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_group");
 
+// TODO: Create global function for languages (don't know if it is supposed to be in Page, Shop or User)
 $query = new Query();
 $query->sql("SELECT * FROM ".UT_LANGUAGES);
 $languages = $query->results();
-$language_options = array();
-foreach($languages as $language) {
-	$option = array();
-	$option[0] = $language["id"];
-	$option[1] = $language["name"];
-	$language_options[] = $option;
-}
+$language_options = $model->toOptions($languages, "id", "name");
 
-//$usernames = $model->getUsernames(array("user_id" => $action[1]));
-$mobile = "";
-$mobile = $model->getUsernames(array("user_id" => $action[1], "type" => "mobile"));
-$email = $model->getUsernames(array("user_id" => $action[1], "type" => "email"));
+// get usernames
+$mobile = $model->getUsernames(array("user_id" => $item["id"], "type" => "mobile"));
+$email = $model->getUsernames(array("user_id" => $item["id"], "type" => "email"));
 
-$addresses = $model->getAddresses(array("user_id" => $action[1]));
-$newsletters = $model->getNewsletters(array("user_id" => $action[1]));
+// get addresses
+$addresses = $model->getAddresses(array("user_id" => $item["id"]));
+
+// get newsletters
+$newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 
 ?>
-
 <div class="scene defaultEdit userEdit">
 	<h1>Edit user</h1>
 
@@ -89,18 +75,13 @@ $newsletters = $model->getNewsletters(array("user_id" => $action[1]));
 	</div>
 
 	<h2>Email and Mobile number</h2>
-	<p>Your email and mobilenumber are your unique usernames</p> 
 	<div class="usernames i:usernames">
-		<form action="/admin/user/update/<?= $action[1] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
+		<p>Your email and mobilenumber are your unique usernames.</p> 
+
+		<form action="/admin/user/updateUsernames/<?= $item["id"] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
 			<fieldset>
-				<?= $model->input("email", array("value" => stringOr($email["username"]))) ?>
-				<? if(isset($email["username"]) && !$email["verified"]): ?>
-				<!--p>Verify email</p-->
-				<? endif; ?>
-				<?= $model->input("mobile", array("value" => stringOr($mobile["username"]))) ?>
-				<? if(isset($mobile["username"]) && !$mobile["verified"]): ?>
-				<!--p>Verify mobile</p-->
-				<? endif; ?>
+				<?= $model->input("email", array("value" => stringOr($email))) ?>
+				<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
 			</fieldset>
 			<ul class="actions">
 				<li class="save"><input type="submit" value="Update usernames" class="button primary" /></li>
@@ -109,10 +90,10 @@ $newsletters = $model->getNewsletters(array("user_id" => $action[1]));
 	</div>
 
 	<h2>Password</h2>
-	<p>Type your new password to set or update your password</p>
 	<div class="password i:password">
+		<p>Type your new password to set or update your password</p>
 
-		<form action="/admin/user/setPassword/<?= $action[1] ?>" class="" method="post" enctype="multipart/form-data">
+		<form action="/admin/user/setPassword/<?= $item["id"] ?>" class="" method="post" enctype="multipart/form-data">
 			<fieldset>
 				<?= $model->input("password") ?>
 			</fieldset>
@@ -123,8 +104,9 @@ $newsletters = $model->getNewsletters(array("user_id" => $action[1]));
 	</div>
 
 	<h2>Addresses</h2>
-	<p>These addresses are associated with your account</p>
 	<div class="addresses">
+<? if($addresses): ?>
+		<p>These addresses are associated with your account</p>
 
 		<ul class="addresses">
 <?			foreach($addresses as $address): ?>
@@ -144,23 +126,31 @@ $newsletters = $model->getNewsletters(array("user_id" => $action[1]));
 				<ul class="actions">
 					<li class="edit"><a href="/admin/user/edit_address/" class="button">Edit</a></li>
 				</ul>
-<?			endforeach; ?>
 			</li>
+<?			endforeach; ?>
 		</ul>
-
-
+<? else: ?>
+		<p>You don't have any addresses associated with your account</p>
+<? endif; ?>
 
 		<ul class="actions">
-			<li class="add"><a href="/admin/user/new_address/<?= $action[1] ?>" class="button primary">Add new address</a></li>
+			<li class="add"><a href="/admin/user/new_address/<?= $item["id"] ?>" class="button primary">Add new address</a></li>
 		</ul>
 	</div>
 
 	<h2>Newsletters</h2>
-	<p>You are subscriped to these newsletters</p>
 	<div class="newsletters">
-		<?
-		print_r($newsletters);
-		?>
+<? if($newsletters): ?>
+		<p>You are subscribed to these newsletters</p>
+
+		<ul class="newsletters i:userNewsletters">
+<?			foreach($newsletters as $newsletter): ?>
+			<li><?= $newsletter["newsletter"] ?></li>
+<?			endforeach; ?>
+		</ul>
+<? else: ?>
+	<p>You don't have any newsletters subscription for your account</p>
+<? endif; ?>
 	</div>
 
 </div>

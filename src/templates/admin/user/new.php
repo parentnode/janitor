@@ -1,15 +1,12 @@
 <?php
-
-$model = new User();
+global $action;
+global $model;
 
 // TODO: Create global function for this
 $user_groups = $model->getUserGroups();
 $user_groups_options = array();
 foreach($user_groups as $user_group) {
-	$option = array();
-	$option[0] = $user_group["id"];
-	$option[1] = $user_group["user_group"];
-	$user_groups_options[] = $option;
+	$user_groups_options[$user_group["id"]] = $user_group["user_group"];
 }
 
 ?>

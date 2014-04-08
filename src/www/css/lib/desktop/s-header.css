@@ -1,5 +1,8 @@
 #header {background-color: #313942; position: fixed; top: 0; left: 0; width: 230px; height: 100%;}
-#header .servicenavigation {display: block; background-color: #64ad8e; height: 80px; padding: 30px 10px;}
-#header .servicenavigation li.front {display: block; color: #ffffff; padding: 0 10px;}
+#header .servicenavigation {display: block; background-color: #64ad8e; height: 140px; padding: 0;}
+#header .servicenavigation li.front {display: block; color: #ffffff; padding: 30px 20px;}
 #header .servicenavigation li.navigation {display: none;}
 #header .servicenavigation li.help {display: none;}
+
+#header .servicenavigation li.user {display: block; color: #8C9399; border-top: 1px solid #404A56; position: absolute; bottom: 0; left: 0; width: 230px;}
+#header .servicenavigation li.user a {padding: 14px 20px 15px; display: block;}

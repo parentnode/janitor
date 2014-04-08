@@ -1,11 +1,9 @@
 <?php
-
-$action = $this->actions();
+global $action;
+global $model;
 
 print_r($action);
 
-$model = new User();
-// check if custom function exists on cart class
 $item = $model->getUsers(array("user_id" => $action[1]));
 
 // TODO: Create global function for this

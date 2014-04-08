@@ -1,5 +1,6 @@
 CREATE TABLE `SITE_DB`.`shop_carts` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `cart_reference` varchar(12) NOT NULL,
 
   `country` varchar(2) NOT NULL,
   `currency` varchar(3) NOT NULL,
