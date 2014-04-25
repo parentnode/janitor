@@ -46,9 +46,28 @@
 #content .scene.defaultEdit > div.media .field input {opacity: 0;}
 #content .scene.defaultEdit > div.media .field label {display: block; color: #aaaaaa; position: absolute; width: 100%; padding-top: 8px; text-align: center;}
 #content .scene.defaultEdit > div.media .actions {display: none;}
-#content .scene.defaultEdit > div.media ul.media {padding: 20px; text-align: left;}
-#content .scene.defaultEdit > div.media ul.media li {margin: 0 10px; position: relative; text-align: center;}
+#content .scene.defaultEdit > div.media ul.media {padding: 40px 20px 0; text-align: left;}
+#content .scene.defaultEdit > div.media ul.media li {margin: 0 10px 20px; position: relative; text-align: center;}
 #content .scene.defaultEdit > div.media ul.media li h4 {padding: 0 0 5px;}
+
+#content .scene.defaultEdit > div.media ul.media form {padding: 0; position: absolute; top: 0; right: 0;}
+
+#content .scene.defaultEdit > div.media ul.media form input { font-size: 12px;
+	width: 30px; height: 30px; background: #ffffff url(/janitor/img/bg_icons.png) no-repeat 8px -42px;
+	display: block; text-indent: -9999px; border: none; border-radius: none; cursor: pointer; border-bottom-left-radius: 5px;
+	-webkit-appearance: none;
+}
+#content .scene.defaultEdit > div.media ul.media form input:hover {
+	background-position: 8px -67px;
+}
+
+#content .scene.defaultEdit > div.media ul.media form input.confirm {
+	text-indent: 0; width: auto; padding-left: 24px;
+}
+
+#content .scene.defaultEdit > div.media.sortable ul.media li {cursor: move;}
+
+
 
 /* EDIT IMAGE */
 #content .scene.defaultEdit > div.media ul.media li.image {}
