@@ -88,7 +88,8 @@ Util.Objects["addMedia"] = new function() {
 		var form = u.qs("form", div);
 		u.f.init(form);
 
-		form.fields["files"].changed = function() {
+		var file_input = u.qs("input[type=file]", form);
+		file_input.changed = function() {
 
 			this.response = function(response) {
 				response = JSON.parse(this.responseText);
@@ -98,21 +99,9 @@ Util.Objects["addMedia"] = new function() {
 					location.reload();
 				}
 				else if(response.cms_message) {
-					if(typeof(page.notify) == "function") {
-						page.notify(response.cms_message);
-					}
-					else {
-						alert(response.cms_message[0]);
-					}
+					page.notify(response.cms_message);
 				}
 
-
-				// if(response.cms_status == "success") {
-				// 	location.reload();
-				// }
-				// else {
-				// 	alert(response.cms_message[0]);
-				// }
 			}
 			this.responseError = function(response) {
 				response = JSON.parse(this.responseText);
@@ -127,8 +116,8 @@ Util.Objects["addMedia"] = new function() {
 
 			var fd = new FormData();
 			var i, file;
-			for(i = 0; file = this.form.fields["files"].files[i]; i++) {
-				fd.append("files["+i+"]", file);
+			for(i = 0; file = this.files[i]; i++) {
+				fd.append(this.name+"["+i+"]", file);
 			}
 
 			this.HTTPRequest = u.createRequestObject();
@@ -141,6 +130,31 @@ Util.Objects["addMedia"] = new function() {
 			this.HTTPRequest.open("POST", this.form.action);
 			this.HTTPRequest.send(fd);
 		}
+
+
+		// sortable list
+		if(u.hc(div, "sortable")) {
+
+			div.list = u.qs("ul.media", div);
+
+			u.s.sortable(div.list);
+			div.list.picked = function() {}
+			div.list.dropped = function() {
+				var url = this.getAttribute("data-save-order");
+				this.nodes = u.qsa("li.media", this);
+				for(i = 0; node = this.nodes[i]; i++) {
+					url += "/"+u.cv(node, "media_id");
+				}
+				this.response = function(response) {
+					// Notify of event
+					page.notify(response.cms_message);
+				}
+				u.request(this, url);
+			}
+
+		}
+
+
 
 	}
 }
