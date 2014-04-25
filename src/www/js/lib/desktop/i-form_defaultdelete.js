@@ -14,7 +14,11 @@ Util.Objects["formDefaultDelete"] = new function() {
 				this.value = "Delete";
 				u.rc(this, "confirm");
 			}
-			
+
+			bn_delete.inputStarted = function(event) {
+				u.e.kill(event);
+			}
+
 			bn_delete.clicked = function(event) {
 				u.e.kill(event);
 
