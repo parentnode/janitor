@@ -860,11 +860,16 @@ class ItemCore {
 	// upload to item_id/variant
 	// checks content of $_FILES, looks for uploaded file where type matches $type and uploads
 	// supports video, audio, image
+
+	// TODO: implement format restriction validation
 	function upload($item_id, $_options) {
 
-		$input_name = "files";                // input name to check for files (default is files)
 
-		$variant = false;                     // variantname to save files under
+// TODO: TEST WITH VARIABLE FILES NAMES
+
+		$_input_name = "files";                // input name to check for files (default is files)
+
+		$_variant = false;                     // variantname to save files under
 		$proportion = false;                  // specific proportion for images and videos
 		$width = false;                       // specific file width for images and videos
 		$height = false;                      // specific file height for images and videos
@@ -885,9 +890,9 @@ class ItemCore {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "input_name"          : $input_name           = $_value; break;
+					case "input_name"          : $_input_name           = $_value; break;
 
-					case "variant"             : $variant              = $_value; break;
+					case "variant"             : $_variant              = $_value; break;
 					case "proportion"          : $proportion           = $_value; break;
 					case "width"               : $width                = $_value; break;
 					case "height"              : $height               = $_value; break;
@@ -906,24 +911,25 @@ class ItemCore {
 
 		$uploads = array();
 
-		// print "files:<br>";
-		// print_r($_FILES);
+//		print "files:<br>";
+//		print_r($_FILES);
 		// print "post:<br>";
 		// print_r($_POST);
 
 
-		if(isset($_FILES[$input_name])) {
+		if(isset($_FILES[$_input_name])) {
+//			print "input_name:" . $_input_name;
 //			print_r($_FILES["files"]);
 
-			foreach($_FILES[$input_name]["name"] as $index => $value) {
-				if(!$_FILES[$input_name]["error"][$index] && file_exists($_FILES[$input_name]["tmp_name"][$index])) {
+			foreach($_FILES[$_input_name]["name"] as $index => $value) {
+				if(!$_FILES[$_input_name]["error"][$index] && file_exists($_FILES[$_input_name]["tmp_name"][$index])) {
 
 					$upload = array();
 					$upload["name"] = $value;
 
 					$extension = false;
-					$temp_file = $_FILES[$input_name]["tmp_name"][$index];
-					$temp_type = $_FILES[$input_name]["type"][$index];
+					$temp_file = $_FILES[$_input_name]["tmp_name"][$index];
+					$temp_type = $_FILES[$_input_name]["type"][$index];
 
 //					print preg_match("/".$filegroup."/", $temp_type)."#";
 
@@ -934,13 +940,13 @@ class ItemCore {
 							$upload["variant"] = randomKey(8);
 							$variant = "/".$upload["variant"];
 						}
-						else if($variant) {
-							$upload["variant"] = $variant;
+						else if($_variant) {
+							$upload["variant"] = $_variant;
 							$variant = "/".$upload["variant"];
 						}
 						else {
 							$variant = "";
-							$upload["variant"] = $variant;
+							$upload["variant"] = $_variant;
 						}
 
 //						print "correct group:" . $filegroup . ", " . $temp_type . ", " . $variant;
@@ -1019,14 +1025,39 @@ class ItemCore {
 
 //							print "uploaded image<br>";
 
-							$gd = getimagesize($temp_file);
+
+// TODO: use Imagick to get image size and format
+
+							$image = new Imagick($temp_file);
+
+							// get input file info
+							$info = $image->getImageFormat();
+
+							// if($info) {
+							// 	$input_width = $image->getImageWidth();
+							// 	$input_height = $image->getImageHeight();
+							// }
+							// 
+							// print $info.", (".$input_width."x".$input_height.")";
+							// 
+							// 
+							// 
+							// $gd = getimagesize($temp_file);
+							// 
+							// print_r($gd);
+
 							// is image valid format
-							if(isset($gd["mime"])) {
+//							if(isset($gd["mime"])) {
+							if($info) {
 
 //								print $gd["mime"].", ". mimetypeToExtension($gd["mime"]);
-								$upload["format"] = mimetypeToExtension($gd["mime"]);
-								$upload["width"] = $gd[0];
-								$upload["height"] = $gd[1];
+								// $upload["format"] = mimetypeToExtension($gd["mime"]);
+								// $upload["width"] = $gd[0];
+								// $upload["height"] = $gd[1];
+
+								$upload["format"] = preg_replace("/jpeg/", "jpg", strToLower($info));
+								$upload["width"] = $image->getImageWidth();
+								$upload["height"] = $image->getImageHeight();
 
 //								print round($proportion, 2) . "==" . round($upload["width"] / $upload["height"], 2);
 								if(
