@@ -9,9 +9,11 @@ Util.Objects["formDefaultDelete"] = new function() {
 		var bn_delete = u.qs("input.delete", form);
 		if(bn_delete) {
 
+			bn_delete.org_value = bn_delete.value;
+
 			u.e.click(bn_delete);
 			bn_delete.restore = function(event) {
-				this.value = "Delete";
+				this.value = this.org_value;
 				u.rc(this, "confirm");
 			}
 
@@ -38,7 +40,7 @@ Util.Objects["formDefaultDelete"] = new function() {
 							// check for constraint error preventing row from actually being deleted
 							if(response.cms_object && response.cms_object.constraint_error) {
 								page.notify(response.cms_message);
-								this.value = "Delete";
+								this.value = this.org_value;
 								u.ac(this, "disabled");
 							}
 							else {
