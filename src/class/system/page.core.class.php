@@ -683,6 +683,7 @@ class PageCore {
 		// correct the database connection setting
 		mysql_query("SET NAMES utf8");
 		mysql_query("SET CHARACTER SET utf8");
+		mysql_set_charset("utf8");
 		
 		// TODO: implement mysqli variation - requires update of Query
 		// $page->mysqli = new mysqli("localhost", "hvidevarehuset", "uads34HRsdYJ");
