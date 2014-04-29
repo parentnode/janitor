@@ -85,7 +85,7 @@ Util.Objects["formAddTags"] = new function() {
 Util.Objects["addMedia"] = new function() {
 	this.init = function(div) {
 
-		var form = u.qs("form", div);
+		var form = u.qs("form.upload", div);
 		u.f.init(form);
 
 		var file_input = u.qs("input[type=file]", form);
