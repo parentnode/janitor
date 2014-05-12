@@ -329,6 +329,130 @@ class HTML {
 
 
 	/**
+	* SPECIAL INPUTS
+	* - location (combination of location name, latitude and longitude)
+	*/
+
+
+	function inputLocation($name_loc = false, $name_lat = false, $name_lon = false, $_options = false) {
+
+		// labels
+		$label_loc = $this->getEntityProperty($name_loc, "label");
+		$label_lat = $this->getEntityProperty($name_lat, "label");
+		$label_lon = $this->getEntityProperty($name_lon, "label");
+
+		// values
+		$value_loc = $this->getEntityProperty($name_loc, "value");
+		$value_lat = $this->getEntityProperty($name_lat, "value");
+		$value_lon = $this->getEntityProperty($name_lon, "value");
+
+		$required = $this->getEntityProperty($name_loc, "required");
+
+		// visual feedback
+		$hint_message = $this->getEntityProperty($name_loc, "hint_message");
+		$error_message = $this->getEntityProperty($name_loc, "error_message");
+
+
+		$class = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "label_loc"       : $label_loc        = $_value; break;
+					case "label_lat"       : $label_lat        = $_value; break;
+					case "label_lon"       : $label_lon        = $_value; break;
+
+					case "value_loc"       : $value_loc        = $_value; break;
+					case "value_lat"       : $value_lat        = $_value; break;
+					case "value_lon"       : $value_lon        = $_value; break;
+
+					case "class"           : $class            = $_value; break;
+
+					case "required"        : $required         = $_value; break;
+
+					case "error_message"   : $error_message    = $_value; break;
+					case "hint_message"    : $hint_message     = $_value; break;
+
+				}
+			}
+		}
+
+		// Start generating HTML
+
+		$_ = '';
+
+		$for_loc = "input_".$name_loc;
+		$for_lat = "input_".$name_lat;
+		$for_lon = "input_".$name_lon;
+
+		$att_for_loc = $this->attribute("for", $for_loc);
+		$att_for_lat = $this->attribute("for", $for_lat);
+		$att_for_lon = $this->attribute("for", $for_lon);
+
+		$att_id_loc = $this->attribute("id", $for_loc);
+		$att_id_lat = $this->attribute("id", $for_lat);
+		$att_id_lon = $this->attribute("id", $for_lon);
+
+		$att_name_loc = $this->attribute("name", $name_loc);
+		$att_name_lat = $this->attribute("name", $name_lat);
+		$att_name_lon = $this->attribute("name", $name_lon);
+
+		$att_value_loc = $this->attribute("value", $value_loc);
+		$att_value_lat = $this->attribute("value", $value_lat);
+		$att_value_lon = $this->attribute("value", $value_lon);
+
+		$att_class_loc = $this->attribute("class", "location");
+		$att_class_lat = $this->attribute("class", "latitude");
+		$att_class_lon = $this->attribute("class", "longitude");
+
+
+		$att_class = $this->attribute("class", "field", "location", $class, ($required ? "required" : ""));
+
+
+		$_ .= '<div'.$att_class.'>';
+
+			$_ .= '<div'.$this->attribute("class", "location").'>';
+
+				// LOCATION NAME
+				$_ .= '<label'.$att_for_loc.'>'.$label_loc.'</label>';
+				$_ .= '<input type="text"'.$att_name_loc.$att_value_loc.$att_id_loc.$att_class_loc.' />';
+
+			$_ .= '</div>';
+
+			$_ .= '<div'.$this->attribute("class", "latitude").'>';
+
+				// LATITUDE
+				$_ .= '<label'.$att_for_lat.'>'.$label_lat.'</label>';
+				$_ .= '<input type="text"'.$att_name_lat.$att_value_lat.$att_id_lat.$att_class_lat.' />';
+
+			$_ .= '</div>';
+
+			$_ .= '<div'.$this->attribute("class", "longitude").'>';
+
+				// LONGITUDE
+				$_ .= '<label'.$att_for_lon.'>'.$label_lon.'</label>';
+				$_ .= '<input type="text"'.$att_name_lon.$att_value_lon.$att_id_lon.$att_class_lon.' />';
+
+			$_ .= '</div>';
+
+
+			// HINT AND ERROR MESSAGE
+			$_ .= '<div'.$this->attribute("class", "help").'>';
+				$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
+				$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
+			$_ .= '</div>';
+
+		$_ .= '</div>';
+
+
+		return $_;
+	}
+
+
+
+	/**
 	* Create a simple A HREF link with access validation
 	*
 	* @param $value String text value for A-tag
