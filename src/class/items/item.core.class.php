@@ -536,7 +536,28 @@ class ItemCore {
 			// try with timestamped variation
 			else {
 				$query->sql("SELECT published_at FROM ".UT_ITEMS." WHERE id = $item_id");
-				$sindex = $this->sindex($item_id, $query->result(0, "published_at")."_".$sindex);
+
+				// timestamp already added
+				if(strstr($sindex, date("Y-d-m", strToTime($query->result(0, "published_at"))))) {
+
+					// does sindex have counter
+					preg_match("/_([\d]+)$/", $sindex, $matches);
+					if($matches && is_numeric($matches[1])) {
+						$counter = ($matches[1] + 1);
+						$sindex = preg_replace("/_([\d]+)$/", "", $sindex);
+					}
+					else {
+						$counter = 1;
+						$sindex = preg_replace("/_$/", "", $sindex);
+					}
+					$sindex = $sindex . "_" . $counter;
+				}
+				// add timestamp
+				else {
+					$sindex = $this->sindex($item_id, date("Y-d-m", strToTime($query->result(0, "published_at")))."_".$sindex);
+				}
+
+				$sindex = $this->sindex($item_id, $sindex);
 			}
 		}
 		else {
@@ -766,6 +787,7 @@ class ItemCore {
 			}
 		}
 
+//		print_r($values);
 //		print_r($names);
 
 		if($typeObject->validateList($names, $item_id)) {
