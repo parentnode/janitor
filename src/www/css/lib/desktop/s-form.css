@@ -48,6 +48,23 @@
 }
 
 
+/* LOCATION */
+#content .field.location {}
+#content .field.location div.location {padding-bottom:2px;}
+#content .field.location div.latitude {padding-right: 2px;}
+#content .field.location div.latitude,
+#content .field.location div.longitude {display: inline-block; vertical-align: top;}
+#content .field.location div.latitude input,
+#content .field.location div.longitude input {width: 173px;}
+
+/* WITH GEOLOCATION BUTTON */
+#content .field.location.geolocation div.geolocation {width: 30px; height: 30px; display: inline-block; vertical-align: top; cursor: pointer;
+	background: transparent url(/janitor/img/gx_geolocation.png) no-repeat 5px 8px;
+}
+#content .field.location.geolocation div.latitude input,
+#content .field.location.geolocation div.longitude input {width: 158px;}
+
+
 
 /* FOCUS */
 #content .field.focus input,
@@ -62,6 +79,12 @@
 #content .field.radio_buttons.focus input,
 #content .field.checkbox.focus input,
 #content .field.boolean.focus input {margin: 0px 10px 0 3px; border: none;}
+
+
+/* FOCUS - LOCATION */
+#content .field.location.focus input {margin: 2px; border: 1px solid #dcdcdc;}
+#content .field.location.focus input.focus {margin: 0; border: 3px solid #5c5c5c;}
+
 
 
 /* DEFAULT STATE - BEFORE TEXT IS MODIFIED */
@@ -101,6 +124,12 @@
 #content .field.radio_buttons.error input,
 #content .field.checkbox.error input,
 #content .field.boolean.error input {margin: 0px 10px 0 3px; border: none;}
+
+
+/* ERROR - LOCATION */
+#content .field.location.error input {margin: 2px; border: 1px solid #dcdcdc;}
+#content .field.location.error input.error {margin: 0; border: 3px solid #f8c9bb;}
+
 
 
 
