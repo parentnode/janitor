@@ -431,26 +431,9 @@ class Model extends HTML {
 	}
 
 	/**
-	* Check if element has an "optional" rule and value is empty
-	*
-	* @param string $element Element identifier
-	* @param string $value Optional value to override internal value array (in case of file upload)
-	* @return bool
-	*/
-	// function isEmptyOptional($name) {
-	// 	$entity = $this->data_entities[$name];
-	// 
-	// 	if($entity["required"] == false && $entity["value"] == "") {
-	// 		return true;
-	// 	}
-	// 	return false;
-	// }
-
-	/**
 	* Is file valid?
 	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
+	* @param string $name Element identifier
 	* @return bool
 	* TODO: Faulty file validation
 	*/
@@ -467,8 +450,7 @@ class Model extends HTML {
 	/**
 	* Is image valid?
 	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
+	* @param string $name Element identifier
 	* @return bool
 	*/
 	function isImages($name) {
@@ -488,8 +470,7 @@ class Model extends HTML {
 	/**
 	* Is string string?
 	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
+	* @param string $name Element identifier
 	* @return bool
 	*/
 	function isString($name) {
@@ -518,25 +499,39 @@ class Model extends HTML {
 	/**
 	* Is string numeric?
 	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
+	* @param string $name Element identifier
 	* @return bool
-	* TODO: Faulty number validation
 	*/
 	function isNumber($name) {
 		$entity = $this->data_entities[$name];
 
-		$min = $this->getRuleDetails($rule, 0);
-		$max = $this->getRuleDetails($rule, 1);
+		$value = $entity["value"];
 
-		if(is_numeric($string) &&  (!$min || $string >= $min) && (!$max || $string <= $max)) {
+		$min = $entity["min"];
+		$max = $entity["max"];
+		$pattern = $entity["pattern"];
+
+		if(($value || $value == 0) && !($value%1) && 
+			(!$min || $value >= $min) && 
+			(!$max || $value <= $max) &&
+			(!$pattern || preg_match("/^".$pattern."$/", $value))
+		) {
+			$this->data_entities[$name]["error"] = false;
 			return true;
 		}
 		else {
+//			$this->data_entities[$name]["error_message"] = "$name value: $value;";
+			$this->data_entities[$name]["error"] = true;
 			return false;
 		}
 	}
 
+	/**
+	* Is string integer?
+	*
+	* @param string $name Element identifier
+	* @return bool
+	*/
 	function isInteger($name) {
 		$entity = $this->data_entities[$name];
 
