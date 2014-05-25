@@ -19,6 +19,7 @@
 }
 #content .field select option {padding: 5px 3px 2px 6px;}
 #content .field textarea {width: 372px; height: 200px; overflow: auto; padding: 6px 0 2px 6px; }
+#content .field.short textarea {height: 50px;}
 #content .field textarea.autoexpand {width: 366px; padding: 6px 6px 2px; overflow: hidden;}
 
 
