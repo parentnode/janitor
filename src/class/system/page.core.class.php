@@ -463,8 +463,8 @@ class PageCore {
 				// save current url, to be able to redirect after login
 				Session::value("login_forward", $this->url);
 
-				print "no user info";
-//				header("Location: /login");
+//				print "no user info";
+				header("Location: /login");
 				exit();
 			}
 
