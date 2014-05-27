@@ -920,7 +920,7 @@ class User extends Model {
 		foreach($controllers as $controller) {
 			$access_item = array();
 
-			include_once($controller);
+			include($controller);
 //			if($access_item) {
 //				print_r($access_item);
 
@@ -941,29 +941,42 @@ class User extends Model {
 			}
 		}
 
+
 		// framework controllers
 		$controllers = $fs->files(FRAMEWORK_PATH."/www", array("allow_extensions" => "php"));
 //		print_r($controllers);
 		foreach($controllers as $controller) {
 			$access_item = array();
 
-			// TODO: Check if controller is enabled via Apache Alias (don't know how - find a way)
-
-			include_once($controller);
-//				print_r($access_item);
+//			print $controller."<br>";
 
 			// replace Framework path, but add Admin because that is reprensentative for how they are accessed
 			$short_point = str_replace(".php", "", str_replace(FRAMEWORK_PATH."/www", "/admin", $controller));
-			// remove index path, because it is not being used in requests
-			$short_point = preg_replace("/\/index$/", "", $short_point);
 
-			$access["points"][$short_point] = array();
+			// TODO: Check if controller is enabled via Apache Alias (don't know how - find a way)
+			// maybe be requesting file with http://domain/controller
 
-			if($access_item) {
-				// access restriction on any type of request
-				foreach($access_item as $action => $restricted) {
-					if($restricted === true) {
-						$access["points"][$short_point][] = $action;
+			$http_request_url = (isset($_SERVER["HTTPS"]) ? "https" : "http") . "://" . $_SERVER["SERVER_NAME"] . $short_point;
+//			print $http_request_url . "<br>";
+			
+
+			$file_headers = get_headers($http_request_url);
+//			print_r($file_headers);
+			if(!preg_match("/404/", $file_headers[0])) {
+				include($controller);
+//				print_r($access_item);
+
+				// remove index path, because it is not being used in requests
+				$short_point = preg_replace("/\/index$/", "", $short_point);
+
+				$access["points"][$short_point] = array();
+
+				if($access_item) {
+					// access restriction on any type of request
+					foreach($access_item as $action => $restricted) {
+						if($restricted === true) {
+							$access["points"][$short_point][] = $action;
+						}
 					}
 				}
 			}
