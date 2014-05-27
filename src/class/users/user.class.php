@@ -497,6 +497,7 @@ class User extends Model {
 			// email does not exist
 			if(!$current_email) {
 				$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, type = 'email', user_id = $user_id";
+//				print $sql."<br>";
 				if($query->sql($sql)) {
 					message()->addMessage("Email added");
 				}
@@ -508,7 +509,7 @@ class User extends Model {
 			else if($email != $current_email) {
 
 				$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0 WHERE type = 'email' AND user_id = $user_id";
-				print $sql;
+//				print $sql."<br>";
 				if($query->sql($sql)) {
 					message()->addMessage("Email updated");
 				}
@@ -518,8 +519,9 @@ class User extends Model {
 			}
 
 			// mobile does not exist
-			if(!$current_email) {
+			if(!$current_mobile) {
 				$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 0, type = 'mobile', user_id = $user_id";
+//				print $sql."<br>";
 				if($query->sql($sql)) {
 					message()->addMessage("Mobile added");
 				}
@@ -528,9 +530,10 @@ class User extends Model {
 				}
 			}
 			// is mobile changed?
-			if($mobile != $current_mobile) {
+			else if($mobile != $current_mobile) {
 
 				$sql = "UPDATE $this->db_usernames SET username = '$mobile', verified = 0 WHERE type = 'mobile' AND user_id = $user_id";
+//				print $sql."<br>";
 				if($query->sql($sql)) {
 					message()->addMessage("Mobile updated");
 				}
