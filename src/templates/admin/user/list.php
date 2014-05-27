@@ -40,7 +40,7 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 <?		if($users): ?>
 		<ul class="items">
 <?			foreach($users as $user): ?>
-			<li class="item">
+			<li class="item item_id:<?= $user["id"] ?>">
 				<h2><?= $user["nickname"] ?></h2>
 				<dl class="list">
 					<?	foreach($user as $attribute => $value): ?>
@@ -52,17 +52,27 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 				</dl>
 
 				<ul class="actions">
-					<li class="view"><a href="/admin/user/edit/<?= $user["id"] ?>" class="button">Edit</a></li>
+					<li class="edit"><a href="/admin/user/edit/<?= $user["id"] ?>" class="button">Edit</a></li>
 					<li class="delete">
 						<form action="/admin/user/delete/<?= $user["id"] ?>" class="i:formDefaultDelete" method="post" enctype="multipart/form-data">
 							<input type="submit" value="Delete" class="button delete" />
 						</form>
 					</li>
-					<li class="status">
+					<li class="status <?= ($user["status"] == 1 ? "enabled" : "disabled") ?>">
+						<form class="disable" action="/admin/user/disable/<?= $user["id"] ?>" method="post">
+							<input type="submit" class="button status" value="Disable">
+						</form>
+						<form class="enable" action="/admin/user/enable/<?= $user["id"] ?>" method="post">
+							<input type="submit" class="button status" value="Enable">
+						</form>
+					</li>
+
+
+					<!--li class="status">
 						<form action="/admin/user/<?= ($user["status"] == 1 ? "disable" : "enable") ?>/<?= $user["id"] ?>" class="i:formDefaultStatus" method="post" enctype="multipart/form-data">
 							<input type="submit" value="<?= ($user["status"] == 1 ? "Disable" : "Enable") ?>" class="button status" />
 						</form>
-					</li>
+					</li-->
 				</ul>
 			 </li>
 <?			endforeach; ?>
