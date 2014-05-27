@@ -451,7 +451,7 @@ class PageCore {
 		global $access_item;
 
 		// if controller has access_item setting, perform access validation
-		if($access_item) {
+		if($access_item && (!defined("SITE_INSTALL") || !SITE_INSTALL)) {
 
 			$user_id = Session::value("user_id");
 			$user_group_id = Session::value("user_group_id");
@@ -491,7 +491,7 @@ class PageCore {
 			if(!isset($access_item[$validation_action])) {
 				print "no access item entry";
 
-//				header("Location: /login");
+				header("Location: /login");
 				exit();
 			}
 			else {
@@ -501,7 +501,7 @@ class PageCore {
 
 					if(!$this->validateAction($controller.$validation_action)) {
 						print "no db entry";
-//						header("Location: /login");
+						header("Location: /login");
 						exit();
 					}
 				}
@@ -525,6 +525,10 @@ class PageCore {
 	function validateAction($action) {
 
 //		print "validateAction:".$action."<br>";
+
+		if((defined("SITE_INSTALL") && SITE_INSTALL)) {
+			return true;
+		}
 
 		$user_group_id = Session::value("user_group_id");
 
