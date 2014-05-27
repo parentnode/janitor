@@ -50,20 +50,32 @@ Util.Objects["defaultList"] = new function() {
 
 			// action injection for predefined action types (to minimize page load and initialization time)
 			node._actions = u.qsa(".actions li", node);
-			var i, action, form, bn_detele;
+			var i, action, form, bn_detele, form_disable, form_enable;
 			for(i = 0; action = node._actions[i]; i++) {
 				// do not inject if li already has content
-				if(!action.childNodes.length) {
 
-					// predefindes actions
+				// predefindes actions
 
-					// status
-					if(u.hc(action, "status")) {
-						form = u.f.addForm(action, {"action":"/admin/cms/disable/"+node._item_id, "class":"disable"});
-						u.f.addAction(form, {"value":"Disable", "class":"button status"});
+				// status
+				if(u.hc(action, "status")) {
 
-						u.f.init(form);
-						form.submitted = function() {
+					// inject standard item status form if node is empty
+					if(!action.childNodes.length) {
+						form_disable = u.f.addForm(action, {"action":"/admin/cms/disable/"+node._item_id, "class":"disable"});
+						u.f.addAction(form_disable, {"value":"Disable", "class":"button status"});
+						form_enable = u.f.addForm(action, {"action":"/admin/cms/enable/"+node._item_id, "class":"enable"});
+						u.f.addAction(form_enable, {"value":"Enable", "class":"button status"});
+					}
+					// look for valid forms
+					else {
+						form_disable = u.qs("form.disable", action);
+						form_enable = u.qs("form.enable", action);
+					}
+
+					// init if forms are available
+					if(form_disable && form_enable) {
+						u.f.init(form_disable);
+						form_disable.submitted = function() {
 							this.response = function(response) {
 								page.notify(response.cms_message);
 								if(response.cms_status == "success") {
@@ -74,11 +86,8 @@ Util.Objects["defaultList"] = new function() {
 							u.request(this, this.action);
 						}
 
-						form = u.f.addForm(action, {"action":"/admin/cms/enable/"+node._item_id, "class":"enable"});
-						u.f.addAction(form, {"value":"Enable", "class":"button status"});
-
-						u.f.init(form);
-						form.submitted = function() {
+						u.f.init(form_enable);
+						form_enable.submitted = function() {
 							this.response = function(response) {
 								page.notify(response.cms_message);
 								if(response.cms_status == "success") {
@@ -88,21 +97,30 @@ Util.Objects["defaultList"] = new function() {
 							}
 							u.request(this, this.action);
 						}
-
 					}
-					else if(u.hc(action, "delete")) {
+				}
+				else if(u.hc(action, "delete")) {
 
+					// inject standard item delete form if node is empty
+					if(!action.childNodes.length) {
 						form = u.f.addForm(action, {"action":"/admin/cms/delete/"+node._item_id, "class":"delete"});
 						form.node = node;
 						bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
+					}
+					// look for valid forms
+					else {
+						form = u.qs("form", action);
+					}
 
+					// init if form is available
+					if(form) {
 						u.f.init(form);
 
 						form.restore = function(event) {
 							this.actions["delete"].value = "Delete";
 							u.rc(this.actions["delete"], "confirm");
 						}
-		
+	
 						form.submitted = function() {
 
 							// first click
