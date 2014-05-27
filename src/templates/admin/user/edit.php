@@ -3,7 +3,6 @@ global $action;
 global $model;
 
 $item = $model->getUsers(array("user_id" => $action[1]));
-
 $user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_group");
 
 // TODO: Create global function for languages (don't know if it is supposed to be in Page, Shop or User)
@@ -57,7 +56,7 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 	</div>
 
 	<div class="item i:defaultEdit">
-		<form action="/admin/user/update/<?= $action[1] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
+		<form action="/admin/user/update/<?= $item["id"] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
 			<h3>Name, language and user group</h3>
 			<fieldset>
 				<?= $model->input("nickname", array("value" => $item["nickname"])) ?>
