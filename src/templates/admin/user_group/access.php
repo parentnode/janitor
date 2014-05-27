@@ -27,12 +27,12 @@ $access = $model->getAccessPoints(array("user_group_id" => $action[2]));
 						<h3><?= $point ?></h3>
 <?						foreach($actions as $access_action):
 							$access_granted = isset($access["permissions"][$point.$access_action]) ? true : false; ?>
-						<?= $model->input("grant[".$point.$access_action."]", array("type" => "checkbox", "label" => $access_action, "value" => 1, "checked" => $access_granted)) ?>
+						<?= $model->input("grant[".$point.$access_action."]", array("id" => "input".preg_replace("/[\/]/", "_", $point.$access_action), "type" => "checkbox", "label" => $access_action, "value" => 1, "checked" => $access_granted)) ?>
 <?						endforeach; ?>
 					</li>
 <?					else: ?>
 					<li>
-						<?= $model->input("grant[".$point."/]", array("type" => "hidden", "value" => 1)) ?>
+						<?= $model->input("grant[".$point."/]", array("id" => "input".preg_replace("/[\/]/", "_", $point), "type" => "hidden", "value" => 1)) ?>
 					</li>
 <?					endif; ?>
 

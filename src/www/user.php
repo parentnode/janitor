@@ -114,7 +114,7 @@ if(is_array($action) && count($action)) {
 	else if(count($action) == 3 && $action[0] == "access" && $action[1] == "edit") {
 	
 		$page->header(array("type" => "admin", "body_class" => "usergroup", "page_title" => "Access control management"));
-		$page->template("admin/user/access.php");
+		$page->template("admin/user_group/access.php");
 		$page->footer(array("type" => "admin"));
 		exit();
 	
