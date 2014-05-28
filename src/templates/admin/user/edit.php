@@ -15,6 +15,9 @@ $language_options = $model->toOptions($languages, "id", "name");
 $mobile = $model->getUsernames(array("user_id" => $item["id"], "type" => "mobile"));
 $email = $model->getUsernames(array("user_id" => $item["id"], "type" => "email"));
 
+$has_password = $model->hasPassword($item["id"]);
+
+
 // get addresses
 $addresses = $model->getAddresses(array("user_id" => $item["id"]));
 
@@ -25,38 +28,35 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 <div class="scene defaultEdit userEdit">
 	<h1>Edit user</h1>
 
-	<ul class="actions">
+	<ul class="actions i:defaultEditActions item_id:<?= $item["id"] ?>">
 		<li class="cancel"><a href="/admin/user/list/<?= $item["user_group_id"] ?>" class="button">All users</a></li>
 		<li class="delete">
-			<form action="/admin/user/delete/<?= $item["id"] ?>" class="i:formDefaultDelete" method="post" enctype="multipart/form-data">
-				<input type="submit" value="Delete" class="button delete" />
+			<form action="/admin/user/delete/<?= $item["id"] ?>" method="post">
+				<input type="submit" value="Delete" name="delete" class="button delete" />
 			</form>
 		</li>
 	</ul>
 
+	<div class="status i:defaultEditStatus item_id:<?= $item["id"] ?>">
+		<ul class="actions">
+			<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>">
+				<form class="disable" action="/admin/user/disable/<?= $item["id"] ?>" method="post">
+					<input type="submit" class="button status" value="Disable">
+				</form>
+				<form class="enable" action="/admin/user/enable/<?= $item["id"] ?>" method="post">
+					<input type="submit" class="button status" value="Enable">
+				</form>
+			</li>
+		</ul>
+	</div>
 
 	<ul class="views">
 		<li class="profile selected"><a href="/admin/user/<?= $item["id"] ?>">Profile</a></li>
 		<li class="content"><a href="/admin/user/content/<?= $item["id"] ?>">Content and orders</a></li>
 	</ul>
 
-	<div class="status">
-		<ul class="actions">
-			<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>">
-				<form action="/admin/user/disable/<?= $item["id"] ?>" class="disable i:formDefaultStatus" method="post" enctype="multipart/form-data">
-					<h3>Enabled</h3>
-					<input type="submit" value="Disable" class="button status disable" />
-				</form>
-				<form action="/admin/user/enable/<?= $item["id"] ?>" class="enable i:formDefaultStatus" method="post" enctype="multipart/form-data">
-					<h3>Disabled</h3>
-					<input type="submit" value="Enable" class="button status enable" />
-				</form>
-			</li>
-		</ul>
-	</div>
-
 	<div class="item i:defaultEdit">
-		<form action="/admin/user/update/<?= $item["id"] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
+		<form action="/admin/user/update/<?= $item["id"] ?>" class="labelstyle:inject" method="post">
 			<h3>Name, language and user group</h3>
 			<fieldset>
 				<?= $model->input("nickname", array("value" => $item["nickname"])) ?>
@@ -77,7 +77,7 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 	<div class="usernames i:usernames">
 		<p>Your email and mobilenumber are your unique usernames.</p> 
 
-		<form action="/admin/user/updateUsernames/<?= $item["id"] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
+		<form action="/admin/user/updateUsernames/<?= $item["id"] ?>" class="labelstyle:inject" method="post">
 			<fieldset>
 				<?= $model->input("email", array("value" => stringOr($email))) ?>
 				<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
@@ -90,16 +90,22 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 
 	<h2>Password</h2>
 	<div class="password i:password">
-		<p>Type your new password to set or update your password</p>
+		<div class="password_state <?= $has_password ? "set" : "" ?> ">
+			<p class="password_set">Your password is encrypted and cannot be shown here. <a>Change password</a></p>
+			<p class="password_missing">Your password has not been created yet. <a>Create password</a></p>
+		</div>
+		<div class="new_password">
+			<p>Type your new password to set or update your password</p>
 
-		<form action="/admin/user/setPassword/<?= $item["id"] ?>" class="" method="post" enctype="multipart/form-data">
-			<fieldset>
-				<?= $model->input("password") ?>
-			</fieldset>
-			<ul class="actions">
-				<li class="save"><input type="submit" value="Update password" class="button primary" /></li>
-			</ul>
-		</form>
+			<form action="/admin/user/setPassword/<?= $item["id"] ?>" method="post">
+				<fieldset>
+					<?= $model->input("password") ?>
+				</fieldset>
+				<ul class="actions">
+					<li class="save"><input type="submit" value="Update password" class="button primary" /></li>
+				</ul>
+			</form>
+		</div>
 	</div>
 
 	<h2>Addresses</h2>

@@ -54,8 +54,8 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 				<ul class="actions">
 					<li class="edit"><a href="/admin/user/edit/<?= $user["id"] ?>" class="button">Edit</a></li>
 					<li class="delete">
-						<form action="/admin/user/delete/<?= $user["id"] ?>" class="i:formDefaultDelete" method="post" enctype="multipart/form-data">
-							<input type="submit" value="Delete" class="button delete" />
+						<form action="/admin/user/delete/<?= $user["id"] ?>" method="post">
+							<input type="submit" value="Delete" name="delete" class="button delete" />
 						</form>
 					</li>
 					<li class="status <?= ($user["status"] == 1 ? "enabled" : "disabled") ?>">
