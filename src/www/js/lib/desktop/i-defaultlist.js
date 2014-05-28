@@ -110,6 +110,7 @@ Util.Objects["defaultList"] = new function() {
 					// look for valid forms
 					else {
 						form = u.qs("form", action);
+						form.node = node;
 					}
 
 					// init if form is available

@@ -33,8 +33,7 @@ Util.Objects["formDefaultDelete"] = new function() {
 				// confirm click
 				else {
 					u.t.resetTimer(this.t_confirm);
-	
-	
+
 					this.response = function(response) {
 						if(response.cms_status == "success") {
 							// check for constraint error preventing row from actually being deleted
@@ -44,9 +43,9 @@ Util.Objects["formDefaultDelete"] = new function() {
 								u.ac(this, "disabled");
 							}
 							else {
-								location.reload();
+//								location.reload();
+								location.href = this.form.actions["cancel"].url;
 							}
-//							location.href = this.actions["cancel"].url;
 						}
 						else {
 							page.notify(response.cms_message);

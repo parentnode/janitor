@@ -1,4 +1,8 @@
 
+/* DELETE BUTTON */
+#content .defaultEdit > .actions li.delete {float: right; padding: 0 0 10px 10px;}
+
+
 /* EDIT VIEW - STATUS */
 #content .scene.defaultEdit > div.status {border-bottom: 1px solid #dedede;}
 #content .scene.defaultEdit > div.status .actions {padding: 0;}

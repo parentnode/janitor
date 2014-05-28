@@ -30,7 +30,7 @@
 
 
 /* FILTERS */
-#content .defaultList .all_items div.filter {text-align: right; padding: 10px 20px; background: #dedede; border-bottom: 1px solid #dedede;}
+#content .defaultList .all_items div.filter {text-align: right; padding: 10px 20px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb;}
 
 #content .defaultList .all_items div.filter.filtering {background: red;}
 

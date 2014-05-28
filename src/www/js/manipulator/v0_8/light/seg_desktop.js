@@ -1,6 +1,6 @@
 /*
 Manipulator v0.8-light Copyright 2014 http://manipulator.parentnode.dk
-wtf-js-merged @ 2014-05-20 01:37:41
+wtf-js-merged @ 2014-05-28 09:29:26
 */
 
 /*seg_desktop_include.js*/
@@ -351,7 +351,7 @@ Util.hasFixedParent = u.hfp = function(node) {
 
 /*u-events.js*/
 Util.Events = u.e = new function() {
-	this.event_pref = typeof(document.ontouchmove) == "undefined" ? "mouse" : "touch";
+	this.event_pref = typeof(document.ontouchmove) == "undefined" || navigator.maxTouchPoints > 1 ? "mouse" : "touch";
 	this.kill = function(event) {
 		if(event) {
 			event.preventDefault();
@@ -403,8 +403,9 @@ Util.Events = u.e = new function() {
 		u.t.resetTimer(node.t_clicked);
 		this.removeEvent(node, "mouseup", this._dblclicked);
 		this.removeEvent(node, "touchend", this._dblclicked);
-		this.removeEvent(node, "mousemove", this._clickCancel);
-		this.removeEvent(node, "touchmove", this._clickCancel);
+		this.removeEvent(node, "mousemove", this._cancelClick);
+		this.removeEvent(node, "touchmove", this._cancelClick);
+		this.removeEvent(node, "mouseout", this._cancelClick);
 		this.removeEvent(node, "mousemove", this._move);
 		this.removeEvent(node, "touchmove", this._move);
 	}
@@ -566,8 +567,10 @@ u.e.removeScrollEvent = function(node, action) {
 /*u-geometry.js*/
 Util.absoluteX = u.absX = function(node) {
 	if(node.offsetParent) {
+		u.bug("node.offsetParent, node.offsetLeft + u.absX(node.offsetParent):" + node.offsetLeft + ", " + u.nodeId(node.offsetParent))
 		return node.offsetLeft + u.absX(node.offsetParent);
 	}
+	u.bug("node.offsetLeft:" + node.offsetLeft)
 	return node.offsetLeft;
 }
 Util.absoluteY = u.absY = function(node) {
