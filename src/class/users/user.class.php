@@ -302,7 +302,9 @@ class User extends Model {
 
 		if(count($action) == 2) {
 			$query = new Query();
-			if($query->sql("DELETE FROM $this->db WHERE id = ".$action[1])) {
+			$sql = "DELETE FROM $this->db WHERE id = ".$action[1];
+//			print $sql;
+			if($query->sql($sql)) {
 				message()->addMessage("User deleted");
 				return true;
 			}
@@ -552,8 +554,15 @@ class User extends Model {
 
 
 	// check if password exists
-	function issetPassword($user_id) {
-		//
+	function hasPassword($user_id) {
+
+		$query = new Query();
+
+		$sql = "SELECT id FROM ".$this->db_passwords." WHERE user_id = $user_id";
+		if($query->sql($sql)) {
+			return true;
+		}
+		return false;
 	}
 
 	// set new password for user
@@ -575,7 +584,12 @@ class User extends Model {
 				$entities = $this->data_entities;
 
 				$password = sha1($entities["password"]["value"]);
-				$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
+				if($this->hasPassword($user_id)) {
+					$sql = "UPDATE ".$this->db_passwords." SET password = '$password' WHERE user_id = $user_id";
+				}
+				else {
+					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
+				}
 				if($query->sql($sql)) {
 					message()->addMessage("password saved");
 					return true;
