@@ -8,5 +8,5 @@ CREATE TABLE `SITE_DB`.`user_access` (
 
   PRIMARY KEY (`id`),
   KEY `user_group_id` (`user_group_id`),
-  CONSTRAINT `access_ibfk_1` FOREIGN KEY (`user_group_id`) REFERENCES `user_groups` (`id`) ON UPDATE CASCADE
+  CONSTRAINT `access_ibfk_1` FOREIGN KEY (`user_group_id`) REFERENCES `user_groups` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
