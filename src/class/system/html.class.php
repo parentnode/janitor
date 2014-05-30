@@ -10,6 +10,7 @@
 
 class HTML {
 
+
 	/**
 	* Make html tag attribute
 	* Attribute values passed as speparate parameters
@@ -74,6 +75,14 @@ class HTML {
 	* @return string Input element
 	*/
 	function input($name = false, $_options = false) {
+
+
+		// form security
+		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
+			return "";
+		}
+
+
 		// print "<p>";
 		// print_r($this->data_entities);
 		// print "</p>";
@@ -320,7 +329,7 @@ class HTML {
 				$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
 			$_ .= '</div>';
 
-		$_ .= '</div>';
+		$_ .= '</div>'."\n";
 
 
 		return $_;
@@ -335,6 +344,11 @@ class HTML {
 
 
 	function inputLocation($name_loc = false, $name_lat = false, $name_lon = false, $_options = false) {
+
+		// form security
+		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
+			return "";
+		}
 
 		// labels
 		$label_loc = $this->getEntityProperty($name_loc, "label");
@@ -442,9 +456,9 @@ class HTML {
 			$_ .= '<div'.$this->attribute("class", "help").'>';
 				$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
 				$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
-			$_ .= '</div>';
+			$_ .= '</div>'."\n";
 
-		$_ .= '</div>';
+		$_ .= '</div>'."\n";
 
 
 		return $_;
@@ -470,8 +484,7 @@ class HTML {
 		$id = false;
 		$target = false;
 
-		$wrap = false;
-		$wrap_class = false;
+		$wrapper = false;
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -483,8 +496,7 @@ class HTML {
 
 					case "target"        : $target         = $_value; break;
 
-					case "wrap"          : $wrap           = $_value; break;
-					case "wrap_class"    : $wrap_class     = $_value; break;
+					case "wrapper"       : $wrapper        = $_value; break;
 				}
 			}
 		}
@@ -495,32 +507,60 @@ class HTML {
 		$att_class = $this->attribute("class", $class);
 		$att_target = $this->attribute("target", $target);
 
-		if($wrap) {
-			$att_wrap_class = $this->attribute("class", $wrap_class);
-			$_ .= '<'.$wrap.$att_wrap_class.'>';
+		$att_wrap_id = "";
+		$att_wrap_class = "";
+
+		if($wrapper) {
+			// with class or id
+			if(preg_match("/([a-z]+)[\.#]+/", $wrapper, $node_match)) {
+//				print_r($node_match);
+
+				$wrap_node = $node_match[1];
+
+				if(preg_match("/#([a-zA-Z0-9_]+)/", $wrapper, $id_match)) {
+//					print_r($id_match);
+					$att_wrap_id = $this->attribute("id", $id_match[1]);
+				}
+				if(preg_match_all("/\.([a-zA-Z0-9_\:]+)/", $wrapper, $class_matches)) {
+//					print_r($class_matches);
+
+					$att_wrap_class = $this->attribute("class", implode(" ", $class_matches[1]));
+				}
+			}
+			else {
+				$wrap_node = $wrapper;
+			}
+	
+			$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id.'>';
+	
 		}
 
 		$_ .= '<a href="'.$action.'"'.$att_id.$att_class.$att_target.'>'.$value.'</a>';
 
-		if($wrap) {
-			$_ .= '</'.$wrap.'>';
+		if($wrapper) {
+			$_ .= '</'.$wrap_node.'>'."\n";
 		}
 
 		return $_;
 	}
 
 
-	function actionsLink($value, $action, $_options = false) {
+
+	function formStart($action, $_options = false) {
+
 		global $page;
 		if(!$page->validateAction($action)) {
 			return "";
 		}
 
+		// indicate form state
+		$this->valid_form_started = true;
+
+		// default values
 		$class = false;
 		$id = false;
+		$method = "post";
 		$target = false;
-
-		$li_class = superNormalize($value);
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -532,27 +572,30 @@ class HTML {
 
 					case "target"        : $target         = $_value; break;
 
-					case "li_class"      : $li_class       = $_value; break;
+					case "method"       : $method          = $_value; break;
 				}
 			}
 		}
 
 		$_ = "";
 
-		$att_href = $this->attribute("href", $action);
-
 		$att_id = $this->attribute("id", $id);
 		$att_class = $this->attribute("class", $class);
 		$att_target = $this->attribute("target", $target);
+		$att_method = $this->attribute("method", $method);
+		$att_action = $this->attribute("action", $action);
 
-		$att_li_class = $this->attribute("class", $li_class);
-
-		$_ .= '<li'.$att_li_class.'><a'.$action.$att_id.$att_class.$att_target.'>'.$value.'</a></li>';
+		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.'>'."\n";
 
 		return $_;
 	}
 
-	function actionsLinkPrimary($value, $action, $_options = false) {
+	function formEnd() {
+		
+		if(isset($this->valid_form_started) && $this->valid_form_started) {
+			$this->valid_form_started = false;
+			return '</form>'."\n";
+		}
 		
 	}
 
@@ -564,17 +607,15 @@ class HTML {
 	*/
 	function button($value = false, $_options = false) {
 
-		global $page;
-		if(!$page->validateAction($action)) {
+		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
 			return "";
 		}
 
-		$type = "submit";
+		$type = "button";
 		$name = false;
 		$class = false;
 
-		$wrap = "li";
-		$wrap_class = stringOr($name, strtolower($value));
+		$wrapper = false;
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -586,8 +627,7 @@ class HTML {
 
 					case "class"         : $class          = $_value; break;
 
-					case "wrap"          : $wrap           = $_value; break;
-					case "wrap_class"    : $wrap_class     = $_value; break;
+					case "wrapper"       : $wrapper        = $_value; break;
 				}
 			}
 		}
@@ -599,37 +639,41 @@ class HTML {
 		$att_class = $this->attribute("class", "button", $class);
 		$att_name = $this->attribute("name", $name);
 
-		if($wrap) {
-			$att_wrap_class = $this->attribute("class", $wrap_class);
-			$_ .= '<'.$wrap.$att_wrap_class.'>';
+		$att_wrap_id = "";
+		$att_wrap_class = "";
+
+		if($wrapper) {
+			// with class or id
+			if(preg_match("/([a-z]+)[\.#]+/", $wrapper, $node_match)) {
+//				print_r($node_match);
+
+				$wrap_node = $node_match[1];
+
+				if(preg_match("/#([a-zA-Z0-9_]+)/", $wrapper, $id_match)) {
+//					print_r($id_match);
+					$att_wrap_id = $this->attribute("id", $id_match[1]);
+				}
+				if(preg_match_all("/\.([a-zA-Z0-9_\:]+)/", $wrapper, $class_matches)) {
+//					print_r($class_matches);
+					$att_wrap_class = $this->attribute("class", implode(" ", $class_matches[1]));
+				}
+			}
+			else {
+				$wrap_node = $wrapper;
+			}
+	
+			$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id.'>';
+	
 		}
 
-		$_ .= '<input'.$att_value.$att_name.$att_class.$att_value.' />';
+		$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.' />';
 
-		if($wrap) {
-			$_ .= '</'.$wrap.'>';
+		if($wrapper) {
+			$_ .= '</'.$wrap_node.'>'."\n";
 		}
 
 		return $_;
-
-
 	}
-
-
-	// Custom Janitor extended input combinations/constructions
-
-
-	// wrapped in li
-	function actionSubmit() {}
-
-	function actionDelete() {}
-	function actionStatus() {}
-
-
-	// DEPRECATED
-
-
-
 
 	/**
 	* Basic input type="submit" element
@@ -638,52 +682,234 @@ class HTML {
 	*/
 	function submit($name = false, $_options = false) {
 
-		$type = "a";
-		$action = false;
-
-
-		// overwrite defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "item"           : $item            = $_value; break;
-
-					case "item_id"        : $item_id         = $_value; break;
-					case "status"         : $status          = $_value; break;
-
-				}
-			}
-		}
-
-		// print "<p>";
-		// print_r($this->data_entities);
-		// print "</p>";
-
+		$_options["type"] = "submit";
+		return $this->button($name, $_options);
 
 	}
 
-	function status($_options = false) {
 
-		$item = false;
+	/**
+	* Delete item
+	*/
+	function delete($name, $action, $_options = false) {
 
-		$item_id = false;
-		$status = false;
+		global $page;
+		if(!$page->validateAction($action)) {
+			return "";
+		}
 
+		$js = false;
 
 		// overwrite defaults
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "item"           : $item            = $_value; break;
-
-					case "item_id"        : $item_id         = $_value; break;
-					case "status"         : $status          = $_value; break;
+					case "js"           : $js            = $_value; break;
 
 				}
 			}
 		}
+
+		$_ = '<li class="delete">';
+
+		if(!$js) {
+			$_ .= '<form action="'.$action.'" method="post">';
+			$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
+			$_ .= '</form>';
+		}
+
+		$_ .= '</li>';
+
+		return $_;
+	}
+
+
+	/**
+	* Change status of item
+	*/
+	function status($enable_label, $disable_label, $action, $item, $_options = false) {
+
+		global $page;
+		if(!$page->validateAction($action)) {
+			return "";
+		}
+
+		$status_states = array(
+			0 => "disabled",
+			1 => "enabled"
+		);
+
+		$js = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "js"                     : $js                      = $_value; break;
+
+				}
+			}
+		}
+
+		if($item && $item["id"] && isset($item["status"])) {
+
+			$state_class = $status_states[$item["status"]];
+			$change_to = ($item["status"]+1)%2;
+
+			$_ = '<li class="status '.$state_class.'">';
+
+			if(!$js) {
+				$_ .= '<form class="disable" action="'.$action.'/'.$item["id"].'/0" method="post">';
+				$_ .= '<input type="submit" value="'.$disable_label.'" name="disable" class="button status" />';
+				$_ .= '</form>';
+
+				$_ .= '<form class="enable" action="'.$action.'/'.$item["id"].'/1" method="post">';
+				$_ .= '<input type="submit" value="'.$enable_label.'" name="enable" class="button status" />';
+				$_ .= '</form>';
+			}
+
+			$_ .= '</li>';
+
+		}
+
+		return $_;
+	}
+
+
+
+
+	/* INCLUDING LI WRAPPER */
+// 
+// 	function action($value, $action, $_options = false) {
+// 		global $page;
+// 		if(!$page->validateAction($action)) {
+// 			return "";
+// 		}
+// 
+// 		$class = false;
+// 		$id = false;
+// 		$target = false;
+// 
+// 		$type = "a";
+// 		$name = false;
+// 
+// 		// default li class (could cause havok)
+// //		$li_class = superNormalize($value);
+// 
+// 		// overwrite defaults
+// 		if($_options !== false) {
+// 			foreach($_options as $_option => $_value) {
+// 				switch($_option) {
+// 
+// 					case "class"         : $class          = $_value; break;
+// 					case "id"            : $id             = $_value; break;
+// 
+// 					case "target"        : $target         = $_value; break;
+// 					case "type"          : $type           = $_value; break;
+// 					case "name"          : $name           = $_value; break;
+// 
+// 					case "li_class"      : $li_class       = $_value; break;
+// 				}
+// 			}
+// 		}
+// 
+// 		$_ = "";
+// 
+// 		$att_id = $this->attribute("id", $id);
+// 		$att_class = $this->attribute("class", $class);
+// 
+// 		$att_li_class = $this->attribute("class", $li_class);
+// 
+// 		$_ .= '<li'.$att_li_class.'>';
+// 
+// 		if($type == "a") {
+// 			$att_href = $this->attribute("href", $action);
+// 			$att_target = $this->attribute("target", $target);
+// 
+// 			$_ .= '<a'.$action.$att_id.$att_class.$att_target.'>'.$value.'</a>';
+// 		}
+// 		else if($type == "submit" || $type == "button") {
+// 			$att_value = $this->attribute("value", $value);
+// 			$att_name = $this->attribute("name", $name);
+// 			$att_type = $this->attribute("type", $type);
+// 
+// 			$_ .= '<input'.$action.$att_id.$att_class.$att_target.'>'.$value.'</a>';
+// 		}
+// 
+// 		$_ .= '</li>';
+// 
+// 		return $_;
+// 	}
+// 
+// 
+// 
+// 	function actionsLinkPrimary($value, $action, $_options = false) {
+// 		
+// 	}
+// 
+// 
+// 
+// 
+// 	// Custom Janitor extended input combinations/constructions
+// 
+// 
+// 	// wrapped in li
+// 	function actionSubmit() {}
+// 
+// 	function actionDelete() {}
+// 	function actionStatus() {}
+// 
+// 
+// 	// DEPRECATED
+// 
+
+	/*
+	<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>">
+		<form class="disable" action="/admin/user/disable/<?= $item["id"] ?>" method="post">
+			<input type="submit" class="button status" value="Disable">
+		</form>
+		<form class="enable" action="/admin/user/enable/<?= $item["id"] ?>" method="post">
+			<input type="submit" class="button status" value="Enable">
+		</form>
+	</li>
+	
+	<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>">
+		<form class="disable" action="/admin/user/disable/<?= $item["id"] ?>" method="post">
+			<input type="submit" class="button status" value="Disable">
+		</form>
+		<form class="enable" action="/admin/user/enable/<?= $item["id"] ?>" method="post">
+			<input type="submit" class="button status" value="Enable">
+		</form>
+	</li>
+	
+	<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>"></li>
+	<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>"></li>
+	*/
+
+//	function status($item, $_options = false) {
+
+		// $item = false;
+		// 
+		// $item_id = false;
+		// $status = false;
+		// 
+		// 
+		// 
+		// // overwrite defaults
+		// if($_options !== false) {
+		// 	foreach($_options as $_option => $_value) {
+		// 		switch($_option) {
+		// 
+		// 			case "item"           : $item            = $_value; break;
+		// 
+		// 			case "item_id"        : $item_id         = $_value; break;
+		// 			case "status"         : $status          = $_value; break;
+		// 
+		// 		}
+		// 	}
+		// }
 
 		// INCLUDE LI???? OR ADD DIV?
 		// OR INJECT PURELY WITH JS? (MAYBE WITH NEW u.f.addField function)
@@ -702,9 +928,11 @@ class HTML {
 
 
 		
-	}
+//	}
 
 
 }
+// create standalone instance to make HTML available without model
+$HTML = new HTML();
 
 ?>

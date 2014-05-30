@@ -11,12 +11,11 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 	<h1>Edit tag</h1>
 
 	<ul class="actions">
-		<li class="cancel"><a href="/admin/tag/list" class="button">Back</a></li>
+		<?= $HTML->link("Back", "/admin/tag/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
 	<div class="item i:defaultEdit">
-		<form action="/admin/cms/tag/update/<?= $tag["id"] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
-
+		<?= $model->formStart("/admin/tag/globalUpdateTag/".$tag["id"], array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("context", array(
 						"type" => "string", 
@@ -44,11 +43,10 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 			</fieldset>
 
 			<ul class="actions">
-				<li class="cancel"><a href="/admin/tag/list" class="button key:esc">Back</a></li>
-				<li class="save"><input type="submit" value="Update" class="button primary key:s" /></li>
+				<?= $model->link("Back", "/admin/tag/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
-
-		</form>
+		<?= $model->formEnd() ?>
 	</div>
 
 	<h2>Items with tag</h2>

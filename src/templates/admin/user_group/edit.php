@@ -10,20 +10,20 @@ $item = $model->getUserGroups(array("user_group_id" => $action[2]));
 	<h1>Edit user group</h1>
 
 	<ul class="actions">
-		<li class="cancel"><a href="/admin/user/group/list" class="button">Back</a></li>
+		<?= $HTML->link("Back", "/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
 	<div class="item i:defaultEdit">
-		<form action="/admin/user/updateUserGroup/<?= $action[2] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
+		<?= $model->formStart("/admin/user/updateUserGroup/".$action[2], array("class" => "i:formDefaultNew labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("user_group", array("value" => $item["user_group"])) ?>
 			</fieldset>
 
 			<ul class="actions">
-				<li class="cancel"><a href="/admin/user/group/list" class="button key:esc">Back</a></li>
-				<li class="save"><input type="submit" value="Update" class="button primary key:s" /></li>
+				<?= $HTML->link("Back", "/admin/user/group/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
-		</form>
+		<?= $model->formEnd() ?>
 	</div>
 
 </div>

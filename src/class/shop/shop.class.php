@@ -608,9 +608,9 @@ class Shop extends Model {
 						$orders[$i]["items"] = $query->results();
 					}
 
-					$order["email"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
-					$order["mobile"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
-					$order["newsletter"] = $user->getNewsletters(array("user_id" => $order["user_id"], "newsletter" => "general"));
+					$orders[$i]["email"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+					$orders[$i]["mobile"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+					$orders[$i]["newsletter"] = $user->getNewsletters(array("user_id" => $order["user_id"], "newsletter" => "general"));
 
 				}
 				return $orders;

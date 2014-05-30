@@ -263,37 +263,69 @@ class User extends Model {
 		return false;
 	}
 
-	// disable user
-	// /admin/user/disable/#user_id#
-	function disable($action) {
 
-		if(count($action) == 2) {
+	/**
+	* Change user status
+	*/
+	function status($action) {
+
+		$status_states = array(
+			0 => "disabled",
+			1 => "enabled"
+		);
+
+		if(count($action) == 3 && isset($status_states[$action[2]])) {
+		
 			$query = new Query();
-			if($query->sql("UPDATE $this->db SET status = 0 WHERE id = ".$action[1])) {
-				message()->addMessage("User disabled");
+
+
+			// delete item + itemtype + files
+			if($query->sql("SELECT id FROM ".$this->db." WHERE id = ".$action[1])) {
+				$query->sql("UPDATE ".$this->db." SET status = ".$action[2]." WHERE id = ".$action[1]);
+
+				message()->addMessage("User ".$status_states[$action[2]]);
 				return true;
 			}
-			message()->addMessage("Could not disable user", array("type" => "error"));
+			message()->addMessage("User could not be ".$status_states[$action[2]], array("type" => "error"));
+
 		}
 		return false;
+
 	}
 
-	// enable user
-	// /admin/user/enable/#user_id#
-	function enable($action) {
+	// // disable user
+	// // /admin/user/disable/#user_id#
+	// function disable($action) {
+	// 
+	// 	if(count($action) == 2) {
+	// 		$query = new Query();
+	// 		if($query->sql("UPDATE $this->db SET status = 0 WHERE id = ".$action[1])) {
+	// 			message()->addMessage("User disabled");
+	// 			return true;
+	// 		}
+	// 		message()->addMessage("Could not disable user", array("type" => "error"));
+	// 	}
+	// 	return false;
+	// }
+	// 
+	// // enable user
+	// // /admin/user/enable/#user_id#
+	// function enable($action) {
+	// 
+	// 	if(count($action) == 2) {
+	// 		$query = new Query();
+	// 		if($query->sql("UPDATE $this->db SET status = 1 WHERE id = ".$action[1])) {
+	// 			message()->addMessage("User enabled");
+	// 			return true;
+	// 		}
+	// 		else {
+	// 			message()->addMessage("Could not enable user", array("type" => "error"));
+	// 		}
+	// 	}
+	// 	return false;
+	// }
+	// 
 
-		if(count($action) == 2) {
-			$query = new Query();
-			if($query->sql("UPDATE $this->db SET status = 1 WHERE id = ".$action[1])) {
-				message()->addMessage("User enabled");
-				return true;
-			}
-			else {
-				message()->addMessage("Could not enable user", array("type" => "error"));
-			}
-		}
-		return false;
-	}
 
 	// delete user
 	// /admin/user/delete/#user_id#
@@ -1014,10 +1046,23 @@ class User extends Model {
 				foreach($results as $result) {
 					$access["permissions"][$result["action"]] = 1;
 				}
+
+
+				// set controller root access state if it does not exist
+				// to avoid to have to set root permissions (action implies restricted root)
+				foreach($access["permissions"] as $action) {
+
+					$parent_action = preg_replace("/[^\/]+\/$/", "", $action);
+
+					if(!isset($access["permissions"][$parent_action])) {
+						$access["permissions"][$parent_action] = 0;
+					}
+				}
 			}
 
 		}
 
+		
 //		print_r($access);
 
 		return $access;
@@ -1043,6 +1088,7 @@ class User extends Model {
 			// set new grants
 			if($grants) {
 				foreach($grants as $path => $grant) {
+
 					if($grant == 1) {
 						$sql = "INSERT INTO ".$this->db_access." SET permission=1, user_group_id = $user_group_id, action = '$path'";
 //						print $sql."<br>";

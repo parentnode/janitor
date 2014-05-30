@@ -15,6 +15,7 @@ $language_options = $model->toOptions($languages, "id", "name");
 $mobile = $model->getUsernames(array("user_id" => $item["id"], "type" => "mobile"));
 $email = $model->getUsernames(array("user_id" => $item["id"], "type" => "email"));
 
+// password state
 $has_password = $model->hasPassword($item["id"]);
 
 
@@ -29,34 +30,23 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 	<h1>Edit user</h1>
 
 	<ul class="actions i:defaultEditActions item_id:<?= $item["id"] ?>">
-		<li class="cancel"><a href="/admin/user/list/<?= $item["user_group_id"] ?>" class="button">All users</a></li>
-		<li class="delete">
-			<form action="/admin/user/delete/<?= $item["id"] ?>" method="post">
-				<input type="submit" value="Delete" name="delete" class="button delete" />
-			</form>
-		</li>
+		<?= $HTML->link("All users", "/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->delete("Delete", "/admin/user/delete/".$item["id"]) ?>
 	</ul>
 
 	<div class="status i:defaultEditStatus item_id:<?= $item["id"] ?>">
 		<ul class="actions">
-			<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>">
-				<form class="disable" action="/admin/user/disable/<?= $item["id"] ?>" method="post">
-					<input type="submit" class="button status" value="Disable">
-				</form>
-				<form class="enable" action="/admin/user/enable/<?= $item["id"] ?>" method="post">
-					<input type="submit" class="button status" value="Enable">
-				</form>
-			</li>
+			<?= $HTML->status("Enable", "Disable", "/admin/user/status", $item) ?>
 		</ul>
 	</div>
 
 	<ul class="views">
-		<li class="profile selected"><a href="/admin/user/<?= $item["id"] ?>">Profile</a></li>
-		<li class="content"><a href="/admin/user/content/<?= $item["id"] ?>">Content and orders</a></li>
+		<?= $HTML->link("Profile", "/admin/user/edit/".$item["id"], array("wrapper" => "li.profile.selected")) ?>
+		<?= $HTML->link("Content and orders", "/admin/user/content/".$item["id"], array("wrapper" => "li.content")) ?>
 	</ul>
 
 	<div class="item i:defaultEdit">
-		<form action="/admin/user/update/<?= $item["id"] ?>" class="labelstyle:inject" method="post">
+		<?= $model->formStart("/admin/user/update/".$item["id"], array("class" => "labelstyle:inject")) ?>
 			<h3>Name, language and user group</h3>
 			<fieldset>
 				<?= $model->input("nickname", array("value" => $item["nickname"])) ?>
@@ -67,25 +57,25 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 			</fieldset>
 
 			<ul class="actions">
-				<li class="cancel"><a href="/admin/user/list/<?= $item["user_group_id"] ?>" class="button">Back</a></li>
-				<li class="save"><input type="submit" value="Update" class="button primary" /></li>
+				<?= $model->link("Back", "/admin/user/list/".$item["user_group_id"], array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
-		</form>
+		<?= $model->formEnd() ?>
 	</div>
 
 	<h2>Email and Mobile number</h2>
 	<div class="usernames i:usernames">
 		<p>Your email and mobilenumber are your unique usernames.</p> 
 
-		<form action="/admin/user/updateUsernames/<?= $item["id"] ?>" class="labelstyle:inject" method="post">
+		<?= $model->formStart("/admin/user/updateUsernames/".$item["id"], array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("email", array("value" => stringOr($email))) ?>
 				<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
 			</fieldset>
 			<ul class="actions">
-				<li class="save"><input type="submit" value="Update usernames" class="button primary" /></li>
+				<?= $model->submit("Update usernames", array("class" => "primary", "wrapper" => "li.save")) ?>
 			</ul>
-		</form>
+		<?= $model->formEnd() ?>
 	</div>
 
 	<h2>Password</h2>
@@ -97,14 +87,14 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 		<div class="new_password">
 			<p>Type your new password to set or update your password</p>
 
-			<form action="/admin/user/setPassword/<?= $item["id"] ?>" method="post">
+			<?= $model->formStart("/admin/user/setPassword/".$item["id"]) ?>
 				<fieldset>
 					<?= $model->input("password") ?>
 				</fieldset>
 				<ul class="actions">
-					<li class="save"><input type="submit" value="Update password" class="button primary" /></li>
+					<?= $model->submit("Update password", array("class" => "primary", "wrapper" => "li.save")) ?>
 				</ul>
-			</form>
+			<?= $model->formEnd() ?>
 		</div>
 	</div>
 
@@ -129,7 +119,7 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 				<div class="country"><?= $address["country"] ?></div>
 
 				<ul class="actions">
-					<li class="edit"><a href="/admin/user/edit_address/" class="button">Edit</a></li>
+					<?= $model->link("Edit", "/admin/user/edit_address/".$address["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 				</ul>
 			</li>
 <?			endforeach; ?>
@@ -139,7 +129,7 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 <? endif; ?>
 
 		<ul class="actions">
-			<li class="add"><a href="/admin/user/new_address/<?= $item["id"] ?>" class="button primary">Add new address</a></li>
+			<?= $model->link("Add new address", "/admin/user/new_address/".$item["id"], array("class" => "button primary", "wrapper" => "li.add")) ?>
 		</ul>
 	</div>
 

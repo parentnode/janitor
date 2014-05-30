@@ -126,6 +126,7 @@ class PageCore {
 	* DEPRECATED-param string $silent Get template without getting message (default loud)
 	*/
 	function template($template) {
+		global $HTML;
 
 		if(file_exists(LOCAL_PATH."/templates/".$template)) {
 			$file = LOCAL_PATH."/templates/".$template;
@@ -278,6 +279,7 @@ class PageCore {
 	*/
 
 	function header($options = false) {
+		global $HTML;
 
 		$type = "www";
 
@@ -305,6 +307,7 @@ class PageCore {
 	* @return String HTML footer
 	*/
 	function footer($options = false) {
+		global $HTML;
 
 		$type = "www";
 
@@ -468,11 +471,18 @@ class PageCore {
 				exit();
 			}
 
+//			print_r($actions);
 
 			// generate appropriate validation action string to check in database
 			// implode actions, prepend / and remove trailing /
 			if($actions) {
-				$validation_action = preg_replace("/\/$/", "", "/".implode("/", $actions));
+//				$validation_action = preg_replace("/\/$/", "", "/".implode("/", $actions));
+				$validation_action = "/".implode("/", $actions);
+
+				// access grants should always end with slash
+				if(!preg_match("/\/$/", $validation_action)) {
+					$validation_action .= "/";
+				}
 				$controller = str_replace($_SERVER["PATH_INFO"], "", $_SERVER["REQUEST_URI"]);
 			}
 			// otherwise assume /
@@ -484,12 +494,15 @@ class PageCore {
 
 			// look for matching access entry
 			while(!isset($access_item[$validation_action]) && $validation_action && $validation_action != "/") {
-				$validation_action = dirname($validation_action);
+				$validation_action = preg_replace("/[^\/]+\/$/", "", $validation_action);
+//				print $validation_action."\n";
 			}
+
+//			print $validation_action."\n";
 
 			// no entry found - no access
 			if(!isset($access_item[$validation_action])) {
-				print "no access item entry";
+//				print "no access item entry";
 
 				header("Location: /login");
 				exit();
@@ -500,7 +513,7 @@ class PageCore {
 				if($access_item[$validation_action] !== false) {
 
 					if(!$this->validateAction($controller.$validation_action)) {
-						print "no db entry";
+//						print "no db entry";
 						header("Location: /login");
 						exit();
 					}
@@ -540,7 +553,20 @@ class PageCore {
 				foreach($results as $result) {
 					$this->permissions[$result["action"]] = $result["permission"];
 				}
+
+				// set controller root access state if it does not exist
+				// to avoid to have to set root permissions (action implies restricted root)
+				foreach($this->permissions as $action => $permission) {
+
+					$parent_action = preg_replace("/[^\/]+\/$/", "", $action);
+
+					if(!isset($this->permissions[$parent_action])) {
+						$this->permissions[$parent_action] = 0;
+					}
+				}
+
 			}
+//			print_r($this->permissions);
 		}
 
 		$chunks = explode("/", preg_replace("/\/$/", "", $action));

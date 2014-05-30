@@ -1,5 +1,24 @@
 <?php
-$access_item["/"] = true;
+$access_item["/list/"] = true;
+
+$access_item["/new/"] = true;
+$access_item["/save/"] = true;
+
+$access_item["/edit/"] = true;
+$access_item["/update/"] = true;
+$access_item["/updateUsernames/"] = true;
+$access_item["/setPassword/"] = true;
+
+$access_item["/delete/"] = true;
+$access_item["/status/"] = true;
+
+$access_item["/access/"] = true;
+$access_item["/updateAccess/"] = true;
+
+$access_item["/group/"] = true;
+$access_item["/deleteUserGroup/"] = true;
+$access_item["/saveUserGroup/"] = true;
+$access_item["/updateUserGroup/"] = true;
 
 if(isset($read_access) && $read_access) {
 	return;

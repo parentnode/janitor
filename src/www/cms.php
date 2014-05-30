@@ -1,4 +1,8 @@
 <?php
+
+// TODO: change cms controller to "items"?
+
+
 $access_item = false;
 if(isset($read_access) && $read_access) {
 	return;

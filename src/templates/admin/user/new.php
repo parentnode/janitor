@@ -15,13 +15,13 @@ foreach($user_groups as $user_group) {
 		<h1>New user</h1>
 
 		<ul class="actions">
-			<li class="cancel"><a href="/admin/user/list" class="button">List</a></li>
+			<?= $model->link("List", "/admin/user/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		</ul>
 
 		<h2>Let's start with some very basic information</h2>
 
 
-		<form action="/admin/user/save" class="i:formDefaultNew labelstyle:inject" method="post" enctype="multipart/form-data">
+		<?= $model->formStart("/admin/user/save", array("class" => "i:formDefaultNew labelstyle:inject")) ?>
 			<h3>Name and user group</h3>
 			<fieldset>
 				<?= $model->input("nickname") ?>
@@ -29,10 +29,9 @@ foreach($user_groups as $user_group) {
 			</fieldset>
 
 			<ul class="actions">
-				<li class="cancel"><a href="/admin/user/list" class="button key:esc">Back</a></li>
-				<li class="save"><input type="submit" value="Save" class="button primary key:s" /></li>
+				<?= $model->link("Back", "/admin/user/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->submit("Save", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
-
-		</form>
+		<?= $model->formEnd() ?>
 	</div>
 

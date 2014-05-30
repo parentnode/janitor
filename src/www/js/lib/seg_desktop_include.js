@@ -1,5 +1,4 @@
 document.write('<script type="text/javascript" src="/janitor/js/manipulator/v0_8/full/seg_desktop.js"></script>');
-document.write('<script type="text/javascript" src="/js/manipulator/src/u-form.js"></script>');
 
 document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-sortable.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-audio.js"></script>');

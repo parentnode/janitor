@@ -4,3 +4,6 @@
 #navigation ul li:hover {color: #ffffff;}
 #navigation ul li a {display: block;  padding: 14px 20px 15px;}
 #navigation ul li.selected {}
+
+body.tags #navigation .tags a,
+body.user #navigation .user a {padding-left: 35px; color: #ffffff;}

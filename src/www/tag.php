@@ -1,10 +1,14 @@
 <?php
-$access_item = false;
+$access_item["/list/"] = true;
+$access_item["/edit/"] = true;
+$access_item["/globalUpdateTag/"] = true;
+$access_item["/globalDeleteTag/"] = true;
 
-//$access_item["/"] = true;
+
 if(isset($read_access) && $read_access) {
 	return;
 }
+
 
 include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 

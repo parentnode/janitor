@@ -1,5 +1,5 @@
 <?php
-$access_item = false;
+$access_item["/"] = true;
 // $access_item = array();
 // $access_item["/cart"] = true;
 // $access_item["/cart/list"] = "cart";

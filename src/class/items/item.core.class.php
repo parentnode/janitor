@@ -1119,7 +1119,32 @@ class ItemCore {
 		return $uploads;
 	}
 
+	/**
+	* Chacnge status of Item
+	*/
+	function status($item_id, $status) {
+		$query = new Query();
 
+		$status_states = array(
+			0 => "disabled",
+			1 => "enabled"
+		);
+
+		// delete item + itemtype + files
+		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
+			$query->sql("UPDATE ".UT_ITEMS." SET status = $status WHERE id = $item_id");
+
+			message()->addMessage("Item ".$status_states[$status]);
+			return true;
+		}
+		message()->addMessage("Item could not be ".$status_states[$status], array("type" => "error"));
+		return false;
+
+	}
+
+	/**
+	* Deprecated status functions
+	*/
 	function disableItem($item_id) {
 		$query = new Query();
 
@@ -1148,6 +1173,9 @@ class ItemCore {
 		return false;
 	}
 
+	/**
+	* Delete item function
+	*/
 	function deleteItem($item_id) {
 		$query = new Query();
 
@@ -1326,32 +1354,45 @@ class ItemCore {
 
 
 	// delete tag globally 
- 	function globalDeleteTag($tag_id) {
-		$query = new Query();
+ 	function globalDeleteTag($action) {
 
-		if($query->sql("DELETE FROM ".UT_TAG." WHERE id = $tag_id")) {
-			message()->addMessage("Tag deleted");
-			return true;
+
+		if(count($action) == 2) {
+
+			$tag_id = $action[1];
+
+			$query = new Query();
+
+			if($query->sql("DELETE FROM ".UT_TAG." WHERE id = $tag_id")) {
+				message()->addMessage("Tag deleted");
+				return true;
+			}
 		}
-
 		message()->addMessage("Tag could not be deleted", array("type" => "error"));
 		return false;
  	}
 
 	// update tag globally
- 	function globalUpdateTag($tag_id) {
-		$query = new Query();
+ 	function globalUpdateTag($action) {
+
+		if(count($action) == 2) {
+
+			$tag_id = $action[1];
+
+			$query = new Query();
 		
-		$context = getPost("context");
-		$value = getPost("value");
-		$description = getPost("description");
+			$context = getPost("context");
+			$value = getPost("value");
+			$description = getPost("description");
 
-		if($query->sql("SELECT id FROM ".UT_TAG." WHERE id = $tag_id")) {
-			$query->sql("UPDATE ".UT_TAG." SET context = '$context', value = '$value', description = '$description' WHERE id = $tag_id");
+			if($query->sql("SELECT id FROM ".UT_TAG." WHERE id = $tag_id")) {
+				$query->sql("UPDATE ".UT_TAG." SET context = '$context', value = '$value', description = '$description' WHERE id = $tag_id");
 
-			message()->addMessage("Tag updated");
-			return true;
+				message()->addMessage("Tag updated");
+				return true;
+			}
 		}
+
 		message()->addMessage("Tag could not be updated", array("type" => "error"));
 		return false;
  	}

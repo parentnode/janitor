@@ -10,7 +10,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.stat
 	<h1>TODOs</h1>
 
 	<ul class="actions">
-		<li class="new"><a href="/admin/<?= $itemtype ?>/new" class="button primary key:n">New task</a></li>
+		<?= $HTML->link("New task", "/admin/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList taggable filters">
@@ -35,17 +35,9 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.stat
 <?				endif; ?>
 
 				<ul class="actions">
-					<li class="edit"><a href="/admin/<?= $itemtype ?>/edit/<?= $item["id"] ?>" class="button">Edit</a></li>
-					<li class="delete">
-						<form action="/admin/cms/delete/<?= $item["id"] ?>" class="i:formDefaultDelete" method="post" enctype="multipart/form-data">
-							<input type="submit" value="Delete" class="button delete" />
-						</form>
-					</li>
-					<li class="status">
-						<form action="/admin/cms/<?= ($item["status"] == 1 ? "disable" : "enable") ?>/<?= $item["id"] ?>" class="i:formDefaultStatus" method="post" enctype="multipart/form-data">
-							<input type="submit" value="<?= ($item["status"] == 1 ? "Disable" : "Enable") ?>" class="button status" />
-						</form>
-					</li>
+					<?= $HTML->link("Edit", "/admin/".$itemtype."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+					<?= $HTML->delete("Delete", "/admin/cms/delete/".$item["id"], array("js" => true)) ?>
+					<?= $HTML->status("Enable", "Disable", "/admin/cms/status", $item, array("js" => true)) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

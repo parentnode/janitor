@@ -61,9 +61,9 @@ Util.Objects["defaultList"] = new function() {
 
 					// inject standard item status form if node is empty
 					if(!action.childNodes.length) {
-						form_disable = u.f.addForm(action, {"action":"/admin/cms/disable/"+node._item_id, "class":"disable"});
+						form_disable = u.f.addForm(action, {"action":"/admin/cms/status/"+node._item_id+"/0", "class":"disable"});
 						u.f.addAction(form_disable, {"value":"Disable", "class":"button status"});
-						form_enable = u.f.addForm(action, {"action":"/admin/cms/enable/"+node._item_id, "class":"enable"});
+						form_enable = u.f.addForm(action, {"action":"/admin/cms/status/"+node._item_id+"/1", "class":"enable"});
 						u.f.addAction(form_enable, {"value":"Enable", "class":"button status"});
 					}
 					// look for valid forms

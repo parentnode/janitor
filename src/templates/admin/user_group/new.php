@@ -6,20 +6,21 @@ global $model;
 	<h1>New user group</h1>
 
 	<ul class="actions">
-		<li class="cancel"><a href="/admin/user/group/list" class="button">Back</a></li>
+		<?= $model->link("Back", "/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<form action="/admin/user/saveUserGroup" class="i:formDefaultNew labelstyle:inject" method="post" enctype="multipart/form-data">
+
+	<?= $model->formStart("/admin/user/saveUserGroup", array("class" => "i:formDefaultNew labelstyle:inject")) ?>
 
 		<fieldset>
 			<?= $model->input("user_group") ?>
 		</fieldset>
 
 		<ul class="actions">
-			<li class="cancel"><a href="/admin/user/group/list" class="button key:esc">Back</a></li>
-			<li class="save"><input type="submit" value="Save" class="button primary key:s" /></li>
+			<?= $model->link("Back", "/admin/user/group/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+			<?= $model->submit("Save", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 		</ul>
 
-	</form>
+	<?= $model->formEnd() ?>
 </div>
 

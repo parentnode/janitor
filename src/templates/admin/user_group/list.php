@@ -9,8 +9,8 @@ $user_groups = $model->getUserGroups();
 	<h1>User groups</h1>
 
 	<ul class="actions">
-		<li class="new"><a href="/admin/user/group/new" class="button primary key:n">New group</a></li>
-		<li class="users"><a href="/admin/user/list" class="button key:esc">Users</a></li>
+		<?= $HTML->link("New group", "/admin/user/group/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
+		<?= $HTML->link("Users", "/admin/user/list", array("class" => "button key:n", "wrapper" => "li.users")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList filters">
@@ -18,16 +18,12 @@ $user_groups = $model->getUserGroups();
 		<ul class="items">
 <?			foreach($user_groups as $user_group): ?>
 			<li class="item item_id:<?= $user_group["id"] ?>">
-				<h2><?= $user_group["user_group"] ?>
+				<h3><?= $user_group["user_group"] ?></h3>
 
 				<ul class="actions">
-					<li class="access"><a href="/admin/user/access/edit/<?= $user_group["id"] ?>" class="button">Access</a></li>
-					<li class="view"><a href="/admin/user/group/edit/<?= $user_group["id"] ?>" class="button">Edit</a></li>
-					<li class="delete">
-						<form action="/admin/user/deleteUserGroup/<?= $user_group["id"] ?>" method="post">
-							<input type="submit" value="Delete" name="delete" class="button delete" />
-						</form>
-					</li>
+					<?= $HTML->link("Access", "/admin/user/access/edit/".$user_group["id"], array("class" => "button", "wrapper" => "li.access")) ?>
+					<?= $HTML->link("Edit", "/admin/user/group/edit/".$user_group["id"], array("class" => "button", "wrapper" => "li.view")) ?>
+					<?= $HTML->delete("Delete", "/admin/user/deleteUserGroup/".$user_group["id"]) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

@@ -60,9 +60,17 @@ class CMS {
 
 
 			// STATUS
-			//
+			// changes status of item
+			else if(count($action) == 3 && $action[0] == "status") {
+
+				$output->screen($IC->status($action[1], $action[2]));
+				exit();
+			}
+
+			// DEPRECATED OLD STATUS FUNCTION
+
 			// ENABLE ITEM
-			// Requires exactly two parameters /enable/#item_id#
+			// Requires exactly two parameters /status/#item_id#/#status#
 			else if(count($action) == 2 && $action[0] == "enable") {
 
 				$output->screen($IC->enableItem($action[1]));
@@ -102,22 +110,22 @@ class CMS {
 			}
 
 
-			// TAG MAINTENANCE
-			//
-			// DELETE TAG - WILL DELETE TAG AND ALL OCCURENCES OF TAG
-			// Requires exactly 3 parameters /tag/delete//#tag_id#
-			else if(count($action) == 3 && $action[0] == "tag" && $action[1] == "delete") {
-
-				$output->screen($IC->globalDeleteTag($action[2]));
-				exit();
-			}
-			// UPDATE TAG - WILL CHANGE TAG AND ALL OCCURENCES OF TAG
-			// Requires exactly 3 parameters /tag/edit//#tag_id#
-			else if(count($action) == 3 && $action[0] == "tag" && $action[1] == "update") {
-
-				$output->screen($IC->globalUpdateTag($action[2]));
-				exit();
-			}
+			// // TAG MAINTENANCE
+			// //
+			// // DELETE TAG - WILL DELETE TAG AND ALL OCCURENCES OF TAG
+			// // Requires exactly 3 parameters /tag/delete//#tag_id#
+			// else if(count($action) == 3 && $action[0] == "tag" && $action[1] == "delete") {
+			// 
+			// 	$output->screen($IC->globalDeleteTag($action[2]));
+			// 	exit();
+			// }
+			// // UPDATE TAG - WILL CHANGE TAG AND ALL OCCURENCES OF TAG
+			// // Requires exactly 3 parameters /tag/edit//#tag_id#
+			// else if(count($action) == 3 && $action[0] == "tag" && $action[1] == "update") {
+			// 
+			// 	$output->screen($IC->globalUpdateTag($action[2]));
+			// 	exit();
+			// }
 
 
 			// PRICES

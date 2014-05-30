@@ -10,14 +10,14 @@ $access = $model->getAccessPoints(array("user_group_id" => $action[2]));
 	<h1>Access for <?= $user_group["user_group"] ?></h1>
 
 	<ul class="actions">
-		<li class="cancel"><a href="/admin/user/group/list" class="button">Back</a></li>
+		<?= $HTML->link("Back", "/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
 	<div class="access i:defaultEdit">
 
 		<p>Select which actions to allow for each controller.</p>
 
-		<form action="/admin/user/updateAccess/<?= $action[2] ?>" class="labelstyle:inject" method="post" enctype="multipart/form-data">
+		<?= $model->formStart("/admin/user/updateAccess/".$action[2], array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<ul class="points">
 <?			foreach($access["points"] as $point => $actions): ?>
@@ -41,10 +41,10 @@ $access = $model->getAccessPoints(array("user_group_id" => $action[2]));
 			</fieldset>
 
 			<ul class="actions">
-				<li class="cancel"><a href="/admin/user/group/list" class="button key:esc">Back</a></li>
-				<li class="save"><input type="submit" value="Update" class="button primary key:s" /></li>
+				<?= $HTML->link("Back", "/admin/user/group/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
-		</form>
+		<?= $model->formEnd() ?>
 	</div>
 
 </div>

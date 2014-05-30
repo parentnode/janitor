@@ -19,12 +19,8 @@ $tags = $IC->getTags();
 				<h3><?= $tag["context"] ?>:<?= $tag["value"] ?></h3>
 				
 				<ul class="actions">
-					<li class="edit"><a href="/admin/tag/edit/<?= $tag["id"] ?>" class="button">Edit</a></li>
-					<li class="delete">
-						<form action="/admin/cms/tag/delete/<?= $tag["id"] ?>" class="i:formDefaultDelete" method="post" enctype="multipart/form-data">
-							<input type="submit" value="Delete" class="button delete" />
-						</form>
-					</li>
+					<?= $HTML->link("Edit", "/admin/tag/edit/".$tag["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+					<?= $HTML->delete("Delete", "/admin/tag/globalDeleteTag/".$tag["id"]) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

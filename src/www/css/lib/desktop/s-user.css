@@ -1,6 +1,13 @@
 /* Users and usergroups */
 
+/* USERLIST */
+#content .defaultList.userList ul.items > li h3 {padding-bottom: 16px;}
 
+/* USERLIST - USERGROUPS */
+#content .defaultList.userList .userGroups {background-color: #dedede;}
+#content .defaultList.userList .userGroups li {padding: 15px 30px; border-right: 1px solid #dedede;}
+#content .defaultList.userList .userGroups li a {text-decoration: none;}
+#content .defaultList.userList .userGroups li.selected {background-color: #f5f7f8; color: #aaaaaa;}
 
 
 /* VIEWS */
@@ -48,11 +55,6 @@
 #content .scene.userEdit > div.newsletters ul.newsletters > li {display: block; padding: 0 0 10px;}
 
 
-/* USERGROUPS */
-#content .defaultList.userList .userGroups {background-color: #dedede;}
-#content .defaultList.userList .userGroups li {padding: 15px 30px; border-right: 1px solid #dedede;}
-#content .defaultList.userList .userGroups li a {text-decoration: none;}
-#content .defaultList.userList .userGroups li.selected {background-color: #f5f7f8; color: #aaaaaa;}
 
 
 
@@ -63,3 +65,8 @@
 #content .defaultEdit.accessEdit > div.access ul.points {padding: 0 0 20px;}
 #content .defaultEdit.accessEdit > div.access ul.points li {display: block;}
 #content .defaultEdit.accessEdit > div.access ul.points li.action {border-top: 1px solid #dedede; padding: 10px 0 0;}
+
+
+/* USER GROUP */
+#content .defaultList.usergroupList ul.items > li h3 {padding-bottom: 16px;}
+
