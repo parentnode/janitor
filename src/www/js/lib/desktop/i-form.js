@@ -131,15 +131,86 @@ Util.Objects["addMedia"] = new function() {
 			this.HTTPRequest.send(fd);
 		}
 
+		// image list
+		div.media_list = u.qs("ul.media", div.media_list);
+		div.mediae = u.qsa("ul.media li", div);
+
+
+		if(div.mediae) {
+
+			u.bug("media delete")
+
+			// init delete buttons
+			var node, i, delete_form, bn_delete;
+			for(i = 0; node = div.mediae[i]; i++) {
+
+				delete_form = u.qs("form.delete", node);
+
+				if(delete_form) {
+
+					u.bug("delete_form:" + delete_form)
+					u.f.init(delete_form);
+
+					bn_delete = u.qs("input.delete", delete_form);
+					if(bn_delete) {
+
+						bn_delete.org_value = bn_delete.value;
+
+						u.e.click(bn_delete);
+						bn_delete.restore = function(event) {
+							this.value = this.org_value;
+							u.rc(this, "confirm");
+						}
+
+						bn_delete.inputStarted = function(event) {
+							u.e.kill(event);
+						}
+
+						bn_delete.clicked = function(event) {
+							u.e.kill(event);
+
+							// first click
+							if(!u.hc(this, "confirm")) {
+								u.ac(this, "confirm");
+								this.value = "Confirm";
+								this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+							}
+							// confirm click
+							else {
+								u.t.resetTimer(this.t_confirm);
+
+								this.response = function(response) {
+									if(response.cms_status == "success") {
+										// check for constraint error preventing row from actually being deleted
+										if(response.cms_object && response.cms_object.constraint_error) {
+											page.notify(response.cms_message);
+											this.value = this.org_value;
+											u.ac(this, "disabled");
+										}
+										else {
+											location.reload();
+	//										location.href = this.form.actions["cancel"].url;
+										}
+									}
+									else {
+										page.notify(response.cms_message);
+									}
+								}
+								u.request(this, this.form.action, {"method":"post", "params" : u.f.getParams(this.form)});
+							}
+						}
+					}
+				}
+			}
+		}
+
 
 		// sortable list
-		if(u.hc(div, "sortable")) {
+		if(u.hc(div, "sortable") && div.media_list) {
 
-			div.list = u.qs("ul.media", div);
-
-			u.s.sortable(div.list);
-			div.list.picked = function() {}
-			div.list.dropped = function() {
+			u.s.sortable(div.media_list);
+			div.media_list.picked = function() {}
+			div.media_list.dropped = function() {
 				var url = this.getAttribute("data-save-order");
 				this.nodes = u.qsa("li.media", this);
 				for(i = 0; node = this.nodes[i]; i++) {
