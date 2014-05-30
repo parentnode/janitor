@@ -54,20 +54,15 @@
 #content .scene.defaultEdit > div.media ul.media li {margin: 0 10px 20px; position: relative; text-align: center;}
 #content .scene.defaultEdit > div.media ul.media li h4 {padding: 0 0 5px;}
 
-#content .scene.defaultEdit > div.media ul.media form {padding: 0; position: absolute; top: 0; right: 0;}
+#content .scene.defaultEdit > div.media ul.media form.delete {padding: 0; position: absolute; top: 0; right: 0;}
 
-#content .scene.defaultEdit > div.media ul.media form input { font-size: 12px;
+#content .scene.defaultEdit > div.media ul.media form.delete input {font-size: 12px; color: #df0000;
 	width: 30px; height: 30px; background: #ffffff url(/janitor/img/bg_icons.png) no-repeat 8px -42px;
 	display: block; text-indent: -9999px; border: none; border-radius: none; cursor: pointer; border-bottom-left-radius: 5px;
 	-webkit-appearance: none;
 }
-#content .scene.defaultEdit > div.media ul.media form input:hover {
-	background-position: 8px -67px;
-}
-
-#content .scene.defaultEdit > div.media ul.media form input.confirm {
-	text-indent: 0; width: auto; padding-left: 24px;
-}
+#content .scene.defaultEdit > div.media ul.media form.delete input:hover {background-position: 8px -67px;}
+#content .scene.defaultEdit > div.media ul.media form.delete input.confirm {text-indent: 0; width: auto; padding-left: 24px;}
 
 #content .scene.defaultEdit > div.media.sortable ul.media li {cursor: move;}
 

@@ -43,8 +43,8 @@ Util.Objects["formDefaultDelete"] = new function() {
 								u.ac(this, "disabled");
 							}
 							else {
-//								location.reload();
-								location.href = this.form.actions["cancel"].url;
+								location.reload();
+//								location.href = this.form.actions["cancel"].url;
 							}
 						}
 						else {
