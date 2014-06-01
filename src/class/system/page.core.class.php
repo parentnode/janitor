@@ -446,12 +446,17 @@ class PageCore {
 	*/
 	function setActions($actions=false) {
 
+//		print "setActions:".$actions;
 		// TODO: Security check on action - the only required accesscheck, bacause all requests load page and page checks makes this call
 		
 		// TODO: Should be re-written - was made in a rush!
 
 		// get $access_item from controller
 		global $access_item;
+
+		// remove parameters from $actions string
+		$actions = preg_replace("/\?.+$/", "", $actions);
+//		print_r($actions);
 
 		// if controller has access_item setting, perform access validation
 		if($access_item && (!defined("SITE_INSTALL") || !SITE_INSTALL)) {
@@ -543,11 +548,25 @@ class PageCore {
 			return true;
 		}
 
+
+		global $access_item;
+
+		// remove parameters from $actions string
+		$action = preg_replace("/\?.+$/", "", $action);
+//		print "action:" . $action . "<br>";
+
+		// no access restriction
+		if((!$action && (!$access_item || !$access_item["/"]))) {
+			return true;
+		}
+
+
 		$user_group_id = Session::value("user_group_id");
 
-		if(!$this->permissions) {
+		if(!$this->permissions && $user_group_id) {
 			$query = new Query();
 			$sql = "SELECT action, permission FROM ".SITE_DB.".user_access WHERE user_group_id = ".$user_group_id;
+//			print $sql."<br>";
 			if($query->sql($sql)) {
 				$results = $query->results();
 				foreach($results as $result) {
@@ -569,21 +588,39 @@ class PageCore {
 //			print_r($this->permissions);
 		}
 
-		$chunks = explode("/", preg_replace("/\/$/", "", $action));
+ 
+		if($action) {
+//		if($action && $action !== "/") {
+			// get actions chuncks
+			$chunks = explode("/", preg_replace("/\/$/", "", $action));
 
-		while($chunks) {
+//			print "chunks:" . $chunks."<br>";
+			while($chunks) {
 
-//			print implode("/", $chunks)."/<br>\n";
+//				print implode("/", $chunks)."/<br>\n";
 
-			if(isset($this->permissions[implode("/", $chunks)."/"])) {
-				if($this->permissions[implode("/", $chunks)."/"]) {
-					return true;
+				if(isset($this->permissions[implode("/", $chunks)."/"])) {
+					if($this->permissions[implode("/", $chunks)."/"]) {
+						return true;
+					}
+					else {
+						return false;
+					}
 				}
-				else {
-					return false;
-				}
+				array_pop($chunks);
 			}
-			array_pop($chunks);
+		}
+		else {
+		
+		//if($access_item && $) {
+			print "checking root:" . isset($this->permissions["/"])." && ".$this->permissions["/"]."<br>";
+			
+			if(isset($this->permissions["/"]) && $this->permissions["/"]) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 
 		return false;
