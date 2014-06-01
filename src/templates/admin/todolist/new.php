@@ -12,7 +12,6 @@ global $itemtype;
 	</ul>
 
 	<?= $model->formStart("/admin/cms/save/".$itemtype, array("class" => "i:formDefaultNew labelstyle:inject")) ?>
-
 		<fieldset>
 			<?= $model->input("name") ?>
 			<?= $model->input("class") ?>
@@ -22,7 +21,6 @@ global $itemtype;
 			<?= $model->link("Back", "/admin/".$itemtype."/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 			<?= $model->submit("Save", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 		</ul>
-
 	<?= $model->formEnd() ?>
 
 </div>
