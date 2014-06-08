@@ -188,6 +188,7 @@ Util.Objects["defaultList"] = new function() {
 					page.audioplayer = u.audioPlayer();
 				}
 				var audio = u.ie(node, "div", {"class":"audio"});
+				audio.scene = this;
 				audio.url = "/audios/"+node._item_id+"/128."+node._audio;
 
 				u.e.click(audio);
