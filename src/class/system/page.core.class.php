@@ -109,7 +109,8 @@ class PageCore {
 		}
 		// dev mode (dev can be 0)
 		if(getVar("dev") !== false) {
-			Session::value("dev", getVar("dev"));
+			// Session::value("dev", getVar("dev"));
+			session()->value("dev", getVar("dev"));
 		}
 
 	}
@@ -339,14 +340,15 @@ class PageCore {
 	function language($value = false) {
 		// set
 		if($value !== false) {
-			Session::value("language", $value);
+//			Session::value("language", $value);
+			session()->value("language", $value);
 		}
 		// get
 		else {
-			if(!Session::value("language")) {
-				Session::value("language", defined("DEFAULT_LANGUAGE_ISO") ? DEFAULT_LANGUAGE_ISO : "DA");
+			if(!session()->value("language")) {
+				session()->value("language", defined("DEFAULT_LANGUAGE_ISO") ? DEFAULT_LANGUAGE_ISO : "DA");
 			}
-			return Session::value("language");
+			return session()->value("language");
 		}
 	}
 
@@ -358,14 +360,14 @@ class PageCore {
 	function country($value = false) {
 		// set
 		if($value !== false) {
-			Session::value("country", $value);
+			session()->value("country", $value);
 		}
 		// get
 		else {
-			if(!Session::value("country")) {
-				Session::value("country", defined("DEFAULT_COUNTRY_ISO") ? DEFAULT_COUNTRY_ISO : "DK");
+			if(!session()->value("country")) {
+				session()->value("country", defined("DEFAULT_COUNTRY_ISO") ? DEFAULT_COUNTRY_ISO : "DK");
 			}
-			return Session::value("country");
+			return session()->value("country");
 		}
 	}
 
@@ -377,11 +379,11 @@ class PageCore {
 	function currency($value = false) {
 		// set
 		if($value !== false) {
-			Session::value("currency", $value);
+			session()->value("currency", $value);
 		}
 		// get
 		else {
-			if(!Session::value("currency")) {
+			if(!session()->value("currency")) {
 				$currency_id = defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK";
 
 				$query = new Query();
@@ -390,9 +392,9 @@ class PageCore {
 				}
 //				print_r($currency);
 
-				Session::value("currency", $currency);
+				session()->value("currency", $currency);
 			}
-			return Session::value("currency");
+			return session()->value("currency");
 		}
 	}
 
@@ -407,10 +409,10 @@ class PageCore {
 		// writeToFile("segment function:" . $value);
 
 		if($value !== false) {
-			Session::value("segment", $value);
+			session()->value("segment", $value);
 		}
 		else {
-			if(!Session::value("segment")) {
+			if(!session()->value("segment")) {
 				// writeToFile("request new segment:" . $value);
 
 				$device_id = @file_get_contents("http://devices.dearapi.com/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
@@ -419,15 +421,15 @@ class PageCore {
 //				print_r($device);
 
 				if($device && isset($device["segment"])) {
-					Session::value("segment", $device["segment"]);
+					session()->value("segment", $device["segment"]);
 				}
 				else {
 					// offline default value
-					Session::value("segment", "desktop");
+					session()->value("segment", "desktop");
 				}
 			}
 
-			return Session::value("segment");
+			return session()->value("segment");
 		}
 
 	}
@@ -684,12 +686,12 @@ class PageCore {
 			if($query->sql($sql)) {
 
 				// add user_id and user_group_id to session
-				Session::value("user_id", $query->result(0, "id"));
-				Session::value("user_group_id", $query->result(0, "user_group_id"));
+				session()->value("user_id", $query->result(0, "id"));
+				session()->value("user_group_id", $query->result(0, "user_group_id"));
 
 				// redirect to originally requested page
-				$login_forward = stringOr(Session::value("login_forward"), "/");
-				Session::reset("login_forward");
+				$login_forward = stringOr(session()->value("login_forward"), "/");
+				session()->reset("login_forward");
 
 				header("Location: " . $login_forward);
 				exit();
@@ -710,8 +712,8 @@ class PageCore {
 		$this->addLog("Logoff: ".$user_id);
 		//$this->user_id = "";
 
-		Session::reset("user_id");
-		Session::reset("user_group_id");
+		session()->reset("user_id");
+		session()->reset("user_group_id");
 
 		header("Location: /index.php");
 		exit();
@@ -733,9 +735,9 @@ class PageCore {
 		));
 
 		//$this->user_id = "";
-		Session::resetLogin();
+		session()->resetLogin();
 		if($url) {
-			Session::setValue("LoginForward", $url);
+			session()->setValue("LoginForward", $url);
 		}
 		print '<script type="text/javacript">location.href="?page_status=logoff"</script>';
 //		header("Location: /index.php");
