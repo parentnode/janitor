@@ -144,6 +144,7 @@ function prepareForHTML($string) {
 * @return string
 */
 function prepareForDB($string) {
+	global $mysqli_global;
 
 	if(is_array($string)) {
 		// loop through array
@@ -155,14 +156,17 @@ function prepareForDB($string) {
 			// }
 			// else {
 				$array = stripDisallowed($array);
-				$array = mysql_real_escape_string($array);
+				$array = $mysqli_global->escape_string($array);
+
+//				$array = mysql_real_escape_string($array);
 				$string[$key] = $array;
 //			}
 		}
 	}
 	else {
 		$string = stripDisallowed($string);
-		$string = mysql_real_escape_string($string);
+		$string = $mysqli_global->escape_string($string);
+//		$string = mysql_real_escape_string($string);
 	}
 	return $string;
 }

@@ -75,13 +75,13 @@ class PageCore {
 		@include_once("config/connect_mail.php");
 
 
+
 		// shorthand for clean request uri
 		$this->url = str_replace("?".$_SERVER['QUERY_STRING'], "", $_SERVER['REQUEST_URI']);
 
 		// check access
 		$this->setActions(RESTParams());
-		
-//		$this->access();
+
 
 		// login in progress
 		if(getVar("login") == "true") {
@@ -112,6 +112,14 @@ class PageCore {
 			Session::value("dev", getVar("dev"));
 		}
 
+	}
+
+
+	// close DB connection when page is done
+	function __destruct() {
+
+		global $mysqli_global;
+		$mysqli_global->close();
 	}
 
 
@@ -461,15 +469,19 @@ class PageCore {
 		// if controller has access_item setting, perform access validation
 		if($access_item && (!defined("SITE_INSTALL") || !SITE_INSTALL)) {
 
-			$user_id = Session::value("user_id");
-			$user_group_id = Session::value("user_group_id");
+			// $user_id = Session::value("user_id");
+			// $user_group_id = Session::value("user_group_id");
+
+			$user_id = session()->value("user_id");
+			$user_group_id = session()->value("user_group_id");
 
 			// any access restriction requires a user to be logged in
 			// no need to do any validation if no user_id or user_group_id is found
 			if(!$user_id || !$user_group_id) {
 
 				// save current url, to be able to redirect after login
-				Session::value("login_forward", $this->url);
+//				Session::value("login_forward", $this->url);
+				session()->value("login_forward", $this->url);
 
 //				print "no user info";
 				header("Location: /login");
@@ -561,7 +573,8 @@ class PageCore {
 		}
 
 
-		$user_group_id = Session::value("user_group_id");
+//		$user_group_id = Session::value("user_group_id");
+		$user_group_id = session()->value("user_group_id");
 
 		if(!$this->permissions && $user_group_id) {
 			$query = new Query();
@@ -737,25 +750,54 @@ class PageCore {
 
 
 	/**
+	* Create database connection for old MySQL implementation
+	*/
+	// function _db_connection($settings) {
+	//
+	// 	$this->db_host = isset($settings["host"]) ? $settings["host"] : "";
+	// 	$this->db_username = isset($settings["username"]) ? $settings["username"] : "";
+	// 	$this->db_password = isset($settings["password"]) ? $settings["password"] : "";
+	//
+	// 	@mysql_pconnect($this->db_host, $this->db_username, $this->db_password) or header("Location: /404.php?error=DB");
+	//
+	// 	// correct the database connection setting
+	// 	mysql_query("SET NAMES utf8");
+	// 	mysql_query("SET CHARACTER SET utf8");
+	// 	mysql_set_charset("utf8");
+	// }
+
+
+	/**
 	* Create database connection
 	*/
 	function db_connection($settings) {
+
+		// ALTERNATIVE IMPLEMENTATION - USING RECONNECTION WITH EACH QUERY - TOO SLOW
+		// global $db;
+		// $db["host"] = isset($settings["host"]) ? $settings["host"] : "";
+		// $db["username"] = isset($settings["username"]) ? $settings["username"] : "";
+		// $db["password"] = isset($settings["password"]) ? $settings["password"] : "";
 
 		$this->db_host = isset($settings["host"]) ? $settings["host"] : "";
 		$this->db_username = isset($settings["username"]) ? $settings["username"] : "";
 		$this->db_password = isset($settings["password"]) ? $settings["password"] : "";
 
-		@mysql_pconnect($this->db_host, $this->db_username, $this->db_password) or header("Location: /404.php?error=DB");
+		$mysqli = new mysqli("".$this->db_host, $this->db_username, $this->db_password);
+
+		if($mysqli->connect_errno) {
+		    echo "Failed to connect to MySQL: " . $mysqli->connect_error;
+			exit();
+		}
 
 		// correct the database connection setting
-		mysql_query("SET NAMES utf8");
-		mysql_query("SET CHARACTER SET utf8");
-		mysql_set_charset("utf8");
-		
-		// TODO: implement mysqli variation - requires update of Query
-		// $page->mysqli = new mysqli("localhost", "hvidevarehuset", "uads34HRsdYJ");
-		// print_r($page->mysqli->query("SELECT * FROM hvidevarehuset.items"));
+		$mysqli->query("SET NAMES utf8");
+		$mysqli->query("SET CHARACTER SET utf8");
+		$mysqli->set_charset("utf8");
+
+		global $mysqli_global;
+		$mysqli_global = $mysqli;
 	}
+
 
 	/**
 	* Create mailer connection

@@ -42,7 +42,8 @@ function writeToFile($message) {
 include_once("config/config.php");
 
 
-include_once("class/system/query.class.php");
+//include_once("class/system/query.class.php");
+include_once("class/system/queryi.class.php");
 include_once("class/system/filesystem.class.php");
 
 
