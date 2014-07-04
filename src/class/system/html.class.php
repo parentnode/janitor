@@ -691,7 +691,7 @@ class HTML {
 	/**
 	* Delete item
 	*/
-	function delete($name, $action, $_options = false) {
+	function deleteButton($name, $action, $_options = false) {
 
 		global $page;
 		if(!$page->validateAction($action)) {
@@ -728,7 +728,7 @@ class HTML {
 	/**
 	* Change status of item
 	*/
-	function status($enable_label, $disable_label, $action, $item, $_options = false) {
+	function statusButton($enable_label, $disable_label, $action, $item, $_options = false) {
 
 		global $page;
 		if(!$page->validateAction($action)) {
