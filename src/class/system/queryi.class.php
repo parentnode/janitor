@@ -5,8 +5,14 @@
 * Extended by template
 */
 
+$mysqli_global = false;
+
+
 class Query {
 
+	private $con;
+	private $result_object;
+	private $results;
 	private $result;
 	private $result_count;
 	private $last_query;
@@ -14,6 +20,34 @@ class Query {
 	private $error_messages = array(
 		1451 => "Item is in use elsewhere! Cannot delete or update a parent row: a foreign key constraint fails."
 	);
+
+
+	function __construct() {
+
+		// database connection
+		global $mysqli_global;
+		$this->con = $mysqli_global;
+
+
+
+		// ALTERNATIVE IMPLEMENTATION - TOO SLOW
+		// global $db;
+		//
+		// $this->con = new mysqli($db["host"], $db["username"], $db["password"]);
+		//
+		// if($this->con->connect_errno) {
+		//     echo "Failed to connect to MySQL: " . $this->con->connect_error;
+		// 	exit();
+		// }
+		//
+		// // correct the database connection setting
+		// $this->con->query("SET NAMES utf8");
+		// $this->con->query("SET CHARACTER SET utf8");
+		// $this->con->set_charset("utf8");
+
+//		print "verify";
+	}
+
 
 	/**
 	* Execute SQL query string
@@ -24,11 +58,13 @@ class Query {
 	function sql($query) {
 		$this->last_query = $query;
 
-		// get result
-		$this->result_resource = mysql_query($query);
+//		print $query;
 
-		// get number of results
-		$this->result_count = (is_resource($this->result_resource)) ? mysql_num_rows($this->result_resource) : ($this->result_resource ? $this->result_resource : 0);
+		// get result
+		$this->result_object = $this->con->query($query);
+
+		// get number of results as a means of validating query success
+		$this->result_count = (is_object($this->result_object)) ? $this->result_object->num_rows : ($this->result_object ? $this->result_object : 0);
 
 		if($this->result_count) {
 			return true;
@@ -136,7 +172,7 @@ class Query {
 	* @return int|false Insert id
 	*/
 	function lastInsertId() {
-		return mysql_insert_id();
+		return $this->con->insert_id;
 	}
 
 
@@ -151,23 +187,20 @@ class Query {
 	function result($i, $name=false) {
 		if($i < $this->result_count) {
 			if($name) {
-				return mysql_result($this->result_resource, $i, $name);
+
+				$this->result_object->data_seek($i);
+				$row = $this->result_object->fetch_array(MYSQLI_ASSOC);
+				return $row[$name];
 			}
 			// all fields
 			else {
-				$fields = array();
-				$nfields = mysql_num_fields($this->result_resource);
-				for($n = 0; $n < $nfields; $n++) {
-					$name = mysql_field_name($this->result_resource, $n);
-					$fields[$name] = mysql_result($this->result_resource, $i, $name);
-				}
-				return $fields;
+
+				$this->result_object->data_seek($i);
+				return $this->result_object->fetch_array(MYSQLI_ASSOC);
 			}
-	
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 	
 	/**
@@ -182,20 +215,13 @@ class Query {
 		if($this->result_count) {
 			// one field
 			if($name) {
-				$fields = array($name);
+			    while($result = $this->result_object->fetch_array(MYSQLI_ASSOC)) {
+					$results[][$name] = $result[$name];
+				}
 			}
 			// all fields
 			else {
-				$nfields = mysql_num_fields($this->result_resource);
-				for($n = 0; $n < $nfields; $n++) {
-					$fields[] = mysql_field_name($this->result_resource, $n);
-				}
-			}
-
-			for($i = 0; $i < $this->result_count; $i++) {
-				foreach($fields as $field) {
-					$results[$i][$field] = mysql_result($this->result_resource, $i, $field);
-				}
+				$results = $this->result_object->fetch_all(MYSQLI_ASSOC);
 			}
 		}
 
@@ -265,15 +291,11 @@ class Query {
 	*/
 	function debug() {
 		print("###DEBUG###\n");
-		print("Result:".$this->result_resource."\n");
+		print("Result:".$this->result_object."\n");
 		print("Result count:".$this->result_count."\n");
 		print("Query:".$this->last_query."\n");
 
-		$n = mysql_num_fields($this->result_resource);
-		for($i = 0; $i < $n; $i++) {
-			print mysql_field_name($this->result_resource, $i)."\n";
-		}
-
+		print_r($this->result_object->fetch_all(MYSQLI_ASSOC));
 	}
 
 
@@ -283,73 +305,20 @@ class Query {
 	* @return string
 	*/
 	function dbError() {
-		$error_id = mysql_errno();
+
+		$error_id = $this->con->errno;
 		$_ = 'DB Error ' . $error_id . ': ';
 
 		if(array_key_exists($error_id, $this->error_messages)) {
 			$_ .= $this->error_messages[$error_id];
 		}
 		else {
-			$_ .= mysql_error();
+			$_ .= $this->con->error();
 		}
 		$_ = str_replace('"','&quot;',$_);
 		$_ = str_replace("'", '&quot;', $_);
 		return $_;
 	}
-
-
-
-	/**
-	* Does the result have field with name = $name
-	*
-	* @param string $name Field name
-	* @return bool
-	*/
-	/*
-	function resultHasField($name) {
-		$n = mysql_num_fields($this->result_resource);
-		for($i = 0; $i < $n; $i++) {
-			if(mysql_field_name($this->result_resource, $i) == $name) {
-				return true;
-			}
-		}
-		return false;
-	}
-	*/
-
-	// function get($table, $order=false) {
-	//
-	// 	$items = array();
-	//
-	// 	$order = $order ? " ORDER BY $order" : "";
-	//
-	// 	print "SELECT * FROM $table".$order;
-	// 	$this->sql("SELECT * FROM $table".$order);
-	//
-	// 	$test = mysql_fetch_array($this->result_resource);
-	// 	print_r($test);
-	//
-	// 	for($i = 0; $i < $this->count(); $i++) {
-	//
-	// 		$item = array();
-	//
-	// 		$items["id"][$i] = $this->result($i, "id");
-	// 		$items["values"][$i] = $this->result($i, "name");
-	// 		for($u = 0; $u < count($extended_values); $u++) {
-	// 			$items[$extended_values[$u]][$i] = $this->result($i, $extended_values[$u]);
-	// 		}
-	// 	}
-	//
-	// 	if(!count($items)) {
-	// 		return false;
-	// 	}
-	// 	else if($which) {
-	// 		return $items[$which];
-	// 	}
-	// 	else {
-	// 		return $items;
-	// 	}
-	// }
 
 
 }
