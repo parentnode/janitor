@@ -120,7 +120,9 @@ class PageCore {
 	function __destruct() {
 
 		global $mysqli_global;
-		$mysqli_global->close();
+		if($mysqli_global) {
+			$mysqli_global->close();
+		}
 	}
 
 
