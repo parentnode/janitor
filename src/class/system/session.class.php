@@ -54,4 +54,11 @@ class Session {
 
 }
 
+$sss = new Session();
+
+function session() {
+	global $sss;
+	return $sss;
+}
+
 ?>
