@@ -391,26 +391,27 @@ class ItemCore {
 //		print $sql;
 
 		$query->sql($sql);
-		for($i = 0; $i < $query->count(); $i++){
-
-			$item = array();
-
-			$item["id"] = $query->result($i, "items.id");
-			$item["itemtype"] = $query->result($i, "items.itemtype");
-
-//			$item_sindex = $query->result($i, "items.sindex");
-			$item["sindex"] = $query->result($i, "items.sindex"); //$item_sindex ? $item_sindex : $this->sindex($item["id"]);
-
-			$item["status"] = $query->result($i, "items.status");
-
-			$item["user_id"] = $query->result($i, "items.user_id");
-
-			$item["created_at"] = $query->result($i, "items.created_at");
-			$item["modified_at"] = $query->result($i, "items.modified_at");
-			$item["published_at"] = $query->result($i, "items.published_at");
-
-			$items[] = $item;
-		}
+		$items = $query->results();
+// 		for($i = 0; $i < $query->count(); $i++){
+//
+// 			$item = array();
+//
+// 			$item["id"] = $query->result($i, "items.id");
+// 			$item["itemtype"] = $query->result($i, "items.itemtype");
+//
+// //			$item_sindex = $query->result($i, "items.sindex");
+// 			$item["sindex"] = $query->result($i, "items.sindex"); //$item_sindex ? $item_sindex : $this->sindex($item["id"]);
+//
+// 			$item["status"] = $query->result($i, "items.status");
+//
+// 			$item["user_id"] = $query->result($i, "items.user_id");
+//
+// 			$item["created_at"] = $query->result($i, "items.created_at");
+// 			$item["modified_at"] = $query->result($i, "items.modified_at");
+// 			$item["published_at"] = $query->result($i, "items.published_at");
+//
+// 			$items[] = $item;
+// 		}
 
 		return $items;
 	}
