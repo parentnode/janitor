@@ -287,7 +287,7 @@ class HTML {
 			}
 
 			// TEXT
-			else if($type == "text") {
+			else if($type == "text" || $type == "html") {
 				$att_max = $this->attribute("maxlength", $max);
 
 				$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.'>'.$value.'</textarea>';
