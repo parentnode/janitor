@@ -31,12 +31,12 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 
 	<ul class="actions i:defaultEditActions item_id:<?= $item["id"] ?>">
 		<?= $HTML->link("All users", "/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->delete("Delete", "/admin/user/delete/".$item["id"]) ?>
+		<?= $HTML->deleteButton("Delete", "/admin/user/delete/".$item["id"]) ?>
 	</ul>
 
 	<div class="status i:defaultEditStatus item_id:<?= $item["id"] ?>">
 		<ul class="actions">
-			<?= $HTML->status("Enable", "Disable", "/admin/user/status", $item) ?>
+			<?= $HTML->statusButton("Enable", "Disable", "/admin/user/status", $item) ?>
 		</ul>
 	</div>
 

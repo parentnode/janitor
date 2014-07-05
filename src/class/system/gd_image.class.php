@@ -8,6 +8,8 @@ class Image {
 	// allow conversion false = only scale
 	function convert($input_file, $output_file, $options = false) {
 
+		$fs = new FileSystem();
+
 		$output_width = false;
 		$output_height = false;
 		$output_format = false;
@@ -242,7 +244,7 @@ class Image {
 		$output_image = imagecreatetruecolor($canvas_width, $canvas_height);
 
 		// make sure output path exists
-		FileSystem::makeDirRecursively(dirname($output_file));
+		$fs->makeDirRecursively(dirname($output_file));
 
 		// read input file
 		if($input_format == "jpg") {

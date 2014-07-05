@@ -23,7 +23,7 @@ $user_groups = $model->getUserGroups();
 				<ul class="actions">
 					<?= $HTML->link("Access", "/admin/user/access/edit/".$user_group["id"], array("class" => "button", "wrapper" => "li.access")) ?>
 					<?= $HTML->link("Edit", "/admin/user/group/edit/".$user_group["id"], array("class" => "button", "wrapper" => "li.view")) ?>
-					<?= $HTML->delete("Delete", "/admin/user/deleteUserGroup/".$user_group["id"]) ?>
+					<?= $HTML->deleteButton("Delete", "/admin/user/deleteUserGroup/".$user_group["id"]) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

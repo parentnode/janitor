@@ -12,12 +12,12 @@ $item_id = $item["item_id"];
 
 	<ul class="actions i:defaultEditActions item_id:<?= $item_id ?>">
 		<?= $HTML->link("Back", "/admin/".$itemtype."/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->delete("Delete", "/admin/cms/delete/".$item["id"], array("js" => true)) ?>
+		<?= $HTML->deleteButton("Delete", "/admin/cms/delete/".$item["id"], array("js" => true)) ?>
 	</ul>
 
 	<div class="status i:defaultEditStatus item_id:<?= $item["id"] ?>">
 		<ul class="actions">
-			<?= $HTML->status("Enable", "Disable", "/admin/cms/status", $item, array("js" => true)) ?>
+			<?= $HTML->statusButton("Enable", "Disable", "/admin/cms/status", $item, array("js" => true)) ?>
 		</ul>
 	</div>
 

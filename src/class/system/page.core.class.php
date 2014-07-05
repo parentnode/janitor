@@ -109,7 +109,6 @@ class PageCore {
 		}
 		// dev mode (dev can be 0)
 		if(getVar("dev") !== false) {
-			// Session::value("dev", getVar("dev"));
 			session()->value("dev", getVar("dev"));
 		}
 
@@ -342,7 +341,6 @@ class PageCore {
 	function language($value = false) {
 		// set
 		if($value !== false) {
-//			Session::value("language", $value);
 			session()->value("language", $value);
 		}
 		// get
@@ -473,9 +471,6 @@ class PageCore {
 		// if controller has access_item setting, perform access validation
 		if($access_item && (!defined("SITE_INSTALL") || !SITE_INSTALL)) {
 
-			// $user_id = Session::value("user_id");
-			// $user_group_id = Session::value("user_group_id");
-
 			$user_id = session()->value("user_id");
 			$user_group_id = session()->value("user_group_id");
 
@@ -484,7 +479,6 @@ class PageCore {
 			if(!$user_id || !$user_group_id) {
 
 				// save current url, to be able to redirect after login
-//				Session::value("login_forward", $this->url);
 				session()->value("login_forward", $this->url);
 
 //				print "no user info";
@@ -577,7 +571,6 @@ class PageCore {
 		}
 
 
-//		$user_group_id = Session::value("user_group_id");
 		$user_group_id = session()->value("user_group_id");
 
 		if(!$this->permissions && $user_group_id) {
@@ -653,21 +646,6 @@ class PageCore {
 	function actions() {
 		return $this->actions;
 	}
-
-
-	/**
-	* Set page status
-	*
-	* @param string|bool $status Page status
-	*/
-	// function setStatus($status){
-	// 	// if(!Secuity::hasAccess($status)) {
-	// 	// 	$this->throwOff($_SERVER["REQUEST_URI"]);
-	// 	// }
-	// 	// else {
-	// 		$this->status = $status;
-	// 	// }
-	// }
 
 
 	/**
@@ -911,6 +889,8 @@ class PageCore {
 
 		// TODO: add user_id
 
+		$fs = new FileSystem();
+
 		$timestamp = time();
 		$user_ip = getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR");
 		$user_id = "N/A";
@@ -921,7 +901,7 @@ class PageCore {
 		// day as file
 		$log_position = LOG_FILE_PATH."/".$collection."/".date("Y/m", $timestamp);
 		$log_cursor = LOG_FILE_PATH."/".$collection."/".date("Y/m/Y-m-d", $timestamp);
-		FileSystem::makeDirRecursively($log_position);
+		$fs->makeDirRecursively($log_position);
 
 		$fp = fopen($log_cursor, "a+");
 		fwrite($fp, $log."\n");
@@ -938,8 +918,10 @@ class PageCore {
 	*/
 	function collectNotification($message, $collection="framework") {
 
+		$fs = new FileSystem();
+
 		$collection_path = LOG_FILE_PATH."/notifications/";
-		FileSystem::makeDirRecursively($collection_path);
+		$fs->makeDirRecursively($collection_path);
 
 
 		// TODO: add user_id

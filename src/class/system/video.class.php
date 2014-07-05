@@ -7,6 +7,8 @@ class Video {
 
 	function convert($input_file, $output_file, $options = false) {
 
+		$fs = new FileSystem();
+
 		$output_width = false;
 		$output_height = false;
 		$output_format = false;
@@ -260,8 +262,9 @@ class Video {
 		// keep proportions and input is bigger than output
 		if(file_exists($input_file) && $ffmpeg_path) {
 
+
 			// make sure output path exists
-			FileSystem::makeDirRecursively(dirname($output_file));
+			$fs->makeDirRecursively(dirname($output_file));
 
 
 			// make crop/pad setting

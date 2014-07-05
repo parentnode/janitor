@@ -40,11 +40,11 @@ class FileSystem {
 //			print $file . "<br>";
 			$current_path = "$path/$file";
 
-			if(FileSystem::valid($current_path, $options)) {
+			if($this->valid($current_path, $options)) {
 
 				// file is a directory - iterate
 				if(is_dir("$current_path")) {
-					$files = array_merge($files, FileSystem::files($current_path, $options));
+					$files = array_merge($files, $this->files($current_path, $options));
 				}
 				// index file
 				else {
@@ -127,7 +127,7 @@ class FileSystem {
 					unlink("$path/$entry");
 				}
 				else if(is_dir("$path/$entry") && $entry != '.' && $entry != '..') {
-					FileSystem::removeDirRecursively("$path/$entry");
+					$this->removeDirRecursively("$path/$entry");
 				}
 			}
 			closedir($dir);
@@ -158,7 +158,7 @@ class FileSystem {
 			}
 		}
 
-		if(FileSystem::valid($path, $options)) {
+		if($this->valid($path, $options)) {
 
 			$is_empty = true;
 //			print "Empty is true<br>";
@@ -177,11 +177,11 @@ class FileSystem {
 					}
 				}
 
- 				if(FileSystem::valid("$path/$entry", $options)) {
+ 				if($this->valid("$path/$entry", $options)) {
 	
 					if(is_dir("$path/$entry")) {
 //						print "trying to delete sub: $entry<br>";
-						$rm = FileSystem::removeEmptyDirRecursively("$path/$entry", $options);
+						$rm = $this->removeEmptyDirRecursively("$path/$entry", $options);
 //						print "rm for $entry: #$rm#<br>";
 						if(!$rm) {
 //							print "BAD RM<br>";

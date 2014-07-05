@@ -32,8 +32,8 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position A
 
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/admin/".$itemtype."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<?= $HTML->delete("Delete", "/admin/cms/delete/".$item["id"], array("js" => true)) ?>
-					<?= $HTML->status("Enable", "Disable", "/admin/cms/status", $item, array("js" => true)) ?>
+					<?= $HTML->deleteButton("Delete", "/admin/cms/delete/".$item["id"], array("js" => true)) ?>
+					<?= $HTML->statusButton("Enable", "Disable", "/admin/cms/status", $item, array("js" => true)) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

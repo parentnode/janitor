@@ -6,6 +6,7 @@ class Audio {
 
 	function convert($input_file, $output_file, $options = false) {
 
+		$fs = new FileSystem();
 		$output_format = false;
 		$output_bitrate = 128;
 
@@ -29,7 +30,7 @@ class Audio {
 		if(file_exists($input_file) && $ffmpeg_path) {
 
 			// make sure output path exists
-			FileSystem::makeDirRecursively(dirname($output_file));
+			$fs->makeDirRecursively(dirname($output_file));
 
 			// read input file
 			if($output_format == "mp3") {

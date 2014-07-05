@@ -303,7 +303,6 @@ class Shop extends Model {
 		$query->sql("INSERT INTO ".$this->db_carts." VALUES(DEFAULT, '$cart_reference', '".$page->country()."', '".$currency["id"]."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
 		$cart_id = $query->lastInsertId();
 
-		// Session::value("cart", $cart_reference);
 		session()->value("cart", $cart_reference);
 		// save cookie
 		setcookie("cart", $cart_reference, time()+60*60*24*60, "/");
@@ -333,7 +332,6 @@ class Shop extends Model {
 		$query = new Query();
 
 		// if cart_reference is in action, prioritize it
-		// $cart_reference = stringOr($cart_reference, Session::value("cart"));
 		$cart_reference = stringOr($cart_reference, session()->value("cart"));
 
 		print $cart_reference."<br>";
@@ -771,7 +769,6 @@ class Shop extends Model {
 				// (could be situations where new information should be added to new user or addressses)
 				if($order_id && $user_id && $cart_id) {
 
-					// Session::value("order_id", $order_id);
 					session()->value("order_id", $order_id);
 
 

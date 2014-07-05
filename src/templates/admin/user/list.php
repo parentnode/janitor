@@ -45,8 +45,8 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/admin/user/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<?= $HTML->delete("Delete", "/admin/user/delete/".$item["id"]) ?>
-					<?= $HTML->status("Enable", "Disable", "/admin/user/status", $item) ?>
+					<?= $HTML->deleteButton("Delete", "/admin/user/delete/".$item["id"]) ?>
+					<?= $HTML->statusButton("Enable", "Disable", "/admin/user/status", $item) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

@@ -20,7 +20,7 @@ $tags = $IC->getTags();
 				
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/admin/tag/edit/".$tag["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<?= $HTML->delete("Delete", "/admin/tag/globalDeleteTag/".$tag["id"]) ?>
+					<?= $HTML->deleteButton("Delete", "/admin/tag/globalDeleteTag/".$tag["id"]) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

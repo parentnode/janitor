@@ -888,6 +888,9 @@ class ItemCore {
 	function upload($item_id, $_options) {
 
 
+		$fs = new FileSystem();
+
+
 // TODO: TEST WITH VARIABLE FILES NAMES
 
 		$_input_name = "files";                // input name to check for files (default is files)
@@ -1006,9 +1009,9 @@ class ItemCore {
 									$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
 
 	//								print $output_file . "<br>";
-									FileSystem::removeDirRecursively(dirname($output_file));
-									FileSystem::removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-									FileSystem::makeDirRecursively(dirname($output_file));
+									$fs->removeDirRecursively(dirname($output_file));
+									$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+									$fs->makeDirRecursively(dirname($output_file));
 
 									copy($temp_file, $output_file);
 									$upload["file"] = $output_file;
@@ -1031,9 +1034,9 @@ class ItemCore {
  								$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/mp3";
 // 
 // 								print $output_file . "<br>";
- 								FileSystem::removeDirRecursively(dirname($output_file));
- 								FileSystem::removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
- 								FileSystem::makeDirRecursively(dirname($output_file));
+ 								$fs->removeDirRecursively(dirname($output_file));
+ 								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+ 								$fs->makeDirRecursively(dirname($output_file));
 
 								copy($temp_file, $output_file);
 								$upload["file"] = $output_file;
@@ -1097,9 +1100,9 @@ class ItemCore {
 									$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
 
 //									print $output_file . "<br>";
-									FileSystem::removeDirRecursively(dirname($output_file));
-									FileSystem::removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-									FileSystem::makeDirRecursively(dirname($output_file));
+									$fs->removeDirRecursively(dirname($output_file));
+									$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+									$fs->makeDirRecursively(dirname($output_file));
 
 									copy($temp_file, $output_file);
 									$upload["file"] = $output_file;
@@ -1179,13 +1182,14 @@ class ItemCore {
 	*/
 	function deleteItem($item_id) {
 		$query = new Query();
+		$fs = new FileSystem();
 
 		// delete item + itemtype + files
 		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
 			
 			$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $item_id");
-			FileSystem::removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
-			FileSystem::removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
+			$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
+			$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
 
 			message()->addMessage("Item deleted");
 			return true;
