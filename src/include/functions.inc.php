@@ -156,7 +156,12 @@ function prepareForDB($string) {
 			// }
 			// else {
 				$array = stripDisallowed($array);
-				$array = $mysqli_global->escape_string($array);
+				if($mysqli_global) {
+					$array = $mysqli_global->escape_string($array);
+				}
+				else {
+					$array = addslashes($array);
+				}
 
 //				$array = mysql_real_escape_string($array);
 				$string[$key] = $array;
@@ -165,7 +170,12 @@ function prepareForDB($string) {
 	}
 	else {
 		$string = stripDisallowed($string);
-		$string = $mysqli_global->escape_string($string);
+		if($mysqli_global) {
+			$string = $mysqli_global->escape_string($string);
+		}
+		else {
+			$string = addslashes($string);
+		}
 //		$string = mysql_real_escape_string($string);
 	}
 	return $string;
