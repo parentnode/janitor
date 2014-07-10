@@ -957,7 +957,7 @@ class PageCore {
 
 			// send and reset collection
 			if($this->mail(array(
-				"subject" => "NOTIFICATION: $collection", 
+				"subject" => "NOTIFICATION: $collection on ".$_SERVER["SERVER_ADDR"], 
 				"message" => $message
 			))) {
 				$fp = fopen($collection_file, "w");
