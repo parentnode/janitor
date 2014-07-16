@@ -8,6 +8,14 @@
 /**
 * Cart and Order helper class
 *
+* CART STATUS
+* 1 = Active
+* 2 = Associated with order
+* 3 = Order has been paid, cart cannot be updated
+*
+* ORDER STATUS
+* 1 = Active
+* 2 = Order has been paid, cannot be updated
 */
 
 class Shop extends Model {
@@ -173,7 +181,9 @@ class Shop extends Model {
 
 
 
-	// get carts
+	// get carts - default all carts
+	// - optional cart with cart_id or cart_reference
+	// - optional carts for user_id
 	// - optional multiple carts, based on content match
 	function getCarts($_options=false) {
 
@@ -184,31 +194,44 @@ class Shop extends Model {
 		// get all carts containing $item_id
 		$item_id = false;
 
+		// get all carts containing $item_id
+		$user_id = false;
+
 		// get carts based on timestamps
 		$before = false;
 		$after = false;
 
 		$order = "status DESC, id DESC";
 
+		// status
+		$status = "";
+
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "cart_reference"  : $cart_reference    = $_value; break;
-
 					case "cart_id"         : $cart_id           = $_value; break;
+
 					case "item_id"         : $item_id           = $_value; break;
+					case "user_id"         : $user_id           = $_value; break;
+
 					case "before"          : $before            = $_value; break;
 					case "after"           : $after             = $_value; break;
 
 					case "order"           : $order             = $_value; break;
+
+					case "status"          : $status            = $_value; break;
 				}
 			}
 		}
 
 		$query = new Query();
 
+
 		// get specific cart
 		if($cart_id || $cart_reference) {
+
+			$cart = false;
 
 			if($cart_id) {
 				$sql = "SELECT * FROM ".$this->db_carts." WHERE id = $cart_id LIMIT 1";
@@ -218,14 +241,13 @@ class Shop extends Model {
 			}
 
 //			print $sql."<br>";
-
-			// get cart items
 			if($query->sql($sql)) {
 				$cart = $query->result(0);
 				$cart["items"] = false;
 
+				// get cart items
 				$sql = "SELECT * FROM ".$this->db_cart_items." as items WHERE items.cart_id = ".$cart["id"];
-//				print $sql;
+//				print $sql."<br>";
 				if($query->sql($sql)) {
 
 					$cart["items"] = $query->results();
@@ -239,26 +261,42 @@ class Shop extends Model {
 						$cart["total_quantity"] = 0;
 					}
 				}
-				return $cart;
 			}
+
+			return $cart;
 		}
 
 		// get all carts with item_id in it
-		if($item_id) {
+		else if($item_id) {
 
-			if($query->sql("SELECT * FROM ".$this->db_cart_items." WHERE item_id = $item_id GROUP BY cart_id")) {
+			$carts = false;
+
+			$sql = "SELECT * FROM ".$this->db_cart_items." WHERE item_id = $item_id GROUP BY cart_id";
+
+//			print $sql."<br>";
+			if($query->sql($sql)) {
 				$results = $query->results();
-				$carts = false;
 				foreach($results as $result) {
 					$carts[] = $this->getCarts(array("cart_id" => $result["cart_id"]));
 				}
-				return $carts;
 			}
+			return $carts;
 		}
 
-		// return all carts
-		if(!isset($_options["cart_id"]) && !isset($_options["item_id"]) && !isset($_options["cart_reference"])) {
-			if($query->sql("SELECT * FROM ".$this->db_carts." ORDER BY $order")) {
+		// get all carts for user_id
+		else if($user_id) {
+
+			$carts = false;
+
+			if($status) {
+				$sql = "SELECT * FROM ".$this->db_carts." WHERE user_id = $user_id AND status = $status ORDER BY $order";
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db_carts." WHERE user_id = $user_id ORDER BY $order";
+			}
+
+//			print $sql."<br>";
+			if($query->sql($sql)) {
 				$carts = $query->results();
 
 				foreach($carts as $i => $cart) {
@@ -267,11 +305,33 @@ class Shop extends Model {
 						$carts[$i]["items"] = $query->results();
 					}
 				}
-				return $carts;
 			}
+			return $carts;
 		}
+		else {
+			
+			$carts = false;
 
-		return false;
+			if($status) {
+				$sql = "SELECT * FROM ".$this->db_carts."  WHERE status = $status ORDER BY $order";
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db_carts." ORDER BY $order";
+			}
+
+//			print $sql."<br>";
+			if($query->sql($sql)) {
+				$carts = $query->results();
+
+				foreach($carts as $i => $cart) {
+					$carts[$i]["items"] = false;
+					if($query->sql("SELECT * FROM ".$this->db_cart_items." WHERE cart_id = ".$cart["id"])) {
+						$carts[$i]["items"] = $query->results();
+					}
+				}
+			}
+			return $carts;
+		}
 	}
 
 
@@ -369,7 +429,7 @@ class Shop extends Model {
 
 				// check if cart is associated with order and that order has not yet been paid
 				// otherwise create new cart
-				if($query->sql("SELECT * FROM ".$this->db_orders." WHERE cart_id = $cart_id AND status != 0")) {
+				if($query->sql("SELECT * FROM ".$this->db_orders." WHERE cart_id = $cart_id AND status != 3")) {
 					if($create) {
 						list($cart_id, $cart_reference) = $this->createCart();
 					}
@@ -379,7 +439,7 @@ class Shop extends Model {
 				}
 				else {
 					// update cart modified_at column
-					$query->sql("UPDATE ".$this->db_carts." SET modified_at = CURRENT_TIMESTAMP, status = 1 WHERE cart_id = $cart_id");
+					$query->sql("UPDATE ".$this->db_carts." SET modified_at = CURRENT_TIMESTAMP WHERE cart_id = $cart_id");
 				}
 			}
 
@@ -540,8 +600,11 @@ class Shop extends Model {
 		// get specific order
 		if($order_id) {
 
-//			print "SELECT * FROM ".$this->db_orders." WHERE id = ".$order_id." LIMIT 1";
-			if($query->sql("SELECT * FROM ".$this->db_orders." WHERE id = ".$order_id." LIMIT 1")) {
+			$order = false;
+
+			$sql = "SELECT * FROM ".$this->db_orders." WHERE id = ".$order_id." LIMIT 1";
+//			print $sql."<br>";
+			if($query->sql($sql)) {
 				$order = $query->result(0);
 				$order["items"] = false;
 
@@ -552,52 +615,82 @@ class Shop extends Model {
 				$order["email"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
 				$order["mobile"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
 				$order["newsletter"] = $user->getNewsletters(array("user_id" => $order["user_id"], "newsletter" => "general"));
-
-				return $order;
 			}
-		}
 
-		// get cart_id from cart_reference
-		if($cart_reference) {
-
-			$sql = "SELECT id FROM ".$this->db_carts." WHERE cart_reference = '$cart_reference'";
-//			print $sql."<br>";
-			if($query->sql($sql)) {
-				$cart_id = $query->result(0, "id");
-			}
+			return $order;
 		}
 
 		// get specific cart
-		if($cart_id) {
+		else if($cart_id || $cart_reference) {
 
-			$sql = "SELECT * FROM ".$this->db_orders." WHERE cart_id = ".$cart_id." LIMIT 1";
-//			print $sql."<br>";
-			if($query->sql($sql)) {
-				$order = $query->result(0);
-				$order["items"] = false;
+			$order = false;
 
-				if($query->sql("SELECT * FROM ".$this->db_order_items." as items WHERE items.order_id = ".$order["id"])) {
-					$order["items"] = $query->results();
+			// get cart_id from cart_reference
+			if($cart_reference) {
+				$sql = "SELECT id FROM ".$this->db_carts." WHERE cart_reference = '$cart_reference'";
+//				print $sql."<br>";
+				if($query->sql($sql)) {
+					$cart_id = $query->result(0, "id");
 				}
-
-				$order["email"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
-				$order["mobile"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
-				$order["newsletter"] = $user->getNewsletters(array("user_id" => $order["user_id"], "newsletter" => "general"));
-
-				return $order;
 			}
+
+			// cart_id available
+			if($cart_id) {
+
+				$sql = "SELECT * FROM ".$this->db_orders." WHERE cart_id = ".$cart_id." LIMIT 1";
+	//			print $sql."<br>";
+				if($query->sql($sql)) {
+					$order = $query->result(0);
+					$order["items"] = false;
+
+					if($query->sql("SELECT * FROM ".$this->db_order_items." as items WHERE items.order_id = ".$order["id"])) {
+						$order["items"] = $query->results();
+					}
+
+					$order["email"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+					$order["mobile"] = $user->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+					$order["newsletter"] = $user->getNewsletters(array("user_id" => $order["user_id"], "newsletter" => "general"));
+
+				}
+			}
+
+			return $order;
+		}
+
+		// all orders for user_id
+		else if($user_id) {
+
+			$orders = false;
+
+			if($query->sql("SELECT * FROM ".$this->db_orders." WHERE user_id = $user_id ORDER BY $order")) {
+				$orders = $query->results();
+
+				foreach($orders as $i => $order) {
+					$orders[$i]["items"] = false;
+					if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE order_id = ".$order["id"])) {
+						$orders[$i]["items"] = $query->results();
+					}
+				}
+			}
+
+			return $orders;
 		}
 
 		// TODO: get all orders with item_id in it - not tested
-		if($item_id) {
+		else if($item_id) {
+
+			$orders = false;
 
 			if($query->sql("SELECT order_id as id FROM ".$this->db_order_items." WHERE item_id = $item_id GROUP BY order_id")) {
-				return $query->results();
+				$orders = $query->results();
 			}
-		}
 
-		// return all carts
-		if(!isset($_options["cart_id"]) && !isset($_options["item_id"]) && !isset($_options["user_id"]) && !isset($_options["order_id"]) && !isset($_options["cart_reference"])) {
+			return $orders;
+		}
+		// return all orders
+		else {
+
+			$orders = false;
 
 			if($query->sql("SELECT * FROM ".$this->db_orders." ORDER BY $order")) {
 				$orders = $query->results();
@@ -613,8 +706,9 @@ class Shop extends Model {
 					$orders[$i]["newsletter"] = $user->getNewsletters(array("user_id" => $order["user_id"], "newsletter" => "general"));
 
 				}
-				return $orders;
 			}
+
+			return $orders;
 		}
 
 		return false;
@@ -733,9 +827,8 @@ class Shop extends Model {
 				// create order, but look for existing user before creating new one for this order
 				else {
 
+					// Find user, based on email or mobile
 					$user_id = $user->matchUsernames(array("email" => $entities["email"]["value"], "mobile" => $entities["mobile"]["value"]));
-
-					print "found user:".$user_id."<br>";
 
 					// no matching user, create a new one
 					if(!$user_id) {
@@ -747,10 +840,18 @@ class Shop extends Model {
 						));
 					}
 
+
+
+
 					// need user_id to continue order creation
 					// create order
 					if($user_id && $cart_id) {
 
+						// Update status on cart to 2 to indicate it is now associated with order
+						// Update user_id
+						$query->sql("UPDATE ".$this->db_carts." SET status = 2, user_id = $user_id WHERE is = $cart_id");
+
+						// create order
 						$order_no = randomKey(10);
 						// create order
 						$sql = "INSERT INTO ".$this->db_orders." SET order_no = '$order_no', user_id = $user_id, cart_id = $cart_id";
@@ -765,7 +866,7 @@ class Shop extends Model {
 				// this will update both user info and order
 				//
 				// TODO: there is a slight chance that this is not the intended action
-				// but it is likely more ofter so than not 
+				// but it is likely more often so than not 
 				// (could be situations where new information should be added to new user or addressses)
 				if($order_id && $user_id && $cart_id) {
 
