@@ -1079,6 +1079,8 @@ class User extends Model {
 			$grants = getPost("grant");
 			$user_group_id = $action[1];
 
+			// make sure type tables exist
+			$query->checkDbExistance($this->db_access);
 //			print_r($grants);
 
 			// remove existing grants
