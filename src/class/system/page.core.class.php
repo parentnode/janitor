@@ -111,7 +111,6 @@ class PageCore {
 		if(getVar("dev") !== false) {
 			session()->value("dev", getVar("dev"));
 		}
-
 	}
 
 
@@ -623,7 +622,7 @@ class PageCore {
 		else {
 		
 		//if($access_item && $) {
-			print "checking root:" . isset($this->permissions["/"])." && ".$this->permissions["/"]."<br>";
+//			print "checking root:" . isset($this->permissions["/"])." && ".$this->permissions["/"]."<br>";
 			
 			if(isset($this->permissions["/"]) && $this->permissions["/"]) {
 				return true;
@@ -635,6 +634,28 @@ class PageCore {
 
 		return false;
 
+	}
+
+	// simple validate action function to determine whether to write out urls for data attributes
+	function validAction($action) {
+		if($this->validateAction($action)) {
+			return $action;
+		}
+	}
+
+	// validate csrf token
+	function validateCsrfToken() {
+		// validate csrf-token on all requests?
+		if(!(defined("SITE_INSTALL") && SITE_INSTALL) && $_SERVER["REQUEST_METHOD"] == "POST") {
+			if(!isset($_POST["csrf-token"]) || !$_POST["csrf-token"] || $_POST["csrf-token"] != session()->value("csrf")) {
+				unset($_POST);
+				unset($_FILES);
+
+				message()->addMessage("Autorization failed", array("type" => "error"));
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -668,6 +689,7 @@ class PageCore {
 				// add user_id and user_group_id to session
 				session()->value("user_id", $query->result(0, "id"));
 				session()->value("user_group_id", $query->result(0, "user_group_id"));
+				session()->value("csrf", gen_uuid());
 
 				// redirect to originally requested page
 				$login_forward = stringOr(session()->value("login_forward"), "/");
