@@ -130,7 +130,7 @@ class ItemCore {
 			$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
 
 			// TODO: add comments and ratings
-			// $item["ratiings"] = $this->getRatings(array("item_id" => $item["id"]));
+			// $item["ratings"] = $this->getRatings(array("item_id" => $item["id"]));
 			// $item["comments"] = $this->getComments(array("item_id" => $item["id"]));
 
 			return $item;
@@ -238,6 +238,7 @@ class ItemCore {
 	* $sindex
 	* $itemtype  
 	* $limit
+	* $user_id
 	*
 	* @param String $sindex Optional navigation index - s(earch)index
 	*
@@ -254,6 +255,8 @@ class ItemCore {
 					case "sindex"     : $sindex     = $_value; break;
 					case "order"      : $order      = $_value; break;
 					case "limit"      : $limit      = $_value; break;
+
+					case "user_id"    : $user_id    = $_value; break;
 					
 					// TODO: implement date ranges
 
@@ -289,6 +292,10 @@ class ItemCore {
 
 		if(isset($status)) {
 			$WHERE[] = "items.status = $status";
+		}
+
+		if(isset($user_id)) {
+			$WHERE[] = "items.user_id = $user_id";
 		}
 
 		// TODO: implement dateranges
@@ -573,7 +580,7 @@ class ItemCore {
 			else if($query->sql("SELECT name FROM ".$typeObject->db." WHERE item_id = " . $item_id)) {
 				$sindex = $query->result(0, "name");
 			}
-			
+
 			$sindex = $this->sindex($item_id, $sindex);
 		}
 		return $sindex;
@@ -596,11 +603,13 @@ class ItemCore {
 			// standard Item values
 			// - published at
 			// - status
+			// - user_id
 			$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
 			$status = is_numeric(getPost("status")) ? getPost("status") : 0;
+			$user_id = stringOr(session()->value("user_id"), "DEFAULT");
 
 			// create item
-			$sql = "INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', DEFAULT, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")";
+			$sql = "INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, $status, '$itemtype', ".$user_id.", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".($published_at ? "'$published_at'" : "CURRENT_TIMESTAMP").")";
 
 //			print $sql;
 
@@ -633,8 +642,9 @@ class ItemCore {
 				// return new item
 				return $this->getCompleteItem(array("id" => $new_id));
 			}
-			else if($new_id) {
-				// save failed, remove item again
+
+			// save failed, remove item again
+			if($new_id) {
 				$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $new_id");
 			}
 
@@ -683,7 +693,7 @@ class ItemCore {
 
 
 
-	// update item - does not update tags which is a separate process entirely
+	// update item
 	function updateItem($item_id) {
 //		print "update item<br>";
 
@@ -722,19 +732,21 @@ class ItemCore {
 
 			// add prices
 			$prices = getPost("prices");
-			$currency = getPost("currency");
-			$vatrate = getPost("vatrate");
-			if($prices) {
-				if(is_array($prices)) {
-					foreach($prices as $price) {
-						if($price) {
-							$this->addPrice($item_id, $price, $currency, $vatrate);
-						}
-					}
-				}
-				else {
-					$this->addPrice($item_id, $prices, $currency, $vatrate);
-				}
+			$price = stringOr($prices["price"]);
+			$currency = stringOr($prices["currency"]);
+
+//			$vatrate = getPost("vatrate");
+			if($price && $currency) {
+				// if(is_array($prices)) {
+				// 	foreach($prices as $price) {
+				// 		if($price) {
+				// 			$this->addPrice($item_id, $price, $currency);
+				// 		}
+				// 	}
+				// }
+				// else {
+				$this->addPrice($item_id, $price, $currency);
+//				}
 			}
 
 			if(
@@ -1491,22 +1503,30 @@ class ItemCore {
 	}
 
 	// add price to item
- 	function addPrice($item_id, $price, $currency, $vatrate) {
+ 	function addPrice($item_id, $price, $currency) {
 
 		$query = new Query();
-//		print "INSERT INTO ".UT_PRICES." VALUES(DEFAULT, $item_id, $price, '$currency', '$vatrate')";
 
 		// check if price in currency exists - if it does update price
-		if($query->sql("SELECT id FROM ".UT_PRICES." WHERE currency = '$currency' AND item_id = $item_id")) {
+		$sql = "SELECT id FROM ".UT_PRICES." WHERE currency = '$currency' AND item_id = $item_id";
+//		print $sql."<br>";
+		if($query->sql($sql)) {
+
 			$price_id = $query->result(0, "id");
-			if($query->sql("UPDATE ".UT_PRICES." SET price = $price, vatrate_id = $vatrate WHERE id = $price_id")) {
+
+			$sql = "UPDATE ".UT_PRICES." SET price = $price WHERE id = $price_id";
+//			print $sql."<br>";
+			if($query->sql($sql)) {
 				message()->addMessage("Price updated");
 				return true;
 			}
 		}
 		// insert price
 		else {
-			if($query->sql("INSERT INTO ".UT_PRICES." VALUES(DEFAULT, $item_id, $price, '$currency', '$vatrate')")) {
+
+			$sql = "INSERT INTO ".UT_PRICES." VALUES(DEFAULT, $item_id, $price, '$currency')";
+//			print $sql."<br>";
+			if($query->sql($sql)) {
 				message()->addMessage("Price added");
 				return true;
 			}
