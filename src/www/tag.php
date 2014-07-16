@@ -27,7 +27,7 @@ $page->pageTitle("Tags management");
 
 if(is_array($action) && count($action)) {
 
-	if(preg_match("/[a-zA-Z]+/", $action[0])) {
+	if(preg_match("/[a-zA-Z]+/", $action[0]) && $page->validateCsrfToken()) {
 
 		// check if custom function exists on User class
 		if($IC && method_exists($IC, $action[0])) {

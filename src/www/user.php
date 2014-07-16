@@ -20,6 +20,8 @@ $access_item["/deleteUserGroup/"] = true;
 $access_item["/saveUserGroup/"] = true;
 $access_item["/updateUserGroup/"] = true;
 
+$access_item["/content/"] = true;
+
 if(isset($read_access) && $read_access) {
 	return;
 }
@@ -44,7 +46,7 @@ $page->pageTitle("User management");
 if(is_array($action) && count($action)) {
 
 
-	if(preg_match("/[a-zA-Z]+/", $action[0])) {
+	if(preg_match("/[a-zA-Z]+/", $action[0]) && $page->validateCsrfToken()) {
 
 		// check if custom function exists on User class
 		if($model && method_exists($model, $action[0])) {
@@ -134,6 +136,16 @@ if(is_array($action) && count($action)) {
 	
 		$page->header(array("type" => "admin", "body_class" => "usergroup", "page_title" => "Access control management"));
 		$page->template("admin/user_group/access.php");
+		$page->footer(array("type" => "admin"));
+		exit();
+	
+	}
+
+	// CONTENT OVERVIEW
+	else if(count($action) == 2 && $action[0] == "content") {
+	
+		$page->header(array("type" => "admin"));
+		$page->template("admin/user/content.php");
 		$page->footer(array("type" => "admin"));
 		exit();
 	
