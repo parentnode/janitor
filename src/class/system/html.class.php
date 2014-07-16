@@ -123,10 +123,10 @@ class HTML {
 		// see note above before adding more custom fields
 
 		// price specifics
-		if(!$type || $type == "prices") {
-			$currency = $this->getEntityProperty($name, "currency");
-			$vatrate = $this->getEntityProperty($name, "vatrate");
-		}
+		// if(!$type || $type == "prices") {
+		// 	$currency = $this->getEntityProperty($name, "currency");
+		// 	$vatrate = $this->getEntityProperty($name, "vatrate");
+		// }
 
 
 		// overwrite defaults
@@ -155,8 +155,8 @@ class HTML {
 					case "hint_message"    : $hint_message     = $_value; break;
 
 
-					case "currency"        : $currency         = $_value; break;
-					case "vatrate"         : $vatrate          = $_value; break;
+					// case "currency"        : $currency         = $_value; break;
+					// case "vatrate"         : $vatrate          = $_value; break;
 
 				}
 			}
@@ -313,14 +313,14 @@ class HTML {
 				$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
 			}
 
-			// PRICES
-			else if($type == "prices") {
-				$att_name = $this->attribute("name", $name);
-
-				$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
-				$_ .= '<input type="hidden" value="'.$currency.'" name="currency" />';
-				$_ .= '<input type="hidden" value="'.$vatrate.'" name="vatrate" />';
-			}
+			// // PRICES
+			// else if($type == "prices") {
+			// 	$att_name = $this->attribute("name", $name);
+			//
+			// 	$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
+			// 	$_ .= '<input type="hidden" value="'.$currency.'" name="currency" />';
+			// 	$_ .= '<input type="hidden" value="'.$vatrate.'" name="vatrate" />';
+			// }
 
 
 			// HINT AND ERROR MESSAGE
@@ -341,6 +341,145 @@ class HTML {
 	* SPECIAL INPUTS
 	* - location (combination of location name, latitude and longitude)
 	*/
+
+	function inputPrice($name, $_options = false) {
+
+		// form security
+		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
+			return "";
+		}
+
+		// Get default settings from model first
+
+		// label
+		$label = $this->getEntityProperty($name, "label");
+
+		// type, value and options
+		$value = $this->getEntityProperty($name, "value");
+		$currencies = $this->getEntityProperty($name, "currencies");
+
+		// input state
+		$readonly = $this->getEntityProperty($name, "readonly");
+		$disabled = $this->getEntityProperty($name, "disabled");
+
+		// frontend stuff
+		// TODO: check why class does not get model classname? [BECAUSE IT IS NOT TRANSFERRED IN MODEL CLASS - BY WHY NOT?]
+		$class = false;
+		$id = $this->getEntityProperty($name, "id");
+
+		// validation
+		$min = $this->getEntityProperty($name, "min");
+		$max = $this->getEntityProperty($name, "max");
+		$required = $this->getEntityProperty($name, "required");
+		$pattern = $this->getEntityProperty($name, "pattern");
+
+		// visual feedback
+		$hint_message = $this->getEntityProperty($name, "hint_message");
+		$error_message = $this->getEntityProperty($name, "error_message");
+
+
+		// price specifics
+//		if(!$type || $type == "prices") {
+			$vatrate = $this->getEntityProperty($name, "vatrate");
+//		}
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "label"           : $label            = $_value; break;
+					case "value"           : $value            = $_value; break;
+					case "currencies"      : $currencies       = $_value; break;
+
+					case "readonly"        : $readonly         = $_value; break;
+					case "disabled"        : $disabled         = $_value; break;
+
+					case "class"           : $class            = $_value; break;
+					case "id"              : $id               = $_value; break;
+
+					case "min"             : $min              = $_value; break;
+					case "max"             : $max              = $_value; break;
+					case "required"        : $required         = $_value; break;
+					case "pattern"         : $pattern          = $_value; break;
+
+					case "error_message"   : $error_message    = $_value; break;
+					case "hint_message"    : $hint_message     = $_value; break;
+
+					case "vatrate"         : $vatrate          = $_value; break;
+
+				}
+			}
+		}
+
+		// Start generating HTML
+
+		$_ = '';
+
+		$for = stringOr($id, "input_".$name);
+		$att_id = $this->attribute("id", $for);
+		$att_name = $this->attribute("name", $name);
+
+		$att_disabled = $disabled ? $this->attribute("disabled", "disabled") : '';
+		$att_readonly = $readonly ? $this->attribute("readonly", "readonly") : '';
+
+
+		// specified in some hardcoded way (via model or template)
+		if($currencies) {
+
+			// split currencies
+//			if(preg_match("/,/", $currencies)) {
+				$currencies = explode(",", $currencies);
+//			}
+			
+		}
+		// get all available currencies
+		else {
+
+			$query = new Query();
+			if($query->sql("SELECT id FROM ".UT_CURRENCIES)) {
+				$currencies = $query->results("id");
+			}
+		}
+
+		$att_class = $this->attribute("class", "field", "price", $class, ($required ? "required" : ""), ($disabled ? "disabled" : ""), ($readonly ? "readonly" : ""), ($min ? "min:".$min : ""), ($max ? "max:".$max : ""));
+
+
+		// attribute strips value for slashes etc - cannot be used for patterns
+		$att_pattern = $pattern ? ' pattern="'.$pattern.'"' : '';
+
+
+		$_ .= '<div'.$att_class.'>';
+
+			// LABEL
+			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
+
+			$att_price_name = $this->attribute("name", $name."[price]");
+			$att_currency_name = $this->attribute("name", $name."[currency]");
+
+			$_ .= '<input type="text"'.$att_price_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
+
+			// currency
+			$_ .= '<select'.$att_currency_name.' class="currency">';
+			foreach($currencies as $currency) {
+				$_ .= '<option value="'.$currency.'">'.$currency.'</option>';
+			}
+			$_ .= '</select>';
+
+
+			// HINT AND ERROR MESSAGE
+			$_ .= '<div'.$this->attribute("class", "help").'>';
+				$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
+				$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
+			$_ .= '</div>';
+
+		$_ .= '</div>'."\n";
+
+
+		return $_;
+
+	}
 
 
 	function inputLocation($name_loc = false, $name_lat = false, $name_lon = false, $_options = false) {
@@ -586,6 +725,8 @@ class HTML {
 		$att_action = $this->attribute("action", $action);
 
 		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.'>'."\n";
+		$_ .= '<input type="hidden" name="csrf-token" value="'.session()->value("csrf").'" />'."\n";
+
 
 		return $_;
 	}
@@ -711,12 +852,15 @@ class HTML {
 			}
 		}
 
-		$_ = '<li class="delete">';
+		if($js) {
+			$_ = '<li class="delete" data-delete-item="'.$action.'">';
+		}
+		else {
+			$_ = '<li class="delete">';
 
-		if(!$js) {
-			$_ .= '<form action="'.$action.'" method="post">';
+			$_ .= $this->formStart($action);
 			$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
-			$_ .= '</form>';
+			$_ .= $this->formEnd();
 		}
 
 		$_ .= '</li>';
@@ -758,16 +902,19 @@ class HTML {
 			$state_class = $status_states[$item["status"]];
 			$change_to = ($item["status"]+1)%2;
 
-			$_ = '<li class="status '.$state_class.'">';
+			if($js) {
+				$_ = '<li class="status '.$state_class.'" data-update-status="'.$action.'">';
+			}
+			else {
+				$_ = '<li class="status '.$state_class.'">';
 
-			if(!$js) {
-				$_ .= '<form class="disable" action="'.$action.'/'.$item["id"].'/0" method="post">';
+				$_ .= $this->formStart($action.'/'.$item["id"].'/0', array("class" => "disable"));
 				$_ .= '<input type="submit" value="'.$disable_label.'" name="disable" class="button status" />';
-				$_ .= '</form>';
+				$_ .= $this->formEnd();
 
-				$_ .= '<form class="enable" action="'.$action.'/'.$item["id"].'/1" method="post">';
+				$_ .= $this->formStart($action.'/'.$item["id"].'/1', array("class" => "enable"));
 				$_ .= '<input type="submit" value="'.$enable_label.'" name="enable" class="button status" />';
-				$_ .= '</form>';
+				$_ .= $this->formEnd();
 			}
 
 			$_ .= '</li>';

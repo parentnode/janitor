@@ -109,7 +109,7 @@ class Model extends HTML {
 
 
 		// currency
-		$currency = false;
+		$currencies = false;
 		$vatrate = false;
 
 
@@ -151,7 +151,7 @@ class Model extends HTML {
 					case "error_message"         : $error_message         = $_value; break;
 					case "hint_message"          : $hint_message          = $_value; break;
 
-					case "currency"              : $currency              = $_value; break;
+					case "currencies"            : $currencies            = $_value; break;
 					case "vatrate"               : $vatrate               = $_value; break;
 
 				}
@@ -188,7 +188,7 @@ class Model extends HTML {
 		$this->data_entities[$name]["hint_message"] = $hint_message;
 
 
-		$this->data_entities[$name]["currency"] = $currency;
+		$this->data_entities[$name]["currencies"] = $currencies;
 		$this->data_entities[$name]["vatrate"] = $vatrate;
 
 
@@ -326,7 +326,7 @@ class Model extends HTML {
 		}
 
 		// string or text field
-		if($this->data_entities[$name]["type"] == "string" || $this->data_entities[$name]["type"] == "text" || $this->data_entities[$name]["type"] == "select") {
+		if($this->data_entities[$name]["type"] == "string" || $this->data_entities[$name]["type"] == "text"  || $this->data_entities[$name]["type"] == "html" || $this->data_entities[$name]["type"] == "select") {
 			if($this->isString($name)) {
 				return true;
 			}
