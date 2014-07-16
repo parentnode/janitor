@@ -216,7 +216,7 @@ class Query {
 			// one field
 			if($name) {
 			    while($result = $this->result_object->fetch_array(MYSQLI_ASSOC)) {
-					$results[][$name] = $result[$name];
+					$results[] = $result[$name];
 				}
 			}
 			// all fields
