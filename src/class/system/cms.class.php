@@ -32,7 +32,7 @@ class CMS {
 		$output = new Output();
 
 		// any actions
-		if(isset($action)) {
+		if(isset($action) && $page->validateCsrfToken()) {
 
 			// SAVE ITEM
 			// Requires exactly to parameters /save/#itemtype#
@@ -193,6 +193,9 @@ class CMS {
 			// }
 
 
+		}
+		else {
+			$output->screen(false);
 		}
 
 		
