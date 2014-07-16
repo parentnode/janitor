@@ -1,7 +1,7 @@
 
 Util.Objects["defaultList"] = new function() {
 	this.init = function(div) {
-		u.bug("init defaultList 22")
+//		u.bug("init defaultList:" + u.nodeId(div))
 
 		var i, node;
 
@@ -9,6 +9,17 @@ Util.Objects["defaultList"] = new function() {
 		if(!div.list) {
 			div.list = u.ae(div, "ul", {"class":"items"});
 		}
+
+		// make div available from list
+		div.list.div = div;
+
+		// CMS interaction urls
+		div.csrf_token = div.getAttribute("data-csrf-token");
+		div.save_order_url = div.getAttribute("data-save-order");
+		div.update_item_url = div.getAttribute("data-update-item");
+		div.delete_tag_url = div.getAttribute("data-delete-tag");
+		div.get_tags_url = div.getAttribute("data-get-tags");
+
 
 		div.nodes = u.qsa("li.item", div);
 		//scene.list.scene = scene;
@@ -23,6 +34,8 @@ Util.Objects["defaultList"] = new function() {
 
 				abs_y = u.absY(node);
 
+//				u.bug("build Node:" + (abs_y - 200) + "<" + (scroll_y+browser_h) + " && " + (abs_y + 200) + ">" +  scroll_y);
+
 				if(!node._ready && abs_y - 200 < scroll_y+browser_h && abs_y + 200 > scroll_y) {
 					this.buildNode(node);
 				}
@@ -31,21 +44,20 @@ Util.Objects["defaultList"] = new function() {
 
 		// executed on window
 		div._scrollHandler = function() {
-			var div = u.qs(".scrollingListHandler");
-			u.t.resetTimer(div.t_scroll);
+			u.t.resetTimer(this.t_scroll);
 //			div.t_scroll = u.t.setTimer(div, div.scrolled, 100);
-			div.scrolled();
+			this.scrolled();
 		}
-		// set scroll handler
-		u.ac(div, "scrollingListHandler");
-		u.e.addEvent(window, "scroll", div._scrollHandler);
+		// set window scroll handler
+		var event_id = u.e.addWindowScrollEvent(div, div._scrollHandler);
 
 
 		div.buildNode = function(node) {
-			u.bug("build node")
+//			u.bug("build node")
 
 			node._item_id = u.cv(node, "item_id");
 			node._variant = u.cv(node, "variant");
+			node.div = this;
 
 
 			// action injection for predefined action types (to minimize page load and initialization time)
@@ -61,10 +73,16 @@ Util.Objects["defaultList"] = new function() {
 
 					// inject standard item status form if node is empty
 					if(!action.childNodes.length) {
-						form_disable = u.f.addForm(action, {"action":"/admin/cms/status/"+node._item_id+"/0", "class":"disable"});
-						u.f.addAction(form_disable, {"value":"Disable", "class":"button status"});
-						form_enable = u.f.addForm(action, {"action":"/admin/cms/status/"+node._item_id+"/1", "class":"enable"});
-						u.f.addAction(form_enable, {"value":"Enable", "class":"button status"});
+
+						action.update_status_url = action.getAttribute("data-update-status");
+						if(action.update_status_url) {
+							form_disable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/0", "class":"disable"});
+							u.ae(form_disable, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+							u.f.addAction(form_disable, {"value":"Disable", "class":"button status"});
+							form_enable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/1", "class":"enable"});
+							u.ae(form_enable, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+							u.f.addAction(form_enable, {"value":"Enable", "class":"button status"});
+						}
 					}
 					// look for valid forms
 					else {
@@ -83,7 +101,7 @@ Util.Objects["defaultList"] = new function() {
 									u.rc(this.parentNode, "enabled");
 								}
 							}
-							u.request(this, this.action);
+							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 						}
 
 						u.f.init(form_enable);
@@ -95,7 +113,7 @@ Util.Objects["defaultList"] = new function() {
 									u.ac(this.parentNode, "enabled");
 								}
 							}
-							u.request(this, this.action);
+							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 						}
 					}
 				}
@@ -103,9 +121,14 @@ Util.Objects["defaultList"] = new function() {
 
 					// inject standard item delete form if node is empty
 					if(!action.childNodes.length) {
-						form = u.f.addForm(action, {"action":"/admin/cms/delete/"+node._item_id, "class":"delete"});
-						form.node = node;
-						bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
+
+						action.delete_item_url = action.getAttribute("data-delete-item");
+						if(action.delete_item_url) {
+							form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
+							u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+							form.node = node;
+							bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
+						}
 					}
 					// look for valid forms
 					else {
@@ -146,10 +169,11 @@ Util.Objects["defaultList"] = new function() {
 										}
 										else {
 											this.node.parentNode.removeChild(this.node);
+											this.node.div.scrolled();
 										}
 									}
 								}
-								u.request(this, this.action);
+								u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
 							}
 						}
 					}
@@ -225,165 +249,171 @@ Util.Objects["defaultList"] = new function() {
 
 		// taggable list
 		if(u.hc(div, "taggable")) {
-			u.bug("init taggable")
+//			u.bug("init taggable")
 
-			// tags received
-			div.tagsResponse = function(response) {
-//				u.bug("response:" + response);
+			if(div.get_tags_url && div.delete_tag_url && div.update_item_url) {
+			
+				// tags received
+				div.tagsResponse = function(response) {
+//					u.bug("response:" + response);
 
-				if(response.cms_status == "success" && response.cms_object) {
-					this.all_tags = response.cms_object;
+					if(response.cms_status == "success" && response.cms_object) {
+						this.all_tags = response.cms_object;
 
-					var i, node, tag, j, bn_add, context, value;
+						var i, node, tag, j, bn_add, context, value;
 //						u.bug("nodes:" + this.scene.nodes);
-					// minimum work in first run
-					// only inject add-button in first run
-					for(i = 0; node = this.nodes[i]; i++) {
+						// minimum work in first run
+						// only inject add-button in first run
+						for(i = 0; node = this.nodes[i]; i++) {
 
-						node._tags = u.qs("ul.tags", node);
-						if(!node._tags) {
-							node._tags = u.ae(node, "ul", {"class":"tags"});
-						}
-						node._bn_add = u.ae(node._tags, "li", {"class":"add","html":"+"});
-						node._bn_add.div = this;
-						node._bn_add.node = node;
-						u.e.click(node._bn_add);
-						node._bn_add.clicked = function() {
-							this.div._taggableNode(this.node);
-						}
-					}
-				}
-				else {
-					page.notify(response.cms_message);
-				}
-			}
-			u.request(div, "/admin/cms/tags", {"callback":"tagsResponse"});
-
-
-			// inject tag system into node
-			// done when user clicks add-button
-			div._taggableNode = function(node) {
-
-				u.ac(node, "addtags");
-
-				// update add button
-				node._bn_add.innerHTML = "-";
-				node._bn_add.clicked = function() {
-					this.innerHTML = "+";
-					u.rc(this.node, "addtags");
-
-					// remove tag set to avoid bloated HTML
-					this.node._tag_options.parentNode.removeChild(this.node._tag_options);
-
-					this.clicked = function() {
-						this.div._taggableNode(this.node);
-					}
-				}
-
-				// insert add tag options div
-				node._tag_options = u.ae(node, "div", {"class":"tagoptions"});
-
-				// insert tags filter
-				node._tag_options._field = u.ae(node._tag_options, "div", {"class":"field"});
-
-				node._tag_options._tagfilter = u.ae(node._tag_options._field, "input", {"class":"filter ignoreinput"});
-				node._tag_options._tagfilter.node = node;
-
-				node._tag_options._tagfilter.onkeyup = function() {
-
-					if(this.node._new_tags) {
-						var tags = u.qsa(".tag", this.node._new_tags);
-						var i, tag;
-						for(i = 0; tag = tags[i]; i++) {
-							if(tag.textContent.toLowerCase().match(this.value.toLowerCase())) {
-								u.as(tag, "display", "inline-block");
+							node._tags = u.qs("ul.tags", node);
+							if(!node._tags) {
+								node._tags = u.ae(node, "ul", {"class":"tags"});
 							}
-							else {
-								u.as(tag, "display", "none");
+							node._bn_add = u.ae(node._tags, "li", {"class":"add","html":"+"});
+							node._bn_add.div = this;
+							node._bn_add.node = node;
+							u.e.click(node._bn_add);
+							node._bn_add.clicked = function() {
+								this.div.taggableNode(this.node);
 							}
 						}
-					}
-				
-				}
-
-				node._new_tags = u.ae(node._tag_options, "ul", {"class":"tags"});
-
-				// index existing tags
-				var itemTags = u.qsa("li:not(.add)", node._tags);
-				var usedTags = {};
-
-				for(j = 0; tag = itemTags[j]; j++) {
-					tag._context = u.qs(".context", tag).innerHTML;
-					tag._value = u.qs(".value", tag).innerHTML;
-
-					if(!usedTags[tag._context]) {
-						usedTags[tag._context] = {}
-					}
-					if(!usedTags[tag._context][tag._value]) {
-						usedTags[tag._context][tag._value] = tag;
-					}
-				}
-
-				// create new tags list
-				for(tag in this.all_tags) {
-
-					context = this.all_tags[tag].context;
-					// replace single & with entity or it is not recognized
-					value = this.all_tags[tag].value.replace(/ & /, " &amp; ");
-
-//					u.bug("context:value:" + context + ":" + value)
-
-					if(usedTags && usedTags[context] && usedTags[context][value]) {
-						tag_node = usedTags[context][value];
 					}
 					else {
-						tag_node = u.ae(node._new_tags, "li", {"class":"tag"});
-						tag_node._context = context;
-						tag_node._value = value;
-						u.ae(tag_node, "span", {"class":"context", "html":tag_node._context});
-						u.ae(tag_node, "span", {"class":"value", "html":tag_node._value});
+						page.notify(response.cms_message);
 					}
-					tag_node.new_tags = this;
+				}
+				u.request(div, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
 
-					tag_node._id = this.all_tags[tag].id;
-					tag_node.node = node;
 
-					u.e.click(tag_node);
-					tag_node.clicked = function() {
-//						u.bug("tag clicked:" + tag_node._context+":"+tag_node._value);
+				// inject tag system into node
+				// done when user clicks add-button
+				div.taggableNode = function(node) {
 
-						// delete tag
-						if(u.hc(this.node, "addtags")) {
+					u.ac(node, "addtags");
 
-							// remove tag
-							if(this.parentNode == this.node._tags) {
+					// update add button
+					node._bn_add.innerHTML = "-";
+					node._bn_add.clicked = function() {
+						this.innerHTML = "+";
+						u.rc(this.node, "addtags");
 
-								this.response = function(response) {
-									if(response.cms_status == "success") {
-										// add tag to newtags
-										u.ae(this.node._new_tags, this);
-									}
-									// Notify of event
-									page.notify(response.cms_message);
+						// remove tag set to avoid bloated HTML
+						this.node._tag_options.parentNode.removeChild(this.node._tag_options);
+
+						this.clicked = function() {
+							this.div.taggableNode(this.node);
+						}
+					}
+
+					// insert add tag options div
+					node._tag_options = u.ae(node, "div", {"class":"tagoptions"});
+
+					// insert tags filter
+					node._tag_options._field = u.ae(node._tag_options, "div", {"class":"field"});
+
+					node._tag_options._tagfilter = u.ae(node._tag_options._field, "input", {"class":"filter ignoreinput"});
+					node._tag_options._tagfilter.node = node;
+
+					node._tag_options._tagfilter.onkeyup = function() {
+
+						if(this.node._new_tags) {
+							var tags = u.qsa(".tag", this.node._new_tags);
+							var i, tag;
+							for(i = 0; tag = tags[i]; i++) {
+								if(tag.textContent.toLowerCase().match(this.value.toLowerCase())) {
+									u.as(tag, "display", "inline-block");
 								}
-								u.request(this, "/admin/cms/tags/delete/"+this.node._item_id+"/" + this._id);
+								else {
+									u.as(tag, "display", "none");
+								}
 							}
-							// else add tag
-							else {
+						}
+				
+					}
 
-								this.response = function(response) {
-									if(response.cms_status == "success") {
-										// add tag to tags
-										u.ie(this.node._tags, this);
+					node._new_tags = u.ae(node._tag_options, "ul", {"class":"tags"});
+
+					// index existing tags
+					var itemTags = u.qsa("li:not(.add)", node._tags);
+					var usedTags = {};
+
+					for(j = 0; tag = itemTags[j]; j++) {
+						tag._context = u.qs(".context", tag).innerHTML;
+						tag._value = u.qs(".value", tag).innerHTML;
+
+						if(!usedTags[tag._context]) {
+							usedTags[tag._context] = {}
+						}
+						if(!usedTags[tag._context][tag._value]) {
+							usedTags[tag._context][tag._value] = tag;
+						}
+					}
+
+					// create new tags list
+					for(tag in this.all_tags) {
+
+						context = this.all_tags[tag].context;
+						// replace single & with entity or it is not recognized
+						value = this.all_tags[tag].value.replace(/ & /, " &amp; ");
+
+//						u.bug("context:value:" + context + ":" + value)
+
+						if(usedTags && usedTags[context] && usedTags[context][value]) {
+							tag_node = usedTags[context][value];
+						}
+						else {
+							tag_node = u.ae(node._new_tags, "li", {"class":"tag"});
+							tag_node._context = context;
+							tag_node._value = value;
+							u.ae(tag_node, "span", {"class":"context", "html":tag_node._context});
+							u.ae(tag_node, "span", {"class":"value", "html":tag_node._value});
+						}
+						tag_node.new_tags = this;
+
+						tag_node._id = this.all_tags[tag].id;
+						tag_node.node = node;
+
+						u.e.click(tag_node);
+						tag_node.clicked = function() {
+//							u.bug("tag clicked:" + tag_node._context+":"+tag_node._value);
+
+							// delete tag
+							if(u.hc(this.node, "addtags")) {
+
+								// remove tag
+								if(this.parentNode == this.node._tags) {
+
+									this.response = function(response) {
+										if(response.cms_status == "success") {
+											// add tag to newtags
+											u.ae(this.node._new_tags, this);
+										}
+										// Notify of event
+										page.notify(response.cms_message);
 									}
-									// Notify of event
-									page.notify(response.cms_message);
+									u.request(this, this.node.div.delete_tag_url+"/"+this.node._item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.node.div.csrf_token});
 								}
-								u.request(this, "/admin/cms/update/"+this.node._item_id, {"method":"post", "params":"tags="+this._id});
+								// else add tag
+								else {
+
+									this.response = function(response) {
+										if(response.cms_status == "success") {
+											// add tag to tags
+											u.ie(this.node._tags, this);
+										}
+										// Notify of event
+										page.notify(response.cms_message);
+									}
+									u.request(this, this.node.div.update_item_url+"/"+this.node._item_id, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.node.div.csrf_token});
+								}
 							}
 						}
 					}
 				}
+			}
+			else {
+				u.rc(div, "taggable");
 			}
 		}
 
@@ -442,21 +472,29 @@ Util.Objects["defaultList"] = new function() {
 
 
 		// sortable list
-		if(u.hc(div, "sortable")) {
+		if(u.hc(div, "sortable") && div.list) {
 
-			u.s.sortable(div.list);
-			div.list.picked = function() {}
-			div.list.dropped = function() {
-				var url = this.getAttribute("data-save-order");
-				this.nodes = u.qsa("li.item", this);
-				for(i = 0; node = this.nodes[i]; i++) {
-					url += "/"+u.cv(node, "id");
+			if(div.save_order_url) {
+
+				u.s.sortable(div.list);
+				div.list.picked = function() {}
+				div.list.dropped = function() {
+					var order = new Array();
+
+					this.nodes = u.qsa("li.item", this);
+					for(i = 0; node = this.nodes[i]; i++) {
+						order.push(u.cv(node, "id"));
+					}
+					this.orderResponse = function(response) {
+						// Notify of event
+						page.notify(response.cms_message);
+					}
+					u.request(this, this.div.save_order_url, {"callback":"orderResponse", "method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
 				}
-				this.response = function(response) {
-					// Notify of event
-					page.notify(response.cms_message);
-				}
-				u.request(this, url);
+
+			}
+			else {
+				u.rc(div, "sortable");
 			}
 
 		}

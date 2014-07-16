@@ -19,18 +19,15 @@
 
 /* USERNAMES */
 #content .scene.userEdit > div.usernames {padding: 0 0 20px 0; border-bottom: 1px solid #dedede;}
-#content .scene.userEdit > div.usernames {}
 #content .scene.userEdit > div.usernames .actions {text-align: left;}
 #content .scene.userEdit > div.usernames .actions li {padding: 0 5px 10px;}
 
 
 /* PASSWORD */
 #content .scene.userEdit > div.password {padding: 0 0 10px 0; border-bottom: 1px solid #dedede;}
-
 #content .scene.userEdit > div.password div.password_state {}
 #content .scene.userEdit > div.password div.password_state .password_missing {display: block;}
 #content .scene.userEdit > div.password div.password_state .password_set {display: none;}
-
 #content .scene.userEdit > div.password div.password_state.set .password_missing {display: none;}
 #content .scene.userEdit > div.password div.password_state.set .password_set {display: block;}
 
@@ -69,4 +66,16 @@
 
 /* USER GROUP */
 #content .defaultList.usergroupList ul.items > li h3 {padding-bottom: 16px;}
+
+
+/* USER CONTENT */
+#content .defaultList.userContentList h2 {padding-top: 20px; border-bottom: 1px solid #dedede;}
+#content .defaultList.userContentList div.all_items {padding-bottom: 20px;}
+#content .defaultList.userContentList ul.items > li h3 {padding-bottom: 16px;}
+
+/* VIEWS */
+#content .defaultList.userContentList .views {background-color: #dedede;}
+#content .defaultList.userContentList .views li {padding: 15px 30px; border-right: 1px solid #dedede;}
+#content .defaultList.userContentList .views li a {text-decoration: none;}
+#content .defaultList.userContentList .views li.selected {background-color: #f5f7f8; color: #aaaaaa;}
 

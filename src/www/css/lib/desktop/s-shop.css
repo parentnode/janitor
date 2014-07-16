@@ -1,9 +1,14 @@
+/* DELETE BUTTON */
+#content .defaultView > .actions li.delete {float: right; padding: 0 0 10px 10px;}
+
+
 /* Cart */
 #content .defaultList.cartList ul.items > li h3 {padding-bottom: 16px;}
 #content .defaultList.cartList ul.items > li ul.products {display: none;}
 
 #content .defaultView.cartView ul.products {padding: 0 30px;}
 #content .defaultView.cartView ul.products li {display: block;}
+
 
 /* Order */
 #content .defaultList.orderList ul.items > li dl.details {padding: 3px 30px 16px; display: block;}

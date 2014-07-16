@@ -31,6 +31,7 @@
 #content div.tagoptions ul.tags li:hover {background-color: #64ad8e;}
 
 #content div.tagoptions .field {}
+#content div.sortable div.tagoptions .field {padding-left: 56px;}
 #content div.tagoptions input {height: 16px; font-size: 12px;}
 
 

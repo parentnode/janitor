@@ -13,73 +13,13 @@ Util.Objects["addPrices"] = new function() {
 		// actions = field.insertBefore(actions, u.ns(field._input));
 		form.submitted = function(event) {
 			this.response = function(response) {
-				if(response.cms_status == "success") {
-					location.reload();
-				}
-				else {
-					alert(response.cms_message[0]);
-				}
+				page.notify(response.cms_message);
 			}
 			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 		}
 
 	}
 }
-
-
-
-// Add prices form
-Util.Objects["formAddPrices"] = new function() {
-	this.init = function(form) {
-
-		u.f.init(form);
-
-		var i, field, actions;
-
-		field = form.fields["prices"].field;
-		actions = u.qs(".actions", form);
-		actions = field.insertBefore(actions, u.ns(field._input));
-		form.submitted = function(event) {
-			this.response = function(response) {
-				if(response.cms_status == "success") {
-					location.reload();
-				}
-				else {
-					alert(response.cms_message[0]);
-				}
-			}
-			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
-		}
-
-	}
-}
-
-// Add tags form
-Util.Objects["formAddTags"] = new function() {
-	this.init = function(form) {
-
-		var i, field, actions;
-
-		u.f.init(form);
-
-		// prepare add field
-		field = form.fields["tags"].field;
-		actions = u.qs(".actions", form);
-		actions = field.insertBefore(actions, u.ns(field._input));
-		form.submitted = function(event) {
-			this.response = function(response) {
-				if(response.cms_status == "success") {
-					location.reload();
-				}
-				else {
-					alert(response.cms_message[0]);
-				}
-			}
-			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
-		}
-	}
-}
-
 
 // Add images form
 Util.Objects["addMedia"] = new function() {
@@ -88,7 +28,10 @@ Util.Objects["addMedia"] = new function() {
 		var form = u.qs("form.upload", div);
 		u.f.init(form);
 
+		div.csrf_token = form.fields["csrf-token"].val();
+
 		var file_input = u.qs("input[type=file]", form);
+		file_input.div = div;
 		file_input.changed = function() {
 
 			this.response = function(response) {
@@ -115,7 +58,12 @@ Util.Objects["addMedia"] = new function() {
 			}
 
 			var fd = new FormData();
+			if(this.div.csrf_token) {
+				fd.append("csrf-token", this.div.csrf_token);
+			}
+
 			var i, file;
+
 			for(i = 0; file = this.files[i]; i++) {
 				fd.append(this.name+"["+i+"]", file);
 			}
@@ -133,29 +81,32 @@ Util.Objects["addMedia"] = new function() {
 
 		// image list
 		div.media_list = u.qs("ul.media", div.media_list);
-
+		div.media_list.div = div;
 
 		// sortable list
 		if(u.hc(div, "sortable") && div.media_list) {
 
-			u.s.sortable(div.media_list);
-			div.media_list.picked = function() {}
-			div.media_list.dropped = function() {
-				var url = this.getAttribute("data-save-order");
-				this.nodes = u.qsa("li.media", this);
-				for(i = 0; node = this.nodes[i]; i++) {
-					url += "/"+u.cv(node, "media_id");
+			div.save_order_url = div.getAttribute("data-save-order");
+			if(div.save_order_url) {
+				u.s.sortable(div.media_list);
+				div.media_list.picked = function() {}
+				div.media_list.dropped = function() {
+					var order = new Array();
+					this.nodes = u.qsa("li.media", this);
+					for(i = 0; node = this.nodes[i]; i++) {
+						order.push(u.cv(node, "media_id"));
+					}
+					this.response = function(response) {
+						// Notify of event
+						page.notify(response.cms_message);
+					}
+					u.request(this, this.div.save_order_url, {"method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
 				}
-				this.response = function(response) {
-					// Notify of event
-					page.notify(response.cms_message);
-				}
-				u.request(this, url);
 			}
-
+			else {
+				u.rc(div, "sortable");
+			}
 		}
-
-
 
 	}
 }

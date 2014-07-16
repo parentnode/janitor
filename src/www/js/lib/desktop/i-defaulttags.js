@@ -9,6 +9,14 @@ Util.Objects["defaultTags"] = new function() {
 
 		u.f.init(div._tags_form);
 
+
+		// CMS interaction urls
+		div.csrf_token = div._tags_form.fields["csrf-token"].value;
+		div.update_item_url = div._tags_form.action;
+		div.delete_tag_url = div.getAttribute("data-delete-tag");
+		div.get_tags_url = div.getAttribute("data-get-tags");
+
+
 		// show all tags when tag input has focus
 		div._tags_form.fields["tags"].focused = function() {
 			this.form.div.enableTagging();
@@ -76,7 +84,7 @@ Util.Objects["defaultTags"] = new function() {
 			}
 		}
 		// get tags
-		u.request(div._tags, "/admin/cms/tags", {"callback":"tagsResponse"});
+		u.request(div._tags, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
 
 
 		// enable tagging
@@ -174,7 +182,8 @@ Util.Objects["defaultTags"] = new function() {
 									// Notify of event
 									page.notify(response.cms_message);
 								}
-								u.request(this, "/admin/cms/tags/delete/"+this.div.item_id+"/" + this._id);
+//								u.request(this, "/admin/cms/tags/delete/"+this.div.item_id+"/" + this._id);
+								u.request(this, this.div.delete_tag_url+"/"+this.div.item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.div.csrf_token});
 							}
 							// else add tag
 							else {
@@ -187,7 +196,8 @@ Util.Objects["defaultTags"] = new function() {
 									// Notify of event
 									page.notify(response.cms_message);
 								}
-								u.request(this, "/admin/cms/update/"+this.div.item_id, {"method":"post", "params":"tags="+this._id});
+//								u.request(this, "/admin/cms/update/"+this.div.item_id, {"method":"post", "params":"tags="+this._id});
+								u.request(this, this.div.update_item_url, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.div.csrf_token});
 							}
 						}
 					}
