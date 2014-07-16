@@ -11,7 +11,7 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 	<h1>Edit tag</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("Back", "/admin/tag/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("List", "/admin/tag/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
 	<div class="item i:defaultEdit">

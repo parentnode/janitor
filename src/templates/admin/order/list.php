@@ -8,7 +8,7 @@ $orders = $model->getOrders();
 	<h1>Orders</h1>
 
 	<ul class="actions">
-		<li class="cart"><a href="/admin/shop/cart/list" class="button">Carts</a></li>
+		<?= $HTML->link("Carts", "/admin/shop/cart/list", array("class" => "button", "wrapper" => "li.cart")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList filters">
@@ -29,17 +29,7 @@ $orders = $model->getOrders();
 				</dl>
 
 				<ul class="actions">
-					<li class="view"><a href="/admin/shop/order/view/<?= $order["id"] ?>" class="button">View</a></li>
-					<!--li class="delete">
-						<form action="/admin/order/deleteOrder/<?= $order["id"] ?>" class="i:formDefaultDelete" method="post" enctype="multipart/form-data">
-							<input type="submit" value="Delete" class="button delete" />
-						</form>
-					</li-->
-					<!--li class="status">
-						<form action="/admin/cms/orders/<?= ($order["status"] == 1 ? "disable" : "enable") ?>/<?= $order["id"] ?>" class="i:formDefaultStatus" method="post" enctype="multipart/form-data">
-							<input type="submit" value="<?= ($order["status"] == 1 ? "Disable" : "Enable") ?>" class="button status" />
-						</form>
-					</li-->
+					<?= $HTML->link("View", "/admin/shop/order/view/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

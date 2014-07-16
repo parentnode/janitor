@@ -29,7 +29,7 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 <div class="scene defaultEdit userEdit">
 	<h1>Edit user</h1>
 
-	<ul class="actions i:defaultEditActions item_id:<?= $item["id"] ?>">
+	<ul class="actions">
 		<?= $HTML->link("All users", "/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->deleteButton("Delete", "/admin/user/delete/".$item["id"]) ?>
 	</ul>
@@ -42,7 +42,11 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 
 	<ul class="views">
 		<?= $HTML->link("Profile", "/admin/user/edit/".$item["id"], array("wrapper" => "li.profile.selected")) ?>
+<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
 		<?= $HTML->link("Content and orders", "/admin/user/content/".$item["id"], array("wrapper" => "li.content")) ?>
+<?		else: ?>
+		<?= $HTML->link("Content", "/admin/user/content/".$item["id"], array("wrapper" => "li.content")) ?>
+<?		endif; ?>
 	</ul>
 
 	<div class="item i:defaultEdit">

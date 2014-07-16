@@ -8,7 +8,7 @@ $order = $model->getOrders(array("order_id" => $action[2]));
 	<h1>View order</h1>
 
 	<ul class="actions">
-		<li class="cancel"><a href="/admin/shop/order/list" class="button">Back</a></li>
+		<?= $HTML->link("Order list", "/admin/shop/order/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
 	<h2>Order</h2>
@@ -54,16 +54,6 @@ $order = $model->getOrders(array("order_id" => $action[2]));
 			</li>
 <?		endforeach; ?>
 		</ul>
-
-
-		<!--dl class="list">
-			<?	foreach($order as $attribute => $value): ?>
-			<? if($attribute != "items"): ?>
-				<dt><?= $attribute ?></dt>
-				<dd><?= $order[$attribute] ?></dd>
-			<? endif; ?>
-			<? endforeach;?>
-		</dl-->
 	</div>
 
 </div>

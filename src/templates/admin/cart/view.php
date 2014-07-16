@@ -11,7 +11,8 @@ $cart = $model->getCarts(array("cart_id" => $action[2]));
 	<h1>View cart</h1>
 
 	<ul class="actions">
-		<li class="cancel"><a href="/admin/shop/cart/list" class="button">Back</a></li>
+		<?= $HTML->link("Cart list", "/admin/shop/cart/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->deleteButton("Delete", "/admin/shop/deleteCart/".$cart["id"]) ?>
 	</ul>
 
 	<h2>Cart</h2>

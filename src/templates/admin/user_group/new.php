@@ -6,7 +6,7 @@ global $model;
 	<h1>New user group</h1>
 
 	<ul class="actions">
-		<?= $model->link("Back", "/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $model->link("Groups", "/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
 

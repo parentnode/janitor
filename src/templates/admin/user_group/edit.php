@@ -10,7 +10,7 @@ $item = $model->getUserGroups(array("user_group_id" => $action[2]));
 	<h1>Edit user group</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("Back", "/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("Groups", "/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
 	<div class="item i:defaultEdit">

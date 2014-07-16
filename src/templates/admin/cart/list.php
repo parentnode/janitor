@@ -3,14 +3,14 @@ global $action;
 global $model;
 
 $IC = new Item();
-$carts = $model->getCarts();
+$carts = $model->getCarts(array("status" => 1));
 
 ?>
 <div class="scene defaultList cartList">
 	<h1>Carts</h1>
 
 	<ul class="actions">
-		<li class="order"><a href="/admin/shop/order/list" class="button">Orders</a></li>
+		<?= $HTML->link("Orders", "/admin/shop/order/list", array("class" => "button", "wrapper" => "li.order")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList filters">
@@ -30,17 +30,8 @@ $carts = $model->getCarts();
 <?				endif; ?>
 
 				<ul class="actions">
-					<li class="view"><a href="/admin/shop/cart/view/<?= $cart["id"] ?>" class="button">View</a></li>
-					<li class="delete">
-						<form action="/admin/shop/deleteCart/<?= $cart["id"] ?>" class="i:formDefaultDelete" method="post" enctype="multipart/form-data">
-							<input type="submit" value="Delete" class="button delete" />
-						</form>
-					</li>
-					<!--li class="status">
-						<form action="/admin/cms/cart/<?= ($cart["status"] == 1 ? "disable" : "enable") ?>/<?= $cart["id"] ?>" class="i:formDefaultStatus" method="post" enctype="multipart/form-data">
-							<input type="submit" value="<?= ($cart["status"] == 1 ? "Disable" : "Enable") ?>" class="button status" />
-						</form>
-					</li-->
+					<?= $HTML->link("View", "/admin/shop/cart/view/".$cart["id"], array("class" => "button", "wrapper" => "li.view")) ?>
+					<?= $HTML->deleteButton("Delete", "/admin/shop/deleteCart/".$cart["id"]) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

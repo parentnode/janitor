@@ -11,7 +11,7 @@ $item_id = $item["item_id"];
 	<h1>Edit TODO list</h1>
 
 	<ul class="actions i:defaultEditActions item_id:<?= $item_id ?>">
-		<?= $HTML->link("Back", "/admin/".$itemtype."/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("List", "/admin/".$itemtype."/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->deleteButton("Delete", "/admin/cms/delete/".$item["id"], array("js" => true)) ?>
 	</ul>
 
@@ -38,7 +38,10 @@ $item_id = $item["item_id"];
 	</div>
 
 	<h2>Tags</h2>
-	<div class="tags i:defaultTags item_id:<?= $item_id ?>">
+	<div class="tags i:defaultTags item_id:<?= $item_id ?>"
+		data-get-tags="<?= $this->validAction("/admin/cms/tags") ?>" 
+		data-delete-tag="<?= $this->validAction("/admin/cms/tags/delete") ?>"
+		>
 		<p>Add tag identifyer for this TODO list. TODOs with this/these tags will automatically be added to this list.</p>
 		<?= $model->formStart("/admin/cms/update/".$item_id, array("class" => "labelstyle:inject")) ?>
 			<fieldset>

@@ -13,7 +13,13 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position A
 		<?= $HTML->link("New list", "/admin/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList taggable filters sortable">
+	<div class="all_items i:defaultList taggable filters sortable"
+		data-csrf-token="<?= session()->value("csrf") ?>"
+		data-save-order="<?= $this->validAction("/admin/$itemtype/updateOrder") ?>" 
+		data-get-tags="<?= $this->validAction("/admin/cms/tags") ?>" 
+		data-delete-tag="<?= $this->validAction("/admin/cms/tags/delete") ?>"
+		data-update-item="<?= $this->validAction("/admin/cms/update") ?>"
+		>
 <?		if($all_items): ?>
 		<ul class="items targets:draggable" data-save-order="/admin/<?= $itemtype ?>/updateOrder">
 <?			foreach($all_items as $item): 
