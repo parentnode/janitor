@@ -75,21 +75,14 @@ class PageCore {
 		@include_once("config/connect_mail.php");
 
 
-
 		// shorthand for clean request uri
 		$this->url = str_replace("?".$_SERVER['QUERY_STRING'], "", $_SERVER['REQUEST_URI']);
 
-		// check access
-		$this->setActions(RESTParams());
 
 
 		// login in progress
 		if(getVar("login") == "true") {
-
-			
-			// TODO: add login
 			$this->logIn();
-
 		}
 		// logoff
 		if(getVar("logoff") == "true") {
@@ -111,6 +104,9 @@ class PageCore {
 		if(getVar("dev") !== false) {
 			session()->value("dev", getVar("dev"));
 		}
+
+		// check access
+		$this->setActions(RESTParams());
 	}
 
 
@@ -691,11 +687,19 @@ class PageCore {
 				session()->value("user_group_id", $query->result(0, "user_group_id"));
 				session()->value("csrf", gen_uuid());
 
-				// redirect to originally requested page
-				$login_forward = stringOr(session()->value("login_forward"), "/");
-				session()->reset("login_forward");
+				if(getPost("ajaxlogin")) {
+					@include_once("class/system/output.class.php");
+					$output = new Output();
+					$output->screen(array("csrf-token" => session()->value("csrf")));
 
-				header("Location: " . $login_forward);
+				}
+				else {
+					// redirect to originally requested page
+					$login_forward = stringOr(session()->value("login_forward"), "/");
+					session()->reset("login_forward");
+
+					header("Location: " . $login_forward);
+				}
 				exit();
 			}
 		}
