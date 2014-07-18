@@ -95,7 +95,7 @@ Util.Objects["defaultList"] = new function() {
 						u.f.init(form_disable);
 						form_disable.submitted = function() {
 							this.response = function(response) {
-								page.notify(response.cms_message);
+								page.notify(response);
 								if(response.cms_status == "success") {
 									u.ac(this.parentNode, "disabled");
 									u.rc(this.parentNode, "enabled");
@@ -107,7 +107,7 @@ Util.Objects["defaultList"] = new function() {
 						u.f.init(form_enable);
 						form_enable.submitted = function() {
 							this.response = function(response) {
-								page.notify(response.cms_message);
+								page.notify(response);
 								if(response.cms_status == "success") {
 									u.rc(this.parentNode, "disabled");
 									u.ac(this.parentNode, "enabled");
@@ -159,7 +159,7 @@ Util.Objects["defaultList"] = new function() {
 
 
 								this.response = function(response) {
-									page.notify(response.cms_message);
+									page.notify(response);
 
 									if(response.cms_status == "success") {
 										// check for constraint error preventing row from actually being deleted
@@ -280,7 +280,7 @@ Util.Objects["defaultList"] = new function() {
 						}
 					}
 					else {
-						page.notify(response.cms_message);
+						page.notify(response);
 					}
 				}
 				u.request(div, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
@@ -390,7 +390,7 @@ Util.Objects["defaultList"] = new function() {
 											u.ae(this.node._new_tags, this);
 										}
 										// Notify of event
-										page.notify(response.cms_message);
+										page.notify(response);
 									}
 									u.request(this, this.node.div.delete_tag_url+"/"+this.node._item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.node.div.csrf_token});
 								}
@@ -403,7 +403,7 @@ Util.Objects["defaultList"] = new function() {
 											u.ie(this.node._tags, this);
 										}
 										// Notify of event
-										page.notify(response.cms_message);
+										page.notify(response);
 									}
 									u.request(this, this.node.div.update_item_url+"/"+this.node._item_id, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.node.div.csrf_token});
 								}
@@ -487,7 +487,7 @@ Util.Objects["defaultList"] = new function() {
 					}
 					this.orderResponse = function(response) {
 						// Notify of event
-						page.notify(response.cms_message);
+						page.notify(response);
 					}
 					u.request(this, this.div.save_order_url, {"callback":"orderResponse", "method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
 				}

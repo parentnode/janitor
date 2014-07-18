@@ -9,7 +9,7 @@ Util.Objects["usernames"] = new function() {
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
-				page.notify(response.cms_message);
+				page.notify(response);
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 
@@ -54,7 +54,7 @@ Util.Objects["password"] = new function() {
 					u.as(this.password_state, "display", "block");
 					u.as(this.new_password, "display", "none");
 				}
-				page.notify(response.cms_message);
+				page.notify(response);
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 			this.fields["password"].val("");
@@ -85,7 +85,7 @@ Util.Objects["formAddressNew"] = new function() {
 					location.href = this.actions["cancel"].url.replace("\/list", "/edit/"+response.cms_object.item_id);
 				}
 				else if(response.cms_message) {
-					page.notify(response.cms_message);
+					page.notify(response);
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});

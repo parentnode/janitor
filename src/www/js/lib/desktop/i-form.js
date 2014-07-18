@@ -13,7 +13,7 @@ Util.Objects["addPrices"] = new function() {
 		// actions = field.insertBefore(actions, u.ns(field._input));
 		form.submitted = function(event) {
 			this.response = function(response) {
-				page.notify(response.cms_message);
+				page.notify(response);
 			}
 			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 		}
@@ -42,7 +42,7 @@ Util.Objects["addMedia"] = new function() {
 					location.reload();
 				}
 				else if(response.cms_message) {
-					page.notify(response.cms_message);
+					page.notify(response);
 				}
 
 			}
@@ -98,7 +98,7 @@ Util.Objects["addMedia"] = new function() {
 					}
 					this.response = function(response) {
 						// Notify of event
-						page.notify(response.cms_message);
+						page.notify(response);
 					}
 					u.request(this, this.div.save_order_url, {"method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
 				}
@@ -150,7 +150,7 @@ Util.Objects["deleteMedia"] = new function() {
 						if(response.cms_status == "success") {
 							// check for constraint error preventing row from actually being deleted
 							if(response.cms_object && response.cms_object.constraint_error) {
-								page.notify(response.cms_message);
+								page.notify(response);
 								this.value = this.org_value;
 								u.ac(this, "disabled");
 							}
@@ -160,7 +160,7 @@ Util.Objects["deleteMedia"] = new function() {
 							}
 						}
 						else {
-							page.notify(response.cms_message);
+							page.notify(response);
 						}
 					}
 					u.request(this, this.form.action, {"method":"post", "params" : u.f.getParams(this.form)});

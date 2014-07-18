@@ -25,7 +25,7 @@ Util.Objects["defaultEditStatus"] = new function() {
 				u.f.init(form_disable);
 				form_disable.submitted = function() {
 					this.response = function(response) {
-						page.notify(response.cms_message);
+						page.notify(response);
 						if(response.cms_status == "success") {
 							u.ac(this.parentNode, "disabled");
 							u.rc(this.parentNode, "enabled");
@@ -37,7 +37,7 @@ Util.Objects["defaultEditStatus"] = new function() {
 				u.f.init(form_enable);
 				form_enable.submitted = function() {
 					this.response = function(response) {
-						page.notify(response.cms_message);
+						page.notify(response);
 						if(response.cms_status == "success") {
 							u.rc(this.parentNode, "disabled");
 							u.ac(this.parentNode, "enabled");

@@ -38,7 +38,7 @@ Util.Objects["formDefaultDelete"] = new function() {
 						if(response.cms_status == "success") {
 							// check for constraint error preventing row from actually being deleted
 							if(response.cms_object && response.cms_object.constraint_error) {
-								page.notify(response.cms_message);
+								page.notify(response);
 								this.value = this.org_value;
 								u.ac(this, "disabled");
 							}
@@ -48,7 +48,7 @@ Util.Objects["formDefaultDelete"] = new function() {
 							}
 						}
 						else {
-							page.notify(response.cms_message);
+							page.notify(response);
 						}
 					}
 					u.request(this, this.form.action, {"method":"post", "params" : u.f.getParams(this.form)});

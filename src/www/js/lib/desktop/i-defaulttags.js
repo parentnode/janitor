@@ -80,7 +80,7 @@ Util.Objects["defaultTags"] = new function() {
 
 			}
 			else {
-				page.notify(response.cms_message);
+				page.notify(response);
 			}
 		}
 		// get tags
@@ -180,7 +180,7 @@ Util.Objects["defaultTags"] = new function() {
 										u.ae(this.div._new_tags, this);
 									}
 									// Notify of event
-									page.notify(response.cms_message);
+									page.notify(response);
 								}
 //								u.request(this, "/admin/cms/tags/delete/"+this.div.item_id+"/" + this._id);
 								u.request(this, this.div.delete_tag_url+"/"+this.div.item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.div.csrf_token});
@@ -194,7 +194,7 @@ Util.Objects["defaultTags"] = new function() {
 										u.ie(this.div._tags, this)
 									}
 									// Notify of event
-									page.notify(response.cms_message);
+									page.notify(response);
 								}
 //								u.request(this, "/admin/cms/update/"+this.div.item_id, {"method":"post", "params":"tags="+this._id});
 								u.request(this, this.div.update_item_url, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.div.csrf_token});

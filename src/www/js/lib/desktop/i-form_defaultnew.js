@@ -18,7 +18,7 @@ Util.Objects["formDefaultNew"] = new function() {
 					location.href = this.actions["cancel"].url.replace("\/list", "/edit/"+response.cms_object.item_id);
 				}
 				else if(response.cms_message) {
-					page.notify(response.cms_message);
+					page.notify(response);
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});

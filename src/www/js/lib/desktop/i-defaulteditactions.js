@@ -46,7 +46,7 @@ Util.Objects["defaultEditActions"] = new function() {
 
 
 						this.response = function(response) {
-							page.notify(response.cms_message);
+							page.notify(response);
 
 							if(response.cms_status == "success") {
 								// check for constraint error preventing row from actually being deleted
