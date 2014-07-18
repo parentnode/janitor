@@ -3,7 +3,7 @@
 // TODO: change cms controller to "items"?
 
 
-$access_item = false;
+$access_item["/"] = true;
 if(isset($read_access) && $read_access) {
 	return;
 }
@@ -15,6 +15,7 @@ include_once("class/system/cms.class.php");
 
 $CMS = new CMS();
 $CMS->processRequest();
+
 
 
 // Fallback if CMS controller does not find matching request
