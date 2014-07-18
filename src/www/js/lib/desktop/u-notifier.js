@@ -15,7 +15,7 @@ u.notifier = function(node) {
 		u.a.translate(this, 0, -this.offsetHeight);
 	}
 	
-	node.notify = function(message, _options) {
+	node.notify = function(response, _options) {
 
 
 //		u.bug("message:" + message+","+ message.message[0])
@@ -36,28 +36,89 @@ u.notifier = function(node) {
 
 		var output;
 
-		u.bug("message:" + typeof(message) + "; " + message);
+		u.bug("message:" + typeof(response) + "; JSON: " + response.isJSON + "; HTML: " + response.isHTML);
 
-		// TODO: message can be JSON object
-		if(typeof(message) == "object") {
-			for(type in message) {
-				u.bug("typeof(message[type]:" + typeof(message[type]) + "; " + type);
-				if(typeof(message[type]) == "string") {
-					output = u.ae(this.notifications, "div", {"class":class_name, "html":message[type]});
-				}
-				else if(typeof(message[type]) == "object" && message[type].length) {
-					var node, i;
-					for(i = 0; _message = message[type][i]; i++) {
-						output = u.ae(this.notifications, "div", {"class":class_name, "html":_message});
+		if(typeof(response) == "object" && response.isJSON) {
+
+			var message = response.cms_message;
+
+			// TODO: message can be JSON object
+			if(typeof(message) == "object") {
+				for(type in message) {
+					u.bug("typeof(message[type]:" + typeof(message[type]) + "; " + type);
+					if(typeof(message[type]) == "string") {
+						output = u.ae(this.notifications, "div", {"class":class_name, "html":message[type]});
 					}
+					else if(typeof(message[type]) == "object" && message[type].length) {
+						var node, i;
+						for(i = 0; _message = message[type][i]; i++) {
+							output = u.ae(this.notifications, "div", {"class":class_name, "html":_message});
+						}
 					
+					}
+				}
+			
+			}
+			else if(typeof(message) == "string") {
+				output = u.ae(this.notifications, "div", {"class":class_name, "html":message});
+			}
+		
+		}
+		else if(typeof(response) == "object" && response.isHTML) {
+
+			// check for login
+			var login = u.qs(".scene.login", response);
+			if(login) {
+				var overlay = u.ae(document.body, "div", {"id":"login_overlay"});
+				u.ae(overlay, login);
+				u.as(document.body, "overflow", "hidden");
+				var form = u.qs("form", overlay);
+				form.overlay = overlay;
+				u.ae(form, "input", {"type":"hidden", "name":"ajaxlogin", "value":"true"})
+				u.f.init(form);
+
+				form.submitted = function() {
+					this.response = function(response) {
+						if(response.isJSON && response.cms_status) {
+							var csrf_token = response.cms_object["csrf-token"];
+							u.bug("new token:" + csrf_token);
+							var data_vars = u.qsa("[data-csrf-token]", page);
+							var input_vars = u.qsa("[name=csrf-token]", page);
+							var dom_vars = u.qsa("*", page);
+
+							var i, node;
+							for(i = 0; node = data_vars[i]; i++) {
+								u.bug("data:" + u.nodeId(node) + ", " + node.getAttribute("data-csrf-token"));
+								node.setAttribute("data-csrf-token", csrf_token);
+							}
+							for(i = 0; node = input_vars[i]; i++) {
+								u.bug("input:" + u.nodeId(node) + ", " + node.value);
+								node.value = csrf_token;
+							}
+							for(i = 0; node = dom_vars[i]; i++) {
+								if(node.csrf_token) {
+									u.bug("dom:" + u.nodeId(node) + ", " + node.csrf_token);
+									node.csrf_token = csrf_token;
+								}
+							}
+
+							this.overlay.parentNode.removeChild(this.overlay);
+							u.as(document.body, "overflow", "auto");
+							
+//							u.bug("vars:" + vars.length)
+						}
+						else {
+							alert("login error")
+						}
+//						alert(u.qs("[data-csrf-token]")["data-csrf-token"]);
+					}
+					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+//					alert("handle it")
 				}
 			}
 			
 		}
-		else if(typeof(message) == "string") {
-			output = u.ae(this.notifications, "div", {"class":class_name, "html":message});
-		}
+
 
 		u.t.setTimer(this.notifications, this.notifications.hide, 3500);
 
