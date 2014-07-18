@@ -68,7 +68,7 @@
 }
 #content .field.location.geolocation div.latitude input,
 #content .field.location.geolocation div.longitude input {width: 158px;}
-
+iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; left: 0; z-index: 100; border: 1px solid #666666; background-color: #ffffff;}
 
 
 /* FOCUS */
