@@ -196,11 +196,10 @@ class CMS {
 		}
 		else {
 			$output->screen(false);
+			exit();
 		}
 
-		
 	}
-
 
 }
 
