@@ -11,12 +11,18 @@
 @import url(/janitor/css/lib/desktop/s-notifications.css);
 
 @import url(/janitor/css/lib/desktop/s-tags.css);
+@import url(/janitor/css/lib/desktop/s-shop.css);
+@import url(/janitor/css/lib/desktop/s-user.css);
+
+@import url(/janitor/css/lib/desktop/s-todo.css);
 
 
 @import url(/janitor/css/lib/desktop/s-default_list.css);
 @import url(/janitor/css/lib/desktop/s-default_edit.css);
 @import url(/janitor/css/lib/desktop/s-default_new.css);
 
+@import url(/janitor/css/lib/desktop_ie/s-content-desktop_ie.css);
+@import url(/janitor/css/lib/desktop_ie/s-form-dekstop_ie.css);
 
 
 

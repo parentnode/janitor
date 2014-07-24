@@ -101,6 +101,19 @@ class ItemCore {
 		return false;
 	}
 
+	/**
+	* Get ID of item based on sindex
+	*/
+	function getIdFromSindex($sindex) {
+
+		$query = new Query();
+		$sql = "SELECT id FROM ".UT_ITEMS." WHERE sindex = '$sindex'";
+		if($query->sql($sql)) {
+			return $query->result(0, "id"); 
+		}
+
+		return false;
+	}
 
 	/**
 	* Global getCompleteItem (both getItem and get on itemtype)
@@ -422,7 +435,6 @@ class ItemCore {
 
 		return $items;
 	}
-
 
 
 	/**
