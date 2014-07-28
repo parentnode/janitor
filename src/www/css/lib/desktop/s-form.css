@@ -212,7 +212,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 /* HTML EDITOR */
 #content .field.html .viewer {display: none;}
-#content .field.html .editor {width: 382px;}
+#content .field.html .editor {width: 382px; position: relative; z-index: 50;}
 
 body #selection_options {position: absolute; background-color: #F5F7F8; border: 3px solid #5c5c5c; margin: 0px 0 0 10px; padding: 15px; border-radius: 5px;}
 body #selection_options h3 {padding: 10px 0 10px; text-align: left; font-size: 13px; margin-top: 10px; border-top: 1px solid #5c5c5c;}
