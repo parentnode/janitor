@@ -600,13 +600,8 @@ class ItemCore {
 
 
 	// checks posted values and saves item if all informations is available
-	function saveItem() {
+	function saveItem($itemtype) {
 
-		// TODO: user_id
-		// TODO: access validation
-		// TODO: format of published_at
-
-		$itemtype = RESTParams(1);
 		$typeObject = $this->TypeObject($itemtype);
 
 		if($typeObject) {
@@ -708,10 +703,6 @@ class ItemCore {
 	// update item
 	function updateItem($item_id) {
 //		print "update item<br>";
-
-		// TODO: user_id
-		// TODO: access validation
-		// TODO: format of published_at
 
 		$item = $this->getItem(array("id" => $item_id));
 		$typeObject = $this->TypeObject($item["itemtype"]);

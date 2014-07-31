@@ -38,7 +38,7 @@ class CMS {
 			// Requires exactly to parameters /save/#itemtype#
 			if(count($action) == 2 && $action[0] == "save") {
 
-				$output->screen($IC->saveItem());
+				$output->screen($IC->saveItem($action[1]));
 				exit();
 			}
 
