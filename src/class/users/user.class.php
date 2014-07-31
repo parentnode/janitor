@@ -205,7 +205,7 @@ class User extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && preg_match("/^(user_group_id|nickname)$/", $name)) {
+				if($entity["value"] !== false && preg_match("/^(user_group_id|nickname|language)$/", $name)) {
 //				if($entity["value"] !== false) {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
@@ -410,7 +410,7 @@ class User extends Model {
 					case "order"          : $order            = $_value; break;
 
 					case "email"          : $email            = $_value; break;
-					case "mobile"       : $mobile           = $_value; break;
+					case "mobile"         : $mobile           = $_value; break;
 				}
 			}
 		}
@@ -529,7 +529,7 @@ class User extends Model {
 			$current_mobile = $this->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
 
 			// email does not exist
-			if(!$current_email) {
+			if($email && !$current_email) {
 				$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, type = 'email', user_id = $user_id";
 //				print $sql."<br>";
 				if($query->sql($sql)) {
@@ -553,7 +553,7 @@ class User extends Model {
 			}
 
 			// mobile does not exist
-			if(!$current_mobile) {
+			if($mobile && !$current_mobile) {
 				$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 0, type = 'mobile', user_id = $user_id";
 //				print $sql."<br>";
 				if($query->sql($sql)) {
@@ -1004,28 +1004,27 @@ class User extends Model {
 
 			// TODO: Check if controller is enabled via Apache Alias (don't know how - find a way)
 			// maybe be requesting file with http://domain/controller
-
-			$http_request_url = (isset($_SERVER["HTTPS"]) ? "https" : "http") . "://" . $_SERVER["SERVER_NAME"] . $short_point;
+			// TOO SLOW - and requires url_wrapper open for external requests - no go
+//			$http_request_url = (isset($_SERVER["HTTPS"]) ? "https" : "http") . "://" . $_SERVER["SERVER_NAME"] . $short_point;
 //			print $http_request_url . "<br>";
 			
 
-			$file_headers = get_headers($http_request_url);
+//			$file_headers = get_headers($http_request_url);
 //			print_r($file_headers);
-			if(!preg_match("/404/", $file_headers[0])) {
-				include($controller);
+//			if(!preg_match("/404/", $file_headers[0])) {
+			include($controller);
 //				print_r($access_item);
 
-				// remove index path, because it is not being used in requests
-				$short_point = preg_replace("/\/index$/", "", $short_point);
+			// remove index path, because it is not being used in requests
+			$short_point = preg_replace("/\/index$/", "", $short_point);
 
-				$access["points"][$short_point] = array();
+			$access["points"][$short_point] = array();
 
-				if($access_item) {
-					// access restriction on any type of request
-					foreach($access_item as $action => $restricted) {
-						if($restricted === true) {
-							$access["points"][$short_point][] = $action;
-						}
+			if($access_item) {
+				// access restriction on any type of request
+				foreach($access_item as $action => $restricted) {
+					if($restricted === true) {
+						$access["points"][$short_point][] = $action;
 					}
 				}
 			}
