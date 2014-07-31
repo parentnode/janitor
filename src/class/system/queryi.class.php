@@ -258,15 +258,25 @@ class Query {
 
 //			print "dont exist";
 
-			if(file_exists($_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql')) {
-				$db_file = $_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql';
+			if(file_exists(LOCAL_PATH.'/config/db/'.$table.'.sql')) {
+				$db_file = LOCAL_PATH.'/config/db/'.$table.'.sql';
 			}
-			else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql')) {
-				$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql';
+			else if(file_exists(FRAMEWORK_PATH.'/config/db/'.$table.'.sql')) {
+				$db_file = FRAMEWORK_PATH.'/config/db/'.$table.'.sql';
 			}
-			else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/items/'.$table.'.sql')) {
-				$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/items/'.$table.'.sql';
+			else if(file_exists(FRAMEWORK_PATH.'/config/db/items/'.$table.'.sql')) {
+				$db_file = FRAMEWORK_PATH.'/config/db/items/'.$table.'.sql';
 			}
+
+			// if(file_exists($_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql')) {
+			// 	$db_file = $_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql';
+			// }
+			// else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql')) {
+			// 	$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql';
+			// }
+			// else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/items/'.$table.'.sql')) {
+			// 	$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/items/'.$table.'.sql';
+			// }
 
 
 			if($db_file) {
@@ -274,7 +284,7 @@ class Query {
 				$sql = file_get_contents($db_file);
 				$sql = str_replace("SITE_DB", SITE_DB, $sql);
 				//$sql = str_replace("REGIONAL_DB", DB_REG, $sql);
-//				print $sql . "##";
+				print $sql . "##";
 				if($this->sql($sql)) {
 					return true;
 				}

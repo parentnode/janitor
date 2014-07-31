@@ -4,10 +4,10 @@ document.write('<script type="text/javascript" src="/js/manipulator/src/u-debug.
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-events-browser.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-form.js"></script>');
 
-document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-sortable.js"></script>');
-document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-audio.js"></script>');
-document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-video.js"></script>');
-document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-keys.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/js/manipulator/v0_8/src/beta-u-sortable.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/js/manipulator/v0_8/src/beta-u-audio.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/js/manipulator/v0_8/src/beta-u-video.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/js/manipulator/v0_8/src/beta-u-keys.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/js/lib/desktop/i-page.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/js/lib/desktop/i-form.js"></script>');
