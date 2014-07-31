@@ -255,6 +255,41 @@ class FileSystem {
 		}
 	}
 
+
+	// copy function for both files and folders
+	function copy($path, $dest) {
+
+		// folder
+		if(is_dir($path)) {
+			$this->makeDirRecursively($dest);
+
+			$contents = scandir($path);
+            foreach($contents as $file) {
+				// ignore . and ..
+				if($file == "." || $file == "..") {
+					continue;
+				}
+
+				// folder
+				if(is_dir($path."/".$file)) {
+					$this->copy($path."/".$file, $dest."/".$file);
+                }
+				// file
+				else {
+					copy($path."/".$file, $dest."/".$file);
+                }
+            }
+            return true;
+        }
+        else if(is_file($path)) {
+			return copy($path, $dest);
+        }
+        else {
+			return false;
+		}
+	}
+
+
 	/**
 	* Compares to files, returns difference
 	*
