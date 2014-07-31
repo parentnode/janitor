@@ -1,0 +1,40 @@
+#content .scene.start h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+
+#content .scene.start ul.requirements {padding: 0 30px 20px;}
+#content .scene.start ul.requirements li {display: block; padding: 0 0 10px;}
+
+
+#content .scene.paths h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+
+#content .scene.database h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+
+
+#content .scene.config h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+#content .scene.mail h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+
+#content .scene.finish h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+#content .scene.finish ul.tasks li {padding-bottom: 10px; font-size: 14px;}
+
+#content .field.required .indicator {background-image: url(/img/bg_icons.png);}
+
+
+/* CODE AND TYPECASTING */
+#content .scene code {padding: 10px 10px; margin: 0 30px 5px; position: relative; top: -15px; background-color: #ededed; font-size: 12px; display: block; overflow: auto; white-space: pre;
+	font-family: "Monaco", "Courier New", "Courier";
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+}
+
+
+/* NAVIGATION */
+body.front #navigation .front a,
+body.paths #navigation .paths a,
+body.database #navigation .database a,
+body.config #navigation .config a,
+body.mail #navigation .mail a,
+body.finish #navigation .finish a {padding-left: 35px; color: #ffffff;}
+
+#navigation li.done {
+	background: transparent url(/img/bg_done.png) no-repeat 200px 12px;
+}

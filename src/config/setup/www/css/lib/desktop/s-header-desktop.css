@@ -1,0 +1,19 @@
+/* HEADER */
+#header {position: relative; height: 100px;}
+#header .logo {font-size: 30px; padding: 20px 50px; color: #888888; cursor: pointer; display: inline-block;
+	font-family: "PT Serif", Times, serif;
+}
+
+/* SERVICENAVIGATION */
+#header .servicenavigation {position: absolute; top: 5px; right: 50px;}
+#header .servicenavigation li.navigation {display: none;}
+#header .servicenavigation li.user {display: none;}
+
+
+/* NAViGATION */
+#navigation {position: absolute; right: 50px; top: 75px;}
+#navigation ul {}
+#navigation ul li {padding: 0 0 0 20px; font-size: 20px; color: #888888;
+	font-family: "PT Serif", Times, serif;
+}
+#navigation ul li.front {display: none;}

@@ -1,0 +1,120 @@
+#content {position: relative;}
+#content .scene {position: relative; padding: 50px 0;}
+
+
+/* BASIC CONTENT */
+#content .scene .link {cursor: pointer;}
+#content .scene a {color: #888888;}
+#content .scene h1,
+#content .scene h2,
+#content .scene h3,
+#content .scene h4,
+#content .scene h5,
+#content .scene h6,
+#content .scene p {max-width: 500px;}
+#content .scene hr {border: none; border-top: 1px solid #888888; margin: 15px 15px 20px; padding: 0;}
+#content .scene p.note {font-style: italic;}
+
+/* ADDITIONAL H2 PADDING IN CERTAIN CASES */
+#content .scene p+h2,
+#content .scene ul+h2,
+#content .scene dl+h2,
+#content .scene code+h2 {padding-top: 20px;}
+
+#content .scene ul.tags+h2 {padding-top: 0;}
+
+
+/* LISTS */
+#content .scene ul {padding: 0 50px 15px;}
+#content .scene li {display: block; padding: 0 0 5px;}
+#content .scene li h1,
+#content .scene li h2,
+#content .scene li h3,
+#content .scene li p,
+#content .scene li dl {padding-left: 0; padding-right: 0;}
+
+
+/* DEFINITION LIST */
+#content .scene dl {padding: 0 50px 15px; width: 500px;}
+#content .scene dt {width: 100px; text-align: right; padding: 0 5px 0 0; color: #999999;} 
+#content .scene dt:after {content: ":";}
+/* one px off dd width, to support Androids */
+#content .scene dd {padding: 0 0 12px; width: 394px;}
+#content .scene dt span {text-transform: none;}
+#content .scene dl dl {padding: 0 0 10px; margin-left: -30px; width: 425px;}
+#content .scene dl dl dt {width: 80px;}
+/* one px off dd width, to support Androids */
+#content .scene dl dl dd {width: 339px;}
+#content .scene dl h3,
+#content .scene dl h4,
+#content .scene dl h5,
+#content .scene dl h6 {padding-left: 0; padding-right: 0; padding-top: 10px;}
+
+/* TAGS */
+#content .scene li ul.tags {padding-left: 0;}
+#content .scene li ul.tags li {font-size: 12px; display: inline-block;}
+#content .scene li ul.tags li:after {content: "\00a0|\00a0"; color: #dedede;}
+#content .scene li ul.tags li:last-child:after {content: "";}
+
+/* INFO */
+#content .scene dl.info {padding-bottom: 20px; display: inline-block; width: auto;}
+#content .scene dl.info dt {display: none;}
+#content .scene dl.info dd {padding-right: 0;}
+#content .scene dl.info dd.author {display: none;}
+#content .scene li dl.info {padding-bottom: 0;}
+
+/* GEOLOCATION */
+#content .scene dl.geo {padding-bottom: 20px; display: inline-block; width: auto;}
+#content .scene dl.geo .location:before {content: "|\00a0"; color: #dedede;}
+#content .scene li dl.geo dt {display: none;}
+#content .scene li dl.geo .latitude,
+#content .scene li dl.geo .longitude {display: none;}
+#content .scene li dl.geo.active {cursor: pointer;}
+
+/* MAP */
+#content .scene li div.geomap {height: 300px; width: 500px; margin-bottom: 20px;}
+#content .scene li div.geomap iframe {display: block; width: 100%; height: 100%; border: 1px solid #666666; background-color: #ffffff;}
+
+
+/* IMAGE */
+#content .scene div.image {margin: 0 30px; max-width: 540px; padding: 0 0 30px; cursor: zoom-in;}
+#content .scene div.image img {width: 100%;}
+#content .scene div.image a {padding: 0 20px; font-size: 14px; font-style: italic; display: block; color: #cccccc;}
+#content .scene div.image.fullsize {margin: 0; max-width: 100%; cursor: zoom-out;}
+#content .scene div.image.fullsize a {padding: 0 50px;}
+
+#content .scene li div.image {margin: 0; max-width: 500px; padding: 0 0 30px; cursor: zoom-in;}
+#content .scene li div.image.fullsize {margin: 0; max-width: 100%; cursor: zoom-out;}
+
+
+/* PAGINATION */
+#content .scene .pagination {display: none;}
+
+
+/* CODE AND TYPECASTING */
+#content .scene code {padding: 10px 10px; margin: 0 50px 5px; position: relative; top: -15px; background-color: #ededed; font-size: 12px; display: block; overflow: auto; white-space: pre;
+	font-family: "Monaco", "Courier New", "Courier";
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+/*	width: 480px; display: inline-block; white-space: pre-wrap;*/
+}
+#content .scene span.type,
+#content .scene span.var,
+#content .scene span.value,
+#content .scene span.file,
+#content .scene span.htmltag,
+#content .scene span.command {
+	font-family: "Monaco", "Courier New", "Courier"; font-size: 0.8em;
+}
+#content .scene span.type {color: #a67800;}
+#content .scene span.var {color: #007633;}
+#content .scene span.value {color: #a65900; font-style: italic;}
+#content .scene span.file {color: #a62300;}
+#content .scene span.htmltag {text-transform: uppercase;}
+#content .scene span.command {color: #4b5cd7;}
+
+
+
+

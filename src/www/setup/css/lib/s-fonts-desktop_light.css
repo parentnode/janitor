@@ -1,0 +1,10 @@
+@font-face {
+	font-family: 'OpenSansRegular';
+	src: url('/janitor/fonts/opensans-regular-webfont.eot');
+	src: url('/janitor/fonts/opensans-regular-webfont.eot?#iefix') format('embedded-opentype'),
+		 url('/janitor/fonts/opensans-regular-webfont.woff') format('woff'),
+		 url('/janitor/fonts/opensans-regular-webfont.ttf') format('truetype'),
+		 url('/janitor/fonts/opensans-regular-webfont.svg#OpenSansRegular') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}

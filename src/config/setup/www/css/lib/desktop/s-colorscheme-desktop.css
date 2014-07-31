@@ -1,0 +1,32 @@
+/*
+http://colorschemedesigner.com/#3s51Tw0w0w0w0
+
+#63add0 - PRIMARY LIGHT
+#034769 - PRIMARY DARK
+*/
+
+
+* {color: #034769;}
+
+body {background: #ffffff;}
+
+#header .logo {color: #63add0;}
+#navigation ul li {color: #63add0;}
+#content .scene a {color: #63add0;}
+
+#content .scene hr {border-color: #cccccc;}
+#content .scene code {color: #333333;}
+
+#footer {border-color: #cccccc;}
+#footer p {color: #034769;}
+
+.front #header .logo,
+.manifest #navigation ul li.manifest,
+.blog #navigation ul li.blog,
+.about #navigation ul li.about {color: #034769;}
+
+
+.terms_notification {background: #ffffff;}
+.terms_notification .accept,
+.terms_notification .details {color: #63add0;}
+.terms_notification {border-color: #034769;}

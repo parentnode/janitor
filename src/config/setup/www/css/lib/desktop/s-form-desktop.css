@@ -1,0 +1,181 @@
+/* BASE FORM ELEMENTS */
+#content form {}
+#content fieldset {border: none; display: block;}
+#content .field {padding: 0 48px 15px; position: relative; font-size: 0;}
+
+
+/* INLINE LABELS */
+#content label {display: none;}
+
+
+/* BASIC FORM INPUTS */
+#content .field input,
+#content .field select,
+#content .field textarea {color: #333333; box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 10;}
+
+#content .field input {width: 366px; height: 24px; padding: 2px 6px;}
+#content .field select {width: 381px; height: 33px; color: #333333; padding: 5px 3px 2px 2px;
+	-webkit-appearance: none;
+}
+/* TODO: SET BACKGROUND IMAGE FOR WEBKIT SELECTS IN STEAD OF STANDARD LOOK */
+@media all and (-webkit-min-device-pixel-ratio:0) {#content .field.focus select {}}
+#content .field select option {padding: 5px 3px 2px 6px;}
+#content .field textarea {width: 372px; height: 100px; overflow: auto; padding: 6px 0 2px 6px;}
+#content .field.short textarea {height: 50px;}
+#content .field textarea.autoexpand {width: 366px; padding: 6px 6px 2px; overflow: hidden;}
+
+
+/* BOOLEAN + CHECKBOX */
+#content .field.checkbox,
+#content .field.boolean {}
+#content .field.checkbox input,
+#content .field.boolean input {display: inline-block; vertical-align: top; width: auto; height: auto; padding: 0; margin: 0 10px 0 3px; border: 0;}
+#content .field.checkbox label,
+#content .field.boolean label {width: auto; display: inline-block; vertical-align: top; display: inline-block; vertical-align: top; font-size: 14px; line-height: 1em;}
+
+
+/* RADIO */
+/* TODO: needs to be updated */
+#content .field.radio_buttons {}
+#content .field.radio_buttons div.item {display: inline-block; vertical-align: top;}
+#content .field.radio_buttons div.item input {width: auto; height: auto; padding: 0; margin: 9px 10px 0 0; border: 0;}
+#content .field.radio_buttons label {}
+#content .field.radio_buttons div.item label {text-align: left; width: auto; padding-right: 20px; padding-left: 0;}
+
+
+/* NUMBER TYPE - remove spinbutton */
+#content .field input[type="number"] {
+	-moz-appearance: textfield;
+}
+#content .field input[type="number"]::-webkit-inner-spin-button,
+#content .field input[type="number"]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+
+
+/* FOCUS */
+#content .field.focus input,
+#content .field.focus textarea {margin: 0;}
+#content .field.focus select {padding: 3px 3px 2px 0px;}
+@media all and (-webkit-min-device-pixel-ratio:0) {#content .field.focus select {padding: 5px 3px 3px 0px;}}
+#content .field.focus input,
+#content .field.focus select,
+#content .field.focus textarea {border: 3px solid #5c5c5c;}
+
+
+#content .field.radio_buttons.focus input,
+#content .field.checkbox.focus input,
+#content .field.boolean.focus input {margin: 0px 10px 0 3px; border: none;}
+
+
+/* DEFAULT STATE - BEFORE TEXT IS MODIFIED */
+#content .field input.default,
+#content .field select.default,
+#content .field textarea.default {color: #aaaaaa;}
+
+
+/* VALIDATION */
+#content .field.required .indicator {position: absolute; top: 4px; left: 435px; width: 25px; height: 25px; background: transparent url(/janitor/img/bg_icons.png) no-repeat 0 -292px;}
+#content .field.text.required .indicator {background-position: 0 -296px;}
+
+
+/* TODO: Finish required styling of checkboxes and radiobuttons */
+#content .field.radio_buttons.required input,
+#content .field.checkbox.required input,
+#content .field.boolean.required input {}
+#content .field.checkbox.required .indicator {display: none;}
+
+
+/* CORRECT */
+#content .field.correct .indicator {background-position: 2px -320px;}
+#content .field.text.correct .indicator {background-position: 2px -321px;}
+
+/* TODO: Finish required styling of checkboxes and radiobuttons */
+#content .field.radio_buttons.correct input,
+#content .field.checkbox.correct input,
+#content .field.boolean.correct input {}
+
+
+/* ERROR */
+#content .field.error input,
+#content .field.error textarea {margin: 0;}
+#content .field.error select {padding: 3px 3px 2px 0px;}
+#content .field.error input,
+#content .field.error select,
+#content .field.error textarea {border: 3px solid #a62300;}
+
+#content .field.radio_buttons.error input,
+#content .field.checkbox.error input,
+#content .field.boolean.error input {margin: 0px 10px 0 3px; border: none;}
+
+
+
+/* BUTTONS */
+#content ul.actions {}
+#content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 10px 10px 0; vertical-align: top;}
+
+/*
+#content ul.actions li a {display: inline-block; vertical-align: top;}
+*/
+
+#content ul.actions input.button {width: auto; height: 28px; padding: 3px 12px; display: inline-block; vertical-align: top;}
+@media all and (-webkit-min-device-pixel-ratio:0) {#content ul.actions input.button {padding-bottom: 5px;}}
+#content ul.actions a.button {display: block; text-decoration: none; height: 14px; padding: 6px 12px 8px;}
+
+
+/* DEFAULT BUTTON */
+#content ul.actions input.button,
+#content ul.actions a.button {background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px; font-size: 14px;}
+
+#content ul.actions input.button:hover,
+#content ul.actions a.button:hover {background-color: #313942;}
+
+
+/* PRIMARY BUTTON */
+#content ul.actions input.button.primary,
+#content ul.actions a.button.primary {background-color: #63ADD0;}
+
+#content ul.actions input.button.primary:hover,
+#content ul.actions a.button.primary:hover {background-color: #034769;}
+
+
+
+/* SECONDARY BUTTON */
+#content ul.actions input.button.secondary,
+#content ul.actions a.button.secondary {background-color: #ff6840; color: #ffffff;}
+#content ul.actions input.button.secondary:hover,
+#content ul.actions a.button.secondary:hover {background-color: #a62300;}
+
+
+/* CUSTOM STATUS BUTTON */
+#content ul.actions li.status input.button {font-size: 0; height: 26px; width: 26px;}
+#content ul.actions li.status input.button[value=Disable] {background-color: #f4f5f5; border-left: 3px solid #64ad8e; border-top: 3px solid #64ad8e; border-right: 30px solid #64ad8e; border-bottom: 3px solid #64ad8e;}
+#content ul.actions li.status input.button[value=Enable] {background-color: #f4f5f5; border-right: 3px solid #8c9399; border-top: 3px solid #8c9399; border-left: 30px solid #8c9399; border-bottom: 3px solid #8c9399;}
+
+
+/* CUSTOM DELETE BUTTON */
+#content form input.button.delete.confirm {color: #ffffff; background-color: #df0000;}
+#content form input.button.delete.confirm:hover {}
+
+
+/* DISABLED BUTTON */
+#content form input.button.disabled,
+#content form input.button.disabled:hover {cursor: default !important; color: #aaaaaa !important; background-color: #eeeeee !important;}
+
+
+/* HELP - HINT AND ERROR MESSAGES */
+#content .field div.help {position: absolute; left: 455px; top: 6px; width: 200px;}
+#content .field div.error,
+#content .field div.hint {display: none; padding: 5px; border-radius: 3px; font-size: 12px; margin-top: -3px;}
+
+
+/* HELP - ERRORS */
+#content .field div.error {border: 1px solid #a62300; color: #a62300; background: #ffddd5;}
+#content .field.error div.error {display: block;}
+
+/* HELP - HINTS */
+#content .field div.hint {z-index: 9; border: 1px solid #007633; color: #007633; background: #d0f4e0;}
+#content .field.focus div.hint {display: block;}
+
