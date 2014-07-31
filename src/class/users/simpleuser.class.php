@@ -32,8 +32,8 @@ class Simpleuser {
 	* Get users
 	*
 	* Get specific user_id
-	* Get users with email as username and user_group = 1
-	* Get users with mobile as username and user_group = 1
+	* Get users with email as username and user_group = 99
+	* Get users with mobile as username and user_group = 99
 	*/
 	function getUsers($_options=false) {
 
@@ -72,9 +72,8 @@ class Simpleuser {
 
 		// get users with email as username
 		else if($email) {
-			// TODO: limit query to user_group = 1 users
 
-			$sql = "SELECT user_id FROM ".$this->db_usernames." as names, ".$this->db." as users WHERE type = 'email' AND username = '$email' AND names.user_id = users.id AND users.user_group_id = 1";
+			$sql = "SELECT user_id FROM ".$this->db_usernames." as names, ".$this->db." as users WHERE type = 'email' AND username = '$email' AND names.user_id = users.id AND users.user_group_id = 99";
 //			print $sql;
 			if($query->sql($sql)) {
 				return $query->results();
@@ -82,9 +81,8 @@ class Simpleuser {
 		}
 		// get users with mobile as username
 		else if($mobile) {
-			// TODO: limit query to user_group = 1 users
 
-			$sql = "SELECT user_id FROM ".$this->db_usernames." as names, ".$this->db." as users WHERE type = 'mobile' AND username = '$mobile' AND names.user_id = users.id AND users.user_group_id = 1";
+			$sql = "SELECT user_id FROM ".$this->db_usernames." as names, ".$this->db." as users WHERE type = 'mobile' AND username = '$mobile' AND names.user_id = users.id AND users.user_group_id = 99";
 //			print $sql;
 			if($query->sql($sql)) {
 				return $query->results();
@@ -103,7 +101,7 @@ class Simpleuser {
 	* user_id => Integer User_id (required)
 	* type => String email|mobile
 	*
-	* @return Array set of usernames or specific username if available or false on failure
+	* @return Array set of usernames or specific username type (mobile/email) if available or false on failure
 	*/
 	function getUsernames($_options) {
 
@@ -365,7 +363,7 @@ class Simpleuser {
 	* NON CONTROLLER FUNCTIONS
 	*/
 
-	// Create simple user - user_group 1
+	// Create simple user - user_group 99
 	// used for frontend purposes, to create clients with very limited privileges
 	// mobile, email, nickname
 	// TODO: improve validation of content, 
@@ -400,10 +398,10 @@ class Simpleuser {
 
 		// check if simple user_group exists
 		// create simple group if it does not exist
-		$sql = "SELECT id FROM ".$this->db." WHERE user_group_id = 1";
+		$sql = "SELECT id FROM ".$this->db." WHERE user_group_id = 99";
 		if(!$query->sql($sql)) {
 			$query->checkDbExistance($this->db_user_groups);
-			$sql = "INSERT INTO ".$this->db_user_groups." SET id = 1, user_group = 'Plain'";
+			$sql = "INSERT INTO ".$this->db_user_groups." SET id = 99, user_group = 'Plain'";
 			$query->sql($sql);
 		}
 
@@ -426,7 +424,7 @@ class Simpleuser {
 			}
 
 			// create user
-			$sql = "INSERT INTO ".$this->db." SET ".implode(",", $values).", user_group_id = 1";
+			$sql = "INSERT INTO ".$this->db." SET ".implode(",", $values).", user_group_id = 99";
 			if($query->sql($sql)) {
 				$user_id = $query->lastInsertId();
 			}
@@ -500,8 +498,6 @@ class Simpleuser {
 	/**
 	* Validate username info to avoid too many unneccesary duplet users
 	* Look for users with same email and mobile because such combinations indicates same user
-	* TODO: only look at users with user_group = 1 
-	* (don't know whether to implement this here or in getUsers - most likely it will be more meaningful to do it in getUsers)
 	*/
 	function matchUsernames($_options) {
 
