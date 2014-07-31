@@ -250,7 +250,8 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .field.html .editor div.tag:hover .drag {display: block;}
 
 #content .field.html .editor div.tag ul.type {display: block; position: absolute; width: 30px; top: 0px; left: 0px; z-index: 5;}
-#content .field.html .editor div.tag ul.type li {display: none; text-transform: uppercase; padding: 9px 4px; text-align: center; cursor: pointer;}
+#content .field.html .editor div.tag ul.type li {display: none; text-transform: uppercase; padding: 9px 4px; text-align: center; cursor: pointer; font-size: 11px;}
+#content .field.html .editor div.tag ul.type li.code {font-size: 8px; padding-top: 11px;}
 #content .field.html .editor div.tag ul.type li.selected {display: block;}
 
 #content .field.html .editor div.tag ul.type.open {z-index: 10; border: 2px solid #5c5c5c; margin: -2px; background-color: #F5F7F8;}
