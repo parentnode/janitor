@@ -2,8 +2,9 @@
 /**
 * Start session
 */
-
-session_start();
+if(!isset($_SESSION)) {
+	session_start();
+}
 
 // for safety - known bugs in old devices, should be tested
 session_regenerate_id();
