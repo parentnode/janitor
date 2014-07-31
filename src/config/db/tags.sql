@@ -1,4 +1,4 @@
-CREATE TABLE `tags` (
+CREATE TABLE `SITE_DB`.`tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
 
   `context` varchar(50) NOT NULL,

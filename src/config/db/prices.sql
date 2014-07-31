@@ -1,4 +1,4 @@
-CREATE TABLE `prices` (
+CREATE TABLE `SITE_DB`.`prices` (
   `id` int(11) NOT NULL auto_increment,
   `item_id` int(11) NOT NULL,
 

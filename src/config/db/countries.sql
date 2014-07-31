@@ -1,4 +1,4 @@
-CREATE TABLE `countries` (
+CREATE TABLE `SITE_DB`.`countries` (
   `id` varchar(2) NOT NULL,
   `name` varchar(255) NOT NULL,
 

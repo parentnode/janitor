@@ -1,4 +1,4 @@
-CREATE TABLE `items` (
+CREATE TABLE `SITE_DB`.`items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
 
   `sindex` varchar(255) DEFAULT NULL,

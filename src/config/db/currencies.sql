@@ -1,4 +1,4 @@
-CREATE TABLE `currencies` (
+CREATE TABLE `SITE_DB`.`currencies` (
   `id` varchar(3) NOT NULL,
   `name` varchar(50) NOT NULL,
 
