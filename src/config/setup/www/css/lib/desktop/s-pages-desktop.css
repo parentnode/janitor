@@ -1,14 +1,4 @@
 
-#content .scene.manifest ul.manifest {padding-top: 25px;}
-#content .scene.manifest ul.manifest li {padding: 0 0 15px; display: block; font-size: 16px;
-	font-family: "PT Serif", Times, serif;
-} 
-
-#content .scene div.vcard {padding: 25px 50px;}
-#content .scene div.vcard .name {padding: 0 0 15px;}
-#content .scene div.vcard .tel,
-#content .scene div.vcard .email {font-size: 14px;}
-
 
 #content .scene div.categories {padding-bottom: 20px;}
 

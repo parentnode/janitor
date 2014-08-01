@@ -2,6 +2,3 @@
 #navigation ul li:hover {text-decoration: none;}
 
 #content .scene a:hover {text-decoration: underline;}
-
-.terms_notification .accept:hover,
-.terms_notification .details:hover {text-decoration: underline;}

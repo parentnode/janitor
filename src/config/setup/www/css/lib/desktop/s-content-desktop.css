@@ -88,32 +88,8 @@
 
 
 /* PAGINATION */
-#content .scene .pagination {display: none;}
+/*#content .scene .pagination {display: none;}*/
 
-
-/* CODE AND TYPECASTING */
-#content .scene code {padding: 10px 10px; margin: 0 50px 5px; position: relative; top: -15px; background-color: #ededed; font-size: 12px; display: block; overflow: auto; white-space: pre;
-	font-family: "Monaco", "Courier New", "Courier";
-	-moz-tab-size: 4;
-	-o-tab-size: 4;
-	tab-size: 4;
-
-/*	width: 480px; display: inline-block; white-space: pre-wrap;*/
-}
-#content .scene span.type,
-#content .scene span.var,
-#content .scene span.value,
-#content .scene span.file,
-#content .scene span.htmltag,
-#content .scene span.command {
-	font-family: "Monaco", "Courier New", "Courier"; font-size: 0.8em;
-}
-#content .scene span.type {color: #a67800;}
-#content .scene span.var {color: #007633;}
-#content .scene span.value {color: #a65900; font-style: italic;}
-#content .scene span.file {color: #a62300;}
-#content .scene span.htmltag {text-transform: uppercase;}
-#content .scene span.command {color: #4b5cd7;}
 
 
 
