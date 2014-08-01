@@ -113,8 +113,8 @@ if(!file_exists($project_path."/src")) {
 	copy($framework_path."/config/db/items/item_post_mediae.sql", $local_path."/config/db/item_post_mediae.sql");
 
 	copy($framework_path."/class/items/type.post.class.php", $local_path."/class/items/type.post.class.php");
-}
 
+}
 
 
 
@@ -219,10 +219,11 @@ $UC = new User();
 $user_groups = $UC->getUserGroups(array("user_group_id" => 1));
 if(!$user_groups) {
 
+	unset($_POST);
 	$_POST["user_group"] = "Developer";
+
 	$UC->getPostedEntities();
 	$user_group = $UC->saveUserGroup();
-
 }
 
 // SET ACCESS PERMISSIONS
@@ -239,6 +240,7 @@ foreach($access_points["points"] as $path => $access_items) {
 		}
 	}
 }
+unset($_POST);
 $_POST["grant"] = $grants;
 $UC->getPostedEntities();
 $UC->updateAccess(array("updateAccess", 1));
@@ -250,6 +252,7 @@ $email = SITE_EMAIL;
 $users = $UC->getUsers(array("email" => $email));
 if(!$users) {
 
+	unset($_POST);
 	$_POST["nickname"] = "Dummy user";
 	$_POST["user_group_id"] = 1;
 	$_POST["status"] = 1;
@@ -271,11 +274,13 @@ if($user_id) {
 	$UC->status(array("status", $user_id, 1));
 
 	// SET USERNAME
+	unset($_POST);
 	$_POST["email"] = $email;
 	$UC->getPostedEntities();
 	$UC->updateUsernames(array("updateUsernames", $user_id));
 
 	// SET PASSWORD
+	unset($_POST);
 	$_POST["password"] = "rotinaj";
 	$UC->getPostedEntities();
 	$UC->setPAssword(array("setPassword", $user_id));
@@ -292,6 +297,7 @@ include_once("class/items/item.core.class.php");
 include_once("class/items/item.class.php");
 $IC = new Item();
 
+unset($_POST);
 $_POST["name"] = "Welcome to the basement";
 $_POST["html"] = "<p>This is a test post</p>";
 $_POST["status"] = 1;
@@ -303,6 +309,8 @@ $current_user = get_current_user();
 $apache_user = trim(shell_exec('whoami'));
 
 session_unset();
+
+mail(array("subject" => "Welcome to janitor", "message" => "Your Janitor project is ready.\n\nLog in to your admin system: http://".SITE_URL."/admin\n\nUsername: ".SITE_EMAIL."\nPassword: rotinaj\n\nSee you soon,\n\nJanitor"));
 
 ?>
 	</ul>
