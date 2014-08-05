@@ -298,60 +298,6 @@ class Query {
 	}
 
 
-
-	/**
-	* Does the result have field with name = $name
-	*
-	* @param string $name Field name
-	* @return bool
-	*/
-	/*
-	function resultHasField($name) {
-		$n = mysql_num_fields($this->result_resource);
-		for($i = 0; $i < $n; $i++) {
-			if(mysql_field_name($this->result_resource, $i) == $name) {
-				return true;
-			}
-		}
-		return false;
-	}
-	*/
-
-	// function get($table, $order=false) {
-	//
-	// 	$items = array();
-	//
-	// 	$order = $order ? " ORDER BY $order" : "";
-	//
-	// 	print "SELECT * FROM $table".$order;
-	// 	$this->sql("SELECT * FROM $table".$order);
-	//
-	// 	$test = mysql_fetch_array($this->result_resource);
-	// 	print_r($test);
-	//
-	// 	for($i = 0; $i < $this->count(); $i++) {
-	//
-	// 		$item = array();
-	//
-	// 		$items["id"][$i] = $this->result($i, "id");
-	// 		$items["values"][$i] = $this->result($i, "name");
-	// 		for($u = 0; $u < count($extended_values); $u++) {
-	// 			$items[$extended_values[$u]][$i] = $this->result($i, $extended_values[$u]);
-	// 		}
-	// 	}
-	//
-	// 	if(!count($items)) {
-	// 		return false;
-	// 	}
-	// 	else if($which) {
-	// 		return $items[$which];
-	// 	}
-	// 	else {
-	// 		return $items;
-	// 	}
-	// }
-
-
 }
 
 ?>
