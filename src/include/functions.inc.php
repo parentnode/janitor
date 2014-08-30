@@ -253,11 +253,15 @@ function stripDisallowed($string) {
 	return trim($string);
 }
 
-
-
-
-
-
+// check if value exists in Janitor content array structure
+function arrayKeyValue($array, $key, $value) {
+	foreach($array as $index => $sub_array) {
+		if($sub_array[$key] == $value) {
+			return $index;
+		}
+	}
+	return false;
+}
 
 /**
 * Generate ramdom key
