@@ -15,10 +15,6 @@ Util.Objects["defaultList"] = new function() {
 
 		// CMS interaction urls
 		div.csrf_token = div.getAttribute("data-csrf-token");
-		div.save_order_url = div.getAttribute("data-save-order");
-		div.update_item_url = div.getAttribute("data-update-item");
-		div.delete_tag_url = div.getAttribute("data-delete-tag");
-		div.get_tags_url = div.getAttribute("data-get-tags");
 
 
 		div.nodes = u.qsa("li.item", div);
@@ -249,9 +245,14 @@ Util.Objects["defaultList"] = new function() {
 
 		// taggable list
 		if(u.hc(div, "taggable")) {
-//			u.bug("init taggable")
+			u.bug("init taggable")
 
-			if(div.get_tags_url && div.delete_tag_url && div.update_item_url) {
+			div.add_tag_url = div.getAttribute("data-add-tag");
+			div.delete_tag_url = div.getAttribute("data-delete-tag");
+			div.get_tags_url = div.getAttribute("data-get-tags");
+
+
+			if(div.get_tags_url && div.delete_tag_url && div.add_tag_url) {
 			
 				// tags received
 				div.tagsResponse = function(response) {
@@ -385,12 +386,14 @@ Util.Objects["defaultList"] = new function() {
 								if(this.parentNode == this.node._tags) {
 
 									this.response = function(response) {
+
+										// Notify of event
+										page.notify(response);
+
 										if(response.cms_status == "success") {
 											// add tag to newtags
 											u.ae(this.node._new_tags, this);
 										}
-										// Notify of event
-										page.notify(response);
 									}
 									u.request(this, this.node.div.delete_tag_url+"/"+this.node._item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.node.div.csrf_token});
 								}
@@ -398,14 +401,16 @@ Util.Objects["defaultList"] = new function() {
 								else {
 
 									this.response = function(response) {
+
+										// Notify of event
+										page.notify(response);
+
 										if(response.cms_status == "success") {
 											// add tag to tags
 											u.ie(this.node._tags, this);
 										}
-										// Notify of event
-										page.notify(response);
 									}
-									u.request(this, this.node.div.update_item_url+"/"+this.node._item_id, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.node.div.csrf_token});
+									u.request(this, this.node.div.add_tag_url+"/"+this.node._item_id, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.node.div.csrf_token});
 								}
 							}
 						}
@@ -473,6 +478,8 @@ Util.Objects["defaultList"] = new function() {
 
 		// sortable list
 		if(u.hc(div, "sortable") && div.list) {
+
+			div.save_order_url = div.getAttribute("data-save-order");
 
 			if(div.save_order_url) {
 

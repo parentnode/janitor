@@ -1,5 +1,5 @@
 // default new form
-Util.Objects["formDefaultNew"] = new function() {
+Util.Objects["defaultNew"] = new function() {
 	this.init = function(form) {
 
 		u.f.init(form);

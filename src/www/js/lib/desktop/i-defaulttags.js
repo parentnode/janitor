@@ -7,12 +7,13 @@ Util.Objects["defaultTags"] = new function() {
 		div._tags_form = u.qs("form", div);
 		div._tags_form.div = div;
 
+
 		u.f.init(div._tags_form);
 
 
 		// CMS interaction urls
 		div.csrf_token = div._tags_form.fields["csrf-token"].value;
-		div.update_item_url = div._tags_form.action;
+		div.add_tag_url = div._tags_form.action;
 		div.delete_tag_url = div.getAttribute("data-delete-tag");
 		div.get_tags_url = div.getAttribute("data-get-tags");
 
@@ -21,9 +22,8 @@ Util.Objects["defaultTags"] = new function() {
 		div._tags_form.fields["tags"].focused = function() {
 			this.form.div.enableTagging();
 		}
-		// hide all tags when tag input looses focus
+		// filter tags when typing
 		div._tags_form.fields["tags"].updated = function() {
-
 
 			if(this.form.div._new_tags) {
 				var tags = u.qsa(".tag", this.form.div._new_tags);
@@ -37,18 +37,46 @@ Util.Objects["defaultTags"] = new function() {
 					}
 				}
 			}
-
-//		 	this.form.div._filterTags(this.val());
 		}
 
+		// 
 		div._tags_form.submitted = function(iN) {
 
 			this.response = function(response) {
+				page.notify(response);
+
 				if(response.cms_status == "success") {
-					location.reload();
-				}
-				else {
-					alert(response.cms_message[0]);
+
+					// check if tag already exists in tags options
+					var i, tag_node;
+					var new_tags = u.qsa("li", this.div._new_tags);
+					for(i = 0; tag_node = new_tags[i]; i++) {
+						// tag found?
+						if(tag_node._id == response.cms_object.tag_id) {
+
+							this.fields["tags"].val("");
+							this.fields["tags"].updated();
+							u.ae(this.div._tags, tag_node);
+							return;
+						}
+					}
+
+					// tag not found in tag options - it is a brand new tag
+					// add it to all_tags list
+					this.div._tags._alltags.push({"id":response.cms_object.tag_id, "context":response.cms_object.context, "value":response.cms_object.value})
+
+					// add it to tags
+					tag_node = u.ae(this.div._tags, "li", {"class":"tag"});
+					tag_node._context = response.cms_object.context;
+					tag_node._value = response.cms_object.value;
+					tag_node._id = response.cms_object.id;
+					u.ae(tag_node, "span", {"class":"context", "html":tag_node._context});
+					u.ae(tag_node, "span", {"class":"value", "html":tag_node._value});
+					tag_node.div = this.div;
+
+					div.activateTag(tag_node);
+					this.fields["tags"].val("");
+					this.fields["tags"].updated();
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
@@ -87,13 +115,13 @@ Util.Objects["defaultTags"] = new function() {
 		u.request(div._tags, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
 
 
-		// enable tagging
+		// enable tagging (when + is clicked or add tag field is updated)
 		div.enableTagging = function() {
 			u.bug("enable tagging")
 
 			if(!this._tag_options) {
 
-				// change button
+				// change button value and action
 				this._tags._bn_add.innerHTML = "-";
 				this._tags._bn_add.clicked = function() {
 
@@ -104,15 +132,17 @@ Util.Objects["defaultTags"] = new function() {
 					this.div._tag_options.parentNode.removeChild(this.div._tag_options);
 					this.div._tag_options = false;
 
+					// re-enable tag +
 					this.clicked = function() {
 						this.div.enableTagging();
 					}
 				}
+
+				// go to add tags mode
 				u.ac(this, "addtags");
 
-
+				// add list with available tag option
 				this._tag_options = u.ae(this, "div", {"class":"tagoptions"});
-
 				this._new_tags = u.ae(this._tag_options, "ul", {"class":"tags"});
 
 
@@ -120,21 +150,21 @@ Util.Objects["defaultTags"] = new function() {
 				var usedtags = {};
 				var itemTags = u.qsa("li:not(.add)", this._tags);
 
-				var i, tag, context, value;
-
-				for(i = 0; tag = itemTags[i]; i++) {
-					tag._context = u.qs(".context", tag).innerHTML;
-					tag._value = u.qs(".value", tag).innerHTML;
+				var i, tag_node, tag, context, value;
+				for(i = 0; tag_node = itemTags[i]; i++) {
+					tag_node._context = u.qs(".context", tag_node).innerHTML;
+					tag_node._value = u.qs(".value", tag_node).innerHTML;
 
 	//				u.bug("exist context:value:" + tag._context + ":" + tag._value)
 
-					if(!usedtags[tag._context]) {
-						usedtags[tag._context] = {}
+					if(!usedtags[tag_node._context]) {
+						usedtags[tag_node._context] = {}
 					}
-					if(!usedtags[tag._context][tag._value]) {
-						usedtags[tag._context][tag._value] = tag;
+					if(!usedtags[tag_node._context][tag_node._value]) {
+						usedtags[tag_node._context][tag_node._value] = tag_node;
 					}
 				}
+
 
 				// loop through all tags
 				for(tag in this._tags._alltags) {
@@ -143,12 +173,15 @@ Util.Objects["defaultTags"] = new function() {
 					context = this._tags._alltags[tag].context;
 					// tag value - replace single & with entity or it is not recognized
 					value = this._tags._alltags[tag].value.replace(/ & /, " &amp; ");
-	//				u.bug("context:value:" + context + ":" + value)
+//					u.bug("context:value:" + context + ":" + value + ", " + tag)
 
+					
+					// tag exist on item
 					if(usedtags && usedtags[context] && usedtags[context][value]) {
-	// 					// 	u.ac(node, "selected");
 						tag_node = usedtags[context][value];
 					}
+					// tag is unused
+					// add tag to tag options
 					else {
 						tag_node = u.ae(this._new_tags, "li", {"class":"tag"});
 						tag_node._context = context;
@@ -157,52 +190,57 @@ Util.Objects["defaultTags"] = new function() {
 						u.ae(tag_node, "span", {"class":"value", "html":tag_node._value});
 					}
 
-//					tag_node._taglist = this._tags._taglist;
 					tag_node._id = this._tags._alltags[tag].id;
 					tag_node.div = this;
 
+					div.activateTag(tag_node);
+				}
+			}
+		}
+		
+		div.activateTag = function(tag_node) {
 
-	// 
-	 				u.e.click(tag_node);
-	 				tag_node.clicked = function() {
-	// 					u.bug("tag clicked:" + tag_node._context+":"+tag_node._value);
+			u.e.click(tag_node);
+			tag_node.clicked = function() {
+//				u.bug("tag clicked:" + tag_node._context+":"+tag_node._value);
 
-						// only do anything if in addTags mode
-						if(u.hc(this.div, "addtags")) {
+				// only do anything if in addTags mode
+				if(u.hc(this.div, "addtags")) {
 
-							// tag is in existing tags list
-							// remove tag
-							if(this.parentNode == this.div._tags) {
+					// tag is in existing tags list
+					// remove tag
+					if(this.parentNode == this.div._tags) {
 
-								this.response = function(response) {
-									if(response.cms_status == "success") {
-										// add tag to newtags
-										u.ae(this.div._new_tags, this);
-									}
-									// Notify of event
-									page.notify(response);
-								}
-//								u.request(this, "/admin/cms/tags/delete/"+this.div.item_id+"/" + this._id);
-								u.request(this, this.div.delete_tag_url+"/"+this.div.item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.div.csrf_token});
-							}
-							// else add tag
-							else {
-	// 
-								this.response = function(response) {
-									if(response.cms_status == "success") {
-										
-										u.ie(this.div._tags, this)
-									}
-									// Notify of event
-									page.notify(response);
-								}
-//								u.request(this, "/admin/cms/update/"+this.div.item_id, {"method":"post", "params":"tags="+this._id});
-								u.request(this, this.div.update_item_url, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.div.csrf_token});
+						this.response = function(response) {
+
+							// Notify of event
+							page.notify(response);
+
+							if(response.cms_status == "success") {
+								// add tag to newtags
+								u.ae(this.div._new_tags, this);
 							}
 						}
+						u.request(this, this.div.delete_tag_url+"/"+this.div.item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.div.csrf_token});
+					}
+					// else add tag
+					else {
+// 
+						this.response = function(response) {
+
+							// Notify of event
+							page.notify(response);
+
+							if(response.cms_status == "success") {
+								// add tags to tag options
+								u.ie(this.div._tags, this)
+							}
+						}
+						u.request(this, this.div.add_tag_url, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.div.csrf_token});
 					}
 				}
 			}
+			
 		}
 	}
 }

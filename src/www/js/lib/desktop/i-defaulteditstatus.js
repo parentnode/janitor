@@ -2,6 +2,7 @@ Util.Objects["defaultEditStatus"] = new function() {
 	this.init = function(node) {
 
 		node._item_id = u.cv(node, "item_id");
+		node.csrf_token = node.getAttribute("data-csrf-token");
 
 		// enable/disable button
 		var action = u.qs("li.status");
@@ -9,10 +10,15 @@ Util.Objects["defaultEditStatus"] = new function() {
 
 			// inject standard item status form if node is empty
 			if(!action.childNodes.length) {
-				form_disable = u.f.addForm(action, {"action":"/admin/cms/disable/"+node._item_id, "class":"disable"});
-				u.f.addAction(form_disable, {"value":"Disable", "class":"button status"});
-				form_enable = u.f.addForm(action, {"action":"/admin/cms/enable/"+node._item_id, "class":"enable"});
-				u.f.addAction(form_enable, {"value":"Enable", "class":"button status"});
+				action.update_status_url = action.getAttribute("data-update-status");
+				if(action.update_status_url) {
+					form_disable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/0", "class":"disable"});
+					u.ae(form_disable, "input", {"type":"hidden","name":"csrf-token", "value":node.csrf_token});
+					u.f.addAction(form_disable, {"value":"Disable", "class":"button status"});
+					form_enable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/1", "class":"enable"});
+					u.ae(form_enable, "input", {"type":"hidden","name":"csrf-token", "value":node.csrf_token});
+					u.f.addAction(form_enable, {"value":"Enable", "class":"button status"});
+				}
 			}
 			// look for valid forms
 			else {
@@ -31,7 +37,7 @@ Util.Objects["defaultEditStatus"] = new function() {
 							u.rc(this.parentNode, "enabled");
 						}
 					}
-					u.request(this, this.action);
+					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
 				}
 
 				u.f.init(form_enable);
@@ -43,7 +49,7 @@ Util.Objects["defaultEditStatus"] = new function() {
 							u.ac(this.parentNode, "enabled");
 						}
 					}
-					u.request(this, this.action);
+					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
 				}
 			}
 

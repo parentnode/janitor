@@ -2,6 +2,7 @@ Util.Objects["defaultEditActions"] = new function() {
 	this.init = function(node) {
 
 		node._item_id = u.cv(node, "item_id");
+		node.csrf_token = node.getAttribute("data-csrf-token");
 
 		var cancel = u.qs("li.cancel a");
 
@@ -12,9 +13,13 @@ Util.Objects["defaultEditActions"] = new function() {
 
 			// inject standard item delete form if node is empty
 			if(!action.childNodes.length) {
-				form = u.f.addForm(action, {"action":"/admin/cms/delete/"+node._item_id, "class":"delete"});
-				form.node = node;
-				bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
+				action.delete_item_url = action.getAttribute("data-delete-item");
+				if(action.delete_item_url) {
+					form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
+					u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":node.csrf_token});
+					form.node = node;
+					bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
+				}
 			}
 			// look for valid forms
 			else {
@@ -60,7 +65,7 @@ Util.Objects["defaultEditActions"] = new function() {
 								}
 							}
 						}
-						u.request(this, this.action);
+						u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 					}
 				}
 			}
