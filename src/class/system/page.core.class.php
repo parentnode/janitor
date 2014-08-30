@@ -121,31 +121,6 @@ class PageCore {
 
 
 	/**
-	* Load external template
-	*
-	* @param string $template Path to template
-	* DEPRECATED-param string $template_object Class object to use in template
-	* DEPRECATED-param string $response_column Column type classname
-	* DEPRECATED-param string $container_id Id of wrapping container
-	* DEPRECATED-param string $target_id If template needs to link to other target
-	* DEPRECATED-param string $silent Get template without getting message (default loud)
-	*/
-	function template($template) {
-		global $HTML;
-
-		if(file_exists(LOCAL_PATH."/templates/".$template)) {
-			$file = LOCAL_PATH."/templates/".$template;
-		}
-		else if(file_exists(FRAMEWORK_PATH."/templates/".$template)) {
-			$file = FRAMEWORK_PATH."/templates/".$template;
-		}
-
-		if(isset($file)) {
-			include($file);
-		}
-	}
-
-	/**
 	* Get page title
 	*
 	* The page title is complex
@@ -276,34 +251,126 @@ class PageCore {
 	}
 
 
+	/**
+	* Load external template
+	*
+	* @param string $template Path to template
+	*/
+	function template($template, $_options = false) {
+		global $HTML;
+
+		if(file_exists(LOCAL_PATH."/templates/".$template)) {
+			$file = LOCAL_PATH."/templates/".$template;
+		}
+		else if(file_exists(FRAMEWORK_PATH."/templates/".$template)) {
+			$file = FRAMEWORK_PATH."/templates/".$template;
+		}
+
+
+		$buffer = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "buffer"            : $buffer = $_value; break;
+				}
+			}
+		}
+
+
+		if(isset($file)) {
+			if($buffer) {
+//				print "buffering:" . $file;
+				ob_start();
+				include($file);
+				$output = ob_get_contents();
+				ob_end_clean();
+				return $output;
+			}
+			else {
+				return include($file);
+			}
+		}
+	}
+
+	/**
+	* Compile complete page HTML 
+	* Render order: templates, header, footer
+	* Output order: header, templates, footer
+	*
+	* @return String page header
+	*/
+	function page($_options = false) {
+		global $HTML;
+
+		$type = "www";
+		$templates = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "type"              : $type = $_value; break;
+
+					case "templates"         : $templates = $_value; break;
+
+					case "body_class"        : $this->bodyClass($_value); break;
+					case "page_title"        : $this->pageTitle($_value); break;
+					case "page_descriptiton" : $this->pageDescription($_value); break;
+					case "content_class"     : $this->contentClass($_value); break;
+				}
+			}
+		}
+
+		$_template = "";
+		$_header = "";
+		$_footer = "";
+
+		if($templates) {
+			$templates_array = explode(",", $templates);
+			foreach($templates_array as $template) {
+//				print "buffering: " . $template;
+
+				$_template .= $this->template($template, array("buffer" => true));
+
+//				print "buffered: " . $_template;
+			}
+		}
+
+		$_header = $this->header(array("type" => $type, "buffer" => true));
+		$_footer = $this->footer(array("type" => $type, "buffer" => true));
+
+		print $_header.$_template.$_footer;
+	}
+
 
 	/**
 	* Add page header
 	*
-	* @return String HTML header
+	* @return String HTML header or boolean if unbuffered 
 	*/
-
-	function header($options = false) {
+	function header($_options = false) {
 		global $HTML;
 
 		$type = "www";
+		$buffer = false;
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "type"              : $type = $value; break;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "buffer"            : $buffer = $_value; break;
+					case "type"              : $type = $_value; break;
 
-					case "body_class"        : $this->bodyClass($value); break;
-					case "page_title"        : $this->pageTitle($value); break;
-					case "page_descriptiton" : $this->pageDescription($value); break;
-					case "content_class"     : $this->contentClass($value); break;
+					case "body_class"        : $this->bodyClass($_value); break;
+					case "page_title"        : $this->pageTitle($_value); break;
+					case "page_descriptiton" : $this->pageDescription($_value); break;
+					case "content_class"     : $this->contentClass($_value); break;
 				}
 			}
 		}
 	
 		// TODO: check for login and server admin header
+		return $this->template($type.".header.php", array("buffer" => $buffer));
 
-		$this->template($type.".header.php");
 	}
 
 	/**
@@ -311,20 +378,27 @@ class PageCore {
 	*
 	* @return String HTML footer
 	*/
-	function footer($options = false) {
+	function footer($_options = false) {
 		global $HTML;
 
 		$type = "www";
+		$buffer = false;
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "type"              : $type = $value; break;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "buffer"            : $buffer = $_value; break;
+					case "type"              : $type = $_value; break;
 				}
 			}
 		}
 
-		$this->template($type.".footer.php");
+//		if($buffer) {
+			return $this->template($type.".footer.php", array("buffer" => $buffer));
+//		}
+//		else {
+//			$this->template($type.".footer.php");
+//		}
 	}
 
 
@@ -348,6 +422,20 @@ class PageCore {
 	}
 
 	/**
+	* Get array of available languages
+	*/
+	function languages() {
+
+		if(!session()->value("languages")) {
+
+			$query = new Query();
+			$query->sql("SELECT * FROM ".UT_LANGUAGES);
+			session()->value("languages", $query->results());
+		}
+		return session()->value("languages");
+	}
+
+	/**
 	* Get/set current country
 	*
 	* Pass value to set country
@@ -365,6 +453,21 @@ class PageCore {
 			return session()->value("country");
 		}
 	}
+
+	/**
+	* Get array of available countries
+	*/
+	function countries() {
+
+		if(!session()->value("countries")) {
+
+			$query = new Query();
+			$query->sql("SELECT * FROM ".UT_COUNTRIES);
+			session()->value("countries", $query->results());
+		}
+		return session()->value("countries");
+	}
+
 
 	/**
 	* Get/set current currency
@@ -641,16 +744,30 @@ class PageCore {
 
 	// validate csrf token
 	function validateCsrfToken() {
+
 		// validate csrf-token on all requests?
-		if(!(defined("SITE_INSTALL") && SITE_INSTALL) && $_SERVER["REQUEST_METHOD"] == "POST") {
-			if(!isset($_POST["csrf-token"]) || !$_POST["csrf-token"] || $_POST["csrf-token"] != session()->value("csrf")) {
+		if(!(defined("SITE_INSTALL") && SITE_INSTALL)) {
+
+			if(
+				$_SERVER["REQUEST_METHOD"] != "POST" || 
+				!isset($_POST["csrf-token"]) || 
+				!$_POST["csrf-token"] || 
+				$_POST["csrf-token"] != session()->value("csrf")
+			) {
+				unset($_GET);
 				unset($_POST);
 				unset($_FILES);
 
-				message()->addMessage("Autorization failed", array("type" => "error"));
+				$this->mail(array(
+					"subject" => "CSRF Autorization failed ".SITE_URL, 
+					"message" => "CSRF circumvention attempted:".$this->url,
+					"template" => "system"
+				));
+//				message()->addMessage("Autorization failed", array("type" => "error"));
 				return false;
 			}
 		}
+
 		return true;
 	}
 
@@ -749,30 +866,6 @@ class PageCore {
 //		header("Location: /index.php");
 		exit();
 	}
-
-
-
-
-
-
-
-
-	/**
-	* Create database connection for old MySQL implementation
-	*/
-	// function _db_connection($settings) {
-	//
-	// 	$this->db_host = isset($settings["host"]) ? $settings["host"] : "";
-	// 	$this->db_username = isset($settings["username"]) ? $settings["username"] : "";
-	// 	$this->db_password = isset($settings["password"]) ? $settings["password"] : "";
-	//
-	// 	@mysql_pconnect($this->db_host, $this->db_username, $this->db_password) or header("Location: /404.php?error=DB");
-	//
-	// 	// correct the database connection setting
-	// 	mysql_query("SET NAMES utf8");
-	// 	mysql_query("SET CHARACTER SET utf8");
-	// 	mysql_set_charset("utf8");
-	// }
 
 
 	/**
@@ -913,13 +1006,11 @@ class PageCore {
 	*/
 	function addLog($message, $collection="framework") {
 
-		// TODO: add user_id
-
 		$fs = new FileSystem();
 
 		$timestamp = time();
 		$user_ip = getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR");
-		$user_id = "N/A";
+		$user_id = session()->value("user_id");
 
 		$log = date("Y-m-d H:i:s", $timestamp). " $user_id $user_ip $message";
 
@@ -950,15 +1041,13 @@ class PageCore {
 		$fs->makeDirRecursively($collection_path);
 
 
-		// TODO: add user_id
-
 		// notifications file
 		$collection_file = $collection_path.$collection;
 
 
 		$timestamp = time();
 		$user_ip = getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR");
-		$user_id = "N/A";
+		$user_id = session()->value("user_id");
 
 		$log = date("Y-m-d H:i:s", $timestamp). " $user_id $user_ip $message";
 
