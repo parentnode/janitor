@@ -1,0 +1,59 @@
+#content .defaultList.navigationsList ul.items > li h3 {padding-bottom: 16px;}
+
+#content .defaultEdit.navigationEdit div.item p {padding-bottom: 10px; margin-top: -10px; font-size: 16px;}
+
+
+#content .defaultEdit.navigationEdit div.nodes ul.nodes {
+	border-top: 1px solid #dedede; /*border-bottom: 1px solid #aaaaaa;*/
+	margin-bottom: -1px;
+}
+#content .defaultEdit.navigationEdit div.nodes > ul.nodes li ul.nodes {
+	/*border-top: 1px solid #dedede; border-bottom: 1px solid #dedede; margin-bottom: -1px;*/
+}
+
+#content .defaultEdit.navigationEdit div.nodes > ul.nodes > li {}
+
+#content .defaultEdit.navigationEdit ul.nodes > li {padding: 0; display: block; position: relative; z-index: 1; border-bottom: 1px solid #dedede;}
+#content .defaultEdit.navigationEdit ul.nodes > li div.drag {width: 30px; height: 30px; position: absolute; top: 1px; left: 20px; background: transparent url(/janitor/img/bg_icons2.png) no-repeat 10px -440px; cursor: move;}
+#content .defaultEdit.navigationEdit ul.nodes > li h3 {padding: 10px 0; display: inline-block; vertical-align: bottom; font-size: 14px;}
+#content .defaultEdit.navigationEdit ul.nodes > li h3 {margin-left: 60px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li h3 {margin-left: 60px; padding-left: 30px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li li h3 {margin-left: 90px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li li li h3 {margin-left: 120px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li li li li h3 {margin-left: 150px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li li li li li h3 {margin-left: 180px;}
+
+
+#content .defaultEdit.navigationEdit ul.nodes > li li h3 {
+	background-image: url(/janitor/img/bg_angle.png);
+	background-position: 11px 10px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+
+#content .defaultEdit.navigationEdit ul.nodes > li span.link {padding: 10px 0 10px 20px; display: inline-block; vertical-align: bottom;}
+
+
+#content .defaultEdit.navigationEdit ul.nodes > li {
+	/*border-top: 1px solid #aaaaaa;*/
+}
+
+#content .defaultEdit.navigationEdit ul.nodes > li.hover {background: red !important;}
+
+#content .defaultEdit.navigationEdit ul.nodes > li.dragged {
+	z-index: 3;
+	
+	/*border-top: 1px solid #aaaaaa; border-bottom: 1px solid #aaaaaa;*/
+}
+#content .defaultEdit.navigationEdit ul.nodes > li.dragged .drag {background-image: none;}
+
+
+#content .defaultEdit.navigationEdit ul.nodes li ul.actions {
+	position: absolute; top: 5px; right: 0;
+}
+#content .defaultEdit.navigationEdit ul.nodes li ul.actions a.button {font-size: 0.87em; height: 10px;}
+#content .defaultEdit.navigationEdit ul.nodes li ul.actions input.button {font-size: 0.87em; height: 22px;}
+
+
+
+

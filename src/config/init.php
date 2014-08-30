@@ -51,6 +51,7 @@ include_once("class/system/page.core.class.php");
 include_once("class/system/page.class.php");
 include_once("class/system/html.class.php");
 include_once("class/system/model.class.php");
+include_once("class/system/output.class.php");
 
 
 // Extend with items model - not required for static sites
@@ -58,7 +59,9 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 
 	include_once("class/items/item.core.class.php");
 	include_once("class/items/item.class.php");
+	include_once("class/items/tag.class.php");
 
+	include_once("class/navigation/navigation.class.php");
 
 	include_once("class/users/user.class.php");
 	include_once("class/users/simpleuser.class.php");
