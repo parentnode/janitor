@@ -1,12 +1,9 @@
 <?php
 /**
 * @package janitor.items
-* This file contains item frontpage text maintenance functionality
+* This file contains item type functionality
 */
 
-/**
-* TypeCategory
-*/
 class TypeTodolist extends Model {
 
 	/**
@@ -36,35 +33,43 @@ class TypeTodolist extends Model {
 		// Tags
 		$this->addToModel("tags", array(
 			"type" => "tags",
-			"label" => "Add tag",
-			"hint_message" => "Start typing to get suggestions"
+			"label" => "Tag",
+			"hint_message" => "Start typing to filter available tags. A correct tag has this format: context:value.",
+			"error_message" => "Tag must conform to tag format: context:value."
 		));
 
 		parent::__construct();
 	}
 
 
+	// CMS SECTION
+	// custom loopback function
 
+
+	// Update item order
+	// /admin/todolist/updateOrder (order comma-separated in POST)
 	function updateOrder($action) {
 
-		if(count($action) > 1) {
+		$order_list = getPost("order");
+		if(count($action) == 1 && $order_list) {
 
 			$query = new Query();
-			for($i = 1; $i < count($action); $i++) {
-				$item_id = $action[$i];
-				$query->sql("UPDATE ".$this->db." SET position = ".($i)." WHERE item_id = ".$item_id);
+			$order = explode(",", $order_list);
+
+			for($i = 0; $i < count($order); $i++) {
+				$item_id = $order[$i];
+				$sql = "UPDATE ".$this->db." SET position = ".($i+1)." WHERE item_id = ".$item_id;
+				$query->sql($sql);
 			}
 
-			message()->addMessage("Todolist order updated");
+			message()->addMessage("TODO list order updated");
 			return true;
 		}
 
-		message()->addMessage("Todolist order could not be updated - refresh your browser", array("type" => "error"));
+		message()->addMessage("TODO list order could not be updated - please refresh your browser", array("type" => "error"));
 		return false;
 
 	}
-
-
 
 }
 

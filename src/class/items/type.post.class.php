@@ -1,9 +1,8 @@
 <?php
 /**
 * @package janitor.items
-* This file contains Log maintenance functionality
+* This file contains item type functionality
 */
-
 
 class TypePost extends Model {
 
@@ -47,6 +46,7 @@ class TypePost extends Model {
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "HTML",
+			"allowed_tags" => "h1,h2,h3,h4,p,code",
 			"required" => true,
 			"hint_message" => "Write the log entry",
 			"error_message" => "A log without any words? How weird."
@@ -67,8 +67,8 @@ class TypePost extends Model {
 		$this->addToModel("tags", array(
 			"type" => "tags",
 			"label" => "Tag",
-			"hint_message" => "Start typing to get suggestions. A correct tag has this format: context:value.",
-			"error_message" => "Must be correct Tag format."
+			"hint_message" => "Start typing to filter available tags. A correct tag has this format: context:value.",
+			"error_message" => "Tag must conform to tag format: context:value."
 		));
 
 
@@ -76,9 +76,7 @@ class TypePost extends Model {
 	}
 
 
-	/**
-	* Get item
-	*/
+	// Custom get item with media
 	function get($item_id) {
 		$query = new Query();
 		$query_media = new Query();
@@ -94,11 +92,12 @@ class TypePost extends Model {
 
 				$mediae = $query_media->results();
 				foreach($mediae as $i => $media) {
-					$item["mediae"][$i]["id"] = $media["id"];
-					$item["mediae"][$i]["variant"] = $media["variant"];
-					$item["mediae"][$i]["format"] = $media["format"];
-					$item["mediae"][$i]["width"] = $media["width"];
-					$item["mediae"][$i]["height"] = $media["height"];
+					$variant = $media["variant"];
+					$item["mediae"][$variant]["id"] = $media["id"];
+					$item["mediae"][$variant]["variant"] = $variant;
+					$item["mediae"][$variant]["format"] = $media["format"];
+					$item["mediae"][$variant]["width"] = $media["width"];
+					$item["mediae"][$variant]["height"] = $media["height"];
 				}
 			}
 
@@ -109,47 +108,43 @@ class TypePost extends Model {
 		}
 	}
 
+
 	// CMS SECTION
+	// custom loopback function
 
 
+	// custom function to add media
+	// /admin/post/addMedia/#item_id# (post image)
+	function addMedia($action) {
 
+		if(count($action) == 2) {
+			$query = new Query();
+			$IC = new Item();
+			$item_id = $action[1];
 
-	// update item type - based on posted values
-	function update($item_id) {
+			$query->checkDbExistance($this->db_mediae);
 
-		$query = new Query();
-		$IC = new Item();
+			if($this->validateList(array("files"), $item_id)) {
+				$uploads = $IC->upload($item_id, array("input_name" => "files", "auto_add_variant" => true));
+				if($uploads) {
 
-		$query->checkDbExistance($this->db);
-		$query->checkDbExistance($this->db_mediae);
+					$return_values = array();
 
-		$uploads = $IC->upload($item_id, array("auto_add_variant" => true));
-		if($uploads) {
-			foreach($uploads as $upload) {
-				$query->sql("INSERT INTO ".$this->db_mediae." VALUES(DEFAULT, $item_id, '".$upload["name"]."', '".$upload["format"]."', '".$upload["variant"]."', ".$upload["width"].", ".$upload["height"].", 0)");
-			}
-		}
+					foreach($uploads as $upload) {
+						$query->sql("INSERT INTO ".$this->db_mediae." VALUES(DEFAULT, $item_id, '".$upload["name"]."', '".$upload["format"]."', '".$upload["variant"]."', '".$upload["width"]."', '".$upload["height"]."', 0)");
 
+						$return_values[] = array(
+							"item_id" => $item_id, 
+							"media_id" => $query->lastInsertId(), 
+							"variant" => $upload["variant"], 
+							"format" => $upload["format"], 
+							"width" => $upload["width"], 
+							"height" => $upload["height"]
+						);
+					}
 
-		$entities = $this->data_entities;
-		$names = array();
-		$values = array();
-
-		foreach($entities as $name => $entity) {
-			if($entity["value"] != false && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
-				$names[] = $name;
-				$values[] = $name."='".$entity["value"]."'";
-			}
-		}
-
-		if($this->validateList($names, $item_id)) {
-			if($values) {
-				$sql = "UPDATE ".$this->db." SET ".implode(",", $values)." WHERE item_id = ".$item_id;
-//				print $sql;
-			}
-
-			if(!$values || $query->sql($sql)) {
-				return true;
+					return $return_values;
+				}
 			}
 		}
 
@@ -157,21 +152,19 @@ class TypePost extends Model {
 	}
 
 
-	// custom loopback function
-
-	// delete post image - 4 parameters exactly
-	// /post/#item_id#/deleteImage/#image_id#
+	// delete image - 3 parameters exactly
+	// /admin/post/deleteImage/#item_id#/#variant#
 	function deleteMedia($action) {
 
-		if(count($action) == 4) {
+		if(count($action) == 3) {
 
 			$query = new Query();
 			$fs = new FileSystem();
 
-			$sql = "DELETE FROM ".$this->db_mediae." WHERE item_id = ".$action[1]." AND variant = '".$action[3]."'";
+			$sql = "DELETE FROM ".$this->db_mediae." WHERE item_id = ".$action[1]." AND variant = '".$action[2]."'";
 			if($query->sql($sql)) {
-				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$action[1]."/".$action[3]);
-				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$action[1]."/".$action[3]);
+				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$action[1]."/".$action[2]);
+				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$action[1]."/".$action[2]);
 
 				message()->addMessage("Media deleted");
 				return true;
@@ -183,6 +176,8 @@ class TypePost extends Model {
 	}
 
 
+	// update media order
+	// /admin/post/updateMediaOrder (comma-separated order in POST)
 	function updateMediaOrder($action) {
 
 		$order_list = getPost("order");

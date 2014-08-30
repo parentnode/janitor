@@ -1,9 +1,8 @@
 <?php
 /**
 * @package janitor.items
-* This file contains wishlist maintenance functionality
+* This file contains item type functionality
 */
-
 
 class TypeTodo extends Model {
 
@@ -38,7 +37,6 @@ class TypeTodo extends Model {
 		$this->addToModel("priority", array(
 			"type" => "select",
 			"options" => $this->todo_priority,
-//			"options" => array(array(0,"Low"),array(5,"Medium"),array(10,"High")),
 			"label" => "Prioritize the task",
 			"hint_message" => "How important is it to get done?",
 			"error_message" => "priority error"
@@ -57,35 +55,44 @@ class TypeTodo extends Model {
 		$this->addToModel("tags", array(
 			"type" => "tags",
 			"label" => "Tag",
-			"hint_message" => "Start typing to get suggestions. A correct tag has this format: context:value.",
-			"error_message" => "Must be correct Tag format."
+			"hint_message" => "Start typing to filter available tags. A correct tag has this format: context:value.",
+			"error_message" => "Tag must conform to tag format: context:value."
 		));
 
 
 		parent::__construct();
 	}
 
+
+	// CMS SECTION
+	// custom loopback function
+
+
 	// used for frontend communication
-	// close
+
+	// close task
+	// /admin/todo/close/#item_id#
 	function close($action) {
 
 		if(count($action) == 2) {
 
 			$IC = new Item();
-			if($IC->disableItem($action[1])) {
+			if($IC->status($action[1], 0)) {
 				return true;
 			}
 
 		}
 		return false;
 	}
+
 	// open
+	// /admin/todo/open/#item_id#
 	function open($action) {
 
 		if(count($action) == 2) {
 
 			$IC = new Item();
-			if($IC->enableItem($action[1])) {
+			if($IC->status($action[1], 1)) {
 				return true;
 			}
 
