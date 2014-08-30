@@ -92,8 +92,11 @@ class Model extends HTML {
 
 		// files
 		$allowed_formats = "gif,jpg,png,mp4,mov,m4v,pdf";
-		$allowed_proportions = "*";
-		$allowed_sizes = "*";
+		$allowed_proportions = false;
+		$allowed_sizes = false;
+
+		// html
+		$allowed_tags = "h1,h2,h3,h4,h5,h6,p,code";
 
 		// dates
 		$is_before = false;
@@ -143,6 +146,8 @@ class Model extends HTML {
 					case "allowed_proportions"   : $allowed_proportions   = $_value; break;
 					case "allowed_sizes"         : $allowed_sizes         = $_value; break;
 
+					case "allowed_tags"          : $allowed_tags          = $_value; break;
+
 					case "is_before"             : $is_before             = $_value; break;
 					case "is_after"              : $is_after              = $_value; break;
 
@@ -178,6 +183,8 @@ class Model extends HTML {
 		$this->data_entities[$name]["allowed_formats"] = $allowed_formats;
 		$this->data_entities[$name]["allowed_proportions"] = $allowed_proportions;
 		$this->data_entities[$name]["allowed_sizes"] = $allowed_sizes;
+
+		$this->data_entities[$name]["allowed_tags"] = $allowed_tags;
 
 		$this->data_entities[$name]["is_before"] = $is_before;
 		$this->data_entities[$name]["is_after"] = $is_after;
@@ -218,10 +225,27 @@ class Model extends HTML {
 	function getPostedEntities() {
 		if(count($this->data_entities)) {
 			foreach($this->data_entities as $name => $entity) {
-				$value = getPost($name);
-				if($value !== false) {
-//					print $name."=".$value."<br>";
-					$this->data_entities[$name]["value"] = $value;
+
+				// special case with files
+				if($this->data_entities[$name]["type"] == "files") {
+
+					// indicate value is present for file upload
+					if(isset($_FILES[$name])) {
+//						$this->data_entities[$name]["value"] = true;
+						$this->data_entities[$name]["value"] = $_FILES[$name]["tmp_name"];
+					}
+				}
+
+				// regular variable
+				else {
+					$value = getPost($name);
+					if($value !== false) {
+//						print $name."=".$value."\n";
+						$this->data_entities[$name]["value"] = $value;
+					}
+					// else {
+					// 	print "should be false:" . $name . "," . ($this->data_entities[$name]["value"] === false) . "\n";
+					// }
 				}
 			}
 		}
@@ -258,9 +282,12 @@ class Model extends HTML {
 		}
 //		print "</p>";
 
+		// prepare values to be returned to screen if errors exist
 		if(count($this->data_errors)) {
 			foreach($this->data_entities as $name => $entity) {
-				$this->data_entities[$name]["value"] = prepareForHTML($entity["value"]);
+				if($this->data_entities[$name]["value"] !== false) {
+					$this->data_entities[$name]["value"] = prepareForHTML($entity["value"]);
+				}
 			}
 			return false;
 		}
@@ -286,9 +313,13 @@ class Model extends HTML {
 				}
 			}
 		}
+
+		// prepare values to be returned to screen if errors exist
 		if(count($this->data_errors)) {
 			foreach($this->data_entities as $name => $entity) {
-				$this->data_entities[$name]["value"] = prepareForHTML($entity["value"]);
+				if($this->data_entities[$name]["value"] !== false) {
+					$this->data_entities[$name]["value"] = prepareForHTML($entity["value"]);
+				}
 			}
 			return false;
 		}
@@ -307,7 +338,7 @@ class Model extends HTML {
 	* TODO: some validation rules are not done!
 	*/
 	function validate($name, $item_id = false) {
-//		print "validate:".$name;
+//		print "validate:".$name."\n";
 
 		// check uniqueness
 		if($this->data_entities[$name]["unique"]) {
@@ -318,6 +349,8 @@ class Model extends HTML {
 				return false;
 			}
 		}
+
+//		print_r($this->data_entities[$name]);
 
 		// is optional and empty?
 		// if value is not empty - it needs to be validated even for optional entities
@@ -336,11 +369,11 @@ class Model extends HTML {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "images") {
-			if($this->isImages($name)) {
-				return true;
-			}
-		}
+		// else if($this->data_entities[$name]["type"] == "images") {
+		// 	if($this->isImages($name)) {
+		// 		return true;
+		// 	}
+		// }
 		else if($this->data_entities[$name]["type"] == "number") {
 			if($this->isNumber($name)) {
 				return true;
@@ -408,8 +441,8 @@ class Model extends HTML {
 	/**
 	* Check for other existance of value
 	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
+	* @param string $name Element identifier
+	* @param Integer $item_id current item_id
 	* @return bool
 	*/
 	function isUnique($name, $item_id) {
@@ -435,37 +468,184 @@ class Model extends HTML {
 	*
 	* @param string $name Element identifier
 	* @return bool
-	* TODO: Faulty file validation
 	*/
 	function isFiles($name) {
-		$entity = $this->data_entities[$name];
-		
-		// if($_FILES[$element]["name"] && $_FILES[$element]["tmp_name"] && !$_FILES[$element]["error"]) {
-		return true;
-		// }
-		// 
-		// return false;
-	}
+		// print "isFiles:<br>";
+		// print "FILES:\n";
+		// print_r($_FILES);
 
-	/**
-	* Is image valid?
-	*
-	* @param string $name Element identifier
-	* @return bool
-	*/
-	function isImages($name) {
 		$entity = $this->data_entities[$name];
 
-		if($_FILES[$element]["name"] && $_FILES[$element]["tmp_name"] && !$_FILES[$element]["error"]) {
-			$image_info = getimagesize($_FILES[$element]["tmp_name"]);
-			$image_mime = image_type_to_mime_type($image_info[2]);
-			if((!$width || ($width && $image_info[0] == $width)) && (!$height || ($height && $image_info[1] == $height))) {
-				return true;
-			}
+		$value = $entity["value"];
+
+		$min = $entity["min"];
+		$max = $entity["max"];
+
+		$formats = $entity["allowed_formats"];
+		$proportions = $entity["allowed_proportions"];
+		$sizes = $entity["allowed_sizes"];
+
+		$uploads = $this->identifyUploads($name);
+
+		// print "uploads:\n";
+		// print_r($uploads);
+
+		if(
+			(!$min || count($value) >= $min) && 
+			(!$max || count($value) <= $max) &&
+			(!$proportions || $this->proportionTest($uploads, $proportions)) &&
+			(!$sizes || $this->sizeTest($uploads, $sizes)) &&
+			(!$formats || $this->formatTest($uploads, $formats))
+		) {
+			$this->data_entities[$name]["error"] = false;
+			return true;
+		}
+		else {
+			$this->data_entities[$name]["error"] = true;
+			return false;
 		}
 
-		return false;
 	}
+
+	// isFiles helper
+	// test if proportions are valid
+	function proportionTest($uploads, $proportions) {
+
+		$proportion_array = explode(",", $proportions);
+		foreach($uploads as $upload) {
+			if(array_search($upload["proportion"], $proportion_array) === false) {
+//				print "bad proportion";
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// isFiles helper
+	// test if sizes are valid
+	function sizeTest($uploads, $sizes) {
+
+		$size_array = explode(",", $sizes);
+		foreach($uploads as $upload) {
+			if(array_search($upload["width"]."x".$upload["height"], $size_array) === false) {
+//				print "bad size";
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// isFiles helper
+	// test if formats are valid
+	function formatTest($uploads, $formats) {
+
+		$format_array = explode(",", $formats);
+		foreach($uploads as $upload) {
+			if(array_search($upload["format"], $format_array) === false) {
+//				print "bad format";
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// isFiles helper
+	// upload identification helper
+	// supports identification of:
+	// - image
+	// - video
+	// - audio
+	function identifyUploads($name) {
+
+		$uploads = array();
+
+//		print "input_name:" . $name;
+
+		if(isset($_FILES[$name])) {
+//			print_r($_FILES[$name]);
+
+//			if($_FILES[$name]["name"])
+			foreach($_FILES[$name]["name"] as $index => $value) {
+				if(!$_FILES[$name]["error"][$index] && file_exists($_FILES[$name]["tmp_name"][$index])) {
+
+					$upload = array();
+					$upload["name"] = $value;
+
+					$extension = false;
+					$temp_file = $_FILES[$name]["tmp_name"][$index];
+					$temp_type = $_FILES[$name]["type"][$index];
+
+
+					// video upload
+					if(preg_match("/video/", $temp_type)) {
+
+						include_once("class/system/video.class.php");
+						$Video = new Video();
+
+						// check if we can get relevant info about movie
+						$info = $Video->info($temp_file);
+						if($info) {
+
+							// TODO: add extension to Video Class
+							// TODO: add better bitrate detection to Video Class
+							// $upload["bitrate"] = $info["bitrate"];
+							$upload["type"] = "movie";
+							$upload["format"] = "mov";
+							$upload["width"] = $info["width"];
+							$upload["height"] = $info["height"];
+							$upload["proportion"] = round($upload["width"] / $upload["height"], 2);
+							$uploads[] = $upload;
+						}
+
+					}
+
+					// audio upload
+					else if(preg_match("/audio/", $temp_type)) {
+
+						include_once("class/system/audio.class.php");
+						$Audio = new Audio();
+
+ 						// check if we can get relevant info about audio
+						$info = $Audio->info($temp_file);
+						if($info) {
+//							print_r($info);
+
+							// $upload["bitrate"] = $info["bitrate"];
+							$upload["type"] = "audio";
+							$upload["format"] = "mp3";
+							$uploads[] = $upload;
+						}
+
+					}
+
+					// image upload
+					else if(preg_match("/image/", $temp_type)) {
+
+						$image = new Imagick($temp_file);
+
+ 						// check if we can get relevant info about image
+						$info = $image->getImageFormat();
+						if($info) {
+
+							$upload["type"] = "image";
+							$upload["format"] = preg_replace("/jpeg/", "jpg", strToLower($info));
+							$upload["width"] = $image->getImageWidth();
+							$upload["height"] = $image->getImageHeight();
+							$upload["proportion"] = round($upload["width"] / $upload["height"], 2);
+							$uploads[] = $upload;
+
+						}
+					}
+				}
+			}
+
+		}
+
+		return $uploads;
+
+	}
+
+
 
 	/**
 	* Is string string?
@@ -610,6 +790,7 @@ class Model extends HTML {
 	}
 
 
+
 	/**
 	* Compare two passwords (to check if password and repeat password are identical)
 	*
@@ -747,93 +928,6 @@ class Model extends HTML {
 
 		return true;
 	}
-
-
-
-
-
-	// TODO: UPDATE getPostVars name and functionallity
-	// TODO: UPDATE type.product.class in save function
-
-	/**
-	* Prepare variables in Vars array to be returned to page (because of error or like)
-	*/
-	// function prepareVars() {
-	// 	foreach($this->obj->vars as $element => $value) {
-	// 		if(is_array($value)) {
-	// 			foreach($value as $index => $val) {
-	// 				$this->obj->vars[$element][$index] = stripslashes($val);
-	// 			}
-	// 		}
-	// 		else {
-	// 			$this->obj->vars[$element] = stripslashes($value);
-	// 		}
-	// 	}
-	// }
-
-	// /**
-	// * Set validation indication for element
-	// *
-	// * @param string $element Element identifier
-	// * @param string $indication Indication of validation
-	// * @return bool
-	// */
-	// function setValidationIndication($element, $indication=false) {
-	// 	if(!$this->checkOptional($element)) {
-	// 		if(!is_array($this->obj->varnames[$element])) {
-	// 			$varname = $this->obj->varnames[$element];
-	// 			$this->obj->varnames[$element] = array();
-	// 			$this->obj->varnames[$element]['value'] = $varname;
-	// 		}
-	// 		$this->obj->varnames[$element]['validation'] = $indication ? $indication : "*";
-	// 	}
-	// }
-
-	// /**
-	// * Set error value for element
-	// *
-	// * @param string $element Element identifier
-	// * @param string $error Error message
-	// * @return bool
-	// */
-	// function setError($element, $error) {
-	// 	if(!is_array($this->obj->varnames[$element])) {
-	// 		$varname = $this->obj->varnames[$element];
-	// 		$this->obj->varnames[$element] = array();
-	// 		$this->obj->varnames[$element]['value'] = $varname;
-	// 	}
-	// 	$this->obj->varnames[$element]['error'] = isset($this->obj->varnames[$element]['error']) && $this->obj->varnames[$element]['error'] ? $this->obj->varnames[$element]['error'].", ".$error : $error;
-	// }
-
-	// /**
-	// * Remove error from element
-	// *
-	// * @param string $element Element identifier
-	// */
-	// function clearError($element) {
-	// 	if(!is_array($this->obj->varnames[$element])) {
-	// 		$varname = $this->obj->varnames[$element];
-	// 		$this->obj->varnames[$element] = array();
-	// 		$this->obj->varnames[$element]['value'] = $varname;
-	// 	}
-	// 	$this->obj->varnames[$element]['error'] = "";
-	// }
-
-	// /**
-	// * Get rule details from rula args array
-	// *
-	// * @param string $rule Rule array
-	// * @param int $index args index
-	// * @return string|false
-	// */
-	// function getRuleDetails($rule, $index) {
-	// 	if(isset($rule["args"]) && isset($rule["args"][$index])) {
-	// 		return $rule["args"][$index];
-	// 	}
-	// 	else {
-	// 		return false;
-	// 	}
-	// }
 
 }
 
