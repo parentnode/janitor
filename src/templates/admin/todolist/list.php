@@ -18,10 +18,10 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position A
 		data-save-order="<?= $this->validAction("/admin/$itemtype/updateOrder") ?>" 
 		data-get-tags="<?= $this->validAction("/admin/cms/tags") ?>" 
 		data-delete-tag="<?= $this->validAction("/admin/cms/tags/delete") ?>"
-		data-update-item="<?= $this->validAction("/admin/cms/update") ?>"
+		data-add-tag="<?= $this->validAction("/admin/cms/tags/add") ?>"
 		>
 <?		if($all_items): ?>
-		<ul class="items targets:draggable" data-save-order="/admin/<?= $itemtype ?>/updateOrder">
+		<ul class="items targets:draggable">
 <?			foreach($all_items as $item): 
 				$item = $IC->extendItem($item, array("tags" => true)); ?>
 			<li class="item draggable item_id:<?= $item["item_id"] ?>">

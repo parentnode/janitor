@@ -2,111 +2,46 @@
 global $action;
 global $model;
 
-print_r($action);
+$user_id = $action[1];
+$address_id = $action[2];
 
-$item = $model->getUsers(array("user_id" => $action[1]));
+$item = $model->getUsers(array("user_id" => $user_id));
 
-// TODO: Create global function for this
-$user_groups = $model->getUserGroups();
-$user_groups_options = array();
-foreach($user_groups as $user_group) {
-	$option = array();
-	$option[0] = $user_group["id"];
-	$option[1] = $user_group["user_group"];
-	$user_groups_options[] = $option;
-}
+$address = $model->getAddresses(array("address_id" => $address_id));
 
-$query = new Query();
-$query->sql("SELECT * FROM ".UT_LANGUAGES);
-$languages = $query->results();
-$language_options = array();
-foreach($languages as $language) {
-	$option = array();
-	$option[0] = $language["id"];
-	$option[1] = $language["name"];
-	$language_options[] = $option;
-}
-
-//$usernames = $model->getUsernames(array("user_id" => $action[1]));
-$mobile = "";
-$mobile = $model->getUsernames(array("user_id" => $action[1], "type" => "mobile"));
-$email = $model->getUsernames(array("user_id" => $action[1], "type" => "email"));
-
-$addresses = $model->getAddresses(array("user_id" => $action[1]));
-$newsletters = $model->getNewsletters(array("user_id" => $action[1]));
-
+$country_options = $model->toOptions($this->countries(), "id", "name");
 ?>
 
 <div class="scene defaultEdit userEdit">
 	<h1>Edit Address</h1>
 
-	<ul class="actions">
-		<li class="cancel"><a href="/admin/user/edit/<?= $item["user_id"] ?>" class="button">Back to user</a></li>
+	<ul class="actions i:defaultEditActions item_id:<?= $address_id ?>"
+		data-csrf-token="<?= session()->value("csrf") ?>"
+		>
+		<?= $model->link("Back to user", "/admin/user/edit/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->deleteButton("Delete address", "/admin/user/deleteAddress/".$address_id) ?>
 	</ul>
 
-	<h2>Address</h2>
-	<p></p>
 	<div class="addresses">
-		<?
-		print_r($addresses);
-		?>
+		<h2>Address</h2>
+		<?= $model->formStart("/admin/user/updateAddress/".$address_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+			<fieldset>
+				<?= $model->input("address_label", array("value" => $address["address_label"] )) ?>
+				<?= $model->input("address_name", array("value" => $address["address_name"] )) ?>
+				<?= $model->input("att", array("value" => $address["att"] )) ?>
+				<?= $model->input("address1", array("value" => $address["address1"])) ?>
+				<?= $model->input("address2", array("value" => $address["address2"])) ?>
+				<?= $model->input("city", array("value" => $address["city"])) ?>
+				<?= $model->input("postal", array("value" => $address["postal"])) ?>
+				<?= $model->input("state", array("value" => $address["state"])) ?>
+				<?= $model->input("country", array("type" => "select", "value" => $address["country"], "options" => $country_options)) ?>
+			</fieldset>
 
-
-		<fieldset>
-			<?= $model->input("address_label", array("type" => "hidden", "value" => "delivery" )) ?>
-			<?= $model->input("address1", array(
-					"required" => true,
-					"label" => "Adresse", 
-					"value" => stringOr($address1),
-					"hint_message" => "Adressen der skal leveres til", 
-					"error_message" => ""
-				)) ?>
-			<?= $model->input("address2", array(
-					"label" => "Adresse fortsat", 
-					"value" => stringOr($address2),
-					"hint_message" => "Skriv yderligere adresse oplysninger", 
-					"error_message" => ""
-				)) ?>
-			<?= $model->input("city", array(
-					"required" => true,
-					"label" => "By", 
-					"value" => stringOr($city),
-					"hint_message" => "Skriv navnet på din by", 
-					"error_message" => ""
-				)) ?>
-			<?= $model->input("postal", array(
-					"required" => true,
-					"label" => "Postnummer", 
-					"value" => stringOr($postal),
-					"hint_message" => "Skriv din bys postnummer", 
-					"error_message" => ""
-				)) ?>
-			<?= $model->input("country", array(
-					"required" => true,
-					"label" => "Country", 
-					"value" => stringOr($postal),
-					"hint_message" => "Skriv din bys postnummer", 
-					"error_message" => ""
-				)) ?>
-
-			<div class="pseudofield country">
-				<?= $model->input("country", array("type" => "hidden", "value" => "dk" )) ?>
-				<label>Land</label>
-				<div class="value">Danmark</div>
-			</div>
-		</fieldset>
-
-		<ul class="actions">
-			<li class="add"><input type="submit" value="Add new address" class="button primary" /></li>
-		</ul>
-	</div>
-
-	<h2>Newsletters</h2>
-	<p>You are subscriped to these newsletters</p>
-	<div class="newsletters">
-		<?
-		print_r($newsletters);
-		?>
+			<ul class="actions">
+				<?= $model->link("Back", "/admin/user/edit/".$user_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->submit("Update address", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
 	</div>
 
 </div>

@@ -2,56 +2,61 @@
 global $action;
 global $model;
 
-$item = $model->getUsers(array("user_id" => $action[1]));
+$user_id = $action[1];
+
+$item = $model->getUsers(array("user_id" => $user_id));
+
+// get user_groups for select
 $user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_group");
 
-// TODO: Create global function for languages (don't know if it is supposed to be in Page, Shop or User)
-$query = new Query();
-$query->sql("SELECT * FROM ".UT_LANGUAGES);
-$languages = $query->results();
-$language_options = $model->toOptions($languages, "id", "name");
+// get languages for select
+$language_options = $model->toOptions($this->languages(), "id", "name");
 
 // get usernames
-$mobile = $model->getUsernames(array("user_id" => $item["id"], "type" => "mobile"));
-$email = $model->getUsernames(array("user_id" => $item["id"], "type" => "email"));
+$mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
+$email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
 
 // password state
-$has_password = $model->hasPassword($item["id"]);
+$has_password = $model->hasPassword($user_id);
 
 
 // get addresses
-$addresses = $model->getAddresses(array("user_id" => $item["id"]));
+$addresses = $model->getAddresses(array("user_id" => $user_id));
 
 // get newsletters
-$newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
+$newsletters = $model->getNewsletters(array("user_id" => $user_id));
 
 ?>
 <div class="scene defaultEdit userEdit">
 	<h1>Edit user</h1>
 
-	<ul class="actions">
+	<ul class="actions i:defaultEditActions item_id:<?= $user_id ?>"
+		data-csrf-token="<?= session()->value("csrf") ?>"
+		>
 		<?= $HTML->link("All users", "/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->deleteButton("Delete", "/admin/user/delete/".$item["id"]) ?>
+		<?= $HTML->deleteButton("Delete", "/admin/user/delete/".$user_id) ?>
 	</ul>
 
-	<div class="status i:defaultEditStatus item_id:<?= $item["id"] ?>">
+	<div class="status i:defaultEditStatus item_id:<?= $user_id ?>"
+		data-csrf-token="<?= session()->value("csrf") ?>"
+		>
 		<ul class="actions">
 			<?= $HTML->statusButton("Enable", "Disable", "/admin/user/status", $item) ?>
 		</ul>
 	</div>
 
 	<ul class="views">
-		<?= $HTML->link("Profile", "/admin/user/edit/".$item["id"], array("wrapper" => "li.profile.selected")) ?>
+		<?= $HTML->link("Profile", "/admin/user/edit/".$user_id, array("wrapper" => "li.profile.selected")) ?>
 <?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
-		<?= $HTML->link("Content and orders", "/admin/user/content/".$item["id"], array("wrapper" => "li.content")) ?>
+		<?= $HTML->link("Content and orders", "/admin/user/content/".$user_id, array("wrapper" => "li.content")) ?>
 <?		else: ?>
-		<?= $HTML->link("Content", "/admin/user/content/".$item["id"], array("wrapper" => "li.content")) ?>
+		<?= $HTML->link("Content", "/admin/user/content/".$user_id, array("wrapper" => "li.content")) ?>
 <?		endif; ?>
 	</ul>
 
 	<div class="item i:defaultEdit">
-		<?= $model->formStart("/admin/user/update/".$item["id"], array("class" => "labelstyle:inject")) ?>
-			<h3>Name, language and user group</h3>
+		<h2>Name, language and user group</h2>
+		<?= $model->formStart("/admin/user/update/".$user_id, array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("nickname", array("value" => $item["nickname"])) ?>
 				<?= $model->input("firstname", array("value" => $item["firstname"])) ?>
@@ -67,11 +72,11 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 		<?= $model->formEnd() ?>
 	</div>
 
-	<h2>Email and Mobile number</h2>
 	<div class="usernames i:usernames">
+		<h2>Email and Mobile number</h2>
 		<p>Your email and mobilenumber are your unique usernames.</p> 
 
-		<?= $model->formStart("/admin/user/updateUsernames/".$item["id"], array("class" => "labelstyle:inject")) ?>
+		<?= $model->formStart("/admin/user/updateUsernames/".$user_id, array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("email", array("value" => stringOr($email))) ?>
 				<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
@@ -82,8 +87,8 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 		<?= $model->formEnd() ?>
 	</div>
 
-	<h2>Password</h2>
 	<div class="password i:password">
+		<h2>Password</h2>
 		<div class="password_state <?= $has_password ? "set" : "" ?> ">
 			<p class="password_set">Your password is encrypted and cannot be shown here. <a>Change password</a></p>
 			<p class="password_missing">Your password has not been created yet. <a>Create password</a></p>
@@ -91,7 +96,7 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 		<div class="new_password">
 			<p>Type your new password to set or update your password</p>
 
-			<?= $model->formStart("/admin/user/setPassword/".$item["id"]) ?>
+			<?= $model->formStart("/admin/user/setPassword/".$user_id) ?>
 				<fieldset>
 					<?= $model->input("password") ?>
 				</fieldset>
@@ -102,11 +107,9 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 		</div>
 	</div>
 
-	<h2>Addresses</h2>
 	<div class="addresses">
-<? if($addresses): ?>
-		<p>These addresses are associated with your account</p>
-
+		<h2>Addresses</h2>
+<?		if($addresses): ?>
 		<ul class="addresses">
 <?			foreach($addresses as $address): ?>
 			<li>
@@ -120,26 +123,26 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 					<span class="city"><?= $address["city"] ?></span>
 				</div>
 				<?= $address["state"] ? ('<div class="state">' . $address["state"] . '</div>') : '' ?>
-				<div class="country"><?= $address["country"] ?></div>
+				<div class="country"><?= $address["country_name"] ?></div>
 
 				<ul class="actions">
-					<?= $model->link("Edit", "/admin/user/edit_address/".$address["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+					<?= $model->link("Edit", "/admin/user/edit_address/".$user_id."/".$address["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 				</ul>
 			</li>
 <?			endforeach; ?>
 		</ul>
-<? else: ?>
+<?		else: ?>
 		<p>You don't have any addresses associated with your account</p>
-<? endif; ?>
+<?		endif; ?>
 
 		<ul class="actions">
-			<?= $model->link("Add new address", "/admin/user/new_address/".$item["id"], array("class" => "button primary", "wrapper" => "li.add")) ?>
+			<?= $model->link("Add new address", "/admin/user/new_address/".$user_id, array("class" => "button primary", "wrapper" => "li.add")) ?>
 		</ul>
 	</div>
 
-	<h2>Newsletters</h2>
 	<div class="newsletters">
-<? if($newsletters): ?>
+		<h2>Newsletters</h2>
+<?		if($newsletters): ?>
 		<p>You are subscribed to these newsletters</p>
 
 		<ul class="newsletters i:userNewsletters">
@@ -147,9 +150,9 @@ $newsletters = $model->getNewsletters(array("user_id" => $item["id"]));
 			<li><?= $newsletter["newsletter"] ?></li>
 <?			endforeach; ?>
 		</ul>
-<? else: ?>
-	<p>You don't have any newsletters subscription for your account</p>
-<? endif; ?>
+<?		else: ?>
+		<p>You don't have any newsletters subscription for your account</p>
+<?		endif; ?>
 	</div>
 
 </div>

@@ -14,9 +14,7 @@ $access = $model->getAccessPoints(array("user_group_id" => $action[2]));
 	</ul>
 
 	<div class="access i:defaultEdit">
-
 		<p>Select which actions to allow for each controller.</p>
-
 		<?= $model->formStart("/admin/user/updateAccess/".$action[2], array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<ul class="points">

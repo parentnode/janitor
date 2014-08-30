@@ -1,9 +1,8 @@
 <?php
 global $action;
-global $IC;
+global $model;
 
-// model for custom inputs
-$model = new Model();
+$IC = new Item();
 
 $tag = $IC->getTags(array("tag_id" => $action[1]));
 ?>
@@ -15,31 +14,12 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 	</ul>
 
 	<div class="item i:defaultEdit">
-		<?= $model->formStart("/admin/tag/globalUpdateTag/".$tag["id"], array("class" => "labelstyle:inject")) ?>
+		<h2>Tag info</h2>
+		<?= $model->formStart("/admin/tag/updateTag/".$tag["id"], array("class" => "labelstyle:inject")) ?>
 			<fieldset>
-				<?= $model->input("context", array(
-						"type" => "string", 
-						"label" => "Tag context",
-						"required" => true, 
-						"value" => $tag["context"],
-						"hint_message" => "Tag context is the scope/category/relation of the tag",
-						"error_message" => "Tag context is always required"
-				)) ?>
-				<?= $model->input("value", array(
-						"type" => "string", 
-						"label" => "Tag value",
-						"required" => true, 
-						"value" => $tag["value"],
-						"hint_message" => "Tag value is the actual value of the tag",
-						"error_message" => "Tag context is always required"
-				)) ?>
-				<?= $model->input("description", array(
-						"type" => "text", 
-						"label" => "Optional description",
-						"value" => $tag["description"],
-						"class" => "autoexpand",
-						"hint_message" => "If tag requires any kind of explanation, write it here"
-				)) ?>
+				<?= $model->input("context", array("value" => $tag["context"])) ?>
+				<?= $model->input("value", array("value" => $tag["value"])) ?>
+				<?= $model->input("description", array("value" => $tag["description"])) ?>
 			</fieldset>
 
 			<ul class="actions">

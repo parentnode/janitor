@@ -17,7 +17,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.stat
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		data-get-tags="<?= $this->validAction("/admin/cms/tags") ?>" 
 		data-delete-tag="<?= $this->validAction("/admin/cms/tags/delete") ?>"
-		data-update-item="<?= $this->validAction("/admin/cms/update") ?>"
+		data-add-tag="<?= $this->validAction("/admin/cms/tags/add") ?>"
 		>
 <?		if($all_items): ?>
 		<ul class="items">

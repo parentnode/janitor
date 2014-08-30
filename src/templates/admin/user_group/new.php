@@ -9,9 +9,7 @@ global $model;
 		<?= $model->link("Groups", "/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-
-	<?= $model->formStart("/admin/user/saveUserGroup", array("class" => "i:formDefaultNew labelstyle:inject")) ?>
-
+	<?= $model->formStart("/admin/user/saveUserGroup", array("class" => "i:defaultNew labelstyle:inject")) ?>
 		<fieldset>
 			<?= $model->input("user_group") ?>
 		</fieldset>
@@ -20,7 +18,6 @@ global $model;
 			<?= $model->link("Back", "/admin/user/group/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 			<?= $model->submit("Save", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 		</ul>
-
 	<?= $model->formEnd() ?>
 </div>
 

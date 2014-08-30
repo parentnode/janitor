@@ -4,18 +4,22 @@ global $model;
 
 $user_groups = $model->getUserGroups();
 
-if(count($action) > 1) {
+// show user_group users
+if(count($action) > 1 && $action[1]) {
 	$user_group_id = $action[1];
 }
 else {
-	// simple users are always user_group 1
-	$user_group_id = 1;
+	// Simple users (clients/customers/guest) are always user_group 99 (but such group might not always exist)
+	if(arrayKeyValue($user_groups, "id", 99) !== false) {
+		$user_group_id = 99;
+	}
+	// Developers are always user_group 1 (and they always exist)
+	else {
+		$user_group_id = 1;
+	}
 }
 
 $users = $model->getUsers(array("user_group_id" => $user_group_id));
-
-// print_r($carts);
-
 ?>
 <div class="scene defaultList userList">
 	<h1>Users</h1>

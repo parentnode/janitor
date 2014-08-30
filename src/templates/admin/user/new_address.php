@@ -2,50 +2,38 @@
 global $action;
 global $model;
 
-$countries = array(array("dk","Denmark"));
+$user_id = $action[1];
+
+// get languages for select
+$country_options = $model->toOptions($this->countries(), "id", "name");
 ?>
 <div class="scene defaultNew userAddress">
 	<h1>New address</h1>
 
 	<ul class="actions">
-		<li class="cancel"><a href="/admin/user/edit/<?= $action[1] ?>" class="button">Back to user</a></li>
+		<?= $HTML->link("Back to user", "/admin/user/edit/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<h2>Address</h2>
-	<p>Enter address information</p>
-
-	<form action="/admin/user/addAddress/<?= $action[1] ?>" class="i:formDefaultNew labelstyle:inject" method="post" enctype="multipart/form-data">
-		<input type="hidden" name="user_id" value="<?= $action[1] ?>" />
+	<?= $model->formStart("/admin/user/addAddress/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
 		<fieldset>
-			<?= $model->input("address_label", array(
-					"required" => true
-				)) ?>
-			<?= $model->input("address_name", array(
-					"required" => true
-				)) ?>
+			<?= $model->input("address_label") ?>
+			<?= $model->input("address_name") ?>
 			<?= $model->input("att") ?>
-			<?= $model->input("address1", array(
-					"required" => true
-				)) ?>
+			<?= $model->input("address1") ?>
 			<?= $model->input("address2") ?>
-			<?= $model->input("city", array(
-					"required" => true
-				)) ?>
-			<?= $model->input("postal", array(
-					"required" => true
-				)) ?>
+			<?= $model->input("city") ?>
+			<?= $model->input("postal") ?>
 			<?= $model->input("state") ?>
 			<?= $model->input("country", array(
-					"type" => "select",
-					"required" => true,
-					"options" => $countries
-				)) ?>
+				"type" => "select",
+				"options" => $country_options
+			)) ?>
 		</fieldset>
 
 		<ul class="actions">
-			<li class="add"><input type="submit" value="Save address" class="button primary key:s" /></li>
-			<li class="cancel"><a href="/admin/user/edit/<?= $action[1] ?>" class="button key:esc">Back</a></li>
+			<?= $model->link("Back", "/admin/user/edit/".$user_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+			<?= $model->submit("Save address", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 		</ul>
-	</form>
+	<?= $model->formEnd() ?>
 
 </div>

@@ -17,14 +17,16 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DES
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		data-get-tags="<?= $this->validAction("/admin/cms/tags") ?>" 
 		data-delete-tag="<?= $this->validAction("/admin/cms/tags/delete") ?>"
-		data-update-item="<?= $this->validAction("/admin/cms/update") ?>"
+		data-add-tag="<?= $this->validAction("/admin/cms/tags/add") ?>"
 		>
 <?		if($all_items): ?>
 		<ul class="items">
 <?			foreach($all_items as $item): 
-				$item = $IC->extendItem($item, array("tags" => true)); ?>
-			<li class="item item_id:<?= $item["id"] ?> <?= $item["mediae"] ? (" image:".$item["mediae"][0]["format"]." variant:".$item["mediae"][0]["variant"]) : "" ?> width:160">
+				$item = $IC->extendItem($item, array("tags" => true));
+				$media = $item["mediae"] ? array_shift($item["mediae"]) : false; ?>
+			<li class="item item_id:<?= $item["id"] ?><?= $media ? (" image:".$media["format"]." variant:".$media["variant"]) : "" ?> width:160">
 				<h3><?= $item["name"] ?></h3>
+
 <?				if($item["tags"]): ?>
 				<ul class="tags">
 <?					foreach($item["tags"] as $tag): ?>

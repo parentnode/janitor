@@ -56,7 +56,9 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 
 	<h2>Items</h2>
-	<div class="all_items content i:defaultList filters">
+	<div class="all_items content i:defaultList filters"
+		data-csrf-token="<?= session()->value("csrf") ?>"
+		>
 <? 		if($items): ?>
 		<ul class="items">
 <? 			foreach($items as $item):
