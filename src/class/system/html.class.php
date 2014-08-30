@@ -114,6 +114,10 @@ class HTML {
 		$required = $this->getEntityProperty($name, "required");
 		$pattern = $this->getEntityProperty($name, "pattern");
 
+
+		$allowed_tags = $this->getEntityProperty($name, "allowed_tags");
+
+
 		// visual feedback
 		$hint_message = $this->getEntityProperty($name, "hint_message");
 		$error_message = $this->getEntityProperty($name, "error_message");
@@ -151,6 +155,8 @@ class HTML {
 					case "required"        : $required         = $_value; break;
 					case "pattern"         : $pattern          = $_value; break;
 
+					case "allowed_tags"    : $allowed_tags     = $_value; break;
+
 					case "error_message"   : $error_message    = $_value; break;
 					case "hint_message"    : $hint_message     = $_value; break;
 
@@ -166,14 +172,14 @@ class HTML {
 
 		$_ = '';
 
-		$for = stringOr($id, "input_".$name);
+		$for = stringOr($id, "input_".preg_replace("/\[\]/", "", $name));
 		$att_id = $this->attribute("id", $for);
 		$att_name = $this->attribute("name", $name);
 
 		$att_disabled = $disabled ? $this->attribute("disabled", "disabled") : '';
 		$att_readonly = $readonly ? $this->attribute("readonly", "readonly") : '';
 
-		$att_class = $this->attribute("class", "field", $type, $class, ($required ? "required" : ""), ($disabled ? "disabled" : ""), ($readonly ? "readonly" : ""), ($min ? "min:".$min : ""), ($max ? "max:".$max : ""));
+		$att_class = $this->attribute("class", "field", $type, $class, ($required ? "required" : ""), ($disabled ? "disabled" : ""), ($readonly ? "readonly" : ""), ($min ? "min:".$min : ""), ($max ? "max:".$max : ""), (($allowed_tags && $type == "html") ? "tags:".$allowed_tags : ""));
 
 
 		// attribute strips value for slashes etc - cannot be used for patterns
@@ -282,6 +288,9 @@ class HTML {
 
 			// FILES
 			else if($type == "files") {
+
+				// add brackets for file input - backend is designed to handle files in array, even if there is just one
+				$att_name = $this->attribute("name", $name . "[]");
 
 				$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_pattern.$att_multiple.' />';
 			}
