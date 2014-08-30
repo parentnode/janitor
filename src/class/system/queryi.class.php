@@ -284,7 +284,7 @@ class Query {
 				$sql = file_get_contents($db_file);
 				$sql = str_replace("SITE_DB", SITE_DB, $sql);
 				//$sql = str_replace("REGIONAL_DB", DB_REG, $sql);
-				print $sql . "##";
+//				print $sql . "##";
 				if($this->sql($sql)) {
 					return true;
 				}
