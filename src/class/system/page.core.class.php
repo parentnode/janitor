@@ -662,6 +662,7 @@ class PageCore {
 		// remove parameters from $actions string
 		$action = preg_replace("/\?.+$/", "", $action);
 //		print "action:" . $action . "<br>";
+//		print_r($access_item);
 
 		// no access restriction
 		if((!$action && (!$access_item || !$access_item["/"]))) {
@@ -670,6 +671,11 @@ class PageCore {
 
 
 		$user_group_id = session()->value("user_group_id");
+
+		// user is not logged in - use guest user_group 999
+		// if(!$user_group_id) {
+		// 	$user_group_id = 99;
+		// }
 
 		if(!$this->permissions && $user_group_id) {
 			$query = new Query();
@@ -683,9 +689,9 @@ class PageCore {
 
 				// set controller root access state if it does not exist
 				// to avoid to have to set root permissions (action implies restricted root)
-				foreach($this->permissions as $action => $permission) {
+				foreach($this->permissions as $permitted_action => $permission) {
 
-					$parent_action = preg_replace("/[^\/]+\/$/", "", $action);
+					$parent_action = preg_replace("/[^\/]+\/$/", "", $permitted_action);
 
 					if(!isset($this->permissions[$parent_action])) {
 						$this->permissions[$parent_action] = 0;
@@ -702,7 +708,8 @@ class PageCore {
 			// get actions chuncks
 			$chunks = explode("/", preg_replace("/\/$/", "", $action));
 
-//			print "chunks:" . $chunks."<br>";
+			// print "chunks:" . $chunks."<br>";
+			// print_r($chunks);
 			while($chunks) {
 
 //				print implode("/", $chunks)."/<br>\n";
