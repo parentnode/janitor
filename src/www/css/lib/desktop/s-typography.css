@@ -3,8 +3,8 @@
 }
 
 h1 {font-size: 2rem;}
-h2 {font-size: 1.50rem;}
-h3 {font-size: 1.25rem;}
+h2 {font-size: 1.3rem;}
+h3 {font-size: 1.2rem;}
 
 h1, h2, h3, h4, h5, h6, p, li, span, a, form, dd, dt {line-height: 1em; font-weight: normal;}
 form, fieldset, label, input, select, textarea {font-weight: normal;}

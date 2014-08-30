@@ -14,7 +14,7 @@ a {text-decoration: none; cursor: pointer;}
 a:hover {}
 
 img {border: 0; display: block;}
-form, fieldset, label, input, select, textarea {padding: 0; margin: 0;}
+form, fieldset, label, input, select, textarea {color: #313942; padding: 0; margin: 0;}
 fieldset {border: none;}
 input, textarea {outline: none;}
 

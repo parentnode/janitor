@@ -8,13 +8,13 @@
 #content .scene > h1 {height: 46px; padding-bottom: 0; background: #ffffff;}
 
 /* DEFAULT TOP ACTIONS */
-#content .scene h1 + ul.actions {border-bottom: 1px solid #dedede; padding: 25px 30px 0; height: 49px; background: #ffffff;}
+#content .scene h1 + ul.actions {border-bottom: 1px solid #bbbbbb; padding: 25px 30px 0; height: 49px; background: #ffffff;}
 #content .scene h1 + ul.actions li {padding-bottom: 0;}
 #content .scene h2 {padding: 10px 30px 11px;}
 
 
 /* PAGE WITH NO TOP ACTIONS */
-#content .scene.front h1 {padding-bottom: 74px; border-bottom: 1px solid #dedede;}
+#content .scene.front h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
 
 
 /* PRIMITIVE LISTS */
@@ -35,13 +35,12 @@
 
 
 /* COMMON SECTION DEVIDERS */
-#content .scene > div.item {padding: 10px 0 20px; border-bottom: 1px solid #dedede;}
-#content .scene > div.tags {padding: 10px 0 20px; border-bottom: 1px solid #dedede;}
-#content .scene > div.prices {padding: 10px 0 20px; border-bottom: 1px solid #dedede;}
+/*#content .scene > div.item {padding: 10px 0 10px; border-bottom: 1px solid #aaaaaa;}*/
+
+#content .scene > div.prices {padding: 10px 0 20px; border-bottom: 1px solid #bbbbbb;}
 
 
 /* DEV AID */
-#content .wtferror * {color: red !important;}
 #content .todo * {color: orange !important;}
 
 

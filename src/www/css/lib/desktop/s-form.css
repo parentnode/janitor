@@ -1,17 +1,17 @@
 /* BASE FORM ELEMENTS */
 #content form {}
 #content fieldset {border: none; display: block;}
-#content .field {padding: 0 28px 15px; position: relative; font-size: 0;}
+#content .field {padding: 0 28px 10px; position: relative; font-size: 0;}
 
 
 /* INLINE LABELS */
-#content label {display: none;}
+#content label {display: none; padding-left: 2px; padding-bottom: 5px; color: #;}
 
 
 /* BASIC FORM INPUTS */
 #content .field input,
 #content .field select,
-#content .field textarea {color: #333333; box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 10;}
+#content .field textarea {box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 10;}
 
 #content .field input {width: 366px; height: 24px; padding: 2px 6px;}
 #content .field select {width: 381px; height: 33px; color: #333333; padding: 5px 3px 2px 2px;
@@ -52,6 +52,13 @@
 }
 
 
+/* FILES */
+#content form.upload {padding: 0 30px; text-align: left; width: 374px;}
+#content .field.files {border: 3px dashed #dedede; display: inline-block; border-radius: 5px; position: relative; padding: 0;}
+#content .field.files input {opacity: 0; width: 356px;}
+#content .field.files label {display: block; color: #aaaaaa; position: absolute; width: 100%; padding-top: 8px; text-align: center;}
+
+
 
 /* LOCATION */
 #content .field.location {}
@@ -90,6 +97,8 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.location.focus input {margin: 2px; border: 1px solid #dcdcdc;}
 #content .field.location.focus input.focus {margin: 0; border: 3px solid #5c5c5c;}
 
+/* FOCUS - FILES */
+#content .field.files.focus {border-color: #c8e183;}
 
 
 /* DEFAULT STATE - BEFORE TEXT IS MODIFIED */
@@ -99,7 +108,9 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* VALIDATION */
-#content .field.required .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px; background: transparent url(/janitor/img/bg_icons.png) no-repeat 0 -292px;}
+#content .field.required .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px; 
+	background: transparent url(/janitor/img/bg_icons.png) no-repeat 0 -292px;
+}
 #content .field.text.required .indicator {background-position: 0 -296px;}
 
 /* TODO: Finish required styling of checkboxes and radiobuttons */
@@ -131,11 +142,18 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.boolean.error input {margin: 0px 10px 0 3px; border: none;}
 
 
+
 /* ERROR - LOCATION */
 #content .field.location.error input {margin: 2px; border: 1px solid #dcdcdc;}
 #content .field.location.error input.error {margin: 0; border: 3px solid #f8c9bb;}
 
 
+/* ERROR - FILES */
+#content .field.files.error {border-color: #f8c9bb;}
+
+
+#content .field.files.loading label {display: none;}
+#content .field.files.loading {background: transparent url(/janitor/img/gx_loader.gif) no-repeat center center;}
 
 
 /* BUTTONS */
@@ -194,23 +212,33 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 /* HELP - HINT AND ERROR MESSAGES */
 #content .field div.help {position: absolute; left: 455px; top: 0; width: 200px;}
+#content .field.files div.help {left: 425px;}
+
 #content .field div.error,
 #content .field div.hint {display: none; padding: 5px; border-radius: 3px;}
 
 
 /* HELP - ERRORS */
-#content .field div.error {border: 1px solid #efdb8f; color: #a27366; background: #f8c9bb; margin-top: -3px;}
+#content .field div.error {border: 1px solid #bbbbbb; color: #a27366; background: #f8c9bb; margin-top: -3px;}
 #content .field.error div.error {display: block;}
 
 /* HELP - HINTS */
-#content .field div.hint {z-index: 9; border: 1px solid #c8e183; color: #5d7731; background: #c8e183;}
-#content .field.focus div.hint {display: block;}
+#content .field div.hint {z-index: 9; border: 1px solid #bbbbbb; color: #5d7731; background: #c8e183;}
+#content .field.focus div.hint,
+#content .field.hover div.hint {display: block;}
 
 
 
 
 
 /* HTML EDITOR */
+#content .field.html label {display: block;}
+#content .field.html {border-top: 1px solid #dedede; padding-top: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #dedede; 
+	margin-bottom: 10px;
+}
+
 #content .field.html .viewer {display: none;}
 #content .field.html .editor {width: 382px; position: relative; z-index: 50;}
 
@@ -249,7 +277,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 }
 #content .field.html .editor div.tag:hover .drag {display: block;}
 
-#content .field.html .editor div.tag ul.type {display: block; position: absolute; width: 30px; top: 0px; left: 0px; z-index: 5;}
+#content .field.html .editor div.tag ul.type {display: block; z-index: 5; position: absolute; width: 30px; top: 0px; left: 0px;}
 #content .field.html .editor div.tag ul.type li {display: none; text-transform: uppercase; padding: 9px 4px; text-align: center; cursor: pointer; font-size: 11px;}
 #content .field.html .editor div.tag ul.type li.code {font-size: 8px; padding-top: 11px;}
 #content .field.html .editor div.tag ul.type li.selected {display: block;}
@@ -267,7 +295,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .field.html .editor div.tag div.text strong,
 #content .field.html .editor div.tag div.text a {background-color: rgba(255, 0, 0, 0.3); cursor: default; font-size: inherit;}
 
-.delete_selection {position: absolute; top: 0; left: 0; border-radius: 8px; width: 14px; height: 14px; font-size: 10px; line-height: 14px; text-align: center; background: #ffffff; border: 1px solid #000000; cursor: pointer;}
+.delete_selection {position: absolute; z-index: 150; top: 0; left: 0; border-radius: 8px; width: 14px; height: 14px; font-size: 10px; line-height: 14px; text-align: center; background: #ffffff; border: 1px solid #000000; cursor: pointer;}
 
 
 #content .field.html .editor div.tag.focus {background-color: #5c5c5c; padding: 0 0 0 30px; border: 2px solid #5c5c5c;}
@@ -284,7 +312,10 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .field.html .editor div.tag.h5 div.text {font-size: 14px;}
 #content .field.html .editor div.tag.p div.text {font-size: 14px;}
 
-#content .field.html > textarea,
+#content .field.html > textarea {display: none;}
+#content .field.html > .indicator {top: 33px;}
+
+/*
 #content .field.html > .hint,
 #content .field.html > .indicator {display: none;}
-
+*/

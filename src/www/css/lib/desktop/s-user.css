@@ -14,37 +14,46 @@
 #content .defaultEdit.userEdit .views {background-color: #dedede;}
 #content .defaultEdit.userEdit .views li {padding: 15px 30px; border-right: 1px solid #dedede;}
 #content .defaultEdit.userEdit .views li a {text-decoration: none;}
-#content .defaultEdit.userEdit .views li.selected {background-color: #f5f7f8; color: #aaaaaa;}
+#content .defaultEdit.userEdit .views li.selected {background-color: #f5f7f8; color: #313942;}
 
 
 /* USERNAMES */
-#content .scene.userEdit > div.usernames {padding: 0 0 20px 0; border-bottom: 1px solid #dedede;}
+#content .scene.userEdit > div.usernames {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.usernames .actions {text-align: left;}
 #content .scene.userEdit > div.usernames .actions li {padding: 0 5px 10px;}
 
 
 /* PASSWORD */
-#content .scene.userEdit > div.password {padding: 0 0 10px 0; border-bottom: 1px solid #dedede;}
+#content .scene.userEdit > div.password {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.password div.password_state {}
 #content .scene.userEdit > div.password div.password_state .password_missing {display: block;}
 #content .scene.userEdit > div.password div.password_state .password_set {display: none;}
 #content .scene.userEdit > div.password div.password_state.set .password_missing {display: none;}
 #content .scene.userEdit > div.password div.password_state.set .password_set {display: block;}
 
-#content .scene.userEdit > div.password div.new_password {display: none; padding-bottom: 10px;}
+#content .scene.userEdit > div.password div.new_password {display: none;}
 
 #content .scene.userEdit > div.password .actions {text-align: left;}
 #content .scene.userEdit > div.password .actions li {padding: 0 5px 10px;}
 
 
 /* ADDRESSES */
-#content .scene.userEdit > div.addresses {padding: 0 0 20px 0; border-bottom: 1px solid #dedede;}
+#content .scene.userEdit > div.addresses {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.addresses ul.addresses {padding: 0 30px;}
-#content .scene.userEdit > div.addresses ul.addresses > li {display: inline-block; vertical-align: top; width: 250px; margin-right: 30px; height: 120px; padding: 20px 0; border-top: 1px solid #dedede; position: relative;}
+#content .scene.userEdit > div.addresses ul.addresses > li {display: inline-block; vertical-align: top; width: 250px; margin-right: 30px; margin-bottom: 20px; height: 120px; padding: 0 0 20px; border-bottom: 1px solid #dedede; position: relative;}
 #content .scene.userEdit > div.addresses ul.addresses > li h3 {padding: 0 0 5px;}
-#content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; top: 20px; right: 0; padding: 0;}
+#content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; top: 0; right: 0; padding: 0;}
 #content .scene.userEdit > div.addresses ul.addresses > li .actions li {padding-left: 0;}
 
+/*
+#content .scene.userEdit > div.addresses ul.addresses > li .actions li a {text-indent: -9999px; 
+background-image: url(/janitor/img/bg_icons.png);
+	background-repeat: no-repeat;
+	background-position: 6px -17px;
+}
+#content .scene.userEdit > div.addresses ul.addresses > li .actions li a:hover {background-position: 6px 7px;
+}
+*/
 
 /* NEWSLETTERS */
 #content .scene.userEdit > div.newsletters {padding: 0 0 20px 0; border-bottom: 1px solid #dedede;}
@@ -52,12 +61,7 @@
 #content .scene.userEdit > div.newsletters ul.newsletters > li {display: block; padding: 0 0 10px;}
 
 
-
-
-
-#content .scene.defaultNew.userAddress > form {padding: 0;}
-
-
+/* ACCESS */
 #content .defaultEdit.accessEdit > div.access {padding: 20px 0;}
 #content .defaultEdit.accessEdit > div.access ul.points {padding: 0 0 20px;}
 #content .defaultEdit.accessEdit > div.access ul.points li {display: block;}

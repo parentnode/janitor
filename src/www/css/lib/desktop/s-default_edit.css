@@ -2,9 +2,10 @@
 /* DELETE BUTTON */
 #content .defaultEdit > .actions li.delete {float: right; padding: 0 0 10px 10px;}
 
+#content .scene.defaultEdit > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
 
 /* EDIT VIEW - STATUS */
-#content .scene.defaultEdit > div.status {border-bottom: 1px solid #dedede;}
+#content .scene.defaultEdit > div.status {border-bottom: 1px solid #bbbbbb;}
 #content .scene.defaultEdit > div.status .actions {padding: 0;}
 #content .scene.defaultEdit > div.status .actions li.status {display: block; padding: 10px 0px; text-align: right;}
 #content .scene.defaultEdit > div.status .actions li.status form {display: inline-block; vertical-align: top; padding-right: 30px;}
@@ -19,7 +20,7 @@
 
 
 /* EDIT VIEW - ITEM */
-#content .scene.defaultEdit > div.item {padding: 20px 0;}
+#content .scene.defaultEdit > div.item {padding: 0 0 10px; border-bottom: 1px solid #bbbbbb;}
 #content .scene.defaultEdit > div.item .actions {text-align: left;}
 #content .scene.defaultEdit > div.item .actions li {padding: 0 5px 10px;}
 
@@ -43,39 +44,39 @@
 
 
 /* EDIT MEDIA */
-#content .scene.defaultEdit > div.media {padding: 20px 0;}
-#content .scene.defaultEdit > div.media > p {margin-top: -20px;}
-#content .scene.defaultEdit > div.media form {padding: 0 30px; text-align: left;}
-#content .scene.defaultEdit > div.media .field {border: 3px dashed #dedede; display: inline-block; width: 390px; border-radius: 5px; position: relative; padding: 0;}
-#content .scene.defaultEdit > div.media .field input {opacity: 0;}
-#content .scene.defaultEdit > div.media .field label {display: block; color: #aaaaaa; position: absolute; width: 100%; padding-top: 8px; text-align: center;}
-#content .scene.defaultEdit > div.media .actions {display: none;}
-#content .scene.defaultEdit > div.media ul.media {padding: 40px 20px 0; text-align: left;}
-#content .scene.defaultEdit > div.media ul.media li {margin: 0 10px 20px; position: relative; text-align: center;}
-#content .scene.defaultEdit > div.media ul.media li h4 {padding: 0 0 5px;}
+#content .scene.defaultEdit > div.media {padding: 0 0 20px; border-bottom: 1px solid #bbbbbb;}
+#content .scene.defaultEdit > div.media form.upload .actions {display: none;}
 
-#content .scene.defaultEdit > div.media ul.media form.delete {padding: 0; position: absolute; top: 0; right: 0;}
+#content .scene.defaultEdit > div.media ul.media {padding: 20px 20px 0; text-align: left;}
+#content .scene.defaultEdit > div.media ul.media > li {margin: 0 10px 20px; position: relative; text-align: center;}
+#content .scene.defaultEdit > div.media ul.media > li h4 {padding: 0 0 5px;}
 
-#content .scene.defaultEdit > div.media ul.media form.delete input {font-size: 12px; color: #df0000;
-	width: 30px; height: 30px; background: #ffffff url(/janitor/img/bg_icons.png) no-repeat 8px -42px;
-	display: block; text-indent: -9999px; border: none; border-radius: none; cursor: pointer; border-bottom-left-radius: 5px;
+#content .scene.defaultEdit > div.media form.delete {padding: 0; position: absolute; top: 0; right: 0;}
+#content .scene.defaultEdit > div.media form.delete ul.actions {padding: 0;}
+#content .scene.defaultEdit > div.media form.delete ul.actions li {padding: 0;}
+#content .scene.defaultEdit > div.media form.delete input {font-size: 12px; color: #df0000; width: 30px; height: 30px; display: block; text-indent: -9999px; border: none; border-radius: none; cursor: pointer; border-bottom-left-radius: 5px;
+	background: #ffffff url(/janitor/img/bg_icons.png) no-repeat 8px -42px;
 	-webkit-appearance: none;
 }
-#content .scene.defaultEdit > div.media ul.media form.delete input:hover {background-position: 8px -67px;}
-#content .scene.defaultEdit > div.media ul.media form.delete input.confirm {text-indent: 0; width: auto; padding-left: 24px;}
+#content .scene.defaultEdit > div.media form.delete input:hover {background-position: 8px -67px;}
+#content .scene.defaultEdit > div.media form.delete input.confirm {text-indent: 0; width: auto; padding-left: 24px;}
 
-#content .scene.defaultEdit > div.media.sortable ul.media li {cursor: move;}
+#content .scene.defaultEdit > div.media.sortable ul.media > li {cursor: move;}
 
 
 
 /* EDIT IMAGE */
-#content .scene.defaultEdit > div.media ul.media li.image {}
+#content .scene.defaultEdit > div.media ul.media li.image {height: 150px;}
 
 /* EDIT AUDIO */
-#content .scene.defaultEdit > div.media ul.media li.audio {width: 50px; height: 70px; background: transparent url(/janitor/img/bg_bn_play_medium.png) no-repeat 0px 20px;}
+#content .scene.defaultEdit > div.media ul.media li.audio {width: 50px; height: 70px;
+	background: transparent url(/janitor/img/bg_bn_play_medium.png) no-repeat 0px 20px;
+}
 #content .scene.defaultEdit > div.media ul.media li.audio.playing {background-position: 0 -80px;}
 #content .scene.defaultEdit > div.media ul.media li.audio a {display: block; text-indent: -9999px;}
 
 /* EDIT VIDEO */
-#content .scene.defaultEdit > div.media ul.media li.video {background: transparent url(/janitor/img/bg_bn_play_medium.png) no-repeat center 40px;}
+#content .scene.defaultEdit > div.media ul.media li.video {width: 150px;
+	background: transparent url(/janitor/img/bg_bn_play_medium.png) no-repeat center 40px;
+}
 #content .scene.defaultEdit > div.media ul.media li.video a {display: none;}
