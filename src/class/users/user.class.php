@@ -1,12 +1,9 @@
 <?php
 /**
-* @package e-types.items
-* This file contains item news maintenance functionality
+* @package Janitor.users
+* This file contains User functionality
 */
 
-/**
-* TypeNews
-*/
 class User extends Model {
 
 
@@ -54,6 +51,7 @@ class User extends Model {
 		$this->addToModel("user_group_id", array(
 			"type" => "integer",
 			"label" => "User group",
+			"required" => true,
 			"hint_message" => "Select user group",
 			"error_message" => "Invalid user group"
 		));
@@ -105,6 +103,7 @@ class User extends Model {
 		$this->addToModel("address_label", array(
 			"type" => "string",
 			"label" => "Address label",
+			"required" => true,
 			"hint_message" => "Give this address a label (home, office, parents, etc.)",
 			"error_message" => "Invalid label"
 		));
@@ -113,6 +112,7 @@ class User extends Model {
 		$this->addToModel("address_name", array(
 			"type" => "string",
 			"label" => "Name/Company",
+			"required" => true,
 			"hint_message" => "Name on door at address, your name or company name",
 			"error_message" => "Invalid name"
 		));
@@ -127,6 +127,7 @@ class User extends Model {
 		$this->addToModel("address1", array(
 			"type" => "string",
 			"label" => "Address",
+			"required" => true,
 			"hint_message" => "Address",
 			"error_message" => "Invalid address"
 		));
@@ -141,6 +142,7 @@ class User extends Model {
 		$this->addToModel("city", array(
 			"type" => "string",
 			"label" => "City",
+			"required" => true,
 			"hint_message" => "Write your city",
 			"error_message" => "Invalid city"
 		));
@@ -148,6 +150,7 @@ class User extends Model {
 		$this->addToModel("postal", array(
 			"type" => "string",
 			"label" => "Postal code",
+			"required" => true,
 			"hint_message" => "Postalcode of your city",
 			"error_message" => "Invalid postal code"
 		));
@@ -164,6 +167,7 @@ class User extends Model {
 		$this->addToModel("country", array(
 			"type" => "string",
 			"label" => "Country",
+			"required" => true,
 			"hint_message" => "Country",
 			"error_message" => "Invalid country"
 		));
@@ -183,17 +187,13 @@ class User extends Model {
 	}
 
 
-	/**
-	* CONTROLLER FUNCTIONS
-	*
-	*/
 
 	// save new user
-	// gets values from posted model values
-	function save() {
+	// /admin/user/save (values in POST)
+	function save($action) {
 
 		// does values validate
-		if($this->validateList(array("nickname", "user_group_id"))) {
+		if(count($action) == 1 && $this->validateList(array("nickname", "user_group_id"))) {
 
 			$query = new Query();
 
@@ -205,8 +205,7 @@ class User extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && preg_match("/^(user_group_id|nickname|language)$/", $name)) {
-//				if($entity["value"] !== false) {
+				if($entity["value"] !== false && preg_match("/^(user_group_id|nickname|firstname|lastname|language|status)$/", $name)) {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
 				}
@@ -228,8 +227,7 @@ class User extends Model {
 	}
 
 	// update user
-	// /user/update/#user_id#
-	// post values
+	// /admin/user/update/#user_id# (values in POST)
 	function update($action) {
 
 		if(count($action) == 2) {
@@ -263,10 +261,8 @@ class User extends Model {
 		return false;
 	}
 
-
-	/**
-	* Change user status
-	*/
+	// Change user status
+	// /admin/user/status/#user_id#/#status#
 	function status($action) {
 
 		$status_states = array(
@@ -292,40 +288,6 @@ class User extends Model {
 		return false;
 
 	}
-
-	// // disable user
-	// // /admin/user/disable/#user_id#
-	// function disable($action) {
-	// 
-	// 	if(count($action) == 2) {
-	// 		$query = new Query();
-	// 		if($query->sql("UPDATE $this->db SET status = 0 WHERE id = ".$action[1])) {
-	// 			message()->addMessage("User disabled");
-	// 			return true;
-	// 		}
-	// 		message()->addMessage("Could not disable user", array("type" => "error"));
-	// 	}
-	// 	return false;
-	// }
-	// 
-	// // enable user
-	// // /admin/user/enable/#user_id#
-	// function enable($action) {
-	// 
-	// 	if(count($action) == 2) {
-	// 		$query = new Query();
-	// 		if($query->sql("UPDATE $this->db SET status = 1 WHERE id = ".$action[1])) {
-	// 			message()->addMessage("User enabled");
-	// 			return true;
-	// 		}
-	// 		else {
-	// 			message()->addMessage("Could not enable user", array("type" => "error"));
-	// 		}
-	// 	}
-	// 	return false;
-	// }
-	// 
-
 
 	// delete user
 	// /admin/user/delete/#user_id#
@@ -469,6 +431,9 @@ class User extends Model {
 	}
 
 
+
+	// USERNAMES
+
 	// get usernames or specific username
 	function getUsernames($_options) {
 
@@ -539,7 +504,19 @@ class User extends Model {
 					message()->addMessage("Could not add email", array("type" => "error"));
 				}
 			}
-			// is email changed?
+			// email should be deleted?
+			else if(!$email && $current_email !== false) {
+
+				$sql = "DELETE FROM $this->db_usernames WHERE type = 'email' AND user_id = $user_id";
+//				print $sql."<br>";
+				if($query->sql($sql)) {
+					message()->addMessage("Email deleted");
+				}
+				else {
+					message()->addMessage("Could not delete email", array("type" => "error"));
+				}
+			}
+			// email is changed?
 			else if($email != $current_email) {
 
 				$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0 WHERE type = 'email' AND user_id = $user_id";
@@ -564,6 +541,18 @@ class User extends Model {
 				}
 			}
 			// is mobile changed?
+			else if(!$mobile && $current_mobile != false) {
+
+				$sql = "DELETE FROM $this->db_usernames WHERE type = 'mobile' AND user_id = $user_id";
+//				print $sql."<br>";
+				if($query->sql($sql)) {
+					message()->addMessage("Mobile deleted");
+				}
+				else {
+					message()->addMessage("Could not delete mobile", array("type" => "error"));
+				}
+			}
+			// mobile is changed?
 			else if($mobile != $current_mobile) {
 
 				$sql = "UPDATE $this->db_usernames SET username = '$mobile', verified = 0 WHERE type = 'mobile' AND user_id = $user_id";
@@ -580,10 +569,12 @@ class User extends Model {
 		return true;
 	}
 
-	// NOT NEEDED YET
+	// NOT NEEDED YET AS updateUsernames also reset usernames
 	function deleteUsername() {}
 
 
+
+	// PASSWORD
 
 	// check if password exists
 	function hasPassword($user_id) {
@@ -633,14 +624,17 @@ class User extends Model {
 		return false;
 	}
 
-
+	// TODO: reset password needs to be implemented
 	// start reset password procedure
 	function resetPassword() {}
 
 
+
+	// ADDRESSES
+
 	// return addresses
 	// can return all addresses for a user, or a specific address
-	// TODO: translate country ISO to country text
+	// Adds country_name for stored country ISO value
 	function getAddresses($_options) {
 
 		$user_id = false;
@@ -656,96 +650,129 @@ class User extends Model {
 		}
 
 		$query = new Query();
+		global $page;
+		$countries = $page->countries();
 
+		// get addresses for user
 		if($user_id) {
 
 			$sql = "SELECT * FROM ".$this->db_addresses." WHERE user_id = $user_id";
+//			print $sql;
+
 			if($query->sql($sql)) {
-				return $query->results();
+				$results = $query->results();
+				foreach($results as $index => $result) {
+					$results[$index]["country_name"] = $countries[arrayKeyValue($countries, "id", $result["country"])]["name"];
+				}
+				return $results;
 			}
 
 		}
+		// get specific address
 		else if($address_id) {
-			$sql = "SELECT * FROM ".$this->db_addresses." WHERE address_id = $address_id";
+			$sql = "SELECT * FROM ".$this->db_addresses." WHERE id = $address_id";
+//			print $sql;
+
 			if($query->sql($sql)) {
-				return $query->result(0);
+				$result = $query->result(0);
+				$result["country_name"] = $countries[arrayKeyValue($countries, "id", $result["country"])]["name"];
+				return $result;
 			}
 		}
-		
-		
 	}
 
 	// create a new address
+	// /admin/user/addAddress/#user_id# (values in POST)
 	function addAddress($action) {
-		if(count($action) == 2) {
+
+		if(count($action) == 2 && $this->validateList(array("address_label","address_name","address1","postal","city","country"))) {
+
 			$query = new Query();
+			$user_id = $action[1];
 
-			// does values validate
-			if($this->validateList(array("address_label","address_name","address_att","address1","postal","city","state","country"))) {
+			// make sure type tables exist
+			$query->checkDbExistance($this->db_addresses);
 
-				$query = new Query();
-
-				// TODO: get values from entities instead of post
-
-				$entities = getPosts(array("user_id","address_label","address_name","att","address1","address2","city","postal","state","country"));
-				$names = array();
-				$values = array();
-
-				foreach($entities as $name => $entity) {
-//					if($entity["value"] && preg_match("/^()$/", $name)) {
-						$names[] = $name;
-						$values[] = $name."='".$entity."'";
-//					}
-				}
-
-				if($values) {
-					$sql = "INSERT INTO ".$this->db_addresses." SET ".implode(",", $values);
-//					print $sql;
-				}
-
-				if(!$values || $query->sql($sql)) {
-					return array("address_id" => $query->lastInsertId());
-//					return true;
-				}
-			}
-		}
-	}
-
-
-
-	function updateAddress() {
-		if(count($action) == 2) {
-			$query = new Query();
-
-			$posted = getPosts(array());
-			print_r($posted);
-
-			//$typeObject->data_entities;
+			$entities = $this->data_entities;
 			$names = array();
 			$values = array();
 
-			foreach($posted as $name => $value) {
-				if($entity["value"] && preg_match("/^(user_group_id|firstname|lastname|nickname|status|language)$/", $name)) {
+			foreach($entities as $name => $entity) {
+				if($entity["value"] !== false && preg_match("/^(address_label|address_name|att|address1|address2|city|postal|state|country)$/", $name)) {
 					$names[] = $name;
-					$values[] = $name."='".$value."'";
+					$values[] = $name."='".$entity["value"]."'";
 				}
 			}
 
 			if($values) {
-				$sql = "UPDATE ".$typeObject->db_addresses." SET ".implode(",", $values)." WHERE id = ".$address_id;
+				$sql = "INSERT INTO ".$this->db_addresses." SET user_id=$user_id,modified_at=CURRENT_TIMESTAMP," . implode(",", $values);
+//				print $sql;
+
+				if($query->sql($sql)) {
+					message()->addMessage("Address created");
+					return array("item_id" => $user_id);
+				}
+			}
+		}
+	}
+
+	// update an address
+	// /admin/user/updateAddress/#address_id# (values in POST)
+	function updateAddress($action) {
+
+		if(count($action) == 2) {
+			$query = new Query();
+			$address_id = $action[1];
+
+			$entities = $this->data_entities;
+			$names = array();
+			$values = array();
+
+			foreach($entities as $name => $entity) {
+				if($entity["value"] !== false) {
+					$names[] = $name;
+					$values[] = $name."='".$entity["value"]."'";
+				}
+			}
+
+			if($values) {
+				$sql = "UPDATE ".$this->db_addresses." SET ".implode(",", $values)." WHERE id = ".$address_id;
 //				print $sql;
 			}
 
 			if(!$values || $query->sql($sql)) {
+				message()->addMessage("Address updated");
 				return true;
 			}
 
 		}
+
+		message()->addMessage("Address could not be updated", array("type" => "error"));
+		return false;
 	}
 
-	function deleteAddress() {}
+	// Delete address
+	// /admin/user/deleteAddress/#address_id#
+	function deleteAddress($action) {
+		
+		if(count($action) == 2) {
+			$query = new Query();
+
+			$sql = "DELETE FROM $this->db_addresses WHERE id = ".$action[1];
+//			print $sql;
+			if($query->sql($sql)) {
+				message()->addMessage("Address deleted");
+				return true;
+			}
+
+		}
+
+		return false;
+	}
 
 
+
+	// NEWSLETTERS
 
 	// get newsletter info
 	// get all newsletters (list of available newsletters)
@@ -795,9 +822,7 @@ class User extends Model {
 
 	}
 
-
 	function updateNewsletters($action){}
-
 
 
 
@@ -841,10 +866,11 @@ class User extends Model {
 	}
 
 	// save user group
-	function saveUserGroup() {
+	// /admin/user/saveUserGroup (values in POST)
+	function saveUserGroup($action) {
 
 		// does values validate
-		if($this->validateList(array("user_group"))) {
+		if(count($action) == 1 && $this->validateList(array("user_group"))) {
 
 			$query = new Query();
 
@@ -880,6 +906,7 @@ class User extends Model {
 	}
 
 	// update user group
+	// /admin/user/updateUserGroup/#user_group_id# (values in POST)
 	function updateUserGroup($action) {
 
 		if(count($action) == 2) {
@@ -916,7 +943,7 @@ class User extends Model {
 	}
 
 	// delete user group - 2 parameters exactly
-	// /deleteUserGroup/#user_group_id#
+	// /admin/user/deleteUserGroup/#user_group_id#
 	function deleteUserGroup($action) {
 
 		if(count($action) == 2) {
@@ -926,12 +953,10 @@ class User extends Model {
 				message()->addMessage("User group deleted");
 				return true;
 			}
-
 		}
 
-		message()->addMessage("User group could not be deleted - refresh your browser", array("type" => "error"));
+		message()->addMessage("User group could not be deleted - maybe you still have users in this group?", array("type" => "error"));
 		return false;
-
 	}
 
 
