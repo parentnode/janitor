@@ -537,7 +537,7 @@ class ItemCore {
 
 
 	/**
-	* set sIndex value for item
+	* set/create sIndex value for item
 	*
 	* @param string $item_id Item id
 	* @param string $sindex
@@ -632,14 +632,14 @@ class ItemCore {
 			) {
 
 				// add tags
-				$tags = getPost("tags");
-				if($tags) {
-					foreach($tags as $tag) {
-						if($tag) {
-							$this->addTag($new_id, $tag);
-						}
-					}
-				}
+				// $tags = getPost("tags");
+				// if($tags) {
+				// 	foreach($tags as $tag) {
+				// 		if($tag) {
+				// 			$this->addTag($new_id, $tag);
+				// 		}
+				// 	}
+				// }
 
 				// create sindex
 				$this->sindex($new_id);
@@ -699,7 +699,6 @@ class ItemCore {
 	}
 
 
-
 	// update item
 	function updateItem($item_id) {
 //		print "update item<br>";
@@ -719,38 +718,38 @@ class ItemCore {
 			$query->sql($sql);
 
 			// add tags
-			$tags = getPost("tags");
-			if($tags) {
-				if(is_array($tags)) {
-					foreach($tags as $tag) {
-						if($tag) {
-							$this->addTag($item_id, $tag);
-						}
-					}
-				}
-				else {
-					$this->addTag($item_id, $tags);
-				}
-			}
+			// $tags = getPost("tags");
+			// if($tags) {
+			// 	if(is_array($tags)) {
+			// 		foreach($tags as $tag) {
+			// 			if($tag) {
+			// 				$this->addTag($item_id, $tag);
+			// 			}
+			// 		}
+			// 	}
+			// 	else {
+			// 		$this->addTag($item_id, $tags);
+			// 	}
+			// }
 
-			// add prices
-			$prices = getPost("prices");
-			$price = stringOr($prices["price"]);
-			$currency = stringOr($prices["currency"]);
-
-//			$vatrate = getPost("vatrate");
-			if($price && $currency) {
-				// if(is_array($prices)) {
-				// 	foreach($prices as $price) {
-				// 		if($price) {
-				// 			$this->addPrice($item_id, $price, $currency);
-				// 		}
-				// 	}
-				// }
-				// else {
-				$this->addPrice($item_id, $price, $currency);
-//				}
-			}
+// 			// add prices
+// 			$prices = getPost("prices");
+// 			$price = stringOr($prices["price"]);
+// 			$currency = stringOr($prices["currency"]);
+//
+// //			$vatrate = getPost("vatrate");
+// 			if($price && $currency) {
+// 				// if(is_array($prices)) {
+// 				// 	foreach($prices as $price) {
+// 				// 		if($price) {
+// 				// 			$this->addPrice($item_id, $price, $currency);
+// 				// 		}
+// 				// 	}
+// 				// }
+// 				// else {
+// 				$this->addPrice($item_id, $price, $currency);
+// //				}
+// 			}
 
 			if(
 				(method_exists($typeObject, "update") && $typeObject->update($item_id)) ||
@@ -796,7 +795,7 @@ class ItemCore {
 					$values[] = $name."='".$uploads[0]["format"]."'";
 				}
 			}
-			else if($entity["value"] !== false && $name != "published_at" && $name != "status" && $name != "tags" && $name != "prices") {
+			else if($entity["value"] !== false && $name != "published_at" && $name != "status") {
 
 				$names[] = $name;
 				$values[] = $name."='".$entity["value"]."'";
@@ -822,79 +821,7 @@ class ItemCore {
 
 
 
-
-	// does this still have a purpose
-	function identifyUploads() {
-
-		$uploads = array();
-
-		if(isset($_FILES["files"])) {
-//			print_r($_FILES["files"]);
-
-			foreach($_FILES["files"]["name"] as $index => $value) {
-				if(!$_FILES["files"]["error"][$index]) {
-
-					$temp_file = $_FILES["files"]["tmp_name"][$index];
-					$temp_type = $_FILES["files"]["type"][$index];
-
-					$upload = array();
-
-					if(preg_match("/video/", $temp_type)) {
-
-						include_once("class/system/video.class.php");
-						$Video = new Video();
-						$info = $Video->info($temp_file);
-						// check if we can get relevant info about movie
-						if($info) {
-							// TODO: add format detection to Video Class
-							// TODO: add bitrate detection to Video Class
-
-							$upload["type"] = "movie";
-							$upload["format"] = "mov";
-							$upload["width"] = $info["width"];
-							$upload["height"] = $info["height"];
-							$uploads[] = $upload;
-						}
-					}
-					// audio upload
-					else if(preg_match("/audio/", $temp_type)) {
-
-						include_once("class/system/audio.class.php");
-						$Audio = new Audio();
-						// check if we can get relevant info about audio
-						$info = $Audio->info($temp_file);
-						if($info) {
-							// TODO: add format detection to Audio Class
-							// TODO: add bitrate detection to Audio Class
-
-							$upload["type"] = "audio";
-							$upload["format"] = "mp3";
-							$uploads[] = $upload;
-						}
-
-					}
-					// image upload
-					else if(preg_match("/image/", $temp_type)) {
-
-						$info = getimagesize($temp_file);
-						// is image valid format
-						if(isset($info["mime"])) {
-							$extension = mimetypeToExtension($info["mime"]);
-
-							$upload["type"] = "image";
-							$upload["format"] = $extension;
-							$upload["width"] = $info[0];
-							$upload["height"] = $info[1];
-							$uploads[] = $upload;
-						}
-					}
-				}
-			}
-		}
-
-		return $uploads;
-	}
-
+	// 
 	// upload to item_id/variant
 	// checks content of $_FILES, looks for uploaded file where type matches $type and uploads
 	// supports video, audio, image
@@ -902,15 +829,12 @@ class ItemCore {
 	// TODO: implement format restriction validation
 	function upload($item_id, $_options) {
 
-
 		$fs = new FileSystem();
 
 
-// TODO: TEST WITH VARIABLE FILES NAMES
+		$_input_name = "files";               // input name to check for files (default is files)
 
-		$_input_name = "files";                // input name to check for files (default is files)
-
-		$_variant = false;                     // variantname to save files under
+		$_variant = false;                    // variantname to save files under
 		$proportion = false;                  // specific proportion for images and videos
 		$width = false;                       // specific file width for images and videos
 		$height = false;                      // specific file height for images and videos
@@ -925,15 +849,15 @@ class ItemCore {
 		$filetypes = false;                   // jpg,png,git,mov,mp4,pdf,etc
 		$filegroup = false;                   // image,video
 
-		$auto_add_variant = false;            // automatically add variant-key for each file - true for unlimited images, TODO: or state max number of files
+		$auto_add_variant = false;            // automatically add variant-key for each file
 
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "input_name"          : $_input_name           = $_value; break;
+					case "input_name"          : $_input_name          = $_value; break;
 
-					case "variant"             : $_variant              = $_value; break;
+					case "variant"             : $_variant             = $_value; break;
 					case "proportion"          : $proportion           = $_value; break;
 					case "width"               : $width                = $_value; break;
 					case "height"              : $height               = $_value; break;
@@ -1032,6 +956,8 @@ class ItemCore {
 									$upload["file"] = $output_file;
 									$uploads[] = $upload;
 									unlink($temp_file);
+
+									message()->addMessage("Video uploaded (".$upload["name"].")");
 								}
 							}
 
@@ -1058,43 +984,19 @@ class ItemCore {
 								$upload["format"] = "mp3";
 								$uploads[] = $upload;
 								unlink($temp_file);
+
+								message()->addMessage("Audio uploaded (".$upload["name"].")");
 							}
 
 						}
 						// image upload
 						else if(preg_match("/image/", $temp_type)) {
 
-//							print "uploaded image<br>";
-
-
-// TODO: use Imagick to get image size and format
-
 							$image = new Imagick($temp_file);
 
 							// get input file info
 							$info = $image->getImageFormat();
-
-							// if($info) {
-							// 	$input_width = $image->getImageWidth();
-							// 	$input_height = $image->getImageHeight();
-							// }
-							// 
-							// print $info.", (".$input_width."x".$input_height.")";
-							// 
-							// 
-							// 
-							// $gd = getimagesize($temp_file);
-							// 
-							// print_r($gd);
-
-							// is image valid format
-//							if(isset($gd["mime"])) {
 							if($info) {
-
-//								print $gd["mime"].", ". mimetypeToExtension($gd["mime"]);
-								// $upload["format"] = mimetypeToExtension($gd["mime"]);
-								// $upload["width"] = $gd[0];
-								// $upload["height"] = $gd[1];
 
 								$upload["format"] = preg_replace("/jpeg/", "jpg", strToLower($info));
 								$upload["width"] = $image->getImageWidth();
@@ -1123,18 +1025,22 @@ class ItemCore {
 									$upload["file"] = $output_file;
 									$uploads[] = $upload;
 									unlink($temp_file);
+
+									message()->addMessage("Image uploaded (".$upload["name"].")");
 								}
 							}
 						}
 					}
 
 				}
+				// file group error
 				else {
-					// error
+					message()->addMessage("File problem (".$upload["name"].")");
 				}
 			}
 
 		}
+
 		return $uploads;
 	}
 
@@ -1162,37 +1068,6 @@ class ItemCore {
 	}
 
 	/**
-	* Deprecated status functions
-	*/
-	function disableItem($item_id) {
-		$query = new Query();
-
-		// delete item + itemtype + files
-		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
-			$query->sql("UPDATE ".UT_ITEMS." SET status = 0 WHERE id = $item_id");
-
-			message()->addMessage("Item disabled");
-			return true;
-		}
-		message()->addMessage("Item could not be disabled", array("type" => "error"));
-		return false;
-
-	}
-	function enableItem($item_id) {
-		$query = new Query();
-
-		// delete item + itemtype + files
-		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
-			$query->sql("UPDATE ".UT_ITEMS." SET status = 1 WHERE id = $item_id");
-
-			message()->addMessage("Item enabled");
-			return true;
-		}
-		message()->addMessage("Item could not be enabled", array("type" => "error"));
-		return false;
-	}
-
-	/**
 	* Delete item function
 	*/
 	function deleteItem($item_id) {
@@ -1215,6 +1090,10 @@ class ItemCore {
 	}
 
 
+
+	/**
+	* TAGS
+	*/
 
 	// get tag, optionally based on item_id, limited to context, or just check if specific tag exists
 	function getTags($_options=false) {
@@ -1290,82 +1169,101 @@ class ItemCore {
 		return false;
 	}
 
+
 	// add tag to item, create tag if it does not exist
 	// tag can be tag-string or tag_id
- 	function addTag($item_id, $tag) {
 
-		$query = new Query();
+	// /admin/cms/tags/add/#item_id#
+	// tag is sent in $_POST
+ 	function addTag($action) {
 
-		if(preg_match("/([a-zA-Z0-9_]+):([^\b]+)/", $tag, $matches)) {
-			$context = $matches[1];
-			$value = $matches[2];
+		$tag = getPost("tags");
 
-//			print "SELECT id FROM ".UT_TAG." WHERE context = '$context' AND value = '$value'<br>";
-			if($query->sql("SELECT id FROM ".UT_TAG." WHERE context = '$context' AND value = '$value'")) {
-				$tag_id = $query->result(0, "id");
+		if(count($action) == 3 && $tag) {
+
+			$query = new Query();
+			$item_id = $action[2];
+
+
+			// full tag?
+			if(preg_match("/([a-zA-Z0-9_]+):([^\b]+)/", $tag, $matches)) {
+				$context = $matches[1];
+				$value = $matches[2];
+
+	//			print "SELECT id FROM ".UT_TAG." WHERE context = '$context' AND value = '$value'<br>";
+				if($query->sql("SELECT id FROM ".UT_TAG." WHERE context = '$context' AND value = '$value'")) {
+					$tag_id = $query->result(0, "id");
+				}
+	//			print "INSERT INTO ".UT_TAG." VALUES(DEFAULT, '$context', '$value', DEFAULT)<br>";
+				else if($query->sql("INSERT INTO ".UT_TAG." VALUES(DEFAULT, '$context', '$value', DEFAULT)")) {
+					$tag_id = $query->lastInsertId();
+				}
+
 			}
-//			print "INSERT INTO ".UT_TAG." VALUES(DEFAULT, '$context', '$value', DEFAULT)<br>";
-			else if($query->sql("INSERT INTO ".UT_TAG." VALUES(DEFAULT, '$context', '$value', DEFAULT)")) {
-				$tag_id = $query->lastInsertId();
+			// tag id?
+			else if(is_numeric($tag)) {
+				// is it a valid tag_id
+				if($query->sql("SELECT * FROM ".UT_TAG." WHERE id = $tag")) {
+					$tag_id = $tag;
+					$context = $query->result(0, "context");
+					$value = $query->result(0, "value");
+					
+				}
 			}
 
-		}
-		else if(is_numeric($tag)) {
-			// is it a valid tag_id
-			if($query->sql("SELECT id FROM ".UT_TAG." WHERE id = $tag")) {
-				$tag_id = $tag;
+			if(isset($tag_id)) {
+
+				if($query->sql("SELECT id FROM ".UT_TAGGINGS." WHERE item_id = $item_id AND tag_id = $tag_id")) {
+					message()->addMessage("Tag already exists for this item", array("type" => "error"));
+					return false;
+				}
+				else if($query->sql("INSERT INTO ".UT_TAGGINGS." VALUES(DEFAULT, $item_id, $tag_id)")) {
+					message()->addMessage("Tag added");
+					return array("item_id" => $item_id, "tag_id" => $tag_id, "context" => $context, "value" => $value);
+				}
+
 			}
 		}
-
-		if(isset($tag_id)) {
-			$query->sql("INSERT INTO ".UT_TAGGINGS." VALUES(DEFAULT, $item_id, $tag_id)");
-
-
-			// TODO: update device modified timestamp
-
-
-			message()->addMessage("Tag added");
-			return true;
-		}
-
 
 		message()->addMessage("Tag could not be added", array("type" => "error"));
 		return false;
 	}
 
-	// delete tag - tag can be complete context:value or tag_id (number)
-	// TODO: or just context to delete all context tags for item
- 	function deleteTag($item_id, $tag) {
-//		print "Delete tag:" . $item_id . ":" . $tag . ":" . is_numeric($tag) . "<br>";
 
-		$query = new Query();
+	// delete tag 
+	// tag can be complete context:value or tag_id (number)
+	// /admin/cms/tags/delete/#item_id#/#tag_id|tag#
+ 	function deleteTag($action) {
 
-		// is tag matching context:value
-		if(preg_match("/([a-zA-Z0-9_]+):([^\b]+)/", $tag, $matches)) {
-			$context = $matches[1];
-			$value = $matches[2];
+		if(count($action) == 4) {
 
-			if($query->sql("SELECT id FROM ".UT_TAG." WHERE context = '$context' AND value = '$value')")) {
-				$tag_id = $query->result(0, "id");
+			$query = new Query();
+			$item_id = $action[2];
+			$tag = $action[3];
+
+			// is tag matching context:value
+			if(preg_match("/([a-zA-Z0-9_]+):([^\b]+)/", $tag, $matches)) {
+				$context = $matches[1];
+				$value = $matches[2];
+
+				if($query->sql("SELECT id FROM ".UT_TAG." WHERE context = '$context' AND value = '$value')")) {
+					$tag_id = $query->result(0, "id");
+				}
 			}
-		}
-		// is tag really tag_id
-		else if(is_numeric($tag)) {
-			// is it a valid tag_id
-			if($query->sql("SELECT id FROM ".UT_TAG." WHERE id = $tag")) {
-				$tag_id = $tag;
+			// is tag really tag_id
+			else if(is_numeric($tag)) {
+				// is it a valid tag_id
+				if($query->sql("SELECT id FROM ".UT_TAG." WHERE id = $tag")) {
+					$tag_id = $tag;
+				}
 			}
-		}
 
-		if(isset($tag_id)) {
-			$query->sql("DELETE FROM ".UT_TAGGINGS." WHERE item_id = $item_id AND tag_id = $tag_id");
+			if(isset($tag_id)) {
+				$query->sql("DELETE FROM ".UT_TAGGINGS." WHERE item_id = $item_id AND tag_id = $tag_id");
 
-
-			// TODO: update device modified timestamp
-
-
-			message()->addMessage("Tag deleted");
-			return true;
+				message()->addMessage("Tag deleted");
+				return true;
+			}
 		}
 
 		message()->addMessage("Tag could not be deleted", array("type" => "error"));
@@ -1373,49 +1271,8 @@ class ItemCore {
 	}
 
 
-	// delete tag globally 
- 	function globalDeleteTag($action) {
 
 
-		if(count($action) == 2) {
-
-			$tag_id = $action[1];
-
-			$query = new Query();
-
-			if($query->sql("DELETE FROM ".UT_TAG." WHERE id = $tag_id")) {
-				message()->addMessage("Tag deleted");
-				return true;
-			}
-		}
-		message()->addMessage("Tag could not be deleted", array("type" => "error"));
-		return false;
- 	}
-
-	// update tag globally
- 	function globalUpdateTag($action) {
-
-		if(count($action) == 2) {
-
-			$tag_id = $action[1];
-
-			$query = new Query();
-		
-			$context = getPost("context");
-			$value = getPost("value");
-			$description = getPost("description");
-
-			if($query->sql("SELECT id FROM ".UT_TAG." WHERE id = $tag_id")) {
-				$query->sql("UPDATE ".UT_TAG." SET context = '$context', value = '$value', description = '$description' WHERE id = $tag_id");
-
-				message()->addMessage("Tag updated");
-				return true;
-			}
-		}
-
-		message()->addMessage("Tag could not be updated", array("type" => "error"));
-		return false;
- 	}
 
 
 
