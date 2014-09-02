@@ -75,9 +75,16 @@ class PageCore {
 		@include_once("config/connect_mail.php");
 
 
+		// set guest user group if no user group is defined (user is not logged in)
+		if(!session()->value("user_group_id")) {
+			session()->value("user_group_id", 1);
+			session()->value("user_id", 1);
+			session()->value("csrf", gen_uuid());
+		}
+
+
 		// shorthand for clean request uri
 		$this->url = str_replace("?".$_SERVER['QUERY_STRING'], "", $_SERVER['REQUEST_URI']);
-
 
 
 		// login in progress
@@ -123,13 +130,7 @@ class PageCore {
 	/**
 	* Get page title
 	*
-	* The page title is complex
-	* You can set the title manually via Page::header in your controller
-	* If you don't, I will look for, prioritized:
-	* - An Item title
-	* - Tags - and create a list of them
-	* - A Navigation item title
-	* - The fallback SITE_NAME
+	* - fallback to SITE_NAME
 	*
 	* @return String page title
 	*/
@@ -146,19 +147,6 @@ class PageCore {
 				return $this->page_title;
 			}
 
-			// else if($this->actions(-1) && class_exists("Item")) {
-			//  
-			// 	$IC = new Item();
-			// 	$item = $IC->getCompleteItem($this->actions(-1));
-			// 
-			// 	// update page description if not already set (since we have a rather good option at hand)
-			// 	if(!$this->page_description && isset($item["description"])) {
-			// 		$this->pageDescription($item["description"]);
-			// 	}
-			// 
-			// 	return $item["name"];
-			// }
-
 			// last resort - use constant
 			return SITE_NAME;
 		}
@@ -166,17 +154,10 @@ class PageCore {
 
 	/**
 	* Get page description
-	* Mostly for page header
 	*
-	* The page description is complex
-	* I will look for, prioritized:
-	* - An Item description
-	* - Tags - TODO
-	* - A Navigation item description - TODO
-	* - The fallback $this->title
+	* - Fallback to DEFAULT_PAGE_DESCRIPTION, then $this->title
 	*
 	* @uses Page::title
-	* @uses Page::getObject()
 	* @return String page description
 	*/
 	function pageDescription($value = false) {
@@ -186,7 +167,6 @@ class PageCore {
 		}
 		// get description
 		else {
-			// TODO: look for description on product views
 			// if description already set
 			if($this->page_description) {
 				return $this->page_description;
@@ -554,17 +534,14 @@ class PageCore {
 	*/
 	function setActions($actions=false) {
 
-//		print "setActions:".$actions;
-		// TODO: Security check on action - the only required accesscheck, bacause all requests load page and page checks makes this call
-		
-		// TODO: Should be re-written - was made in a rush!
+//		print "setActions:".$actions."<br>\nREQUEST_URI".$_SERVER["REQUEST_URI"]."<br>\nPATH_INFO".$_SERVER["PATH_INFO"]."<br>\n";
 
-		// get $access_item from controller
+		// get $access_item from current controller
 		global $access_item;
 
-		// remove parameters from $actions string
-		$actions = preg_replace("/\?.+$/", "", $actions);
-//		print_r($actions);
+
+		// print_r($actions);
+		// print "<br>";
 
 		// if controller has access_item setting, perform access validation
 		if($access_item && (!defined("SITE_INSTALL") || !SITE_INSTALL)) {
@@ -572,7 +549,7 @@ class PageCore {
 			$user_id = session()->value("user_id");
 			$user_group_id = session()->value("user_group_id");
 
-			// any access restriction requires a user to be logged in
+			// any access restriction requires a user to be logged in (optionally as Guest - user_group 1, user 1)
 			// no need to do any validation if no user_id or user_group_id is found
 			if(!$user_id || !$user_group_id) {
 
@@ -580,32 +557,38 @@ class PageCore {
 				session()->value("login_forward", $this->url);
 
 //				print "no user info";
+
 				header("Location: /login");
 				exit();
 			}
 
-//			print_r($actions);
-
-			// generate appropriate validation action string to check in database
-			// implode actions, prepend / and remove trailing /
+			// generate appropriate validation_action string from actions to check in database
+			// implode actions, prepend / and trailing /
+			// get clean controller
 			if($actions) {
-//				$validation_action = preg_replace("/\/$/", "", "/".implode("/", $actions));
+
 				$validation_action = "/".implode("/", $actions);
 
 				// access grants should always end with slash
 				if(!preg_match("/\/$/", $validation_action)) {
+					// if trailing slash is not there, then add it
 					$validation_action .= "/";
 				}
+
+				// get controller
 				$controller = str_replace($_SERVER["PATH_INFO"], "", $_SERVER["REQUEST_URI"]);
 			}
-			// otherwise assume /
+			// otherwise empty array
 			else {
+				// use /
 				$validation_action = "/";
+				// remove trailing / on controller
 				$controller = preg_replace("/\/$/", "", $_SERVER["REQUEST_URI"]);
 			}
 
+//			print $controller . " # " . $validation_action . "\n";
 
-			// look for matching access entry
+			// look for matching access entry in $access_item
 			while(!isset($access_item[$validation_action]) && $validation_action && $validation_action != "/") {
 				$validation_action = preg_replace("/[^\/]+\/$/", "", $validation_action);
 //				print $validation_action."\n";
@@ -637,17 +620,12 @@ class PageCore {
 		// no access_item in controller - everything is allowed
 		// OR validation passed
 		$this->actions = $actions;
+
 	}
 
 
-	/**
-	*
-	*/
-	// how do I validate action without knowing what is controller and what is action 
-	// and not loading controller to figure out validation scheme? - maybe like this?
-	
-	// ???
-	
+	// validate action against database permissions
+	// on first session validation, get permissions and store in session
 	function validateAction($action) {
 
 //		print "validateAction:".$action."<br>";
@@ -657,7 +635,7 @@ class PageCore {
 		}
 
 
-		global $access_item;
+//		global $access_item;
 
 		// remove parameters from $actions string
 		$action = preg_replace("/\?.+$/", "", $action);
@@ -665,46 +643,49 @@ class PageCore {
 //		print_r($access_item);
 
 		// no access restriction
-		if((!$action && (!$access_item || !$access_item["/"]))) {
-			return true;
-		}
+		// if((!$action && (!$access_item || !$access_item["/"]))) {
+		// 	return true;
+		// }
 
 
 		$user_group_id = session()->value("user_group_id");
+		$permissions = session()->value("user_group_permissions");
 
-		// user is not logged in - use guest user_group 999
-		// if(!$user_group_id) {
-		// 	$user_group_id = 99;
-		// }
 
-		if(!$this->permissions && $user_group_id) {
+		// if permissions does not exist for this user in this session
+		// get user_access for user_group
+		if(!$permissions && $user_group_id) {
 			$query = new Query();
 			$sql = "SELECT action, permission FROM ".SITE_DB.".user_access WHERE user_group_id = ".$user_group_id;
 //			print $sql."<br>";
 			if($query->sql($sql)) {
 				$results = $query->results();
+				// parse result in easy queryable structure
 				foreach($results as $result) {
-					$this->permissions[$result["action"]] = $result["permission"];
+					$permissions[$result["action"]] = $result["permission"];
 				}
 
-				// set controller root access state if it does not exist
-				// to avoid to have to set root permissions (action implies restricted root)
-				foreach($this->permissions as $permitted_action => $permission) {
+//				print_r($permissions);
+
+				// set controller root access state to "no access" if it does not exist
+				// set root permissions for restricted pages without permission setting
+				foreach($permissions as $permitted_action => $permission) {
 
 					$parent_action = preg_replace("/[^\/]+\/$/", "", $permitted_action);
+//					print $parent_action . ", " . isset($permissions[$parent_action]) . ", " . $permissions[$parent_action] ."\n";
 
-					if(!isset($this->permissions[$parent_action])) {
-						$this->permissions[$parent_action] = 0;
+					if(!isset($permissions[$parent_action])) {
+						$permissions[$parent_action] = 0;
 					}
 				}
 
 			}
-//			print_r($this->permissions);
+			session()->value("user_group_permissions", $permissions);
+//			print_r($permissions);
 		}
 
  
 		if($action) {
-//		if($action && $action !== "/") {
 			// get actions chuncks
 			$chunks = explode("/", preg_replace("/\/$/", "", $action));
 
@@ -714,8 +695,8 @@ class PageCore {
 
 //				print implode("/", $chunks)."/<br>\n";
 
-				if(isset($this->permissions[implode("/", $chunks)."/"])) {
-					if($this->permissions[implode("/", $chunks)."/"]) {
+				if(isset($permissions[implode("/", $chunks)."/"])) {
+					if($permissions[implode("/", $chunks)."/"]) {
 						return true;
 					}
 					else {
@@ -726,11 +707,9 @@ class PageCore {
 			}
 		}
 		else {
-		
-		//if($access_item && $) {
 //			print "checking root:" . isset($this->permissions["/"])." && ".$this->permissions["/"]."<br>";
 			
-			if(isset($this->permissions["/"]) && $this->permissions["/"]) {
+			if(isset($permissions["/"]) && $permissions["/"]) {
 				return true;
 			}
 			else {
@@ -755,16 +734,23 @@ class PageCore {
 		// validate csrf-token on all requests?
 		if(!(defined("SITE_INSTALL") && SITE_INSTALL)) {
 
-			if(
-				$_SERVER["REQUEST_METHOD"] != "POST" || 
-				!isset($_POST["csrf-token"]) || 
-				!$_POST["csrf-token"] || 
-				$_POST["csrf-token"] != session()->value("csrf")
+			// if POST, check csrf token
+			if($_SERVER["REQUEST_METHOD"] == "POST" &&
+				(
+					!isset($_POST["csrf-token"]) || 
+					!$_POST["csrf-token"] || 
+					$_POST["csrf-token"] != session()->value("csrf")
+				)
 			) {
+				// something is fishy, clean up
 				unset($_GET);
 				unset($_POST);
 				unset($_FILES);
 
+				// make sure the user is logged out
+				$this->throwOff();
+
+				// notify admin about possible breach attempt
 				$this->mail(array(
 					"subject" => "CSRF Autorization failed ".SITE_URL, 
 					"message" => "CSRF circumvention attempted:".$this->url,
@@ -773,17 +759,17 @@ class PageCore {
 //				message()->addMessage("Autorization failed", array("type" => "error"));
 				return false;
 			}
+			else if($_SERVER["REQUEST_METHOD"] != "POST") {
+
+				return false;
+
+			}
 		}
 
 		return true;
 	}
 
-	/**
-	* Page actions, security check on page action level
-	*
-	* -param String $action action parameter to check for in status (status can be combined page,list)
-	* -return bool Page status
-	*/
+	// Get Page actions
 	function actions() {
 		return $this->actions;
 	}
@@ -809,7 +795,9 @@ class PageCore {
 				// add user_id and user_group_id to session
 				session()->value("user_id", $query->result(0, "id"));
 				session()->value("user_group_id", $query->result(0, "user_group_id"));
-				session()->value("csrf", gen_uuid());
+				session()->reset("user_group_permissions");
+
+//				session()->value("csrf", gen_uuid());
 
 				if(getPost("ajaxlogin")) {
 					@include_once("class/system/output.class.php");
@@ -844,6 +832,7 @@ class PageCore {
 
 		session()->reset("user_id");
 		session()->reset("user_group_id");
+		session()->reset("user_group_permissions_id");
 
 		header("Location: /index.php");
 		exit();
@@ -865,9 +854,9 @@ class PageCore {
 		));
 
 		//$this->user_id = "";
-		session()->resetLogin();
+		session()->reset();
 		if($url) {
-			session()->setValue("LoginForward", $url);
+			session()->value("LoginForward", $url);
 		}
 		print '<script type="text/javacript">location.href="?page_status=logoff"</script>';
 //		header("Location: /index.php");
