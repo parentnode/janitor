@@ -398,10 +398,10 @@ class Simpleuser {
 
 		// check if simple user_group exists
 		// create simple group if it does not exist
-		$sql = "SELECT id FROM ".$this->db." WHERE user_group_id = 99";
+		$sql = "SELECT id FROM ".$this->db." WHERE user_group_id = 2";
 		if(!$query->sql($sql)) {
 			$query->checkDbExistance($this->db_user_groups);
-			$sql = "INSERT INTO ".$this->db_user_groups." SET id = 99, user_group = 'Plain'";
+			$sql = "INSERT INTO ".$this->db_user_groups." SET id = 2, user_group = 'Member'";
 			$query->sql($sql);
 		}
 
@@ -424,7 +424,7 @@ class Simpleuser {
 			}
 
 			// create user
-			$sql = "INSERT INTO ".$this->db." SET ".implode(",", $values).", user_group_id = 99";
+			$sql = "INSERT INTO ".$this->db." SET ".implode(",", $values).", user_group_id = 2";
 			if($query->sql($sql)) {
 				$user_id = $query->lastInsertId();
 			}
