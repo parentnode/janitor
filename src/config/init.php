@@ -66,7 +66,6 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 	include_once("class/users/user.class.php");
 	include_once("class/users/simpleuser.class.php");
 
-	//include_once("class/system/security.class.php");
 	//include_once("class/system/performance.class.php");
 
 
