@@ -22,8 +22,13 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 	$mail_verified = true;
 }
 
-if(!$config_verified || !$database_verified || !$mail_verified): ?>
+if(
+	(!$config_verified && SETUP_TYPE != "init") || 
+	(!$database_verified && (!isset($_SESSION["db_ok"]) || !$_SESSION["db_ok"])) || 
+	(!$mail_verified && (!isset($_SESSION["mail_ok"]) || !$_SESSION["mail_ok"]))
+): ?>
 	<h1>Can't finish until you are done</h1>
+	
 	<p>You need to provide more information</p>
 </div>
 
@@ -36,7 +41,10 @@ if(!$config_verified || !$database_verified || !$mail_verified): ?>
 
 $fs = new FileSystem();
 
-$project_path = isset($_SESSION["project_path"]) ? $_SESSION["project_path"] : "";
+
+
+//$project_path = isset($_SESSION["project_path"]) ? $_SESSION["project_path"] : "";
+$project_path = PROJECT_PATH;
 $local_path =  $project_path."/src";
 $framework_path = $project_path."/submodules/janitor/src";
 //chmod($project_path, 0777);
@@ -73,9 +81,12 @@ define("SITE_URL", $site_url);
 define("SITE_EMAIL", $site_email);
 
 
-if(!file_exists($project_path."/src")) {
+//
+// CREATE FOLDER STRUCTURE
+//
+if(SETUP_TYPE == "setup" && !file_exists($project_path."/src")) {
 
-	// CREATE FILE STRUCTURE
+	// create file structure
 	print '<li>Creating folders</li>';
 
 	$fs->makeDirRecursively($project_path."/src/www/img");
@@ -91,16 +102,13 @@ if(!file_exists($project_path."/src")) {
 
 	$fs->makeDirRecursively($project_path."/src/templates/admin/post");
 
-	$fs->makeDirRecursively($project_path."/src/library/private");
-	$fs->makeDirRecursively($project_path."/src/library/public");
-
 	$fs->makeDirRecursively($project_path."/src/www/admin/img");
 	$fs->makeDirRecursively($project_path."/src/www/admin/js/lib/desktop");
 	$fs->makeDirRecursively($project_path."/src/www/admin/css/lib/desktop");
 
 
-	// COPY TEST FILES
-	print '<li>Copying test setup</li>';
+	// copy test files
+	print '<li>Copying files</li>';
 
 	$fs->copy($framework_path."/config/setup/www", $local_path."/www");
 	$fs->copy($framework_path."/config/setup/templates", $local_path."/templates");
@@ -117,70 +125,102 @@ if(!file_exists($project_path."/src")) {
 }
 
 
+//
+// LIBRARY
+//
+if(file_exists($project_path."/src/library")) {
+
+	// create library
+	print '<li>Create library</li>';
+
+	$fs->makeDirRecursively($project_path."/src/library/private");
+	$fs->makeDirRecursively($project_path."/src/library/public");
+	
+}
 
 
+//
+// CREATE CONFIG FILES
+//
+if(SETUP_TYPE == "setup") {
+	
+	// create conf files
+	print '<li>Creating config files</li>';
+
+	// config
+	$file_config = file_get_contents($framework_path."/config/setup/config/config.template.php");
+	$file_config = preg_replace("/###SITE_UID###/", $site_uid, $file_config);
+	$file_config = preg_replace("/###SITE_NAME###/", $site_name, $file_config);
+	$file_config = preg_replace("/###SITE_URL###/", $site_url, $file_config);
+	$file_config = preg_replace("/###SITE_EMAIL###/", $site_email, $file_config);
+	file_put_contents($local_path."/config/config.php", $file_config);
+
+	// apache
+	$file_mail = file_get_contents($framework_path."/config/setup/config/httpd-vhosts.template.conf");
+	$file_mail = preg_replace("/###LOCAL_PATH###/", $local_path, $file_mail);
+	$file_mail = preg_replace("/###FRAMEWORK_PATH###/", $framework_path, $file_mail);
+	$file_mail = preg_replace("/###PROJECT_PATH###/", $project_path, $file_mail);
+	$file_mail = preg_replace("/###SITE_URL###/", $site_url, $file_mail);
+	$file_mail = preg_replace("/###SITE_NAME###/", $site_name, $file_mail);
+	file_put_contents($project_path."/apache/httpd-vhosts.conf", $file_mail);
 
 
-//print $local_path;
+}
 
 
-// CREATE CONF FILES
-print '<li>Creating config files</li>';
+//
+// DATABASE SETUP
+//
+if(!isset($_SESSION["db_ok"]) || !$_SESSION["db_ok"]) {
 
-// CONFIG
-$file_config = file_get_contents($framework_path."/config/setup/config/config.template.php");
-$file_config = preg_replace("/###SITE_UID###/", $site_uid, $file_config);
-$file_config = preg_replace("/###SITE_NAME###/", $site_name, $file_config);
-$file_config = preg_replace("/###SITE_URL###/", $site_url, $file_config);
-$file_config = preg_replace("/###SITE_EMAIL###/", $site_email, $file_config);
-file_put_contents($local_path."/config/config.php", $file_config);
+	print '<li>Create database configuration</li>';
 
-// DATABASE
-$file_db = file_get_contents($framework_path."/config/setup/config/connect_db.template.php");
-$file_db = preg_replace("/###SITE_DB###/", $db_janitor_db, $file_db);
-$file_db = preg_replace("/###HOST###/", $db_host, $file_db);
-$file_db = preg_replace("/###USERNAME###/", $db_janitor_user, $file_db);
-$file_db = preg_replace("/###PASSWORD###/", $db_janitor_pass, $file_db);
-file_put_contents($local_path."/config/connect_db.php", $file_db);
-
-// MAIL
-$file_mail = file_get_contents($framework_path."/config/setup/config/connect_mail.template.php");
-$file_mail = preg_replace("/###HOST###/", $mail_host, $file_mail);
-$file_mail = preg_replace("/###PORT###/", $mail_port, $file_mail);
-$file_mail = preg_replace("/###USERNAME###/", $mail_username, $file_mail);
-$file_mail = preg_replace("/###PASSWORD###/", $mail_password, $file_mail);
-$file_mail = preg_replace("/###SITE_NAME###/", $site_name, $file_mail);
-$file_mail = preg_replace("/###SITE_EMAIL###/", $site_email, $file_mail);
-file_put_contents($local_path."/config/connect_mail.php", $file_mail);
-
-// APACHE
-$file_mail = file_get_contents($framework_path."/config/setup/config/httpd-vhosts.template.conf");
-$file_mail = preg_replace("/###LOCAL_PATH###/", $local_path, $file_mail);
-$file_mail = preg_replace("/###FRAMEWORK_PATH###/", $framework_path, $file_mail);
-$file_mail = preg_replace("/###PROJECT_PATH###/", $project_path, $file_mail);
-$file_mail = preg_replace("/###SITE_URL###/", $site_url, $file_mail);
-$file_mail = preg_replace("/###SITE_NAME###/", $site_name, $file_mail);
-file_put_contents($project_path."/apache/httpd-vhosts.conf", $file_mail);
+	// database
+	$file_db = file_get_contents($framework_path."/config/setup/config/connect_db.template.php");
+	$file_db = preg_replace("/###SITE_DB###/", $db_janitor_db, $file_db);
+	$file_db = preg_replace("/###HOST###/", $db_host, $file_db);
+	$file_db = preg_replace("/###USERNAME###/", $db_janitor_user, $file_db);
+	$file_db = preg_replace("/###PASSWORD###/", $db_janitor_pass, $file_db);
+	file_put_contents($local_path."/config/connect_db.php", $file_db);
 
 
+	// create db
+	print '<li>Creating database</li>';
 
-// CREATE DB
-print '<li>Creating database</li>';
+	$mysqli = new mysqli($db_host, $db_root_user, $db_root_pass);
+	$mysqli->query("SET NAMES utf8");
+	$mysqli->query("SET CHARACTER SET utf8");
+	$mysqli->set_charset("utf8");
 
-$mysqli = new mysqli($db_host, $db_root_user, $db_root_pass);
-$mysqli->query("SET NAMES utf8");
-$mysqli->query("SET CHARACTER SET utf8");
-$mysqli->set_charset("utf8");
+	global $mysqli_global;
+	$mysqli_global = $mysqli;
 
-global $mysqli_global;
-$mysqli_global = $mysqli;
+	$query = new Query();
+	$query->sql("CREATE DATABASE $db_janitor_db");
 
-$query = new Query();
-$query->sql("CREATE DATABASE $db_janitor_db");
+	$query->sql("GRANT ALL PRIVILEGES ON ".$db_janitor_db.".* TO '".$db_janitor_user."'@'".$db_host."' IDENTIFIED BY '".$db_janitor_pass."' WITH GRANT OPTION;");
 
-$query->sql("GRANT ALL PRIVILEGES ON ".$db_janitor_db.".* TO '".$db_janitor_user."'@'".$db_host."' IDENTIFIED BY '".$db_janitor_pass."' WITH GRANT OPTION;");
+}
 
-//$query->sql("USE $db_janitor_db");
+
+//
+// MAIL SETUP
+//
+if(!isset($_SESSION["mail_ok"]) || !$_SESSION["mail_ok"]) {
+
+	print '<li>Setup mail</li>';
+
+	// mail
+	$file_mail = file_get_contents($framework_path."/config/setup/config/connect_mail.template.php");
+	$file_mail = preg_replace("/###HOST###/", $mail_host, $file_mail);
+	$file_mail = preg_replace("/###PORT###/", $mail_port, $file_mail);
+	$file_mail = preg_replace("/###USERNAME###/", $mail_username, $file_mail);
+	$file_mail = preg_replace("/###PASSWORD###/", $mail_password, $file_mail);
+	$file_mail = preg_replace("/###SITE_NAME###/", $site_name, $file_mail);
+	$file_mail = preg_replace("/###SITE_EMAIL###/", $site_email, $file_mail);
+	file_put_contents($local_path."/config/connect_mail.php", $file_mail);
+
+}
 
 
 // load database and mail configuration
@@ -188,43 +228,111 @@ include_once($local_path."/config/connect_db.php");
 include_once($local_path."/config/connect_mail.php");
 
 
-$query->checkDbExistance($db_janitor_db.".items");
-$query->checkDbExistance($db_janitor_db.".tags");
-$query->checkDbExistance($db_janitor_db.".taggings");
+//
+// VERIFY DATABASE TABLES
+//
+$query = new Query();
+$query->checkDbExistance(SITE_DB.".items");
+$query->checkDbExistance(SITE_DB.".tags");
+$query->checkDbExistance(SITE_DB.".taggings");
+
+$query->checkDbExistance(SITE_DB.".languages");
+$query->checkDbExistance(SITE_DB.".currencies");
+$query->checkDbExistance(SITE_DB.".countries");
 
 
-
-
-
-
+//
 // CREATE LANGUAGE
-print '<li>Installing language EN</li>';
-$query->checkDbExistance($db_janitor_db.".languages");
-$sql = "SELECT id FROM $db_janitor_db.languages WHERE name = 'English'";
+//
+$sql = "SELECT id FROM ".SITE_DB.".languages WHERE name = 'English'";
 if(!$query->sql($sql)) {
 
-	$sql = "INSERT INTO $db_janitor_db.languages set id = 'EN', name = 'English'";
+	print '<li>Installing language: EN</li>';
+	$sql = "INSERT INTO ".SITE_DB.".languages set id = 'EN', name = 'English'";
+	print $sql."<br>";
+	$query->sql($sql);
+
+}
+else {
+	print '<li>Language: OK</li>';
+}
+
+
+//
+// CREATE CURRENCY
+//
+$sql = "SELECT id FROM ".SITE_DB.".currencies WHERE name = 'DKK'";
+if(!$query->sql($sql)) {
+
+	print '<li>Installing currency: DKK</li>';
+	$sql = "INSERT INTO ".SITE_DB.".currencies set id = 'DKK', name = 'Kroner (Denmark)', abbreviation = 'DKK', abbreviation_position = 'after', decimals = 2, decimal_separator = ',', grouping_separator = '.'";
 //	print $sql."<br>";
 	$query->sql($sql);
 
 }
+else {
+	print '<li>Currency: OK</li>';
+}
 
 
-// CREATE TEST USER
-print '<li>Setting up default user</li>';
+//
+// CREATE COUNTRY
+//
+$sql = "SELECT id FROM ".SITE_DB.".countries WHERE name = 'DK'";
+if(!$query->sql($sql)) {
 
+	print '<li>Installing country: DK</li>';
+	$sql = "INSERT INTO ".SITE_DB.".countries set id = 'DK', name = 'Danmark', phone_countrycode = '45', phone_format = '#### ####', language = 'DA', currency = 'DKK'";
+//	print $sql."<br>";
+	$query->sql($sql);
+
+}
+else {
+	print '<li>Country: OK</li>';
+}
+
+
+//
+// CREATE DEFAULT USER GROUPS AND USERS
+//
 include_once("class/users/user.class.php");
 $UC = new User();
 
 $user_groups = $UC->getUserGroups(array("user_group_id" => 1));
 if(!$user_groups) {
 
+	print '<li>Create default user groups</li>';
+
+	// Create Guest user group
+	unset($_POST);
+	$_POST["user_group"] = "Guest";
+
+	$UC->getPostedEntities();
+	$user_group = $UC->saveUserGroup(array("saveUserGroup"));
+
+	// Create Member user group
+	unset($_POST);
+	$_POST["user_group"] = "Member";
+
+	$UC->getPostedEntities();
+	$user_group = $UC->saveUserGroup(array("saveUserGroup"));
+
+	// Create Developer user group
 	unset($_POST);
 	$_POST["user_group"] = "Developer";
 
 	$UC->getPostedEntities();
-	$user_group = $UC->saveUserGroup();
+	$user_group = $UC->saveUserGroup(array("saveUserGroup"));
+
 }
+else {
+	print '<li>User groups: OK</li>';
+}
+
+//
+// DEVELOPER PERMISSIONS
+//
+print '<li>Adding Developer permissions</li>';
 
 // SET ACCESS PERMISSIONS
 $access_points = $UC->getAccessPoints();
@@ -243,75 +351,116 @@ foreach($access_points["points"] as $path => $access_items) {
 unset($_POST);
 $_POST["grant"] = $grants;
 $UC->getPostedEntities();
-$UC->updateAccess(array("updateAccess", 1));
+$UC->updateAccess(array("updateAccess", 3));
 
 
-
+//
+// DEFAULT USERS
+//
 $email = SITE_EMAIL;
-// check for user with this email
-$users = $UC->getUsers(array("email" => $email));
+
+// check for anonymous user
+$users = $UC->getUsers(array("user_id" => 1));
 if(!$users) {
 
+	print '<li>Create default users</li>';
+
+	// create anonymous user
 	unset($_POST);
-	$_POST["nickname"] = "Dummy user";
+	$_POST["nickname"] = "Anonymous";
 	$_POST["user_group_id"] = 1;
 	$_POST["status"] = 1;
 	$_POST["language"] = "EN";
 
 	$UC->getPostedEntities();
-	$user = $UC->save();
+	$user = $UC->save(array("save"));
+
+
+	// create developer user
+	unset($_POST);
+	$_POST["nickname"] = "Dummy developer";
+	$_POST["user_group_id"] = 3;
+	$_POST["status"] = 1;
+	$_POST["language"] = "EN";
+
+	$UC->getPostedEntities();
+	$user = $UC->save(array("save"));
 	
 	if($user) {
 		$user_id = $user["item_id"];
+
+
+		$UC->status(array("status", $user_id, 1));
+
+		// SET USERNAME
+		unset($_POST);
+		$_POST["email"] = ADMIN_MAIL;
+		$UC->getPostedEntities();
+		$UC->updateUsernames(array("updateUsernames", $user_id));
+
+		// SET PASSWORD
+		unset($_POST);
+		$_POST["password"] = "rotinaj";
+		$UC->getPostedEntities();
+		$UC->setPAssword(array("setPassword", $user_id));
+
+		// store user_id for content creation
+		session()->value("user_id", $user_id);
 	}
 }
-else {
-	$user_id = $users[0]["user_id"];
+else if($users["nickname"] == "Anonymous") {
+	print '<li>Users: OK</li>';
 }
 
-if($user_id) {
-
-	$UC->status(array("status", $user_id, 1));
-
-	// SET USERNAME
-	unset($_POST);
-	$_POST["email"] = $email;
-	$UC->getPostedEntities();
-	$UC->updateUsernames(array("updateUsernames", $user_id));
-
-	// SET PASSWORD
-	unset($_POST);
-	$_POST["password"] = "rotinaj";
-	$UC->getPostedEntities();
-	$UC->setPAssword(array("setPassword", $user_id));
-
-	// store user_id for content creation
-	session()->value("user_id", $user_id);
-}
-
-
-// CREATE TEST CONTENT
-print '<li>Creating test content</li>';
 
 include_once("class/items/item.core.class.php");
 include_once("class/items/item.class.php");
 $IC = new Item();
 
-unset($_POST);
-$_POST["name"] = "Welcome to the basement";
-$_POST["html"] = "<p>This is a test post</p>";
-$_POST["status"] = 1;
-$IC->saveItem("post");
+
+//
+// CREATE TEST CONTENT
+//
+if(!$IC->getItems() && session()->value("user_id")) {
+
+	print '<li>Creating test content</li>';
+
+	unset($_POST);
+	$_POST["name"] = "Welcome to the basement";
+	$_POST["html"] = "<p>This is a test post made by the setup script. You can delete this post.</p>";
+	$_POST["status"] = 1;
+	$IC->saveItem("post");
+
+}
+
+
+
+//
+// GIT SETTINGS
+//
+// create git ignore
+if(!file_exists(PROJECT_PATH."/.gitignore")) {
+	$handle = fopen(PROJECT_PATH."/.gitignore", "w+");
+	fwrite($handle, "src/library/*\n.DS_Store\nsrc/config/connect_*.php");
+	fclose($handle);
+}
+
+// Tell git to ignore file permission changes
+exec("cd ".PROJECT_PATH." && git config core.filemode false");
+exec("cd ".PROJECT_PATH."/submodules/janitor && git config core.filemode false");
+exec("cd ".PROJECT_PATH."/submodules/js-merger && git config core.filemode false");
+exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode false");
 
 
 // get apache user to set permissions
 $current_user = get_current_user();
 $apache_user = trim(shell_exec('whoami'));
 
-session_unset();
+//session_unset();
 
-mail(array("subject" => "Welcome to janitor", "message" => "Your Janitor project is ready.\n\nLog in to your admin system: http://".SITE_URL."/admin\n\nUsername: ".SITE_EMAIL."\nPassword: rotinaj\n\nSee you soon,\n\nJanitor"));
-
+if(SETUP_TYPE == "setup") {
+	mail(array("subject" => "Welcome to janitor", "message" => "Your Janitor project is ready.\n\nLog in to your admin system: http://".SITE_URL."/admin\n\nUsername: ".SITE_EMAIL."\nPassword: rotinaj\n\nSee you soon,\n\nJanitor"));
+}
 ?>
 	</ul>
 	<h2>Final touches</h2>
@@ -336,6 +485,9 @@ sudo chmod -R 770 <?= $project_path ?>/src/www/admin/css &&
 
 sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/library &&
 sudo chmod -R 770 <?= $project_path ?>/src/library</code>
+
+	<p>Restart Apache</p>
+	<code>sudo apachectl restart</code>
 
 	<h2>Relaunch your Janitor project</h2>
 	<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>

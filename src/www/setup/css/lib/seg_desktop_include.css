@@ -1,16 +1,18 @@
-@import url(/setup/css/lib/s-fonts.css);
+@import url(/janitor/css/lib/seg_desktop_include.css);
+/*
+@import url(/janitor/css/lib/s-fonts.css);
 
-@import url(/css/lib/desktop/s-page.css);
-@import url(/css/lib/desktop/s-typography.css);
+@import url(/janitor/css/lib/desktop/s-page.css);
+@import url(/janitor/css/lib/desktop/s-typography.css);
 
-@import url(/css/lib/desktop/s-header.css);
-@import url(/css/lib/desktop/s-content.css);
+@import url(/janitor/css/lib/desktop/s-header.css);
+@import url(/janitor/css/lib/desktop/s-content.css);
 @import url(/css/lib/desktop/s-navigation.css);
 @import url(/css/lib/desktop/s-footer.css);
 
 @import url(/css/lib/desktop/s-form.css);
 @import url(/css/lib/desktop/s-notifications.css);
-
+*/
 @import url(/setup/css/lib/desktop/s-pages-desktop.css);
 
 

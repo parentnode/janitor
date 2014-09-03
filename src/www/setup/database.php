@@ -6,11 +6,10 @@ if(isset($read_access) && $read_access) {
 
 include_once("../../config/setup/init.php");
 
-$action = $page->actions();
 
-// include the output class for output method support
-include_once("class/system/output.class.php");
+$action = $page->actions();
 $output = new Output();
+
 
 $page->bodyClass("database");
 $page->pageTitle("Janitor setup guide");
@@ -76,9 +75,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 else {
 
-	$page->header(array("type" => "setup"));
-	$page->template("setup/database.php");
-	$page->footer(array("type" => "setup"));
+	$page->page(array(
+		"type" => "setup",
+		"templates" => "setup/database.php"
+		)
+	);
 	exit();
 
 }

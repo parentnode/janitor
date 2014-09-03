@@ -52,9 +52,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 else {
 
-	$page->header(array("type" => "setup"));
-	$page->template("setup/config.php");
-	$page->footer(array("type" => "setup"));
+	$page->page(array(
+		"type" => "setup",
+		"templates" => "setup/config.php"
+		)
+	);
 	exit();
 
 }

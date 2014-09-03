@@ -22,7 +22,7 @@ function isInstalled($command, $valid_responses, $escape = true) {
 
 // CHECK FOR READ/WRITE ACCESS
 function readWriteTest() {
-	$handle = fopen(PROJECT_PATH."/wr.test", "a+");
+	$handle = @fopen(PROJECT_PATH."/wr.test", "a+");
 	if($handle) {
 		unlink(PROJECT_PATH."/wr.test");
 
@@ -52,18 +52,28 @@ $readwrite = readWriteTest();
 		<!--li>MySQL: <?= $mysql ? "Success" : "Failed" ?></li>
 		<li>FFMpeg: <?= $ffmpeg ? "Success" : "Failed" ?></li-->
 	</ul>
-<?	if(!$apache || !$php || !$readwrite): // || !$mysql || !$ffmpeg): ?>
 
+<?	if(!$readwrite): ?>
+	<p>You need to allow Apache R/W access to your project folder.</p>
+	<code>$ sudo chmod -R 777 <?= PROJECT_PATH ?></code>
+<?	endif; ?>
+
+<?	if(!$apache || !$php): // || !$mysql || !$ffmpeg): ?>
 	<p>
 		Your software does not meet the requirements for running Janitor. Please update your system.
+		For more information about installing the required tools on your system, read the 
+		<a href="http://janitor.parentnode.dk/blog/prepare_for_janitor" target="_blank">setup guide</a>.
 	</p>
+<?	endif; ?>
 
-<?	else: ?>
-
+<?	if($apache && $php && $readwrite): // || !$mysql || !$ffmpeg): ?>
 	<h2>Install Janitor</h2>
-
 	<ul class="actions">
-		<li class="start"><a href="/setup/paths" class="button primary">Start</a></li>
+<?		if(SETUP_TYPE == "setup"): ?>
+		<li class="start"><a href="/setup/config" class="button primary">Start completely new setup</a></li>
+<?		else: ?>
+		<li class="start"><a href="/setup/database" class="button primary">Initialize existing project</a></li>
+<?		endif; ?>
 	</ul>
 <?	endif; ?>
 
