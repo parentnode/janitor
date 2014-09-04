@@ -16,7 +16,7 @@ $orders = $model->getOrders();
 		<ul class="items">
 <?			foreach($orders as $order): ?>
 			<li class="item">
-				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items" ) ?>)</h3>
+				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)</h3>
 				<dl class="details">
 					<dt class="name">Name</dt>
 					<dd class="name"><?= $order["delivery_name"] ?></dd>

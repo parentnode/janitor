@@ -16,8 +16,6 @@ if(isset($read_access) && $read_access) {
 
 include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
-// include the output class for output method support
-include_once("class/system/output.class.php");
 
 $action = $page->actions();
 

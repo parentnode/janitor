@@ -128,7 +128,7 @@ if(SETUP_TYPE == "setup" && !file_exists($project_path."/src")) {
 //
 // LIBRARY
 //
-if(file_exists($project_path."/src/library")) {
+if(!file_exists($project_path."/src/library")) {
 
 	// create library
 	print '<li>Create library</li>';
@@ -354,6 +354,22 @@ $UC->getPostedEntities();
 $UC->updateAccess(array("updateAccess", 3));
 
 
+// TEST if this allows anonymous user to login
+unset($_POST);
+$_POST["grant"] = array("/" => 1);
+$UC->getPostedEntities();
+$UC->updateAccess(array("updateAccess", 1));
+
+
+
+// TODO: set anonymous permissions for login
+
+// TODO: if connect_db exists - it will try to log in to DB, but that may not exists
+
+
+// TODO: final file permissions are wrong
+
+
 //
 // DEFAULT USERS
 //
@@ -459,7 +475,7 @@ $apache_user = trim(shell_exec('whoami'));
 //session_unset();
 
 if(SETUP_TYPE == "setup") {
-	mail(array("subject" => "Welcome to janitor", "message" => "Your Janitor project is ready.\n\nLog in to your admin system: http://".SITE_URL."/admin\n\nUsername: ".SITE_EMAIL."\nPassword: rotinaj\n\nSee you soon,\n\nJanitor"));
+	$this->mail(array("subject" => "Welcome to janitor", "message" => "Your Janitor project is ready.\n\nLog in to your admin system: http://".SITE_URL."/admin\n\nUsername: ".SITE_EMAIL."\nPassword: rotinaj\n\nSee you soon,\n\nJanitor"));
 }
 ?>
 	</ul>

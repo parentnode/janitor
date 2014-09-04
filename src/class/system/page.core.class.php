@@ -347,8 +347,7 @@ class PageCore {
 				}
 			}
 		}
-	
-		// TODO: check for login and server admin header
+
 		return $this->template($type.".header.php", array("buffer" => $buffer));
 
 	}
@@ -915,11 +914,10 @@ class PageCore {
 
 	/**
 	* send mail
+	*
+	* all parameters in options array structure
+	* object can be any type of object providing details for email template
 	*/
-	// all parameters in array structure
-	// object can be any type of object providing details for email template
-	// TODO: add mail templates?
-
 	function mail($_options = false) {
 
 		$subject = "Mail from ".SITE_URL;

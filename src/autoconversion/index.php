@@ -34,7 +34,7 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 function conversionFailed($reason) {
 	global $page;
 
-	// TODO: add missing image instead of 404
+	 // TODO: add missing image instead of 404
 //	print "conversion failed:" . $reason;
 	$page->mail(array(
 		"subject" => "Autoconversion failed", 

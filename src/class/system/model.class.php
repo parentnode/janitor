@@ -14,9 +14,8 @@ class Model extends HTML {
 
 		// TODO: get base elements from Item (published_at, status, etc.?)
 
-		// TODO: Should be handled here? Consider to put in cms and non item models or make sure it is not possible to inject values 
+		// Get posted values to make them available for models
 		$this->getPostedEntities();
-		
 	}
 
 	/**

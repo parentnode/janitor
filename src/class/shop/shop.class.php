@@ -17,7 +17,6 @@
 * 1 = Active
 * 2 = Order has been paid, cannot be updated
 */
-
 class Shop extends Model {
 
 	/**
@@ -30,6 +29,12 @@ class Shop extends Model {
 		$this->db_cart_items = SITE_DB.".shop_cart_items";
 		$this->db_orders = SITE_DB.".shop_orders";
 		$this->db_order_items = SITE_DB.".shop_order_items";
+
+
+		// TODO: needs to be updated throughout class
+		// TODO: these are suggestions
+		$this->order_statuses = array(0 => "New", 1 => "", 2 => "Charged", 3 => "Delivered", 4 => "Delivered and charged");
+		$this->cart_statuses = array(0 => "Open", 1 => "Associated with order");
 
 
 		// Nickname
@@ -175,6 +180,8 @@ class Shop extends Model {
 			"hint_message" => "Country",
 			"error_message" => "Invalid country"
 		));
+
+		print "testHH";
 
 		parent::__construct();
 	}
