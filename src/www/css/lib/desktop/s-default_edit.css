@@ -47,9 +47,9 @@
 #content .scene.defaultEdit > div.media {padding: 0 0 20px; border-bottom: 1px solid #bbbbbb;}
 #content .scene.defaultEdit > div.media form.upload .actions {display: none;}
 
-#content .scene.defaultEdit > div.media ul.media {padding: 20px 20px 0; text-align: left;}
-#content .scene.defaultEdit > div.media ul.media > li {margin: 0 10px 20px; position: relative; text-align: center;}
-#content .scene.defaultEdit > div.media ul.media > li h4 {padding: 0 0 5px;}
+#content .scene.defaultEdit > div.media ul.mediae {padding: 20px 20px 0; text-align: left;}
+#content .scene.defaultEdit > div.media ul.mediae > li {margin: 0 10px 20px; position: relative; text-align: center;}
+#content .scene.defaultEdit > div.media ul.mediae > li h4 {padding: 0 0 5px;}
 
 #content .scene.defaultEdit > div.media form.delete {padding: 0; position: absolute; top: 0; right: 0;}
 #content .scene.defaultEdit > div.media form.delete ul.actions {padding: 0;}
@@ -61,22 +61,22 @@
 #content .scene.defaultEdit > div.media form.delete input:hover {background-position: 8px -67px;}
 #content .scene.defaultEdit > div.media form.delete input.confirm {text-indent: 0; width: auto; padding-left: 24px;}
 
-#content .scene.defaultEdit > div.media.sortable ul.media > li {cursor: move;}
+#content .scene.defaultEdit > div.media.sortable ul.mediae > li {cursor: move;}
 
 
 
 /* EDIT IMAGE */
-#content .scene.defaultEdit > div.media ul.media li.image {height: 150px;}
+#content .scene.defaultEdit > div.media ul.mediae li.image {height: 150px;}
 
 /* EDIT AUDIO */
-#content .scene.defaultEdit > div.media ul.media li.audio {width: 50px; height: 70px;
+#content .scene.defaultEdit > div.media ul.mediae li.audio {width: 50px; height: 70px;
 	background: transparent url(/janitor/img/bg_bn_play_medium.png) no-repeat 0px 20px;
 }
-#content .scene.defaultEdit > div.media ul.media li.audio.playing {background-position: 0 -80px;}
-#content .scene.defaultEdit > div.media ul.media li.audio a {display: block; text-indent: -9999px;}
+#content .scene.defaultEdit > div.media ul.mediae li.audio.playing {background-position: 0 -80px;}
+#content .scene.defaultEdit > div.media ul.mediae li.audio a {display: block; text-indent: -9999px;}
 
 /* EDIT VIDEO */
-#content .scene.defaultEdit > div.media ul.media li.video {width: 150px;
+#content .scene.defaultEdit > div.media ul.mediae li.video {width: 150px;
 	background: transparent url(/janitor/img/bg_bn_play_medium.png) no-repeat center 40px;
 }
-#content .scene.defaultEdit > div.media ul.media li.video a {display: none;}
+#content .scene.defaultEdit > div.media ul.mediae li.video a {display: none;}

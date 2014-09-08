@@ -21,7 +21,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position A
 		data-add-tag="<?= $this->validAction("/admin/cms/tags/add") ?>"
 		>
 <?		if($all_items): ?>
-		<ul class="items targets:draggable">
+		<ul class="items">
 <?			foreach($all_items as $item): 
 				$item = $IC->extendItem($item, array("tags" => true)); ?>
 			<li class="item draggable item_id:<?= $item["item_id"] ?>">

@@ -166,6 +166,8 @@ Util.Objects["defaultList"] = new function() {
 										else {
 											this.node.parentNode.removeChild(this.node);
 											this.node.div.scrolled();
+											u.sortable(this.node.div.list, {"targets":"items", "draggables":"draggable"});
+
 										}
 									}
 								}
@@ -483,7 +485,7 @@ Util.Objects["defaultList"] = new function() {
 
 			if(div.save_order_url) {
 
-				u.s.sortable(div.list);
+				u.sortable(div.list, {"targets":"items", "draggables":"draggable"});
 				div.list.picked = function() {}
 				div.list.dropped = function() {
 					var order = new Array();

@@ -4,7 +4,7 @@ Util.Objects["addMedia"] = new function() {
 
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
-		div.media_list = u.qs("ul.media", div);
+		div.media_list = u.qs("ul.mediae", div);
 
 		div.item_id = u.cv(div, "item_id");
 
@@ -69,6 +69,7 @@ Util.Objects["addMedia"] = new function() {
 
 			delete_form.deleted = function() {
 				this.li.parentNode.removeChild(this.li);
+				u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
 			}
 			u.o.deleteMedia.init(delete_form);
 		}
@@ -76,7 +77,7 @@ Util.Objects["addMedia"] = new function() {
 
 		// image list exists?
 		if(!div.media_list) {
-			u.ae(div, "ul", {"class":"media"});
+			u.ae(div, "ul", {"class":"mediae"});
 		}
 
 		div.media_list.nodes = u.qsa("li.media", div.media_list);
@@ -93,7 +94,7 @@ Util.Objects["addMedia"] = new function() {
 
 			div.save_order_url = div.getAttribute("data-save-order");
 			if(div.save_order_url) {
-				u.sortable(div.media_list);
+				u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
 				div.media_list.picked = function() {}
 				div.media_list.dropped = function() {
 					var order = new Array();
