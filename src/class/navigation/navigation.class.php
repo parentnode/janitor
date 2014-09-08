@@ -47,8 +47,8 @@ class Navigation extends Model {
 			"error_message" => ""
 		));
 
-		// node_item_id
-		$this->addToModel("node_item_id", array(
+		// node_page_id
+		$this->addToModel("node_page_id", array(
 			"type" => "integer",
 			"label" => "Page",
 			"hint_message" => "Select an existing page as link for this node",
@@ -254,6 +254,7 @@ class Navigation extends Model {
 
 
 	// recursive function to get navigation node tree
+	// TODO: merge getNode into getNavigationNodes and use options array parameter
 	function getNavigationNodes($navigation_id, $relation = false) {
 
 		$this->level_iterator++;
@@ -277,7 +278,7 @@ class Navigation extends Model {
 				$nodes[$i]["id"] = $node["id"];
 				$nodes[$i]["name"] = $node["node_name"];
 				$nodes[$i]["link"] = $node["node_link"];
-				$nodes[$i]["item_id"] = $node["node_item_id"];
+				$nodes[$i]["item_id"] = $node["node_page_id"];
 				$nodes[$i]["classname"] = $node["node_class"];
 				if($this->levels === false || $this->levels > $this->level_iterator) {
 					$nodes[$i]["nodes"] = $this->getNavigationNodes($navigation_id, $node["id"]);
@@ -291,7 +292,7 @@ class Navigation extends Model {
 	}
 
 
-	// recursive function to get navigation node tree
+	// TODO: merge this into getNavigationNodes
 	function getNode($id) {
 
 		$query = new Query();
@@ -365,7 +366,7 @@ class Navigation extends Model {
 			if($values) {
 				$query = new Query();
 				$sql = "UPDATE ".$this->db_nodes." SET ".implode(",", $values)." WHERE id = ".$action[1];
-//					print $sql;
+//				print $sql;
 
 				if($query->sql($sql)) {
 					message()->addMessage("Navigation node updated");

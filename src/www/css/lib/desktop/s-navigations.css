@@ -31,7 +31,8 @@
 	background-repeat: no-repeat;
 }
 
-#content .defaultEdit.navigationEdit ul.nodes > li span.link {padding: 10px 0 10px 20px; display: inline-block; vertical-align: bottom;}
+#content .defaultEdit.navigationEdit ul.nodes > li span.link,
+#content .defaultEdit.navigationEdit ul.nodes > li span.page {padding: 10px 0 10px 20px; display: inline-block; vertical-align: bottom;}
 
 
 #content .defaultEdit.navigationEdit ul.nodes > li {

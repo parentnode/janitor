@@ -22,46 +22,56 @@ if(is_array($action) && count($action)) {
 	// LIST ITEM
 	if(count($action) >= 1 && $action[0] == "list") {
 
-		$page->header(array("type" => "admin"));
-		$page->template("admin/navigation/list.php");
-		$page->footer(array("type" => "admin"));
+		$page->page(array(
+			"type" => "admin",
+			"templates" => "admin/navigation/list.php"
+			)
+		);
 		exit();
 
 	}
 	// NEW ITEM
 	else if(count($action) == 1 && $action[0] == "new") {
 
-		$page->header(array("type" => "admin"));
-		$page->template("admin/navigation/new.php");
-		$page->footer(array("type" => "admin"));
+		$page->page(array(
+			"type" => "admin",
+			"templates" => "admin/navigation/new.php"
+			)
+		);
 		exit();
 
 	}
 	// EDIT ITEM
 	else if(count($action) == 2 && $action[0] == "edit") {
-	
-		$page->header(array("type" => "admin"));
-		$page->template("admin/navigation/edit.php");
-		$page->footer(array("type" => "admin"));
+
+		$page->page(array(
+			"type" => "admin",
+			"templates" => "admin/navigation/edit.php"
+			)
+		);
 		exit();
-	
+
 	}
 
 	// ADD NAVIGATION NODE
 	else if(count($action) == 2 && $action[0] == "new_node") {
-	
-		$page->header(array("type" => "admin"));
-		$page->template("admin/navigation/new_node.php");
-		$page->footer(array("type" => "admin"));
+
+		$page->page(array(
+			"type" => "admin",
+			"templates" => "admin/navigation/new_node.php"
+			)
+		);
 		exit();
-	
+
 	}
 	// EDIT NAVIGATION NODE
 	else if(count($action) == 2 && $action[0] == "edit_node") {
 
-		$page->header(array("type" => "admin"));
-		$page->template("admin/navigation/edit_node.php");
-		$page->footer(array("type" => "admin"));
+		$page->page(array(
+			"type" => "admin",
+			"templates" => "admin/navigation/edit_node.php"
+			)
+		);
 		exit();
 
 	}
@@ -80,8 +90,9 @@ if(is_array($action) && count($action)) {
 
 }
 
-$page->header();
-$page->template("404.php");
-$page->footer();
+$page->page(array(
+	"templates" => "pages/404.php"
+	)
+);
 
 ?>

@@ -8,6 +8,15 @@ $item = $model->getNode($action[1]);
 $item_id = $item["id"];
 $navigation_id = $item["navigation_id"];
 
+$IC = new Item();
+$pages = $IC->getItems(array("itemtype" => "page", "status" => 1, "order" => "page.name ASC"));
+// get additional info for pages select
+foreach($pages as $i => $item_page) {
+	$item_page = $IC->extendItem($item_page);
+	$pages[$i]["name"] = $item_page["name"];
+	}
+array_unshift($pages, array("id" => "", "name" => "Select page"));
+
 ?>
 
 <div class="scene defaultEdit">
@@ -31,10 +40,7 @@ $navigation_id = $item["navigation_id"];
 					for other navigation nodes.
 				</p> 
 				<?= $model->input("node_link", array("value" => $item["node_link"])) ?>
-
-				
-
-				<? //= $model->input("node_item_id", array("type" => "select", "options" => $pages)) ?>
+				<?= $model->input("node_page_id", array("type" => "select", "options" => $model->toOptions($pages, "id", "name"), "value" => $item["node_page_id"])) ?>
 			</fieldset>
 
 			<ul class="actions">

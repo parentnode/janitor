@@ -5,15 +5,20 @@ global $model;
 $navigation_id = $action[1];
 
 $IC = new Item();
-$pages = $IC->getItems(array("itemtype" => "page", "status" => 1, "order" => "item_page.name ASC"));
+$pages = $IC->getItems(array("itemtype" => "page", "status" => 1, "order" => "page.name ASC"));
+// get additional info for pages select
+foreach($pages as $i => $item_page) {
+	$item_page = $IC->extendItem($item_page);
+	$pages[$i]["name"] = $item_page["name"];
+}
+array_unshift($pages, array("id" => "", "name" => "Select page"));
 
 ?>
-
 <div class="scene defaultNew">
 	<h1>New navigation node</h1>
 
 	<ul class="actions">
-		<?= $model->link("List", "/admin/navigation/edit/".$navigation_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $model->link("Node list", "/admin/navigation/edit/".$navigation_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
 	<?= $model->formStart("/admin/navigation/saveNode/".$navigation_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
@@ -27,11 +32,9 @@ $pages = $IC->getItems(array("itemtype" => "page", "status" => 1, "order" => "it
 			<p>
 				A navigation node can contain a static link, a dynamic page reference or be a linkless folder
 				for other navigation nodes.
-			</p> 
+			</p>
 			<?= $model->input("node_link") ?>
-			
-
-			<?= $model->input("node_page_id", array("type" => "select", "options" => $pages)) ?>
+			<?= $model->input("node_page_id", array("type" => "select", "options" => $model->toOptions($pages, "id", "name"))) ?>
 		</fieldset>
 
 		<ul class="actions">

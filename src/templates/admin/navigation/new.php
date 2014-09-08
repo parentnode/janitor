@@ -20,7 +20,7 @@ global $model;
 			</fieldset>
 
 			<ul class="actions">
-				<?= $model->link("Back", "/admin/navigation/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->link("Cancel", "/admin/navigation/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 				<?= $model->submit("Save", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>

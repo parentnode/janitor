@@ -2,6 +2,7 @@
 global $action;
 global $model;
 
+
 $navigation_id = $action[1];
 $item = $model->getNavigations(array("navigation_id" => $navigation_id));
 
@@ -12,6 +13,8 @@ $indent = 0;
 function recurseNodes($nodes) {
 	global $HTML;
 	global $indent;
+
+	$IC = new Item();
 
 	$_ = "";
 	$_ .= '<ul class="nodes">';
@@ -24,7 +27,12 @@ function recurseNodes($nodes) {
 		$_ .= '<h3>'.$node["name"].'</h3>';
 
 		if($node["link"]) {
-			$_ .= '<span class="link">'.$node["link"].'</span>';
+			$_ .= '<span class="link">Link: '.$node["link"].'</span>';
+		}
+		if($node["item_id"]) {
+			$item_page = $IC->getItem(array("id" => $node["item_id"]));
+			$item_page = $IC->extendItem($item_page);
+			$_ .= '<span class="page">Page: <a href="/admin/page/edit/'.$item_page["item_id"].'">'.$item_page["name"].'</a></span>';
 		}
 
 		$_ .= '<ul class="actions">';
@@ -49,7 +57,7 @@ function recurseNodes($nodes) {
 	<h1>Edit navigation</h1>
 
 	<ul class="actions i:defaultEditActions item_id:<?= $navigation_id ?>">
-		<?= $HTML->link("List", "/admin/navigation/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("Navigations list", "/admin/navigation/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->link("New node", "/admin/navigation/new_node/".$navigation_id, array("class" => "button primary", "wrapper" => "li.cancel")) ?>
 
 		<?= $HTML->deleteButton("Delete", "/admin/navigation/delete/".$navigation_id) ?>
@@ -65,9 +73,9 @@ function recurseNodes($nodes) {
 		data-csrf-token="<?= session()->value("csrf") ?>"
 	>
 		<h2>Navigation nodes</h2>
-		<p>Drag and drop nodes to reorder structure</p>
 
 <?		if($item["nodes"]): ?>
+		<p>Drag and drop nodes to reorder structure</p>
 		<!--ul class="nodes"-->
 <?= 		recurseNodes($item["nodes"]); ?>
 		<!--/ul-->

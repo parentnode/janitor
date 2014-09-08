@@ -13,7 +13,9 @@ $navigations = $model->getNavigations(array("levels" => 0));
 	</ul>
 
 
-	<div class="all_items i:defaultList filters">
+	<div class="all_items i:defaultList filters"
+		data-csrf-token="<?= session()->value("csrf") ?>"
+		>
 <?		if($navigations): ?>
 		<ul class="items">
 <?			foreach($navigations as $item): ?>
@@ -22,7 +24,7 @@ $navigations = $model->getNavigations(array("levels" => 0));
 
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/admin/navigation/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<?= $HTML->deleteButton("Delete", "/admin/navigation/delete/".$item["id"]) ?>
+					<?= $HTML->deleteButton("Delete", "/admin/navigation/delete/".$item["id"], array("js" => true)) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

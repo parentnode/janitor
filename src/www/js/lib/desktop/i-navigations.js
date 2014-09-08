@@ -57,7 +57,7 @@ Util.Objects["navigationNodes"] = new function() {
 										this.node.parentNode.removeChild(this.node);
 
 										// update
-										this.updateNodeStructure();
+										this.node.list.updateNodeStructure();
 									}
 								}
 								u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
