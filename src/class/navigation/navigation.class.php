@@ -169,18 +169,17 @@ class Navigation extends Model {
 	/**
 	* Get users
 	*
-	* get all users
-	* Get all users in user_group
-	* Get specific user_id
-	* Get users with email as username
-	* Get users with mobile as username
+	* Get list of all navigations/link-lists
+	* Get specific navigation based on handle or navigation_id
+	*
+	* Optional levels setting to define levels of navigation structure to get
 	*/
-	function getNavigations($_options=false) {
+	function getNavigations($_options = false) {
 
 		// default values
 		$handle = false;
 		$navigation_id = false;
-		$this->levels = false;
+		$levels = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -188,7 +187,7 @@ class Navigation extends Model {
 
 					case "navigation_id"     : $navigation_id      = $_value; break;
 					case "handle"            : $handle             = $_value; break;
-					case "levels"            : $this->levels       = $_value; break;
+					case "levels"            : $levels             = $_value; break;
 
 				}
 			}
@@ -196,51 +195,55 @@ class Navigation extends Model {
 
 		$query = new Query();
 
+
+		// handle is known
 		// translate handle into navigation_id
 		if($handle) {
 
 			$sql = "SELECT id FROM ".$this->db." WHERE handle = '$handle'";
+//			print $sql."<br>";
 			if($query->sql($sql)) {
-				$navigation_id = $query->results(0);
+
+				$navigation_id = $query->result(0, "id");
 			}
 		}
 
-		// looking for specific navigation
+		// looking for specific navigation id (possibly translated from handle)
+		// and get sublevels if required
 		if($navigation_id) {
 
 			$navigation = false;
 
 			$sql = "SELECT * FROM ".$this->db." WHERE id = '$navigation_id'";
 //			print $sql."<br>";
-
 			if($query->sql($sql)) {
 
 				$navigation = $query->result(0);
 
 				// get children
-				if($this->levels === false || $this->levels > $this->level_iterator) {
-					$navigation["nodes"] = $this->getNavigationNodes($navigation_id);
+				if($levels === false || $levels) {
+					$navigation["nodes"] = $this->getNavigationNodes($navigation_id, $_options);
 				}
 			}
 
 			return $navigation;
-
 		}
+
 		// get all navigations
+		// and get sublevels if required
 		else {
 
 			$navigations = false;
 
 			$sql = "SELECT * FROM ".$this->db;
 //			print $sql."<br>";
-
 			if($query->sql($sql)) {
 				$navigations = $query->results();
 
-				if($this->levels === false || $this->levels > $this->level_iterator) {
+				if($levels === false || $levels) {
 					foreach($navigations as $i => $navigation) {
 
-						$navigations[$i]["nodes"] = $this->getNavigationNodes($navigation_id);
+						$navigations[$i]["nodes"] = $this->getNavigationNodes($navigation["id"], $_options);
 
 					}
 				}
@@ -254,34 +257,63 @@ class Navigation extends Model {
 
 
 	// recursive function to get navigation node tree
-	// TODO: merge getNode into getNavigationNodes and use options array parameter
-	function getNavigationNodes($navigation_id, $relation = false) {
+	// optional levels of structure to get
+	function getNavigationNodes($navigation_id, $_options = false) {
 
+
+		// default values
+		$levels = false;
+		$relation = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "levels"            : $levels             = $_value; break;
+					case "relation"          : $relation           = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+		$IC = new Item();
+
+		// level iterator checker
 		$this->level_iterator++;
 
-		$query_nodes = new Query();
+
 		$nodes = false;
 
+		// with or without relations
 		if(!$relation) {
 			$sql = "SELECT * FROM ".$this->db_nodes." WHERE navigation_id = $navigation_id AND relation = 0 ORDER BY position ASC, id ASC";
 		}
 		else {
 			$sql = "SELECT * FROM ".$this->db_nodes." WHERE navigation_id = $navigation_id AND relation = $relation ORDER BY position ASC, id ASC";
 		}
-
+//		print $sql."<br>";
 
 		// get media
-		if($query_nodes->sql($sql)) {
+		if($query->sql($sql)) {
 
-			$results = $query_nodes->results();
+			$results = $query->results();
 			foreach($results as $i => $node) {
 				$nodes[$i]["id"] = $node["id"];
 				$nodes[$i]["name"] = $node["node_name"];
 				$nodes[$i]["link"] = $node["node_link"];
 				$nodes[$i]["item_id"] = $node["node_page_id"];
-				$nodes[$i]["classname"] = $node["node_class"];
-				if($this->levels === false || $this->levels > $this->level_iterator) {
-					$nodes[$i]["nodes"] = $this->getNavigationNodes($navigation_id, $node["id"]);
+				$nodes[$i]["classname"] = $node["node_classname"];
+
+				// get sindex for page
+				if($node["node_page_id"]) {
+					$page = $IC->getItem(array("id" => $node["node_page_id"]));
+					$nodes[$i]["sindex"] = $page["sindex"];
+				}
+
+				// go deeper?
+				if($levels === false || $levels > $this->level_iterator) {
+					$_options["relation"] = $node["id"];
+					$nodes[$i]["nodes"] = $this->getNavigationNodes($navigation_id, $_options);
 				}
 			}
 		}
@@ -292,15 +324,12 @@ class Navigation extends Model {
 	}
 
 
-	// TODO: merge this into getNavigationNodes
+	// get specific navigation node information
 	function getNode($id) {
 
 		$query = new Query();
-
 		$sql = "SELECT * FROM ".$this->db_nodes." WHERE id = $id";
-
 //		print $sql."<br>";
-		// get node
 		if($query->sql($sql)) {
 			return $query->result(0);
 		}

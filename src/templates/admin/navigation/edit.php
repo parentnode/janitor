@@ -6,13 +6,13 @@ global $model;
 $navigation_id = $action[1];
 $item = $model->getNavigations(array("navigation_id" => $navigation_id));
 
-global $indent;
-$indent = 0;
+// global $indent;
+// $indent = 0;
 
 
 function recurseNodes($nodes) {
 	global $HTML;
-	global $indent;
+//	global $indent;
 
 	$IC = new Item();
 
@@ -41,9 +41,9 @@ function recurseNodes($nodes) {
 		$_ .= '</ul>';
 
 		if($node["nodes"]) {
-			$indent++;
+//			$indent++;
 			$_ .= recurseNodes($node["nodes"]);
-			$indent--;
+//			$indent--;
 		}
 		$_ .= '</li>';
 	}

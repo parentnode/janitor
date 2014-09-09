@@ -8,6 +8,7 @@ $item = $model->getNode($action[1]);
 $item_id = $item["id"];
 $navigation_id = $item["navigation_id"];
 
+// get pages for page select
 $IC = new Item();
 $pages = $IC->getItems(array("itemtype" => "page", "status" => 1, "order" => "page.name ASC"));
 // get additional info for pages select
