@@ -82,6 +82,7 @@ class PageCore {
 			session()->value("csrf", gen_uuid());
 		}
 
+//		print session()->value("user_id").", ".session()->value("user_group_id")."<br>";
 
 		// shorthand for clean request uri
 		$this->url = str_replace("?".$_SERVER['QUERY_STRING'], "", $_SERVER['REQUEST_URI']);
@@ -553,6 +554,7 @@ class PageCore {
 			if(!$user_id || !$user_group_id) {
 
 				// save current url, to be able to redirect after login
+				session()->reset();
 				session()->value("login_forward", $this->url);
 
 //				print "no user info";
@@ -585,7 +587,7 @@ class PageCore {
 				$controller = preg_replace("/\/$/", "", $_SERVER["REQUEST_URI"]);
 			}
 
-//			print $controller . " # " . $validation_action . "\n";
+//			print $controller . " # " . $validation_action . ", " . isset($access_item[$validation_action]) . "\n";
 
 			// look for matching access entry in $access_item
 			while(!isset($access_item[$validation_action]) && $validation_action && $validation_action != "/") {
@@ -599,6 +601,7 @@ class PageCore {
 			if(!isset($access_item[$validation_action])) {
 //				print "no access item entry";
 
+				session()->reset();
 				header("Location: /login");
 				exit();
 			}
@@ -607,8 +610,11 @@ class PageCore {
 				// matching access item requires access check
 				if($access_item[$validation_action] !== false) {
 
+//					print "check security";
 					if(!$this->validateAction($controller.$validation_action)) {
 //						print "no db entry";
+
+						session()->reset();
 						header("Location: /login");
 						exit();
 					}
@@ -831,7 +837,9 @@ class PageCore {
 
 		session()->reset("user_id");
 		session()->reset("user_group_id");
-		session()->reset("user_group_permissions_id");
+		session()->reset("user_group_permissions");
+
+		session()->reset();
 
 		header("Location: /index.php");
 		exit();
@@ -845,7 +853,7 @@ class PageCore {
 	function throwOff($url=false) {
 
 		// TODO: Compile more information and send in email
-		$this->addLog("Throwoff - insufficient privileges:".$this->url." ". UT_USE);
+		$this->addLog("Throwoff - insufficient privileges:".$this->url." by ". session()->value("user_id"));
 		$this->mail(array(
 			"subject" => "Throwoff - " . SITE_URL, 
 			"message" => "insufficient privileges:".$this->url, 
