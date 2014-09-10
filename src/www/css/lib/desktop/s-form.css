@@ -263,7 +263,6 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 
 
 
-
 #content .field.html .editor div.tag {margin: 0 0 1px; padding: 0 0 0 30px; background-color: #dcdcdc; position: relative; border-radius: 3px; border: 2px solid #f5f7f8;}
 #content .field.html .editor div.dragged {z-index: 15;}
 #content .field.html .editor div.tag .drag {display: none; position: absolute; top: 0px; left: -20px; border-top-left-radius: 15px; border-bottom-left-radius: 15px; background: #dedede; width: 30px; height: 30px; cursor: move;}
@@ -272,6 +271,9 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .field.html .editor div.tag ul.type {display: block; z-index: 5; position: absolute; width: 30px; top: 0px; left: 0px;}
 #content .field.html .editor div.tag ul.type li {display: none; text-transform: uppercase; padding: 9px 4px; text-align: center; cursor: pointer; font-size: 11px;}
 #content .field.html .editor div.tag ul.type li.code {font-size: 8px; padding-top: 11px;}
+#content .field.html .editor div.tag ul.type li.img {font-size: 9px; padding-top: 10px;}
+#content .field.html .editor div.tag ul.type li.youtube {font-size: 8px; padding-top: 11px;}
+
 #content .field.html .editor div.tag ul.type li.selected {display: block;}
 
 #content .field.html .editor div.tag ul.type.open {z-index: 10; border: 2px solid #5c5c5c; margin: -2px; background-color: #F5F7F8;}

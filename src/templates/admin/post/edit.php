@@ -76,7 +76,7 @@ $item = $IC->getCompleteItem(array("id" => $item_id));
 		<h2>Media</h2>
 		<?= $model->formStart("/admin/".$itemtype."/addMedia/".$item_id, array("class" => "upload labelstyle:inject")) ?>
 			<fieldset>
-				<?= $model->input("files") ?>
+				<?= $model->input("mediae") ?>
 			</fieldset>
 
 			<ul class="actions">

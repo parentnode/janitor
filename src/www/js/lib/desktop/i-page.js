@@ -28,6 +28,21 @@ Util.Objects["page"] = new function() {
 
 		// page is ready
 		u.addClass(page, "ready");
+
+		// create icon svg
+		page.svgIcon = function(icon) {
+
+			// save icon to be cloned to avoid recreating icons again and again for lists
+			// test if it becomes to heavy
+
+			var path;
+			if(icon == "youtube") {
+				path = "";
+			}
+
+
+		}
+
 	}
 }
 

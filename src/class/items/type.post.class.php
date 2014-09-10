@@ -46,7 +46,7 @@ class TypePost extends Model {
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "HTML",
-			"allowed_tags" => "h1,h2,h3,h4,p,code",
+			"allowed_tags" => "h1,h2,h3,h4,p,code,img,vimeo,youtube",
 			"required" => true,
 			"hint_message" => "Write the log entry",
 			"error_message" => "A log without any words? How weird."
@@ -54,7 +54,7 @@ class TypePost extends Model {
 
 
 		// Files
-		$this->addToModel("files", array(
+		$this->addToModel("mediae", array(
 			"type" => "files",
 			"label" => "Add media here",
 			"allowed_formats" => "png,jpg,mp4",
@@ -124,8 +124,8 @@ class TypePost extends Model {
 
 			$query->checkDbExistance($this->db_mediae);
 
-			if($this->validateList(array("files"), $item_id)) {
-				$uploads = $IC->upload($item_id, array("input_name" => "files", "auto_add_variant" => true));
+			if($this->validateList(array("mediae"), $item_id)) {
+				$uploads = $IC->upload($item_id, array("input_name" => "mediae", "auto_add_variant" => true));
 				if($uploads) {
 
 					$return_values = array();
