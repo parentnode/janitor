@@ -80,6 +80,7 @@ class PageCore {
 			session()->value("user_group_id", 1);
 			session()->value("user_id", 1);
 			session()->value("csrf", gen_uuid());
+
 		}
 
 //		print session()->value("user_id").", ".session()->value("user_group_id")."<br>";
@@ -602,6 +603,7 @@ class PageCore {
 //				print "no access item entry";
 
 				session()->reset();
+				session()->value("login_forward", $this->url);
 				header("Location: /login");
 				exit();
 			}
@@ -615,6 +617,7 @@ class PageCore {
 //						print "no db entry";
 
 						session()->reset();
+						session()->value("login_forward", $this->url);
 						header("Location: /login");
 						exit();
 					}
