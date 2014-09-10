@@ -357,6 +357,7 @@ $UC->updateAccess(array("updateAccess", 3));
 // TEST if this allows anonymous user to login
 unset($_POST);
 $_POST["grant"] = array("/" => 1);
+$_POST["grant"] = array("/admin/" => 0);
 $UC->getPostedEntities();
 $UC->updateAccess(array("updateAccess", 1));
 
