@@ -12,11 +12,11 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <? if(1 || session()->value("dev")) { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/setup/css/lib/seg_<?= $this->segment() ?>_include.css" />
-	<script type="text/javascript" src="/setup/js/lib/seg_<?= $this->segment() ?>_include.js"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/admin/css/lib/seg_<?= $this->segment() ?>_include.css" />
+	<script type="text/javascript" src="/admin/js/lib/seg_<?= $this->segment() ?>_include.js"></script>
 <? } else { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/setup/css/seg_<?= $this->segment() ?>.css" />
-	<script type="text/javascript" src="/setup/js/seg_<?= $this->segment() ?>.js"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/admin/css/seg_<?= $this->segment() ?>.css" />
+	<script type="text/javascript" src="/admin/js/seg_<?= $this->segment() ?>.js"></script>
 <? } ?>
 </head>
 
@@ -26,7 +26,7 @@
 
 	<div id="header">
 		<ul class="servicenavigation">
-			<li class="keynav front"><a href="/setup">Janitor setup guide</a></li>
+			<li class="keynav front"><span class="janitor">Janitor</span></li>
 		</ul>
 		
 	</div>

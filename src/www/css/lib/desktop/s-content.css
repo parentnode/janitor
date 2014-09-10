@@ -44,4 +44,5 @@
 #content .todo * {color: orange !important;}
 
 
-
+#content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
+#content .scene.login form {padding-top: 30px;}
