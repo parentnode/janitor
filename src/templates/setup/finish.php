@@ -417,7 +417,7 @@ if(!$users) {
 
 		// SET PASSWORD
 		unset($_POST);
-		$_POST["password"] = "rotinaj";
+		$_POST["password"] = "123rotinaj";
 		$UC->getPostedEntities();
 		$UC->setPAssword(array("setPassword", $user_id));
 
@@ -473,7 +473,7 @@ exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode fals
 $current_user = get_current_user();
 $apache_user = trim(shell_exec('whoami'));
 
-//session_unset();
+session_unset();
 
 if(SETUP_TYPE == "setup") {
 	$this->mail(array("subject" => "Welcome to janitor", "message" => "Your Janitor project is ready.\n\nLog in to your admin system: http://".SITE_URL."/admin\n\nUsername: ".SITE_EMAIL."\nPassword: rotinaj\n\nSee you soon,\n\nJanitor"));
@@ -494,10 +494,10 @@ sudo chmod -R 770 <?= $project_path ?>/src/www/js &&
 sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/admin/js &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/admin/js &&
 
-sudo chown -R kaestel:_www /Users/kaestel/Sites/clients/janitor_test/src/www/css &&
+sudo chown -R <?= $current_user ?>:<?= $apache_user ?> /Users/kaestel/Sites/clients/janitor_test/src/www/css &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/css &&
 
-sudo chown -R kaestel:_www /Users/kaestel/Sites/clients/janitor_test/src/www/admin/css &&
+sudo chown -R <?= $current_user ?>:<?= $apache_user ?> /Users/kaestel/Sites/clients/janitor_test/src/www/admin/css &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/admin/css &&
 
 sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/library &&
