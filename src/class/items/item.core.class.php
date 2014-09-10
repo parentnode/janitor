@@ -846,8 +846,7 @@ class ItemCore {
 
 		$min_bitrate = false;                 // specific file max-height for images and videos
 
-		$filetypes = false;                   // jpg,png,git,mov,mp4,pdf,etc
-		$filegroup = false;                   // image,video
+		$formats = false;                     // jpg,png,git,mov,mp4,pdf,etc
 
 		$auto_add_variant = false;            // automatically add variant-key for each file
 
@@ -866,8 +865,7 @@ class ItemCore {
 					case "max_width"           : $max_width            = $_value; break;
 					case "max_height"          : $max_height           = $_value; break;
 
-					case "filetypes"           : $filetypes            = $_value; break;
-					case "filegroup"           : $filegroup            = $_value; break;
+					case "formats"             : $formats              = $_value; break;
 
 					case "auto_add_variant"    : $auto_add_variant     = $_value; break;
 				}
@@ -895,12 +893,25 @@ class ItemCore {
 					$extension = false;
 					$temp_file = $_FILES[$_input_name]["tmp_name"][$index];
 					$temp_type = $_FILES[$_input_name]["type"][$index];
+					$temp_extension = mimetypeToExtension($temp_type);
 
-//					print preg_match("/".$filegroup."/", $temp_type)."#";
+					$upload["filesize"] = filesize($temp_file);
+					$upload["format"] = $temp_extension;
+					$upload["type"] = $temp_type;
 
-					if(preg_match("/".$filegroup."/", $temp_type)) {
+
+					// File type check is deprecated and moved to model validation
+					// Consider doing check still - but in different way
+					// specify considerations and validation flow
+					
+					// print "#".$filegroup.", ".$temp_type.", match:".preg_match("/".$filegroup."/", $temp_type)."#";
+					// if(preg_match("/".$filegroup."/", $temp_type)) {
 
 
+					// is uploaded format acceptable?
+					if($upload["format"] && (preg_match("/".$upload["format"]."/", $formats) || !$formats)) {
+
+						// define variant value
 						if($auto_add_variant) {
 							$upload["variant"] = randomKey(8);
 							$variant = "/".$upload["variant"];
@@ -914,6 +925,8 @@ class ItemCore {
 							$upload["variant"] = $_variant;
 						}
 
+
+
 //						print "correct group:" . $filegroup . ", " . $temp_type . ", " . $variant;
 
 						// video upload
@@ -922,20 +935,16 @@ class ItemCore {
 							include_once("class/system/video.class.php");
 							$Video = new Video();
 
-							$info = $Video->info($temp_file);
 							// check if we can get relevant info about movie
+							$info = $Video->info($temp_file);
 							if($info) {
-								// TODO: add extension to Video Class
-								// TODO: add better bitrate detection to Video Class
-//								$extension = $info["extension"];
-//								$bitrate = $info["bitrate"];
 
-								$upload["format"] = "mov";
+								// TODO: add bitrate detection
+								// TODO: add duration detection
 								$upload["width"] = $info["width"];
 								$upload["height"] = $info["height"];
 
 								if(
-									isset($upload["format"]) &&
 									(!$proportion || round($proportion, 2) == round($upload["width"] / $upload["height"], 2)) &&
 									(!$width || $width == $upload["width"]) &&
 									(!$height || $height == $upload["height"]) &&
@@ -944,7 +953,7 @@ class ItemCore {
 									(!$max_width || $max_width >= $upload["width"]) &&
 									(!$max_height || $max_height >= $upload["height"])
 								) {
-								
+
 									$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
 
 	//								print $output_file . "<br>";
@@ -968,10 +977,13 @@ class ItemCore {
 							include_once("class/system/audio.class.php");
 							$Audio = new Audio();
 
+							// check if we can get relevant info about audio file
  							$info = $Audio->info($temp_file);
-//							print_r($info);
-// 							// check if we can get relevant info about movie
  							if($info) {
+
+								// TODO: add bitrate detection
+								// TODO: add duration detection
+
  								$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/mp3";
 // 
 // 								print $output_file . "<br>";
@@ -981,7 +993,6 @@ class ItemCore {
 
 								copy($temp_file, $output_file);
 								$upload["file"] = $output_file;
-								$upload["format"] = "mp3";
 								$uploads[] = $upload;
 								unlink($temp_file);
 
@@ -994,17 +1005,14 @@ class ItemCore {
 
 							$image = new Imagick($temp_file);
 
-							// get input file info
+							// check if we can get relevant info about image
 							$info = $image->getImageFormat();
 							if($info) {
 
-								$upload["format"] = preg_replace("/jpeg/", "jpg", strToLower($info));
 								$upload["width"] = $image->getImageWidth();
 								$upload["height"] = $image->getImageHeight();
 
-//								print round($proportion, 2) . "==" . round($upload["width"] / $upload["height"], 2);
 								if(
-									isset($upload["format"]) &&
 									(!$proportion || round($proportion, 2) == round($upload["width"] / $upload["height"], 2)) &&
 									(!$width || $width == $upload["width"]) &&
 									(!$height || $height == $upload["height"]) &&
@@ -1030,6 +1038,24 @@ class ItemCore {
 								}
 							}
 						}
+						// pdf upload
+						else if(preg_match("/pdf/", $temp_type)) {
+
+							$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
+
+							$fs->removeDirRecursively(dirname($output_file));
+							$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+							$fs->makeDirRecursively(dirname($output_file));
+
+							copy($temp_file, $output_file);
+							$upload["file"] = $output_file;
+							$uploads[] = $upload;
+							unlink($temp_file);
+
+							message()->addMessage("PDF uploaded (".$upload["name"].")");
+
+						}
+
 					}
 
 				}

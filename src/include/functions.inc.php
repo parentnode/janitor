@@ -577,7 +577,11 @@ function mimetypeToExtension($mimetype) {
 	$extensions = array(
 		"image/gif" => "gif", 
 		"image/jpeg" => "jpg", 
-		"image/png" => "png"
+		"image/png" => "png",
+		"application/pdf" => "pdf",
+		"application/zip" => "zip",
+		"audio/mpeg" => "mp3",
+		"video/mp4" => "mov"
 	);
 
 	if(isset($extensions[$mimetype])) {

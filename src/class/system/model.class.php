@@ -512,7 +512,7 @@ class Model extends HTML {
 
 		$proportion_array = explode(",", $proportions);
 		foreach($uploads as $upload) {
-			if(array_search($upload["proportion"], $proportion_array) === false) {
+			if(!isset($upload["proportion"]) || array_search($upload["proportion"], $proportion_array) === false) {
 //				print "bad proportion";
 				return false;
 			}
@@ -526,7 +526,7 @@ class Model extends HTML {
 
 		$size_array = explode(",", $sizes);
 		foreach($uploads as $upload) {
-			if(array_search($upload["width"]."x".$upload["height"], $size_array) === false) {
+			if(!isset($upload["width"]) || !isset($upload["height"]) || array_search($upload["width"]."x".$upload["height"], $size_array) === false) {
 //				print "bad size";
 				return false;
 			}
@@ -570,12 +570,12 @@ class Model extends HTML {
 					$upload = array();
 					$upload["name"] = $value;
 
-					$extension = false;
 					$temp_file = $_FILES[$name]["tmp_name"][$index];
 					$temp_type = $_FILES[$name]["type"][$index];
+					$temp_extension = mimetypeToExtension($temp_type);
 
 
-					// video upload
+					// video upload (mp4)
 					if(preg_match("/video/", $temp_type)) {
 
 						include_once("class/system/video.class.php");
@@ -587,9 +587,11 @@ class Model extends HTML {
 
 							// TODO: add extension to Video Class
 							// TODO: add better bitrate detection to Video Class
+							// TODO: add duration
 							// $upload["bitrate"] = $info["bitrate"];
 							$upload["type"] = "movie";
-							$upload["format"] = "mov";
+							$upload["filesize"] = filesize($temp_file);
+							$upload["format"] = $temp_extension;
 							$upload["width"] = $info["width"];
 							$upload["height"] = $info["height"];
 							$upload["proportion"] = round($upload["width"] / $upload["height"], 2);
@@ -598,7 +600,7 @@ class Model extends HTML {
 
 					}
 
-					// audio upload
+					// audio upload (mp3)
 					else if(preg_match("/audio/", $temp_type)) {
 
 						include_once("class/system/audio.class.php");
@@ -609,15 +611,18 @@ class Model extends HTML {
 						if($info) {
 //							print_r($info);
 
+							// TODO: add bitrate detection
+							// TODO: add duration
 							// $upload["bitrate"] = $info["bitrate"];
 							$upload["type"] = "audio";
-							$upload["format"] = "mp3";
+							$upload["filesize"] = filesize($temp_file);
+							$upload["format"] = $temp_extension;
 							$uploads[] = $upload;
 						}
 
 					}
 
-					// image upload
+					// image upload (gif/png/jpg)
 					else if(preg_match("/image/", $temp_type)) {
 
 						$image = new Imagick($temp_file);
@@ -627,10 +632,34 @@ class Model extends HTML {
 						if($info) {
 
 							$upload["type"] = "image";
-							$upload["format"] = preg_replace("/jpeg/", "jpg", strToLower($info));
+							$upload["filesize"] = filesize($temp_file);
+							$upload["format"] = $temp_extension;
 							$upload["width"] = $image->getImageWidth();
 							$upload["height"] = $image->getImageHeight();
 							$upload["proportion"] = round($upload["width"] / $upload["height"], 2);
+							$uploads[] = $upload;
+
+						}
+					}
+
+					// application upload (pdf/zip)
+					else if(preg_match("/application/", $temp_type)) {
+
+						// PDF
+						if($temp_extension == "pdf") {
+
+							$upload["type"] = "pdf";
+							$upload["filesize"] = filesize($temp_file);
+							$upload["format"] = $temp_extension;
+							$uploads[] = $upload;
+
+						}
+						// ZIP
+						else if($temp_extension == "zip") {
+
+							$upload["type"] = "zip";
+							$upload["filesize"] = filesize($temp_file);
+							$upload["format"] = $temp_extension;
 							$uploads[] = $upload;
 
 						}
