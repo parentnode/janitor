@@ -31,7 +31,7 @@ function readWriteTest() {
 	return false;
 }
 
-$apache = isInstalled("apachectl -v", array("Apache\/2\.[23456]{1}"));
+$apache = isInstalled("/usr/sbin/apachectl -v", array("Apache\/2\.[23456]{1}"));
 $php = isInstalled("php -v", array("PHP 5.[3456]{1}"));
 $readwrite = readWriteTest();
 
