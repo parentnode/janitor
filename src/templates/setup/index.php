@@ -1,6 +1,8 @@
 <?php
 
-function isInstalled($command, $valid_responses, $escape = true) {
+function isInstalled($commands, $valid_responses, $escape = true) {
+
+	$command = array_shift($commands);
 
 	print escapeshellcmd($command)."\n";
 	if($escape) {
@@ -14,9 +16,15 @@ function isInstalled($command, $valid_responses, $escape = true) {
 
 	foreach($valid_responses as $valid_response) {
 		if(preg_match("/".$valid_response."/", $cmd_output)) {
-			return true;
+			return $command;
 		}
 	}
+
+	// still not valid, try next command
+	if(count($commands)) {
+		return isInstalled($commands, $valid_responses, $escape);
+	}
+
 	return false;
 }
 
@@ -31,13 +39,16 @@ function readWriteTest() {
 	return false;
 }
 
-$apache = isInstalled("/usr/sbin/apachectl -v", array("Apache\/2\.[23456]{1}"));
-$php = isInstalled("php -v", array("PHP 5.[3456]{1}"));
+$apache = isInstalled(array("apachectl -v", "/usr/sbin/apachectl -v"), array("Apache\/2\.[23456]{1}"));
+$php = isInstalled(array("php -v"), array("PHP 5.[3456]{1}"));
 $readwrite = readWriteTest();
 
+if($apache) {
+	$_SESSION["apache command"] = $apache;
+}
 
 //$mysql = isInstalled("mysql5 --version", array("Distrib 5"));
-//$ffmpeg = isInstalled("/opt/local/bin/ffmpeg -version", array("ffmpeg version 2.1"));
+$ffmpeg = isInstalled(array("/opt/local/bin/ffmpeg -version", "/usr/sbin/ffmpeg -version"), array("ffmpeg version 2.1"));
 	
 ?>
 <div class="scene start i:start">
@@ -49,8 +60,8 @@ $readwrite = readWriteTest();
 		<li>Apache: <?= $apache ? "Success" : "Failed" ?></li>
 		<li>PHP: <?= $php ? "Success" : "Failed" ?></li>
 		<li>Read/Write: <?= $readwrite ? "Success" : "Failed" ?></li>
-		<!--li>MySQL: <?= $mysql ? "Success" : "Failed" ?></li>
-		<li>FFMpeg: <?= $ffmpeg ? "Success" : "Failed" ?></li-->
+		<!--li>MySQL: <?= $mysql ? "Success" : "Failed" ?></li-->
+		<li>FFMpeg: <?= $ffmpeg ? "Success" : "Failed" ?></li>
 	</ul>
 
 <?	if(!$readwrite): ?>

@@ -26,7 +26,7 @@
 
 	<div id="header">
 		<ul class="servicenavigation">
-			<li class="keynav front"><a href="/setup">Janitor setup guide</a></li>
+			<li class="keynav front"><a href="/setup">Janitor</a></li>
 		</ul>
 		
 	</div>

@@ -68,6 +68,8 @@ $mail_port = isset($_SESSION["mail_port"]) ? $_SESSION["mail_port"] : "";
 $mail_username = isset($_SESSION["mail_username"]) ? $_SESSION["mail_username"] : "";
 $mail_password = isset($_SESSION["mail_password"]) ? $_SESSION["mail_password"] : "";
 
+// apache BIN path
+$apache_path = isset($_SESSION["apache_path"]) ? $_SESSION["apache_path"] : "apachectl";
 
 $apache_conf = file_get_contents($project_path."/apache/httpd-vhosts.conf");
 if(preg_match("/ServerName (.+)\\n/", $apache_conf, $matches)) {
@@ -494,17 +496,17 @@ sudo chmod -R 770 <?= $project_path ?>/src/www/js &&
 sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/admin/js &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/admin/js &&
 
-sudo chown -R <?= $current_user ?>:<?= $apache_user ?> /Users/kaestel/Sites/clients/janitor_test/src/www/css &&
+sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/css &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/css &&
 
-sudo chown -R <?= $current_user ?>:<?= $apache_user ?> /Users/kaestel/Sites/clients/janitor_test/src/www/admin/css &&
+sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/admin/css &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/admin/css &&
 
 sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/library &&
 sudo chmod -R 770 <?= $project_path ?>/src/library</code>
 
 	<p>Restart Apache</p>
-	<code>sudo apachectl restart</code>
+	<code>sudo <?= $apache_path ?> restart</code>
 
 	<h2>Relaunch your Janitor project</h2>
 	<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>
