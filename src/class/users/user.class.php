@@ -1103,6 +1103,9 @@ class User extends Model {
 			$grants = getPost("grant");
 			$user_group_id = $action[1];
 
+			// clear cached permissions
+			session()->reset("user_group_permissions");
+
 			// make sure type tables exist
 			$query->checkDbExistance($this->db_access);
 //			print_r($grants);
