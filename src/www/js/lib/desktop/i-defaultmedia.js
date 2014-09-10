@@ -237,7 +237,15 @@ Util.Objects["addMediaSingle"] = new function() {
 						this.div.addDeleteForm();
 					}
 
-					this.div.image.src = "/images/"+response.cms_object.item_id+"/"+response.cms_object.variant+"/x"+this.div.image.offsetHeight+"."+response.cms_object.format+"?"+u.randomString(4);
+					if(response.cms_object.format == "pdf") {
+						this.div.image.src = "/images/0/pdf/x"+this.div.image.offsetHeight+".png?"+u.randomString(4);
+					}
+					else if(response.cms_object.format == "zip") {
+						this.div.image.src = "/images/0/zip/x"+this.div.image.offsetHeight+".png?"+u.randomString(4);
+					}
+					else {
+						this.div.image.src = "/images/"+response.cms_object.item_id+"/"+response.cms_object.variant+"/x"+this.div.image.offsetHeight+"."+response.cms_object.format+"?"+u.randomString(4);
+					}
 				}
 
 				u.rc(this.file_input.field, "loading");
