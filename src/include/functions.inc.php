@@ -255,9 +255,11 @@ function stripDisallowed($string) {
 
 // check if value exists in Janitor content array structure
 function arrayKeyValue($array, $key, $value) {
-	foreach($array as $index => $sub_array) {
-		if($sub_array[$key] == $value) {
-			return $index;
+	if($array && is_array($array)) {
+		foreach($array as $index => $sub_array) {
+			if($sub_array[$key] == $value) {
+				return $index;
+			}
 		}
 	}
 	return false;
