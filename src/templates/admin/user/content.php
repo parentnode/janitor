@@ -10,6 +10,8 @@ $IC = new Item();
 $user = $model->getUsers(array("user_id" => $user_id));
 $items = $IC->getItems(array("user_id" => $user_id));
 
+$orders = false;
+
 if(defined("SITE_SHOP") && SITE_SHOP) {
 	$SC = new Shop();
 
