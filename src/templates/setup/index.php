@@ -2,9 +2,10 @@
 
 function isInstalled($commands, $valid_responses, $escape = true) {
 
+	// try first possible command
 	$command = array_shift($commands);
 
-	print escapeshellcmd($command)."\n";
+//	print escapeshellcmd($command)."\n";
 	if($escape) {
 		$cmd_output = shell_exec(escapeshellcmd($command)." 2>&1");
 	}
@@ -12,7 +13,7 @@ function isInstalled($commands, $valid_responses, $escape = true) {
 		$cmd_output = shell_exec($command." 2>&1");
 	}
 	
-	print $cmd_output;
+//	print $cmd_output;
 
 	foreach($valid_responses as $valid_response) {
 		if(preg_match("/".$valid_response."/", $cmd_output)) {
