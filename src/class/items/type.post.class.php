@@ -21,7 +21,7 @@ class TypePost extends Model {
 			"type" => "datetime",
 			"label" => "Publish date (yyyy-mm-dd hh:mm:ss)",
 			"pattern" => "^[\d]{4}-[\d]{2}-[\d]{2}[0-9\-\/ \:]*$",
-			"hint_message" => "Date of the log entry. Leave empty for current time", 
+			"hint_message" => "Publishing date of the post. Leave empty for current time", 
 			"error_message" => "Date must be of format (yyyy-mm-dd hh:mm:ss)"
 		));
 
@@ -30,7 +30,7 @@ class TypePost extends Model {
 			"type" => "string",
 			"label" => "Name",
 			"required" => true,
-			"hint_message" => "Name your log entry", 
+			"hint_message" => "Name your post", 
 			"error_message" => "Name must be filled out."
 		));
 
@@ -38,7 +38,7 @@ class TypePost extends Model {
 		$this->addToModel("description", array(
 			"type" => "text",
 			"label" => "Short description",
-			"hint_message" => "Write a short description of the log entry",
+			"hint_message" => "Write a short description of the post",
 			"error_message" => "A short description without any words? How weird."
 		));
 
@@ -48,8 +48,8 @@ class TypePost extends Model {
 			"label" => "HTML",
 			"allowed_tags" => "h1,h2,h3,h4,p,code,img,vimeo,youtube",
 			"required" => true,
-			"hint_message" => "Write the log entry",
-			"error_message" => "A log without any words? How weird."
+			"hint_message" => "Write the post",
+			"error_message" => "A post without any words? How weird."
 		));
 
 
