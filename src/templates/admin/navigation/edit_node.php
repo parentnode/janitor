@@ -15,7 +15,7 @@ $pages = $IC->getItems(array("itemtype" => "page", "status" => 1, "order" => "pa
 foreach($pages as $i => $item_page) {
 	$item_page = $IC->extendItem($item_page);
 	$pages[$i]["name"] = $item_page["name"];
-	}
+}
 array_unshift($pages, array("id" => "", "name" => "Select page"));
 
 ?>
