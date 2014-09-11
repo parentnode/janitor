@@ -44,25 +44,33 @@
 
 
 /* EDIT MEDIA */
-#content .scene.defaultEdit > div.media {padding: 0 0 20px; border-bottom: 1px solid #bbbbbb;}
+#content .scene.defaultEdit > div.media {padding: 0 0 20px; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.media form.upload .actions {display: none;}
 
-#content .scene.defaultEdit > div.media ul.mediae {padding: 20px 20px 0; text-align: left;}
-#content .scene.defaultEdit > div.media ul.mediae > li {margin: 0 10px 20px; position: relative; text-align: center;}
-#content .scene.defaultEdit > div.media ul.mediae > li h4 {padding: 0 0 5px;}
-
+/* DELETE MEDIA STANDARD */
 #content .scene.defaultEdit > div.media form.delete {padding: 0; position: absolute; top: 0; right: 0;}
 #content .scene.defaultEdit > div.media form.delete ul.actions {padding: 0;}
 #content .scene.defaultEdit > div.media form.delete ul.actions li {padding: 0;}
-#content .scene.defaultEdit > div.media form.delete input {font-size: 12px; color: #df0000; width: 30px; height: 30px; display: block; text-indent: -9999px; border: none; border-radius: none; cursor: pointer; border-bottom-left-radius: 5px;
+#content .scene.defaultEdit > div.media form.delete input {font-size: 12px; color: #df0000; width: 30px; height: 30px; display: block; text-indent: -9999px; border: none; border-radius: 0; cursor: pointer; border-bottom-left-radius: 5px;
 	background: #ffffff url(/janitor/img/bg_icons.png) no-repeat 8px -42px;
 	-webkit-appearance: none;
 }
 #content .scene.defaultEdit > div.media form.delete input:hover {background-position: 8px -67px;}
 #content .scene.defaultEdit > div.media form.delete input.confirm {text-indent: 0; width: auto; padding-left: 24px;}
 
-#content .scene.defaultEdit > div.media.sortable ul.mediae > li {cursor: move;}
 
+
+/* SINGLE FILE UPLOAD */
+#content .scene.defaultEdit > div.media > img {margin: 0 28px; position: absolute; top: 47px; left: 0; z-index: 9; width: 384px;}
+#content .scene.defaultEdit > div.media > form.delete {left: 412px; right: auto; top: 47px; z-index: 11;}
+#content .scene.defaultEdit > div.media > form.delete input {position: absolute; top: 0; right: 0;}
+
+
+/* MULTIPLE FILE UPLOAD */
+#content .scene.defaultEdit > div.media ul.mediae {padding: 20px 20px 0; text-align: left;}
+#content .scene.defaultEdit > div.media ul.mediae > li {margin: 0 10px 20px; position: relative; text-align: center;}
+#content .scene.defaultEdit > div.media ul.mediae > li h4 {padding: 0 0 5px;}
+#content .scene.defaultEdit > div.media.sortable ul.mediae > li {cursor: move;}
 
 
 /* EDIT IMAGE */
