@@ -135,8 +135,11 @@ if(!file_exists($project_path."/src/library")) {
 	// create library
 	print '<li>Create library</li>';
 
-	$fs->makeDirRecursively($project_path."/src/library/private");
-	$fs->makeDirRecursively($project_path."/src/library/public");
+	// copy library including dummy images in 0/
+	$fs->copy($framework_path."/config/setup/library", $local_path."/library");
+
+	// $fs->makeDirRecursively($project_path."/src/library/private");
+	// $fs->makeDirRecursively($project_path."/src/library/public");
 	
 }
 
@@ -358,19 +361,17 @@ $UC->updateAccess(array("updateAccess", 3));
 
 // TEST if this allows anonymous user to login
 unset($_POST);
-$_POST["grant"] = array("/" => 1);
-$_POST["grant"] = array("/admin/" => 0);
+$_POST["grant"] = array("/" => 1, "/admin/" => 0);
 $UC->getPostedEntities();
 $UC->updateAccess(array("updateAccess", 1));
 
 
 
-// TODO: set anonymous permissions for login
 
 // TODO: if connect_db exists - it will try to log in to DB, but that may not exists
-
-
 // TODO: final file permissions are wrong
+
+// TODO: copy library/private/0 - done, in test
 
 
 //
