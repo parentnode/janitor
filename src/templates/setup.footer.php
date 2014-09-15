@@ -30,7 +30,6 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 <?			if(SETUP_TYPE == "setup"): ?>
 			<li class="config<?= $config_verified ? " done" : "" ?>"><a href="/setup/config">Janitor configuration</a></li>
 <?			endif; ?>
-			<!--li class="paths<?= $paths_verified ? " done" : "" ?>"><a href="/setup/paths">Verify project paths</a></li-->
 			<li class="database<?= $database_verified ? " done" : "" ?>"><a href="/setup/database">Setup database</a></li>
 			<li class="mail<?= $mail_verified ? " done" : "" ?>"><a href="/setup/mail">Setup mail</a></li>
 
