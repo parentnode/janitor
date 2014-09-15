@@ -5,15 +5,15 @@ $mail_ok = false;
 
 if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
 
-	$connection_info = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
-
-	preg_match("/\"ADMIN_MAIL\", \"([a-zA-Z0-9\.\-\@]+)\"/", $connection_info, $matches);
-	if($matches) {
+	// $connection_info = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
+	//
+	// preg_match("/\"ADMIN_MAIL\", \"([a-zA-Z0-9\.\-\@]+)\"/", $connection_info, $matches);
+	// if($matches) {
 
 		$mail_ok = true;
 		$_SESSION["mail_ok"] = true;
 
-	}
+//	}
 
 }
 
