@@ -14,7 +14,7 @@ if(file_exists(LOCAL_PATH."/config/connect_db.php")) {
 
 	$connection_info = file_get_contents(LOCAL_PATH."/config/connect_db.php");
 
-	preg_match("/\"SITE_DB\", \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+	preg_match("/\"SITE_DB\", \"([a-zA-Z0-9\.\-\_]+)\"/", $connection_info, $matches);
 	if($matches) {
 		$site_db = $matches[1];
 	}

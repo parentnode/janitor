@@ -475,6 +475,7 @@ exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode fals
 // get apache user to set permissions
 $current_user = get_current_user();
 $apache_user = trim(shell_exec('whoami'));
+$deploy_user = preg_match("/No such user/", trim(shell_exec('id deploy'))) ? $current_user : "deploy";
 
 session_unset();
 
@@ -487,26 +488,36 @@ if(SETUP_TYPE == "setup") {
 	<p>
 		To finish setup you need to set file permissions on your project and restart Apache.
 	</p>
+
+	<h3>Production and development projects</h3>
 	<p>Copy this into your terminal to set file permissions.</p>
-	<code>sudo chown -R <?= $current_user ?> <?= $project_path ?> &&
+	<code>sudo chown -R <?= $deploy_user ?> <?= $project_path ?> &&
 sudo chmod -R 755 <?= $project_path ?> &&
 
-sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/js &&
-sudo chmod -R 770 <?= $project_path ?>/src/www/js &&
-
-sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/admin/js &&
-sudo chmod -R 770 <?= $project_path ?>/src/www/admin/js &&
-
-sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/css &&
-sudo chmod -R 770 <?= $project_path ?>/src/www/css &&
-
-sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/admin/css &&
-sudo chmod -R 770 <?= $project_path ?>/src/www/admin/css &&
-
-sudo chown -R <?= $current_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/library &&
+sudo chown -R <?= $apache_user ?>:<?= $deploy_user ?> <?= $project_path ?>/src/library &&
 sudo chmod -R 770 <?= $project_path ?>/src/library</code>
 
-	<p>Restart Apache</p>
+
+	<h3>Development project with JS+CSS merging</h3>
+	<p>
+		If you are setting up a development environment and need to merge JS+CSS you also need to
+		set permissions for JS+CSS folders.
+	</p>
+	<code>sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/js &&
+sudo chmod -R 770 <?= $project_path ?>/src/www/js &&
+
+sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/admin/js &&
+sudo chmod -R 770 <?= $project_path ?>/src/www/admin/js &&
+
+sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/css &&
+sudo chmod -R 770 <?= $project_path ?>/src/www/css &&
+
+sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/admin/css &&
+sudo chmod -R 770 <?= $project_path ?>/src/www/admin/css</code>
+
+
+	<h3>Restart Apache</h3>
+	<p>Finally, restart your apache by running the following command in Terminal.</p>
 	<code>sudo <?= $apache_path ?> restart</code>
 
 	<h2>Relaunch your Janitor project</h2>
