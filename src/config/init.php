@@ -45,13 +45,13 @@ include_once("config/config.php");
 //include_once("class/system/query.class.php");
 include_once("class/system/queryi.class.php");
 include_once("class/system/filesystem.class.php");
+include_once("class/system/output.class.php");
 
 
 include_once("class/system/page.core.class.php");
 include_once("class/system/page.class.php");
 include_once("class/system/html.class.php");
 include_once("class/system/model.class.php");
-include_once("class/system/output.class.php");
 
 
 // Extend with items model - not required for static sites
