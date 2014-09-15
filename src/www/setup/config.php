@@ -7,10 +7,8 @@ if(isset($read_access) && $read_access) {
 include_once("../../config/setup/init.php");
 
 $action = $page->actions();
-
-// include the output class for output method support
-include_once("class/system/output.class.php");
 $output = new Output();
+
 
 $page->bodyClass("config");
 $page->pageTitle("Janitor setup guide");
