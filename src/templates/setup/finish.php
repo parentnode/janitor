@@ -138,8 +138,8 @@ if(!file_exists($project_path."/src/library")) {
 	// copy library including dummy images in 0/
 	$fs->copy($framework_path."/config/setup/library", $local_path."/library");
 
-	// $fs->makeDirRecursively($project_path."/src/library/private");
-	// $fs->makeDirRecursively($project_path."/src/library/public");
+	$fs->makeDirRecursively($project_path."/src/library/private");
+	$fs->makeDirRecursively($project_path."/src/library/public");
 	
 }
 
