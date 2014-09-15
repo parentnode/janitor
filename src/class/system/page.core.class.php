@@ -547,6 +547,8 @@ class PageCore {
 		// if controller has access_item setting, perform access validation
 		if($access_item && (!defined("SITE_INSTALL") || !SITE_INSTALL)) {
 
+//			print "perform access validation";
+
 			$user_id = session()->value("user_id");
 			$user_group_id = session()->value("user_group_id");
 
@@ -808,7 +810,6 @@ class PageCore {
 //				session()->value("csrf", gen_uuid());
 
 				if(getPost("ajaxlogin")) {
-					@include_once("class/system/output.class.php");
 					$output = new Output();
 					$output->screen(array("csrf-token" => session()->value("csrf")));
 
