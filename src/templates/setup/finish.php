@@ -475,7 +475,7 @@ exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode fals
 // get apache user to set permissions
 $current_user = get_current_user();
 $apache_user = trim(shell_exec('whoami'));
-$deploy_user = preg_match("/No such user/", trim(shell_exec('id deploy'))) ? $current_user : "deploy";
+$deploy_user = preg_match("/No such user/i", trim(shell_exec('id deploy'))) ? $current_user : "deploy";
 
 session_unset();
 
