@@ -49,7 +49,7 @@ if($apache) {
 }
 
 //$mysql = isInstalled("mysql5 --version", array("Distrib 5"));
-$ffmpeg = isInstalled(array("/opt/local/bin/ffmpeg -version", "/usr/local/bin/ffmpeg -version"), array("ffmpeg version 2.1"));
+$ffmpeg = isInstalled(array("/opt/local/bin/ffmpeg -version", "/usr/local/bin/ffmpeg -version"), array("ffmpeg version 2.1","ffmpeg version 2.2","ffmpeg version 2.3"));
 	
 ?>
 <div class="scene start i:start">
