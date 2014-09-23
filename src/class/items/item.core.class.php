@@ -882,7 +882,7 @@ class ItemCore {
 
 		if(isset($_FILES[$_input_name])) {
 //			print "input_name:" . $_input_name;
-//			print_r($_FILES["files"]);
+//			print_r($_FILES[$_input_name]);
 
 			foreach($_FILES[$_input_name]["name"] as $index => $value) {
 				if(!$_FILES[$_input_name]["error"][$index] && file_exists($_FILES[$_input_name]["tmp_name"][$index])) {
@@ -907,9 +907,8 @@ class ItemCore {
 					// print "#".$filegroup.", ".$temp_type.", match:".preg_match("/".$filegroup."/", $temp_type)."#";
 					// if(preg_match("/".$filegroup."/", $temp_type)) {
 
-
 					// is uploaded format acceptable?
-					if($upload["format"] && (preg_match("/".$upload["format"]."/", $formats) || !$formats)) {
+					if(($upload["format"] && (preg_match("/".$upload["format"]."/", $formats)) || !$formats)) {
 
 						// define variant value
 						if($auto_add_variant) {
@@ -925,6 +924,7 @@ class ItemCore {
 							$upload["variant"] = $_variant;
 						}
 
+//						print_r($upload);
 
 
 //						print "correct group:" . $filegroup . ", " . $temp_type . ", " . $variant;
