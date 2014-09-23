@@ -87,8 +87,8 @@ class Pagination {
 		$last_sindex = isset($range_items[count($range_items)-1]) ? $range_items[count($range_items)-1]["sindex"] : false;
 
 		// look for next/prev item availability
-		$next = $last_id ? $IC->getNext($last_id, array("items" => $items)) : false;
-		$prev = $first_id ? $IC->getPrev($first_id, array("items" => $items)) : false;
+		$next = $last_id ? $IC->getNext($last_id, array("items" => $items, "count" => $limit)) : false;
+		$prev = $first_id ? $IC->getPrev($first_id, array("items" => $items, "count" => $limit)) : false;
 
 
 		return array("range_items" => $range_items, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "first_sindex" => $first_sindex, "last_sindex" => $last_sindex);
