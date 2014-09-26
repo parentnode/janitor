@@ -1,7 +1,7 @@
 <?php
-global $IC;
 global $action;
 
+$IC = new Item();
 $itemtype = "post";
 
 

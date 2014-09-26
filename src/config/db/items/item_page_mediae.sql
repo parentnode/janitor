@@ -7,6 +7,7 @@ CREATE TABLE `SITE_DB`.`item_page_mediae` (
   `variant` varchar(8) NOT NULL,
   `width` int(11) DEFAULT NULL,
   `height` int(11) DEFAULT NULL,
+  `filesize` int(11) DEFAULT NULL,
   `position` int(11) NOT NULL,
 
   PRIMARY KEY (`id`),

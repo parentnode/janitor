@@ -111,6 +111,7 @@ class TypePage extends Model {
 					$item["mediae"][$variant]["format"] = $media["format"];
 					$item["mediae"][$variant]["width"] = $media["width"];
 					$item["mediae"][$variant]["height"] = $media["height"];
+					$item["mediae"][$variant]["filesize"] = $media["filesize"];
 				}
 			}
 
@@ -122,6 +123,7 @@ class TypePage extends Model {
 				$item["main_media"]["format"] = $media["format"];
 				$item["main_media"]["width"] = $media["width"];
 				$item["main_media"]["height"] = $media["height"];
+				$item["main_media"]["filesize"] = $media["filesize"];
 			}
 
 			return $item;
@@ -152,7 +154,7 @@ class TypePage extends Model {
 				$uploads = $IC->upload($item_id, array("input_name" => "main_media", "variant" => "main"));
 				if($uploads) {
 					$query->sql("DELETE FROM ".$this->db_mediae." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
-					$query->sql("INSERT INTO ".$this->db_mediae." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', 0)");
+					$query->sql("INSERT INTO ".$this->db_mediae." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)");
 
 					return array(
 						"item_id" => $item_id, 
@@ -160,7 +162,8 @@ class TypePage extends Model {
 						"variant" => $uploads[0]["variant"], 
 						"format" => $uploads[0]["format"], 
 						"width" => $uploads[0]["width"], 
-						"height" => $uploads[0]["height"]
+						"height" => $uploads[0]["height"],
+						"filesize" => $uploads[0]["filesize"]
 					);
 				}
 			}
@@ -188,7 +191,7 @@ class TypePage extends Model {
 					$return_values = array();
 
 					foreach($uploads as $upload) {
-						$query->sql("INSERT INTO ".$this->db_mediae." VALUES(DEFAULT, $item_id, '".$upload["name"]."', '".$upload["format"]."', '".$upload["variant"]."', '".$upload["width"]."', '".$upload["height"]."', 0)");
+						$query->sql("INSERT INTO ".$this->db_mediae." VALUES(DEFAULT, $item_id, '".$upload["name"]."', '".$upload["format"]."', '".$upload["variant"]."', '".$upload["width"]."', '".$upload["height"]."', '".$upload["filesize"]."', 0)");
 
 						$return_values[] = array(
 							"item_id" => $item_id, 
@@ -197,6 +200,7 @@ class TypePage extends Model {
 							"format" => $upload["format"], 
 							"width" => $upload["width"], 
 							"height" => $upload["height"]
+							"filesize" => $upload["filesize"]
 						);
 					}
 
