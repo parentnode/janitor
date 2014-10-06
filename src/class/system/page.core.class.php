@@ -799,7 +799,7 @@ class PageCore {
 			// make login query
 			// look for user with username and password
 			$sql = "SELECT users.id as id, users.user_group_id as user_group_id FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND password='".sha1($password)."' AND username='$username'";
-			print $sql;
+//			print $sql;
 			if($query->sql($sql)) {
 
 				// add user_id and user_group_id to session
