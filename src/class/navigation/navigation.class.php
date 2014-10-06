@@ -362,6 +362,7 @@ class Navigation extends Model {
 //				print $sql;
 
 				if($query->sql($sql)) {
+
 					message()->addMessage("Navigation node created");
 					return array("item_id" => $navigation_id);
 				}
