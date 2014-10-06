@@ -799,7 +799,7 @@ class PageCore {
 			// make login query
 			// look for user with username and password
 			$sql = "SELECT users.id as id, users.user_group_id as user_group_id FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND password='".sha1($password)."' AND username='$username'";
-//			print $sql;
+			print $sql;
 			if($query->sql($sql)) {
 
 				// add user_id and user_group_id to session
@@ -816,7 +816,14 @@ class PageCore {
 				}
 				else {
 					// redirect to originally requested page
-					$login_forward = stringOr(session()->value("login_forward"), "/");
+					$login_forward = session()->value("login_forward");
+					if(!$login_forward || !$this->validateAction($login_forward)) {
+						$login_forward = "/";
+					}
+//					$login_forward = stringOr(session()->value("login_forward"), "/");
+//					print "login_forward:" . $login_forward;
+
+
 					session()->reset("login_forward");
 
 					header("Location: " . $login_forward);
