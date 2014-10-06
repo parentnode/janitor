@@ -53,28 +53,6 @@ class TypePage extends Model {
 			"error_message" => "A page without any words? How weird."
 		));
 
-
-		// Primary images
-		$this->addToModel("main_media", array(
-			"type" => "files",
-			"label" => "Drag main image here",
-			"allowed_formats" => "png,jpg",
-			"allowed_sizes" => "960x540",
-			"max" => 1,
-			"hint_message" => "Add primary page image by dragging it here. Image must be jpg or png format in 960x540 pixels.",
-			"error_message" => "Media does not fit requirements."
-		));
-
-		// HTML images
-		$this->addToModel("mediae", array(
-			"type" => "files",
-			"label" => "Add media here",
-			"allowed_formats" => "png,jpg,mp4",
-			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
-			"error_message" => "Media does not fit requirements."
-		));
-
-
 		// Tags
 		$this->addToModel("tags", array(
 			"type" => "tags",
@@ -199,7 +177,7 @@ class TypePage extends Model {
 							"variant" => $upload["variant"], 
 							"format" => $upload["format"], 
 							"width" => $upload["width"], 
-							"height" => $upload["height"]
+							"height" => $upload["height"],
 							"filesize" => $upload["filesize"]
 						);
 					}

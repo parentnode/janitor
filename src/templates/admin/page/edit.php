@@ -28,22 +28,6 @@ $this->pageDescription($item["description"]);
 		</ul>
 	</div>
 
-	<div class="media main_media i:addMediaSingle variant:main item_id:<?= $item_id ?>"
-		data-delete-media="<?= $this->validAction("/admin/".$itemtype."/deleteMedia") ?>"
-	>
-		<h2>Main image</h2>
-		<?= $model->formStart("/admin/".$itemtype."/addMain/".$item_id, array("class" => "upload labelstyle:inject")) ?>
-			<fieldset>
-				<?= $model->input("main_media") ?>
-			</fieldset>
-		<?= $model->formEnd() ?>
-
-<?	if(isset($item["main_media"])): ?>
-		<img src="/images/<?= $item_id ?>/main/500x.<?= $item["main_media"]["format"] ?>" />
-<?	endif; ?>
-
-	</div>
-
 	<div class="item i:defaultEdit">
 		<h2>Page text</h2>
 		<?= $model->formStart("/admin/cms/update/".$item_id, array("class" => "labelstyle:inject")) ?>
@@ -60,33 +44,6 @@ $this->pageDescription($item["description"]);
 				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
-	</div>
-
-	<div class="media i:addMedia sortable item_id:<?= $item_id ?>"
-		data-save-order="/admin/<?= $itemtype ?>/updateMediaOrder" 
-		data-delete-media="<?= $this->validAction("/admin/".$itemtype."/deleteMedia") ?>"
-		>
-		<h2>Media</h2>
-		<?= $model->formStart("/admin/".$itemtype."/addMedia/".$item_id, array("class" => "upload labelstyle:inject")) ?>
-			<fieldset>
-				<?= $model->input("mediae") ?>
-			</fieldset>
-
-			<ul class="actions">
-				<?= $model->submit("Add media here", array("class" => "primary", "wrapper" => "li.save")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
-
-		<ul class="mediae">
-<?		if($item["mediae"]): ?>
-<?			foreach($item["mediae"] as $index => $media): ?>
-			<li class="media image variant:<?= $index ?> media_id:<?= $media["id"] ?>">
-				<img src="/images/<?= $item_id ?><?= ($index ? "/".$index : "") ?>/x150.<?= $media["format"] ?>" />
-			</li>
-<?			endforeach; ?>
-<?		endif; ?>
-		</ul>
-
 	</div>
 
 	<div class="tags i:defaultTags item_id:<?= $item_id ?>"
