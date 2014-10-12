@@ -45,7 +45,7 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 		<ul class="items">
 <?			foreach($users as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
-				<h3><?= $item["nickname"] ?></h3>
+				<h3><?= $item["nickname"] ?><?= $item["id"] == session()->value("user_id") ? " (YOU)" : "" ?></h3>
 
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/admin/user/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
