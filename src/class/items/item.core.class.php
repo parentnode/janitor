@@ -163,6 +163,7 @@ class ItemCore {
 	function extendItem($item, $_options = false) {
 		if(isset($item["id"]) && isset($item["itemtype"])) {
 
+			$user = false;
 			$tags = false;
 			$prices = false;
 			$ratings = false;
@@ -174,6 +175,8 @@ class ItemCore {
 			if($_options !== false) {
 				foreach($_options as $_option => $_value) {
 					switch($_option) {
+
+						case "user"         : $user           = $_value; break;
 						case "tags"         : $tags           = $_value; break;
 						case "prices"       : $prices         = $_value; break;
 						case "ratings"      : $ratings        = $_value; break;
@@ -202,6 +205,13 @@ class ItemCore {
 			// add tags
 			if($everything || $tags) {
 				$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
+			}
+
+			// add user nickname
+			if($everything || $user) {
+				$UC = new SimpleUser();
+				$user = $UC->getUsers(array("user_id" => $item["user_id"]));
+				$item["user_nickname"] = $user ? $user["nickname"] : "N/A";
 			}
 
 			// TODO: Implement ratings and comments
