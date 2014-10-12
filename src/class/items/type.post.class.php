@@ -47,7 +47,6 @@ class TypePost extends Model {
 			"type" => "html",
 			"label" => "HTML",
 			"allowed_tags" => "h1,h2,h3,h4,p,code,img,vimeo,youtube",
-			"required" => true,
 			"hint_message" => "Write the post",
 			"error_message" => "A post without any words? How weird."
 		));
