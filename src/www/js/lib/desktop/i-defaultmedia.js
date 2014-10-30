@@ -14,6 +14,8 @@ Util.Objects["addMedia"] = new function() {
 
 		div.csrf_token = div.form.fields["csrf-token"].val();
 		div.delete_url = div.getAttribute("data-delete-media");
+		div.update_name_url = div.getAttribute("data-update-media-name");
+		div.save_order_url = div.getAttribute("data-save-order");
 
 
 
@@ -23,6 +25,7 @@ Util.Objects["addMedia"] = new function() {
 			this.form._submit();
 		}
 
+		// upload form submitted
 		div.form.submitted = function() {
 
 			u.ac(this.file_input.field, "loading");
@@ -37,13 +40,33 @@ Util.Objects["addMedia"] = new function() {
 
 					var i, media, li, image;
 					for(i = 0; media = response.cms_object[i]; i++) {
-						var li = u.ae(div.media_list, "li");
+						var li = u.ie(div.media_list, "li");
 						u.ac(li, "media image");
 						u.ac(li, "variant:"+media.variant);
 						u.ac(li, "media_id:"+media.media_id);
 						var image = u.ae(li, "img");
 						image.src = "/images/"+media.item_id+"/"+media.variant+"/x"+li.offsetHeight+"."+media.format+"?"+u.randomString(4);
-						this.div.addDeleteForm(li);
+
+						// is name returned from upload
+						if(media.name) {
+							li.p_name = u.ae(li, "p", {"html":media.name});
+
+							// Set p width to match li
+							var n_w = media.width/media.height * li.offsetHeight;
+							var p_p_l = parseInt(u.gcs(li.p_name, "padding-left"));
+							var p_p_r = parseInt(u.gcs(li.p_name, "padding-right"));
+							u.as(li.p_name, "width", (n_w - p_p_l - p_p_r)+"px");
+
+							// add update form for image name
+							if(this.div.update_name_url) {
+								this.div.addUpdateNameForm(li);
+							}
+						}
+
+						// add delete form for image
+						if(this.div.delete_url) {
+							this.div.addDeleteForm(li);
+						}
 					}
 
 					if(this.div.save_order_url) {
@@ -74,47 +97,141 @@ Util.Objects["addMedia"] = new function() {
 			u.o.deleteMedia.init(delete_form);
 		}
 
+		// add delete form
+		div.addUpdateNameForm = function(li) {
+
+			li.p_name.li = li;
+
+			// enable edit state
+			u.ce(li.p_name);
+			// eliminate dragging if sorting is also enable
+			li.p_name.inputStarted = function(event) {
+				u.e.kill(event);
+				this.li.media_list._sorting_disabled = true;
+			}
+			li.p_name.clicked = function(event) {
+				u.ac(this.li, "edit");
+
+				var input = this.li.update_name_form.fields["name"];
+				var field = input.field;
+
+				input.focus();
+
+				// set specific input width to match image
+				var f_w = field.offsetWidth;
+				var f_p_l = parseInt(u.gcs(field, "padding-left"));
+				var f_p_r = parseInt(u.gcs(field, "padding-right"));
+				var i_p_l = parseInt(u.gcs(input, "padding-left"));
+				var i_p_r = parseInt(u.gcs(input, "padding-right"));
+				var i_m_l = parseInt(u.gcs(input, "margin-left"));
+				var i_m_r = parseInt(u.gcs(input, "margin-right"));
+				var i_b_l = parseInt(u.gcs(input, "border-left-width"));
+				var i_b_r = parseInt(u.gcs(input, "border-right-width"));
+				u.as(input, "width", (f_w - f_p_l - f_p_r - i_p_l - i_p_r - i_m_l - i_m_r - i_b_l - i_b_r)+"px");
+
+			}
+
+			// add update form
+			li.update_name_form = u.f.addForm(li, {"action":this.update_name_url+"/"+this.item_id+"/"+u.cv(li, "variant"), "class":"edit"});
+			li.update_name_form.li = li;
+			var field = u.ae(li.update_name_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
+			var field = u.f.addField(li.update_name_form, {"type":"string","name":"name", "value":li.p_name.innerHTML});
+
+			// init form
+			u.f.init(li.update_name_form);
+
+			// submit on blur
+			li.update_name_form.fields["name"].blurred = function() {
+				u.bug("blurred")
+				this.form.updateName();
+			}
+
+			// do nothing on submit - it is handled on blur
+			li.update_name_form.submitted = function() {}
+
+			// update name
+			li.update_name_form.updateName = function() {
+
+				u.rc(this.li, "edit");
+				this.li.media_list._sorting_disabled = false;
+
+				// submit new image name
+				this.response = function(response) {
+
+					page.notify(response);
+
+					// inject/update image if everything went well
+					if(response.cms_status == "success" && response.cms_object) {
+						this.li.p_name.innerHTML = this.fields["name"].val();
+					}
+					else {
+						this.fields["name"].val(this.li.p_name.innerHTML);
+					}
+
+				}
+				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+
+			}
+		}
 
 		// image list exists?
 		if(!div.media_list) {
 			u.ae(div, "ul", {"class":"mediae"});
 		}
 
+		// get media list nodes
 		div.media_list.nodes = u.qsa("li.media", div.media_list);
 		div.media_list.div = div;
 
 		// inject delete forms in existing media list
 		var i, node;
 		for(i = 0; node = div.media_list.nodes[i]; i++) {
-			div.addDeleteForm(node);
-		}
+			node.media_list = div.media_list;
 
-		// sortable list
-		if(u.hc(div, "sortable") && div.media_list) {
+			// add delete form
+			if(div.delete_url) {
+				div.addDeleteForm(node);
+			}
 
-			div.save_order_url = div.getAttribute("data-save-order");
-			if(div.save_order_url) {
-				u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
-				div.media_list.picked = function() {}
-				div.media_list.dropped = function() {
-					var order = new Array();
-					this.nodes = u.qsa("li.media", this);
-					for(i = 0; node = this.nodes[i]; i++) {
-						order.push(u.cv(node, "media_id"));
-					}
-					this.response = function(response) {
-						// Notify of event
-						page.notify(response);
-					}
-					u.request(this, this.div.save_order_url, {"method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
+			// image name element
+			node.p_name = u.qs("p", node);
+			if(node.p_name) {
+
+				// Set p width to match li
+				var n_w = node.offsetWidth;
+				var p_p_l = parseInt(u.gcs(node.p_name, "padding-left"));
+				var p_p_r = parseInt(u.gcs(node.p_name, "padding-right"));
+				u.as(node.p_name, "width", (n_w - p_p_l - p_p_r)+"px");
+
+				// add update form for image name
+				if(div.update_name_url) {
+					div.addUpdateNameForm(node);
 				}
 			}
-			else {
-				u.rc(div, "sortable");
-			}
 		}
 
 
+		// sortable list
+		if(u.hc(div, "sortable") && div.media_list && div.save_order_url) {
+
+			u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
+			div.media_list.picked = function() {}
+			div.media_list.dropped = function() {
+				var order = new Array();
+				this.nodes = u.qsa("li.media", this);
+				for(i = 0; node = this.nodes[i]; i++) {
+					order.push(u.cv(node, "media_id"));
+				}
+				this.response = function(response) {
+					// Notify of event
+					page.notify(response);
+				}
+				u.request(this, this.div.save_order_url, {"method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
+			}
+		}
+		else {
+			u.rc(div, "sortable");
+		}
 
 	}
 }
