@@ -237,7 +237,7 @@ include_once($local_path."/config/connect_mail.php");
 // VERIFY DATABASE TABLES
 //
 $query = new Query();
-$query->checkDbExistance(SITE_DB.".user_group");
+$query->checkDbExistance(SITE_DB.".user_groups");
 $query->checkDbExistance(SITE_DB.".languages");
 $query->checkDbExistance(SITE_DB.".currencies");
 $query->checkDbExistance(SITE_DB.".countries");
