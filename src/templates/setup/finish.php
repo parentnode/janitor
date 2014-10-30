@@ -237,14 +237,15 @@ include_once($local_path."/config/connect_mail.php");
 // VERIFY DATABASE TABLES
 //
 $query = new Query();
+$query->checkDbExistance(SITE_DB.".user_group");
+$query->checkDbExistance(SITE_DB.".languages");
+$query->checkDbExistance(SITE_DB.".currencies");
+$query->checkDbExistance(SITE_DB.".countries");
 $query->checkDbExistance(SITE_DB.".users");
 $query->checkDbExistance(SITE_DB.".items");
 $query->checkDbExistance(SITE_DB.".tags");
 $query->checkDbExistance(SITE_DB.".taggings");
 
-$query->checkDbExistance(SITE_DB.".languages");
-$query->checkDbExistance(SITE_DB.".currencies");
-$query->checkDbExistance(SITE_DB.".countries");
 
 
 //
