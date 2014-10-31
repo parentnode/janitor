@@ -1,6 +1,7 @@
 <div class="scene finish i:finish">
 	
 <?
+
 $paths_verified = false;
 $database_verified = false;
 $config_verified = false;
@@ -112,8 +113,8 @@ if(SETUP_TYPE == "setup" && !file_exists($project_path."/src")) {
 	// copy test files
 	print '<li>Copying files</li>';
 
-	$fs->copy($framework_path."/config/setup/www", $local_path."/www");
-	$fs->copy($framework_path."/config/setup/templates", $local_path."/templates");
+	$fs->copy($framework_path."/setup/defaults/www", $local_path."/www");
+	$fs->copy($framework_path."/setup/defaults/templates", $local_path."/templates");
 
 	copy($framework_path."/templates/admin/post/new.php", $local_path."/templates/admin/post/new.php");
 	copy($framework_path."/templates/admin/post/edit.php", $local_path."/templates/admin/post/edit.php");
@@ -136,7 +137,7 @@ if(!file_exists($project_path."/src/library")) {
 	print '<li>Create library</li>';
 
 	// copy library including dummy images in 0/
-	$fs->copy($framework_path."/config/setup/library", $local_path."/library");
+	$fs->copy($framework_path."/setup/defaults/library", $local_path."/library");
 	
 }
 // always make sure public and private folder exists
@@ -153,7 +154,7 @@ if(SETUP_TYPE == "setup") {
 	print '<li>Creating config files</li>';
 
 	// config
-	$file_config = file_get_contents($framework_path."/config/setup/config/config.template.php");
+	$file_config = file_get_contents($framework_path."/setup/defaults/config.template.php");
 	$file_config = preg_replace("/###SITE_UID###/", $site_uid, $file_config);
 	$file_config = preg_replace("/###SITE_NAME###/", $site_name, $file_config);
 	$file_config = preg_replace("/###SITE_URL###/", $site_url, $file_config);
@@ -161,7 +162,7 @@ if(SETUP_TYPE == "setup") {
 	file_put_contents($local_path."/config/config.php", $file_config);
 
 	// apache
-	$file_mail = file_get_contents($framework_path."/config/setup/config/httpd-vhosts.template.conf");
+	$file_mail = file_get_contents($framework_path."/setup/defaults/httpd-vhosts.template.conf");
 	$file_mail = preg_replace("/###LOCAL_PATH###/", $local_path, $file_mail);
 	$file_mail = preg_replace("/###FRAMEWORK_PATH###/", $framework_path, $file_mail);
 	$file_mail = preg_replace("/###PROJECT_PATH###/", $project_path, $file_mail);
@@ -181,7 +182,7 @@ if(!isset($_SESSION["db_ok"]) || !$_SESSION["db_ok"]) {
 	print '<li>Create database configuration</li>';
 
 	// database
-	$file_db = file_get_contents($framework_path."/config/setup/config/connect_db.template.php");
+	$file_db = file_get_contents($framework_path."/setup/defaults/connect_db.template.php");
 	$file_db = preg_replace("/###SITE_DB###/", $db_janitor_db, $file_db);
 	$file_db = preg_replace("/###HOST###/", $db_host, $file_db);
 	$file_db = preg_replace("/###USERNAME###/", $db_janitor_user, $file_db);
@@ -216,7 +217,7 @@ if(!isset($_SESSION["mail_ok"]) || !$_SESSION["mail_ok"]) {
 	print '<li>Setup mail</li>';
 
 	// mail
-	$file_mail = file_get_contents($framework_path."/config/setup/config/connect_mail.template.php");
+	$file_mail = file_get_contents($framework_path."/setup/defaults/connect_mail.template.php");
 	$file_mail = preg_replace("/###HOST###/", $mail_host, $file_mail);
 	$file_mail = preg_replace("/###PORT###/", $mail_port, $file_mail);
 	$file_mail = preg_replace("/###USERNAME###/", $mail_username, $file_mail);
@@ -242,6 +243,7 @@ $query->checkDbExistance(SITE_DB.".languages");
 $query->checkDbExistance(SITE_DB.".currencies");
 $query->checkDbExistance(SITE_DB.".countries");
 $query->checkDbExistance(SITE_DB.".users");
+
 $query->checkDbExistance(SITE_DB.".items");
 $query->checkDbExistance(SITE_DB.".tags");
 $query->checkDbExistance(SITE_DB.".taggings");
@@ -481,7 +483,7 @@ $deploy_user = trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : $c
 
 //print "deploy:" . trim(shell_exec('egrep -i "^deploy" /etc/group')) . ", " . shell_exec('whoami');
 
-session_unset();
+//session_unset();
 
 if(SETUP_TYPE == "setup") {
 	$this->mail(array("subject" => "Welcome to janitor", "message" => "Your Janitor project is ready.\n\nLog in to your admin system: http://".SITE_URL."/admin\n\nUsername: ".SITE_EMAIL."\nPassword: 123rotinaj\n\nSee you soon,\n\nJanitor"));

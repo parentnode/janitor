@@ -108,7 +108,8 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* VALIDATION */
-#content .field.required .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px; 
+#content .field .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px;}
+#content .field.required .indicator {
 	background: transparent url(/janitor/img/bg_icons.png) no-repeat 0 -292px;
 }
 #content .field.text.required .indicator {background-position: 0 -296px;}

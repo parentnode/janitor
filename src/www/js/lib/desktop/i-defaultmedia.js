@@ -41,6 +41,9 @@ Util.Objects["addMedia"] = new function() {
 					var i, media, li, image;
 					for(i = 0; media = response.cms_object[i]; i++) {
 						var li = u.ie(div.media_list, "li");
+
+						li.media_list = this.div.media_list;
+
 						u.ac(li, "media image");
 						u.ac(li, "variant:"+media.variant);
 						u.ac(li, "media_id:"+media.media_id);
