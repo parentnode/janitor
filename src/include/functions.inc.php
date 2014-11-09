@@ -118,57 +118,43 @@ function getPosts($which) {
 */
 function prepareForHTML($string) {
 
+	// is string an array, then iterate to check all strings within array
 	if(is_array($string)) {
 		// loop through array
 		foreach($string as $key => $array) {
-			// if(is_array($array) && isset($array["value"])) {
-			// 	$array["value"] = stripslashes($array["value"]);
-			// 	$string[$key] = $array;
-			// }
-			// else {
-				$array = stripslashes($array);
-				$string[$key] = $array;
-//			}
+			$string[$key] = prepareForHTML($array);
 		}
 	}
+	// prepare string
 	else {
 		$string = stripslashes($string);
 	}
+
 	return $string;
 }
 
+
 /**
 * Prepare Correcting quotes and removes bad HTML tags and attributes
+* Recursive function for arrays - actual stripping is handled by prepareForDBdo
 *
 * @param string $string
 * @return string
 */
 function prepareForDB($string) {
-	global $mysqli_global;
 
+	// is string an array, then iterate to check all strings within array
 	if(is_array($string)) {
 		// loop through array
 		foreach($string as $key => $array) {
-			// if(is_array($array) && isset($array["value"])) {
-			// 	$array["value"] = stripDisallowed($array["value"]);
-			// 	$array["value"] = mysql_real_escape_string($array["value"]);
-			// 	$string[$key] = $array;
-			// }
-			// else {
-				$array = stripDisallowed($array);
-				if($mysqli_global) {
-					$array = $mysqli_global->escape_string($array);
-				}
-				else {
-					$array = addslashes($array);
-				}
-
-//				$array = mysql_real_escape_string($array);
-				$string[$key] = $array;
-//			}
+			$string[$key] = prepareForDB($array);
 		}
 	}
+	// prepare string
 	else {
+
+		global $mysqli_global;
+
 		$string = stripDisallowed($string);
 		if($mysqli_global) {
 			$string = $mysqli_global->escape_string($string);
@@ -176,10 +162,10 @@ function prepareForDB($string) {
 		else {
 			$string = addslashes($string);
 		}
-//		$string = mysql_real_escape_string($string);
 	}
 	return $string;
 }
+
 
 /**
 * Stripping string for unsafe elements, HTML and attributes
