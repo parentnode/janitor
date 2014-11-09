@@ -1,6 +1,14 @@
 <?php
+
+// Include base functions and classes
+include_once("include/functions.inc.php");
+
+include_once("class/system/message.class.php");
+include_once("class/system/session.class.php");
+
+
 /**
-* This file contains the site backbone, the Page Class.
+* This class contains the site backbone
 * 
 * It controls (based on parameters)
 * - segment
@@ -8,26 +16,6 @@
 * - logoff
 * - language
 * - dev
-*
-* Functions:
-*
-*
-*
-*
-*
-*/
-
-/**
-* Include base functions and classes
-*/
-
-include_once("include/functions.inc.php");
-
-include_once("class/system/message.class.php");
-include_once("class/system/session.class.php");
-
-/**
-* Site backbone, the Page class
 */
 class PageCore {
 
@@ -275,10 +263,13 @@ class PageCore {
 		}
 	}
 
+
 	/**
 	* Compile complete page HTML 
 	* Render order: templates, header, footer
 	* Output order: header, templates, footer
+	*
+	* TODO: consider implementing 404 response code for 404 template - http_response_code(404);
 	*
 	* @return String page header
 	*/
@@ -454,6 +445,8 @@ class PageCore {
 	* Get/set current currency
 	*
 	* Pass value to set currency
+	*
+	* @return Array containing currency info 
 	*/
 	function currency($value = false) {
 		// set
@@ -481,7 +474,7 @@ class PageCore {
 	/**
 	* Access device API and get info about current useragent
 	*
-	* @return Array Array containing device info, or fallback 
+	* @return Array containing device info, or fallback 
 	*/
 	// returns currently used browser info to be stored in session
 	function segment($value = false) {
@@ -494,8 +487,8 @@ class PageCore {
 			if(!session()->value("segment")) {
 				// writeToFile("request new segment:" . $value);
 
-				$device_id = @file_get_contents("http://devices.dearapi.com/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
-		//		$device_id = file_get_contents("http://devices.local/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
+				$device_id = @file_get_contents("http://detector.dearapi.com/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
+		//		$device_id = file_get_contents("http://detector.api/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
 				$device = (array) simplexml_load_string($device_id);
 //				print_r($device);
 
@@ -513,230 +506,298 @@ class PageCore {
 
 	}
 
+
 	/**
-	* Page actions, security check on controller action level
+	* Page actions, security check on controller access
 	*
-	* This function is automatically called when controller is loaded
+	* This function is automatically called when controller is accessed and $page is instanciated
 	* The actions are validated and made available to the controller if validation is ok
 	*
-	* If validation fails, user is redirected to login page
 	*
 	* The access grants are based on path fragments
 	*
-	* If a user tries to access /admin/cms/save/product 
-	* the system will look for for this full path in access_item of the controller
-	* if the full path does not exist, one fragment will be removed until a match is found
-	* Thus testing, /admin/cms/save, /admin/cms, /admin, /
-	* until a match is found. 
+	* If a user tries to access /janitor/admin/items/save/product 
+	* the system will split this path into controller part and action part
+	* controller part: /janitor/admin/items
+	* action part: /save/product
 	*
-	* If no match is found, no access is granted. Default restriction when access_item is not false!
+	* Controller and action will be validation using checkPermissions
+	* 
+	* If validation fails, user is redirected to login page
 	*
-	* If a match is found, it will be tested in the access table against the current users group access.
+	* @param $actions Array of actions sent to current controller
 	*/
-	function setActions($actions=false) {
-
-//		print "setActions:".$actions."<br>\nREQUEST_URI".$_SERVER["REQUEST_URI"]."<br>\nPATH_INFO".$_SERVER["PATH_INFO"]."<br>\n";
+	function setActions($actions) {
 
 		// get $access_item from current controller
 		global $access_item;
 
-
-		// print_r($actions);
-		// print "<br>";
-
 		// if controller has access_item setting, perform access validation
-		if($access_item && (!defined("SITE_INSTALL") || !SITE_INSTALL)) {
+		if($access_item) {
 
-//			print "perform access validation";
+			// convert actions to path string to align logic with validatePath
+			$action = "/".implode("/", $actions);
+			// if trailing slash is there, then remove it
+			$action = preg_replace("/\/$/", "", $action);
 
-			$user_id = session()->value("user_id");
-			$user_group_id = session()->value("user_group_id");
 
-			// any access restriction requires a user to be logged in (optionally as Guest - user_group 1, user 1)
-			// no need to do any validation if no user_id or user_group_id is found
-			if(!$user_id || !$user_group_id) {
+			// identify controller
+			$controller = preg_replace("/\.php$/", "", $_SERVER["SCRIPT_NAME"]);
+
+
+			// check permissions
+			if(!$this->checkPermissions($controller, $action, $access_item)) {
+
+				session()->reset();
 
 				// save current url, to be able to redirect after login
-				session()->reset();
 				session()->value("login_forward", $this->url);
 
-//				print "no user info";
-
+				// redirect to login
 				header("Location: /login");
 				exit();
-			}
 
-			// generate appropriate validation_action string from actions to check in database
-			// implode actions, prepend / and trailing /
-			// get clean controller
-			if($actions) {
-
-				$validation_action = "/".implode("/", $actions);
-
-				// access grants should always end with slash
-				if(!preg_match("/\/$/", $validation_action)) {
-					// if trailing slash is not there, then add it
-					$validation_action .= "/";
-				}
-
-				// get controller
-				$controller = str_replace($_SERVER["PATH_INFO"], "", $_SERVER["REQUEST_URI"]);
-			}
-			// otherwise empty array
-			else {
-				// use /
-				$validation_action = "/";
-				// remove trailing / on controller
-				$controller = preg_replace("/\/$/", "", $_SERVER["REQUEST_URI"]);
-			}
-
-//			print $controller . " # " . $validation_action . ", " . isset($access_item[$validation_action]) . "\n";
-
-			// look for matching access entry in $access_item
-			while(!isset($access_item[$validation_action]) && $validation_action && $validation_action != "/") {
-				$validation_action = preg_replace("/[^\/]+\/$/", "", $validation_action);
-//				print $validation_action."\n";
-			}
-
-//			print $validation_action."\n";
-
-			// no entry found - no access
-			if(!isset($access_item[$validation_action])) {
-//				print "no access item entry";
-
-				session()->reset();
-				session()->value("login_forward", $this->url);
-				header("Location: /login");
-				exit();
-			}
-			else {
-
-				// matching access item requires access check
-				if($access_item[$validation_action] !== false) {
-
-//					print "check security";
-					if(!$this->validateAction($controller.$validation_action)) {
-//						print "no db entry";
-
-						session()->reset();
-						session()->value("login_forward", $this->url);
-						header("Location: /login");
-						exit();
-					}
-				}
 			}
 		}
 
-		// no access_item in controller - everything is allowed
+		// access_item is false in controller
+		// SITE_INSTALL
 		// OR validation passed
+		// -  access is allowed
 		$this->actions = $actions;
 
 	}
 
 
-	// validate action against database permissions
-	// on first session validation, get permissions and store in session
-	function validateAction($action) {
+	/**
+	* Validate access permission for full /controller/action path
+	* Used to check if a path is valid when generating links, form actions, etc
+	*
+	* @param $path String containing full /controller/action path
+	* @return boolean Allowed or not
+	*/
+	function validatePath($path) {
 
-//		print "validateAction:".$action."<br>";
+//		print "validatePath:".$path."<br>\n";
 
+		// remove GET parameters from $actions string
+		$path = preg_replace("/\?.+$/", "", $path);
+		// remove trailing slash
+		$path = preg_replace("/\/$/", "", $path);
+
+		// add index to our testing path to catch root controllers (index.php)
+		$test_path = $path."/index";
+
+
+		// create fragments array for controller identification
+		$controller = false;
+		$fragments = explode("/", $test_path);
+
+		// loop through fragments while removing one fragment in each loop until only one fragment exists
+		while($fragments) {
+
+			// create new /controller/action path to check in permissions array
+			$path_test = implode("/", $fragments);
+
+			// make theoretic controller path to test
+			// if path contains /janitor/admin it is a janitor core controller
+			if(preg_match("/^\/janitor\/admin/", $path_test)) {
+				$controller_test = FRAMEWORK_PATH."/www".preg_replace("/^\/janitor\/admin/", "", $path_test).".php";
+			}
+			// local controller
+			else {
+				$controller_test = LOCAL_PATH."/www".$path_test.".php";
+			}
+
+//			print "controller_test:" . $controller_test . "<br>\n";
+
+
+			// does controller exist
+			if(file_exists($controller_test)) {
+
+				// controller is found
+				$controller = $path_test;
+
+				// read access_item of controller
+				$read_access = true;
+				include($controller_test);
+
+				// end while loop
+				break;
+			}
+
+			// controller is still not found, pop another fragment off
+			array_pop($fragments);
+		}
+
+
+		// both controller and access_item is found
+		if($controller && isset($access_item)) {
+
+			// deduce action
+			$action = str_replace($controller, "", $path);
+
+			// check permissions
+			return $this->checkPermissions($controller, $action, $access_item);
+		}
+
+
+//		print "no controller or access_item found<br>\n";
+		// no controller or access_item found
+		return false;
+	}
+
+
+	/**
+	* Access permission check
+	*
+	* If access_item is false, access is granted
+	*
+	* On first session validation, get permissions and store in session to avoid excessive DB lookups
+	*
+	* Iterate action to find match in access_item of the controller
+	* If the full action does not exist, one fragment will be removed until a match is found
+	*
+	* If no match is found, no access is granted. Default restriction when access_item is not false!
+	* If no user_group is present, no access is granted.
+	*
+	* If a access_item is set for path, it will be tested in the access table against the 
+	* current users group access.
+	*
+	* @param String $controller controller to check permissions for
+	* @param String $action action to check permissions for
+	* @param String $access_item access_item of controller
+	* @return boolean Allowed or not
+	*/
+	function checkPermissions($controller, $action, $access_item) {
+
+
+//		print "controller:" . $controller . "<br>\n";
+//		print "action:" . $action . "<br>\n";
+//		print_r($access_item);
+//		print "<br>\n";
+
+
+		// all actions are allowed on SITE_INSTALL
 		if((defined("SITE_INSTALL") && SITE_INSTALL)) {
 			return true;
 		}
 
-
-//		global $access_item;
-
-		// remove parameters from $actions string
-		$action = preg_replace("/\?.+$/", "", $action);
-//		print "action:" . $action . "<br>";
-//		print_r($access_item);
-
-		// no access restriction
-		// if((!$action && (!$access_item || !$access_item["/"]))) {
-		// 	return true;
-		// }
-
-
-		$user_group_id = session()->value("user_group_id");
-		$permissions = session()->value("user_group_permissions");
-
-
-		// if permissions does not exist for this user in this session
-		// get user_access for user_group
-		if(!$permissions && $user_group_id) {
-			$query = new Query();
-			$sql = "SELECT action, permission FROM ".SITE_DB.".user_access WHERE user_group_id = ".$user_group_id;
-//			print $sql."<br>";
-			if($query->sql($sql)) {
-				$results = $query->results();
-				// parse result in easy queryable structure
-				foreach($results as $result) {
-					$permissions[$result["action"]] = $result["permission"];
-				}
-
-//				print_r($permissions);
-
-				// set controller root access state to "no access" if it does not exist
-				// set root permissions for restricted pages without permission setting
-				foreach($permissions as $permitted_action => $permission) {
-
-					$parent_action = preg_replace("/[^\/]+\/$/", "", $permitted_action);
-//					print $parent_action . ", " . isset($permissions[$parent_action]) . ", " . $permissions[$parent_action] ."\n";
-
-					if(!isset($permissions[$parent_action])) {
-						$permissions[$parent_action] = 0;
-					}
-				}
-
-			}
-			session()->value("user_group_permissions", $permissions);
-//			print_r($permissions);
+		// no access restrictions
+		if($access_item === false) {
+			return true;
 		}
 
- 
-		if($action) {
-			// get actions chuncks
-			$chunks = explode("/", preg_replace("/\/$/", "", $action));
 
-			// print "chunks:" . $chunks."<br>";
-			// print_r($chunks);
-			while($chunks) {
+		// get actions fragments as array to make it easier to remove fragments
+		// first index in fragments will be empty to indicate controller root
+		$fragments = explode("/", $action);
 
-//				print implode("/", $chunks)."/<br>\n";
 
-				if(isset($permissions[implode("/", $chunks)."/"])) {
-					if($permissions[implode("/", $chunks)."/"]) {
-						return true;
-					}
-					else {
-						return false;
-					}
+		// loop through fragments while removing one fragment in each loop until only one fragment exists
+		while($fragments) {
+
+			// create new /controller/action path to check in permissions array
+			$action_test = implode("/", $fragments);
+
+			// does actions test exist in access_item
+			if(isset($access_item[$action_test])) {
+
+				// check if access_item points to other access_item
+				if($access_item[$action_test] !== true && $access_item[$action_test] !== false) {
+					$action_test = $access_item[$action_test];
 				}
-				array_pop($chunks);
+
+				// end while loop
+				break;
 			}
+
+			// /controller/action/ path not found - remove a fragment and try again
+			array_pop($fragments);
 		}
+
+		// action should be at least a slash
+		$action_test = $action_test ? $action_test : "/";
+
+
+		// no entry found in access_item while iteration action fragments
+		// must be an illegal controller/action path
+		// - deny access
+		if(!isset($access_item[$action_test])) {
+//			print "no access item entry<br>\n";
+
+			return false;
+		}
+		// no access restrictions for this action
+		else if($access_item[$action_test] === false) {
+//			print "no restriction<br>\n";
+
+			return true;
+		}
+		// matching access item requires access check
 		else {
-//			print "checking root:" . isset($this->permissions["/"])." && ".$this->permissions["/"]."<br>";
-			
-			if(isset($permissions["/"]) && $permissions["/"]) {
-				return true;
-			}
-			else {
+
+			// get group and permissions from session
+			$user_group_id = session()->value("user_group_id");
+			$permissions = session()->value("user_group_permissions");
+
+//			print "group: ".$user_group_id."<br>\n";
+
+			// TEMP
+			$permissions = false;
+
+			// any access restriction requires a user to be logged in (optionally as Guest - user_group 1, user 1)
+			// no need to do any validation if no user_group_id is found
+			if(!$user_group_id) {
+//				print "no group<br>\n";
+
 				return false;
 			}
+
+			// if permissions does not exist for this user in this session
+			// this requires a database lookup - result is stored in session to 
+			// get user_access for user_group
+			else if(!$permissions) {
+
+				$query = new Query();
+				$sql = "SELECT controller, action, permission FROM ".SITE_DB.".user_access WHERE user_group_id = ".$user_group_id;
+	//			print $sql."<br>\n";
+
+				if($query->sql($sql)) {
+					$results = $query->results();
+
+					// parse result in easy queryable structure
+					// $permission[controller][action] = 1
+					foreach($results as $result) {
+						$permissions[$result["controller"]][$result["action"]] = $result["permission"];
+					}
+
+				}
+
+				// store permissions in session
+				session()->value("user_group_permissions", $permissions);
+			}
+
+			// do the actual access check
+			if(isset($permissions[$controller]) && isset($permissions[$controller][$action_test]) && $permissions[$controller][$action_test]) {
+//				print "!1!<br>\n";
+				return true;
+			}
+
 		}
 
+//		print "everything failed<br>\n";
 		return false;
-
 	}
+
 
 	// simple validate action function to determine whether to write out urls for data attributes
-	function validAction($action) {
-		if($this->validateAction($action)) {
-			return $action;
+	function validPath($path) {
+		if($this->validatePath($path)) {
+			return $path;
 		}
 	}
+
 
 	// validate csrf token
 	function validateCsrfToken() {
@@ -779,6 +840,7 @@ class PageCore {
 		return true;
 	}
 
+
 	// Get Page actions
 	function actions() {
 		return $this->actions;
@@ -807,7 +869,8 @@ class PageCore {
 				session()->value("user_group_id", $query->result(0, "user_group_id"));
 				session()->reset("user_group_permissions");
 
-//				session()->value("csrf", gen_uuid());
+				// set new csrf token for user
+				session()->value("csrf", gen_uuid());
 
 				if(getPost("ajaxlogin")) {
 					$output = new Output();
@@ -817,12 +880,9 @@ class PageCore {
 				else {
 					// redirect to originally requested page
 					$login_forward = session()->value("login_forward");
-					if(!$login_forward || !$this->validateAction($login_forward)) {
+					if(!$login_forward || !$this->validatePath($login_forward)) {
 						$login_forward = "/";
 					}
-//					$login_forward = stringOr(session()->value("login_forward"), "/");
-//					print "login_forward:" . $login_forward;
-
 
 					session()->reset("login_forward");
 
@@ -876,8 +936,10 @@ class PageCore {
 		if($url) {
 			session()->value("LoginForward", $url);
 		}
-		print '<script type="text/javacript">location.href="?page_status=logoff"</script>';
-//		header("Location: /index.php");
+		print '<script type="text/javacript">location.href="/login?page_status=logoff"</script>';
+
+		header("Location: /login");
+
 		exit();
 	}
 

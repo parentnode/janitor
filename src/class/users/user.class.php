@@ -189,7 +189,7 @@ class User extends Model {
 
 
 	// save new user
-	// /admin/user/save (values in POST)
+	// /janitor/admin/user/save (values in POST)
 	function save($action) {
 
 		// does values validate
@@ -227,7 +227,7 @@ class User extends Model {
 	}
 
 	// update user
-	// /admin/user/update/#user_id# (values in POST)
+	// /janitor/admin/user/update/#user_id# (values in POST)
 	function update($action) {
 
 		if(count($action) == 2) {
@@ -262,7 +262,7 @@ class User extends Model {
 	}
 
 	// Change user status
-	// /admin/user/status/#user_id#/#status#
+	// /janitor/admin/user/status/#user_id#/#status#
 	function status($action) {
 
 		$status_states = array(
@@ -290,7 +290,7 @@ class User extends Model {
 	}
 
 	// delete user
-	// /admin/user/delete/#user_id#
+	// /janitor/admin/user/delete/#user_id#
 	// TODO: Extend constraint detection
 	function delete($action) {
 
@@ -682,7 +682,7 @@ class User extends Model {
 	}
 
 	// create a new address
-	// /admin/user/addAddress/#user_id# (values in POST)
+	// /janitor/admin/user/addAddress/#user_id# (values in POST)
 	function addAddress($action) {
 
 		if(count($action) == 2 && $this->validateList(array("address_label","address_name","address1","postal","city","country"))) {
@@ -717,7 +717,7 @@ class User extends Model {
 	}
 
 	// update an address
-	// /admin/user/updateAddress/#address_id# (values in POST)
+	// /janitor/admin/user/updateAddress/#address_id# (values in POST)
 	function updateAddress($action) {
 
 		if(count($action) == 2) {
@@ -752,7 +752,7 @@ class User extends Model {
 	}
 
 	// Delete address
-	// /admin/user/deleteAddress/#address_id#
+	// /janitor/admin/user/deleteAddress/#address_id#
 	function deleteAddress($action) {
 		
 		if(count($action) == 2) {
@@ -866,7 +866,7 @@ class User extends Model {
 	}
 
 	// save user group
-	// /admin/user/saveUserGroup (values in POST)
+	// /janitor/admin/user/saveUserGroup (values in POST)
 	function saveUserGroup($action) {
 
 		// does values validate
@@ -906,7 +906,7 @@ class User extends Model {
 	}
 
 	// update user group
-	// /admin/user/updateUserGroup/#user_group_id# (values in POST)
+	// /janitor/admin/user/updateUserGroup/#user_group_id# (values in POST)
 	function updateUserGroup($action) {
 
 		if(count($action) == 2) {
@@ -943,7 +943,7 @@ class User extends Model {
 	}
 
 	// delete user group - 2 parameters exactly
-	// /admin/user/deleteUserGroup/#user_group_id#
+	// /janitor/admin/user/deleteUserGroup/#user_group_id#
 	function deleteUserGroup($action) {
 
 		if(count($action) == 2) {
@@ -984,76 +984,45 @@ class User extends Model {
 		// indicate access read state (used when parsing controllers)
 		$read_access = true;
 
+		// array to store controller information
 		$access = array();
 		$access["points"] = array();
 
-		// local controllers
+
+		// get and index local controllers
 		$controllers = $fs->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
 //		print_r($controllers);
 
 		foreach($controllers as $controller) {
 			$access_item = array();
 
+			// get controller access items
 			include($controller);
-//			if($access_item) {
-//				print_r($access_item);
 
 			// replace local path
 			$short_point = str_replace(".php", "", str_replace(LOCAL_PATH."/www", "", $controller));
-			// remove index path, because it is not being used in requests
-			$short_point = preg_replace("/\/index$/", "", $short_point);
-
-			$access["points"][$short_point] = array();
-	
-			if($access_item) {
-				// access restriction on any type of request
-				foreach($access_item as $action => $restricted) {
-					if($restricted === true) {
-						$access["points"][$short_point][] = $action;
-					}
-				}
-			}
+			// store information
+			$access["points"][$short_point] = $access_item;
 		}
 
 
-		// framework controllers
+		// get and index framework controllers
 		$controllers = $fs->files(FRAMEWORK_PATH."/www", array("allow_extensions" => "php"));
 //		print_r($controllers);
+
 		foreach($controllers as $controller) {
 			$access_item = array();
 
-//			print $controller."<br>";
-
-			// replace Framework path, but add Admin because that is reprensentative for how they are accessed
-			$short_point = str_replace(".php", "", str_replace(FRAMEWORK_PATH."/www", "/admin", $controller));
-
-			// TODO: Check if controller is enabled via Apache Alias (don't know how - find a way)
-			// maybe be requesting file with http://domain/controller
-			// TOO SLOW - and requires url_wrapper open for external requests - no go
-//			$http_request_url = (isset($_SERVER["HTTPS"]) ? "https" : "http") . "://" . $_SERVER["SERVER_NAME"] . $short_point;
-//			print $http_request_url . "<br>";
-			
-
-//			$file_headers = get_headers($http_request_url);
-//			print_r($file_headers);
-//			if(!preg_match("/404/", $file_headers[0])) {
+			// get controller access items
 			include($controller);
-//				print_r($access_item);
 
-			// remove index path, because it is not being used in requests
-			$short_point = preg_replace("/\/index$/", "", $short_point);
+			// replace Framework path, but add /janitor/admin because that is reprensentative for how they are accessed
+			$short_point = str_replace(".php", "", str_replace(FRAMEWORK_PATH."/www", "/janitor/admin", $controller));
 
-			$access["points"][$short_point] = array();
-
-			if($access_item) {
-				// access restriction on any type of request
-				foreach($access_item as $action => $restricted) {
-					if($restricted === true) {
-						$access["points"][$short_point][] = $action;
-					}
-				}
-			}
+			// store information
+			$access["points"][$short_point] = $access_item;
 		}
+
 
 		// get settings for specific user group id
 		if($user_group_id) {
@@ -1064,31 +1033,17 @@ class User extends Model {
 			// make sure type tables exist
 			$query->checkDbExistance($this->db_access);
 
-
-			if($query->sql("SELECT * FROM ".$this->db_access." WHERE user_group_id=$user_group_id AND permission=1")) {
+			$sql = "SELECT * FROM ".$this->db_access." WHERE user_group_id = $user_group_id AND permission = 1";
+			if($query->sql($sql)) {
 				$results = $query->results();
 				foreach($results as $result) {
-					$access["permissions"][$result["action"]] = 1;
-				}
 
-
-				// set controller root access state if it does not exist
-				// to avoid to have to set root permissions (action implies restricted root)
-				foreach($access["permissions"] as $action) {
-
-					$parent_action = preg_replace("/[^\/]+\/$/", "", $action);
-
-					if(!isset($access["permissions"][$parent_action])) {
-						$access["permissions"][$parent_action] = 0;
-					}
+					$access["permissions"][$result["controller"]][$result["action"]] = 1;
 				}
 			}
-
 		}
 
-		
 //		print_r($access);
-
 		return $access;
 	}
 
@@ -1100,7 +1055,12 @@ class User extends Model {
 		if(count($action) == 2) {
 
 			$query = new Query();
+
+			// get posted grants
+			// grants[controller][action] = permission (0/1)
 			$grants = getPost("grant");
+//			print_r($grants);
+
 			$user_group_id = $action[1];
 
 			// clear cached permissions
@@ -1108,45 +1068,40 @@ class User extends Model {
 
 			// make sure type tables exist
 			$query->checkDbExistance($this->db_access);
-//			print_r($grants);
 
 			// remove existing grants
 			$query->sql("DELETE FROM ".$this->db_access." WHERE user_group_id = " . $user_group_id);
 
-			$create_count = 0;
 			// set new grants
 			if($grants) {
-				foreach($grants as $path => $grant) {
 
-					if($grant == 1) {
-						$sql = "INSERT INTO ".$this->db_access." SET permission=1, user_group_id = $user_group_id, action = '$path'";
-//						print $sql."<br>";
-						if($query->sql($sql)) {
-							$create_count++;
-						}
-					}
-					else {
-						$sql = "INSERT INTO ".$this->db_access." SET permission=0, user_group_id=$user_group_id, action = '$path'";
-//						print $sql."<br>";
-						if($query->sql($sql)) {
-							$create_count++;
+				// loop through controllers
+				foreach($grants as $controller => $actions) {
+
+//					print $controller."<br>\n";
+
+					// loop through actions for controller
+					foreach($actions as $access_action => $grant) {
+
+//						print $access_action." = $grant<br>\n";
+
+						if($grant == 1) {
+							$sql = "INSERT INTO ".$this->db_access." SET permission = 1, user_group_id = $user_group_id, controller = '$controller', action = '$access_action'";
+//							print $sql."<br>";
+							$query->sql($sql);
 						}
 					}
 				}
 			}
 
-			if($create_count == count($grants)) {
-				message()->addMessage("Access grants updated");
-				return true;
-			}
+
+			message()->addMessage("Access grants updated");
+			return true;
 		}
 
 		message()->addMessage("Access grants could not be updated", array("type" => "error"));
 		return false;
-
 	}
-
-
 
 
 

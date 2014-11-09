@@ -333,10 +333,19 @@ class HTML {
 
 
 			// HINT AND ERROR MESSAGE
-			$_ .= '<div'.$this->attribute("class", "help").'>';
-				$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
-				$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
-			$_ .= '</div>';
+			if($hint_message || $error_message) {
+				$_ .= '<div'.$this->attribute("class", "help").'>';
+
+					if($hint_message) {
+						$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
+					}
+
+					if($error_message) {
+						$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
+					}
+
+				$_ .= '</div>';
+			}
 
 		$_ .= '</div>'."\n";
 
@@ -624,7 +633,7 @@ class HTML {
 	function link($value, $action, $_options = false) {
 
 		global $page;
-		if(!$page->validateAction($action)) {
+		if(!$page->validatePath($action)) {
 			return "";
 		}
 
@@ -697,7 +706,7 @@ class HTML {
 	function formStart($action, $_options = false) {
 
 		global $page;
-		if(!$page->validateAction($action)) {
+		if(!$page->validatePath($action)) {
 			return "";
 		}
 
@@ -844,7 +853,7 @@ class HTML {
 	function deleteButton($name, $action, $_options = false) {
 
 		global $page;
-		if(!$page->validateAction($action)) {
+		if(!$page->validatePath($action)) {
 			return "";
 		}
 
@@ -884,7 +893,7 @@ class HTML {
 	function statusButton($enable_label, $disable_label, $action, $item, $_options = false) {
 
 		global $page;
-		if(!$page->validateAction($action)) {
+		if(!$page->validatePath($action)) {
 			return "";
 		}
 
@@ -933,158 +942,6 @@ class HTML {
 		return $_;
 	}
 
-
-
-
-	/* INCLUDING LI WRAPPER */
-// 
-// 	function action($value, $action, $_options = false) {
-// 		global $page;
-// 		if(!$page->validateAction($action)) {
-// 			return "";
-// 		}
-// 
-// 		$class = false;
-// 		$id = false;
-// 		$target = false;
-// 
-// 		$type = "a";
-// 		$name = false;
-// 
-// 		// default li class (could cause havok)
-// //		$li_class = superNormalize($value);
-// 
-// 		// overwrite defaults
-// 		if($_options !== false) {
-// 			foreach($_options as $_option => $_value) {
-// 				switch($_option) {
-// 
-// 					case "class"         : $class          = $_value; break;
-// 					case "id"            : $id             = $_value; break;
-// 
-// 					case "target"        : $target         = $_value; break;
-// 					case "type"          : $type           = $_value; break;
-// 					case "name"          : $name           = $_value; break;
-// 
-// 					case "li_class"      : $li_class       = $_value; break;
-// 				}
-// 			}
-// 		}
-// 
-// 		$_ = "";
-// 
-// 		$att_id = $this->attribute("id", $id);
-// 		$att_class = $this->attribute("class", $class);
-// 
-// 		$att_li_class = $this->attribute("class", $li_class);
-// 
-// 		$_ .= '<li'.$att_li_class.'>';
-// 
-// 		if($type == "a") {
-// 			$att_href = $this->attribute("href", $action);
-// 			$att_target = $this->attribute("target", $target);
-// 
-// 			$_ .= '<a'.$action.$att_id.$att_class.$att_target.'>'.$value.'</a>';
-// 		}
-// 		else if($type == "submit" || $type == "button") {
-// 			$att_value = $this->attribute("value", $value);
-// 			$att_name = $this->attribute("name", $name);
-// 			$att_type = $this->attribute("type", $type);
-// 
-// 			$_ .= '<input'.$action.$att_id.$att_class.$att_target.'>'.$value.'</a>';
-// 		}
-// 
-// 		$_ .= '</li>';
-// 
-// 		return $_;
-// 	}
-// 
-// 
-// 
-// 	function actionsLinkPrimary($value, $action, $_options = false) {
-// 		
-// 	}
-// 
-// 
-// 
-// 
-// 	// Custom Janitor extended input combinations/constructions
-// 
-// 
-// 	// wrapped in li
-// 	function actionSubmit() {}
-// 
-// 	function actionDelete() {}
-// 	function actionStatus() {}
-// 
-// 
-// 	// DEPRECATED
-// 
-
-	/*
-	<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>">
-		<form class="disable" action="/admin/user/disable/<?= $item["id"] ?>" method="post">
-			<input type="submit" class="button status" value="Disable">
-		</form>
-		<form class="enable" action="/admin/user/enable/<?= $item["id"] ?>" method="post">
-			<input type="submit" class="button status" value="Enable">
-		</form>
-	</li>
-	
-	<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>">
-		<form class="disable" action="/admin/user/disable/<?= $item["id"] ?>" method="post">
-			<input type="submit" class="button status" value="Disable">
-		</form>
-		<form class="enable" action="/admin/user/enable/<?= $item["id"] ?>" method="post">
-			<input type="submit" class="button status" value="Enable">
-		</form>
-	</li>
-	
-	<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>"></li>
-	<li class="status <?= ($item["status"] == 1 ? "enabled" : "disabled") ?>"></li>
-	*/
-
-//	function status($item, $_options = false) {
-
-		// $item = false;
-		// 
-		// $item_id = false;
-		// $status = false;
-		// 
-		// 
-		// 
-		// // overwrite defaults
-		// if($_options !== false) {
-		// 	foreach($_options as $_option => $_value) {
-		// 		switch($_option) {
-		// 
-		// 			case "item"           : $item            = $_value; break;
-		// 
-		// 			case "item_id"        : $item_id         = $_value; break;
-		// 			case "status"         : $status          = $_value; break;
-		// 
-		// 		}
-		// 	}
-		// }
-
-		// INCLUDE LI???? OR ADD DIV?
-		// OR INJECT PURELY WITH JS? (MAYBE WITH NEW u.f.addField function)
-		// <li class="status <//?= ($item["status"] == 1 ? "enabled" : "disabled") ?//>">
-		// 
-		// 
-		// <form action="/admin/cms/disable/<//?= $item["id"] ?//>" class="disable i:formDefaultStatus" method="post" enctype="multipart/form-data">
-		// 	<h3>Enabled</h3>
-		// 	<input type="submit" value="Disable" class="button status disable" />
-		// </form>
-		// <form action="/admin/cms/enable/<//?= $item["id"] ?//>" class="enable i:formDefaultStatus" method="post" enctype="multipart/form-data">
-		// 	<h3>Disabled</h3>
-		// 	<input type="submit" value="Enable" class="button status enable" />
-		// </form>
-
-
-
-		
-//	}
 
 
 }

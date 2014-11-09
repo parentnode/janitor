@@ -94,3 +94,48 @@ Util.Objects["formAddressNew"] = new function() {
 
 	}
 }
+
+
+Util.Objects["accessEdit"] = new function() {
+	this.init = function(div) {
+
+		div._item_id = u.cv(div, "item_id");
+
+		// primary form
+		var form = u.qs("form", div);
+		u.f.init(form);
+		form.actions["cancel"].clicked = function(event) {
+			location.href = this.url;
+		}
+		form.submitted = function(iN) {
+
+			this.response = function(response) {
+				page.notify(response);
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+
+		}
+
+		// enable select all on controller heading
+		var i, group;
+		var groups = u.qsa("li.action", form);
+		for(i = 0; group = groups[i]; i++) {
+
+			var h3 = u.qs("h3", group);
+			h3.group = group;
+			u.ce(h3)
+			h3.clicked = function() {
+
+				var i, input;
+				var inputs = u.qsa("input[type=checkbox]", this.group);
+				for(i = 0; input = inputs[i]; i++) {
+					input.val(1);
+				}
+
+			}
+
+		}
+
+
+	}
+}
