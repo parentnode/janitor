@@ -2,10 +2,10 @@
 
 	<div id="navigation">
 		<ul>
-			<?= $HTML->link("Posts", "/admin/post/list", array("wrapper" => "li.post")) ?>
+			<?= $HTML->link("Posts", "/janitor/post/list", array("wrapper" => "li.post")) ?>
 
-			<?= $HTML->link("Users", "/admin/user/list", array("wrapper" => "li.user")) ?>
-			<?= $HTML->link("Tags", "/admin/tag/list", array("wrapper" => "li.tags")) ?>
+			<?= $HTML->link("Users", "/janitor/admin/user/list", array("wrapper" => "li.user")) ?>
+			<?= $HTML->link("Tags", "/janitor/admin/tag/list", array("wrapper" => "li.tags")) ?>
 		</ul>
 	</div>
 

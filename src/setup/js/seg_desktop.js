@@ -7676,9 +7676,9 @@ Util.Objects["finish"] = new function() {
 							this.response = function(response) {
 								location.href = "/";
 							}
-							u.request(this, "/admin/js/lib/build");
+							u.request(this, "/janitor/js/lib/build");
 						}
-						u.request(this, "/admin/css/lib/build");
+						u.request(this, "/janitor/css/lib/build");
 					}
 					u.request(this, "/js/lib/build");
 				}

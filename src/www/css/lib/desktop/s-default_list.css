@@ -41,5 +41,5 @@
 
 /* SORTABLE */
 #content .defaultList .sortable ul.items > li.item h3 {padding-left: 60px;}
-#content .defaultList .sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 8px; left: 20px; background: transparent url(/janitor/img/bg_icons2.png) no-repeat 10px -440px; cursor: move;}
+#content .defaultList .sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 8px; left: 20px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
 #content .defaultList .sortable ul.items > li.item ul.tags {padding-left: 55px;}

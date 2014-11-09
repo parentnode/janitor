@@ -1209,7 +1209,7 @@ class ItemCore {
 	// add tag to item, create tag if it does not exist
 	// tag can be tag-string or tag_id
 
-	// /admin/cms/tags/add/#item_id#
+	// /janitor/admin/items/tags/add/#item_id#
 	// tag is sent in $_POST
  	function addTag($action) {
 
@@ -1268,7 +1268,7 @@ class ItemCore {
 
 	// delete tag 
 	// tag can be complete context:value or tag_id (number)
-	// /admin/cms/tags/delete/#item_id#/#tag_id|tag#
+	// /janitor/admin/items/tags/delete/#item_id#/#tag_id|tag#
  	function deleteTag($action) {
 
 		if(count($action) == 4) {

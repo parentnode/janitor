@@ -95,7 +95,7 @@ class TypePhotocollection extends Model {
 
 
 	// custom function to add media
-	// /admin/photocollection/addMedia/#item_id# (post image)
+	// /janitor/photocollection/addMedia/#item_id# (post image)
 	function addMedia($action) {
 
 		if(count($action) == 2) {
@@ -136,7 +136,7 @@ class TypePhotocollection extends Model {
 
 
 	// delete image - 3 parameters exactly
-	// /admin/photocollection/deleteImage/#item_id#/#variant#
+	// /janitor/photocollection/deleteImage/#item_id#/#variant#
 	function deleteMedia($action) {
 
 		if(count($action) == 3) {
@@ -160,7 +160,7 @@ class TypePhotocollection extends Model {
 
 
 	// update media order
-	// /admin/photocollection/updateMediaOrder (comma-separated order in POST)
+	// /janitor/photocollection/updateMediaOrder (comma-separated order in POST)
 	function updateMediaOrder($action) {
 
 		$order_list = getPost("order");
@@ -185,7 +185,7 @@ class TypePhotocollection extends Model {
 	}
 
 	// Update media name
-	// /admin/photocollection/updateMediaName
+	// /janitor/photocollection/updateMediaName
 	function updateMediaName($action) {
 
 		if(count($action) == 3) {
@@ -206,7 +206,7 @@ class TypePhotocollection extends Model {
 
 
 	// Update item order
-	// /admin/photocollection/updateOrder (order comma-separated in POST)
+	// /janitor/photocollection/updateOrder (order comma-separated in POST)
 	function updateOrder($action) {
 
 		$order_list = getPost("order");

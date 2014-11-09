@@ -12,11 +12,11 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <? if(session()->value("dev")) { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/admin/css/lib/seg_<?= $this->segment() ?>_include.css" />
-	<script type="text/javascript" src="/admin/js/lib/seg_<?= $this->segment() ?>_include.js"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/lib/seg_<?= $this->segment() ?>_include.css" />
+	<script type="text/javascript" src="/janitor/js/lib/seg_<?= $this->segment() ?>_include.js"></script>
 <? } else { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/admin/css/seg_<?= $this->segment() ?>.css" />
-	<script type="text/javascript" src="/admin/js/seg_<?= $this->segment() ?>.js"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/seg_<?= $this->segment() ?>.css" />
+	<script type="text/javascript" src="/janitor/js/seg_<?= $this->segment() ?>.js"></script>
 <? } ?>
 
 </head>
@@ -26,7 +26,7 @@
 <div id="page" class="i:page">
 	<div id="header">
 		<ul class="servicenavigation">
-			<li class="keynav front"><a href="/admin"><?= SITE_NAME ?> Admin</a></li>
+			<li class="keynav front"><a href="/janitor"><?= SITE_NAME ?> Admin</a></li>
 <?			if(session()->value("user_id") && session()->value("user_group_id")): ?>
 			<li class="keynav user nofollow"><a href="?logoff=true">Logoff</a></li>
 <?			else: ?>

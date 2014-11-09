@@ -114,7 +114,7 @@ class TypePost extends Model {
 
 
 	// custom function to add media
-	// /admin/post/addMedia/#item_id# (post image)
+	// /janitor/post/addMedia/#item_id# (post image)
 	function addMedia($action) {
 
 		if(count($action) == 2) {
@@ -154,7 +154,7 @@ class TypePost extends Model {
 
 
 	// delete image - 3 parameters exactly
-	// /admin/post/deleteImage/#item_id#/#variant#
+	// /janitor/post/deleteImage/#item_id#/#variant#
 	function deleteMedia($action) {
 
 		if(count($action) == 3) {
@@ -178,7 +178,7 @@ class TypePost extends Model {
 
 
 	// update media order
-	// /admin/post/updateMediaOrder (comma-separated order in POST)
+	// /janitor/post/updateMediaOrder (comma-separated order in POST)
 	function updateMediaOrder($action) {
 
 		$order_list = getPost("order");

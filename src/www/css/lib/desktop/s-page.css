@@ -64,7 +64,7 @@ dt {color: #7d848c; display: inline-block; vertical-align: top;}
 
 
 /* VALIDATION */
-#login_overlay .field.required .indicator {position: absolute; top: 4px; left: 315px; width: 25px; height: 25px; background: transparent url(/janitor/img/bg_icons.png) no-repeat 0 -292px;}
+#login_overlay .field.required .indicator {position: absolute; top: 4px; left: 315px; width: 25px; height: 25px; background: transparent url(/janitor/admin/img//bg_icons.png) no-repeat 0 -292px;}
 #login_overlay .field.correct .indicator {background-position: 0 -320px;}
 
 

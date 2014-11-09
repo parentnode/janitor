@@ -47,7 +47,7 @@ class TypeTodolist extends Model {
 
 
 	// Update item order
-	// /admin/todolist/updateOrder (order comma-separated in POST)
+	// /janitor/todolist/updateOrder (order comma-separated in POST)
 	function updateOrder($action) {
 
 		$order_list = getPost("order");

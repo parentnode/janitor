@@ -14,7 +14,7 @@
 #content .defaultEdit.navigationEdit div.nodes > ul.nodes > li {}
 
 #content .defaultEdit.navigationEdit ul.nodes > li {padding: 0; display: block; position: relative; z-index: 1; border-bottom: 1px solid #dedede;}
-#content .defaultEdit.navigationEdit ul.nodes > li div.drag {width: 30px; height: 30px; position: absolute; top: 1px; left: 20px; background: transparent url(/janitor/img/bg_icons2.png) no-repeat 10px -440px; cursor: move;}
+#content .defaultEdit.navigationEdit ul.nodes > li div.drag {width: 30px; height: 30px; position: absolute; top: 1px; left: 20px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
 #content .defaultEdit.navigationEdit ul.nodes > li h3 {padding: 10px 0; display: inline-block; vertical-align: bottom; font-size: 14px;}
 #content .defaultEdit.navigationEdit ul.nodes > li h3 {margin-left: 60px;}
 #content .defaultEdit.navigationEdit ul.nodes > li li h3 {margin-left: 60px; padding-left: 30px;}
@@ -25,7 +25,7 @@
 
 
 #content .defaultEdit.navigationEdit ul.nodes > li li h3 {
-	background-image: url(/janitor/img/bg_angle.png);
+	background-image: url(/janitor/admin/img//bg_angle.png);
 	background-position: 11px 10px;
 	background-color: transparent;
 	background-repeat: no-repeat;

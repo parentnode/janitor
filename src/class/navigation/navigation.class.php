@@ -147,7 +147,7 @@ class Navigation extends Model {
 
 
 	// delete user
-	// /admin/navigation/delete/#navigation_id#
+	// /janitor/admin/navigation/delete/#navigation_id#
 	function delete($action) {
 
 		if(count($action) == 2) {

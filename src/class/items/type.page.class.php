@@ -117,7 +117,7 @@ class TypePage extends Model {
 
 
 	// custom function to add main media
-	// /admin/page/addMain/#item_id#
+	// /janitor/page/addMain/#item_id#
 	function addMain($action) {
 
 		if(count($action) == 2) {
@@ -152,7 +152,7 @@ class TypePage extends Model {
 
 
 	// custom function to add media
-	// /admin/wish/addMedia/#item_id# (post image)
+	// /janitor/wish/addMedia/#item_id# (post image)
 	function addMedia($action) {
 
 		if(count($action) == 2) {
@@ -192,7 +192,7 @@ class TypePage extends Model {
 
 
 	// delete image - 3 parameters exactly
-	// /admin/page/deleteImage/#item_id#/#variant#
+	// /janitor/page/deleteImage/#item_id#/#variant#
 	function deleteMedia($action) {
 
 		if(count($action) == 3) {
@@ -216,7 +216,7 @@ class TypePage extends Model {
 
 
 	// update media order
-	// /admin/log/updateMediaOrder (comma-separated order in POST)
+	// /janitor/log/updateMediaOrder (comma-separated order in POST)
 	function updateMediaOrder($action) {
 
 		$order_list = getPost("order");

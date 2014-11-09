@@ -71,7 +71,7 @@
 
 /* WITH GEOLOCATION BUTTON */
 #content .field.location.geolocation div.geolocation {width: 30px; height: 30px; display: inline-block; vertical-align: top; cursor: pointer;
-	background: transparent url(/janitor/img/gx_geolocation.png) no-repeat 5px 8px;
+	background: transparent url(/janitor/admin/img//gx_geolocation.png) no-repeat 5px 8px;
 }
 #content .field.location.geolocation div.latitude input,
 #content .field.location.geolocation div.longitude input {width: 158px;}
@@ -110,7 +110,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 /* VALIDATION */
 #content .field .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px;}
 #content .field.required .indicator {
-	background: transparent url(/janitor/img/bg_icons.png) no-repeat 0 -292px;
+	background: transparent url(/janitor/admin/img//bg_icons.png) no-repeat 0 -292px;
 }
 #content .field.text.required .indicator {background-position: 0 -296px;}
 
@@ -154,7 +154,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 #content .field.files.loading label {display: none;}
-#content .field.files.loading {background: transparent url(/janitor/img/gx_loader.gif) no-repeat center center;}
+#content .field.files.loading {background: transparent url(/janitor/admin/img//gx_loader.gif) no-repeat center center;}
 
 
 /* BUTTONS */

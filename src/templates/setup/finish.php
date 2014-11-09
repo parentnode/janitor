@@ -95,9 +95,9 @@ if(SETUP_TYPE == "setup" && !file_exists($project_path."/src")) {
 	$fs->makeDirRecursively($project_path."/src/www/img");
 	$fs->makeDirRecursively($project_path."/src/www/js/lib/desktop");
 	$fs->makeDirRecursively($project_path."/src/www/css/lib/desktop");
-	$fs->makeDirRecursively($project_path."/src/www/admin/img");
-	$fs->makeDirRecursively($project_path."/src/www/admin/js/lib");
-	$fs->makeDirRecursively($project_path."/src/www/admin/css/lib");
+	$fs->makeDirRecursively($project_path."/src/www/janitor/img");
+	$fs->makeDirRecursively($project_path."/src/www/janitor/js/lib");
+	$fs->makeDirRecursively($project_path."/src/www/janitor/css/lib");
 
 	$fs->makeDirRecursively($project_path."/src/config/db");
 
@@ -105,9 +105,9 @@ if(SETUP_TYPE == "setup" && !file_exists($project_path."/src")) {
 
 	$fs->makeDirRecursively($project_path."/src/templates/admin/post");
 
-	$fs->makeDirRecursively($project_path."/src/www/admin/img");
-	$fs->makeDirRecursively($project_path."/src/www/admin/js/lib/desktop");
-	$fs->makeDirRecursively($project_path."/src/www/admin/css/lib/desktop");
+	$fs->makeDirRecursively($project_path."/src/www/janitor/img");
+	$fs->makeDirRecursively($project_path."/src/www/janitor/js/lib/desktop");
+	$fs->makeDirRecursively($project_path."/src/www/janitor/css/lib/desktop");
 
 
 	// copy test files
@@ -116,9 +116,9 @@ if(SETUP_TYPE == "setup" && !file_exists($project_path."/src")) {
 	$fs->copy($framework_path."/setup/defaults/www", $local_path."/www");
 	$fs->copy($framework_path."/setup/defaults/templates", $local_path."/templates");
 
-	copy($framework_path."/templates/admin/post/new.php", $local_path."/templates/admin/post/new.php");
-	copy($framework_path."/templates/admin/post/edit.php", $local_path."/templates/admin/post/edit.php");
-	copy($framework_path."/templates/admin/post/list.php", $local_path."/templates/admin/post/list.php");
+	copy($framework_path."/templates/janitor/post/new.php", $local_path."/templates/janitor/post/new.php");
+	copy($framework_path."/templates/janitor/post/edit.php", $local_path."/templates/janitor/post/edit.php");
+	copy($framework_path."/templates/janitor/post/list.php", $local_path."/templates/janitor/post/list.php");
 
 	copy($framework_path."/config/db/items/item_post.sql", $local_path."/config/db/item_post.sql");
 	copy($framework_path."/config/db/items/item_post_mediae.sql", $local_path."/config/db/item_post_mediae.sql");
@@ -365,7 +365,7 @@ $UC->updateAccess(array("updateAccess", 3));
 
 // TEST if this allows anonymous user to login
 unset($_POST);
-$_POST["grant"] = array("/" => 1, "/admin/" => 0);
+$_POST["grant"] = array("/" => 1, "/janitor/" => 0);
 $UC->getPostedEntities();
 $UC->updateAccess(array("updateAccess", 1));
 
@@ -513,13 +513,13 @@ sudo chmod -R 770 <?= $project_path ?>/src/library</code>
 	<code>sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/js &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/js &&
 
-sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/admin/js &&
+sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/janitor/js &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/admin/js &&
 
 sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/css &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/css &&
 
-sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/admin/css &&
+sudo chown -R <?= $deploy_user ?>:<?= $apache_user ?> <?= $project_path ?>/src/www/janitor/css &&
 sudo chmod -R 770 <?= $project_path ?>/src/www/admin/css</code>
 
 	<h3>Restart Apache</h3>
@@ -529,7 +529,7 @@ sudo chmod -R 770 <?= $project_path ?>/src/www/admin/css</code>
 	<h2>Relaunch your Janitor project</h2>
 	<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>
 	<ul class="actions">
-		<li class="finalize"><a href="/setup/paths" class="button primary">Finalize setup</a></li>
+		<li class="finalize">Finalize setup</li>
 	</ul>
 
 </div>

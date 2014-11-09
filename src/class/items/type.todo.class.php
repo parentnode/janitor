@@ -71,7 +71,7 @@ class TypeTodo extends Model {
 	// used for frontend communication
 
 	// close task
-	// /admin/todo/close/#item_id#
+	// /janitor/todo/close/#item_id#
 	function close($action) {
 
 		if(count($action) == 2) {
@@ -86,7 +86,7 @@ class TypeTodo extends Model {
 	}
 
 	// open
-	// /admin/todo/open/#item_id#
+	// /janitor/todo/open/#item_id#
 	function open($action) {
 
 		if(count($action) == 2) {
