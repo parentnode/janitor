@@ -77,7 +77,7 @@
 
 
 /* VALIDATION */
-#content .field.required .indicator {position: absolute; top: 4px; left: 435px; width: 25px; height: 25px; background: transparent url(/janitor/img/bg_icons.png) no-repeat 0 -292px;}
+#content .field.required .indicator {position: absolute; top: 4px; left: 435px; width: 25px; height: 25px; background: transparent url(/janitor/admin/img//bg_icons.png) no-repeat 0 -292px;}
 #content .field.text.required .indicator {background-position: 0 -296px;}
 
 

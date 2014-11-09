@@ -12,7 +12,7 @@ $HTML = new HTML();
 
 $page->pageTitle("the Janitor @ kaestel.dk")
 ?>
-<? $page->header(array("type" => "admin")) ?>
+<? $page->header(array("type" => "janitor")) ?>
 
 <div class="scene front">
 	<h1><?= SITE_NAME ?> Admin</h1>
@@ -20,4 +20,4 @@ $page->pageTitle("the Janitor @ kaestel.dk")
 
 </div>
 
-<? $page->footer(array("type" => "admin")) ?>
+<? $page->footer(array("type" => "janitor")) ?>

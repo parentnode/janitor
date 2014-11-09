@@ -23,8 +23,8 @@ if(is_array($action) && count($action)) {
 	if(count($action) == 1 && $action[0] == "list") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/".$itemtype."/list.php"
+			"type" => "janitor",
+			"templates" => "janitor/".$itemtype."/list.php"
 			)
 		);
 		exit();
@@ -34,8 +34,8 @@ if(is_array($action) && count($action)) {
 	else if(count($action) == 1 && $action[0] == "new") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/".$itemtype."/new.php"
+			"type" => "janitor",
+			"templates" => "janitor/".$itemtype."/new.php"
 			)
 		);
 		exit();
@@ -45,8 +45,8 @@ if(is_array($action) && count($action)) {
 	else if(count($action) == 2 && $action[0] == "edit") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/".$itemtype."/edit.php"
+			"type" => "janitor",
+			"templates" => "janitor/".$itemtype."/edit.php"
 			)
 		);
 		exit();
