@@ -1,6 +1,5 @@
 <?php
 $access_item["/"] = true;
-
 if(isset($read_access) && $read_access) {
 	return;
 }
@@ -9,6 +8,7 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
+
 $model = new Navigation();
 
 
@@ -22,8 +22,8 @@ if(is_array($action) && count($action)) {
 	if(count($action) >= 1 && $action[0] == "list") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/navigation/list.php"
+			"type" => "janitor",
+			"templates" => "janitor/navigation/list.php"
 			)
 		);
 		exit();
@@ -33,8 +33,8 @@ if(is_array($action) && count($action)) {
 	else if(count($action) == 1 && $action[0] == "new") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/navigation/new.php"
+			"type" => "janitor",
+			"templates" => "janitor/navigation/new.php"
 			)
 		);
 		exit();
@@ -44,8 +44,8 @@ if(is_array($action) && count($action)) {
 	else if(count($action) == 2 && $action[0] == "edit") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/navigation/edit.php"
+			"type" => "janitor",
+			"templates" => "janitor/navigation/edit.php"
 			)
 		);
 		exit();
@@ -56,8 +56,8 @@ if(is_array($action) && count($action)) {
 	else if(count($action) == 2 && $action[0] == "new_node") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/navigation/new_node.php"
+			"type" => "janitor",
+			"templates" => "janitor/navigation/new_node.php"
 			)
 		);
 		exit();
@@ -67,8 +67,8 @@ if(is_array($action) && count($action)) {
 	else if(count($action) == 2 && $action[0] == "edit_node") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/navigation/edit_node.php"
+			"type" => "janitor",
+			"templates" => "janitor/navigation/edit_node.php"
 			)
 		);
 		exit();

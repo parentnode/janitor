@@ -1,8 +1,8 @@
 <?php
-$access_item["/list/"] = true;
-$access_item["/edit/"] = true;
-$access_item["/updateTag/"] = true;
-$access_item["/deleteTag/"] = true;
+$access_item["/list"] = true;
+$access_item["/edit"] = true;
+$access_item["/updateTag"] = true;
+$access_item["/deleteTag"] = true;
 if(isset($read_access) && $read_access) {
 	return;
 }
@@ -11,6 +11,7 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
+
 $model = new Tag();
 
 
@@ -24,8 +25,8 @@ if(is_array($action) && count($action)) {
 	if(count($action) == 1 && $action[0] == "list") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/tag/list.php"
+			"type" => "janitor",
+			"templates" => "janitor/tag/list.php"
 			)
 		);
 		exit();
@@ -35,8 +36,8 @@ if(is_array($action) && count($action)) {
 	else if(count($action) == 2 && $action[0] == "edit") {
 
 		$page->page(array(
-			"type" => "admin",
-			"templates" => "admin/tag/edit.php"
+			"type" => "janitor",
+			"templates" => "janitor/tag/edit.php"
 			)
 		);
 		exit();
