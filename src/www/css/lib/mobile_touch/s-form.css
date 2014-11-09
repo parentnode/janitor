@@ -84,7 +84,7 @@
 /* VALIDATION */
 #content .field.required .indicator {
 	position: absolute; top: 4px; left: 420px; width: 25px; height: 25px;
-	background: #ffffff url(/janitor/img/bg_icons.png) no-repeat 0 -292px;
+	background: #ffffff url(/janitor/admin/img//bg_icons.png) no-repeat 0 -292px;
 }
 /*
 #content .field.required input {background-position: 359px -340px;}
@@ -150,9 +150,9 @@
 	background-position: 10px 100px, top left;
 	border: 1px solid #cdcdcd; 
 	color: #666666; text-shadow: -1px 1px 1px #dedede; background-color: #eeeeee;
-	background-image: url(/janitor/img/bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f0f0f0), to(#dddddd));
-	background-image: url(/janitor/img/bg_icons.png), -webkit-linear-gradient(top, #f0f0f0, #dddddd);
-	background-image: url(/janitor/img/bg_icons.png), -moz-linear-gradient(top, #f0f0f0, #dddddd);
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f0f0f0), to(#dddddd));
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-linear-gradient(top, #f0f0f0, #dddddd);
+	background-image: url(/janitor/admin/img//bg_icons.png), -moz-linear-gradient(top, #f0f0f0, #dddddd);
 	*/
 }
 #content ul.actions input.button:hover,
@@ -161,9 +161,9 @@
 
 
 	/*
-	background-image: url(/janitor/img/bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#dddddd), to(#f0f0f0));
-	background-image: url(/janitor/img/bg_icons.png), -webkit-linear-gradient(top, #dddddd, #f0f0f0);
-	background-image: url(/janitor/img/bg_icons.png), -moz-linear-gradient(center top , #dddddd, #f0f0f0);
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#dddddd), to(#f0f0f0));
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-linear-gradient(top, #dddddd, #f0f0f0);
+	background-image: url(/janitor/admin/img//bg_icons.png), -moz-linear-gradient(center top , #dddddd, #f0f0f0);
 	*/
 }
 
@@ -175,9 +175,9 @@
 
 	/*
 	border: 1px solid #a7c15c; color: #5D7731; text-shadow: -1px 1px 1px #dedede; background-color: #b6d770;
-	background-image: url(/janitor/img/bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#c8e183), to(#a3cd5b));
-	background-image: url(/janitor/img/bg_icons.png), -webkit-linear-gradient(top, #c8e183, #a3cd5b);
-	background-image: url(/janitor/img/bg_icons.png), -moz-linear-gradient(top, #c8e183, #a3cd5b);
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#c8e183), to(#a3cd5b));
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-linear-gradient(top, #c8e183, #a3cd5b);
+	background-image: url(/janitor/admin/img//bg_icons.png), -moz-linear-gradient(top, #c8e183, #a3cd5b);
 	*/
 }
 #content ul.actions input.button.primary:hover,
@@ -185,9 +185,9 @@
 	background-color: #313942; 
 
 	/*
-	background-image: url(/janitor/img/bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#a3cd5b), to(#c8e183));
-	background-image: url(/janitor/img/bg_icons.png), -webkit-linear-gradient(top, #a3cd5b, #c8e183);
-	background-image: url(/janitor/img/bg_icons.png), -moz-linear-gradient(top, #a3cd5b, #c8e183);
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#a3cd5b), to(#c8e183));
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-linear-gradient(top, #a3cd5b, #c8e183);
+	background-image: url(/janitor/admin/img//bg_icons.png), -moz-linear-gradient(top, #a3cd5b, #c8e183);
 	*/
 }
 #content ul.actions li.status input.button {
@@ -213,15 +213,15 @@
 #content ul.actions input.button.secondary,
 #content ul.actions a.button.secondary {
 	border: 1px solid #e9ac26; color: #9f742c; text-shadow: -1px 1px 1px #dedede; background-color: #fecd60;
-	background-image: url(/janitor/img/bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fed76e), to(#fdc04f));
-	background-image: url(/janitor/img/bg_icons.png), -webkit-linear-gradient(top, #fed76e, #fdc04f);
-	background-image: url(/janitor/img/bg_icons.png), -moz-linear-gradient(top, #fed76e, #fdc04f);
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fed76e), to(#fdc04f));
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-linear-gradient(top, #fed76e, #fdc04f);
+	background-image: url(/janitor/admin/img//bg_icons.png), -moz-linear-gradient(top, #fed76e, #fdc04f);
 }
 #content ul.actions input.button.secondary:hover,
 #content ul.actions a.button.secondary:hover {
-	background-image: url(/janitor/img/bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fdc04f), to(#fed76e));
-	background-image: url(/janitor/img/bg_icons.png), -webkit-linear-gradient(top, #fdc04f, #fed76e);
-	background-image: url(/janitor/img/bg_icons.png), -moz-linear-gradient(top, #fdc04f, #fed76e);
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fdc04f), to(#fed76e));
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-linear-gradient(top, #fdc04f, #fed76e);
+	background-image: url(/janitor/admin/img//bg_icons.png), -moz-linear-gradient(top, #fdc04f, #fed76e);
 }
 
 
@@ -236,16 +236,16 @@
 
 	background-color: #df0000;
 	/*
-	background-image: url(/janitor/img/bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fc7777), to(#ff0000));
-	background-image: url(/janitor/img/bg_icons.png), -webkit-linear-gradient(top, #fc7777, #ff0000);
-	background-image: url(/janitor/img/bg_icons.png), -moz-linear-gradient(top, #fc7777, #ff0000);
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fc7777), to(#ff0000));
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-linear-gradient(top, #fc7777, #ff0000);
+	background-image: url(/janitor/admin/img//bg_icons.png), -moz-linear-gradient(top, #fc7777, #ff0000);
 	*/
 }
 #content form input.button.delete.confirm:hover {
 	/*
-	background-image: url(/janitor/img/bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ff0000), to(#fc7777));
-	background-image: url(/janitor/img/bg_icons.png), -webkit-linear-gradient(top, #ff0000, #fc7777);
-	background-image: url(/janitor/img/bg_icons.png), -moz-linear-gradient(top, #ff0000, #fc7777);
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#ff0000), to(#fc7777));
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-linear-gradient(top, #ff0000, #fc7777);
+	background-image: url(/janitor/admin/img//bg_icons.png), -moz-linear-gradient(top, #ff0000, #fc7777);
 	*/
 }
 
@@ -258,9 +258,9 @@
 	color: #aaaaaa !important;
 	/*text-shadow: -1px 1px 1px #dedede !important;*/
 	background-color: #eeeeee !important;
-	background-image: url(/janitor/img/bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f0f0f0), to(#dddddd)) !important;
-	background-image: url(/janitor/img/bg_icons.png), -webkit-linear-gradient(top, #f0f0f0, #dddddd) !important;
-	background-image: url(/janitor/img/bg_icons.png), -moz-linear-gradient(top, #f0f0f0, #dddddd) !important;
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-gradient(linear, 0% 0%, 0% 100%, from(#f0f0f0), to(#dddddd)) !important;
+	background-image: url(/janitor/admin/img//bg_icons.png), -webkit-linear-gradient(top, #f0f0f0, #dddddd) !important;
+	background-image: url(/janitor/admin/img//bg_icons.png), -moz-linear-gradient(top, #f0f0f0, #dddddd) !important;
 }
 
 
