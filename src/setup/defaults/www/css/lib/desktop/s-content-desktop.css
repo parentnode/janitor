@@ -60,7 +60,8 @@
 #content .scene dl.info {padding-bottom: 20px; display: inline-block; width: auto;}
 #content .scene dl.info dt {display: none;}
 #content .scene dl.info dd {padding-right: 0;}
-#content .scene dl.info dd.author {display: none;}
+#content .scene dl.info dd.author,
+#content .scene dl.info dd.hardlink {display: none;}
 #content .scene li dl.info {padding-bottom: 0;}
 
 /* GEOLOCATION */

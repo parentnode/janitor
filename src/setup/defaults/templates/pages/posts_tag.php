@@ -31,7 +31,7 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 	<ul class="postings i:articlelist">
 <?		foreach($pagination["range_items"] as $item):
 			$item = $IC->extendItem($item, array("tags" => true));
-			$hardlink = (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]."/blog/tag/".$tag."/".$item["sindex"];
+			$hardlink = (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]."/index/tag/".$tag."/".$item["sindex"];
 			$media = $item["mediae"] ? array_shift($item["mediae"]) : false; ?>
 		<li class="item post id:<?= $item["item_id"] ?>" itemscope itemtype="http://schema.org/Article">
 
@@ -40,11 +40,11 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 <?			endif; ?>
 
 			<ul class="tags">
-				<li><a href="/blog">Posts</a></li>
+				<li><a href="/">Posts</a></li>
 <?			if($item["tags"]): ?>
 <?				foreach($item["tags"] as $item_tag): ?>
 <?	 				if($item_tag["context"] == $itemtype): ?>
-				<li><a href="/blog/tag/<?= urlencode($item_tag["value"]) ?>" itemprop="articleSection"><?= $item_tag["value"] ?></a></li>
+				<li><a href="/index/tag/<?= urlencode($item_tag["value"]) ?>" itemprop="articleSection"><?= $item_tag["value"] ?></a></li>
 <?					endif; ?>
 <?				endforeach; ?>
 <?			endif; ?>
@@ -64,7 +64,7 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 				<?= $item["html"] ?>
 			</div>
 
-<?			if(count($item["mediae"])):
+<?			if($item["mediae"]):
 				foreach($item["mediae"] as $media): ?>
 			<div class="image image_id:<?= $item["item_id"] ?> format:<?= $media["format"] ?> variant:<?= $media["variant"] ?>"></div>
 <? 				endforeach;
@@ -79,8 +79,8 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 <? if($pagination["next"] || $pagination["prev"]): ?>
 	<div class="pagination">
 		<ul class="actions">
-<? if($pagination["prev"]): ?><li class="previous"><a href="/blog/tag/<?= $tag ?>/<?= $pagination["first_sindex"] ?>/prev">Previous page</a></li><? endif; ?>
-<? if($pagination["next"]): ?><li class="next"><a href="/blog/tag/<?= $tag ?>/<?= $pagination["last_sindex"] ?>/next">Next page</a></li><? endif; ?>
+<? if($pagination["prev"]): ?><li class="previous"><a href="/index/tag/<?= $tag ?>/<?= $pagination["first_sindex"] ?>/prev">Previous page</a></li><? endif; ?>
+<? if($pagination["next"]): ?><li class="next"><a href="/index/tag/<?= $tag ?>/<?= $pagination["last_sindex"] ?>/next">Next page</a></li><? endif; ?>
 		</ul>
 	</div>
 <? endif; ?>
@@ -90,13 +90,13 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 	<h2>Categories</h2>
 	<ul class="tags">
 <?		foreach($post_tags as $tag): ?>
-		<li><a href="/blog/tag/<?= urlencode($tag["value"]) ?>"><?= $tag["value"] ?></a></li>
+		<li><a href="/index/tag/<?= urlencode($tag["value"]) ?>"><?= $tag["value"] ?></a></li>
 <?		endforeach; ?>
 	</ul>
 <?	endif; ?>
 
 	<ul class="actions">
-		<li class="more"><a href="/blog">All postings</a></li>
+		<li class="more"><a href="/index">All postings</a></li>
 	</ul>
 
 </div>

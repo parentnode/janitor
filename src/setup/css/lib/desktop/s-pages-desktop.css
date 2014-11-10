@@ -4,18 +4,23 @@
 #content .scene.start ul.requirements li {display: block; padding: 0 0 10px;}
 
 
-#content .scene.paths h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+#content .scene.config fieldset+p {padding-top: 20px;}
+#content .scene.config h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 
 #content .scene.database h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 
-
-#content .scene.config h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 #content .scene.mail h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 
 #content .scene.finish h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
-#content .scene.finish ul.tasks li {padding-bottom: 10px; font-size: 14px;}
 
-#content .field.required .indicator {background-image: url(/img/bg_icons.png);}
+#content .scene.finish .final_touches,
+#content .scene.finish .installing {display: none;}
+
+#content .scene.finish ul.tasks,
+#content .scene.finish ul.building {padding: 0 45px;}
+
+#content .scene.finish ul.tasks li {padding-bottom: 10px; font-size: 14px; display: block;}
+#content .scene.finish ul.building li {padding-bottom: 10px; font-size: 14px; display: block;}
 
 
 /* CODE AND TYPECASTING */
@@ -36,5 +41,5 @@ body.mail #navigation .mail a,
 body.finish #navigation .finish a {padding-left: 35px; color: #ffffff;}
 
 #navigation li.done {
-	background: transparent url(/img/bg_done.png) no-repeat 200px 12px;
+	background: transparent url(/janitor/admin/img/bg_done.png) no-repeat 200px 12px;
 }

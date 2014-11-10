@@ -11,9 +11,10 @@ error_reporting(E_ALL);
 /**
 * Site name
 */
-define("SITE_UID", "FRW");
-define("SITE_NAME", "Framework");
+define("SITE_UID", "JNT");
+define("SITE_NAME", "Janitor");
 define("SITE_URL", "domain.com");
+define("SITE_EMAIL", "mail@domain.com");
 
 /**
 * Optional constants

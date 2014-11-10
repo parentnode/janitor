@@ -1,1 +1,1 @@
-document.write('<script type="text/javascript" src="/janitor/js/lib/seg_basic_include.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/seg_basic_include.js"></script>');

@@ -47,6 +47,8 @@ include_once("class/system/html.class.php");
 include_once("class/system/model.class.php");
 include_once("class/system/output.class.php");
 
+include_once("class/system/setup.class.php");
+
 
 // DEFINE LOCAL_PATH
 // look for local_path in session to avoid guessing

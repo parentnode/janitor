@@ -3242,7 +3242,7 @@ Util.bug = function(message, corner, color) {
 }
 Util.xInObject = function(object) {
 	if(u.debugURL()) {
-		var x, s = "--- start object ---<br>";
+		var x, s = "--- start object ---<br>\n";
 		for(x in object) {
 			if(object[x] && typeof(object[x]) == "object" && typeof(object[x].nodeName) == "string") {
 				s += x + "=" + object[x]+" -> " + u.nodeId(object[x], 1) + "<br>\n";
@@ -3433,6 +3433,7 @@ Util.Form = u.f = new function() {
 					field._input.field = field;
 					field._input._label = u.qs("label[for="+field._input.id+"]", field);
 					form.fields[field._input.name] = field._input;
+					u.bug("set value function:" + u.nodeId(field._input))
 					field._input.val = this._value_checkbox;
 					if(u.browser("explorer", "<=8")) {
 						field._input.pre_state = field._input.checked;
@@ -3561,7 +3562,7 @@ Util.Form = u.f = new function() {
 			var action_name = action._input.name ? action._input.name : action.className;
 				form.actions[action_name] = action._input;
 			if(typeof(u.k) == "object" && u.hc(action._input, "key:[a-z0-9]+")) {
-				u.k.addKey(u.cv(action._input, "key"), action._input);
+				u.k.addKey(action._input, u.cv(action._input, "key"));
 			}
 		}
 		if(!actions.length) {
@@ -3590,7 +3591,7 @@ Util.Form = u.f = new function() {
 					form.actions[input.name] = input;
 				}
 				if(typeof(u.k) == "object" && u.hc(input, "key:[a-z0-9]+")) {
-					u.k.addKey(u.cv(input, "key"), input);
+					u.k.addKey(input, u.cv(input, "key"));
 				}
 			}
 		}
@@ -3768,20 +3769,22 @@ Util.Form = u.f = new function() {
 		}
 	}
 	this.positionHint = function(field) {
-		var f_h =  field.offsetHeight;
-		var f_p_t = parseInt(u.gcs(field, "padding-top"));
-		var f_p_b = parseInt(u.gcs(field, "padding-bottom"));
-		var f_b_t = parseInt(u.gcs(field, "border-top-width"));
-		var f_b_b = parseInt(u.gcs(field, "border-bottom-width"));
-		var f_h_h = field._help.offsetHeight;
-		if(field._help && u.hc(field, "html")) {
-			var l_h = field._input._label.offsetHeight;
-			var help_top = (((f_h - (f_p_t + f_p_b + f_b_b + f_b_t)) / 2)) - (f_h_h / 2) + l_h;
-			u.as(field._help, "top", help_top + "px");
-		}
-		else if(field._help) {
-			var help_top = (((f_h - (f_p_t + f_p_b + f_b_b + f_b_t)) / 2) + 2) - (f_h_h / 2)
-			u.as(field._help, "top", help_top + "px");
+		if(field._help) {
+			var f_h =  field.offsetHeight;
+			var f_p_t = parseInt(u.gcs(field, "padding-top"));
+			var f_p_b = parseInt(u.gcs(field, "padding-bottom"));
+			var f_b_t = parseInt(u.gcs(field, "border-top-width"));
+			var f_b_b = parseInt(u.gcs(field, "border-bottom-width"));
+			var f_h_h = field._help.offsetHeight;
+			if(u.hc(field, "html")) {
+				var l_h = field._input._label.offsetHeight;
+				var help_top = (((f_h - (f_p_t + f_p_b + f_b_b + f_b_t)) / 2)) - (f_h_h / 2) + l_h;
+				u.as(field._help, "top", help_top + "px");
+			}
+			else {
+				var help_top = (((f_h - (f_p_t + f_p_b + f_b_b + f_b_t)) / 2) + 2) - (f_h_h / 2)
+				u.as(field._help, "top", help_top + "px");
+			}
 		}
 	}
 	this._mouseenter = function(event) {
@@ -5304,7 +5307,7 @@ Util.clickableElement = u.ce = function(node, options) {
 			}
 			if(node._click_type == "link") {
 				node.clicked = function(event) {
-					if(event.metaKey || event.ctrlKey) {
+					if(event && (event.metaKey || event.ctrlKey)) {
 						window.open(this.url);
 					}
 					else {
@@ -5471,7 +5474,7 @@ Util.nodeWithin = u.nw = function(node, scope) {
 Util.createRequestObject = u.createRequestObject = function() {
 	return new XMLHttpRequest();
 }
-Util.request = u.request = function(node, url, settings) {
+Util.request = u.request = function(node, url, _options) {
 	var request_id = u.randomString(6);
 	node[request_id] = {};
 	node[request_id].request_url = url;
@@ -5479,16 +5482,18 @@ Util.request = u.request = function(node, url, settings) {
 	node[request_id].request_async = true;
 	node[request_id].request_params = "";
 	node[request_id].request_headers = false;
-	node[request_id].response_callback = "response";
-	if(typeof(settings) == "object") {
+	node[request_id].callback_response = "response";
+	node[request_id].jsonp_callback = "callback";
+	if(typeof(_options) == "object") {
 		var argument;
-		for(argument in settings) {
+		for(argument in _options) {
 			switch(argument) {
-				case "method"		: node[request_id].request_method		= settings[argument]; break;
-				case "params"		: node[request_id].request_params		= settings[argument]; break;
-				case "async"		: node[request_id].request_async		= settings[argument]; break;
-				case "headers"		: node[request_id].request_headers		= settings[argument]; break;
-				case "callback"		: node[request_id].response_callback	= settings[argument]; break;
+				case "method"				: node[request_id].request_method		= _options[argument]; break;
+				case "params"				: node[request_id].request_params		= _options[argument]; break;
+				case "async"				: node[request_id].request_async		= _options[argument]; break;
+				case "headers"				: node[request_id].request_headers		= _options[argument]; break;
+				case "callback"				: node[request_id].callback_response	= _options[argument]; break;
+				case "jsonp_callback"		: node[request_id].jsonp_callback		= _options[argument]; break;
 			}
 		}
 	}
@@ -5569,7 +5574,7 @@ Util.request = u.request = function(node, url, settings) {
 		}
 		var params = u.JSONtoParams(node[request_id].request_params);
 		node[request_id].request_url += params ? ((!node[request_id].request_url.match(/\?/g) ? "?" : "&") + params) : "";
-		node[request_id].request_url += (!node[request_id].request_url.match(/\?/g) ? "?" : "&") + "callback=document."+key+".responder";
+		node[request_id].request_url += (!node[request_id].request_url.match(/\?/g) ? "?" : "&") + node[request_id].jsonp_callback + "=document."+key+".responder";
 		u.ae(u.qs("head"), "script", ({"type":"text/javascript", "src":node[request_id].request_url}));
 	}
 	return request_id;
@@ -5660,8 +5665,8 @@ Util.validateResponse = function(response){
 		}
 	}
 	if(object) {
-		if(typeof(response.node[response.node[response.request_id].response_callback]) == "function") {
-			response.node[response.node[response.request_id].response_callback](object, response.request_id);
+		if(typeof(response.node[response.node[response.request_id].callback_response]) == "function") {
+			response.node[response.node[response.request_id].callback_response](object, response.request_id);
 		}
 		// 
 	}
@@ -5677,7 +5682,7 @@ Util.validateResponse = function(response){
 
 
 /*beta-u-sortable.js*/
-u.sortable = function(scope, options) {
+u.sortable = function(scope, _options) {
 	scope.callback_picked = "picked";
 	scope.callback_moved = "moved";
 	scope.callback_dropped = "dropped";
@@ -5685,17 +5690,17 @@ u.sortable = function(scope, options) {
 	scope.targets;	
 	scope.layout;
 	scope.allow_nesting = false;
-	if(typeof(options) == "object") {
+	if(typeof(_options) == "object") {
 		var argument;
-		for(argument in options) {
+		for(argument in _options) {
 			switch(argument) {
-				case "picked"				: scope.callback_picked		= options[argument]; break;
-				case "moved"				: scope.callback_moved		= options[argument]; break;
-				case "dropped"				: scope.callback_dropped	= options[argument]; break;
-				case "draggables"			: scope.draggables			= options[argument]; break;
-				case "targets"				: scope.targets				= options[argument]; break;
-				case "layout"				: scope.layout				= options[argument]; break;
-				case "allow_nesting"		: scope.allow_nesting		= options[argument]; break;
+				case "picked"				: scope.callback_picked		= _options[argument]; break;
+				case "moved"				: scope.callback_moved		= _options[argument]; break;
+				case "dropped"				: scope.callback_dropped	= _options[argument]; break;
+				case "draggables"			: scope.draggables			= _options[argument]; break;
+				case "targets"				: scope.targets				= _options[argument]; break;
+				case "layout"				: scope.layout				= _options[argument]; break;
+				case "allow_nesting"		: scope.allow_nesting		= _options[argument]; break;
 			}
 		}
 	}
@@ -5951,6 +5956,66 @@ u.sortable = function(scope, options) {
 		}
 		u.e.removeStartEvent(d_node.drag, scope._sortablepick);
 		u.e.addStartEvent(d_node.drag, scope._sortablepick);
+	}
+}
+
+
+/*u-keyboard.js*/
+Util.Keyboard = u.k = new function() {
+	this.shortcuts = {};
+	this.onkeydownCatcher = function(event) {
+		u.k.catchKey(event);
+	}
+	this.addKey = function(node, key, _options) {
+		node.callback_keyboard = "clicked";
+		node.metakey_required = true;
+		if(typeof(_options) == "object") {
+			var argument;
+			for(argument in _options) {
+				switch(argument) {
+					case "callback"		: node.callback_keyboard	= _options[argument]; break;
+					case "metakey"		: node.metakey_required		= _options[argument]; break;
+				}
+			}
+		}
+		if(!this.shortcuts.length) {
+			u.e.addEvent(document, "keydown", this.onkeydownCatcher);
+		}
+		if(!this.shortcuts[key.toString().toUpperCase()]) {
+			this.shortcuts[key.toString().toUpperCase()] = new Array();
+		}
+		this.shortcuts[key.toString().toUpperCase()].push(node);
+	}
+	this.catchKey = function(event) {
+		event = event ? event : window.event;
+		var key = String.fromCharCode(event.keyCode);
+		if(event.keyCode == 27) {
+			key = "ESC";
+		}
+		if(this.shortcuts[key]) {
+			var nodes, node, i;
+			nodes = this.shortcuts[key];
+			for(i = 0; node = nodes[i]; i++) {
+				if(u.nodeWithin(node, document.body)) {
+					if(node.offsetHeight && ((event.ctrlKey || event.metaKey) || (!node.metakey_required || key == "ESC"))) {
+						u.e.kill(event);
+						if(typeof(node[node.callback_keyboard]) == "function") {
+							node[node.callback_keyboard](event);
+						}
+					}
+				}
+				else {
+					this.shortcuts[key].splice(i, 1);
+					if(!this.shortcuts[key].length) {
+						delete this.shortcuts[key];
+						break;
+					}
+					else {
+						i--;
+					}
+				}
+			}
+		}
 	}
 }
 
@@ -6307,57 +6372,6 @@ Util.videoPlayer = function(_options) {
 	}
 	return player;
 }
-
-/*beta-u-keys.js*/
-Util.Keys = u.k = new function() {
-	this.shortcuts = new Array();
-	this.onkeydownCatcher = function(event) {
-		u.k.catchKey(event);
-	}
-	this.addKey = function(key, action) {
-		if(!this.shortcuts.length) {
-			u.e.addEvent(document, "keydown", this.onkeydownCatcher);
-		}
-		if(!this.shortcuts[key.toString().toUpperCase()]) {
-			this.shortcuts[key.toString().toUpperCase()] = new Array();
-		}
-		this.shortcuts[key.toString().toUpperCase()].push(action);
-	}
-	this.catchKey = function(event) {
-		var action, i, key;
-		event = event ? event : window.event;
-		key = String.fromCharCode(event.keyCode);
-		u.bug("e:" + key + ":"+event.keyCode+":" + this.shortcuts.length)
-		if((event.ctrlKey || event.metaKey) && this.shortcuts[key]) {
-			u.e.kill(event);
-			action = this.shortcuts[key].pop();
-				if(typeof(action) == "object") {
-					action.clicked();
-				}
-				else if(typeof(action) == "function") {
-					action();
-				}
-				else {
-					eval(action);
-				}
-		}
-		if(event.keyCode == 27 && this.shortcuts["ESC"]) {
-			u.e.kill(event);
-			action = this.shortcuts["ESC"].pop();
-				u.bug("esc:"+action + "::" + u.nodeId(action) + ", " + typeof(action));
-				if(typeof(action) == "object") {
-					action.clicked();
-				}
-				else if(typeof(action) == "function") {
-					action();
-				}
-				else {
-					eval(action);
-				}
-		}
-	}
-}
-
 
 /*i-page.js*/
 u.bug_console_only = true;
@@ -7090,6 +7104,8 @@ Util.Objects["addMedia"] = new function() {
 		u.f.init(div.form);
 		div.csrf_token = div.form.fields["csrf-token"].val();
 		div.delete_url = div.getAttribute("data-delete-media");
+		div.update_name_url = div.getAttribute("data-update-media-name");
+		div.save_order_url = div.getAttribute("data-save-order");
 		div.form.file_input = u.qs("input[type=file]", div.form);
 		div.form.file_input.div = div;
 		div.form.file_input.changed = function() {
@@ -7104,13 +7120,26 @@ Util.Objects["addMedia"] = new function() {
 				if(response.cms_status == "success" && response.cms_object) {
 					var i, media, li, image;
 					for(i = 0; media = response.cms_object[i]; i++) {
-						var li = u.ae(div.media_list, "li");
+						var li = u.ie(div.media_list, "li");
+						li.media_list = this.div.media_list;
 						u.ac(li, "media image");
 						u.ac(li, "variant:"+media.variant);
 						u.ac(li, "media_id:"+media.media_id);
 						var image = u.ae(li, "img");
 						image.src = "/images/"+media.item_id+"/"+media.variant+"/x"+li.offsetHeight+"."+media.format+"?"+u.randomString(4);
-						this.div.addDeleteForm(li);
+						if(media.name) {
+							li.p_name = u.ae(li, "p", {"html":media.name});
+							var n_w = media.width/media.height * li.offsetHeight;
+							var p_p_l = parseInt(u.gcs(li.p_name, "padding-left"));
+							var p_p_r = parseInt(u.gcs(li.p_name, "padding-right"));
+							u.as(li.p_name, "width", (n_w - p_p_l - p_p_r)+"px");
+							if(this.div.update_name_url) {
+								this.div.addUpdateNameForm(li);
+							}
+						}
+						if(this.div.delete_url) {
+							this.div.addDeleteForm(li);
+						}
 					}
 					if(this.div.save_order_url) {
 						u.sortable(this.div.media_list);
@@ -7132,6 +7161,54 @@ Util.Objects["addMedia"] = new function() {
 			}
 			u.o.deleteMedia.init(delete_form);
 		}
+		div.addUpdateNameForm = function(li) {
+			li.p_name.li = li;
+			u.ce(li.p_name);
+			li.p_name.inputStarted = function(event) {
+				u.e.kill(event);
+				this.li.media_list._sorting_disabled = true;
+			}
+			li.p_name.clicked = function(event) {
+				u.ac(this.li, "edit");
+				var input = this.li.update_name_form.fields["name"];
+				var field = input.field;
+				input.focus();
+				var f_w = field.offsetWidth;
+				var f_p_l = parseInt(u.gcs(field, "padding-left"));
+				var f_p_r = parseInt(u.gcs(field, "padding-right"));
+				var i_p_l = parseInt(u.gcs(input, "padding-left"));
+				var i_p_r = parseInt(u.gcs(input, "padding-right"));
+				var i_m_l = parseInt(u.gcs(input, "margin-left"));
+				var i_m_r = parseInt(u.gcs(input, "margin-right"));
+				var i_b_l = parseInt(u.gcs(input, "border-left-width"));
+				var i_b_r = parseInt(u.gcs(input, "border-right-width"));
+				u.as(input, "width", (f_w - f_p_l - f_p_r - i_p_l - i_p_r - i_m_l - i_m_r - i_b_l - i_b_r)+"px");
+			}
+			li.update_name_form = u.f.addForm(li, {"action":this.update_name_url+"/"+this.item_id+"/"+u.cv(li, "variant"), "class":"edit"});
+			li.update_name_form.li = li;
+			var field = u.ae(li.update_name_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
+			var field = u.f.addField(li.update_name_form, {"type":"string","name":"name", "value":li.p_name.innerHTML});
+			u.f.init(li.update_name_form);
+			li.update_name_form.fields["name"].blurred = function() {
+				u.bug("blurred")
+				this.form.updateName();
+			}
+			li.update_name_form.submitted = function() {}
+			li.update_name_form.updateName = function() {
+				u.rc(this.li, "edit");
+				this.li.media_list._sorting_disabled = false;
+				this.response = function(response) {
+					page.notify(response);
+					if(response.cms_status == "success" && response.cms_object) {
+						this.li.p_name.innerHTML = this.fields["name"].val();
+					}
+					else {
+						this.fields["name"].val(this.li.p_name.innerHTML);
+					}
+				}
+				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+			}
+		}
 		if(!div.media_list) {
 			u.ae(div, "ul", {"class":"mediae"});
 		}
@@ -7139,28 +7216,38 @@ Util.Objects["addMedia"] = new function() {
 		div.media_list.div = div;
 		var i, node;
 		for(i = 0; node = div.media_list.nodes[i]; i++) {
-			div.addDeleteForm(node);
-		}
-		if(u.hc(div, "sortable") && div.media_list) {
-			div.save_order_url = div.getAttribute("data-save-order");
-			if(div.save_order_url) {
-				u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
-				div.media_list.picked = function() {}
-				div.media_list.dropped = function() {
-					var order = new Array();
-					this.nodes = u.qsa("li.media", this);
-					for(i = 0; node = this.nodes[i]; i++) {
-						order.push(u.cv(node, "media_id"));
-					}
-					this.response = function(response) {
-						page.notify(response);
-					}
-					u.request(this, this.div.save_order_url, {"method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
+			node.media_list = div.media_list;
+			if(div.delete_url) {
+				div.addDeleteForm(node);
+			}
+			node.p_name = u.qs("p", node);
+			if(node.p_name) {
+				var n_w = node.offsetWidth;
+				var p_p_l = parseInt(u.gcs(node.p_name, "padding-left"));
+				var p_p_r = parseInt(u.gcs(node.p_name, "padding-right"));
+				u.as(node.p_name, "width", (n_w - p_p_l - p_p_r)+"px");
+				if(div.update_name_url) {
+					div.addUpdateNameForm(node);
 				}
 			}
-			else {
-				u.rc(div, "sortable");
+		}
+		if(u.hc(div, "sortable") && div.media_list && div.save_order_url) {
+			u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
+			div.media_list.picked = function() {}
+			div.media_list.dropped = function() {
+				var order = new Array();
+				this.nodes = u.qsa("li.media", this);
+				for(i = 0; node = this.nodes[i]; i++) {
+					order.push(u.cv(node, "media_id"));
+				}
+				this.response = function(response) {
+					page.notify(response);
+				}
+				u.request(this, this.div.save_order_url, {"method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
 			}
+		}
+		else {
+			u.rc(div, "sortable");
 		}
 	}
 }
@@ -7421,6 +7508,36 @@ Util.Objects["formAddressNew"] = new function() {
 		}
 	}
 }
+Util.Objects["accessEdit"] = new function() {
+	this.init = function(div) {
+		div._item_id = u.cv(div, "item_id");
+		var form = u.qs("form", div);
+		u.f.init(form);
+		form.actions["cancel"].clicked = function(event) {
+			location.href = this.url;
+		}
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				page.notify(response);
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+		}
+		var i, group;
+		var groups = u.qsa("li.action", form);
+		for(i = 0; group = groups[i]; i++) {
+			var h3 = u.qs("h3", group);
+			h3.group = group;
+			u.ce(h3)
+			h3.clicked = function() {
+				var i, input;
+				var inputs = u.qsa("input[type=checkbox]", this.group);
+				for(i = 0; input = inputs[i]; i++) {
+					input.val(1);
+				}
+			}
+		}
+	}
+}
 
 /*u-notifier.js*/
 u.notifier = function(node) {
@@ -7601,7 +7718,7 @@ Util.Objects["database"] = new function() {
 						}
 					}
 					else {
-						page.notify(response);
+						location.reload();
 					}
 				}
 				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
@@ -7665,16 +7782,40 @@ Util.Objects["mail"] = new function() {
 }
 Util.Objects["finish"] = new function() {
 	this.init = function(scene) {
+		var bn_install = u.qs(".actions li.install", scene);
+		u.ce(bn_install);
+		bn_install.clicked = function() {
+			u.as(this.parentNode, "display", "none");
+			this.ul_tasks = u.qs(".tasks", scene);
+			this.div_installing = u.qs(".installing", scene);
+			u.as(this.div_installing, "display", "block");
+			this.response = function(response) {
+				if(response.cms_status == "success" && response.cms_object) {
+					var i, task;
+					for(i = 0; task = response.cms_object[i]; i++) {
+						u.ae(this.ul_tasks, "li", {"html":task});
+					}
+					this.div_final_touches = u.qs(".final_touches", scene);
+					u.as(this.div_final_touches, "display", "block");
+				}
+			}
+			u.request(this, this.url, {"method":"post"});
+		}
 		var bn_finalize = u.qs(".actions li.finalize", scene);
 		u.ce(bn_finalize);
 		bn_finalize.clicked = function() {
+			this.ul_build = u.qs(".building", scene);
 			this.response = function(response) {
 				var title = response.isHTML ? u.qs("title", response) : false;
 				if(!title || !u.text(title).match(/404/)) {
+					u.ae(this.ul_build, "li", {"html":"Frontend CSS built"});
 					this.response = function(response) {
+						u.ae(this.ul_build, "li", {"html":"Frontend JS built"});
 						this.response = function(response) {
+							u.ae(this.ul_build, "li", {"html":"Janitor CSS built"});
 							this.response = function(response) {
-								location.href = "/";
+								u.ae(this.ul_build, "li", {"html":"Janitor JS built"});
+								u.t.setTimer(this, function() {location.href = "/";}, 1000);
 							}
 							u.request(this, "/janitor/js/lib/build");
 						}

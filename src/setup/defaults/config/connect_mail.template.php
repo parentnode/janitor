@@ -5,7 +5,7 @@
 *
 * @package Config
 */
-define("ADMIN_MAIL", SITE_EMAIL);
+define("ADMIN_EMAIL", "###ADMIN_EMAIL###");
 
 $this->mail_connection(
 	array(

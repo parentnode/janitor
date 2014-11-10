@@ -6,9 +6,9 @@
 /*s-fonts.css*/
 @font-face {
 	font-family: 'OpenSansRegular';
-	src: url('/janitor/fonts/opensans-regular-webfont.woff') format('woff'),
-		 url('/janitor/fonts/opensans-regular-webfont.ttf') format('truetype'),
-		 url('/janitor/fonts/opensans-regular-webfont.svg#OpenSansRegular') format('svg');
+	src: url('/janitor/admin/fonts/opensans-regular-webfont.woff') format('woff'),
+		 url('/janitor/admin/fonts/opensans-regular-webfont.ttf') format('truetype'),
+		 url('/janitor/admin/fonts/opensans-regular-webfont.svg#OpenSansRegular') format('svg');
 	font-weight: normal;
 	font-style: normal;
 }
@@ -128,6 +128,7 @@ input, select, textarea {font-size: 14px;}
 #content .scene > ul.actions li {padding: 0 10px 10px 0;}
 #content .scene > div.prices {padding: 10px 0 20px; border-bottom: 1px solid #bbbbbb;}
 #content .todo * {color: orange !important;}
+#content .warning, #content .warning * {color: orange !important;}
 #content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
 #content .scene.login form {padding-top: 30px;}
 
@@ -218,7 +219,8 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field input.default,
 #content .field select.default,
 #content .field textarea.default {color: #aaaaaa;}
-#content .field.required .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px; 
+#content .field .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px;}
+#content .field.required .indicator {
 	background: transparent url(/janitor/admin/img//bg_icons.png) no-repeat 0 -292px;
 }
 #content .field.text.required .indicator {background-position: 0 -296px;}
@@ -569,6 +571,13 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.defaultEdit > div.media ul.mediae {padding: 20px 20px 0; text-align: left;}
 #content .scene.defaultEdit > div.media ul.mediae > li {margin: 0 10px 20px; position: relative; text-align: center;}
 #content .scene.defaultEdit > div.media ul.mediae > li h4 {padding: 0 0 5px;}
+#content .scene.defaultEdit > div.media ul.mediae > li p {word-wrap: break-word; padding: 10px; font-size: 10px; text-align: left; background-color: rgba(255,255,255, 0.7); color: #000000; width: 100%; position: absolute; bottom: 0; left: 0; cursor: text;}
+#content .scene.defaultEdit > div.media ul.mediae > li form.edit {display: none;}
+#content .scene.defaultEdit > div.media ul.mediae > li.edit p {display: none;}
+#content .scene.defaultEdit > div.media ul.mediae > li.edit form.edit {display: block;}
+#content .scene.defaultEdit > div.media ul.mediae > li form.edit {position: absolute; bottom: 0; left: 0; width: 100%;}
+#content .scene.defaultEdit > div.media ul.mediae > li form.edit div.field {padding: 5px; background-color: rgba(255,255,255, 0.7);}
+#content .scene.defaultEdit > div.media ul.mediae > li form.edit div.field input {font-size: 12px; height: 20px;}
 #content .scene.defaultEdit > div.media.sortable ul.mediae > li {cursor: move;}
 #content .scene.defaultEdit > div.media ul.mediae li.image {height: 150px;}
 #content .scene.defaultEdit > div.media ul.mediae li.audio {width: 50px; height: 70px;
@@ -593,13 +602,17 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.start h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 #content .scene.start ul.requirements {padding: 0 30px 20px;}
 #content .scene.start ul.requirements li {display: block; padding: 0 0 10px;}
-#content .scene.paths h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
-#content .scene.database h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+#content .scene.config fieldset+p {padding-top: 20px;}
 #content .scene.config h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+#content .scene.database h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 #content .scene.mail h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 #content .scene.finish h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
-#content .scene.finish ul.tasks li {padding-bottom: 10px; font-size: 14px;}
-#content .field.required .indicator {background-image: url(/img/bg_icons.png);}
+#content .scene.finish .final_touches,
+#content .scene.finish .installing {display: none;}
+#content .scene.finish ul.tasks,
+#content .scene.finish ul.building {padding: 0 45px;}
+#content .scene.finish ul.tasks li {padding-bottom: 10px; font-size: 14px; display: block;}
+#content .scene.finish ul.building li {padding-bottom: 10px; font-size: 14px; display: block;}
 #content .scene code {padding: 10px 10px; margin: 0 30px 5px; position: relative; top: -15px; background-color: #ededed; font-size: 12px; display: block; overflow: auto; white-space: pre;
 	font-family: "Monaco", "Courier New", "Courier";
 	-moz-tab-size: 4;
@@ -613,5 +626,5 @@ body.config #navigation .config a,
 body.mail #navigation .mail a,
 body.finish #navigation .finish a {padding-left: 35px; color: #ffffff;}
 #navigation li.done {
-	background: transparent url(/img/bg_done.png) no-repeat 200px 12px;
+	background: transparent url(/janitor/admin/img/bg_done.png) no-repeat 200px 12px;
 }

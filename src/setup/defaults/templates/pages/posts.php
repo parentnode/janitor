@@ -40,7 +40,7 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 	<ul class="postings">
 <?		foreach($pagination["range_items"] as $item):
 			$item = $IC->extendItem($item, array("tags" => true));
-			$hardlink = (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]."/blog/tag/".$tag."/".$item["sindex"];
+			$hardlink = (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]."/blog/".$item["sindex"];
 			$media = $item["mediae"] ? array_shift($item["mediae"]) : false; ?>
 		<li class="item post id:<?= $item["item_id"] ?>" itemscope itemtype="http://schema.org/Article">
 
@@ -49,7 +49,7 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 <?			endif; ?>
 
 			<ul class="tags">
-				<li><a href="/blog">Posts</a></li>
+				<li><a href="/">Posts</a></li>
 <?			if($item["tags"]): ?>
 <?				foreach($item["tags"] as $item_tag): ?>
 <?	 				if($item_tag["context"] == $itemtype): ?>
@@ -74,7 +74,7 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 				<?= $item["html"] ?>
 			</div>
 
-<?			if(count($item["mediae"])):
+<?			if($item["mediae"]):
 				foreach($item["mediae"] as $media): ?>
 			<div class="image image_id:<?= $item["item_id"] ?> format:<?= $media["format"] ?> variant:<?= $media["variant"] ?>"></div>
 <? 				endforeach;
@@ -89,8 +89,8 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 <? if($pagination["next"] || $pagination["prev"]): ?>
 	<div class="pagination">
 		<ul class="actions">
-<? if($pagination["prev"]): ?><li class="previous"><a href="/blog/<?= $pagination["first_sindex"] ?>/prev">Previous page</a></li><? endif; ?>
-<? if($pagination["next"]): ?><li class="next"><a href="/blog/<?= $pagination["last_sindex"] ?>/next">Next page</a></li><? endif; ?>
+<? if($pagination["prev"]): ?><li class="previous"><a href="/index/<?= $pagination["first_sindex"] ?>/prev">Previous page</a></li><? endif; ?>
+<? if($pagination["next"]): ?><li class="next"><a href="/index/<?= $pagination["last_sindex"] ?>/next">Next page</a></li><? endif; ?>
 		</ul>
 	</div>
 <? endif; ?>

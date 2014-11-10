@@ -5,7 +5,7 @@
 *
 * @package Config
 */
-define("ADMIN_MAIL", "");
+define("ADMIN_EMAIL", "");
 
 $page->mail_connection(
 	array(
