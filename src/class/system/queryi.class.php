@@ -10,6 +10,8 @@ $mysqli_global = false;
 
 class Query {
 
+	public $connected;
+
 	private $con;
 	private $result_object;
 	private $results;
@@ -26,7 +28,14 @@ class Query {
 
 		// database connection
 		global $mysqli_global;
-		$this->con = $mysqli_global;
+
+		if($mysqli_global) {
+			$this->con = $mysqli_global;
+			$this->connected = true;
+		}
+		else {
+			$this->connected = false;
+		}
 
 
 
