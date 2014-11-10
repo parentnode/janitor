@@ -57,10 +57,10 @@ class PageCore {
 	function __construct() {
 
 		// database connection
-		@include_once("config/connect_db.php");
+		$this->loadDBConfiguration();
 
 		// mailer connection
-		@include_once("config/connect_mail.php");
+		$this->loadMailConfiguration();
 
 
 		// set guest user group if no user group is defined (user is not logged in)
@@ -604,6 +604,10 @@ class PageCore {
 			if(preg_match("/^\/janitor\/admin/", $path_test)) {
 				$controller_test = FRAMEWORK_PATH."/www".preg_replace("/^\/janitor\/admin/", "", $path_test).".php";
 			}
+			// path could be setup script
+			else if(preg_match("/^\/setup/", $path_test)) {
+				$controller_test = FRAMEWORK_PATH."/".$path_test.".php";
+			}
 			// local controller
 			else {
 				$controller_test = LOCAL_PATH."/www".$path_test.".php";
@@ -962,8 +966,19 @@ class PageCore {
 		$mysqli = new mysqli("".$this->db_host, $this->db_username, $this->db_password);
 
 		if($mysqli->connect_errno) {
-		    echo "Failed to connect to MySQL: " . $mysqli->connect_error;
-			exit();
+
+			global $mysqli_global;
+			$mysqli_global = false;
+
+			// connection error is handled different when setting up site
+			if(!defined("SETUP_TYPE")) {
+
+				echo "Failed to connect to MySQL: " . $mysqli->connect_error;
+				exit();
+
+			}
+
+			return;
 		}
 
 		// correct the database connection setting
@@ -973,6 +988,11 @@ class PageCore {
 
 		global $mysqli_global;
 		$mysqli_global = $mysqli;
+	}
+	// DB connection loader
+	function loadDBConfiguration() {
+		// database connection
+		@include_once("config/connect_db.php");
 	}
 
 
@@ -990,6 +1010,11 @@ class PageCore {
 		$this->mail_from_email = isset($settings["from_email"]) ? $settings["from_email"] : "";
 		$this->mail_from_name = isset($settings["from_name"]) ? $settings["from_name"] : "";
 
+	}
+	// Mail connection loader
+	function loadMailConfiguration() {
+		// mailer connection
+		@include_once("config/connect_mail.php");
 	}
 
 
@@ -1020,8 +1045,8 @@ class PageCore {
 		}
 
 		// if no recipients - send to ADMIN
-		if(!$recipients && defined("ADMIN_MAIL")) {
-			$recipients = ADMIN_MAIL;
+		if(!$recipients && defined("ADMIN_EMAIL")) {
+			$recipients = ADMIN_EMAIL;
 		}
 		// include template
 		if($template) {
