@@ -1,0 +1,616 @@
+
+/*seg_desktop_ie_include.css*/
+
+/*s-fonts.css*/
+@font-face {
+	font-family: 'OpenSansRegular';
+	src: url('/janitor/admin/fonts/opensans-regular-webfont.woff') format('woff'),
+		 url('/janitor/admin/fonts/opensans-regular-webfont.ttf') format('truetype'),
+		 url('/janitor/admin/fonts/opensans-regular-webfont.svg#OpenSansRegular') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+
+/*s-page.css*/
+* {
+	-webkit-text-size-adjust: none;
+}
+html {height: 100%;}
+body {background: #ffffff; margin: 0; min-height: 100%; overflow-y: scroll; background-color: #f5f7f8;}
+h1, h2, h3, h4, h5, h6, p, ul, li, dl, dd, dt {color: #313942; padding: 0; margin: 0;}
+ul {list-style: none;}
+a {text-decoration: none; cursor: pointer;}
+a:hover {}
+img {border: 0; display: block;}
+form, fieldset, label, input, select, textarea {color: #313942; padding: 0; margin: 0;}
+fieldset {border: none;}
+input, textarea {outline: none;}
+a, span {font-size: inherit; font-family: inherit; font-weight: inherit; color: inherit; text-transform: inherit;}
+h1 {padding: 20px 30px; text-transform: uppercase;}
+h2 {padding: 0 30px 10px;}
+h3 {padding: 0 30px 10px;}
+h4 {padding: 0 30px;}
+h5 {padding: 0 30px;}
+h6 {padding: 0 30px;}
+p {padding: 0 30px 25px; color: #7d848c;} 
+ul {font-size: 0;}
+li {display: inline-block; vertical-align: top; color: #7d848c;}
+dl {font-size: 0;} 
+dd, 
+dt {color: #7d848c; display: inline-block; vertical-align: top;}
+.c {clear: both; font-size: 0;}
+.c400, .c300, .c266, .c200, .c150, .c133, .c100, .c75, .c50 {display: inline-block; min-height: 10px; vertical-align: top;}
+.c400 {width: 100%;}
+.c300 {width: 75%;}
+.c266 {width: 66%;}
+.c200 {width: 50%;}
+.c133 {width: 34%;}
+.c100 {width: 25%;}
+#page {position: relative; margin-left: 230px;}
+#login_overlay {position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); z-index: 10000;}
+#login_overlay .scene {margin: 0 auto; width: 300px; position: relative;}
+#login_overlay .scene h1 {padding-left: 0;}
+#login_overlay .field {padding: 0 3px 15px; position: relative; font-size: 0;}
+#login_overlay .field label {display: none;}
+#login_overlay .field input {width: 286px; height: 24px; padding: 2px 6px; color: #333333; box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 10;}
+#login_overlay .field.focus input {margin: 0; border: 3px solid #5c5c5c;}
+#login_overlay .field input.default {color: #aaaaaa;}
+#login_overlay .field.required .indicator {position: absolute; top: 4px; left: 315px; width: 25px; height: 25px; background: transparent url(/janitor/admin/img//bg_icons.png) no-repeat 0 -292px;}
+#login_overlay .field.correct .indicator {background-position: 0 -320px;}
+#login_overlay .field.error input {margin: 0; border: 3px solid #f8c9bb;}
+#login_overlay ul.actions {padding: 0;}
+#login_overlay ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 0 10px; vertical-align: top;}
+#login_overlay ul.actions input.button {width: auto; height: 26px; padding: 3px 12px;}
+@media all and (-webkit-min-device-pixel-ratio:0) {#login_overlay ul.actions input.button {padding-bottom: 5px;}}
+#login_overlay ul.actions input.button {background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px;}
+#login_overlay ul.actions input.button.primary {background-color: #64ad8e;}
+#login_overlay ul.actions input.button.primary:hover {background-color: #313942;}
+#login_overlay .field div.help {position: absolute; left: 335px; top: 0; width: 200px;}
+#login_overlay .field div.error,
+#login_overlay .field div.hint {display: none; padding: 5px; border-radius: 3px;}
+#login_overlay .field div.error {border: 1px solid #efdb8f; color: #a27366; background: #f8c9bb; margin-top: -3px;}
+#login_overlay .field.error div.error {display: block;}
+#login_overlay .field div.hint {z-index: 9; border: 1px solid #c8e183; color: #5d7731; background: #c8e183;}
+#login_overlay .field.focus div.hint {display: block;}
+#login_overlay p {display: none;}
+
+
+/*s-typography.css*/
+* {font-family: "OpenSansRegular", Arial, Verdana, sans-serif;
+	font-size: 13px;
+}
+h1 {font-size: 2rem;}
+h2 {font-size: 1.3rem;}
+h3 {font-size: 1.2rem;}
+h1, h2, h3, h4, h5, h6, p, li, span, a, form, dd, dt {line-height: 1em; font-weight: normal;}
+form, fieldset, label, input, select, textarea {font-weight: normal;}
+p {line-height: 1.38em;} 
+input, select, textarea {font-size: 14px;}
+#content li,
+#content li span {font-size: 12px;}
+#content li .button {font-size: 13px; line-height: 1.2em;}
+#content .field div.error,
+#content .field div.hint {font-size: 12px;}
+#content ul.tags li.add {font-size: 12px;}
+
+
+/*s-header.css*/
+#header {background-color: #313942; position: fixed; top: 0; left: 0; width: 230px; height: 100%;}
+#header .servicenavigation {display: block; background-color: #64ad8e; height: 140px; padding: 0;}
+#header .servicenavigation li.front {display: block; color: #ffffff; padding: 20px; text-transform: uppercase; font-size: 18px;}
+#header .servicenavigation li.navigation {display: none;}
+#header .servicenavigation li.help {display: none;}
+#header .servicenavigation li.user {display: block; color: #8C9399; border-top: 1px solid #404A56; position: absolute; bottom: 0; left: 0; width: 230px;}
+#header .servicenavigation li.user a {padding: 14px 20px 15px; display: block;}
+
+/*s-content.css*/
+#content {margin-bottom: 50px;}
+#content a {text-decoration: underline;}
+#content .link {cursor: pointer;}
+#content .scene {position: relative; min-height: 200px;}
+#content .scene > h1 {height: 46px; padding-bottom: 0; background: #ffffff;}
+#content .scene h1 + ul.actions {border-bottom: 1px solid #bbbbbb; padding: 25px 30px 0; height: 49px; background: #ffffff;}
+#content .scene h1 + ul.actions li {padding-bottom: 0;}
+#content .scene h2 {padding: 10px 30px 11px;}
+#content .scene.front h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
+#content ul.list {padding: 21px 30px;}
+#content ul.list li {display: block;}
+#content dl.list {padding: 21px 30px; width: 600px;}
+#content dl.list dt,
+#content dl.list dd {padding: 5px 0; border-bottom: 1px solid #dbdfe5; height: 14px;}
+#content dl.list dt {width: 100px;}
+#content dl.list dt:after {content: ":";}
+#content dl.list dd {width: 170px; margin: 0 30px 0 0;}
+#content .scene > ul.actions {padding-bottom: 20px; padding-top: 20px; text-align: left;}
+#content .scene > ul.actions li {padding: 0 10px 10px 0;}
+#content .scene > div.prices {padding: 10px 0 20px; border-bottom: 1px solid #bbbbbb;}
+#content .todo * {color: orange !important;}
+#content .warning, #content .warning * {color: orange !important;}
+#content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
+#content .scene.login form {padding-top: 30px;}
+
+/*s-navigation.css*/
+#navigation {}
+#navigation ul {}
+#navigation ul li {border-bottom: 1px solid #404a56; color: #8c9399; display: block; text-transform: uppercase;}
+#navigation ul li:hover {color: #ffffff;}
+#navigation ul li a {display: block;  padding: 14px 20px 15px;}
+#navigation ul li.selected {}
+body.navigation #navigation .navigation a,
+body.page #navigation .page a,
+body.tags #navigation .tags a,
+body.user #navigation .user a {padding-left: 35px; color: #ffffff;}
+
+
+/*s-footer.css*/
+#footer {text-align: right; font-size: 0; padding: 10px 20px; position: fixed; z-index: 100; bottom: 0; right: 0; background-color: rgba(255,255,255,0.5);}
+#footer .servicenavigation {display: inline-block;}
+
+
+/*s-form.css*/
+#content form {}
+#content fieldset {border: none; display: block;}
+#content .field {padding: 0 28px 10px; position: relative; font-size: 0;}
+#content label {display: none; padding-left: 2px; padding-bottom: 5px; color: #;}
+#content .field input,
+#content .field select,
+#content .field textarea {box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 10;}
+#content .field input {width: 366px; height: 24px; padding: 2px 6px;}
+#content .field select {width: 381px; height: 33px; color: #333333; padding: 5px 3px 2px 2px;
+	-webkit-appearance: none;
+}
+#content .field select option {padding: 5px 3px 2px 6px;}
+#content .field textarea {width: 372px; height: 80px; overflow: auto; padding: 6px 0 2px 6px; }
+#content .field.short textarea {height: 40px;}
+#content .field textarea.autoexpand {width: 366px; padding: 6px 6px 2px; overflow: hidden;}
+#content .field.checkbox,
+#content .field.boolean {}
+#content .field.checkbox input,
+#content .field.boolean input {display: inline-block; vertical-align: top; width: auto; height: auto; padding: 0; margin: 0 10px 0 3px; border: 0;}
+#content .field.checkbox label,
+#content .field.boolean label {width: auto; display: inline-block; vertical-align: top;}
+#content .field.radio_buttons {}
+#content .field.radio_buttons div.item {display: inline-block; vertical-align: top;}
+#content .field.radio_buttons div.item input {width: auto; height: auto; padding: 0; margin: 9px 10px 0 0; border: 0;}
+#content .field.radio_buttons label {}
+#content .field.radio_buttons div.item label {text-align: left; width: auto; padding-right: 20px; padding-left: 0;}
+#content .field input[type="number"] {
+	-moz-appearance: textfield;
+}
+#content .field input[type="number"]::-webkit-inner-spin-button,
+#content .field input[type="number"]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+#content form.upload {padding: 0 30px; text-align: left; width: 374px; position: relative; z-index: 10;}
+#content .field.files {border: 3px dashed #dedede; display: inline-block; border-radius: 5px; position: relative; padding: 0;}
+#content .field.files input {opacity: 0; width: 356px;}
+#content .field.files label {display: inline-block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 8px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
+#content .field.location {}
+#content .field.location div.location {padding-bottom: 2px;}
+#content .field.location div.latitude {padding-right: 2px;}
+#content .field.location div.latitude,
+#content .field.location div.longitude {display: inline-block; vertical-align: top;}
+#content .field.location div.latitude input,
+#content .field.location div.longitude input {width: 173px;}
+#content .field.location.geolocation div.geolocation {width: 30px; height: 30px; display: inline-block; vertical-align: top; cursor: pointer;
+	background: transparent url(/janitor/admin/img//gx_geolocation.png) no-repeat 5px 8px;
+}
+#content .field.location.geolocation div.latitude input,
+#content .field.location.geolocation div.longitude input {width: 158px;}
+iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; left: 0; z-index: 100; border: 1px solid #666666; background-color: #ffffff;}
+#content .field.focus input,
+#content .field.focus textarea {margin: 0;}
+#content .field.focus select {padding: 3px 3px 2px 0px;}
+@media all and (-webkit-min-device-pixel-ratio:0) {#content .field.focus select {padding: 5px 3px 3px 0px;}}
+#content .field.focus input,
+#content .field.focus select,
+#content .field.focus textarea {border: 3px solid #5c5c5c;}
+#content .field.radio_buttons.focus input,
+#content .field.checkbox.focus input,
+#content .field.boolean.focus input {margin: 0px 10px 0 3px; border: none;}
+#content .field.location.focus input {margin: 2px; border: 1px solid #dcdcdc;}
+#content .field.location.focus input.focus {margin: 0; border: 3px solid #5c5c5c;}
+#content .field.files.focus {border-color: #c8e183;}
+#content .field.files.focus label {background-color: #c8e183;}
+#content .field input.default,
+#content .field select.default,
+#content .field textarea.default {color: #aaaaaa;}
+#content .field .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px;}
+#content .field.required .indicator {
+	background: transparent url(/janitor/admin/img//bg_icons.png) no-repeat 0 -292px;
+}
+#content .field.text.required .indicator {background-position: 0 -296px;}
+#content .field.radio_buttons.required input,
+#content .field.checkbox.required input,
+#content .field.boolean.required input {}
+#content .field.correct .indicator {background-position: 0 -320px;}
+#content .field.text.correct .indicator {background-position: 0 -321px;}
+#content .field.radio_buttons.correct input,
+#content .field.checkbox.correct input,
+#content .field.boolean.correct input {}
+#content .field.error input,
+#content .field.error textarea {margin: 0;}
+#content .field.error select {padding: 3px 3px 2px 0px;}
+#content .field.error input,
+#content .field.error select,
+#content .field.error textarea {border: 3px solid #f8c9bb;}
+#content .field.radio_buttons.error input,
+#content .field.checkbox.error input,
+#content .field.boolean.error input {margin: 0px 10px 0 3px; border: none;}
+#content .field.location.error input {margin: 2px; border: 1px solid #dcdcdc;}
+#content .field.location.error input.error {margin: 0; border: 3px solid #f8c9bb;}
+#content .field.files.error {border-color: #f8c9bb;}
+#content .field.files.loading label {display: none;}
+#content .field.files.loading {background: transparent url(/janitor/admin/img//gx_loader.gif) no-repeat center center;}
+#content ul.actions {padding: 0 25px;}
+#content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px; vertical-align: top;}
+#content ul.actions input.button {width: auto; height: 26px; padding: 3px 12px;}
+@media all and (-webkit-min-device-pixel-ratio:0) {#content ul.actions input.button {padding-bottom: 5px;}}
+#content ul.actions a.button {display: block; text-decoration: none; height: 14px; padding: 5px 12px 7px;}
+#content ul.actions input.button,
+#content ul.actions a.button {background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px;}
+#content ul.actions input.button:hover,
+#content ul.actions a.button:hover {background-color: #313942;}
+#content ul.actions input.button.primary,
+#content ul.actions a.button.primary {background-color: #64ad8e;}
+#content ul.actions input.button.primary:hover,
+#content ul.actions a.button.primary:hover {background-color: #313942;}
+#content ul.actions input.button.secondary,
+#content ul.actions a.button.secondary {background-color: #fecd60; color: #9f742c;}
+#content ul.actions input.button.secondary:hover,
+#content ul.actions a.button.secondary:hover {background-color: #fed76e;}
+#content ul.actions li.status input.button {font-size: 0; height: 26px; width: 26px;}
+#content ul.actions li.status form.disable input.button {background-color: #f4f5f5; border-left: 3px solid #64ad8e; border-top: 3px solid #64ad8e; border-right: 30px solid #64ad8e; border-bottom: 3px solid #64ad8e;}
+#content ul.actions li.status form.enable input.button {background-color: #f4f5f5; border-right: 3px solid #8c9399; border-top: 3px solid #8c9399; border-left: 30px solid #8c9399; border-bottom: 3px solid #8c9399;}
+#content ul.actions li.status.enabled form.enable {display: none;}
+#content ul.actions li.status.disabled form.disable {display: none;}
+#content form input.button.delete.confirm {color: #ffffff; background-color: #df0000;}
+#content form input.button.delete.confirm:hover {}
+#content form input.button.disabled,
+#content form input.button.disabled:hover {cursor: default !important; color: #aaaaaa !important; background-color: #eeeeee !important;}
+#content .field div.help {position: absolute; left: 455px; top: 0; width: 200px;}
+#content .field.files div.help {left: 425px;}
+#content .field div.error,
+#content .field div.hint {display: none; padding: 5px; border-radius: 3px;}
+#content .field div.error {border: 1px solid #bbbbbb; color: #a27366; background: #f8c9bb; margin-top: -3px;}
+#content .field.error div.error {display: block;}
+#content .field div.hint {z-index: 9; border: 1px solid #bbbbbb; color: #5d7731; background: #c8e183;}
+#content .field.focus div.hint,
+#content .field.hover div.hint {display: block;}
+#content .field.html label {display: block;}
+#content .field.html {border-top: 1px solid #dedede; padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #dedede; margin-bottom: 10px;}
+#content .field.html .viewer {display: none;}
+#content .field.html .editor {width: 382px; position: relative; z-index: 50;}
+body #selection_options {z-index: 100; position: absolute; background-color: #F5F7F8; border: 3px solid #5c5c5c; margin: 0px 0 0 10px; padding: 15px; border-radius: 5px;}
+body #selection_options h3 {padding: 10px 0 10px; text-align: left; font-size: 13px; margin-top: 10px; border-top: 1px solid #5c5c5c;}
+body #selection_options li {display: block; font-size: 13px; padding: 5px 0; cursor: pointer;}
+body #selection_options li.link {text-decoration: underline;}
+body #selection_options li.em {font-style: italic;}
+body #selection_options li.strong {font-weight: 700;}
+body #selection_options .field {margin-left: -2px;}
+body #selection_options .field label {display: none;}
+body #selection_options .field input {color: #333333; box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 10; width: 150px; height: 24px; padding: 2px 6px;}
+body #selection_options .field input.default {color: #cccccc;}
+body #selection_options .field input.focus {}
+body #selection_options ul.actions {padding: 10px 0 0;}
+body #selection_options ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 0 0; vertical-align: top;}
+body #selection_options ul.actions input.button {width: auto; height: 26px; padding: 3px 12px;}
+@media all and (-webkit-min-device-pixel-ratio:0) {body #selection_options ul.actions input.button {padding-bottom: 5px;}}
+body #selection_options ul.actions a.button {display: block; text-decoration: none; height: 14px; padding: 5px 12px 7px;}
+body #selection_options ul.actions input.button,
+body #selection_options ul.actions a.button {background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px;}
+body #selection_options ul.actions input.button:hover,
+body #selection_options ul.actions a.button:hover {background-color: #313942;}
+#content .field.html .editor div.tag {margin: 0 0 1px; padding: 0 0 0 30px; background-color: #dcdcdc; position: relative; border-radius: 3px; border: 2px solid #f5f7f8;}
+#content .field.html .editor div.dragged {z-index: 15;}
+#content .field.html .editor div.tag .drag {display: none; position: absolute; top: 0px; left: -20px; border-top-left-radius: 15px; border-bottom-left-radius: 15px; background: #dedede; width: 30px; height: 30px; cursor: move;}
+#content .field.html .editor div.tag:hover .drag {display: block;}
+#content .field.html .editor div.tag ul.type {display: block; z-index: 5; position: absolute; width: 30px; top: 0px; left: 0px;}
+#content .field.html .editor div.tag ul.type li {display: none; text-transform: uppercase; padding: 9px 4px; text-align: center; cursor: pointer; font-size: 11px;}
+#content .field.html .editor div.tag ul.type li.code {font-size: 8px; padding-top: 11px;}
+#content .field.html .editor div.tag ul.type li.img {font-size: 9px; padding-top: 10px;}
+#content .field.html .editor div.tag ul.type li.youtube {font-size: 8px; padding-top: 11px;}
+#content .field.html .editor div.tag ul.type li.selected {display: block;}
+#content .field.html .editor div.tag ul.type.open {z-index: 10; border: 2px solid #5c5c5c; margin: -2px; background-color: #F5F7F8;}
+#content .field.html .editor div.tag ul.type.open li {display: block; color: #5c5c5c !important;}
+#content .field.html .editor div.tag ul.type.open li:hover {background-color: #dedede;}
+#content .field.html .editor div.tag ul.type.open li.selected {background-color: #5c5c5c !important; color: #ffffff !important;}
+#content .field.html .editor div.tag div.text {display: inline-block; vertical-align: top; width: 334px; height: auto; padding: 4px 6px; line-height: 1.375em; border-radius: 3px; background-color: #F5F7F8; color: #333333; box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; min-height: 20px;}
+#content .field.html .editor div.tag div.text em,
+#content .field.html .editor div.tag div.text strong,
+#content .field.html .editor div.tag div.text a {background-color: rgba(255, 0, 0, 0.3); cursor: default; font-size: inherit;}
+.delete_selection {position: absolute; z-index: 150; top: 0; left: 0; border-radius: 8px; width: 14px; height: 14px; font-size: 10px; line-height: 14px; text-align: center; background: #ffffff; border: 1px solid #000000; cursor: pointer;}
+#content .field.html .editor div.tag.focus {background-color: #5c5c5c; padding: 0 0 0 30px; border: 2px solid #5c5c5c;}
+#content .field.html .editor div.tag.focus div.text {border-color: #5c5c5c;}
+#content .field.html .editor div.tag.focus .drag {background-color: #5c5c5c; top: -2px;}
+#content .field.html .editor div.tag.focus ul.type li {color: #ffffff;}
+#content .field.html .editor div.tag.h1 div.text {font-size: 30px;}
+#content .field.html .editor div.tag.h2 div.text {font-size: 26px;}
+#content .field.html .editor div.tag.h3 div.text {font-size: 16px;}
+#content .field.html .editor div.tag.h4 div.text {font-size: 14px;}
+#content .field.html .editor div.tag.h5 div.text {font-size: 14px;}
+#content .field.html .editor div.tag.p div.text {font-size: 14px;}
+#content .field.html > textarea {display: none;}
+#content .field.html > .indicator {top: 33px;}
+
+
+/*s-notifications.css*/
+#notifications {z-index: 1001; position: fixed; right: 0; top: 0; border-left: 1px solid #888888; border-bottom: 1px solid #888888; background-color: #b0b0b0; max-width: 300px;}
+#notifications div {padding: 10px 65px 10px 15px;}
+#notifications .notice {color: #333333;}
+#notifications .error {color: #df0000;}
+
+
+/*s-tags.css*/
+#content ul.tags {padding: 10px 125px 16px 25px;}
+#content ul.tags li {display: inline-block; vertical-align: top; margin: 3px; border-radius: 13px; background-color: #313942; padding: 6px 10px 7px; color: #ffffff; font-size: 0;}
+#content ul.tags li.add {padding: 6px 7px 7px 8px; cursor: pointer; width: 10px; text-align: center;}
+#content ul.tags li.add:hover {background-color: #64ad8e;}
+#content ul.tags li span.context {text-transform: uppercase;}
+#content ul.tags li span.context:after {content: ":";}
+#content ul.tags li span.value {}
+#content .scene > div.tags {padding: 0 0 20px; border-bottom: 1px solid #aaaaaa;}
+#content .scene > div.tags ul.tags {padding: 0 125px 0 25px;}
+#content div.tags fieldset {display: inline-block; vertical-align: top;}
+#content div.tags fieldset .field {padding-right: 12px; padding-bottom: 0;}
+#content div.tags fieldset .field input[type=text] {width: 262px;}
+#content div.tags .actions {display: inline-block; vertical-align: top; padding: 0;}
+#content div.tags .actions li {padding-left: 0;}
+#content div.tags .actions li input {margin-top: 4px;}
+#content .addtags ul.tags li {cursor: pointer;}
+#content .addtags ul.tags li:hover,
+#content .addtags ul.tags li.add:hover {background-color: #df0000;}
+#content .addtags div.tagoptions ul.tags {display: block;}
+#content div.tagoptions ul.tags {position: relative; z-index: 10; display: none;}
+#content div.tagoptions ul.tags li {background-color: #dedede;}
+#content div.tagoptions ul.tags li:hover {background-color: #64ad8e;}
+#content div.tagoptions .field {}
+#content div.sortable div.tagoptions .field {padding-left: 56px;}
+#content div.tagoptions input {height: 16px; font-size: 12px;}
+#content .scene.tagList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+#content .scene.tagList h1 + p {padding-top: 16px;}
+#content .scene.tagList ul.items > li h3 {padding: 16px 30px;}
+#content .scene.tagEdit ul.tag_items {padding: 16px 30px;}
+#content .scene.tagEdit ul.tag_items li {display: block; padding: 2px 0;}
+#content .scene.tagEdit ul.tag_items dt {display: none;}
+#content .scene.tagEdit ul.tag_items dd.name {font-weight: bold; padding: 0 15px 0 0;}
+#content .scene.tagEdit ul.tag_items dd.name a {font-weight: bold;}
+#content .scene.tagEdit ul.tag_items dd.itemtype:after {content: "/";}
+
+
+/*s-shop.css*/
+#content .defaultView > .actions li.delete {float: right; padding: 0 0 10px 10px;}
+#content .defaultList.cartList ul.items > li h3 {padding-bottom: 16px;}
+#content .defaultList.cartList ul.items > li ul.products {display: none;}
+#content .defaultView.cartView ul.products {padding: 0 30px;}
+#content .defaultView.cartView ul.products li {display: block;}
+#content .defaultList.orderList ul.items > li dl.details {padding: 3px 30px 16px; display: block;}
+#content .defaultList.orderList ul.items > li dl.details dt {display: none;}
+#content .defaultList.orderList ul.items > li dl.details dd.name,
+#content .defaultList.orderList ul.items > li dl.details dd.price {display: none;}
+#content .defaultList.orderList ul.items > li dl.details dd.email:after {content: ",\00a0";}
+#content .defaultView.orderView dl.list {padding-top: 3px;}
+#content .defaultView.orderView dl.list dt {width: 200px;}
+#content .defaultView.orderView dl.list dt:after {content: ":";}
+#content .defaultView.orderView dl.list dd {width: 370px; margin: 0 30px 0 0;}
+#content .defaultView.orderView ul.list {padding-top: 3px;}
+#content .defaultView.orderView ul.list li {display: block; overflow: hidden; border-bottom: 1px solid #dedede;}
+#content .defaultView.orderView ul.list li span {display: inline-block; vertical-align: top; padding: 9px 15px 0 0;}
+#content .defaultView.orderView ul.list li span.title {width: 400px; padding-bottom: 9px; word-wrap: break-word;}
+#content .defaultView.orderView ul.list li span.price_piece {width: 200px;}
+#content .defaultView.orderView ul.list li span.price {float: right; padding-right: 0px;}
+
+
+/*s-user.css*/
+#content .defaultList.userList ul.items > li h3 {padding-bottom: 16px;}
+#content .defaultList.userList .userGroups {background-color: #dedede;}
+#content .defaultList.userList .userGroups li {padding: 15px 30px; border-right: 1px solid #dedede;}
+#content .defaultList.userList .userGroups li a {text-decoration: none;}
+#content .defaultList.userList .userGroups li.selected {background-color: #f5f7f8; color: #aaaaaa;}
+#content .defaultEdit.userEdit .views {background-color: #dedede;}
+#content .defaultEdit.userEdit .views li {padding: 15px 30px; border-right: 1px solid #dedede;}
+#content .defaultEdit.userEdit .views li a {text-decoration: none;}
+#content .defaultEdit.userEdit .views li.selected {background-color: #f5f7f8; color: #313942;}
+#content .scene.userEdit > div.usernames {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.usernames .actions {text-align: left;}
+#content .scene.userEdit > div.usernames .actions li {padding: 0 5px 10px;}
+#content .scene.userEdit > div.password {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.password div.password_state {}
+#content .scene.userEdit > div.password div.password_state .password_missing {display: block;}
+#content .scene.userEdit > div.password div.password_state .password_set {display: none;}
+#content .scene.userEdit > div.password div.password_state.set .password_missing {display: none;}
+#content .scene.userEdit > div.password div.password_state.set .password_set {display: block;}
+#content .scene.userEdit > div.password div.new_password {display: none;}
+#content .scene.userEdit > div.password .actions {text-align: left;}
+#content .scene.userEdit > div.password .actions li {padding: 0 5px 10px;}
+#content .scene.userEdit > div.addresses {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.addresses ul.addresses {padding: 0 30px;}
+#content .scene.userEdit > div.addresses ul.addresses > li {display: inline-block; vertical-align: top; width: 250px; margin-right: 30px; margin-bottom: 20px; height: 120px; padding: 0 0 20px; border-bottom: 1px solid #dedede; position: relative;}
+#content .scene.userEdit > div.addresses ul.addresses > li h3 {padding: 0 0 5px;}
+#content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; top: 0; right: 0; padding: 0;}
+#content .scene.userEdit > div.addresses ul.addresses > li .actions li {padding-left: 0;}
+#content .scene.userEdit > div.newsletters {padding: 0 0 20px 0; border-bottom: 1px solid #dedede;}
+#content .scene.userEdit > div.newsletters ul.newsletters {padding: 0 30px;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li {display: block; padding: 0 0 10px;}
+#content .defaultEdit.accessEdit > div.access {padding: 20px 0;}
+#content .defaultEdit.accessEdit > div.access ul.points {padding: 0 0 20px;}
+#content .defaultEdit.accessEdit > div.access ul.points li {display: block;}
+#content .defaultEdit.accessEdit > div.access ul.points li.action {border-top: 1px solid #dedede; padding: 10px 0 0;}
+#content .defaultList.usergroupList ul.items > li h3 {padding-bottom: 16px;}
+#content .defaultList.userContentList h2 {padding-top: 20px; border-bottom: 1px solid #dedede;}
+#content .defaultList.userContentList div.all_items {padding-bottom: 20px;}
+#content .defaultList.userContentList ul.items > li h3 {padding-bottom: 16px;}
+#content .defaultList.userContentList .views {background-color: #dedede;}
+#content .defaultList.userContentList .views li {padding: 15px 30px; border-right: 1px solid #dedede;}
+#content .defaultList.userContentList .views li a {text-decoration: none;}
+#content .defaultList.userContentList .views li.selected {background-color: #f5f7f8; color: #aaaaaa;}
+
+
+/*s-navigations.css*/
+#content .defaultList.navigationsList ul.items > li h3 {padding-bottom: 16px;}
+#content .defaultEdit.navigationEdit div.item p {padding-bottom: 10px; margin-top: -10px; font-size: 16px;}
+#content .defaultEdit.navigationEdit div.nodes ul.nodes {
+	border-top: 1px solid #dedede; 
+	margin-bottom: -1px;
+}
+#content .defaultEdit.navigationEdit div.nodes > ul.nodes li ul.nodes {
+}
+#content .defaultEdit.navigationEdit div.nodes > ul.nodes > li {}
+#content .defaultEdit.navigationEdit ul.nodes > li {padding: 0; display: block; position: relative; z-index: 1; border-bottom: 1px solid #dedede;}
+#content .defaultEdit.navigationEdit ul.nodes > li div.drag {width: 30px; height: 30px; position: absolute; top: 1px; left: 20px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
+#content .defaultEdit.navigationEdit ul.nodes > li h3 {padding: 10px 0; display: inline-block; vertical-align: bottom; font-size: 14px;}
+#content .defaultEdit.navigationEdit ul.nodes > li h3 {margin-left: 60px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li h3 {margin-left: 60px; padding-left: 30px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li li h3 {margin-left: 90px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li li li h3 {margin-left: 120px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li li li li h3 {margin-left: 150px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li li li li li h3 {margin-left: 180px;}
+#content .defaultEdit.navigationEdit ul.nodes > li li h3 {
+	background-image: url(/janitor/admin/img//bg_angle.png);
+	background-position: 11px 10px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+}
+#content .defaultEdit.navigationEdit ul.nodes > li span.link,
+#content .defaultEdit.navigationEdit ul.nodes > li span.page {padding: 10px 0 10px 20px; display: inline-block; vertical-align: bottom;}
+#content .defaultEdit.navigationEdit ul.nodes > li {
+}
+#content .defaultEdit.navigationEdit ul.nodes > li.hover {background: red !important;}
+#content .defaultEdit.navigationEdit ul.nodes > li.dragged {
+	z-index: 3;
+}
+#content .defaultEdit.navigationEdit ul.nodes > li.dragged .drag {background-image: none;}
+#content .defaultEdit.navigationEdit ul.nodes li ul.actions {
+	position: absolute; top: 5px; right: 0;
+}
+#content .defaultEdit.navigationEdit ul.nodes li ul.actions a.button {font-size: 0.87em; height: 10px;}
+#content .defaultEdit.navigationEdit ul.nodes li ul.actions input.button {font-size: 0.87em; height: 22px;}
+
+
+/*s-todo.css*/
+#content .defaultList.todolistList ul.items > li h3 {padding-bottom: 16px;}
+#content .defaultList.todoList ul.items > li h3 {padding-bottom: 16px;}
+
+
+/*s-default_list.css*/
+#content .defaultList .all_items > h2,
+#content .defaultList .enabled_items > h2,
+#content .defaultList .disabled_items > h2 {padding: 10px 30px 11px;}
+#content .defaultList .all_items > p,
+#content .defaultList .enabled_items > p,
+#content .defaultList .disabled_items > p {padding: 10px 30px 11px;}
+#content .defaultList .enabled_items,
+#content .defaultList .disabled_items {border-bottom: 1px solid #dedede; margin-bottom: 20px;}
+#content .defaultList .enabled_items > p,
+#content .defaultList .disabled_items > p {padding-top: 20px;}
+#content .defaultList ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede;}
+#content .defaultList ul.items > li:hover {background-color: #edf0f2;}
+#content .defaultList ul.items > li.image {background-repeat: no-repeat; background-position: left top;}
+#content .defaultList ul.items > li h3 {padding: 16px 30px 0px 30px;}
+#content .defaultList ul.items > li .description,
+#content .defaultList ul.items > li dl {display: none;}
+#content .defaultList ul.items > li .actions {position: absolute; top: 0px; padding: 0; right: 20px;}
+#content .defaultList ul.items > li .actions li {padding: 10px 0 10px 10px;}
+#content .defaultList .all_items div.filter {text-align: right; padding: 10px 20px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb;}
+#content .defaultList .all_items div.filter.filtering {background: red;}
+#content .defaultList .all_items div.filter .field {padding: 0;}
+#content .defaultList .all_items div.filter .field label {display: inline-block; vertical-align: top; padding: 3px 4px; color: #aaaaaa;}
+#content .defaultList .all_items div.filter input {width: 100px; height: 16px; font-size: 12px;}
+#content .defaultList .sortable ul.items > li.item h3 {padding-left: 60px;}
+#content .defaultList .sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 8px; left: 20px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
+#content .defaultList .sortable ul.items > li.item ul.tags {padding-left: 55px;}
+
+
+/*s-default_edit.css*/
+#content .defaultEdit > .actions li.delete {float: right; padding: 0 0 10px 10px;}
+#content .scene.defaultEdit > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
+#content .scene.defaultEdit > div.status {border-bottom: 1px solid #bbbbbb;}
+#content .scene.defaultEdit > div.status .actions {padding: 0;}
+#content .scene.defaultEdit > div.status .actions li.status {display: block; padding: 10px 0px; text-align: right;}
+#content .scene.defaultEdit > div.status .actions li.status form {display: inline-block; vertical-align: top; padding-right: 30px;}
+#content .scene.defaultEdit > div.status .actions li.status form h3 {padding-top: 5px; padding-bottom: 0; font-size: 13px;}
+#content .scene.defaultEdit > div.status .actions li.status.disabled {background: orange;}
+#content .scene.defaultEdit > div.status .actions li.status.disabled form.disable {display: none;}
+#content .scene.defaultEdit > div.status .actions li.status.enabled form.enable {display: none;}
+#content .scene.defaultEdit > div.status .actions li.status h3 {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.status .actions li.status input {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.item {padding: 0 0 10px; border-bottom: 1px solid #bbbbbb;}
+#content .scene.defaultEdit > div.item .actions {text-align: left;}
+#content .scene.defaultEdit > div.item .actions li {padding: 0 5px 10px;}
+#content .scene.defaultEdit > div.prices {padding: 20px 0;}
+#content .scene.defaultEdit > div.prices .field input[type=text] {width: 262px;}
+#content .scene.defaultEdit > div.prices fieldset {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.prices fieldset .field {padding-right: 12px;}
+#content .scene.defaultEdit > div.prices .actions {display: inline-block; vertical-align: top; padding: 0;}
+#content .scene.defaultEdit > div.prices .actions li {padding-left: 0;}
+#content .scene.defaultEdit > div.prices .actions li input {margin-top: 4px;}
+#content .scene.defaultEdit > div.prices ul.prices {padding: 0 30px;}
+#content .scene.defaultEdit > div.prices ul.prices li {font-size: 0; display: block; padding-bottom: 3px;}
+#content .scene.defaultEdit > div.prices ul.prices li h3 {display: inline-block; vertical-align: top; padding: 0 5px 0 0; line-height: 20px;}
+#content .scene.defaultEdit > div.prices ul.prices li form {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.prices ul.prices li input.delete {padding: 0; margin: 0; line-height: 20px; cursor: pointer; color: #999999; text-decoration: underline; box-shadow: none; text-shadow: none; border: none; background: none; border-radius: 0;}
+#content .scene.defaultEdit > div.prices ul.prices li input.delete:hover {color: #000000;}
+#content .scene.defaultEdit > div.media {padding: 0 0 20px; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.media form.upload .actions {display: none;}
+#content .scene.defaultEdit > div.media form.delete {padding: 0; position: absolute; top: 0; right: 0;}
+#content .scene.defaultEdit > div.media form.delete ul.actions {padding: 0;}
+#content .scene.defaultEdit > div.media form.delete ul.actions li {padding: 0;}
+#content .scene.defaultEdit > div.media form.delete input {font-size: 12px; color: #df0000; width: 30px; height: 30px; display: block; text-indent: -9999px; border: none; border-radius: 0; cursor: pointer; border-bottom-left-radius: 5px;
+	background: #ffffff url(/janitor/admin/img//bg_icons.png) no-repeat 8px -42px;
+	-webkit-appearance: none;
+}
+#content .scene.defaultEdit > div.media form.delete input:hover {background-position: 8px -67px;}
+#content .scene.defaultEdit > div.media form.delete input.confirm {text-indent: 0; width: auto; padding-left: 24px;}
+#content .scene.defaultEdit > div.media > img {margin: 0 28px; position: absolute; top: 47px; left: 0; z-index: 9; width: 384px;}
+#content .scene.defaultEdit > div.media > form.delete {left: 412px; right: auto; top: 47px; z-index: 11;}
+#content .scene.defaultEdit > div.media > form.delete input {position: absolute; top: 0; right: 0;}
+#content .scene.defaultEdit > div.media ul.mediae {padding: 20px 20px 0; text-align: left;}
+#content .scene.defaultEdit > div.media ul.mediae > li {margin: 0 10px 20px; position: relative; text-align: center;}
+#content .scene.defaultEdit > div.media ul.mediae > li h4 {padding: 0 0 5px;}
+#content .scene.defaultEdit > div.media ul.mediae > li p {word-wrap: break-word; padding: 10px; font-size: 10px; text-align: left; background-color: rgba(255,255,255, 0.7); color: #000000; width: 100%; position: absolute; bottom: 0; left: 0; cursor: text;}
+#content .scene.defaultEdit > div.media ul.mediae > li form.edit {display: none;}
+#content .scene.defaultEdit > div.media ul.mediae > li.edit p {display: none;}
+#content .scene.defaultEdit > div.media ul.mediae > li.edit form.edit {display: block;}
+#content .scene.defaultEdit > div.media ul.mediae > li form.edit {position: absolute; bottom: 0; left: 0; width: 100%;}
+#content .scene.defaultEdit > div.media ul.mediae > li form.edit div.field {padding: 5px; background-color: rgba(255,255,255, 0.7);}
+#content .scene.defaultEdit > div.media ul.mediae > li form.edit div.field input {font-size: 12px; height: 20px;}
+#content .scene.defaultEdit > div.media.sortable ul.mediae > li {cursor: move;}
+#content .scene.defaultEdit > div.media ul.mediae li.image {height: 150px;}
+#content .scene.defaultEdit > div.media ul.mediae li.audio {width: 50px; height: 70px;
+	background: transparent url(/janitor/admin/img//bg_bn_play_medium.png) no-repeat 0px 20px;
+}
+#content .scene.defaultEdit > div.media ul.mediae li.audio.playing {background-position: 0 -80px;}
+#content .scene.defaultEdit > div.media ul.mediae li.audio a {display: block; text-indent: -9999px;}
+#content .scene.defaultEdit > div.media ul.mediae li.video {width: 150px;
+	background: transparent url(/janitor/admin/img//bg_bn_play_medium.png) no-repeat center 40px;
+}
+#content .scene.defaultEdit > div.media ul.mediae li.video a {display: none;}
+
+
+/*s-default_new.css*/
+#content .scene.defaultNew > form {padding-top: 20px;}
+#content .scene.defaultNew > form .actions {text-align: left;}
+#content .scene.defaultNew > form .actions li {padding: 0 5px 10px;}
+
+
+
+/*s-form-desktop_ie.css*/
+#content ul.actions input.button,
+#content ul.actions a.button {background-position: 10px 100px; background-image: url(/janitor/admin/img//bg_icons.png);}
+#content ul.actions input.button:hover,
+#content ul.actions a.button:hover {background-color: #dddddd; background-image: url(/janitor/admin/img//bg_icons.png);}
+#content ul.actions input.button.primary,
+#content ul.actions a.button.primary {background-image: url(/janitor/admin/img//bg_icons.png);}
+#content ul.actions input.button.primary:hover,
+#content ul.actions a.button.primary:hover {background-color: #a3cd5b; background-image: url(/janitor/admin/img//bg_icons.png);}
+#content ul.actions input.button.secondary,
+#content ul.actions a.button.secondary {background-image: url(/janitor/admin/img//bg_icons.png);}
+#content ul.actions input.button.secondary:hover,
+#content ul.actions a.button.secondary:hover {background-color: #fdc04f; background-image: url(/janitor/admin/img//bg_icons.png);}
+#content form input.button.delete.confirm {background-image: url(/janitor/admin/img//bg_icons.png);}
+#content form input.button.delete.confirm:hover {background-color: #fc7777; background-image: url(/janitor/admin/img//bg_icons.png);}
+#content form input.button.disabled,
+#content form input.button.disabled:hover {background-image: url(/janitor/admin/img//bg_icons.png) !important;}
+
