@@ -258,7 +258,7 @@ class Setup extends Model {
 		$this->readwrite = $this->readWriteTest();
 
 		// check if mysqli is available
-		$this->mysql = $this->isInstalled(array("/opt/local/bin/mysql5 --version", "/usr/local/bin/mysql5 --version", "/opt/bin/mysql5 --version", "/user/bin/mysql5 --version"), array("Distrib 5"));
+		$this->mysql = $this->isInstalled(array("/opt/local/bin/mysql5 --version", "/usr/local/bin/mysql5 --version", "/opt/bin/mysql5 --version", "/user/bin/mysql5 --version", "/opt/local/lib/mysql56/bin/mysql --version"), array("Distrib 5"));
 
 		// if everything is fine
 		if($this->apache && $this->php && $this->readwrite && $this->mysql && $this->ffmpeg):
@@ -270,7 +270,7 @@ class Setup extends Model {
 		else:
 
 			$_SESSION["SOFTWARE_INFO"] = false;
-			$this->software_ok = true;
+			$this->software_ok = false;
 			return false;
 
 		endif;
