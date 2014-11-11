@@ -53,13 +53,13 @@ sudo chmod -R 770 <?= $model->project_path ?>/src/library</code>
 sudo chmod -R 770 <?= $model->project_path ?>/src/www/js &&
 
 sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/www/janitor/js &&
-sudo chmod -R 770 <?= $model->project_path ?>/src/www/admin/js &&
+sudo chmod -R 770 <?= $model->project_path ?>/src/www/janitor/js &&
 
 sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/www/css &&
 sudo chmod -R 770 <?= $model->project_path ?>/src/www/css &&
 
 sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/www/janitor/css &&
-sudo chmod -R 770 <?= $model->project_path ?>/src/www/admin/css</code>
+sudo chmod -R 770 <?= $model->project_path ?>/src/www/janitor/css</code>
 
 		<h3>Restart Apache</h3>
 		<p>Finally, restart your apache by running the following command in Terminal.</p>

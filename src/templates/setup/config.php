@@ -16,12 +16,11 @@ $config_check = $model->checkConfigSettings();
 		</fieldset>
 
 		<p>
-			Specify <em>unique ID</em>, <em>name</em> and <em>Admin email</em> for your project.
+			Specify <em>unique ID</em>, <em>name</em> and <em>public email</em> for your project.
 		</p>
 		<fieldset>
 			<?= $model->input("site_uid", array("value" => $model->site_uid)) ?>
 			<?= $model->input("site_name", array("value" => $model->site_name)) ?>
-			<?= $model->input("admin_email", array("value" => $model->admin_email)) ?>
 			<?= $model->input("site_email", array("value" => $model->site_email)) ?>
 		</fieldset>
 

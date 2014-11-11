@@ -13,15 +13,15 @@ error_reporting(E_ALL);
 */
 define("SITE_UID", "JNT");
 define("SITE_NAME", "Janitor");
-define("SITE_URL", "domain.com");
+define("SITE_URL", $_SERVER["SERVER_NAME"]);
 define("SITE_EMAIL", "mail@domain.com");
 
 /**
 * Optional constants
 */
 define("DEFAULT_PAGE_DESCRIPTION", "");
-define("DEFAULT_LANGUAGE_ISO", "en"); // Reginal language English
-define("DEFAULT_COUNTRY_ISO", "dk"); // Regional country Denmark
+define("DEFAULT_LANGUAGE_ISO", "EN"); // Reginal language English
+define("DEFAULT_COUNTRY_ISO", "DK"); // Regional country Denmark
 
 
 // ENABLE ITEMS MODEL

@@ -387,7 +387,7 @@ class PageCore {
 		// get
 		else {
 			if(!session()->value("language")) {
-				session()->value("language", defined("DEFAULT_LANGUAGE_ISO") ? DEFAULT_LANGUAGE_ISO : "DA");
+				session()->value("language", defined("DEFAULT_LANGUAGE_ISO") ? DEFAULT_LANGUAGE_ISO : "EN");
 			}
 			return session()->value("language");
 		}

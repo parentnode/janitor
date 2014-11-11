@@ -13,15 +13,15 @@ error_reporting(E_ALL);
 */
 define("SITE_UID", "###SITE_UID###");
 define("SITE_NAME", "###SITE_NAME###");
-define("SITE_URL", "###SITE_URL###");
+define("SITE_URL", $_SERVER["SERVER_NAME"]);
 define("SITE_EMAIL", "###SITE_EMAIL###");
 
 /**
 * Optional constants
 */
 define("DEFAULT_PAGE_DESCRIPTION", "");
-define("DEFAULT_LANGUAGE_ISO", "en"); // Reginal language English
-define("DEFAULT_COUNTRY_ISO", "dk"); // Regional country Denmark
+define("DEFAULT_LANGUAGE_ISO", "EN"); // Reginal language English
+define("DEFAULT_COUNTRY_ISO", "DK"); // Regional country Denmark
 
 
 // ENABLE ITEMS MODEL

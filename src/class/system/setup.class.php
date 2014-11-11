@@ -25,12 +25,10 @@ class Setup extends Model {
 		$this->project_path = isset($_SESSION["project_path"]) ? $_SESSION["project_path"] : PROJECT_PATH;
 		$this->site_uid = isset($_SESSION["site_uid"]) ? $_SESSION["site_uid"] : "";
 		$this->site_name = isset($_SESSION["site_name"]) ? $_SESSION["site_name"] : "";
-		$this->admin_email = isset($_SESSION["admin_email"]) ? $_SESSION["admin_email"] : "";
 		$this->site_email = isset($_SESSION["site_email"]) ? $_SESSION["site_email"] : "";
 
 		// CONFIG CHECKS
 		$this->config_ok = isset($_SESSION["CONFIG_INFO"]) ? $_SESSION["CONFIG_INFO"] : "";
-
 
 
 
@@ -49,6 +47,7 @@ class Setup extends Model {
 
 
 		// MAIL VALUES
+		$this->mail_admin = isset($_SESSION["mail_admin"]) ? $_SESSION["mail_admin"] : "";
 		$this->mail_host = isset($_SESSION["mail_host"]) ? $_SESSION["mail_host"] : "";
 		$this->mail_port = isset($_SESSION["mail_port"]) ? $_SESSION["mail_port"] : "";
 		$this->mail_username = isset($_SESSION["mail_username"]) ? $_SESSION["mail_username"] : "";
@@ -86,19 +85,12 @@ class Setup extends Model {
 			"hint_message" => "Userfriendly name of your project.", 
 			"error_message" => "Site name must be filled out"
 		));
-		// admin_email
-		$this->addToModel("admin_email", array(
-			"type" => "email",
-			"label" => "Admin email",
-			"required" => true,
-			"hint_message" => "Email the system uses to communicate with the site Admin.", 
-			"error_message" => "Admin email must be filled out"
-		));
 		// site_email
 		$this->addToModel("site_email", array(
 			"type" => "email",
 			"label" => "Public email",
-			"hint_message" => "Email to use to communicate to your users. If you do not specify a Public email the Admin email will be used.", 
+			"required" => true,
+			"hint_message" => "Email to use to communicate to your users.", 
 			"error_message" => "Public email must be filled out"
 		));
 
@@ -157,6 +149,14 @@ class Setup extends Model {
 
 		// MAIL MODEL
 
+		// admin_email
+		$this->addToModel("mail_admin", array(
+			"type" => "email",
+			"label" => "Admin email",
+			"required" => true,
+			"hint_message" => "Email the system uses to communicate with the site Admin.", 
+			"error_message" => "Admin email must be filled out"
+		));
 		// mail_host
 		$this->addToModel("mail_host", array(
 			"type" => "string",
@@ -295,7 +295,7 @@ class Setup extends Model {
 	// check config settings
 	function checkConfigSettings() {
 
- 		if($this->site_uid && $this->site_name && $this->admin_email && $this->project_path && file_exists($this->project_path)) {
+ 		if($this->site_uid && $this->site_name && $this->site_email && $this->project_path && file_exists($this->project_path)) {
 
 			$_SESSION["CONFIG_INFO"] = true;
 			$this->config_ok = true;
@@ -309,14 +309,13 @@ class Setup extends Model {
  	function updateConfigSettings() {
 
 
-		if($this->validateList(array("project_path", "site_uid", "site_name", "admin_email", "site_email"))) {
+		if($this->validateList(array("project_path", "site_uid", "site_name", "site_email"))) {
 
 			$entities = $this->data_entities;
 
 			$this->project_path = $_SESSION["project_path"] = $entities["project_path"]["value"];
 			$this->site_uid     = $_SESSION["site_uid"]     = $entities["site_uid"]["value"];
 			$this->site_name    = $_SESSION["site_name"]    = $entities["site_name"]["value"];
-			$this->admin_email  = $_SESSION["admin_email"]  = $entities["admin_email"]["value"];
 			$this->site_email   = $_SESSION["site_email"]   = $entities["site_email"]["value"];
 
 		}
@@ -499,6 +498,11 @@ class Setup extends Model {
 
 			$connection_info = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
 
+			preg_match("/\"ADMIN_EMAIL\", \"([a-zA-Z0-9\.\-\_\@]+)\"/", $connection_info, $matches);
+			if($matches) {
+				$this->mail_admin = $matches[1];
+			}
+
 			preg_match("/\"host\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
 			if($matches) {
 				$this->mail_host = $matches[1];
@@ -521,7 +525,7 @@ class Setup extends Model {
 
 		}
 
- 		if($this->mail_host && $this->mail_port && $this->mail_username && $this->mail_password) {
+ 		if($this->mail_admin && $this->mail_host && $this->mail_port && $this->mail_username && $this->mail_password) {
 
 			$_SESSION["MAIL_INFO"] = true;
 			$this->mail_ok = true;
@@ -534,10 +538,11 @@ class Setup extends Model {
 	// update the mail settings
  	function updateMailSettings() {
 
-		if($this->validateList(array("mail_host", "mail_port", "mail_username", "mail_password"))) {
+		if($this->validateList(array("mail_admin", "mail_host", "mail_port", "mail_username", "mail_password"))) {
 
 			$entities = $this->data_entities;
 
+			$this->mail_admin    = $_SESSION["mail_admin"]    = $entities["mail_admin"]["value"];
 			$this->mail_host     = $_SESSION["mail_host"]     = $entities["mail_host"]["value"];
 			$this->mail_port     = $_SESSION["mail_port"]     = $entities["mail_port"]["value"];
 			$this->mail_username = $_SESSION["mail_username"] = $entities["mail_username"]["value"];
@@ -645,17 +650,10 @@ class Setup extends Model {
 				// CREATE CONF FILES
 				//
 
-				// TODO: CRITICAL - will not work well with deploying existing sites
-				// read site_url from apache
-				$apache_conf = file_get_contents($this->project_path."/apache/httpd-vhosts.conf");
-				if(preg_match("/ServerName (.+)\\n/", $apache_conf, $matches)) {
-					$this->site_url = $matches[1];
-				}
-
 				define("SITE_UID", $this->site_uid);
 				define("SITE_NAME", $this->site_name);
-				define("SITE_URL", $this->site_url);
-				define("SITE_EMAIL", stringOr($this->site_email, $this->admin_email));
+				define("SITE_URL", $_SERVER["SERVER_NAME"]);
+				define("SITE_EMAIL", $this->site_email);
 
 				// create conf files
 				$tasks[] = "Creating config files";
@@ -664,7 +662,6 @@ class Setup extends Model {
 				$file_config = file_get_contents($this->framework_path."/setup/defaults/config/config.template.php");
 				$file_config = preg_replace("/###SITE_UID###/", $this->site_uid, $file_config);
 				$file_config = preg_replace("/###SITE_NAME###/", $this->site_name, $file_config);
-				$file_config = preg_replace("/###SITE_URL###/", $this->site_url, $file_config);
 				$file_config = preg_replace("/###SITE_EMAIL###/", $this->site_email, $file_config);
 				file_put_contents($this->local_path."/config/config.php", $file_config);
 
@@ -673,7 +670,7 @@ class Setup extends Model {
 				$file_mail = preg_replace("/###LOCAL_PATH###/", $this->local_path, $file_mail);
 				$file_mail = preg_replace("/###FRAMEWORK_PATH###/", $this->framework_path, $file_mail);
 				$file_mail = preg_replace("/###PROJECT_PATH###/", $this->project_path, $file_mail);
-				$file_mail = preg_replace("/###SITE_URL###/", $this->site_url, $file_mail);
+				$file_mail = preg_replace("/###SITE_URL###/", SITE_URL, $file_mail);
 				$file_mail = preg_replace("/###SITE_NAME###/", $this->site_name, $file_mail);
 				file_put_contents($this->project_path."/apache/httpd-vhosts.conf", $file_mail);
 
@@ -740,13 +737,13 @@ class Setup extends Model {
 
 			// mail
 			$file_mail = file_get_contents($this->framework_path."/setup/defaults/config/connect_mail.template.php");
-			$file_mail = preg_replace("/###ADMIN_EMAIL###/", $this->admin_email, $file_mail);
+			$file_mail = preg_replace("/###ADMIN_EMAIL###/", $this->mail_admin, $file_mail);
 			$file_mail = preg_replace("/###HOST###/", $this->mail_host, $file_mail);
 			$file_mail = preg_replace("/###PORT###/", $this->mail_port, $file_mail);
 			$file_mail = preg_replace("/###USERNAME###/", $this->mail_username, $file_mail);
 			$file_mail = preg_replace("/###PASSWORD###/", $this->mail_password, $file_mail);
 			$file_mail = preg_replace("/###SITE_NAME###/", $this->site_name, $file_mail);
-			$file_mail = preg_replace("/###SITE_EMAIL###/", stringOr($this->site_email, $this->admin_email), $file_mail);
+			$file_mail = preg_replace("/###SITE_EMAIL###/", $this->site_email, $file_mail);
 			file_put_contents($this->local_path."/config/connect_mail.php", $file_mail);
 
 
@@ -990,7 +987,7 @@ class Setup extends Model {
 
 
 			if(SETUP_TYPE == "setup") {
-				$page->mail(array("subject" => "Welcome to janitor", "message" => "Your Janitor project is ready.\n\nLog in to your admin system: http://".SITE_URL."/janitor\n\nUsername: ".SITE_EMAIL."\nPassword: 123rotinaj\n\nSee you soon,\n\nJanitor"));
+				$page->mail(array("subject" => "Welcome to janitor", "message" => "Your Janitor project is ready.\n\nLog in to your admin system: http://".SITE_URL."/janitor\n\nUsername: ".ADMIN_EMAIL."\nPassword: 123rotinaj\n\nSee you soon,\n\nJanitor"));
 			}
 
 			// TODO: delete session when done testing

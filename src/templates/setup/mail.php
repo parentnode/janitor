@@ -24,6 +24,7 @@ $mail_check = $model->checkMailSettings();
 		<p>Specify mail information to enable automatic mailing (response, errors).</p>
 
 		<fieldset>
+			<?= $model->input("mail_admin", array("value" => $model->mail_admin)) ?>
 			<?= $model->input("mail_host", array("value" => $model->mail_host)) ?>
 			<?= $model->input("mail_port", array("value" => $model->mail_port)) ?>
 			<?= $model->input("mail_username", array("value" => $model->mail_username)) ?>

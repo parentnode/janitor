@@ -17,23 +17,23 @@ Util.Objects["page"] = new function() {
 
 		// global resize handler 
 		page.resized = function() {
-
+//			u.bug("page.resized:" + u.nodeId(this));
 		}
 
 		// global scroll handler 
 		page.scrolled = function() {
-
+//			u.bug("page.scrolled:" + u.nodeId(this))
 		}
-
 
 		// Page is ready - called from several places, evaluates when page is ready to be shown
 		page.ready = function() {
+//			u.bug("page.ready:" + u.nodeId(this));
 
 			// page is ready to be shown - only initalize if not already shown
-			if(!u.hc(this, "ready")) {
+			if(!this.is_ready) {
 
 				// page is ready
-				u.addClass(this, "ready");
+				this.is_ready = true;
 
 				// set resize handler
 				u.e.addEvent(window, "resize", page.resized);
@@ -43,7 +43,6 @@ Util.Objects["page"] = new function() {
 			}
 
 		}
-
 
 		// ready to start page builing process
 		page.ready();
