@@ -27,7 +27,7 @@ $mail_check = $model->checkMailSettings();
 			<?= $model->input("mail_host", array("value" => $model->mail_host)) ?>
 			<?= $model->input("mail_port", array("value" => $model->mail_port)) ?>
 			<?= $model->input("mail_username", array("value" => $model->mail_username)) ?>
-			<?= $model->input("mail_password", array("value" => $model->mail_password)) ?>
+			<?= $model->input("mail_password", array("value" => $model->mail_password, "min" => 1)) ?>
 		</fieldset>
 
 		<ul class="actions">
