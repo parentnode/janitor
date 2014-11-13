@@ -14,9 +14,7 @@ $page->mail_connection(
 		"username" => "", 
 		"password" => "", 
 		"secure" => "", 
-		"smtpauth" => "",
-		"from_email" => "",
-		"from_name" => ""
+		"smtpauth" => ""
 	)
 );
 

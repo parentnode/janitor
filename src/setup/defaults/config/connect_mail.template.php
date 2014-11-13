@@ -14,9 +14,7 @@ $this->mail_connection(
 		"username" => "###USERNAME###", 
 		"password" => "###PASSWORD###", 
 		"secure" => "ssl", 
-		"smtpauth" => true,
-		"from_email" => "###SITE_EMAIL###",
-		"from_name" => "###SITE_NAME###"
+		"smtpauth" => true
 	)
 );
 

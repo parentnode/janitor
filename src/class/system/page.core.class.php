@@ -47,8 +47,6 @@ class PageCore {
 	private $mail_password;
 	private $mail_smtpauth;
 	private $mail_secure;
-	private $mail_from_email;
-	private $mail_from_name;
 
 
 	/**
@@ -1007,8 +1005,6 @@ class PageCore {
 		$this->mail_port = isset($settings["port"]) ? $settings["port"] : "";
 		$this->mail_secure = isset($settings["secure"]) ? $settings["secure"] : "";
 		$this->mail_smtpauth = isset($settings["smtpauth"]) ? $settings["smtpauth"] : "";
-		$this->mail_from_email = isset($settings["from_email"]) ? $settings["from_email"] : "";
-		$this->mail_from_name = isset($settings["from_name"]) ? $settings["from_name"] : "";
 
 	}
 	// Mail connection loader
@@ -1073,7 +1069,11 @@ class PageCore {
 			$mail->Username   = $this->mail_username;
 			$mail->Password   = $this->mail_password;
 
-			$mail->SetFrom($this->mail_from_email, $this->mail_from_name);
+			$from = (defined("SITE_EMAIL") ? SITE_EMAIL : ADMIN_EMAIL);
+
+			$mail->addReplyTo($from, SITE_NAME);
+
+			$mail->SetFrom($from, SITE_NAME);
 			// split comma separated list
 			if(!is_array($recipients) && preg_match("/,|;/", $recipients)) {
 				$recipients = preg_split("/,|;/", $recipients);
