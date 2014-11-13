@@ -267,6 +267,9 @@ class Query {
 
 //			print "dont exist";
 
+			$db_file = false;
+
+			// look for matching db sql file
 			if(file_exists(LOCAL_PATH.'/config/db/'.$table.'.sql')) {
 				$db_file = LOCAL_PATH.'/config/db/'.$table.'.sql';
 			}
