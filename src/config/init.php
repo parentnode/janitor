@@ -22,6 +22,8 @@ if(defined("LOCAL_PATH")) {
 	define("LOG_FILE_PATH", LOCAL_PATH."/library/log");
 }
 
+
+// Define include paths for PHP
 $path_colon = DIRECTORY_SEPARATOR == '/' ? ':' : ';';
 $path = "";
 $path .= (defined("LOCAL_PATH") ? ($path_colon.LOCAL_PATH) : "");
