@@ -7804,30 +7804,36 @@ Util.Objects["finish"] = new function() {
 		var bn_finalize = u.qs(".actions li.finalize", scene);
 		u.ce(bn_finalize);
 		bn_finalize.clicked = function() {
-			this.ul_build = u.qs(".building", scene);
-			this.response = function(response) {
-				var title = response.isHTML ? u.qs("title", response) : false;
-				if(!title || !u.text(title).match(/404/)) {
-					u.ae(this.ul_build, "li", {"html":"Frontend CSS built"});
-					this.response = function(response) {
-						u.ae(this.ul_build, "li", {"html":"Frontend JS built"});
+			this.build_first = !u.hc(this, "simple");
+			if(this.build_first) {
+				this.ul_build = u.qs(".building", scene);
+				this.response = function(response) {
+					var title = response.isHTML ? u.qs("title", response) : false;
+					if(!title || !u.text(title).match(/404/)) {
+						u.ae(this.ul_build, "li", {"html":"Frontend CSS built"});
 						this.response = function(response) {
-							u.ae(this.ul_build, "li", {"html":"Janitor CSS built"});
+							u.ae(this.ul_build, "li", {"html":"Frontend JS built"});
 							this.response = function(response) {
-								u.ae(this.ul_build, "li", {"html":"Janitor JS built"});
-								u.t.setTimer(this, function() {location.href = "/";}, 1000);
+								u.ae(this.ul_build, "li", {"html":"Janitor CSS built"});
+								this.response = function(response) {
+									u.ae(this.ul_build, "li", {"html":"Janitor JS built"});
+									u.t.setTimer(this, function() {location.href = "/";}, 1000);
+								}
+								u.request(this, "/janitor/js/lib/build");
 							}
-							u.request(this, "/janitor/js/lib/build");
+							u.request(this, "/janitor/css/lib/build");
 						}
-						u.request(this, "/janitor/css/lib/build");
+						u.request(this, "/js/lib/build");
 					}
-					u.request(this, "/js/lib/build");
+					else {
+						alert("Apache is not responding as expected - did you forget to restart?");
+					}
 				}
-				else {
-					alert("Apache is not responding as expected - did you forget to restart?");
-				}
+				u.request(this, "/css/lib/build");
 			}
-			u.request(this, "/css/lib/build");
+			else {
+				location.href = this.url;
+			}
 		}
 	}
 }

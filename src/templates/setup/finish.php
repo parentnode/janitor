@@ -61,6 +61,17 @@ sudo chmod -R 770 <?= $model->project_path ?>/src/www/css &&
 sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/www/janitor/css &&
 sudo chmod -R 770 <?= $model->project_path ?>/src/www/janitor/css</code>
 
+<?	if(SETUP_TYPE == "init"): ?>
+
+		<h2>Relaunch your Janitor project</h2>
+		<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>
+
+		<ul class="actions">
+			<li class="finalize simple"><a href="/" class="button primary">Relaunch</a></li>
+		</ul>
+
+<?	else: ?>
+
 		<h3>Restart Apache</h3>
 		<p>Finally, restart your apache by running the following command in Terminal.</p>
 		<code>sudo <?= $model->apache_path ?> restart</code>
@@ -69,10 +80,12 @@ sudo chmod -R 770 <?= $model->project_path ?>/src/www/janitor/css</code>
 		<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>
 
 		<ul class="actions">
-			<li class="finalize"><a href="#" class="button primary">Finalize setup</a></li>
+			<li class="finalize"><a href="/" class="button primary">Finalize setup</a></li>
 		</ul>
 
 		<ul class="building"></ul>
+
+<?	endif; ?>
 
 	</div>
 
