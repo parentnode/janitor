@@ -267,6 +267,9 @@ class Query {
 
 //			print "dont exist";
 
+			$db_file = false;
+
+			// look for matching db sql file
 			if(file_exists(LOCAL_PATH.'/config/db/'.$table.'.sql')) {
 				$db_file = LOCAL_PATH.'/config/db/'.$table.'.sql';
 			}
@@ -298,8 +301,12 @@ class Query {
 					return true;
 				}
 			}
+			else {
+				print "Could not find sql file for $table. Please check that the file exists and spelling is correct.<br>\n";
+				exit();
+			}
 
-			print "failed creating database table: $db_file <br>";
+			print "failed creating database table: $db_file: ".$this->error."<br>\n";
 			exit();
 		}
 	}
