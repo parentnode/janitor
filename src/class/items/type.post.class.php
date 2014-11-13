@@ -93,6 +93,7 @@ class TypePost extends Model {
 				foreach($mediae as $i => $media) {
 					$variant = $media["variant"];
 					$item["mediae"][$variant]["id"] = $media["id"];
+					$item["mediae"][$variant]["name"] = $media["name"];
 					$item["mediae"][$variant]["variant"] = $variant;
 					$item["mediae"][$variant]["format"] = $media["format"];
 					$item["mediae"][$variant]["width"] = $media["width"];
@@ -136,6 +137,7 @@ class TypePost extends Model {
 						$return_values[] = array(
 							"item_id" => $item_id, 
 							"media_id" => $query->lastInsertId(), 
+							"name" => $upload["name"], 
 							"variant" => $upload["variant"], 
 							"format" => $upload["format"], 
 							"width" => $upload["width"], 
@@ -173,6 +175,26 @@ class TypePost extends Model {
 		}
 
 		message()->addMessage("Media could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+	// Update media name
+	// /janitor/photocollection/updateMediaName
+	function updateMediaName($action) {
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$name = getPost("name");
+
+			$sql = "UPDATE ".$this->db_mediae." SET name = '$name' WHERE item_id = ".$action[1]." AND variant = '".$action[2]."'";
+			if($query->sql($sql)) {
+				message()->addMessage("Media name updated");
+				return true;
+			}
+		}
+
+		message()->addMessage("Media name could not be updated - please refresh your browser", array("type" => "error"));
 		return false;
 	}
 
