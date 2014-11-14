@@ -63,6 +63,7 @@ class TypePage extends Model {
 			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x540.",
 			"error_message" => "Image does not fit requirements."
 		));
+
 		// Tags
 		$this->addToModel("tags", array(
 			"type" => "tags",
@@ -111,80 +112,8 @@ class TypePage extends Model {
 	// custom loopback functions
 
 
-	// custom function to add main media
-	// /janitor/page/addMain/#item_id#
-	function addMain($action) {
-
-		if(count($action) == 2) {
-			$query = new Query();
-			$IC = new Item();
-			$item_id = $action[1];
-
-			$query->checkDbExistance($this->db_mediae);
-
-			// Image main_media
-			if($this->validateList(array("main_media"), $item_id)) {
-				$uploads = $IC->upload($item_id, array("input_name" => "main_media", "variant" => "main"));
-				if($uploads) {
-					$query->sql("DELETE FROM ".$this->db_mediae." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
-					$query->sql("INSERT INTO ".$this->db_mediae." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)");
-
-					return array(
-						"item_id" => $item_id, 
-						"media_id" => $query->lastInsertId(), 
-						"variant" => $uploads[0]["variant"], 
-						"format" => $uploads[0]["format"], 
-						"width" => $uploads[0]["width"], 
-						"height" => $uploads[0]["height"],
-						"filesize" => $uploads[0]["filesize"]
-					);
-				}
-			}
-		}
-
-		return false;
-	}
-
-
-	// custom function to add media
-	// /janitor/wish/addMedia/#item_id# (post image)
-	function addMedia($action) {
-
-		if(count($action) == 2) {
-			$query = new Query();
-			$IC = new Item();
-			$item_id = $action[1];
-
-			$query->checkDbExistance($this->db_mediae);
-
-			if($this->validateList(array("mediae"), $item_id)) {
-				$uploads = $IC->upload($item_id, array("input_name" => "mediae", "auto_add_variant" => true));
-				if($uploads) {
-
-					$return_values = array();
-
-					foreach($uploads as $upload) {
-						$query->sql("INSERT INTO ".$this->db_mediae." VALUES(DEFAULT, $item_id, '".$upload["name"]."', '".$upload["format"]."', '".$upload["variant"]."', '".$upload["width"]."', '".$upload["height"]."', '".$upload["filesize"]."', 0)");
-
-						$return_values[] = array(
-							"item_id" => $item_id, 
-							"media_id" => $query->lastInsertId(), 
-							"variant" => $upload["variant"], 
-							"format" => $upload["format"], 
-							"width" => $upload["width"], 
-							"height" => $upload["height"],
-							"filesize" => $upload["filesize"]
-						);
-					}
-
-					return $return_values;
-				}
-			}
-		}
-
-		return false;
-	}
-	
+	// custom function to add single media
+	// /janitor/page/addSingleMedia/#item_id#
 	function addSingleMedia($action) {
 
 		if(count($action) == 2) {
@@ -239,32 +168,6 @@ class TypePage extends Model {
 
 		message()->addMessage("Media could not be deleted", array("type" => "error"));
 		return false;
-	}
-
-
-	// update media order
-	// /janitor/log/updateMediaOrder (comma-separated order in POST)
-	function updateMediaOrder($action) {
-
-		$order_list = getPost("order");
-		if(count($action) == 1 && $order_list) {
-
-			$query = new Query();
-			$order = explode(",", $order_list);
-
-			for($i = 0; $i < count($order); $i++) {
-				$media_id = $order[$i];
-				$sql = "UPDATE ".$this->db_mediae." SET position = ".($i+1)." WHERE id = ".$media_id;
-				$query->sql($sql);
-			}
-
-			message()->addMessage("Media order updated");
-			return true;
-		}
-
-		message()->addMessage("Media order could not be updated - refresh your browser", array("type" => "error"));
-		return false;
-
 	}
 
 }
