@@ -48,10 +48,10 @@ $all_check = $model->checkAllSettings();
 			Copy this into your terminal to set file permissions to production settings. You want to make
 			sure this is done to protect your files from unintended manipulation.
 		</p>
-		<code>sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?> &&
-sudo chmod -R 750 <?= $model->project_path ?> &&
+		<code>sudo chown -R root:<?= $model->deploy_user ?> <?= $model->project_path ?> &&
+sudo chmod -R 755 <?= $model->project_path ?> &&
 
-sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/library &&
+sudo chown -R <?= $model->apache_user ?>:<?= $model->deploy_user ?> <?= $model->project_path ?>/src/library &&
 sudo chmod -R 770 <?= $model->project_path ?>/src/library</code>
 
 
@@ -67,8 +67,8 @@ sudo chmod -R 770 <?= $model->project_path ?>/src/library</code>
 <?	else: ?>
 
 		<h3>Restart Apache</h3>
-		<p>Finally, restart your apache by running the following command in Terminal.</p>
-		<code>sudo <?= $model->apache_path ?> restart</code>
+		<p>Finally, restart your Apache:</p>
+		<code>sudo apachectl restart</code>
 
 		<h2>Relaunch your Janitor project</h2>
 		<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>

@@ -621,7 +621,7 @@ class Setup extends Model {
 			$this->local_path =  $this->project_path."/src";
 			$this->framework_path = $this->project_path."/submodules/janitor/src";
 
-			$this->apache_path = isset($_SESSION["apache_path"]) ? $_SESSION["apache_path"] : "apachectl";
+//			$this->apache_path = isset($_SESSION["apache_path"]) ? $_SESSION["apache_path"] : "apachectl";
 
 			// get apache user to set permissions
 			$this->current_user = get_current_user();
