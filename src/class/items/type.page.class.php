@@ -52,7 +52,16 @@ class TypePage extends Model {
 			"hint_message" => "Write the log entry",
 			"error_message" => "A page without any words? How weird."
 		));
-
+    // Single media
+		$this->addToModel("single_media", array(
+			"type" => "files",
+			"label" => "Drag Image here",
+			"allowed_sizes" => "960x540",
+			"allowed_formats" => "png,jpg,mp4",
+			"max" => 1,
+			"hint_message" => "Add single image by dragging it here. PNG, JPG, MP4 allowed in 960x540.",
+			"error_message" => "Image does not fit requirements."
+		));
 		// Tags
 		$this->addToModel("tags", array(
 			"type" => "tags",
@@ -75,36 +84,21 @@ class TypePage extends Model {
 			$item = $query->result(0);
 			unset($item["id"]);
 
-			$item["main_media"] = false;
-			$item["mediae"] = false;
 
-			// get mediae
-			if($query_media->sql("SELECT * FROM ".$this->db_mediae." WHERE item_id = $item_id AND variant != 'main' ORDER BY position ASC, id DESC")) {
-
-				$mediae = $query_media->results();
-				foreach($mediae as $i => $media) {
-					$variant = $media["variant"];
-					$item["mediae"][$variant]["id"] = $media["id"];
-					$item["mediae"][$variant]["variant"] = $variant;
-					$item["mediae"][$variant]["format"] = $media["format"];
-					$item["mediae"][$variant]["width"] = $media["width"];
-					$item["mediae"][$variant]["height"] = $media["height"];
-					$item["mediae"][$variant]["filesize"] = $media["filesize"];
-				}
-			}
-
-			if($query_media->sql("SELECT * FROM ".$this->db_mediae." WHERE item_id = $item_id AND variant = 'main' LIMIT 1")) {
+			$item["single_media"] = false;
+			if($query_media->sql("SELECT * FROM ".$this->db_mediae." WHERE item_id = $item_id AND variant = 'single' LIMIT 1")) {
 
 				$media = $query_media->result(0);
-				$item["main_media"]["id"] = $media["id"];
-				$item["main_media"]["variant"] = $media["variant"];
-				$item["main_media"]["format"] = $media["format"];
-				$item["main_media"]["width"] = $media["width"];
-				$item["main_media"]["height"] = $media["height"];
-				$item["main_media"]["filesize"] = $media["filesize"];
+				$item["single_media"]["id"] = $media["id"];
+				$item["single_media"]["variant"] = $media["variant"];
+				$item["single_media"]["format"] = $media["format"];
+				$item["single_media"]["width"] = $media["width"];
+				$item["single_media"]["height"] = $media["height"];
+				$item["single_media"]["filesize"] = $media["filesize"];
 			}
 
 			return $item;
+
 		}
 		else {
 			return false;
@@ -183,6 +177,38 @@ class TypePage extends Model {
 					}
 
 					return $return_values;
+				}
+			}
+		}
+
+		return false;
+	}
+	
+	function addSingleMedia($action) {
+
+		if(count($action) == 2) {
+			$query = new Query();
+			$IC = new Item();
+			$item_id = $action[1];
+
+			$query->checkDbExistance($this->db_mediae);
+
+			// Image main_media
+			if($this->validateList(array("single_media"), $item_id)) {
+				$uploads = $IC->upload($item_id, array("input_name" => "single_media", "variant" => "single"));
+				if($uploads) {
+					$query->sql("DELETE FROM ".$this->db_mediae." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
+					$query->sql("INSERT INTO ".$this->db_mediae." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)");
+
+					return array(
+						"item_id" => $item_id, 
+						"media_id" => $query->lastInsertId(), 
+						"variant" => $uploads[0]["variant"], 
+						"format" => $uploads[0]["format"], 
+						"width" => $uploads[0]["width"], 
+						"height" => $uploads[0]["height"],
+						"filesize" => $uploads[0]["filesize"]
+					);
 				}
 			}
 		}

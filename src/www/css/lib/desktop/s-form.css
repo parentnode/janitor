@@ -312,3 +312,20 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .field.html > .hint,
 #content .field.html > .indicator {display: none;}
 */
+
+#content .pageEdit div.single_media form.upload input[type=file] {
+    height: 198px;
+}
+#content .pageEdit div.single_media form.upload label {
+    margin-top: 90px;
+}
+
+#content .pageEdit div.single_media img {
+height: 216px;
+}
+
+#content .pageList ul.items > li.image {
+min-height: 100px;
+padding-left: 190px;
+background-position: 60px 0;
+}

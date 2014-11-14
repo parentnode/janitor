@@ -72,6 +72,7 @@ $item = $IC->getCompleteItem(array("id" => $item_id));
 	<div class="media i:addMedia sortable item_id:<?= $item_id ?>"
 		data-save-order="/janitor/<?= $itemtype ?>/updateMediaOrder" 
 		data-delete-media="<?= $this->validPath("/janitor/".$itemtype."/deleteMedia") ?>"
+		data-update-media-name="<?= $this->validPath("/janitor/".$itemtype."/updateMediaName") ?>"
 		>
 		<h2>Media</h2>
 		<?= $model->formStart("/janitor/".$itemtype."/addMedia/".$item_id, array("class" => "upload labelstyle:inject")) ?>
@@ -89,6 +90,7 @@ $item = $IC->getCompleteItem(array("id" => $item_id));
 <?			foreach($item["mediae"] as $index => $media): ?>
 			<li class="media image variant:<?= $index ?> media_id:<?= $media["id"] ?>">
 				<img src="/images/<?= $item_id ?><?= ($index ? "/".$index : "") ?>/x150.<?= $media["format"] ?>" />
+				<p><?= $media["name"] ?></p>
 			</li>
 <?			endforeach; ?>
 <?		endif; ?>

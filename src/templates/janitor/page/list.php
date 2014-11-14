@@ -7,14 +7,15 @@ global $itemtype;
 $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DESC, published_at DESC"));
 ?>
 <div class="scene defaultList <?= $itemtype ?>List">
-	<h1>Pages</h1>
+	<h1>Employee</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("New page", "/janitor/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
+		<?= $HTML->link("New employee", "/janitor/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList taggable filters" 
+	<div class="all_items i:defaultList taggable filters sortable" 
 		data-csrf-token="<?= session()->value("csrf") ?>"
+		data-save-order="<?= $this->validPath("/janitor/$itemtype/updateOrder") ?>" 
 		data-get-tags="<?= $this->validPath("/janitor/admin/items/tags") ?>" 
 		data-delete-tag="<?= $this->validPath("/janitor/admin/items/tags/delete") ?>"
 		data-add-tag="<?= $this->validPath("/janitor/admin/items/tags/add") ?>"
@@ -23,8 +24,9 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DES
 		<ul class="items">
 <?			foreach($all_items as $item): 
 				$item = $IC->extendItem($item, array("tags" => true));
-				$media = isset($item["main_media"]) ? $item["main_media"] : false; ?>
-			<li class="item item_id:<?= $item["id"] ?> <?= $media ? (" image:".$media["format"]." variant:".$media["variant"]) : "" ?> width:160">
+				$media = isset($item["single_media"]) ? $item["single_media"] : false; ?>
+			<li class="item draggable item_id:<?= $item["id"] ?> <?= $media ? (" image:".$media["format"]." variant:".$media["variant"]) : "" ?> width:160">
+				<div class="drag"></div>
 				<h3><?= $item["name"] ?></h3>
 <?				if($item["tags"]): ?>
 				<ul class="tags">
@@ -43,7 +45,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DES
 <?			endforeach; ?>
 		</ul>
 <?		else: ?>
-		<p>No pages.</p>
+		<p>No content.</p>
 <?		endif; ?>
 	</div>
 

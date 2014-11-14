@@ -31,35 +31,40 @@ $all_check = $model->checkAllSettings();
 	<div class="final_touches">
 
 		<h2>Final touches</h2>
+<?	if(SETUP_TYPE == "init"): ?>
 		<p>
-			To finish setup you need to set file permissions on your project and restart Apache.
+			If you are deploying a site into production you need to set <span class="warning">file permissions</span>
+			on your project.
 		</p>
+<?	else: ?>
+		<p>
+			If you are deploying a site into production you need to set <span class="warning">file permissions</span>
+			on your project and <span class="warning">restart</span> Apache.
+		</p>
+<?	endif; ?>
 
-		<h3>Production and development projects</h3>
-		<p>Copy this into your terminal to set file permissions.</p>
+		<h3>Production projects</h3>
+		<p>
+			Copy this into your terminal to set file permissions to production settings. You want to make
+			sure this is done to protect your files from unintended manipulation.
+		</p>
 		<code>sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?> &&
 sudo chmod -R 750 <?= $model->project_path ?> &&
 
 sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/library &&
 sudo chmod -R 770 <?= $model->project_path ?>/src/library</code>
 
-		<h3>Development project with JS+CSS merging</h3>
-		<p>
-			If you are setting up a development environment and need to merge JS+CSS you also need to
-			set permissions for JS+CSS folders.
-		</p>
 
-		<code>sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/www/js &&
-sudo chmod -R 770 <?= $model->project_path ?>/src/www/js &&
+<?	if(SETUP_TYPE == "init"): ?>
 
-sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/www/janitor/js &&
-sudo chmod -R 770 <?= $model->project_path ?>/src/www/janitor/js &&
+		<h2>Relaunch your Janitor project</h2>
+		<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>
 
-sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/www/css &&
-sudo chmod -R 770 <?= $model->project_path ?>/src/www/css &&
+		<ul class="actions">
+			<li class="finalize simple"><a href="/" class="button primary">Relaunch</a></li>
+		</ul>
 
-sudo chown -R <?= $model->deploy_user ?>:<?= $model->apache_user ?> <?= $model->project_path ?>/src/www/janitor/css &&
-sudo chmod -R 770 <?= $model->project_path ?>/src/www/janitor/css</code>
+<?	else: ?>
 
 		<h3>Restart Apache</h3>
 		<p>Finally, restart your apache by running the following command in Terminal.</p>
@@ -69,10 +74,12 @@ sudo chmod -R 770 <?= $model->project_path ?>/src/www/janitor/css</code>
 		<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>
 
 		<ul class="actions">
-			<li class="finalize"><a href="#" class="button primary">Finalize setup</a></li>
+			<li class="finalize"><a href="/" class="button primary">Finalize setup</a></li>
 		</ul>
 
 		<ul class="building"></ul>
+
+<?	endif; ?>
 
 	</div>
 

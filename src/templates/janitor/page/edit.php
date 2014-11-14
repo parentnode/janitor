@@ -11,7 +11,7 @@ $item_id = $item["item_id"];
 $this->pageDescription($item["description"]);
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
-	<h1>Edit page</h1>
+	<h1>Edit Page</h1>
 
 	<ul class="actions i:defaultEditActions item_id:<?= $item_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
@@ -27,7 +27,22 @@ $this->pageDescription($item["description"]);
 			<?= $HTML->statusButton("Enable", "Disable", "/janitor/admin/items/status", $item, array("js" => true)) ?>
 		</ul>
 	</div>
+  
+	<div class="media single_media i:addMediaSingle variant:single_media item_id:<?= $item_id ?>"
+		data-delete-media="<?= $this->validPath("/janitor/".$itemtype."/deleteMedia") ?>"
+	>
+		<h2>Page image</h2>
+		<?= $model->formStart("/janitor/".$itemtype."/addSingleMedia/".$item_id, array("class" => "upload labelstyle:inject")) ?>
+			<fieldset>
+				<?= $model->input("single_media") ?>
+			</fieldset>
+		<?= $model->formEnd() ?>
 
+		<?	if($item["single_media"]): ?>
+			<img src="/images/<?= $item_id ?>/single/500x.<?= $item["single_media"]["format"] ?>" />
+		<?	endif; ?>
+
+	</div>
 	<div class="item i:defaultEdit">
 		<h2>Page text</h2>
 		<?= $model->formStart("/janitor/admin/items/update/".$item_id, array("class" => "labelstyle:inject")) ?>

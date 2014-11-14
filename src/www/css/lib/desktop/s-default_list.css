@@ -16,7 +16,7 @@
 /* LIST */
 #content .defaultList ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede;}
 #content .defaultList ul.items > li:hover {background-color: #edf0f2;}
-#content .defaultList ul.items > li.image {background-repeat: no-repeat; background-position: left top;}
+#content .defaultList ul.items > li.image {background-repeat: no-repeat; /*background-position: left top*/;}
 
 #content .defaultList ul.items > li h3 {padding: 16px 30px 0px 30px;}
 
