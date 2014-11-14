@@ -178,7 +178,7 @@ class TypePost extends Model {
 	}
 
 	// Update media name
-	// /janitor/photocollection/updateMediaName
+	// /janitor/post/updateMediaName
 	function updateMediaName($action) {
 
 		if(count($action) == 3) {
