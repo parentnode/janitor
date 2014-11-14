@@ -240,28 +240,76 @@ class Setup extends Model {
 	// check software - very simple checks
 	// TODO: improve software checks
 	function checkSoftware() {
-		
+
 		// check apache
-		$this->apache = $this->isInstalled(array("apachectl -v", "/opt/local/apache2/bin/apachectl -v", "/usr/sbin/apachectl -v", "/opt/sbin/apachectl -v"), array("Apache\/2\.[23456]{1}"));
+		// $this->apache = $this->isInstalled(array(
+		// 	"apachectl -v",
+		// 	"/opt/local/apache2/bin/apachectl -v",
+		// 	"/usr/sbin/apachectl -v",
+		// 	"/opt/sbin/apachectl -v"
+		// ), array("Apache\/2\.[23456]{1}"));
 		// store identified apache command - used when printing message on finish
-		if($this->apache) {
-			$_SESSION["APACHE_COMMAND"] = $this->apache;
-		}
+		// if($this->apache) {
+		// 	$_SESSION["APACHE_COMMAND"] = $this->apache;
+		// }
+		$this->apache = preg_match("/2\.[2345678]{1}/", $_SERVER["SERVER_SOFTWARE"]);
+
 
 		// check PHP
-		$this->php = $this->isInstalled(array("php -v"), array("PHP 5.[3456]{1}"));
+		// $this->php = $this->isInstalled(array("php -v"), array("PHP 5.[3456]{1}"));
+		$this->php = preg_match("/5\.[345678]{1}/", phpversion());
 
-		// check ffmpeg
-		$this->ffmpeg = $this->isInstalled(array("/opt/local/bin/ffmpeg -version", "/usr/local/bin/ffmpeg -version"), array("ffmpeg version 2.[0-9]{1}"));
+		// get PHP modules
+		$php_modules = get_loaded_extensions();
+
+		// check if mysqli is available
+		// $this->mysql = $this->isInstalled(array("/opt/local/bin/mysql5 --version", "/usr/local/bin/mysql5 --version", "/opt/bin/mysql5 --version", "/user/bin/mysql5 --version", "/usr/bin/mysql --version", "/opt/local/lib/mysql56/bin/mysql --version"), array("Distrib 5"));
+		$this->mysql = (array_search("mysqlnd", $php_modules) !== false);
+
+
+		// ImageMagick
+		$this->imagemagick = (array_search("imagick", $php_modules) !== false);
+
+		// Session
+		$this->session = (array_search("session", $php_modules) !== false);
+
+		// SimpleXML
+		$this->simplexml = (array_search("SimpleXML", $php_modules) !== false);
+
+		// DOM
+		$this->dom = (array_search("dom", $php_modules) !== false);
+
+		// mbstring
+		$this->mbstring = (array_search("mbstring", $php_modules) !== false);
+
+
 
 		// Check read/write
 		$this->readwrite = $this->readWriteTest();
 
-		// check if mysqli is available
-		$this->mysql = $this->isInstalled(array("/opt/local/bin/mysql5 --version", "/usr/local/bin/mysql5 --version", "/opt/bin/mysql5 --version", "/user/bin/mysql5 --version", "/usr/bin/mysql --version", "/opt/local/lib/mysql56/bin/mysql --version"), array("Distrib 5"));
+
+		// Thuyet: You can make this return true for testing the rest of the setup script
+		// but we need to find a way to make it identify the path to FFMPEG
+		// check ffmpeg
+		$this->ffmpeg = $this->isInstalled(array(
+			"/opt/local/bin/ffmpeg -version", 
+			"/usr/local/bin/ffmpeg -version"
+		), array("ffmpeg version 2.[1-9]{1}"));
+
 
 		// if everything is fine
-		if($this->apache && $this->php && $this->readwrite && $this->mysql && $this->ffmpeg):
+		if(
+			$this->apache && 
+			$this->php && 
+			$this->mysql && 
+			$this->imagemagick && 
+			$this->session &&
+			$this->simplexml &&
+			$this->dom &&
+			$this->mbstring &&
+			$this->readwrite && 
+			$this->ffmpeg
+		):
 
 			$_SESSION["SOFTWARE_INFO"] = true;
 			$this->software_ok = true;
