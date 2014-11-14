@@ -6570,20 +6570,25 @@ Util.Objects["defaultList"] = new function() {
 					}
 				}
 			}
-			node._image = u.cv(node, "image");
+			node._format = u.cv(node, "format");
 			node._width = u.cv(node, "width");
 			node._height = u.cv(node, "height");
-			if(node._image && node._width && node._height) {
-				u.ac(node, "image");
-				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x"+node._height+"."+node._image;
+			if(node._format && node._width && node._height) {
+				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x"+node._height+"."+node._format;
 			}
-			else if(node._image && node._width) {
-				u.ac(node, "image");
-				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x."+node._image;
+			else if(node._format && node._width) {
+				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x."+node._format;
 			}
-			else if(node._image && node._height) {
-				u.ac(node, "image");
-				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+"x"+node._height+"."+node._image;
+			else if(node._format && node._height) {
+				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+"x"+node._height+"."+node._format;
+			}
+			else if(u.hc(node, "image")) {
+				if(node._width) {
+					node._image_src = "/images/0/missing/"+node._width+"x.png";
+				}
+				else if(node._height) {
+					node._image_src = "/images/0/missing/x"+node._height+".png";
+				}
 			}
 			if(node._image_src) {
 				u.as(node, "backgroundImage", "url("+node._image_src+")");
