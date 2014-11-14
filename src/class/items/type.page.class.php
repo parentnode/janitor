@@ -52,14 +52,15 @@ class TypePage extends Model {
 			"hint_message" => "Write the log entry",
 			"error_message" => "A page without any words? How weird."
 		));
-    // Single media
+
+		// Single media
 		$this->addToModel("single_media", array(
 			"type" => "files",
 			"label" => "Drag Image here",
 			"allowed_sizes" => "960x540",
-			"allowed_formats" => "png,jpg,mp4",
+			"allowed_formats" => "png,jpg",
 			"max" => 1,
-			"hint_message" => "Add single image by dragging it here. PNG, JPG, MP4 allowed in 960x540.",
+			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x540.",
 			"error_message" => "Image does not fit requirements."
 		));
 		// Tags

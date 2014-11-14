@@ -279,9 +279,9 @@ class Setup extends Model {
 
 	// CHECK FOR READ/WRITE ACCESS
 	function readWriteTest() {
-		$handle = @fopen(PROJECT_PATH."/wr.test", "a+");
+		$handle = @fopen(PROJECT_PATH.DIRECTORY_SEPARATOR."wr.test", "a+");
 		if($handle) {
-			unlink(PROJECT_PATH."/wr.test");
+			unlink(PROJECT_PATH.DIRECTORY_SEPARATOR."wr.test");
 
 			return true;
 		}
