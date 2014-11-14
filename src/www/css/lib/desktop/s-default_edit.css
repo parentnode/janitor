@@ -46,6 +46,7 @@
 /* EDIT MEDIA */
 #content .scene.defaultEdit > div.media {padding: 0 0 20px; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.media form.upload .actions {display: none;}
+#content .scene.defaultEdit > div.media form.upload input[type=file] {height: 45px;}
 
 /* DELETE MEDIA STANDARD */
 #content .scene.defaultEdit > div.media form.delete {padding: 0; position: absolute; top: 0; right: 0;}
@@ -65,8 +66,8 @@
 #content .scene.defaultEdit > div.media > form.delete {left: 412px; right: auto; top: 47px; z-index: 11;}
 #content .scene.defaultEdit > div.media > form.delete input {position: absolute; top: 0; right: 0;}
 
-#content .scene.defaultEdit > div.single_media form.upload input[type=file] {height: 198px;}
-#content .scene.defaultEdit > div.single_media form.upload label {margin-top: 90px;}
+#content .scene.defaultEdit > div.single_media form.upload input[type=file] {height: 196px;}
+#content .scene.defaultEdit > div.single_media form.upload label {margin-top: 80px;}
 #content .scene.defaultEdit > div.single_media img {height: 216px;}
 
 

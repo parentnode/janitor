@@ -89,7 +89,7 @@ dt {color: #7d848c; display: inline-block; vertical-align: top; font-size: 0.923
 /*s-navigation.css*/
 #navigation {}
 #navigation ul {}
-#navigation ul li {border-bottom: 1px solid #404a56; color: #8c9399; display: block; text-transform: uppercase;}
+#navigation ul li {border-bottom: 1px solid #404a56; color: #8c9399; display: block; text-transform: uppercase; font-size: 1rem;}
 #navigation ul li:hover {color: #ffffff;}
 #navigation ul li a {display: block;  padding: 14px 20px 15px;}
 #navigation ul li.selected {}
@@ -173,9 +173,9 @@ body.user #navigation .user a {padding-left: 35px; color: #ffffff;}
 	margin: 0;
 }
 #content form.upload {padding: 0 30px; text-align: left; width: 374px; position: relative; z-index: 10;}
-#content .field.files {border: 3px dashed #dedede; display: inline-block; border-radius: 5px; position: relative; padding: 0;}
+#content .field.files {border: 3px dashed #dedede; display: inline-block; vertical-align: top; border-radius: 5px; position: relative; padding: 0; margin-top: 2px;}
 #content .field.files input {opacity: 0; width: 356px;}
-#content .field.files label {display: inline-block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 8px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
+#content .field.files label {display: block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 18px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
 #content .field.location {}
 #content .field.location div.location {padding-bottom: 2px;}
 #content .field.location div.latitude {padding-right: 2px;}
@@ -546,6 +546,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.defaultEdit > div.prices ul.prices li input.delete:hover {color: #000000;}
 #content .scene.defaultEdit > div.media {padding: 0 0 20px; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.media form.upload .actions {display: none;}
+#content .scene.defaultEdit > div.media form.upload input[type=file] {height: 45px;}
 #content .scene.defaultEdit > div.media form.delete {padding: 0; position: absolute; top: 0; right: 0;}
 #content .scene.defaultEdit > div.media form.delete ul.actions {padding: 0;}
 #content .scene.defaultEdit > div.media form.delete ul.actions li {padding: 0;}
@@ -558,8 +559,8 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.defaultEdit > div.media > img {margin: 0 28px; position: absolute; top: 47px; left: 0; z-index: 9; width: 384px;}
 #content .scene.defaultEdit > div.media > form.delete {left: 412px; right: auto; top: 47px; z-index: 11;}
 #content .scene.defaultEdit > div.media > form.delete input {position: absolute; top: 0; right: 0;}
-#content .scene.defaultEdit > div.single_media form.upload input[type=file] {height: 198px;}
-#content .scene.defaultEdit > div.single_media form.upload label {margin-top: 90px;}
+#content .scene.defaultEdit > div.single_media form.upload input[type=file] {height: 196px;}
+#content .scene.defaultEdit > div.single_media form.upload label {margin-top: 80px;}
 #content .scene.defaultEdit > div.single_media img {height: 216px;}
 #content .scene.defaultEdit > div.media ul.mediae {padding: 20px 20px 0; text-align: left;}
 #content .scene.defaultEdit > div.media ul.mediae > li {margin: 0 10px 20px; position: relative; text-align: center;}

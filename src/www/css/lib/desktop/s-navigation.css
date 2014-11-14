@@ -1,6 +1,6 @@
 #navigation {}
 #navigation ul {}
-#navigation ul li {border-bottom: 1px solid #404a56; color: #8c9399; display: block; text-transform: uppercase;}
+#navigation ul li {border-bottom: 1px solid #404a56; color: #8c9399; display: block; text-transform: uppercase; font-size: 1rem;}
 #navigation ul li:hover {color: #ffffff;}
 #navigation ul li a {display: block;  padding: 14px 20px 15px;}
 #navigation ul li.selected {}
