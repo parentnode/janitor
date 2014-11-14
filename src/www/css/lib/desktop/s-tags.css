@@ -3,9 +3,11 @@
 #content ul.tags li {display: inline-block; vertical-align: top; margin: 3px; border-radius: 13px; background-color: #313942; padding: 6px 10px 7px; color: #ffffff; font-size: 0;}
 #content ul.tags li.add {padding: 6px 7px 7px 8px; cursor: pointer; width: 10px; text-align: center;}
 #content ul.tags li.add:hover {background-color: #64ad8e;}
+#content ul.tags li span {font-size: 0.923rem; line-height: 1em;}
 #content ul.tags li span.context {text-transform: uppercase;}
 #content ul.tags li span.context:after {content: ":";}
 #content ul.tags li span.value {}
+#content ul.tags li.add {font-size: 0.923rem;}
 
 
 #content .scene > div.tags {padding: 0 0 20px; border-bottom: 1px solid #aaaaaa;}

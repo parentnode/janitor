@@ -6,7 +6,12 @@
 #navigation ul li.selected {}
 
 
-body.navigation #navigation .navigation a,
 body.page #navigation .page a,
+body.post #navigation .post a,
+body.photocollection #navigation .photocollection a,
+body.todo #navigation .todo a,
+
+body.navigation #navigation .navigation a,
+body.shop #navigation .shop a,
 body.tags #navigation .tags a,
 body.user #navigation .user a {padding-left: 35px; color: #ffffff;}

@@ -24,7 +24,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DES
 <?			foreach($all_items as $item): 
 				$item = $IC->extendItem($item, array("tags" => true));
 				$media = $item["mediae"] ? array_shift($item["mediae"]) : false; ?>
-			<li class="item item_id:<?= $item["id"] ?><?= $media ? (" image:".$media["format"]." variant:".$media["variant"]) : "" ?> width:160">
+			<li class="item image item_id:<?= $item["id"] ?><?= $media ? (" format:".$media["format"]." variant:".$media["variant"]) : "" ?> width:160">
 				<h3><?= $item["name"] ?></h3>
 
 <?				if($item["tags"]): ?>

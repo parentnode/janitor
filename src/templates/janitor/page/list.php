@@ -7,10 +7,10 @@ global $itemtype;
 $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DESC, published_at DESC"));
 ?>
 <div class="scene defaultList <?= $itemtype ?>List">
-	<h1>Employee</h1>
+	<h1>Pages</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("New employee", "/janitor/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
+		<?= $HTML->link("New page", "/janitor/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList taggable filters sortable" 
@@ -25,7 +25,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DES
 <?			foreach($all_items as $item): 
 				$item = $IC->extendItem($item, array("tags" => true));
 				$media = isset($item["single_media"]) ? $item["single_media"] : false; ?>
-			<li class="item draggable item_id:<?= $item["id"] ?> <?= $media ? (" image:".$media["format"]." variant:".$media["variant"]) : "" ?> width:160">
+			<li class="item image draggable item_id:<?= $item["id"] ?> <?= $media ? (" format:".$media["format"]." variant:".$media["variant"]) : "" ?> width:160">
 				<div class="drag"></div>
 				<h3><?= $item["name"] ?></h3>
 <?				if($item["tags"]): ?>

@@ -1,0 +1,12 @@
+/* 
+SPECIFIC CSS FOR DEFAULT ITEMS TYPES
+CAN ALWAYS BE OVERWRITTEN LOCALLY
+*/
+
+
+
+/* TODOLIST */
+#content .todolistList ul.items > li h3 {padding-bottom: 16px;}
+
+/* TODOitem */
+#content .todoList ul.items > li h3 {padding-bottom: 16px;}

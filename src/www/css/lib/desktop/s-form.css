@@ -161,10 +161,6 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content ul.actions {padding: 0 25px;}
 #content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px; vertical-align: top;}
 
-/*
-#content ul.actions li a {display: inline-block; vertical-align: top;}
-*/
-
 #content ul.actions input.button {width: auto; height: 26px; padding: 3px 12px;}
 @media all and (-webkit-min-device-pixel-ratio:0) {#content ul.actions input.button {padding-bottom: 5px;}}
 #content ul.actions a.button {display: block; text-decoration: none; height: 14px; padding: 5px 12px 7px;}
@@ -172,7 +168,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 /* DEFAULT BUTTON */
 #content ul.actions input.button,
-#content ul.actions a.button {background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px;}
+#content ul.actions a.button {font-size: 1rem; line-height: 1.2em; background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px;}
 
 #content ul.actions input.button:hover,
 #content ul.actions a.button:hover {background-color: #313942;}
@@ -216,7 +212,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.files div.help {left: 425px;}
 
 #content .field div.error,
-#content .field div.hint {display: none; padding: 5px; border-radius: 3px;}
+#content .field div.hint {display: none; padding: 5px; border-radius: 3px; font-size: 12px;}
 
 
 /* HELP - ERRORS */
@@ -308,24 +304,3 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .field.html > textarea {display: none;}
 #content .field.html > .indicator {top: 33px;}
 
-/*
-#content .field.html > .hint,
-#content .field.html > .indicator {display: none;}
-*/
-
-#content .pageEdit div.single_media form.upload input[type=file] {
-    height: 198px;
-}
-#content .pageEdit div.single_media form.upload label {
-    margin-top: 90px;
-}
-
-#content .pageEdit div.single_media img {
-height: 216px;
-}
-
-#content .pageList ul.items > li.image {
-min-height: 100px;
-padding-left: 190px;
-background-position: 60px 0;
-}

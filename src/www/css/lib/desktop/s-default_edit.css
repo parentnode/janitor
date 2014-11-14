@@ -65,6 +65,10 @@
 #content .scene.defaultEdit > div.media > form.delete {left: 412px; right: auto; top: 47px; z-index: 11;}
 #content .scene.defaultEdit > div.media > form.delete input {position: absolute; top: 0; right: 0;}
 
+#content .scene.defaultEdit > div.single_media form.upload input[type=file] {height: 198px;}
+#content .scene.defaultEdit > div.single_media form.upload label {margin-top: 90px;}
+#content .scene.defaultEdit > div.single_media img {height: 216px;}
+
 
 /* MULTIPLE FILE UPLOAD */
 #content .scene.defaultEdit > div.media ul.mediae {padding: 20px 20px 0; text-align: left;}
@@ -79,6 +83,8 @@
 #content .scene.defaultEdit > div.media ul.mediae > li form.edit {position: absolute; bottom: 0; left: 0; width: 100%;}
 #content .scene.defaultEdit > div.media ul.mediae > li form.edit div.field {padding: 5px; background-color: rgba(255,255,255, 0.7);}
 #content .scene.defaultEdit > div.media ul.mediae > li form.edit div.field input {font-size: 12px; height: 20px;}
+
+
 
 /* SORTABLE MEDIA */
 #content .scene.defaultEdit > div.media.sortable ul.mediae > li {cursor: move;}

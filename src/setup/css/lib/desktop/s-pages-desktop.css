@@ -19,12 +19,12 @@
 #content .scene.finish ul.tasks,
 #content .scene.finish ul.building {padding: 0 45px;}
 
-#content .scene.finish ul.tasks li {padding-bottom: 10px; font-size: 14px; display: block;}
-#content .scene.finish ul.building li {padding-bottom: 10px; font-size: 14px; display: block;}
+#content .scene.finish ul.tasks li {padding-bottom: 10px; font-size: 1.077rem; display: block;}
+#content .scene.finish ul.building li {padding-bottom: 10px; font-size: 1.077rem; display: block;}
 
 
 /* CODE AND TYPECASTING */
-#content .scene code {padding: 10px 10px; margin: 0 30px 5px; position: relative; top: -15px; background-color: #ededed; font-size: 12px; display: block; overflow: auto; white-space: pre;
+#content .scene code {padding: 10px 10px; margin: 0 30px 5px; position: relative; top: -15px; background-color: #ededed; font-size: 0.923rem; display: block; overflow: auto; white-space: pre;
 	font-family: "Monaco", "Courier New", "Courier";
 	-moz-tab-size: 4;
 	-o-tab-size: 4;
