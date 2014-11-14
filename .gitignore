@@ -1,5 +1,5 @@
 .DS_Store
-src/config/config.php
 src/config/connect_*.php
 *.sublime-project
 *.sublime-workspace
+nbproject/*
