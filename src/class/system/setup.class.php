@@ -281,6 +281,7 @@ class Setup extends Model {
 	function readWriteTest() {
 		$handle = @fopen(PROJECT_PATH.DIRECTORY_SEPARATOR."wr.test", "a+");
 		if($handle) {
+			fclose($handle);
 			unlink(PROJECT_PATH.DIRECTORY_SEPARATOR."wr.test");
 
 			return true;
