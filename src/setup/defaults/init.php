@@ -64,9 +64,10 @@ if(!defined("LOCAL_PATH")) {
 }
 
 // update include_path with LOCAL_PATH 
+$path_colon = DIRECTORY_SEPARATOR == '/' ? ':' : ';';
 $path = "";
-$path .= (defined("LOCAL_PATH") ? (":".LOCAL_PATH) : "");
-$path .= (defined("FRAMEWORK_PATH") ? (":".FRAMEWORK_PATH) : "");
+$path .= (defined("LOCAL_PATH") ? ($path_colon.LOCAL_PATH) : "");
+$path .= (defined("FRAMEWORK_PATH") ? ($path_colon.FRAMEWORK_PATH) : "");
 
 ini_set("include_path", "." . $path);
 
