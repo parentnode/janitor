@@ -68,6 +68,8 @@ sudo chmod -R 770 <?= $model->project_path ?>/src/library</code>
 
 		<h3>Restart Apache</h3>
 		<p>Finally, restart your Apache:</p>
+		<code>service apache2 restart</code>
+		<p>or</p>
 		<code>sudo apachectl restart</code>
 
 		<h2>Relaunch your Janitor project</h2>
