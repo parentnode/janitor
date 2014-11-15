@@ -51,7 +51,7 @@ function conversionFailed($reason) {
 
 	// dangerous to return HTML - receiving JS will expect media, not HTML
 	else {
-		header("Location: /404");
+		header("Location: /janitor/admin/404");
 	}
 	exit();
 }
