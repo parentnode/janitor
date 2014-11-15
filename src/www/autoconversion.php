@@ -4,7 +4,6 @@ if(isset($read_access) && $read_access) {
 	return;
 }
 
-//include_once("../config/config.php");
 include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
@@ -26,22 +25,34 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 // ogg
 
 
-//include_once("class/system/filesystem.class.php");
-
 
 // error handling
 function conversionFailed($reason) {
 	global $page;
+	global $width;
+	global $height;
+	global $request_type;
 
-	 // TODO: add missing image instead of 404
-//	print "conversion failed:" . $reason;
 	$page->mail(array(
 		"subject" => "Autoconversion failed", 
 		"message" => $reason,
 		"template" => "system"
 	));
 
-//	header("Location: /404");
+	// TODO: implement fallback for audio and video
+	// TODO: implement constraints to avoid media generation abuse
+
+	// return missing image if it exists (and request is for image)
+	//	print file_exists(PRIVATE_FILE_PATH."/0/missing/png")." && ". $width ."&&". $height;
+	if($request_type == "images" && file_exists(PRIVATE_FILE_PATH."/0/missing/png") && ($width || $height)) {
+
+		header("Location: /images/0/missing/".$width."x".$height.".png");
+	}
+
+	// dangerous to return HTML - receiving JS will expect media, not HTML
+	else {
+		header("Location: /404");
+	}
 	exit();
 }
 
@@ -118,9 +129,10 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d*).(
 }
 
 // ERROR - MISSING INFO
-if(!$id) {
+// id can be 0, but not false
+if($id === false) {
 //	print "missing info";
-	conversionFailed("Missing of bad info - request ignored");
+	conversionFailed("Missing or bad path info - request ignored");
 }
 
 
