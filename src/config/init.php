@@ -61,7 +61,7 @@ include_once("class/system/model.class.php");
 if(defined("SITE_ITEMS") && SITE_ITEMS) {
 
 	// SITE_ITEMS needs SITE_DB
-	if(defined("SITE_DB")) {
+	if(!defined("SITE_DB")) {
 		print "Your site is not configured yet!";
 		exit();
 	}
