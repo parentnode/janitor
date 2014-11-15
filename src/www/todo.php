@@ -1,8 +1,5 @@
 <?php
-$access_item["/list"] = true;
-$access_item["/edit"] = true;
-$access_item["/updateTag"] = true;
-$access_item["/deleteTag"] = true;
+$access_item["/"] = true;
 if(isset($read_access) && $read_access) {
 	return;
 }
@@ -11,11 +8,13 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
-$model = new Tag();
+$IC = new Item();
+$itemtype = "todo";
+$model = $IC->typeObject($itemtype);
 
 
-$page->bodyClass("tags");
-$page->pageTitle("Tags management");
+$page->bodyClass($itemtype);
+$page->pageTitle("TODOs");
 
 
 if(is_array($action) && count($action)) {
@@ -25,7 +24,17 @@ if(is_array($action) && count($action)) {
 
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/tag/list.php"
+			"templates" => "janitor/".$itemtype."/list.php"
+			)
+		);
+		exit();
+	}
+	// NEW ITEM
+	else if(count($action) == 1 && $action[0] == "new") {
+
+		$page->page(array(
+			"type" => "janitor",
+			"templates" => "janitor/".$itemtype."/new.php"
 			)
 		);
 		exit();
@@ -35,7 +44,7 @@ if(is_array($action) && count($action)) {
 
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/tag/edit.php"
+			"templates" => "janitor/".$itemtype."/edit.php"
 			)
 		);
 		exit();

@@ -57,7 +57,6 @@ if(is_array($action) && count($action)) {
 			)
 		);
 		exit();
-
 	}
 	// NEW ITEM
 	else if(count($action) == 1 && $action[0] == "new") {
@@ -68,23 +67,21 @@ if(is_array($action) && count($action)) {
 			)
 		);
 		exit();
-
 	}
 	// EDIT ITEM
 	else if(count($action) == 2 && $action[0] == "edit") {
-	
+
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/edit.php"
 			)
 		);
 		exit();
-	
 	}
 
 	// ADD ADDRESS
 	else if(count($action) == 2 && $action[0] == "new_address") {
-	
+
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/new_address.php"
@@ -95,19 +92,18 @@ if(is_array($action) && count($action)) {
 	}
 	// EDIT ADDRESS
 	else if(count($action) == 3 && $action[0] == "edit_address") {
-	
+
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/edit_address.php"
 			)
 		);
 		exit();
-	
 	}
 
 	// GROUP LIST
 	else if(count($action) == 2 && $action[0] == "group" && $action[1] == "list") {
-	
+
 		$page->page(array(
 			"type" => "janitor",
 			"body_class" => "usergroup", 
@@ -116,7 +112,6 @@ if(is_array($action) && count($action)) {
 			)
 		);
 		exit();
-	
 	}
 	// GROUP NEW
 	else if(count($action) == 2 && $action[0] == "group" && $action[1] == "new") {
@@ -142,11 +137,11 @@ if(is_array($action) && count($action)) {
 			)
 		);
 		exit();
-	
 	}
+
 	// ACCESS EDIT
 	else if(count($action) == 3 && $action[0] == "access" && $action[1] == "edit") {
-	
+
 		$page->page(array(
 			"type" => "janitor",
 			"body_class" => "usergroup", 
@@ -155,19 +150,17 @@ if(is_array($action) && count($action)) {
 			)
 		);
 		exit();
-	
 	}
 
 	// CONTENT OVERVIEW
 	else if(count($action) == 2 && $action[0] == "content") {
-	
+
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/content.php"
 			)
 		);
 		exit();
-	
 	}
 
 	// Class interface

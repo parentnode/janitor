@@ -10,7 +10,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.stat
 	<h1>TODOs</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("New task", "/janitor/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
+		<?= $HTML->link("New task", "/janitor/admin/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList taggable filters"
@@ -40,7 +40,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.stat
 <?				endif; ?>
 
 				<ul class="actions">
-					<?= $HTML->link("Edit", "/janitor/".$itemtype."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+					<?= $HTML->link("Edit", "/janitor/admin/".$itemtype."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 					<?= $HTML->deleteButton("Delete", "/janitor/admin/items/delete/".$item["id"], array("js" => true)) ?>
 					<?= $HTML->statusButton("Enable", "Disable", "/janitor/admin/items/status", $item, array("js" => true)) ?>
 				</ul>

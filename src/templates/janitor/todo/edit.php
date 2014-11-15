@@ -13,7 +13,7 @@ $item_id = $item["item_id"];
 	<ul class="actions i:defaultEditActions item_id:<?= $item_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
-		<?= $HTML->link("List", "/janitor/".$itemtype."/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("List", "/janitor/admin/".$itemtype."/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->deleteButton("Delete", "/janitor/admin/items/delete/".$item["id"], array("js" => true)) ?>
 	</ul>
 
@@ -36,7 +36,7 @@ $item_id = $item["item_id"];
 			</fieldset>
 
 			<ul class="actions">
-				<?= $model->link("Back", "/janitor/".$itemtype."/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->link("Back", "/janitor/admin/".$itemtype."/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>

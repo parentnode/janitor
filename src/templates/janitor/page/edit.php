@@ -16,7 +16,7 @@ $this->pageDescription($item["description"]);
 	<ul class="actions i:defaultEditActions item_id:<?= $item_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
-		<?= $HTML->link("List", "/janitor/".$itemtype."/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("List", "/janitor/admin/".$itemtype."/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->deleteButton("Delete", "/janitor/admin/items/delete/".$item["id"], array("js" => true)) ?>
 	</ul>
 
@@ -29,10 +29,10 @@ $this->pageDescription($item["description"]);
 	</div>
   
 	<div class="media single_media i:addMediaSingle variant:single_media item_id:<?= $item_id ?>"
-		data-delete-media="<?= $this->validPath("/janitor/".$itemtype."/deleteMedia") ?>"
+		data-delete-media="<?= $this->validPath("/janitor/admin/".$itemtype."/deleteMedia") ?>"
 	>
 		<h2>Page image</h2>
-		<?= $model->formStart("/janitor/".$itemtype."/addSingleMedia/".$item_id, array("class" => "upload labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/".$itemtype."/addSingleMedia/".$item_id, array("class" => "upload labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("single_media") ?>
 			</fieldset>
@@ -55,7 +55,7 @@ $this->pageDescription($item["description"]);
 			</fieldset>
 
 			<ul class="actions">
-				<?= $model->link("Back", "/janitor/".$itemtype."/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->link("Back", "/janitor/admin/".$itemtype."/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>

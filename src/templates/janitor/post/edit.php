@@ -13,7 +13,7 @@ $item = $IC->getCompleteItem(array("id" => $item_id));
 	<ul class="actions i:defaultEditActions item_id:<?= $item_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
-		<?= $HTML->link("List", "/janitor/".$itemtype."/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("List", "/janitor/admin/".$itemtype."/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->deleteButton("Delete", "/janitor/admin/items/delete/".$item["id"], array("js" => true)) ?>
 	</ul>
 
@@ -37,7 +37,7 @@ $item = $IC->getCompleteItem(array("id" => $item_id));
 			</fieldset>
 
 			<ul class="actions">
-				<?= $model->link("Back", "/janitor/".$itemtype."/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->link("Back", "/janitor/admin/".$itemtype."/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
@@ -71,11 +71,11 @@ $item = $IC->getCompleteItem(array("id" => $item_id));
 
 	<div class="media i:addMedia sortable item_id:<?= $item_id ?>"
 		data-save-order="/janitor/<?= $itemtype ?>/updateMediaOrder" 
-		data-delete-media="<?= $this->validPath("/janitor/".$itemtype."/deleteMedia") ?>"
-		data-update-media-name="<?= $this->validPath("/janitor/".$itemtype."/updateMediaName") ?>"
+		data-delete-media="<?= $this->validPath("/janitor/admin/".$itemtype."/deleteMedia") ?>"
+		data-update-media-name="<?= $this->validPath("/janitor/admin/".$itemtype."/updateMediaName") ?>"
 		>
 		<h2>Media</h2>
-		<?= $model->formStart("/janitor/".$itemtype."/addMedia/".$item_id, array("class" => "upload labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/".$itemtype."/addMedia/".$item_id, array("class" => "upload labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("mediae") ?>
 			</fieldset>

@@ -8,11 +8,8 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
-
 $model = new Shop();
 $output = new Output();
-
-// Add to cart handled
 
 
 $page->bodyClass("cart");

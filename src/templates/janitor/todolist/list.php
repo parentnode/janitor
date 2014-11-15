@@ -10,12 +10,12 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position A
 	<h1>TODO lists</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("New list", "/janitor/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
+		<?= $HTML->link("New list", "/janitor/admin/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList taggable filters sortable"
 		data-csrf-token="<?= session()->value("csrf") ?>"
-		data-save-order="<?= $this->validPath("/janitor/$itemtype/updateOrder") ?>" 
+		data-save-order="<?= $this->validPath("/janitor/admin/$itemtype/updateOrder") ?>" 
 		data-get-tags="<?= $this->validPath("/janitor/admin/items/tags") ?>" 
 		data-delete-tag="<?= $this->validPath("/janitor/admin/items/tags/delete") ?>"
 		data-add-tag="<?= $this->validPath("/janitor/admin/items/tags/add") ?>"
@@ -37,7 +37,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position A
 <?				endif; ?>
 
 				<ul class="actions">
-					<?= $HTML->link("Edit", "/janitor/".$itemtype."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+					<?= $HTML->link("Edit", "/janitor/admin/".$itemtype."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 					<?= $HTML->deleteButton("Delete", "/janitor/admin/items/delete/".$item["id"], array("js" => true)) ?>
 					<?= $HTML->statusButton("Enable", "Disable", "/janitor/admin/items/status", $item, array("js" => true)) ?>
 				</ul>

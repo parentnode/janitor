@@ -7,15 +7,15 @@ global $itemtype;
 $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC"));
 ?>
 <div class="scene defaultList <?= $itemtype ?>List">
-	<h1>Collections</h1>
+	<h1>Photo collections</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("New collection", "/janitor/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
+		<?= $HTML->link("New collection", "/janitor/admin/".$itemtype."/new", array("class" => "button primary key:n", "wrapper" => "li.new")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList sortable filters" 
 		data-csrf-token="<?= session()->value("csrf") ?>"
-		data-save-order="<?= $this->validPath("/janitor/$itemtype/updateOrder") ?>" 
+		data-save-order="<?= $this->validPath("/janitor/admin/$itemtype/updateOrder") ?>" 
 		data-get-tags="<?= $this->validPath("/janitor/admin/items/tags") ?>" 
 		data-delete-tag="<?= $this->validPath("/janitor/admin/items/tags/delete") ?>"
 		data-add-tag="<?= $this->validPath("/janitor/admin/items/tags/add") ?>"
@@ -29,7 +29,7 @@ $all_items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position A
 				<h3><?= $item["name"] ?></h3>
 
 				<ul class="actions">
-					<?= $HTML->link("Edit", "/janitor/".$itemtype."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+					<?= $HTML->link("Edit", "/janitor/admin/".$itemtype."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 					<?= $HTML->deleteButton("Delete", "/janitor/admin/items/delete/".$item["id"], array("js" => true)) ?>
 					<?= $HTML->statusButton("Enable", "Disable", "/janitor/admin/items/status", $item, array("js" => true)) ?>
 				</ul>
