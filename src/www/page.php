@@ -25,8 +25,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/".$itemtype."/list.php"
-			)
-		);
+		));
 		exit();
 	}
 	// NEW ITEM
@@ -35,8 +34,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/".$itemtype."/new.php"
-			)
-		);
+		));
 		exit();
 	}
 	// EDIT ITEM
@@ -45,8 +43,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/".$itemtype."/edit.php"
-			)
-		);
+		));
 		exit();
 	}
 
@@ -66,7 +63,6 @@ if(is_array($action) && count($action)) {
 
 $page->page(array(
 	"templates" => "pages/404.php"
-	)
-);
+));
 
 ?>

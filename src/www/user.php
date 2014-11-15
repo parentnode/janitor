@@ -54,8 +54,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/list.php"
-			)
-		);
+		));
 		exit();
 	}
 	// NEW ITEM
@@ -64,8 +63,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/new.php"
-			)
-		);
+		));
 		exit();
 	}
 	// EDIT ITEM
@@ -74,8 +72,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/edit.php"
-			)
-		);
+		));
 		exit();
 	}
 
@@ -85,8 +82,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/new_address.php"
-			)
-		);
+		));
 		exit();
 	
 	}
@@ -96,8 +92,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/edit_address.php"
-			)
-		);
+		));
 		exit();
 	}
 
@@ -109,8 +104,7 @@ if(is_array($action) && count($action)) {
 			"body_class" => "usergroup", 
 			"page_title" => "User groups / Access control management",
 			"templates" => "janitor/user_group/list.php"
-			)
-		);
+		));
 		exit();
 	}
 	// GROUP NEW
@@ -121,8 +115,7 @@ if(is_array($action) && count($action)) {
 			"body_class" => "usergroup",
 			"page_title" => "User groups",
 			"templates" => "janitor/user_group/new.php"
-			)
-		);
+		));
 		exit();
 	
 	}
@@ -134,8 +127,7 @@ if(is_array($action) && count($action)) {
 			"body_class" => "usergroup", 
 			"page_title" => "User groups",
 			"templates" => "janitor/user_group/edit.php"
-			)
-		);
+		));
 		exit();
 	}
 
@@ -147,8 +139,7 @@ if(is_array($action) && count($action)) {
 			"body_class" => "usergroup", 
 			"page_title" => "Access control management",
 			"templates" => "janitor/user_group/access.php"
-			)
-		);
+		));
 		exit();
 	}
 
@@ -158,8 +149,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/content.php"
-			)
-		);
+		));
 		exit();
 	}
 
@@ -179,7 +169,6 @@ if(is_array($action) && count($action)) {
 
 $page->page(array(
 	"templates" => "pages/404.php"
-	)
-);
+));
 
 ?>

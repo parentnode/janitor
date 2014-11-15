@@ -23,8 +23,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/navigation/list.php"
-			)
-		);
+		));
 		exit();
 
 	}
@@ -34,8 +33,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/navigation/new.php"
-			)
-		);
+		));
 		exit();
 
 	}
@@ -45,8 +43,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/navigation/edit.php"
-			)
-		);
+		));
 		exit();
 
 	}
@@ -57,8 +54,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/navigation/new_node.php"
-			)
-		);
+		));
 		exit();
 
 	}
@@ -68,8 +64,7 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/navigation/edit_node.php"
-			)
-		);
+		));
 		exit();
 
 	}
@@ -90,7 +85,6 @@ if(is_array($action) && count($action)) {
 
 $page->page(array(
 	"templates" => "pages/404.php"
-	)
-);
+));
 
 ?>
