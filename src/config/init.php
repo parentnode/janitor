@@ -58,7 +58,7 @@ include_once("class/system/model.class.php");
 
 
 // Extend with items model - not required for static sites
-if(defined("SITE_ITEMS") && SITE_ITEMS) {
+if(defined("SITE_ITEMS") && SITE_ITEMS && defined("SITE_DB")) {
 
 	include_once("class/items/item.core.class.php");
 	include_once("class/items/item.class.php");
