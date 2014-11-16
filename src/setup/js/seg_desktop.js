@@ -7798,6 +7798,10 @@ Util.Objects["finish"] = new function() {
 				if(response.cms_status == "success" && response.cms_object) {
 					var i, task;
 					for(i = 0; task = response.cms_object[i]; i++) {
+						if(task.match(/ERROR/)) {
+							u.ae(this.ul_tasks, "li", {"html":task, "class":"error"});
+							return;
+						}
 						u.ae(this.ul_tasks, "li", {"html":task});
 					}
 					this.div_final_touches = u.qs(".final_touches", scene);

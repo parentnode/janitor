@@ -800,6 +800,17 @@ class Setup extends Model {
 			$page->loadMailConfiguration();
 
 
+			// in some case the old config files were loaded, but contained bad setup info
+			// check and break install if that is the case
+
+			if(!defined("SITE_DB") || SITE_DB != $this->db_janitor_db) {
+				$tasks[] = "ERROR: THE PROCESS REQUIRES A PAGE REFRESH. PLEASE REFRESH AND CLICK INSTALL AGAIN!";
+				return $tasks;
+			}
+			if(!defined("ADMIN_EMAIL") || ADMIN_EMAIL != $this->mail_admin) {
+				$tasks[] = "ERROR: THE PROCESS REQUIRES A PAGE REFRESH. PLEASE REFRESH AND CLICK INSTALL AGAIN!";
+				return $tasks;
+			}
 
 			// DEFAULT DATA
 
@@ -809,27 +820,28 @@ class Setup extends Model {
 			//
 			$tasks[] = "Verifying database tables";
 
-			$query = new Query();
-			$query->checkDbExistance(SITE_DB.".user_groups");
-			$query->checkDbExistance(SITE_DB.".languages");
-			$query->checkDbExistance(SITE_DB.".currencies");
-			$query->checkDbExistance(SITE_DB.".countries");
-			$query->checkDbExistance(SITE_DB.".users");
 
-			$query->checkDbExistance(SITE_DB.".items");
-			$query->checkDbExistance(SITE_DB.".tags");
-			$query->checkDbExistance(SITE_DB.".taggings");
+			$query = new Query();
+			$query->checkDbExistance($this->db_janitor_db.".user_groups");
+			$query->checkDbExistance($this->db_janitor_db.".languages");
+			$query->checkDbExistance($this->db_janitor_db.".currencies");
+			$query->checkDbExistance($this->db_janitor_db.".countries");
+			$query->checkDbExistance($this->db_janitor_db.".users");
+
+			$query->checkDbExistance($this->db_janitor_db.".items");
+			$query->checkDbExistance($this->db_janitor_db.".tags");
+			$query->checkDbExistance($this->db_janitor_db.".taggings");
 
 
 
 			//
 			// CREATE LANGUAGE
 			//
-			$sql = "SELECT id FROM ".SITE_DB.".languages WHERE name = 'English'";
+			$sql = "SELECT id FROM ".$this->db_janitor_db.".languages WHERE name = 'English'";
 			if(!$query->sql($sql)) {
 
 				$tasks[] = "Installing language: EN";
-				$sql = "INSERT INTO ".SITE_DB.".languages set id = 'EN', name = 'English'";
+				$sql = "INSERT INTO ".$this->db_janitor_db.".languages set id = 'EN', name = 'English'";
 //				print $sql."<br>";
 				$query->sql($sql);
 
@@ -842,11 +854,11 @@ class Setup extends Model {
 			//
 			// CREATE CURRENCY
 			//
-			$sql = "SELECT id FROM ".SITE_DB.".currencies WHERE id = 'DKK'";
+			$sql = "SELECT id FROM ".$this->db_janitor_db.".currencies WHERE id = 'DKK'";
 			if(!$query->sql($sql)) {
 
 				$tasks[] = "Installing currency: DKK";
-				$sql = "INSERT INTO ".SITE_DB.".currencies set id = 'DKK', name = 'Kroner (Denmark)', abbreviation = 'DKK', abbreviation_position = 'after', decimals = 2, decimal_separator = ',', grouping_separator = '.'";
+				$sql = "INSERT INTO ".$this->db_janitor_db.".currencies set id = 'DKK', name = 'Kroner (Denmark)', abbreviation = 'DKK', abbreviation_position = 'after', decimals = 2, decimal_separator = ',', grouping_separator = '.'";
 				// print $sql."<br>";
 				$query->sql($sql);
 
@@ -859,11 +871,11 @@ class Setup extends Model {
 			//
 			// CREATE COUNTRY
 			//
-			$sql = "SELECT id FROM ".SITE_DB.".countries WHERE id = 'DK'";
+			$sql = "SELECT id FROM ".$this->db_janitor_db.".countries WHERE id = 'DK'";
 			if(!$query->sql($sql)) {
 
 				$tasks[] = "Installing country: DK";
-				$sql = "INSERT INTO ".SITE_DB.".countries set id = 'DK', name = 'Danmark', phone_countrycode = '45', phone_format = '#### ####', language = 'EN', currency = 'DKK'";
+				$sql = "INSERT INTO ".$this->db_janitor_db.".countries set id = 'DK', name = 'Danmark', phone_countrycode = '45', phone_format = '#### ####', language = 'EN', currency = 'DKK'";
 				// print $sql."<br>";
 				$query->sql($sql);
 

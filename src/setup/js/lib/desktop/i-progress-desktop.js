@@ -173,6 +173,10 @@ Util.Objects["finish"] = new function() {
 
 					var i, task;
 					for(i = 0; task = response.cms_object[i]; i++) {
+						if(task.match(/ERROR/)) {
+							u.ae(this.ul_tasks, "li", {"html":task, "class":"error"});
+							return;
+						}
 						u.ae(this.ul_tasks, "li", {"html":task});
 					}
 
