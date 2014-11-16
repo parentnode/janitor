@@ -418,7 +418,7 @@ class ItemCore {
 		$items = array();
 
 		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit;
-//		print $sql;
+//		print $sql."<br>\n";
 
 		$query->sql($sql);
 		$items = $query->results();
@@ -468,7 +468,7 @@ class ItemCore {
 			}
 		}
 
-		if(!$items) {
+		if($items === false) {
 			$items = $this->getItems($_options);
 		}
 
@@ -516,7 +516,7 @@ class ItemCore {
 			}
 		}
 
-		if(!$items) {
+		if($items === false) {
 			$items = $this->getItems($_options);
 		}
 

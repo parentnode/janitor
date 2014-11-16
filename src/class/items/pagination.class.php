@@ -44,6 +44,7 @@ class Pagination {
 		// get all items as base
 		$items = $IC->getItems($pattern);
 
+
 		# lists the latest N posts
 		if(!$sindex) {
 
