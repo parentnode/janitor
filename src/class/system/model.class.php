@@ -154,22 +154,28 @@ class Model extends HTML {
 			foreach($this->data_entities as $name => $entity) {
 
 				// special case with files
-				if($this->data_entities[$name]["type"] == "files") {
+				if($this->getProperty($name, "type") == "files") {
 
 					// indicate value is present for file upload
 					if(isset($_FILES[$name])) {
 //						$this->data_entities[$name]["value"] = true;
-						$this->data_entities[$name]["value"] = $_FILES[$name]["tmp_name"];
+//						$this->data_entities[$name]["value"] = $_FILES[$name]["tmp_name"];
+						$this->setProperty($name, "value", $_FILES[$name]["tmp_name"]);
+					}
+					else {
+						$this->setProperty($name, "value", false);
+//						$_FILES[$name]["tmp_name"]
 					}
 				}
 
 				// regular variable
 				else {
 					$value = getPost($name);
-					if($value !== false) {
+//					if($value !== false) {
 //						print $name."=".$value."\n";
-						$this->data_entities[$name]["value"] = $value;
-					}
+						$this->setProperty($name, "value", $value);
+//						$this->data_entities[$name]["value"] = $value;
+//					}
 					// else {
 					// 	print "should be false:" . $name . "," . ($this->data_entities[$name]["value"] === false) . "\n";
 					// }
@@ -232,8 +238,8 @@ class Model extends HTML {
 		// prepare values to be returned to screen if errors exist
 		if(count($this->data_errors)) {
 			foreach($this->data_entities as $name => $entity) {
-				if($this->data_entities[$name]["value"] !== false) {
-					$this->data_entities[$name]["value"] = prepareForHTML($entity["value"]);
+				if($this->getProperty($name, "value") !== false) {
+					$this->setProperty($name, "value", prepareForHTML($this->getProperty($name, "value")));
 				}
 			}
 			return false;
@@ -264,8 +270,8 @@ class Model extends HTML {
 		// prepare values to be returned to screen if errors exist
 		if(count($this->data_errors)) {
 			foreach($this->data_entities as $name => $entity) {
-				if($this->data_entities[$name]["value"] !== false) {
-					$this->data_entities[$name]["value"] = prepareForHTML($entity["value"]);
+				if($this->getProperty($name, "value") !== false) {
+					$this->setProperty($name, "value", prepareForHTML($this->getProperty($name, "value")));
 				}
 			}
 			return false;
@@ -288,30 +294,33 @@ class Model extends HTML {
 //		print "validate:".$name."\n";
 
 		// check uniqueness
-		if($this->data_entities[$name]["unique"]) {
+		if($this->getProperty($name, "unique")) {
 			if(!$this->isUnique($name, $item_id)) {
-				$error_message = $this->data_entities[$name]["error_message"];
+				$error_message = $this->getProperty($name, "error_message");
 				$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occured (uniqueness)";
 				message()->addMessage($error_message, array("type" => "error"));
 				return false;
 			}
 		}
 
-//		print_r($this->data_entities[$name]);
-
 		// is optional and empty?
 		// if value is not empty - it needs to be validated even for optional entities
-		if(!$this->data_entities[$name]["required"] && $this->data_entities[$name]["value"] == "") {
+		if(!$this->getProperty($name, "required") && $this->getProperty($name, "value") == "") {
 			return true;
 		}
 
 		// string or text field
-		if($this->data_entities[$name]["type"] == "string" || $this->data_entities[$name]["type"] == "text"  || $this->data_entities[$name]["type"] == "html" || $this->data_entities[$name]["type"] == "select") {
+		if(
+			$this->getProperty($name, "type") == "string" || 
+			$this->getProperty($name, "type") == "text"  || 
+			$this->getProperty($name, "type") == "html" || 
+			$this->getProperty($name, "type") == "select"
+		) {
 			if($this->isString($name)) {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "files") {
+		else if($this->getProperty($name, "type") == "files") {
 			if($this->isFiles($name)) {
 				return true;
 			}
@@ -321,29 +330,29 @@ class Model extends HTML {
 		// 		return true;
 		// 	}
 		// }
-		else if($this->data_entities[$name]["type"] == "number") {
+		else if($this->getProperty($name, "type") == "number") {
 			if($this->isNumber($name)) {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "integer") {
+		else if($this->getProperty($name, "type") == "integer") {
 			if($this->isInteger($name)) {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "email") {
+		else if($this->getProperty($name, "type") == "email") {
 			if($this->isEmail($name)) {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "tel") {
+		else if($this->getProperty($name, "type") == "tel") {
 			if($this->isTelephone($name)) {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "password") {
-			if(isset($this->data_entities[$name]["compare_to"])) {
-				if($this->comparePassword($name, $this->data_entities[$name]["compare_to"])) {
+		else if($this->getProperty($name, "type") == "password") {
+			if($this->getProperty($name, "compare_to")) {
+				if($this->comparePassword($name, $this->getProperty($name, "compare_to"))) {
 					return true;
 				}
 			}
@@ -351,34 +360,37 @@ class Model extends HTML {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "array") {
+		else if($this->getProperty($name, "type") == "array") {
 			if($this->isArray($name)) {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "date" || $this->data_entities[$name]["type"] == "datetime") {
+		else if(
+			$this->getProperty($name, "type") == "date" || 
+			$this->getProperty($name, "type") == "datetime"
+		) {
 			if($this->isDate($name)) {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "timestamp") {
+		else if($this->getProperty($name, "type") == "timestamp") {
 			if($this->isTimestamp($name)) {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "prices") {
+		else if($this->getProperty($name, "type") == "prices") {
 			if($this->isPrices($name)) {
 				return true;
 			}
 		}
-		else if($this->data_entities[$name]["type"] == "tags") {
+		else if($this->getProperty($name, "type") == "tags") {
 			if($this->isTags($name)) {
 				return true;
 			}
 		}
 
 		// either type was not found or validation failed
-		$error_message = $this->data_entities[$name]["error_message"];
+		$error_message = $this->getProperty($name, "error_message");
 		$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occured";
 		message()->addMessage($error_message, array("type" => "error"));
 		return false;
@@ -393,20 +405,21 @@ class Model extends HTML {
 	* @return bool
 	*/
 	function isUnique($name, $item_id) {
-		$entity = $this->data_entities[$name];
+
+		$value = $this->getProperty($name, "value");
 
 		$query = new Query();
-		$sql = "SELECT id FROM ".$entity["unique"]." WHERE $name = '".$entity["value"]."'".($item_id ? " AND item_id != ".$item_id : "");
+		$sql = "SELECT id FROM ".$entity["unique"]." WHERE $name = '".$value."'".($item_id ? " AND item_id != ".$item_id : "");
 		if($item_id) {
 			
 		}
 		// does other value exist
 		if($query->sql($sql)) {
-			$this->data_entities[$name]["error"] = true;
+			$this->setProperty($name, "error", true);
 			return false;
 		}
 
-		$this->data_entities[$name]["error"] = false;
+		$this->setProperty($name, "error", false);
 		return true;
 	}
 
@@ -421,16 +434,13 @@ class Model extends HTML {
 		// print "FILES:\n";
 		// print_r($_FILES);
 
-		$entity = $this->data_entities[$name];
+		$value = $this->getProperty($name, "value");
+		$min = $this->getProperty($name, "min");
+		$max = $this->getProperty($name, "max");
 
-		$value = $entity["value"];
-
-		$min = $entity["min"];
-		$max = $entity["max"];
-
-		$formats = $entity["allowed_formats"];
-		$proportions = $entity["allowed_proportions"];
-		$sizes = $entity["allowed_sizes"];
+		$formats = $this->getProperty($name, "allowed_formats");
+		$proportions = $this->getProperty($name, "allowed_proportions");
+		$sizes = $this->getProperty($name, "allowed_sizes");
 
 		$uploads = $this->identifyUploads($name);
 
@@ -444,11 +454,11 @@ class Model extends HTML {
 			(!$sizes || $this->sizeTest($uploads, $sizes)) &&
 			(!$formats || $this->formatTest($uploads, $formats))
 		) {
-			$this->data_entities[$name]["error"] = false;
+			$this->setProperty($name, "error", false);
 			return true;
 		}
 		else {
-			$this->data_entities[$name]["error"] = true;
+			$this->setProperty($name, "error", true);
 			return false;
 		}
 
@@ -630,24 +640,22 @@ class Model extends HTML {
 	* @return bool
 	*/
 	function isString($name) {
-		$entity = $this->data_entities[$name];
 
-		$value = $entity["value"];
-
-		$min_length = $entity["min"];
-		$max_length = $entity["max"];
-		$pattern = $entity["pattern"];
+		$value = $this->getProperty($name, "value");
+		$min_length = $this->getProperty($name, "min");
+		$max_length = $this->getProperty($name, "max");
+		$pattern = $this->getProperty($name, "pattern");
 
 		if(($value || $value === "0") && is_string($value) && 
 			(!$min_length || strlen($value) >= $min_length) && 
 			(!$max_length || strlen($value) <= $max_length) &&
 			(!$pattern || preg_match("/^".$pattern."$/", $value))
 		) {
-			$this->data_entities[$name]["error"] = false;
+			$this->setProperty($name, "error", false);
 			return true;
 		}
 		else {
-			$this->data_entities[$name]["error"] = true;
+			$this->setProperty($name, "error", true);
 			return false;
 		}
 	}
@@ -659,25 +667,22 @@ class Model extends HTML {
 	* @return bool
 	*/
 	function isNumber($name) {
-		$entity = $this->data_entities[$name];
 
-		$value = $entity["value"];
-
-		$min = $entity["min"];
-		$max = $entity["max"];
-		$pattern = $entity["pattern"];
+		$value = $this->getProperty($name, "value");
+		$min = $this->getProperty($name, "min");
+		$max = $this->getProperty($name, "max");
+		$pattern = $this->getProperty($name, "pattern");
 
 		if(($value || $value == 0) && !($value%1) && 
 			(!$min || $value >= $min) && 
 			(!$max || $value <= $max) &&
 			(!$pattern || preg_match("/^".$pattern."$/", $value))
 		) {
-			$this->data_entities[$name]["error"] = false;
+			$this->setProperty($name, "error", false);
 			return true;
 		}
 		else {
-//			$this->data_entities[$name]["error_message"] = "$name value: $value;";
-			$this->data_entities[$name]["error"] = true;
+			$this->setProperty($name, "error", true);
 			return false;
 		}
 	}
@@ -689,25 +694,22 @@ class Model extends HTML {
 	* @return bool
 	*/
 	function isInteger($name) {
-		$entity = $this->data_entities[$name];
 
-		$value = $entity["value"];
-
-		$min = $entity["min"];
-		$max = $entity["max"];
-		$pattern = $entity["pattern"];
+		$value = $this->getProperty($name, "value");
+		$min = $this->getProperty($name, "min");
+		$max = $this->getProperty($name, "max");
+		$pattern = $this->getProperty($name, "pattern");
 
 		if(($value || $value == 0) && !($value%1) && 
 			(!$min || $value >= $min) && 
 			(!$max || $value <= $max) &&
 			(!$pattern || preg_match("/^".$pattern."$/", $value))
 		) {
-			$this->data_entities[$name]["error"] = false;
+			$this->setProperty($name, "error", false);
 			return true;
 		}
 		else {
-//			$this->data_entities[$name]["error_message"] = "$name value: $value;";
-			$this->data_entities[$name]["error"] = true;
+			$this->setProperty($name, "error", true);
 			return false;
 		}
 	}
@@ -720,20 +722,18 @@ class Model extends HTML {
 	* @return bool
 	*/
 	function isEmail($name) {
-		$entity = $this->data_entities[$name];
 
-		$value = $entity["value"];
-
-		$pattern = stringOr($entity["pattern"], "[\w\.\-\_]+@[\w-\.]+\.\w{2,4}");
+		$value = $this->getProperty($name, "value");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "[\w\.\-\_]+@[\w-\.]+\.\w{2,4}");
 
 		if($value && is_string($value) && 
 			(!$pattern || preg_match("/^".$pattern."$/", $value))
 		) {
-			$this->data_entities[$name]["error"] = false;
+			$this->setProperty($name, "error", false);
 			return true;
 		}
 		else {
-			$this->data_entities[$name]["error"] = true;
+			$this->setProperty($name, "error", true);
 			return false;
 		}
 	}
@@ -747,20 +747,18 @@ class Model extends HTML {
 	* @return bool
 	*/
 	function isTelephone($name) {
-		$entity = $this->data_entities[$name];
 
-		$value = $entity["value"];
-
-		$pattern = stringOr($entity["pattern"], "([\+0-9\-\.\s\(\)]){5,18}");
+		$value = $this->getProperty($name, "value");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "([\+0-9\-\.\s\(\)]){5,18}");
 
 		if($value && is_string($value) && 
 			(!$pattern || preg_match("/^".$pattern."$/", $value))
 		) {
-			$this->data_entities[$name]["error"] = false;
+			$this->setProperty($name, "error", false);
 			return true;
 		}
 		else {
-			$this->data_entities[$name]["error"] = true;
+			$this->setProperty($name, "error", true);
 			return false;
 		}
 	}
