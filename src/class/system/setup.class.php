@@ -426,7 +426,7 @@ class Setup extends Model {
 			$this->db_janitor_pass
 		) {
 
-			$mysqli = new mysqli($this->db_host, $this->db_root_user, $this->db_root_pass);
+			$mysqli = @new mysqli($this->db_host, $this->db_root_user, $this->db_root_pass);
 			if(!$mysqli->connect_errno) {
 
 				// correct the database connection setting
@@ -437,6 +437,10 @@ class Setup extends Model {
 				global $mysqli_global;
 				$mysqli_global = $mysqli;
 
+			}
+			else {
+
+				$this->db_connection_error = true;
 			}
 		}
 
@@ -502,7 +506,6 @@ class Setup extends Model {
 		$this->db_ok = false;
 		$_SESSION["DATABASE_INFO"] = false;
 
-//		print "database is crap<br>\n";
 		return false;
 	}
 
