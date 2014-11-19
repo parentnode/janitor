@@ -85,6 +85,7 @@ dt {color: #7d848c; display: inline-block; vertical-align: top; font-size: 0.923
 #content .scene > div.prices {padding: 10px 0 20px; border-bottom: 1px solid #bbbbbb;}
 #content .todo * {color: orange !important;}
 #content .warning, #content .warning * {color: orange !important;}
+#content .system_error, #content .error * {color: red !important;}
 #content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
 #content .scene.login form {padding-top: 30px;}
 
@@ -144,7 +145,8 @@ body.user #navigation .user a {padding-left: 35px; color: #ffffff;}
 #content form {}
 #content fieldset {border: none; display: block;}
 #content .field {padding: 0 28px 10px; position: relative; font-size: 0;}
-#content label {display: none; padding-left: 2px; padding-bottom: 5px; color: #;}
+#content label {display: none; 
+}
 #content .field input,
 #content .field select,
 #content .field textarea {box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 10;}
@@ -162,11 +164,13 @@ body.user #navigation .user a {padding-left: 35px; color: #ffffff;}
 #content .field.boolean input {display: inline-block; vertical-align: top; width: auto; height: auto; padding: 0; margin: 0 10px 0 3px; border: 0;}
 #content .field.checkbox label,
 #content .field.boolean label {width: auto; display: inline-block; vertical-align: top;}
-#content .field.radio_buttons {}
-#content .field.radio_buttons div.item {display: inline-block; vertical-align: top;}
-#content .field.radio_buttons div.item input {width: auto; height: auto; padding: 0; margin: 9px 10px 0 0; border: 0;}
-#content .field.radio_buttons label {}
-#content .field.radio_buttons div.item label {text-align: left; width: auto; padding-right: 20px; padding-left: 0;}
+#content .field.radiobuttons {}
+#content .field.radiobuttons > label {display: block; font-size: 14px; line-height: 1em; padding: 0 0 0 3px;}
+#content .field.radiobuttons > label:after {content: ":";}
+#content .field.radiobuttons div.item {padding: 10px 0 0;}
+#content .field.radiobuttons div.item input {width: auto; height: auto; padding: 0; margin: 3px 10px 0 3px; border: 0;}
+@media all and (-webkit-min-device-pixel-ratio:0) {#content .field.radio_buttons div.item input {margin-top: 1px;}}
+#content .field.radiobuttons div.item label {font-size: 14px; line-height: 1em; display: inline-block; vertical-align: top; text-align: left; width: auto;}
 #content .field input[type="number"] {
 	-moz-appearance: textfield;
 }
@@ -187,7 +191,7 @@ body.user #navigation .user a {padding-left: 35px; color: #ffffff;}
 #content .field.location div.latitude input,
 #content .field.location div.longitude input {width: 173px;}
 #content .field.location.geolocation div.geolocation {width: 30px; height: 30px; display: inline-block; vertical-align: top; cursor: pointer;
-	background: transparent url(/janitor/admin/img//gx_geolocation.png) no-repeat 5px 8px;
+	background: transparent url(/janitor/admin/img/gx_geolocation.png) no-repeat 5px 8px;
 }
 #content .field.location.geolocation div.latitude input,
 #content .field.location.geolocation div.longitude input {width: 158px;}

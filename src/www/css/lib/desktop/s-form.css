@@ -5,7 +5,9 @@
 
 
 /* INLINE LABELS */
-#content label {display: none; padding-left: 2px; padding-bottom: 5px; color: #;}
+#content label {display: none; 
+	/*padding-left: 2px; padding-bottom: 5px; color: #;*/
+}
 
 
 /* BASIC FORM INPUTS */
@@ -33,12 +35,13 @@
 
 
 /* RADIO */
-/* TODO: needs to be updated */
-#content .field.radio_buttons {}
-#content .field.radio_buttons div.item {display: inline-block; vertical-align: top;}
-#content .field.radio_buttons div.item input {width: auto; height: auto; padding: 0; margin: 9px 10px 0 0; border: 0;}
-#content .field.radio_buttons label {}
-#content .field.radio_buttons div.item label {text-align: left; width: auto; padding-right: 20px; padding-left: 0;}
+#content .field.radiobuttons {}
+#content .field.radiobuttons > label {display: block; font-size: 14px; line-height: 1em; padding: 0 0 0 3px;}
+#content .field.radiobuttons > label:after {content: ":";}
+#content .field.radiobuttons div.item {padding: 10px 0 0;}
+#content .field.radiobuttons div.item input {width: auto; height: auto; padding: 0; margin: 3px 10px 0 3px; border: 0;}
+@media all and (-webkit-min-device-pixel-ratio:0) {#content .field.radio_buttons div.item input {margin-top: 1px;}}
+#content .field.radiobuttons div.item label {font-size: 14px; line-height: 1em; display: inline-block; vertical-align: top; text-align: left; width: auto;}
 
 
 /* NUMBER TYPE - remove spinbutton */
@@ -71,7 +74,7 @@
 
 /* WITH GEOLOCATION BUTTON */
 #content .field.location.geolocation div.geolocation {width: 30px; height: 30px; display: inline-block; vertical-align: top; cursor: pointer;
-	background: transparent url(/janitor/admin/img//gx_geolocation.png) no-repeat 5px 8px;
+	background: transparent url(/janitor/admin/img/gx_geolocation.png) no-repeat 5px 8px;
 }
 #content .field.location.geolocation div.latitude input,
 #content .field.location.geolocation div.longitude input {width: 158px;}

@@ -43,6 +43,7 @@
 /* DEV AID */
 #content .todo * {color: orange !important;}
 #content .warning, #content .warning * {color: orange !important;}
+#content .system_error, #content .error * {color: red !important;}
 
 
 #content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}

@@ -19,7 +19,7 @@ Util.Objects["start"] = new function() {
 }
 
 
-Util.Objects["paths"] = new function() {
+Util.Objects["config"] = new function() {
 	this.init = function(scene) {
 
 		var form = u.qs("form", scene);
@@ -47,8 +47,8 @@ Util.Objects["paths"] = new function() {
 				}
 				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
 			}
-		}
 
+		}
 	}
 }
 
@@ -84,39 +84,6 @@ Util.Objects["database"] = new function() {
 			}
 		}
 
-	}
-}
-
-Util.Objects["config"] = new function() {
-	this.init = function(scene) {
-
-		var form = u.qs("form", scene);
-		if(form) {
-
-			u.f.init(form);
-			form.submitted = function() {
-				this.response = function(response) {
-			
-					if(response && response.cms_status == "success") {
-						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
-
-						var i, node;
-						for(i = 0; node = steps[i]; i++) {
-							var url = u.qs("a", steps[i]).href;
-							if(url != location.href) {
-								location.href = url;
-								break;
-							}
-						}
-					}
-					else {
-						page.notify(response);
-					}
-				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
-			}
-
-		}
 	}
 }
 

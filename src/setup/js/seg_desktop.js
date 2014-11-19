@@ -3187,17 +3187,21 @@ Util.debugURL = function(url) {
 	return document.domain.match(/.local$/);
 }
 Util.nodeId = function(node, include_path) {
-		if(!include_path) {
-			return node.id ? node.nodeName+"#"+node.id : (node.className ? node.nodeName+"."+node.className : (node.name ? node.nodeName + "["+node.name+"]" : node.nodeName));
+	if(!node) {
+		u.bug("Not a node:" + node + " - called from: "+arguments.callee.caller)
+		return "Unindentifiable node!";
+	}
+	if(!include_path) {
+		return node.id ? node.nodeName+"#"+node.id : (node.className ? node.nodeName+"."+node.className : (node.name ? node.nodeName + "["+node.name+"]" : node.nodeName));
+	}
+	else {
+		if(node.parentNode && node.parentNode.nodeName != "HTML") {
+			return u.nodeId(node.parentNode, include_path) + "->" + u.nodeId(node);
 		}
 		else {
-			if(node.parentNode && node.parentNode.nodeName != "HTML") {
-				return u.nodeId(node.parentNode, include_path) + "->" + u.nodeId(node);
-			}
-			else {
-				return u.nodeId(node);
-			}
+			return u.nodeId(node);
 		}
+	}
 	return "Unindentifiable node!";
 }
 Util.bug = function(message, corner, color) {
@@ -3340,7 +3344,7 @@ Util.Form = u.f = new function() {
 	this.customValidate = {};
 	this.customSend = {};
 	this.init = function(form, settings) {
-		var i, j, field, action, input;
+		var i, j, field, action, input, hidden_field;
 		form.form_send = "params";
 		form.ignore_inputs = "ignoreinput";
 		if(typeof(settings) == "object") {
@@ -3354,35 +3358,31 @@ Util.Form = u.f = new function() {
 		}
 		form.onsubmit = function(event) {return false;}
 		form.setAttribute("novalidate", "novalidate");
-		form._submit = this._submit;
+		form.DOMsubmit = form.submit;
+		form.submit = this._submit;
 		form.fields = {};
-		form.tab_order = [];
 		form.actions = {};
+		form.labelstyle = u.cv(form, "labelstyle");
+		form.tab_order = [];
 		var fields = u.qsa(".field", form);
 		for(i = 0; field = fields[i]; i++) {
-			var abbr = u.qs("abbr", field);
-			if(abbr) {
-				abbr.parentNode.removeChild(abbr);
-			}
-			var error_message = field.getAttribute("data-error");
-			if(error_message) {
-				u.ae(field, "div", {"class":"error", "html":error_message})
-			}
-			field._indicator = u.ae(field, "div", {"class":"indicator"});
-			// 
 			field._help = u.qs(".help", field);
 			field._hint = u.qs(".hint", field);
 			field._error = u.qs(".error", field);
-			var not_initialized = true;
+			if(typeof(u.f.fixFieldHTML) == "function") {
+				u.f.fixFieldHTML(field);
+			}
+			field._indicator = u.ae(field, "div", {"class":"indicator"});
+			field._initialized = false;
 			var custom_init;
 			for(custom_init in this.customInit) {
 				if(field.className.match(custom_init)) {
 					this.customInit[custom_init](field);
-					not_initialized = false;
+					field._initialized = true;
 				}
 			}
-			if(not_initialized) {
-				if(u.hc(field, "string|email|tel|number|integer|password")) {
+			if(!field._initialized) {
+				if(u.hc(field, "string|email|tel|number|integer|password|date|datetime")) {
 					field._input = u.qs("input", field);
 					field._input.field = field;
 					form.fields[field._input.name] = field._input;
@@ -3391,7 +3391,7 @@ Util.Form = u.f = new function() {
 					u.e.addEvent(field._input, "keyup", this._updated);
 					u.e.addEvent(field._input, "change", this._changed);
 					this.inputOnEnter(field._input);
-					this.activateField(field._input);
+					this.activateInput(field._input);
 					this.validate(field._input);
 				}
 				else if(u.hc(field, "text")) {
@@ -3402,7 +3402,7 @@ Util.Form = u.f = new function() {
 					field._input.val = this._value;
 					u.e.addEvent(field._input, "keyup", this._updated);
 					u.e.addEvent(field._input, "change", this._changed);
-					this.activateField(field._input);
+					this.activateInput(field._input);
 					this.validate(field._input);
 					if(u.hc(field, "autoexpand")) {
 						this.autoExpand(field._input);
@@ -3425,7 +3425,7 @@ Util.Form = u.f = new function() {
 					u.e.addEvent(field._input, "change", this._updated);
 					u.e.addEvent(field._input, "keyup", this._updated);
 					u.e.addEvent(field._input, "change", this._changed);
-					this.activateField(field._input);
+					this.activateInput(field._input);
 					this.validate(field._input);
 				}
 				else if(u.hc(field, "checkbox|boolean")) {
@@ -3433,7 +3433,6 @@ Util.Form = u.f = new function() {
 					field._input.field = field;
 					field._input._label = u.qs("label[for="+field._input.id+"]", field);
 					form.fields[field._input.name] = field._input;
-					u.bug("set value function:" + u.nodeId(field._input))
 					field._input.val = this._value_checkbox;
 					if(u.browser("explorer", "<=8")) {
 						field._input.pre_state = field._input.checked;
@@ -3453,18 +3452,19 @@ Util.Form = u.f = new function() {
 						u.e.addEvent(field._input, "change", this._changed);
 					}
 					this.inputOnEnter(field._input);
-					this.activateField(field._input);
+					this.activateInput(field._input);
 					this.validate(field._input);
 				}
-				else if(u.hc(field, "radio|radio_buttons")) {
-					field._input = u.qsa("input", field);
-					form.fields[field._input[0].name] = field._input;
-					for(j = 0; input = field._input[j]; j++) {
+				else if(u.hc(field, "radiobuttons")) {
+					field._inputs = u.qsa("input", field);
+					field._input = field._inputs[0];
+					form.fields[field._input.name] = field._input;
+					for(j = 0; input = field._inputs[j]; j++) {
 						input.field = field;
 						input._label = u.qs("label[for="+input.id+"]", field);
-						input.val = this._value_radio;
+						input.val = this._value_radiobutton;
 						if(u.browser("explorer", "<=8")) {
-							input.pre_state = iN.checked;
+							input.pre_state = input.checked;
 							input._changed = this._changed;
 							input._updated = this._updated;
 							input._clicked = function(event) {
@@ -3484,9 +3484,9 @@ Util.Form = u.f = new function() {
 							u.e.addEvent(input, "change", this._changed);
 						}
 						this.inputOnEnter(input);
-						this.activateField(input);
-						this.validate(field._input);
+						this.activateInput(input);
 					}
+					this.validate(field._input);
 				}
 				else if(u.hc(field, "files")) {
 					field._input = u.qs("input", field);
@@ -3498,36 +3498,50 @@ Util.Form = u.f = new function() {
 					this.fileUpload(field);
 					this.validate(field._input);
 				}
-				else if(u.hc(field, "date|datetime")) {
-					field._input = u.qsa("select,input", field);
-					for(j = 0; input = field._input[j]; j++) {
+				else if(u.hc(field, "location")) {
+					field._inputs = u.qsa("input", field);
+					field._input = field._inputs[0];
+					for(j = 0; input = field._inputs[j]; j++) {
 						input.field = field;
+						form.fields[input.name] = input;
 						input._label = u.qs("label[for="+input.id+"]", field);
-						this.formIndex(form, input);
+						input.val = this._value;
+						u.e.addEvent(input, "keyup", this._updated);
+						u.e.addEvent(input, "change", this._changed);
+						this.inputOnEnter(input);
+						this.activateInput(input);
+					}
+					this.validate(field._input);
+					if(navigator.geolocation) {
+						this.geoLocation(field);
 					}
 				}
 				else if(u.hc(field, "tags")) {
 					field._input = u.qs("input", field);
 					field._input.field = field;
-					field._input._label = u.qs("label\[for\="+field._input.id+"\]", field);
-					this.formIndex(form, field._input);
+					form.fields[field._input.name] = field._input;
+					field._input._label = u.qs("label[for="+field._input.id+"]", field);
+					field._input.val = this._value;
+					u.e.addEvent(field._input, "keyup", this._updated);
+					u.e.addEvent(field._input, "change", this._changed);
+					this.inputOnEnter(field._input);
+					this.activateInput(field._input);
+					this.validate(field._input);
 				}
 				else if(u.hc(field, "prices")) {
 					field._input = u.qs("input", field);
 					field._input.field = field;
+					form.fields[field._input.name] = field._input;
 					field._input._label = u.qs("label[for="+field._input.id+"]", field);
-					this.formIndex(form, field._input);
+					field._input.val = this._value;
+					u.e.addEvent(field._input, "keyup", this._updated);
+					u.e.addEvent(field._input, "change", this._changed);
+					this.inputOnEnter(field._input);
+					this.activateInput(field._input);
+					this.validate(field._input);
 				}
-				else if(u.hc(field, "location")) {
-					field._input = u.qsa("input", field);
-					for(j = 0; input = field._input[j]; j++) {
-						input.field = field;
-						input._label = u.qs("label[for="+input.id+"]", field);
-						this.formIndex(form, input);
-					}
-					if(navigator.geolocation) {
-						this.geoLocation(field);
-					}
+				else {
+					u.bug("UNKNOWN FIELD IN FORM INITIALIZATION:" + u.nodeId(field));
 				}
 			}
 		}
@@ -3553,7 +3567,7 @@ Util.Form = u.f = new function() {
 					if(this.type && this.type.match(/submit/i)) {
 						this.form._submit_button = this;
 						this.form._submit_input = false;
-						this.form._submit(event, this);
+						this.form.submit(event, this);
 					}
 				}
 			}
@@ -3581,7 +3595,7 @@ Util.Form = u.f = new function() {
 						if(this.type && this.type.match(/submit/i)) {
 							this.form._submit_button = this;
 							this.form._submit_input = false;
-							this.form._submit(event, this);
+							this.form.submit(event, this);
 						}
 					}
 				}
@@ -3596,24 +3610,48 @@ Util.Form = u.f = new function() {
 			}
 		}
 	}
+	this._submit = function(event, iN) {
+		for(name in this.fields) {
+			if(this.fields[name].field) {
+				this.fields[name].used = true;
+				u.f.validate(this.fields[name]);
+			}
+		}
+		if(u.qs(".field.error", this)) {
+			if(typeof(this.validationFailed) == "function") {
+				this.validationFailed();
+			}
+		}
+		else {
+			if(typeof(this.submitted) == "function") {
+				this.submitted(iN);
+			}
+			else {
+				this.DOMsubmit();
+			}
+		}
+	}
 	this._value = function(value) {
 		if(value !== undefined) {
 			this.value = value;
+			if(this.pseudolabel) {
+				u.as(this.pseudolabel, "display", "none");
+			}
 			u.f.validate(this);
 		}
 		return this.value;
 	}
-	this._value_radio = function(value) {
-		if(value) {
+	this._value_radiobutton = function(value) {
+		var i, option;
+		if(value !== undefined) {
 			for(i = 0; option = this.form[this.name][i]; i++) {
-				if(option.value == value) {
+				if(option.value == value || (option.value == "true" && value) || (option.value == "false" && value === false)) {
 					option.checked = true;
 					u.f.validate(this);
 				}
 			}
 		}
 		else {
-			var i, option;
 			for(i = 0; option = this.form[this.name][i]; i++) {
 				if(option.checked) {
 					return option.value;
@@ -3623,8 +3661,13 @@ Util.Form = u.f = new function() {
 		return false;
 	}
 	this._value_checkbox = function(value) {
-		if(value) {
-			this.checked = true
+		if(value !== undefined) {
+			if(value) {
+				this.checked = true
+			}
+			else {
+				this.checked = false;
+			}
 			u.f.validate(this);
 		}
 		else {
@@ -3671,7 +3714,7 @@ Util.Form = u.f = new function() {
 				this.blur();
 				this.form.submitInput = this;
 				this.form.submitButton = false;
-				this.form._submit(event, this);
+				this.form.submit(event, this);
 			}
 		}
 		u.e.addEvent(node, "keydown", node.keyPressed);
@@ -3682,50 +3725,18 @@ Util.Form = u.f = new function() {
 				u.e.kill(event);
 				this.form.submit_input = false;
 				this.form.submit_button = this;
-				this.form._submit(event);
+				this.form.submit(event);
 			}
 		}
 		u.e.addEvent(node, "keydown", node.keyPressed);
-	}
-	this.formIndex = function(form, iN) {
-		iN.tab_index = form.tab_order.length;
-		form.tab_order[iN.tab_index] = iN;
-		if(iN.field && iN.name) {
-			form.fields[iN.name] = iN;
-			if(iN.nodeName.match(/input/i) && iN.type && iN.type.match(/text|email|tel|number|password|datetime|date/)) {
-				iN.val = this._value;
-				u.e.addEvent(iN, "keyup", this._updated);
-				u.e.addEvent(iN, "change", this._changed);
-				this.inputOnEnter(iN);
-			}
-			else if(iN.nodeName.match(/textarea/i)) {
-				alert("unexpected formIndex in u.form");
-			}
-			else if(iN.nodeName.match(/select/i)) {
-				alert("unexpected formIndex in u.form");
-			}
-			else if(iN.type && iN.type.match(/checkbox/)) {
-				alert("unexpected formIndex in u.form");
-				// 
-				// 
-			}
-			else if(iN.type && iN.type.match(/radio/)) {
-				alert("unexpected formIndex in u.form");
-				// 
-				// 		
-				// 
-			}
-			else if(iN.type && iN.type.match(/file/)) {
-				alert("unexpected formIndex in u.form");
-			}
-			this.activateField(iN);
-			this.validate(iN);
-		}
 	}
 	this._changed = function(event) {
 		this.used = true;
 		if(typeof(this.changed) == "function") {
 			this.changed(this);
+		}
+		else if(this.field._input && typeof(this.field._input.changed) == "function") {
+			this.field._input.changed(this);
 		}
 		if(typeof(this.form.changed) == "function") {
 			this.form.changed(this);
@@ -3739,74 +3750,40 @@ Util.Form = u.f = new function() {
 			if(typeof(this.updated) == "function") {
 				this.updated(this);
 			}
+			else if(this.field._input && typeof(this.field._input.updated) == "function") {
+				this.field._input.updated(this);
+			}
 			if(typeof(this.form.updated) == "function") {
 				this.form.updated(this);
 			}
 		}
 	}
-	this._validate = function() {
+	this._validate = function(event) {
 		u.f.validate(this);
-	}
-	this._submit = function(event, iN) {
-		for(name in this.fields) {
-			if(this.fields[name].field) {
-				this.fields[name].used = true;
-				u.f.validate(this.fields[name]);
-			}
-		}
-		if(u.qs(".field.error", this)) {
-			if(typeof(this.validationFailed) == "function") {
-				this.validationFailed();
-			}
-		}
-		else {
-			if(typeof(this.submitted) == "function") {
-				this.submitted(iN);
-			}
-			else {
-				this.submit();
-			}
-		}
-	}
-	this.positionHint = function(field) {
-		if(field._help) {
-			var f_h =  field.offsetHeight;
-			var f_p_t = parseInt(u.gcs(field, "padding-top"));
-			var f_p_b = parseInt(u.gcs(field, "padding-bottom"));
-			var f_b_t = parseInt(u.gcs(field, "border-top-width"));
-			var f_b_b = parseInt(u.gcs(field, "border-bottom-width"));
-			var f_h_h = field._help.offsetHeight;
-			if(u.hc(field, "html")) {
-				var l_h = field._input._label.offsetHeight;
-				var help_top = (((f_h - (f_p_t + f_p_b + f_b_b + f_b_t)) / 2)) - (f_h_h / 2) + l_h;
-				u.as(field._help, "top", help_top + "px");
-			}
-			else {
-				var help_top = (((f_h - (f_p_t + f_p_b + f_b_b + f_b_t)) / 2) + 2) - (f_h_h / 2)
-				u.as(field._help, "top", help_top + "px");
-			}
-		}
 	}
 	this._mouseenter = function(event) {
 		u.ac(this.field, "hover");
 		u.ac(this, "hover");
-		u.as(this.field, "zIndex", 99);
+		u.as(this.field, "zIndex", 2);
 		u.f.positionHint(this.field);
 	}
 	this._mouseleave = function(event) {
 		u.rc(this.field, "hover");
 		u.rc(this, "hover");
-		u.as(this.field, "zIndex", 90);
+		u.as(this.field, "zIndex", 1);
 		u.f.positionHint(this.field);
 	}
 	this._focus = function(event) {
 		this.field.focused = true;
 		u.ac(this.field, "focus");
 		u.ac(this, "focus");
-		u.as(this.field, "zIndex", 99);
+		u.as(this.field, "zIndex", 1000);
 		u.f.positionHint(this.field);
 		if(typeof(this.focused) == "function") {
 			this.focused();
+		}
+		else if(this.field._input && typeof(this.field._input.focused) == "function") {
+			this.field._input.focused(this);
 		}
 		if(typeof(this.form.focused) == "function") {
 			this.form.focused(this);
@@ -3816,11 +3793,14 @@ Util.Form = u.f = new function() {
 		this.field.focused = false;
 		u.rc(this.field, "focus");
 		u.rc(this, "focus");
-		u.as(this.field, "zIndex", 90);
+		u.as(this.field, "zIndex", 1);
 		u.f.positionHint(this.field);
 		this.used = true;
 		if(typeof(this.blurred) == "function") {
 			this.blurred();
+		}
+		else if(this.field._input && typeof(this.field._input.blurred) == "function") {
+			this.field._input.blurred(this);
 		}
 		if(typeof(this.form.blurred) == "function") {
 			this.form.blurred(this);
@@ -3849,14 +3829,41 @@ Util.Form = u.f = new function() {
 		if(this.val() == this.default_value) {
 			this.val("");
 		}
+		if(this.pseudolabel) {
+			u.as(this.pseudolabel, "display", "none");
+		}
 	}
 	this._default_value_blur = function() {
 		if(this.val() == "") {
 			u.ac(this, "default");
-			this.val(this.default_value);
+			if(this.pseudolabel) {
+				u.as(this.pseudolabel, "display", "block");
+			}
+			else {
+				this.val(this.default_value);
+			}
 		}
 	}
-	this.activateField = function(iN) {
+	this.positionHint = function(field) {
+		if(field._help) {
+			var f_h =  field.offsetHeight;
+			var f_p_t = parseInt(u.gcs(field, "padding-top"));
+			var f_p_b = parseInt(u.gcs(field, "padding-bottom"));
+			var f_b_t = parseInt(u.gcs(field, "border-top-width"));
+			var f_b_b = parseInt(u.gcs(field, "border-bottom-width"));
+			var f_h_h = field._help.offsetHeight;
+			if(u.hc(field, "html")) {
+				var l_h = field._input._label.offsetHeight;
+				var help_top = (((f_h - (f_p_t + f_p_b + f_b_b + f_b_t)) / 2)) - (f_h_h / 2) + l_h;
+				u.as(field._help, "top", help_top + "px");
+			}
+			else {
+				var help_top = (((f_h - (f_p_t + f_p_b + f_b_b + f_b_t)) / 2) + 2) - (f_h_h / 2)
+				u.as(field._help, "top", help_top + "px");
+			}
+		}
+	}
+	this.activateInput = function(iN) {
 		u.e.addEvent(iN, "focus", this._focus);
 		u.e.addEvent(iN, "blur", this._blur);
 		if(u.e.event_pref == "mouse") {
@@ -3864,15 +3871,27 @@ Util.Form = u.f = new function() {
 			u.e.addEvent(iN, "mouseleave", this._mouseleave);
 		}
 		u.e.addEvent(iN, "blur", this._validate);
-		if(iN.form.labelstyle || u.hc(iN.form, "labelstyle:[a-z]+")) {
-			iN.form.labelstyle = iN.form.labelstyle ? iN.form.labelstyle : u.cv(iN.form, "labelstyle");
-			if(iN.form.labelstyle == "inject" && (!iN.type || !iN.type.match(/file|radio|checkbox/))) {
-				iN.default_value = iN._label.innerHTML;
+		if(iN.form.labelstyle == "inject") {
+			if(!iN.type || !iN.type.match(/file|radio|checkbox/)) {
+				iN.default_value = u.text(iN._label);
 				u.e.addEvent(iN, "focus", this._default_value_focus);
 				u.e.addEvent(iN, "blur", this._default_value_blur);
 				if(iN.val() == "") {
-					iN.val(iN.default_value);
 					u.ac(iN, "default");
+					if(iN.type.match(/number|integer/)) {
+						iN.pseudolabel = u.ae(iN.parentNode, "span", {"class":"pseudolabel", "html":iN.default_value});
+						iN.pseudolabel.iN = iN;
+						u.as(iN.pseudolabel, "top", iN.offsetTop+"px");
+						u.as(iN.pseudolabel, "left", iN.offsetLeft+"px");
+						u.ce(iN.pseudolabel)
+						iN.pseudolabel.inputStarted = function(event) {
+							u.e.kill(event);
+							this.iN.focus();
+						}
+					}
+					else {
+						iN.val(iN.default_value);
+					}
 				}
 			}
 		}
@@ -4110,11 +4129,11 @@ Util.Form = u.f = new function() {
 		field.makeImageInput = function() {}
 		field.makeValueInput = function() {}
 		field.addObject = function(type, value) {
-		if(type.match(/vimeo|youtube|img/)) {
-		}
+			if(type.match(/vimeo|youtube|img/)) {
+			}
 		}
 		field.addText = function(type, value) {
-			this._tag_restrictions = new RegExp(/^(p|h1|h2|h3|h4|h5|h6|ul|dl)$/);
+			this._tag_restrictions = new RegExp(/^(p|h1|h2|h3|h4|h5|h6|code)$/);
 			var div = u.ae(this._editor, "div", {"class":"tag "+type});
 			div._drag = u.ae(div, "div", {"class":"drag"});
 			div._drag.field = this;
@@ -4131,6 +4150,7 @@ Util.Form = u.f = new function() {
 				if(value !== undefined) {
 					var i, option;
 					for(i = 0; option = this.childNodes[i]; i++) {
+						u.bug("option:" + option)
 						if(u.text(option) == value) {
 							if(this.selected_option) {
 								u.rc(this.selected_option, "selected");
@@ -4693,7 +4713,7 @@ Util.Form = u.f = new function() {
 					this.fieldError(iN);
 				}
 			}
-			else if(u.hc(iN.field, "checkbox|boolean|radio|radio_buttons")) {
+			else if(u.hc(iN.field, "checkbox|boolean|radiobuttons")) {
 				if(iN.val()) {
 					this.fieldCorrect(iN);
 				}
@@ -5359,7 +5379,7 @@ Util.hasClass = u.hc = function(node, classname) {
 		}
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.hasClass("+u.nodeId(node)+"), called from: "+arguments.callee.caller);
+		u.bug("Exception ("+exception+") in u.hasClass("+u.nodeId(node)+", "+classname+"), called from: "+arguments.callee.caller);
 	}
 	return false;
 }
@@ -7638,6 +7658,42 @@ u.notifier = function(node) {
 }
 
 
+/*ga.js*/
+
+
+/*u-googleanalytics.js*/
+if(u.ga_account) {
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', u.ga_account, u.ga_domain);
+    ga('send', 'pageview');
+	u.stats = new function() {
+		this.pageView = function(url) {
+			ga('send', 'pageview', url);
+		}
+		this.event = function(node, action, label) {
+			ga('_trackEvent', location.href.replace(document.location.protocol + "//" + document.domain, ""), action, (label ? label : this.nodeSnippet(node)));
+		}
+		this.customVar = function(slot, name, value, scope) {
+			//       slot,		
+			//       name,		
+			//       value,	
+			//       scope		
+		}
+		this.nodeSnippet = function(e) {
+			if(e.textContent != undefined) {
+				return u.cutString(e.textContent.trim(), 20) + "(<"+e.nodeName+">)";
+			}
+			else {
+				return u.cutString(e.innerText.trim(), 20) + "(<"+e.nodeName+">)";
+			}
+		}
+	}
+}
+
+
 
 /*i-page-desktop.js*/
 u.bug_console_only = true;
@@ -7677,7 +7733,7 @@ Util.Objects["start"] = new function() {
 		}
 	}
 }
-Util.Objects["paths"] = new function() {
+Util.Objects["config"] = new function() {
 	this.init = function(scene) {
 		var form = u.qs("form", scene);
 		if(form) {
@@ -7724,33 +7780,6 @@ Util.Objects["database"] = new function() {
 					}
 					else {
 						location.reload();
-					}
-				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
-			}
-		}
-	}
-}
-Util.Objects["config"] = new function() {
-	this.init = function(scene) {
-		var form = u.qs("form", scene);
-		if(form) {
-			u.f.init(form);
-			form.submitted = function() {
-				this.response = function(response) {
-					if(response && response.cms_status == "success") {
-						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
-						var i, node;
-						for(i = 0; node = steps[i]; i++) {
-							var url = u.qs("a", steps[i]).href;
-							if(url != location.href) {
-								location.href = url;
-								break;
-							}
-						}
-					}
-					else {
-						page.notify(response);
 					}
 				}
 				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
