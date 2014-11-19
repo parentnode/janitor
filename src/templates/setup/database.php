@@ -16,16 +16,21 @@ $db_check = $model->checkDatabaseSettings();
 	<h2>Database status: OK</h2>
 	<p>Your database is already configured correctly.</p>
 
-<? if($model->db_exists): ?>
+<? 		if($model->db_exists): ?>
 
 	<p>Are you sure you want to use <em class="warning"><?= $model->db_janitor_db ?></em>. It already exists.</p>
 	<?= $model->input("force_db", array("type" => "hidden", "value" => $model->db_janitor_db)) ?>
 
-<? endif; ?>
+<? 		endif; ?>
 
 	<ul class="actions">
 		<?= $model->submit("Continue", array("wrapper" => "li.save", "class" => "primary")) ?>
 	</ul>
+
+<? elseif(isset($model->db_connection_error)): ?>
+
+	<h2>Connection error</h2>
+	<p class="system_error">Janitor cannot connect to your local database with the information provided.</p>
 
 <? endif;?>
 
