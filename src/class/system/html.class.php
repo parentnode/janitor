@@ -1,13 +1,9 @@
 <?php
 /**
-* This file contains HTML-elements
-*
-*
-* Create status input (full with form and everything - will limit HTML in templates)
-* Create delete input (full with form and everything - will limit HTML in templates)
+* This file contains HTML-element output functions
+* TODO: Implement html.core (this) and let new html.class be the one developers can add customized inputs to
 *
 */
-
 class HTML {
 
 
@@ -38,11 +34,13 @@ class HTML {
 		}
 	}
 
+
 	/**
 	* Convert multidimentional array to options array
 	*
 	* Objects are typically contained in array of arrays, while selects need simple named array
 	* This function facilitates the conversion between the two types
+	* TODO: Documentation needed
 	*/
 	function toOptions($multi_array, $value_index, $text_index) {
 
@@ -59,7 +57,7 @@ class HTML {
 	* WHAT TO DO ABOUT CUSTOM FIELDS
 	* Is it separate fields or one field with two inputs? 
 	* It gets complicated, what are pros and cons
-	* Consider thoroughly before adding a custom field
+	* Consider thoroughly before adding a more fields
 	* TODO: consider moving custom fields to their own function - would provide better overview and better performance
 	*
 	* When building model, pros:
@@ -70,7 +68,25 @@ class HTML {
 	* - new variables to set name and value
 	*
 	*
-	* Basic input element
+	* Basic input elements
+	*
+	* INPUT TYPES:
+	* - string
+	* - checkbox/boolean
+	* - radiobuttons
+	* - select
+	* - date
+	* - datetime
+	* - email
+	* - tel
+	* - password
+	* - number
+	* - integer
+	* - text
+	* - html
+	* - files
+	* - tags
+	*
 	*
 	* @return string Input element
 	*/
@@ -82,58 +98,39 @@ class HTML {
 			return "";
 		}
 
-
-		// print "<p>";
-		// print_r($this->data_entities);
-		// print "</p>";
-
-
 		// Get default settings from model first
 
 		// label
-		$label = $this->getEntityProperty($name, "label");
+		$label = $this->getProperty($name, "label");
 
 		// type, value and options
-		$type = $this->getEntityProperty($name, "type");
-		$value = $this->getEntityProperty($name, "value");
-		$options = $this->getEntityProperty($name, "options");
+		$type = $this->getProperty($name, "type");
+		$value = $this->getProperty($name, "value");
+		$options = $this->getProperty($name, "options");
 
 		// input state
-		$readonly = $this->getEntityProperty($name, "readonly");
-		$disabled = $this->getEntityProperty($name, "disabled");
-		$checked = $this->getEntityProperty($name, "checked");
+		$readonly = $this->getProperty($name, "readonly");
+		$disabled = $this->getProperty($name, "disabled");
 
 		// frontend stuff
-		// TODO: check why class does not get model classname?
-		$class = false;
-		$id = $this->getEntityProperty($name, "id");
+		$class = $this->getProperty($name, "class");
+		$id = $this->getProperty($name, "id");
 
 		// validation
-		$min = $this->getEntityProperty($name, "min");
-		$max = $this->getEntityProperty($name, "max");
-		$required = $this->getEntityProperty($name, "required");
-		$pattern = $this->getEntityProperty($name, "pattern");
+		$min = $this->getProperty($name, "min");
+		$max = $this->getProperty($name, "max");
+		$required = $this->getProperty($name, "required");
+		$pattern = $this->getProperty($name, "pattern");
 
-
-		$allowed_tags = $this->getEntityProperty($name, "allowed_tags");
-
+		// tags for HTML editor
+		$allowed_tags = $this->getProperty($name, "allowed_tags");
 
 		// visual feedback
-		$hint_message = $this->getEntityProperty($name, "hint_message");
-		$error_message = $this->getEntityProperty($name, "error_message");
+		$hint_message = $this->getProperty($name, "hint_message");
+		$error_message = $this->getProperty($name, "error_message");
 
 
-		// custom fields
-		// see note above before adding more custom fields
-
-		// price specifics
-		// if(!$type || $type == "prices") {
-		// 	$currency = $this->getEntityProperty($name, "currency");
-		// 	$vatrate = $this->getEntityProperty($name, "vatrate");
-		// }
-
-
-		// overwrite defaults
+		// overwrite model/defaults
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
@@ -145,7 +142,6 @@ class HTML {
 
 					case "readonly"        : $readonly         = $_value; break;
 					case "disabled"        : $disabled         = $_value; break;
-					case "checked"         : $checked          = $_value; break;
 
 					case "class"           : $class            = $_value; break;
 					case "id"              : $id               = $_value; break;
@@ -160,10 +156,6 @@ class HTML {
 					case "error_message"   : $error_message    = $_value; break;
 					case "hint_message"    : $hint_message     = $_value; break;
 
-
-					// case "currency"        : $currency         = $_value; break;
-					// case "vatrate"         : $vatrate          = $_value; break;
-
 				}
 			}
 		}
@@ -176,17 +168,20 @@ class HTML {
 		$att_id = $this->attribute("id", $for);
 		$att_name = $this->attribute("name", $name);
 
+
+		// restrictions
 		$att_disabled = $disabled ? $this->attribute("disabled", "disabled") : '';
 		$att_readonly = $readonly ? $this->attribute("readonly", "readonly") : '';
 
+		// combine classname for field
 		$att_class = $this->attribute("class", "field", $type, $class, ($required ? "required" : ""), ($disabled ? "disabled" : ""), ($readonly ? "readonly" : ""), ($min ? "min:".$min : ""), ($max ? "max:".$max : ""), (($allowed_tags && $type == "html") ? "tags:".$allowed_tags : ""));
-
 
 		// attribute strips value for slashes etc - cannot be used for patterns
 		$att_pattern = $pattern ? ' pattern="'.$pattern.'"' : '';
 
 		// multiple selects?
 		$att_multiple = $this->attribute("multiple", ($max && $max > 1 ? "multiple" : ""));
+
 
 
 		// hidden field
@@ -198,16 +193,12 @@ class HTML {
 
 		$_ .= '<div'.$att_class.'>';
 
-
-			// INPUT TYPES:
-			// checkboxes and radiobuttons have label after input
-
-
 			// CHECKBOX/BOOLEAN
+			// checkboxes have label after input
 			if($type == "checkbox" || $type == "boolean") {
-				$att_value = $this->attribute("value", $value);
+				$att_value = $this->attribute("value", "1");
 				$att_name = $this->attribute("name", $name);
-				$att_checked = $this->attribute("checked", $checked);
+				$att_checked = $this->attribute("checked", ($value ? "checked" : ""));
 
 				// fallback hidden input so checkbox always sends value (even when not checked)
 				$_ .= '<input type="hidden"'.$att_name.' value="0" />';
@@ -215,15 +206,27 @@ class HTML {
 			}
 
 
-			// TODO: Add radio output
-			if($type == "radio") {
-				$_ .= 'RADIO BUTTONS NOT IMPLEMENTED IN HTML.CLASS';
-			}
-
-
+			// All other inputs have label in front of input
 			// LABEL
 			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
 
+
+			// RADIOBUTTONS
+			if($type == "radiobuttons") {
+
+				foreach($options as $radio_value => $radio_label) {
+
+					$radio_for = "input_".preg_replace("/\[\]/", "", $name."_".$radio_value);
+					$att_radio_id = $this->attribute("id", $for);
+					$att_radio_value = $this->attribute("id", $for);
+					$att_radio_checked = $this->attribute("checked", ($value == $radio_value ? "checked" : ""));
+
+					$_ .= '<div class="item">';
+						$_ .= '<input type="radio"'.$att_name.$att_radio_id.$att_radio_value.$att_radio_checked.' />';
+						$_ .= '<label'.$this->attribute("for", $radio_for).'>'.$radio_label.'</label>';
+					$_ .= '</div>';
+				}
+			}
 
 			// DATE
 			if($type == "date") {
@@ -295,16 +298,14 @@ class HTML {
 				$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_pattern.$att_multiple.' />';
 			}
 
-			// TEXT
+			// TEXT OR HTML
 			else if($type == "text" || $type == "html") {
 				$att_max = $this->attribute("maxlength", $max);
 
 				$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.'>'.$value.'</textarea>';
 			}
 
-
 			// SELECT
-			// TODO: Refine select output
 			else if($type == "select") {
 
 				$_ .= '<select'.$att_name.$att_id.$att_disabled.$att_readonly.'>';
@@ -314,22 +315,12 @@ class HTML {
 				$_ .= '</select>';
 			}
 
-
 			// TAGS 
 			else if($type == "tags") {
 				$att_name = $this->attribute("name", $name);
 
 				$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
 			}
-
-			// // PRICES
-			// else if($type == "prices") {
-			// 	$att_name = $this->attribute("name", $name);
-			//
-			// 	$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
-			// 	$_ .= '<input type="hidden" value="'.$currency.'" name="currency" />';
-			// 	$_ .= '<input type="hidden" value="'.$vatrate.'" name="vatrate" />';
-			// }
 
 
 			// HINT AND ERROR MESSAGE
@@ -370,39 +361,38 @@ class HTML {
 		// Get default settings from model first
 
 		// label
-		$label = $this->getEntityProperty($name, "label");
+		$label = $this->getProperty($name, "label");
 
 		// type, value and options
-		$value = $this->getEntityProperty($name, "value");
-		$currencies = $this->getEntityProperty($name, "currencies");
+		$value = $this->getProperty($name, "value");
+		$currencies = $this->getProperty($name, "currencies");
 
 		// input state
-		$readonly = $this->getEntityProperty($name, "readonly");
-		$disabled = $this->getEntityProperty($name, "disabled");
+		$readonly = $this->getProperty($name, "readonly");
+		$disabled = $this->getProperty($name, "disabled");
 
 		// frontend stuff
-		// TODO: check why class does not get model classname? [BECAUSE IT IS NOT TRANSFERRED IN MODEL CLASS - BY WHY NOT?]
-		$class = false;
-		$id = $this->getEntityProperty($name, "id");
+		$class = $this->getProperty($name, "class");
+		$id = $this->getProperty($name, "id");
 
 		// validation
-		$min = $this->getEntityProperty($name, "min");
-		$max = $this->getEntityProperty($name, "max");
-		$required = $this->getEntityProperty($name, "required");
-		$pattern = $this->getEntityProperty($name, "pattern");
+		$min = $this->getProperty($name, "min");
+		$max = $this->getProperty($name, "max");
+		$required = $this->getProperty($name, "required");
+		$pattern = $this->getProperty($name, "pattern");
 
 		// visual feedback
-		$hint_message = $this->getEntityProperty($name, "hint_message");
-		$error_message = $this->getEntityProperty($name, "error_message");
+		$hint_message = $this->getProperty($name, "hint_message");
+		$error_message = $this->getProperty($name, "error_message");
 
 
 		// price specifics
 //		if(!$type || $type == "prices") {
-			$vatrate = $this->getEntityProperty($name, "vatrate");
+			$vatrate = $this->getProperty($name, "vatrate");
 //		}
 
 
-		// overwrite defaults
+		// overwrite model/defaults
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
@@ -500,6 +490,11 @@ class HTML {
 	}
 
 
+
+	/**
+	* Currently requires three fields created in model
+	* TODO: Documentation needed
+	*/
 	function inputLocation($name_loc = false, $name_lat = false, $name_lon = false, $_options = false) {
 
 		// form security
@@ -508,20 +503,20 @@ class HTML {
 		}
 
 		// labels
-		$label_loc = $this->getEntityProperty($name_loc, "label");
-		$label_lat = $this->getEntityProperty($name_lat, "label");
-		$label_lon = $this->getEntityProperty($name_lon, "label");
+		$label_loc = $this->getProperty($name_loc, "label");
+		$label_lat = $this->getProperty($name_lat, "label");
+		$label_lon = $this->getProperty($name_lon, "label");
 
 		// values
-		$value_loc = $this->getEntityProperty($name_loc, "value");
-		$value_lat = $this->getEntityProperty($name_lat, "value");
-		$value_lon = $this->getEntityProperty($name_lon, "value");
+		$value_loc = $this->getProperty($name_loc, "value");
+		$value_lat = $this->getProperty($name_lat, "value");
+		$value_lon = $this->getProperty($name_lon, "value");
 
-		$required = $this->getEntityProperty($name_loc, "required");
+		$required = $this->getProperty($name_loc, "required");
 
 		// visual feedback
-		$hint_message = $this->getEntityProperty($name_loc, "hint_message");
-		$error_message = $this->getEntityProperty($name_loc, "error_message");
+		$hint_message = $this->getProperty($name_loc, "hint_message");
+		$error_message = $this->getProperty($name_loc, "error_message");
 
 
 		$class = false;
@@ -702,7 +697,12 @@ class HTML {
 	}
 
 
-
+	/**
+	* Start a form tag
+	*
+	* Will only happen if $action is valid
+	* TODO: Documentation needed
+	*/
 	function formStart($action, $_options = false) {
 
 		global $page;
@@ -749,6 +749,12 @@ class HTML {
 		return $_;
 	}
 
+	/**
+	* End a form tag
+	*
+	* Will only happen if Form has been started
+	* TODO: Documentation needed
+	*/
 	function formEnd() {
 		
 		if(isset($this->valid_form_started) && $this->valid_form_started) {

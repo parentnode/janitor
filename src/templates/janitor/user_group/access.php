@@ -29,7 +29,7 @@ $access = $model->getAccessPoints(array("user_group_id" => $user_group_id));
 <?							if($access_setting === true):
 								$access_granted = isset($access["permissions"][$controller][$access_action]) ? true : false; ?>
 
-						<?= $model->input("grant[$controller][$access_action]", array("id" => "input".preg_replace("/[\/]/", "_", $controller.$access_action), "type" => "checkbox", "label" => $access_action, "value" => 1, "checked" => $access_granted)) ?>
+						<?= $model->input("grant[$controller][$access_action]", array("id" => "input".preg_replace("/[\/]/", "_", $controller.$access_action), "type" => "checkbox", "label" => $access_action, "value" => $access_granted)) ?>
 
 <?							endif; ?>
 

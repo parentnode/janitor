@@ -4,19 +4,31 @@
 */
 class Model extends HTML {
 
+	public $data_defaults;
 	public $data_entities;
 	public $data_errors;
+
 
 	/**
 	* Construct reference to data object
 	*/
 	function __construct() {
 
-		// TODO: get base elements from Item (published_at, status, etc.?)
+
+		// Default values
+
+		$this->data_defaults["type"] = "string";
+
+		// files
+		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,pdf";
+
+		// html
+		$this->data_defaults["allowed_tags"] = "h1,h2,h3,h4,h5,h6,p,code";
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 	}
+
 
 	/**
 	* Validation types
@@ -70,136 +82,52 @@ class Model extends HTML {
 	*/
 	function addToModel($name, $_options = false) {
 
-		// Defining default values
-
-		$label = false;
-		$value = false;
-		$type = "string";
-		$options = false;
-
-
-		$id = false;
-
-		// validation
-		$required = false;
-		$unique = false;
-		$pattern = false;
-
-		// string lengt, file count, number value
-		$min = false;
-		$max = false;
-
-		// files
-		$allowed_formats = "gif,jpg,png,mp4,mov,m4v,pdf";
-		$allowed_proportions = false;
-		$allowed_sizes = false;
-
-		// html
-		$allowed_tags = "h1,h2,h3,h4,h5,h6,p,code";
-
-		// dates
-		$is_before = false;
-		$is_after = false;
-
-		// passwords
-		$must_match = false;
-
-
-		// messages
-		$hint_message = "Must be " . $type;
-		$error_message = "*";
-
-
-		// currency
-		$currencies = false;
-		$vatrate = false;
-
-
-		// only relates to frontend output, not really meaningful to include on model level
-		// $class = false;
-		// $readonly = false;
-		// $disabled = false;
-
+// 		print "addToModel:".$name."<br>\n";
 
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "label"                 : $label                 = $_value; break;
-					case "type"                  : $type                  = $_value; break;
-					case "value"                 : $value                 = $_value; break;
-					case "options"               : $options               = $_value; break;
+					case "label"                 : $this->setProperty($name, "label",                $_value); break;
+					case "type"                  : $this->setProperty($name, "type",                 $_value); break;
+					case "value"                 : $this->setProperty($name, "value",                $_value); break;
+					case "options"               : $this->setProperty($name, "id",                   $_value); break;
 
-					case "id"                    : $id                    = $_value; break;
+					case "id"                    : $this->setProperty($name, "id",                   $_value); break;
+					case "class"                 : $this->setProperty($name, "class",                $_value); break;
 
-					case "required"              : $required              = $_value; break;
-					case "unique"                : $unique                = $_value; break;
-					case "pattern"               : $pattern               = $_value; break;
+					case "required"              : $this->setProperty($name, "required",             $_value); break;
+					case "unique"                : $this->setProperty($name, "unique",               $_value); break;
+					case "pattern"               : $this->setProperty($name, "pattern",              $_value); break;
 
 
-					case "min"                   : $min                   = $_value; break;
-					case "max"                   : $max                   = $_value; break;
+					case "min"                   : $this->setProperty($name, "min",                  $_value); break;
+					case "max"                   : $this->setProperty($name, "max",                  $_value); break;
 
-					case "allowed_formats"       : $allowed_formats       = $_value; break;
-					case "allowed_proportions"   : $allowed_proportions   = $_value; break;
-					case "allowed_sizes"         : $allowed_sizes         = $_value; break;
+					case "allowed_formats"       : $this->setProperty($name, "allowed_formats",      $_value); break;
+					case "allowed_proportions"   : $this->setProperty($name, "allowed_proportions",  $_value); break;
+					case "allowed_sizes"         : $this->setProperty($name, "allowed_sizes",        $_value); break;
 
-					case "allowed_tags"          : $allowed_tags          = $_value; break;
+					case "allowed_tags"          : $this->setProperty($name, "allowed_tags",         $_value); break;
 
-					case "is_before"             : $is_before             = $_value; break;
-					case "is_after"              : $is_after              = $_value; break;
+					case "is_before"             : $this->setProperty($name, "is_before",            $_value); break;
+					case "is_after"              : $this->setProperty($name, "is_after",             $_value); break;
 
-					case "must_match"            : $must_match            = $_value; break;
+					case "must_match"            : $this->setProperty($name, "must_match",           $_value); break;
 
-					case "error_message"         : $error_message         = $_value; break;
-					case "hint_message"          : $hint_message          = $_value; break;
+					case "error_message"         : $this->setProperty($name, "error_message",        $_value); break;
+					case "hint_message"          : $this->setProperty($name, "hint_message",         $_value); break;
 
-					case "currencies"            : $currencies            = $_value; break;
-					case "vatrate"               : $vatrate               = $_value; break;
+					case "currencies"            : $this->setProperty($name, "currencies",           $_value); break;
+					case "vatrate"               : $this->setProperty($name, "vatrate",              $_value); break;
 
 				}
 			}
 		}
 
-
-		$this->data_entities[$name]["label"] = $label;
-		$this->data_entities[$name]["type"] = $type;
-		$this->data_entities[$name]["value"] = $value;
-		$this->data_entities[$name]["options"] = $options;
-
-//		print "ADD TO MODEL:" . $this->data_entities[$name]["value"];
-
-		$this->data_entities[$name]["id"] = $id;
-
-		$this->data_entities[$name]["required"] = $required;
-		$this->data_entities[$name]["unique"] = $unique;
-		$this->data_entities[$name]["pattern"] = $pattern;
-
-		$this->data_entities[$name]["min"] = $min;
-		$this->data_entities[$name]["max"] = $max;
-
-		$this->data_entities[$name]["allowed_formats"] = $allowed_formats;
-		$this->data_entities[$name]["allowed_proportions"] = $allowed_proportions;
-		$this->data_entities[$name]["allowed_sizes"] = $allowed_sizes;
-
-		$this->data_entities[$name]["allowed_tags"] = $allowed_tags;
-
-		$this->data_entities[$name]["is_before"] = $is_before;
-		$this->data_entities[$name]["is_after"] = $is_after;
-
-		$this->data_entities[$name]["must_match"] = $must_match;
-
-		$this->data_entities[$name]["error_message"] = $error_message;
-		$this->data_entities[$name]["hint_message"] = $hint_message;
-
-
-		$this->data_entities[$name]["currencies"] = $currencies;
-		$this->data_entities[$name]["vatrate"] = $vatrate;
-
-
-		// $this->setValidationIndication($element);
 	}
+
 
 	function getModel() {
 		return $this->data_entities;
@@ -249,9 +177,29 @@ class Model extends HTML {
 			}
 		}
 	}
-	
-	function getEntityProperty($name, $property) {
-		return isset($this->data_entities[$name][$property]) ? $this->data_entities[$name][$property] : "";
+
+
+	/**
+	* Set property value
+	*
+	* TODO: Documentation required
+	*/
+	function setProperty($name, $property, $value) {
+		 $this->data_entities[$name][$property] = $value;
+	}
+
+	/**
+	* Get property from model
+	* Fall back to default value or false
+	*
+	* TODO: Documentation required
+	*/
+	function getProperty($name, $property) {
+		if(isset($this->data_entities[$name][$property])) {
+			return $this->data_entities[$name][$property];
+		}
+
+		return isset($this->data_defaults[$property]) ? $this->data_defaults[$property] : false;
 	}
 
 	/**
