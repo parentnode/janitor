@@ -2,7 +2,6 @@
 /**
 * Query object
 * Handles all query information
-* Extended by template
 */
 
 $mysqli_global = false;

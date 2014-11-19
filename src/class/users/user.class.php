@@ -1,11 +1,10 @@
 <?php
 /**
-* @package Janitor.users
-* This file contains User functionality
+* @package janitor.users
+* This file contains Admin User functionality
 */
 
 class User extends Model {
-
 
 	/**
 	* Init, set varnames, validation rules
@@ -320,6 +319,7 @@ class User extends Model {
 
 
 	// TODO: not used due to performance considerations
+	// might be reimplemented as this action will only happen rarely (when a user is deleted)
 	function checkUserConstraints($user_id) {
 		$query = new Query();
 		$user_constraints = array();

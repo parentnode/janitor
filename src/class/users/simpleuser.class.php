@@ -1,8 +1,36 @@
 <?php
 /**
-* @package e-types.users
+* @package janitor.users
 * This file contains simple user functionality
-* for NON-Admin creation of users (signups on website)
+*
+* Simple user is supposed to be a minimal interface to User maintenance and the user tables
+* It is vital that this class does not expose anything but the current user's information
+*
+*
+* Only for NON-Admin creation of users, like
+* - signups on website
+* - newsletter signup
+* - placement of orders by unregistered users
+*
+*
+* Creates a member user (user_group=2), with limited privileges
+* - update profile
+* - newsletter administration
+* - own order view (on shops)
+*
+* - comments if allowed (not decided how that is to be implemented)
+* - ratings if allowed (not decided how that is to be implemented)
+*/
+
+/**
+* TODO
+* compare functionality need with User class
+* consider extending Simpleuser from User to avoid duplet functionality
+* (only if resonable overlap)
+* (requires the ability to overwrite funtions - test it)
+*
+*
+* These updates will require rewriting of Shop class and shop functionality (there is no meaningful way around it)
 */
 
 /**
