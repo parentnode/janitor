@@ -288,13 +288,16 @@ class Setup extends Model {
 		$this->readwrite = $this->readWriteTest();
 
 
-		// Thuyet: You can make this return true for testing the rest of the setup script
-		// but we need to find a way to make it identify the path to FFMPEG
 		// check ffmpeg
 		$this->ffmpeg = $this->isInstalled(array(
 			"/opt/local/bin/ffmpeg -version", 
 			"/usr/local/bin/ffmpeg -version"
-		), array("ffmpeg version 2.[1-9]{1}"));
+		), array("ffmpeg version 2.[1-9]{1}")) || $this->isInstalled(array(
+			"/srv/ffmpeg/bin/ffmpeg -version"
+		), array("ffmpeg version N-67742-g3f07dd6"));
+
+		// If use ffmpeg as a php module:
+		// $this->ffmpeg = (array_search("ffmpeg", $php_modules) !== false);
 
 
 		// if everything is fine
