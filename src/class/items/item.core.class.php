@@ -1080,6 +1080,185 @@ class ItemCore {
 		return $uploads;
 	}
 
+
+	function uploadHTMLFile($item_id, $_options) {
+
+		$fs = new FileSystem();
+
+
+		$_input_name = "files";               // input name to check for files (default is files)
+
+		$_variant = false;                    // variantname to save files under
+		$proportion = false;                  // specific proportion for images and videos
+		$width = false;                       // specific file width for images and videos
+		$height = false;                      // specific file height for images and videos
+
+		$min_height = false;                  // specific file min-height for images and videos
+		$max_height = false;                  // specific file max-height for images and videos
+		$min_width = false;                   // specific file min-width for images and videos
+		$max_width = false;                   // specific file max-width for images and videos
+
+		$min_bitrate = false;                 // specific file max-height for images and videos
+
+		$formats = false;                     // jpg,png,git,mov,mp4,pdf,etc
+
+		$auto_add_variant = false;            // automatically add variant-key for each file
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "input_name"          : $_input_name          = $_value; break;
+
+					case "variant"             : $_variant             = $_value; break;
+					case "proportion"          : $proportion           = $_value; break;
+					case "width"               : $width                = $_value; break;
+					case "height"              : $height               = $_value; break;
+					case "min_width"           : $min_width            = $_value; break;
+					case "min_height"          : $min_height           = $_value; break;
+					case "max_width"           : $max_width            = $_value; break;
+					case "max_height"          : $max_height           = $_value; break;
+
+					case "formats"             : $formats              = $_value; break;
+
+					case "auto_add_variant"    : $auto_add_variant     = $_value; break;
+				}
+			}
+		}
+
+		$uploads = array();
+
+//		print "files:<br>";
+//		print_r($_FILES);
+		// print "post:<br>";
+		// print_r($_POST);
+
+
+		if(isset($_FILES[$_input_name])) {
+			// print "input_name:" . $_input_name;
+			// print_r($_FILES[$_input_name]);
+
+//			foreach($_FILES[$_input_name]["name"] as $index => $value) {
+				if(!$_FILES[$_input_name]["error"] && file_exists($_FILES[$_input_name]["tmp_name"])) {
+
+					$upload = array();
+					$upload["name"] = $_FILES[$_input_name]["name"];
+
+					$extension = false;
+					$temp_file = $_FILES[$_input_name]["tmp_name"];
+					$temp_type = $_FILES[$_input_name]["type"];
+//					$temp_extension = mimetypeToExtension($temp_type);
+					$upload["type"] = $temp_type;
+
+
+					// File type check is deprecated and moved to model validation
+					// Consider doing check still - but in different way
+					// specify considerations and validation flow
+					
+					// print "#".$filegroup.", ".$temp_type.", match:".preg_match("/".$filegroup."/", $temp_type)."#";
+					// if(preg_match("/".$filegroup."/", $temp_type)) {
+
+					// is uploaded format acceptable?
+//					if(($upload["format"] && (preg_match("/".$upload["format"]."/", $formats)) || !$formats)) {
+
+						// define variant value
+						if($auto_add_variant) {
+							$upload["variant"] = "HTML-".randomKey(8);
+							$variant = "/".$upload["variant"];
+						}
+						else if($_variant) {
+							$upload["variant"] = $_variant;
+							$variant = "/".$upload["variant"];
+						}
+						else {
+							$variant = "";
+							$upload["variant"] = $_variant;
+						}
+
+//						print_r($upload);
+
+
+//						print "correct group:" . $filegroup . ", " . $temp_type . ", " . $variant;
+
+						// pdf upload
+						if(preg_match("/pdf/", $temp_type)) {
+
+							$upload["format"] = "pdf";
+
+							$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
+							$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(preg_replace("/\.[.]{3-4}$/", "", substr($upload["name"], 0, 30))).".pdf";
+
+							$fs->removeDirRecursively(dirname($output_file));
+							$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+
+							$fs->makeDirRecursively(dirname($output_file));
+							$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+
+							copy($temp_file, $output_file);
+							copy($temp_file, $public_file);
+
+							$upload["name"] = basename($public_file);
+							$upload["filesize"] = filesize($public_file);
+							$upload["file"] = $output_file;
+							$uploads[] = $upload;
+
+							unlink($temp_file);
+//							unlink($output_file);
+
+							message()->addMessage("PDF uploaded (".$upload["name"].")");
+
+						}
+						// not PDF, zip it for download
+						else {
+
+							$upload["format"] = "zip";
+
+							$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"] ;
+							$zip_name = superNormalize(preg_replace("/\.[.]{3-4}$/", "", substr($upload["name"], 0, 30)));
+							$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".$zip_name.".zip";
+
+							$fs->removeDirRecursively(dirname($output_file));
+							$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+
+							$fs->makeDirRecursively(dirname($output_file));
+							$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+
+							
+							copy($temp_file, $output_file);
+
+		//					print "create new zip:" . $zip_file . "<br>";
+
+							$zip = new ZipArchive();
+							$zip->open($public_file, ZipArchive::CREATE);
+							$zip->addFile($output_file, basename($output_file));
+							$zip->close();
+
+							$upload["filesize"] = filesize($public_file);
+							$upload["file"] = $public_file;
+							$upload["name"] = basename($public_file);
+							$uploads[] = $upload;
+
+							unlink($temp_file);
+//							unlink($output_file);
+
+							message()->addMessage("File uploaded (".$upload["name"].")");
+
+						}
+
+//					}
+
+				}
+				// file group error
+				else {
+					message()->addMessage("File problem (".$upload["name"].")");
+				}
+//			}
+
+		}
+
+		return $uploads;
+	}
+
 	/**
 	* Chacnge status of Item
 	*/

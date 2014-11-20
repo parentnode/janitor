@@ -5,6 +5,8 @@ Util.Objects["defaultEdit"] = new function() {
 
 		// primary form
 		var form = u.qs("form", div);
+		form.div = div;
+
 		u.f.init(form);
 		form.actions["cancel"].clicked = function(event) {
 			location.href = this.url;

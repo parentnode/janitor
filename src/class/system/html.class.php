@@ -183,6 +183,19 @@ class HTML {
 		$att_multiple = $this->attribute("multiple", ($max && $max > 1 ? "multiple" : ""));
 
 
+		// TODO: temp fix for dlaf
+		// built into page-class and create separate output function for html
+		if($type == "html" && isset($_options["add-file"]) && isset($_options["delete-file"])) {
+			$att_html_add = $this->attribute("data-add-file", $_options["add-file"]);
+			$att_html_delete = $this->attribute("data-delete-file", $_options["delete-file"]);
+//			$att_html_item_id = $this->attribute("data-item_id", $_options["item_id"]);
+		}
+		else {
+			$att_html_add = "";
+			$att_html_delete = "";
+//			$att_html_item_id = "";
+		}
+
 
 		// hidden field
 		if($type == "hidden") {
@@ -191,7 +204,7 @@ class HTML {
 		}
 
 
-		$_ .= '<div'.$att_class.'>';
+		$_ .= '<div'.$att_class.$att_html_add.$att_html_delete.'>';
 
 			// CHECKBOX/BOOLEAN
 			// checkboxes have label after input

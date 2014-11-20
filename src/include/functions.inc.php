@@ -570,6 +570,7 @@ function mimetypeToExtension($mimetype) {
 		"application/zip" => "zip",
 		"audio/mpeg" => "mp3",
 		"video/mp4" => "mov"
+
 	);
 
 	if(isset($extensions[$mimetype])) {
