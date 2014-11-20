@@ -23,7 +23,7 @@ class Model extends HTML {
 		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,pdf";
 
 		// html
-		$this->data_defaults["allowed_tags"] = "h1,h2,h3,h4,h5,h6,p,code";
+		$this->data_defaults["allowed_tags"] = "p,h1,h2,h3,h4,h5,h6,code,ul,download";
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();

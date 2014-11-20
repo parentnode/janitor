@@ -62,7 +62,7 @@
 
 
 /* SINGLE FILE UPLOAD */
-#content .scene.defaultEdit > div.media > img {margin: 0 28px; position: absolute; top: 47px; left: 0; z-index: 9; width: 384px;}
+#content .scene.defaultEdit > div.media > img {margin: 0 28px; position: absolute; top: 47px; left: 0; z-index: 1; width: 384px;}
 #content .scene.defaultEdit > div.media > form.delete {left: 412px; right: auto; top: 47px; z-index: 11;}
 #content .scene.defaultEdit > div.media > form.delete input {position: absolute; top: 0; right: 0;}
 
