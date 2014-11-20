@@ -1186,7 +1186,8 @@ class ItemCore {
 							$upload["format"] = "pdf";
 
 							$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
-							$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(preg_replace("/\.[.]{3-4}$/", "", substr($upload["name"], 0, 30))).".pdf";
+							$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 30)).".pdf";
+							
 
 							$fs->removeDirRecursively(dirname($output_file));
 							$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
@@ -1214,7 +1215,7 @@ class ItemCore {
 							$upload["format"] = "zip";
 
 							$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"] ;
-							$zip_name = superNormalize(preg_replace("/\.[.]{3-4}$/", "", substr($upload["name"], 0, 30)));
+							$zip_name = superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 30));
 							$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".$zip_name.".zip";
 
 							$fs->removeDirRecursively(dirname($output_file));
