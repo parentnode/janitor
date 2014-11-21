@@ -903,6 +903,129 @@ class Model extends HTML {
 		return true;
 	}
 
+
+
+	
+	// ITEMTYPE GENERALIZED HELPER FUNCTIONS
+	
+	
+	// custom function to add single media
+	// /janitor/#itemtype#/addSingleMedia/#item_id#
+	function addSingleMedia($action) {
+
+		if(count($action) == 2) {
+			$query = new Query();
+			$IC = new Item();
+			$item_id = $action[1];
+
+			$query->checkDbExistance(UT_ITEMS_MEDIAE);
+
+			// Image main_media
+			if($this->validateList(array("single_media"), $item_id)) {
+				$uploads = $IC->upload($item_id, array("input_name" => "single_media", "variant" => "single_media"));
+				if($uploads) {
+					$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
+					$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)");
+
+					return array(
+						"item_id" => $item_id, 
+						"media_id" => $query->lastInsertId(), 
+						"variant" => $uploads[0]["variant"], 
+						"format" => $uploads[0]["format"], 
+						"width" => $uploads[0]["width"], 
+						"height" => $uploads[0]["height"],
+						"filesize" => $uploads[0]["filesize"]
+					);
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	// delete image - 3 parameters exactly
+	// /janitor/#itemtype#/deleteImage/#item_id#/#variant#
+	function deleteMedia($action) {
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$fs = new FileSystem();
+
+			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$action[1]." AND variant = '".$action[2]."'";
+			print $sql."<br>\n";
+			if($query->sql($sql)) {
+				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$action[1]."/".$action[2]);
+				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$action[1]."/".$action[2]);
+
+				message()->addMessage("Media deleted in model");
+				return true;
+			}
+		}
+
+		message()->addMessage("Media could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+
+	// custom function to add html file
+	// /janitor/#itemtype#/addHTMLFile/#item_id#
+	function addHTMLFile($action) {
+
+		if(count($action) == 2) {
+			$query = new Query();
+			$IC = new Item();
+			$item_id = $action[1];
+
+			$query->checkDbExistance(UT_ITEMS_MEDIAE);
+
+//			$variant = stringOr(getPost("variant"), "HTML-".randomKey(8));
+
+
+			// Image single_media
+			$uploads = $IC->uploadHTMLFile($item_id, array("input_name" => "html_file", "auto_add_variant" => true));
+			if($uploads) {
+				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
+				$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '0', '0', '".$uploads[0]["filesize"]."', 0)");
+
+				return array(
+					"item_id" => $item_id, 
+					"media_id" => $query->lastInsertId(), 
+					"name" => $uploads[0]["name"], 
+					"variant" => $uploads[0]["variant"], 
+					"format" => $uploads[0]["format"], 
+					"filesize" => $uploads[0]["filesize"]
+				);
+			}
+		}
+
+		return false;
+	}
+
+
+	// delete file from HTML editor - 3 parameters exactly
+	// /janitor/#itemtype#/deleteHTMLFile/#item_id#/#variant#
+	function deleteHTMLFile($action) {
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$fs = new FileSystem();
+
+			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$action[1]." AND variant = '".$action[2]."'";
+			if($query->sql($sql)) {
+				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$action[1]."/".$action[2]);
+				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$action[1]."/".$action[2]);
+
+				message()->addMessage("File deleted");
+				return true;
+			}
+		}
+
+		message()->addMessage("File could not be deleted", array("type" => "error"));
+		return false;
+	}
 }
 
 ?>
