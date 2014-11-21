@@ -34,7 +34,7 @@ class TypePage extends Model {
 			"error_message" => "Title must be filled out."
 		));
 
-		// description
+		// Description
 		$this->addToModel("description", array(
 			"type" => "text",
 			"label" => "Short description",
@@ -48,8 +48,8 @@ class TypePage extends Model {
 			"type" => "html",
 			"label" => "HTML content",
 			"required" => true,
-			"allowed_tags" => "h2,h3,h4,p",
-			"hint_message" => "Write the log entry",
+			"allowed_tags" => "h2,h3,h4,p,ul,ol,download",
+			"hint_message" => "Write the page content",
 			"error_message" => "A page without any words? How weird."
 		));
 
