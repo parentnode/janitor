@@ -12,6 +12,9 @@
 // base DB tables
 define("UT_ITEMS",              SITE_DB.".items");                             // Items
 
+// MEDIAE
+define("UT_ITEMS_MEDIAE",       SITE_DB.".items_mediae");                      // Items Mediae
+
 define("UT_TAG",                SITE_DB.".tags");                              // Item tags
 define("UT_TAGGINGS",           SITE_DB.".taggings");                          // Item tags relations
 
@@ -830,6 +833,51 @@ class ItemCore {
 	}
 
 
+	/**
+	* Chacnge status of Item
+	*/
+	function status($item_id, $status) {
+		$query = new Query();
+
+		$status_states = array(
+			0 => "disabled",
+			1 => "enabled"
+		);
+
+		// delete item + itemtype + files
+		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
+			$query->sql("UPDATE ".UT_ITEMS." SET status = $status WHERE id = $item_id");
+
+			message()->addMessage("Item ".$status_states[$status]);
+			return true;
+		}
+		message()->addMessage("Item could not be ".$status_states[$status], array("type" => "error"));
+		return false;
+
+	}
+
+	/**
+	* Delete item function
+	*/
+	function deleteItem($item_id) {
+		$query = new Query();
+		$fs = new FileSystem();
+
+		// delete item + itemtype + files
+		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
+			
+			$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $item_id");
+			$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
+			$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
+
+			message()->addMessage("Item deleted");
+			return true;
+		}
+
+		message()->addMessage("Item could not be deleted", array("type" => "error"));
+		return false;
+	}
+
 
 	// 
 	// upload to item_id/variant
@@ -1260,50 +1308,8 @@ class ItemCore {
 		return $uploads;
 	}
 
-	/**
-	* Chacnge status of Item
-	*/
-	function status($item_id, $status) {
-		$query = new Query();
 
-		$status_states = array(
-			0 => "disabled",
-			1 => "enabled"
-		);
 
-		// delete item + itemtype + files
-		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
-			$query->sql("UPDATE ".UT_ITEMS." SET status = $status WHERE id = $item_id");
-
-			message()->addMessage("Item ".$status_states[$status]);
-			return true;
-		}
-		message()->addMessage("Item could not be ".$status_states[$status], array("type" => "error"));
-		return false;
-
-	}
-
-	/**
-	* Delete item function
-	*/
-	function deleteItem($item_id) {
-		$query = new Query();
-		$fs = new FileSystem();
-
-		// delete item + itemtype + files
-		if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id")) {
-			
-			$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $item_id");
-			$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
-			$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
-
-			message()->addMessage("Item deleted");
-			return true;
-		}
-
-		message()->addMessage("Item could not be deleted", array("type" => "error"));
-		return false;
-	}
 
 
 
