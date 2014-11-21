@@ -246,8 +246,22 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 /* HTML EDITOR */
 #content .field.html {border-top: 1px solid #dedede; padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #dedede; margin-bottom: 10px; z-index: 3;}
+
+#content .field.html div.html_editor_hint {width: 370px;}
+#content .field.html div.html_editor_hint_content {display: none;}
+#content .field.html div.html_editor_hint h3,
+#content .field.html div.html_editor_hint h4,
+#content .field.html div.html_editor_hint p {padding: 0 0 5px;}
+#content .field.html div.html_editor_hint p+h3,
+#content .field.html div.html_editor_hint p+h4 {padding: 10px 0 5px;}
+#content .field.html div.html_editor_hint .open,
+#content .field.html div.html_editor_hint .close {font-size: 1rem; line-height: 1em; cursor: pointer; vertical-align: top; margin: 3px 3px 0; border-radius: 13px; background-color: #313942; padding: 6px 10px 7px; color: #ffffff; margin: 10px 0 20px; text-align: center;}
+
+
 #content .field.html > textarea {display: none;}
 #content .field.html > textarea.show {display: block; height: 200px;}
+
+
 
 #content .field.html > label {display: block; width: 377px;}
 #content .field.html > label span {font-size: 0.723em; float: right; padding: 3px 0 0; cursor: pointer;}
