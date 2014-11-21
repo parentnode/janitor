@@ -22,7 +22,7 @@ Util.Objects["addMedia"] = new function() {
 		div.form.file_input = u.qs("input[type=file]", div.form);
 		div.form.file_input.div = div;
 		div.form.file_input.changed = function() {
-			this.form._submit();
+			this.form.submit();
 		}
 
 		// upload form submitted
@@ -329,7 +329,7 @@ Util.Objects["addMediaSingle"] = new function() {
 		div.form.file_input = u.qs("input[type=file]", div.form);
 		div.form.file_input.div = div;
 		div.form.file_input.changed = function() {
-			this.form._submit();
+			this.form.submit();
 		}
 
 		div.form.submitted = function() {
