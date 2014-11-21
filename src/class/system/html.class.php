@@ -186,6 +186,7 @@ class HTML {
 		// TODO: temp fix for dlaf
 		// built into page-class and create separate output function for html
 		if($type == "html" && isset($_options["add-file"]) && isset($_options["delete-file"])) {
+
 			$att_html_add = $this->attribute("data-add-file", $_options["add-file"]);
 			$att_html_delete = $this->attribute("data-delete-file", $_options["delete-file"]);
 //			$att_html_item_id = $this->attribute("data-item_id", $_options["item_id"]);
@@ -864,6 +865,10 @@ class HTML {
 		return $this->button($name, $_options);
 
 	}
+
+
+
+	// JANITOR BACKEND
 
 
 	/**

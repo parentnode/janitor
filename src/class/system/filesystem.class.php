@@ -264,7 +264,7 @@ class FileSystem {
 			$this->makeDirRecursively($dest);
 
 			$contents = scandir($path);
-            foreach($contents as $file) {
+			foreach($contents as $file) {
 				// ignore . and ..
 				if($file == "." || $file == "..") {
 					continue;
@@ -273,18 +273,18 @@ class FileSystem {
 				// folder
 				if(is_dir($path."/".$file)) {
 					$this->copy($path."/".$file, $dest."/".$file);
-                }
+				}
 				// file
 				else {
 					copy($path."/".$file, $dest."/".$file);
-                }
-            }
-            return true;
-        }
-        else if(is_file($path)) {
+				}
+			}
+			return true;
+		}
+		else if(is_file($path)) {
 			return copy($path, $dest);
-        }
-        else {
+		}
+		else {
 			return false;
 		}
 	}
