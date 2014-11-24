@@ -9,23 +9,18 @@ $navigations = $model->getNavigations(array("levels" => 0));
 	<h1>Navigations</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("New navigation", "/janitor/admin/navigation/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
+		<?= $JML->listNew(array("label" => "New navigation")) ?>
 	</ul>
 
 
-	<div class="all_items i:defaultList filters"
-		data-csrf-token="<?= session()->value("csrf") ?>"
-		>
+	<div class="all_items i:defaultList filters"<?= $JML->jsData() ?>>
 <?		if($navigations): ?>
 		<ul class="items">
 <?			foreach($navigations as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
 				<h3><?= $item["name"] ?></h3>
 
-				<ul class="actions">
-					<?= $HTML->link("Edit", "/janitor/admin/navigation/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<?= $HTML->deleteButton("Delete", "/janitor/admin/navigation/delete/".$item["id"], array("js" => true)) ?>
-				</ul>
+				<?= $JML->listActions($item) ?>
 			 </li>
 <?			endforeach; ?>
 		</ul>

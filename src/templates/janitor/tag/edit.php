@@ -2,7 +2,7 @@
 global $action;
 global $model;
 
-$IC = new Item();
+$IC = new Items();
 
 $tag = $IC->getTags(array("tag_id" => $action[1]));
 ?>
@@ -34,11 +34,31 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 <? 		if($tag["items"]): ?>
 		<ul class="tag_items">
 <? 			foreach($tag["items"] as $item):
-				$item = $IC->extendItem($item); ?>
+				$item = $IC->extendItem($item);
+				
+				// find path to itemtype
+				// We don know whether it is an inherited controller or a local one
+				// - look in the two most obvious places
+				if(file_exists(LOCAL_PATH."/www/janitor/".$item["itemtype"].".php")) {
+					$path = "/janitor/".$item["itemtype"];
+				}
+				else if(file_exists(FRAMEWORK_PATH."/www/".$item["itemtype"].".php")) {
+					$path = "/janitor/admin/".$item["itemtype"];
+				}
+				else {
+					$path = false;
+				}
+?>
 			<li>
 				<dl>
 					<dt class="name">Name</dt>
-					<dd class="name"><a href="/janitor/<?= $item["itemtype"] ?>/edit/<?= $item["item_id"] ?>"><?= $item["name"] ?></a></dd>
+					<dd class="name">
+						<? if($this->validatePath($path."/edit")) { ?>
+							<a href="<?= $path ?>/edit/<?= $item["item_id"] ?>"><?= $item["name"] ?></a>
+						<? } else { ?>
+							<?= $item["name"] ?>
+						<? } ?>
+					</dd>
 					<dt class="itemtype">Itemtype</dt>
 					<dd class="itemtype"><?= $item["itemtype"] ?></dd>
 					<dt class="status">Status</dt>

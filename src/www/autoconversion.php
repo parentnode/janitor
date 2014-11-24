@@ -142,7 +142,7 @@ $page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoc
 
 // images
 if($request_type == "images" && ($format == "jpg" || $format == "png" || $format == "gif")) {
-	include_once("class/system/image.class.php");
+	include_once("classes/system/image.class.php");
 
 	$Image = new Image();
 
@@ -198,7 +198,7 @@ if($request_type == "images" && ($format == "jpg" || $format == "png" || $format
 
 // video
 else if($request_type == "videos" && ($format == "mp4" || $format == "ogv" || $format == "mov" || $format == "3gp")) {
-		include_once("class/system/video.class.php");
+		include_once("classes/system/video.class.php");
 
 		$Video = new Video();
 
@@ -260,7 +260,7 @@ else if($request_type == "videos" && ($format == "mp4" || $format == "ogv" || $f
 
 // audio
 else if($request_type == "audios" && ($format == "mp3" || $format == "ogg")) {
-	include_once("class/system/audio.class.php");
+	include_once("classes/system/audio.class.php");
 
 	$Audio = new Audio();
 

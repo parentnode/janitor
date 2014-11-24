@@ -8,10 +8,10 @@ $user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_gr
 	<h1>New user</h1>
 
 	<ul class="actions">
-		<?= $model->link("List", "/janitor/admin/user/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $JML->newList(array("label" => "List")) ?>
 	</ul>
 
-	<?= $model->formStart("/janitor/admin/user/save", array("class" => "i:defaultNew labelstyle:inject")) ?>
+	<?= $model->formStart("save", array("class" => "i:defaultNew labelstyle:inject")) ?>
 		<fieldset>
 			<?= $model->input("nickname") ?>
 			<?= $model->input("user_group_id", array(
@@ -20,10 +20,7 @@ $user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_gr
 			) ?>
 		</fieldset>
 
-		<ul class="actions">
-			<?= $model->link("Back", "/janitor/admin/user/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
-			<?= $model->submit("Save", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
-		</ul>
+		<?= $JML->newActions() ?>
 	<?= $model->formEnd() ?>
 </div>
 

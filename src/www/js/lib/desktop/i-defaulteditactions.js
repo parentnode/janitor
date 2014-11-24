@@ -13,7 +13,7 @@ Util.Objects["defaultEditActions"] = new function() {
 
 			// inject standard item delete form if node is empty
 			if(!action.childNodes.length) {
-				action.delete_item_url = action.getAttribute("data-delete-item");
+				action.delete_item_url = action.getAttribute("data-item-delete");
 				if(action.delete_item_url) {
 					form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
 					u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":node.csrf_token});

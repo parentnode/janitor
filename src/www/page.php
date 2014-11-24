@@ -8,7 +8,7 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
-$IC = new Item();
+$IC = new Items();
 $itemtype = "page";
 $model = $IC->typeObject($itemtype);
 
@@ -19,30 +19,12 @@ $page->pageTitle("Pages");
 
 if(is_array($action) && count($action)) {
 
-	// LIST ITEM
-	if(count($action) == 1 && $action[0] == "list") {
+	// LIST/EDIT/NEW ITEM
+	if(preg_match("/^(list|edit|new)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/".$itemtype."/list.php"
-		));
-		exit();
-	}
-	// NEW ITEM
-	else if(count($action) == 1 && $action[0] == "new") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/".$itemtype."/new.php"
-		));
-		exit();
-	}
-	// EDIT ITEM
-	else if(count($action) == 2 && $action[0] == "edit") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/".$itemtype."/edit.php"
+			"templates" => "janitor/".$itemtype."/".$action[0].".php"
 		));
 		exit();
 	}

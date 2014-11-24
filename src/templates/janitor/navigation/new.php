@@ -7,7 +7,7 @@ global $model;
 	<h1>New navigation</h1>
 
 	<ul class="actions">
-		<?= $model->link("List", "/janitor/admin/navigation/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $JML->newList(array("label" => "List")) ?>
 	</ul>
 
 	<?= $model->formStart("/janitor/admin/navigation/save", array("class" => "i:defaultNew labelstyle:inject")) ?>
@@ -18,9 +18,6 @@ global $model;
 			<?= $model->input("name") ?>
 		</fieldset>
 
-		<ul class="actions">
-			<?= $model->link("Cancel", "/janitor/admin/navigation/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
-			<?= $model->submit("Save", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
-		</ul>
+		<?= $JML->newActions() ?>
 	<?= $model->formEnd() ?>
 </div>

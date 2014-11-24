@@ -10,7 +10,7 @@ Util.Objects["defaultEditStatus"] = new function() {
 
 			// inject standard item status form if node is empty
 			if(!action.childNodes.length) {
-				action.update_status_url = action.getAttribute("data-update-status");
+				action.update_status_url = action.getAttribute("data-item-status");
 				if(action.update_status_url) {
 					form_disable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/0", "class":"disable"});
 					u.ae(form_disable, "input", {"type":"hidden","name":"csrf-token", "value":node.csrf_token});

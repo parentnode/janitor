@@ -8,7 +8,7 @@
 /**
 * Item custom backbone - extends the ItemCore base functionality
 */
-class Item extends ItemCore {
+class Items extends ItemsCore {
 
 	/**
 	* Get required page information

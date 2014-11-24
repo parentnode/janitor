@@ -1,7 +1,7 @@
 <?php
 global $action;
 
-$IC = new Item();
+$IC = new Items();
 $itemtype = "post";
 
 
@@ -10,7 +10,7 @@ $post_tags = $IC->getTags(array("context" => $itemtype));
 
 
 // get content pagination
-include_once("class/items/pagination.class.php");
+include_once("classes/items/pagination.class.php");
 $PC = new Pagination();
 
 $limit = stringOr(getVar("limit"), 5);

@@ -1,5 +1,4 @@
 <?php
-//$access_item = false;
 $access_item["/"] = true;
 if(isset($read_access) && $read_access) {
 	return;
@@ -7,8 +6,9 @@ if(isset($read_access) && $read_access) {
 
 include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
+
 $action = $page->actions();
-$HTML = new HTML();
+
 
 $page->pageTitle("the Janitor @ kaestel.dk")
 ?>

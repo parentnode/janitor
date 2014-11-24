@@ -2,4 +2,4 @@
 #notifications div {padding: 10px 65px 10px 15px;}
 
 #notifications .notice {color: #333333;}
-#notifications .error {color: #df0000;}
+#notifications .error {background-color: #df0000; color: #ffffff;}

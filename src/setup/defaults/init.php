@@ -40,16 +40,22 @@ ini_set("include_path", "." . $path);
 
 
 // include system files
-include_once("class/system/queryi.class.php");
-include_once("class/system/filesystem.class.php");
+include_once("classes/system/queryi.class.php");
+include_once("classes/system/filesystem.class.php");
 
-include_once("class/system/page.core.class.php");
-include_once("class/system/page.class.php");
-include_once("class/system/html.class.php");
-include_once("class/system/model.class.php");
-include_once("class/system/output.class.php");
+include_once("classes/system/page.core.class.php");
+include_once("classes/system/page.class.php");
 
-include_once("class/system/setup.class.php");
+include_once("classes/system/html.core.class.php");
+include_once("classes/system/html.class.php");
+
+include_once("classes/system/model.class.php");
+include_once("classes/items/itemtype.core.class.php");
+include_once("classes/items/itemtype.class.php");
+
+include_once("classes/system/output.class.php");
+
+include_once("classes/system/setup.class.php");
 
 
 // DEFINE LOCAL_PATH

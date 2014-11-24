@@ -14,6 +14,9 @@ class Model extends HTML {
 	*/
 	function __construct() {
 
+		// current controller path
+		$this->path = preg_replace("/\.php$/", "", $_SERVER["SCRIPT_NAME"]);
+
 
 		// Default values
 
@@ -25,8 +28,58 @@ class Model extends HTML {
 		// html
 		$this->data_defaults["allowed_tags"] = "p,h1,h2,h3,h4,h5,h6,code,ul,download";
 
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
+
+		global $page;
+
+		// TODO: maybe these standard settings should be in Core Itemtype
+		// define default models (Janitor model allows these element on all itemtypes)
+		// optimized for backend implementation
+
+		$this->addToModel("published_at", array(
+			"type" => "datetime",
+			"label" => "Publish date (yyyy-mm-dd hh:mm)",
+//			"pattern" => "^[\d]{4}-[\d]{2}-[\d]{2}[0-9\-\/ \:]*$",
+			"hint_message" => "Publishing date of the item. Leave empty for current time", 
+			"error_message" => "Date must be of format (yyyy-mm-dd hh:mm)"
+		));
+
+		$this->addToModel("tags", array(
+			"type" => "tag",
+			"label" => "Tag",
+			"hint_message" => "Select existing tag or add a new tag.",
+			"error_message" => "Tag must conform to tag format: context:value."
+		));
+
+		$this->addToModel("html", array(
+			"type" => "html",
+			"label" => "HTML",
+			"allowed_tags" => "p,h2,h3,h4,code,ul,ol,mp4,png,jpg,vimeo,youtube,download",
+			"hint_message" => "Write!",
+			"error_message" => "No words? How weird.",
+			"file_delete" => $page->validPath($this->path."/deleteHTMLFile"),
+			"file_add" => $page->validPath($this->path."/addHTMLFile")
+		));
+
+		$this->addToModel("mediae", array(
+			"type" => "files",
+			"label" => "Add media here",
+			"allowed_formats" => "png,jpg,mp4",
+			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
+			"error_message" => "Media does not fit requirements."
+		));
+
+		$this->addToModel("single_media", array(
+			"type" => "files",
+			"label" => "Add media here",
+			"allowed_sizes" => "960x540",
+			"max" => 1,
+			"allowed_formats" => "png,jpg,mp4",
+			"hint_message" => "Add images or videos here. Use png, jpg or mp4 in 960x540.",
+			"error_message" => "Media does not fit requirements."
+		));
+
+
+
 	}
 
 
@@ -82,7 +135,8 @@ class Model extends HTML {
 	*/
 	function addToModel($name, $_options = false) {
 
-// 		print "addToModel:".$name."<br>\n";
+		// print "addToModel:".$name."<br>\n";
+		// print_r($_options);
 
 
 		if($_options !== false) {
@@ -119,8 +173,8 @@ class Model extends HTML {
 					case "error_message"         : $this->setProperty($name, "error_message",        $_value); break;
 					case "hint_message"          : $this->setProperty($name, "hint_message",         $_value); break;
 
-					case "currencies"            : $this->setProperty($name, "currencies",           $_value); break;
-					case "vatrate"               : $this->setProperty($name, "vatrate",              $_value); break;
+					case "file_add"              : $this->setProperty($name, "file_add",             $_value); break;
+					case "file_delete"           : $this->setProperty($name, "file_delete",          $_value); break;
 
 				}
 			}
@@ -150,6 +204,7 @@ class Model extends HTML {
 	* @uses getVar
 	*/
 	function getPostedEntities() {
+
 		if(count($this->data_entities)) {
 			foreach($this->data_entities as $name => $entity) {
 
@@ -291,7 +346,7 @@ class Model extends HTML {
 	* TODO: some validation rules are not done!
 	*/
 	function validate($name, $item_id = false) {
-//		print "validate:".$name."\n";
+//		print "validate:".$name.", ".$this->getProperty($name, "type").", ".$this->getProperty($name, "value")."\n";
 
 		// check uniqueness
 		if($this->getProperty($name, "unique")) {
@@ -325,11 +380,6 @@ class Model extends HTML {
 				return true;
 			}
 		}
-		// else if($this->data_entities[$name]["type"] == "images") {
-		// 	if($this->isImages($name)) {
-		// 		return true;
-		// 	}
-		// }
 		else if($this->getProperty($name, "type") == "number") {
 			if($this->isNumber($name)) {
 				return true;
@@ -366,10 +416,13 @@ class Model extends HTML {
 			}
 		}
 		else if(
-			$this->getProperty($name, "type") == "date" || 
-			$this->getProperty($name, "type") == "datetime"
-		) {
+			$this->getProperty($name, "type") == "date") {
 			if($this->isDate($name)) {
+				return true;
+			}
+		}
+		else if($this->getProperty($name, "type") == "datetime") {
+			if($this->isDatetime($name)) {
 				return true;
 			}
 		}
@@ -383,8 +436,8 @@ class Model extends HTML {
 				return true;
 			}
 		}
-		else if($this->getProperty($name, "type") == "tags") {
-			if($this->isTags($name)) {
+		else if($this->getProperty($name, "type") == "tag") {
+			if($this->isTag($name)) {
 				return true;
 			}
 		}
@@ -444,6 +497,8 @@ class Model extends HTML {
 
 		$uploads = $this->identifyUploads($name);
 
+
+		// print "sizes:".$sizes."\n";
 		// print "uploads:\n";
 		// print_r($uploads);
 
@@ -536,7 +591,7 @@ class Model extends HTML {
 					// video upload (mp4)
 					if(preg_match("/video/", $temp_type)) {
 
-						include_once("class/system/video.class.php");
+						include_once("classes/system/video.class.php");
 						$Video = new Video();
 
 						// check if we can get relevant info about movie
@@ -561,7 +616,7 @@ class Model extends HTML {
 					// audio upload (mp3)
 					else if(preg_match("/audio/", $temp_type)) {
 
-						include_once("class/system/audio.class.php");
+						include_once("classes/system/audio.class.php");
 						$Audio = new Audio();
 
  						// check if we can get relevant info about audio
@@ -649,7 +704,7 @@ class Model extends HTML {
 		if(($value || $value === "0") && is_string($value) && 
 			(!$min_length || strlen($value) >= $min_length) && 
 			(!$max_length || strlen($value) <= $max_length) &&
-			(!$pattern || preg_match("/^".$pattern."$/", $value))
+			(!$pattern || preg_match("/".$pattern."/", $value))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -676,7 +731,7 @@ class Model extends HTML {
 		if(($value || $value == 0) && !($value%1) && 
 			(!$min || $value >= $min) && 
 			(!$max || $value <= $max) &&
-			(!$pattern || preg_match("/^".$pattern."$/", $value))
+			(!$pattern || preg_match("/".$pattern."/", $value))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -700,10 +755,10 @@ class Model extends HTML {
 		$max = $this->getProperty($name, "max");
 		$pattern = $this->getProperty($name, "pattern");
 
-		if(($value || $value == 0) && !($value%1) && 
+		if(($value || $value === 0) && !($value%1) && 
 			(!$min || $value >= $min) && 
 			(!$max || $value <= $max) &&
-			(!$pattern || preg_match("/^".$pattern."$/", $value))
+			(!$pattern || preg_match("/".$pattern."/", $value))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -717,17 +772,16 @@ class Model extends HTML {
 	/**
 	* Check if email is correctly formatted
 	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
+	* @param string $name Element identifier
 	* @return bool
 	*/
 	function isEmail($name) {
 
 		$value = $this->getProperty($name, "value");
-		$pattern = stringOr($this->getProperty($name, "pattern"), "[\w\.\-\_]+@[\w-\.]+\.\w{2,4}");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\w\.\-\_]+@[\w-\.]+\.\w{2,4}$");
 
 		if($value && is_string($value) && 
-			(!$pattern || preg_match("/^".$pattern."$/", $value))
+			(!$pattern || preg_match("/".$pattern."/", $value))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -740,19 +794,18 @@ class Model extends HTML {
 
 
 	/**
-	* Check if email is correctly formatted
+	* Check if phonenumber is correctly formatted
 	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
+	* @param string $name Element identifier
 	* @return bool
 	*/
 	function isTelephone($name) {
 
 		$value = $this->getProperty($name, "value");
-		$pattern = stringOr($this->getProperty($name, "pattern"), "([\+0-9\-\.\s\(\)]){5,18}");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "^([\+0-9\-\.\s\(\)]){5,18}$");
 
 		if($value && is_string($value) && 
-			(!$pattern || preg_match("/^".$pattern."$/", $value))
+			(!$pattern || preg_match("/".$pattern."/", $value))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -763,6 +816,91 @@ class Model extends HTML {
 		}
 	}
 
+	/**
+	* Check if tag is correctly formatted
+	* Tag can be tag id or new tag string
+	*
+	* @param string $name Element identifier
+	* @return bool
+	*/
+	function isTag($name) {
+
+		$value = $this->getProperty($name, "value");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "^[a-z]+:.+$");
+
+		if($value && 
+			(is_numeric($value) || (!$pattern || preg_match("/".$pattern."/", $value)))
+		) {
+			$this->setProperty($name, "error", false);
+			return true;
+		}
+		else {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+	}
+
+	/**
+	* Check if datetime is entered correctly
+	*
+	* @param string $name Element identifier
+	* @return bool
+	*/
+	function isDatetime($name) {
+
+		$value = $this->getProperty($name, "value");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\d]{4}-[\d]{2}-[\d]{2} [0-9]{1,2}:[0-9]{2}[0-9:]*$");
+		$is_before = $this->getProperty($name, "is_before");
+		$is_after = $this->getProperty($name, "is_after");
+
+		if($value && 
+			(!$is_before || strtotime(toTimestamp($value)) < strtotime(toTimestamp($is_before))) && 
+			(!$is_after || strtotime(toTimestamp($value)) > strtotime(toTimestamp($is_before))) &&
+			(!$pattern || preg_match("/".$pattern."/", $value))
+		) {
+			$this->setProperty($name, "error", false);
+			return true;
+		}
+		else {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+	}
+
+	/**
+	* Check if date is entered correctly
+	*
+	* @param string $name Element identifier
+	* @return bool
+	*/
+	function isDate($name) {
+
+		$value = $this->getProperty($name, "value");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\d]{4}-[\d]{2}-[\d]{2}[0-9\-\/ \:]*$");
+		$is_before = $this->getProperty($name, "is_before");
+		$is_after = $this->getProperty($name, "is_after");
+
+		if($value && 
+			(!$is_before || strtotime(toTimestamp($value)) < strtotime(toTimestamp($is_before))) && 
+			(!$is_after || strtotime(toTimestamp($value)) > strtotime(toTimestamp($is_before))) &&
+			(!$pattern || preg_match("/".$pattern."/", $value))
+		) {
+			$this->setProperty($name, "error", false);
+			return true;
+		}
+		else {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+	}
+
+
+
+
+
+
+
+	// NOT UPDATED VALIDATION
 
 
 	/**
@@ -808,36 +946,7 @@ class Model extends HTML {
 		}
 	}
 
-	/**
-	* Check if date is entered correctly
-	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
-	* @return bool
-	*
-	* TODO: Faulty date validation
-	*/
-	function isDate($name) {
-		$entity = $this->data_entities[$name];
 
-
-		return true;
-
-		$after = $this->getRuleDetails($rule, 0);
-		$before = $this->getRuleDetails($rule, 1);
-
-		$this->obj->vars[$element] = preg_replace('/[\/\.-]/', '-', $this->obj->vars[$element]);
-		$string = $this->obj->vars[$element];
-		$date = explode('-', $string);
-		if(count($date) == 3) {
-			$timestamp = mktime(0,0,0,$date[1], $date[0], $date[2]);
-
-			if(checkdate($date[1], $date[0], $date[2]) && (!$after || $timestamp > $after) && (!$before || $timestamp < $before)) {
-				return true;
-			}
-		}
-		return false;
-	}
 
 	/**
 	* Check if GeoLocation is entered correctly
@@ -889,12 +998,7 @@ class Model extends HTML {
 		return false;
 	}
 
-	// TODO: Faulty tags validation
-	function isTags($name) {
-		$entity = $this->data_entities[$name];
 
-		return true;
-	}
 
 	// TODO: Faulty price validation
 	function isPrices($name) {
@@ -903,129 +1007,6 @@ class Model extends HTML {
 		return true;
 	}
 
-
-
-	
-	// ITEMTYPE GENERALIZED HELPER FUNCTIONS
-	
-	
-	// custom function to add single media
-	// /janitor/#itemtype#/addSingleMedia/#item_id#
-	function addSingleMedia($action) {
-
-		if(count($action) == 2) {
-			$query = new Query();
-			$IC = new Item();
-			$item_id = $action[1];
-
-			$query->checkDbExistance(UT_ITEMS_MEDIAE);
-
-			// Image main_media
-			if($this->validateList(array("single_media"), $item_id)) {
-				$uploads = $IC->upload($item_id, array("input_name" => "single_media", "variant" => "single_media"));
-				if($uploads) {
-					$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
-					$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)");
-
-					return array(
-						"item_id" => $item_id, 
-						"media_id" => $query->lastInsertId(), 
-						"variant" => $uploads[0]["variant"], 
-						"format" => $uploads[0]["format"], 
-						"width" => $uploads[0]["width"], 
-						"height" => $uploads[0]["height"],
-						"filesize" => $uploads[0]["filesize"]
-					);
-				}
-			}
-		}
-
-		return false;
-	}
-
-
-	// delete image - 3 parameters exactly
-	// /janitor/#itemtype#/deleteImage/#item_id#/#variant#
-	function deleteMedia($action) {
-
-		if(count($action) == 3) {
-
-			$query = new Query();
-			$fs = new FileSystem();
-
-			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$action[1]." AND variant = '".$action[2]."'";
-			print $sql."<br>\n";
-			if($query->sql($sql)) {
-				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$action[1]."/".$action[2]);
-				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$action[1]."/".$action[2]);
-
-				message()->addMessage("Media deleted in model");
-				return true;
-			}
-		}
-
-		message()->addMessage("Media could not be deleted", array("type" => "error"));
-		return false;
-	}
-
-
-	// custom function to add html file
-	// /janitor/#itemtype#/addHTMLFile/#item_id#
-	function addHTMLFile($action) {
-
-		if(count($action) == 2) {
-			$query = new Query();
-			$IC = new Item();
-			$item_id = $action[1];
-
-			$query->checkDbExistance(UT_ITEMS_MEDIAE);
-
-//			$variant = stringOr(getPost("variant"), "HTML-".randomKey(8));
-
-
-			// Image single_media
-			$uploads = $IC->uploadHTMLFile($item_id, array("input_name" => "html_file", "auto_add_variant" => true));
-			if($uploads) {
-				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
-				$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '0', '0', '".$uploads[0]["filesize"]."', 0)");
-
-				return array(
-					"item_id" => $item_id, 
-					"media_id" => $query->lastInsertId(), 
-					"name" => $uploads[0]["name"], 
-					"variant" => $uploads[0]["variant"], 
-					"format" => $uploads[0]["format"], 
-					"filesize" => $uploads[0]["filesize"]
-				);
-			}
-		}
-
-		return false;
-	}
-
-
-	// delete file from HTML editor - 3 parameters exactly
-	// /janitor/#itemtype#/deleteHTMLFile/#item_id#/#variant#
-	function deleteHTMLFile($action) {
-
-		if(count($action) == 3) {
-
-			$query = new Query();
-			$fs = new FileSystem();
-
-			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$action[1]." AND variant = '".$action[2]."'";
-			if($query->sql($sql)) {
-				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$action[1]."/".$action[2]);
-				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$action[1]."/".$action[2]);
-
-				message()->addMessage("File deleted");
-				return true;
-			}
-		}
-
-		message()->addMessage("File could not be deleted", array("type" => "error"));
-		return false;
-	}
 }
 
 ?>

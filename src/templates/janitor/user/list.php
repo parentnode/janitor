@@ -49,8 +49,8 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/janitor/admin/user/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<?= $HTML->deleteButton("Delete", "/janitor/admin/user/delete/".$item["id"]) ?>
-					<?= $HTML->statusButton("Enable", "Disable", "/janitor/admin/user/status", $item) ?>
+					<?= $JML->deleteButton("Delete", "/janitor/admin/user/delete/".$item["id"]) ?>
+					<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/user/status", $item) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

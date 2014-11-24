@@ -67,13 +67,14 @@
 #content .scene.defaultEdit > div.media > form.delete input {position: absolute; top: 0; right: 0;}
 
 #content .scene.defaultEdit > div.single_media form.upload input[type=file] {height: 196px;}
-#content .scene.defaultEdit > div.single_media form.upload label {margin-top: 80px;}
+#content .scene.defaultEdit > div.single_media form.upload label {margin-top: 90px;}
 #content .scene.defaultEdit > div.single_media img {height: 216px;}
 
 
 /* MULTIPLE FILE UPLOAD */
 #content .scene.defaultEdit > div.media ul.mediae {padding: 20px 20px 0; text-align: left;}
 #content .scene.defaultEdit > div.media ul.mediae > li {margin: 0 10px 20px; position: relative; text-align: center;}
+#content .scene.defaultEdit > div.media ul.mediae > li.dragged {z-index: 2;}
 #content .scene.defaultEdit > div.media ul.mediae > li h4 {padding: 0 0 5px;}
 
 /* EDIT MEDIA NAME */

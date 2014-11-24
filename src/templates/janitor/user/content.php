@@ -4,11 +4,11 @@ global $model;
 
 
 $user_id = $action[1];
-$IC = new Item();
+$IC = new Items();
 
 
 $user = $model->getUsers(array("user_id" => $user_id));
-$items = $IC->getItems(array("user_id" => $user_id));
+$items = $IC->getItems(array("user_id" => $user_id, "extend" => true));
 
 $orders = false;
 
@@ -64,13 +64,26 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 <? 		if($items): ?>
 		<ul class="items">
 <? 			foreach($items as $item):
-				$item = $IC->extendItem($item); ?>
+
+				// find path to itemtype
+				// We don know whether it is an inherited controller or a local one
+				// - look in the two most obvious places
+				if(file_exists(LOCAL_PATH."/www/janitor/".$item["itemtype"].".php")) {
+					$path = "/janitor/".$item["itemtype"];
+				}
+				else if(file_exists(FRAMEWORK_PATH."/www/".$item["itemtype"].".php")) {
+					$path = "/janitor/admin/".$item["itemtype"];
+				}
+				else {
+					$path = false;
+				}
+?>
 			<li class="item item_id:<?= $item["item_id"] ?>">
 				<h3><?= $item["name"] ?> (<?= $item["itemtype"] ?>)</h3>
 
 				<ul class="actions">
-					<?= $HTML->link("Edit", "/janitor/".$item["itemtype"]."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<?= $HTML->statusButton("Enable", "Disable", "/janitor/admin/items/status", $item, array("js" => true)) ?>
+					<?= $path ? $HTML->link("Edit", $path."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) : "" ?>
+					<?= $path ? $JML->statusButton("Enable", "Disable", $path."/status", $item, array("js" => true)) : "" ?>
 				</ul>
 			</li>
 <? 			endforeach; ?>

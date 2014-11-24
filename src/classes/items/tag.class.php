@@ -19,6 +19,8 @@ class Tag extends Model {
 	*/
 	function __construct() {
 
+		parent::__construct(get_class());
+
 		$this->db = SITE_DB.".tags";
 		$this->db_taggings = SITE_DB.".taggings";
 
@@ -45,7 +47,6 @@ class Tag extends Model {
 				"hint_message" => "If tag requires any kind of explanation, write it here"
 		));
 
-		parent::__construct();
 	}
 
 
@@ -82,6 +83,9 @@ class Tag extends Model {
 
 	// update tag globally
  	function updateTag($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
 		if(count($action) == 2) {
 			$tag_id = $action[1];

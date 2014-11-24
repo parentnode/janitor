@@ -41,18 +41,19 @@ u.notifier = function(node) {
 		if(typeof(response) == "object" && response.isJSON) {
 
 			var message = response.cms_message;
+			var cms_status = response.cms_status;
 
 			// TODO: message can be JSON object
 			if(typeof(message) == "object") {
 				for(type in message) {
 					u.bug("typeof(message[type]:" + typeof(message[type]) + "; " + type);
 					if(typeof(message[type]) == "string") {
-						output = u.ae(this.notifications, "div", {"class":class_name, "html":message[type]});
+						output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":message[type]});
 					}
 					else if(typeof(message[type]) == "object" && message[type].length) {
 						var node, i;
 						for(i = 0; _message = message[type][i]; i++) {
-							output = u.ae(this.notifications, "div", {"class":class_name, "html":_message});
+							output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":_message});
 						}
 					
 					}
@@ -120,7 +121,7 @@ u.notifier = function(node) {
 		}
 
 
-		u.t.setTimer(this.notifications, this.notifications.hide, 3500);
+		u.t.setTimer(this.notifications, this.notifications.hide, 4500);
 
 		// if(message) {
 		// 	message.hide = function() {

@@ -1,6 +1,6 @@
 <?php
-include_once("class/system/filesystem.class.php");
-include_once("include/functions.inc.php");
+include_once("classes/system/filesystem.class.php");
+include_once("includes/functions.inc.php");
 
 class Video {
 

@@ -1,15 +1,19 @@
 <?php
 /**
-* @package janitor.items
-* This file contains item type functionality
+* @package janitor.itemtypes
+* This file contains itemtype functionality
 */
 
-class TypeTodo extends Model {
+class TypeTodo extends Itemtype {
 
 	/**
 	* Init, set varnames, validation rules
 	*/
 	function __construct() {
+
+		// construct ItemType before adding to model
+		parent::__construct(get_class());
+
 
 		// itemtype database
 		$this->db = SITE_DB.".item_todo";
@@ -51,16 +55,14 @@ class TypeTodo extends Model {
 			"error_message" => "Date must be of format (yyyy-mm-dd hh:mm:ss)"
 		));
 
-		// Tags
-		$this->addToModel("tags", array(
-			"type" => "tags",
-			"label" => "Tag",
-			"hint_message" => "Start typing to filter available tags. A correct tag has this format: context:value.",
-			"error_message" => "Tag must conform to tag format: context:value."
-		));
+		// // Tags
+		// $this->addToModel("tags", array(
+		// 	"type" => "tags",
+		// 	"label" => "Tag",
+		// 	"hint_message" => "Start typing to filter available tags. A correct tag has this format: context:value.",
+		// 	"error_message" => "Tag must conform to tag format: context:value."
+		// ));
 
-
-		parent::__construct();
 	}
 
 
@@ -76,7 +78,7 @@ class TypeTodo extends Model {
 
 		if(count($action) == 2) {
 
-			$IC = new Item();
+			$IC = new Items();
 			if($IC->status($action[1], 0)) {
 				return true;
 			}
@@ -91,7 +93,7 @@ class TypeTodo extends Model {
 
 		if(count($action) == 2) {
 
-			$IC = new Item();
+			$IC = new Items();
 			if($IC->status($action[1], 1)) {
 				return true;
 			}

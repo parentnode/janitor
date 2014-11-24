@@ -2,7 +2,7 @@
 Util.Objects["usernames"] = new function() {
 	this.init = function(div) {
 
-		u.bug("div usernames")
+//		u.bug("div usernames")
 		var form = u.qs("form", div);
 		u.f.init(form);
 
@@ -10,6 +10,18 @@ Util.Objects["usernames"] = new function() {
 
 			this.response = function(response) {
 				page.notify(response);
+
+				if(response.cms_status == "error") {
+					for(x in response.cms_message) {
+						if(response.cms_message[x].match(/email/i)) {
+							u.f.fieldError(this.fields["email"]);
+						}
+						if(response.cms_message[x].match(/mobile/i)) {
+							u.f.fieldError(this.fields["mobile"]);
+						}
+					}
+					
+				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 

@@ -4,7 +4,7 @@ global $model;
 
 $navigation_id = $action[1];
 
-$IC = new Item();
+$IC = new Items();
 $pages = $IC->getItems(array("itemtype" => "page", "status" => 1, "order" => "page.name ASC"));
 // get additional info for pages select
 foreach($pages as $i => $item_page) {

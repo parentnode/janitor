@@ -14,8 +14,8 @@ Util.Objects["defaultTags"] = new function() {
 		// CMS interaction urls
 		div.csrf_token = div._tags_form.fields["csrf-token"].value;
 		div.add_tag_url = div._tags_form.action;
-		div.delete_tag_url = div.getAttribute("data-delete-tag");
-		div.get_tags_url = div.getAttribute("data-get-tags");
+		div.delete_tag_url = div.getAttribute("data-tag-delete");
+		div.get_tags_url = div.getAttribute("data-tag-get");
 
 
 		// show all tags when tag input has focus
@@ -96,20 +96,25 @@ Util.Objects["defaultTags"] = new function() {
 			if(response.cms_status == "success" && response.cms_object) {
 				this._alltags = response.cms_object;
 
-				var bn_add;
 				// minimum work in first run
 				// only inject add-button in first run
 				this._bn_add = u.ae(this, "li", {"class":"add","html":"+"});
-				this._bn_add.div = this.div;
-				u.e.click(this._bn_add);
-				this._bn_add.clicked = function() {
-					this.div.enableTagging();
-				}
-
 			}
 			else {
 				page.notify(response);
+				this._alltags = [];
+
+				// minimum work in first run
+				// only inject add-button in first run
+				this._bn_add = u.ae(this, "li", {"class":"add","html":"?"});
 			}
+
+			this._bn_add.div = this.div;
+			u.e.click(this._bn_add);
+			this._bn_add.clicked = function() {
+				this.div.enableTagging();
+			}
+
 		}
 		// get tags
 		u.request(div._tags, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});

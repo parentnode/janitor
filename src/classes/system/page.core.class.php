@@ -1,10 +1,10 @@
 <?php
 
 // Include base functions and classes
-include_once("include/functions.inc.php");
+include_once("includes/functions.inc.php");
 
-include_once("class/system/message.class.php");
-include_once("class/system/session.class.php");
+include_once("classes/system/message.class.php");
+include_once("classes/system/session.class.php");
 
 
 /**
@@ -226,6 +226,19 @@ class PageCore {
 	*/
 	function template($template, $_options = false) {
 		global $HTML;
+		global $JML;
+
+		$buffer = false;
+		$error = "pages/404.php";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "buffer"            : $buffer = $_value; break;
+					case "error"             : $error = $_value; break;
+				}
+			}
+		}
 
 		if(file_exists(LOCAL_PATH."/templates/".$template)) {
 			$file = LOCAL_PATH."/templates/".$template;
@@ -234,17 +247,10 @@ class PageCore {
 			$file = FRAMEWORK_PATH."/templates/".$template;
 		}
 
-
-		$buffer = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "buffer"            : $buffer = $_value; break;
-				}
-			}
+		// template was not found - include error template
+		else if(file_exists(LOCAL_PATH."/templates/".$error)) {
+			$file = LOCAL_PATH."/templates/".$error;
 		}
-
 
 		if(isset($file)) {
 			if($buffer) {
@@ -259,6 +265,8 @@ class PageCore {
 				return include($file);
 			}
 		}
+
+		return false;
 	}
 
 
@@ -273,16 +281,20 @@ class PageCore {
 	*/
 	function page($_options = false) {
 		global $HTML;
+		global $JML;
 
 		$type = "www";
 		$templates = false;
+		$error = "pages/404.php";
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "type"              : $type = $_value; break;
+					case "type"              : $type       = $_value; break;
 
-					case "templates"         : $templates = $_value; break;
+					case "templates"         : $templates  = $_value; break;
+
+					case "error"             : $error      = $_value; break;
 
 					case "body_class"        : $this->bodyClass($_value); break;
 					case "page_title"        : $this->pageTitle($_value); break;
@@ -301,7 +313,7 @@ class PageCore {
 			foreach($templates_array as $template) {
 //				print "buffering: " . $template;
 
-				$_template .= $this->template($template, array("buffer" => true));
+				$_template .= $this->template($template, array("buffer" => true, "error" => $error));
 
 //				print "buffered: " . $_template;
 			}
@@ -321,6 +333,7 @@ class PageCore {
 	*/
 	function header($_options = false) {
 		global $HTML;
+		global $JML;
 
 		$type = "www";
 		$buffer = false;
@@ -350,6 +363,7 @@ class PageCore {
 	*/
 	function footer($_options = false) {
 		global $HTML;
+		global $JML;
 
 		$type = "www";
 		$buffer = false;
@@ -1052,7 +1066,7 @@ class PageCore {
 
 		// only attmempt sending if recipient is specified
 		if($message && $recipients) {
-			require_once("include/phpmailer/class.phpmailer.php");
+			require_once("includes/phpmailer/class.phpmailer.php");
 
 			$mail             = new PHPMailer();
 			$mail->Subject    = $subject;

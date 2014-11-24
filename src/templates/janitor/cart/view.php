@@ -2,7 +2,7 @@
 global $action;
 global $model;
 
-$IC = new Item();
+$IC = new Items();
 
 $cart = $model->getCarts(array("cart_id" => $action[2]));
 

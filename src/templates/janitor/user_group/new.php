@@ -9,7 +9,7 @@ global $model;
 		<?= $model->link("Groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<?= $model->formStart("/janitor/admin/user/saveUserGroup", array("class" => "i:defaultNew labelstyle:inject")) ?>
+	<?= $model->formStart("saveUserGroup", array("class" => "i:defaultNew labelstyle:inject")) ?>
 		<fieldset>
 			<?= $model->input("user_group") ?>
 		</fieldset>

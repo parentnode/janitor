@@ -4,8 +4,6 @@ global $model;
 
 $user_id = $action[1];
 
-// get languages for select
-$country_options = $model->toOptions($this->countries(), "id", "name");
 ?>
 <div class="scene defaultNew userAddress">
 	<h1>New address</h1>
@@ -26,7 +24,7 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 			<?= $model->input("state") ?>
 			<?= $model->input("country", array(
 				"type" => "select",
-				"options" => $country_options
+				"options" => $model->toOptions($this->countries(), "id", "name");
 			)) ?>
 		</fieldset>
 

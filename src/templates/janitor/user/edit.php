@@ -34,14 +34,14 @@ $newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->deleteButton("Delete", "/janitor/admin/user/delete/".$user_id) ?>
+		<?= $JML->deleteButton("Delete", "/janitor/admin/user/delete/".$user_id) ?>
 	</ul>
 
 	<div class="status i:defaultEditStatus item_id:<?= $user_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
 		<ul class="actions">
-			<?= $HTML->statusButton("Enable", "Disable", "/janitor/admin/user/status", $item) ?>
+			<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/user/status", $item) ?>
 		</ul>
 	</div>
 

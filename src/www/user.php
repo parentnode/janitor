@@ -38,8 +38,7 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
-
-$model = new User();
+$model = new SuperUser();
 
 
 $page->bodyClass("user");
@@ -48,110 +47,162 @@ $page->pageTitle("User management");
 
 if(is_array($action) && count($action)) {
 
-	// LIST ITEM
-	if(count($action) >= 1 && $action[0] == "list") {
+	// LIST/EDIT/NEW/NEW_ADDRESS/EDIT_ADDRESS
+	if(preg_match("/^(list|edit|new|new_address|edit_address)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/user/list.php"
-		));
-		exit();
-	}
-	// NEW ITEM
-	else if(count($action) == 1 && $action[0] == "new") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/user/new.php"
-		));
-		exit();
-	}
-	// EDIT ITEM
-	else if(count($action) == 2 && $action[0] == "edit") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/user/edit.php"
+			"templates" => "janitor/user/".$action[0].".php"
 		));
 		exit();
 	}
 
-	// ADD ADDRESS
-	else if(count($action) == 2 && $action[0] == "new_address") {
+	// GROUP
+	else if(preg_match("/^(group)$/", $action[0]) && count($action) > 1) {
 
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/user/new_address.php"
-		));
-		exit();
-	
-	}
-	// EDIT ADDRESS
-	else if(count($action) == 3 && $action[0] == "edit_address") {
+		// GROUP LIST
+		if(preg_match("/^(list|edit|new)$/", $action[1])) {
 
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/user/edit_address.php"
-		));
-		exit();
-	}
-
-	// GROUP LIST
-	else if(count($action) == 2 && $action[0] == "group" && $action[1] == "list") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"body_class" => "usergroup", 
-			"page_title" => "User groups / Access control management",
-			"templates" => "janitor/user_group/list.php"
-		));
-		exit();
-	}
-	// GROUP NEW
-	else if(count($action) == 2 && $action[0] == "group" && $action[1] == "new") {
-	
-		$page->page(array(
-			"type" => "janitor",
-			"body_class" => "usergroup",
-			"page_title" => "User groups",
-			"templates" => "janitor/user_group/new.php"
-		));
-		exit();
-	
-	}
-	// GROUP EDIT
-	else if(count($action) == 3 && $action[0] == "group" && $action[1] == "edit") {
-	
-		$page->page(array(
-			"type" => "janitor",
-			"body_class" => "usergroup", 
-			"page_title" => "User groups",
-			"templates" => "janitor/user_group/edit.php"
-		));
-		exit();
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "usergroup", 
+				"page_title" => "User groups / Access control management",
+				"templates" => "janitor/user_group/".$action[1].".php"
+			));
+			exit();
+		}
 	}
 
 	// ACCESS EDIT
-	else if(count($action) == 3 && $action[0] == "access" && $action[1] == "edit") {
+	else if(preg_match("/^(access)$/", $action[0]) && count($action) > 1) {
+		
+		if($action[1] == "edit") {
 
-		$page->page(array(
-			"type" => "janitor",
-			"body_class" => "usergroup", 
-			"page_title" => "Access control management",
-			"templates" => "janitor/user_group/access.php"
-		));
-		exit();
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "usergroup", 
+				"page_title" => "Access control management",
+				"templates" => "janitor/user_group/access.php"
+			));
+			exit();
+
+		}
 	}
 
 	// CONTENT OVERVIEW
-	else if(count($action) == 2 && $action[0] == "content") {
+	else if(preg_match("/^(content)$/", $action[0]) && count($action) > 1) {
 
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/content.php"
 		));
 		exit();
-	}
+	}	
+
+	// // LIST ITEM
+	// if(count($action) >= 1 && $action[0] == "list") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/user/list.php"
+	// 	));
+	// 	exit();
+	// }
+	// // NEW ITEM
+	// else if(count($action) == 1 && $action[0] == "new") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/user/new.php"
+	// 	));
+	// 	exit();
+	// }
+	// // EDIT ITEM
+	// else if(count($action) == 2 && $action[0] == "edit") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/user/edit.php"
+	// 	));
+	// 	exit();
+	// }
+	//
+	// // ADD ADDRESS
+	// else if(count($action) == 2 && $action[0] == "new_address") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/user/new_address.php"
+	// 	));
+	// 	exit();
+	//
+	// }
+	// // EDIT ADDRESS
+	// else if(count($action) == 3 && $action[0] == "edit_address") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/user/edit_address.php"
+	// 	));
+	// 	exit();
+	// }
+
+	// // GROUP LIST
+// 	else if(count($action) == 2 && $action[0] == "group" && $action[1] == "list") {
+//
+// 		$page->page(array(
+// 			"type" => "janitor",
+// 			"body_class" => "usergroup",
+// 			"page_title" => "User groups / Access control management",
+// 			"templates" => "janitor/user_group/list.php"
+// 		));
+// 		exit();
+// 	}
+// 	// GROUP NEW
+// 	else if(count($action) == 2 && $action[0] == "group" && $action[1] == "new") {
+//
+// 		$page->page(array(
+// 			"type" => "janitor",
+// 			"body_class" => "usergroup",
+// 			"page_title" => "User groups",
+// 			"templates" => "janitor/user_group/new.php"
+// 		));
+// 		exit();
+//
+// 	}
+// 	// GROUP EDIT
+// 	else if(count($action) == 3 && $action[0] == "group" && $action[1] == "edit") {
+//
+// 		$page->page(array(
+// 			"type" => "janitor",
+// 			"body_class" => "usergroup",
+// 			"page_title" => "User groups",
+// 			"templates" => "janitor/user_group/edit.php"
+// 		));
+// 		exit();
+// 	}
+	//
+	// // ACCESS EDIT
+	// else if(count($action) == 3 && $action[0] == "access" && $action[1] == "edit") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"body_class" => "usergroup",
+	// 		"page_title" => "Access control management",
+	// 		"templates" => "janitor/user_group/access.php"
+	// 	));
+	// 	exit();
+	// }
+	//
+	// // CONTENT OVERVIEW
+	// else if(count($action) == 2 && $action[0] == "content") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/user/content.php"
+	// 	));
+	// 	exit();
+	// }
 
 	// Class interface
 	else if($page->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {

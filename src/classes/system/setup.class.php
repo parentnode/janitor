@@ -2,13 +2,15 @@
 /**
 * This file contains the site setup functionality.
 */
-class Setup extends Model {
+class Setup extends Itemtype {
 
 
 	/**
 	* Get required information
 	*/
 	function __construct() {
+
+		parent::__construct(get_class());
 
 
 		// SOFTWARE CHECKS
@@ -190,9 +192,6 @@ class Setup extends Model {
 			"error_message" => "Mail password must be filled out"
 		));
 
-
-		parent::__construct();
-
 	}
 
 	// reset setup script values
@@ -360,6 +359,8 @@ class Setup extends Model {
 	// update the config settings
  	function updateConfigSettings() {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
 		if($this->validateList(array("project_path", "site_uid", "site_name", "site_email"))) {
 
@@ -515,6 +516,8 @@ class Setup extends Model {
 	// update the database settings
  	function updateDatabaseSettings() {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
 		if($this->validateList(array("db_host", "db_root_user", "db_root_pass", "db_janitor_db", "db_janitor_user", "db_janitor_pass"))) {
 
@@ -592,6 +595,9 @@ class Setup extends Model {
 
 	// update the mail settings
  	function updateMailSettings() {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
 		if($this->validateList(array("mail_admin", "mail_host", "mail_port", "mail_username", "mail_password"))) {
 
@@ -673,7 +679,7 @@ class Setup extends Model {
 
 					$fs->makeDirRecursively($this->project_path."/src/config/db");
 
-					$fs->makeDirRecursively($this->project_path."/src/class/items");
+					$fs->makeDirRecursively($this->project_path."/src/classes/items");
 
 					$fs->makeDirRecursively($this->project_path."/src/templates/janitor/post");
 
@@ -695,7 +701,7 @@ class Setup extends Model {
 					copy($this->framework_path."/config/db/items/item_post.sql", $this->local_path."/config/db/item_post.sql");
 					copy($this->framework_path."/config/db/items/item_post_mediae.sql", $this->local_path."/config/db/item_post_mediae.sql");
 
-					copy($this->framework_path."/class/items/type.post.class.php", $this->local_path."/class/items/type.post.class.php");
+					copy($this->framework_path."/classes/items/type.post.class.php", $this->local_path."/classes/items/type.post.class.php");
 
 				}
 
@@ -894,8 +900,8 @@ class Setup extends Model {
 			//
 			// CREATE DEFAULT USER GROUPS AND USERS
 			//
-			include_once("class/users/user.class.php");
-			$UC = new User();
+			include_once("classes/users/superuser.class.php");
+			$UC = new SuperUser();
 
 			$user_groups = $UC->getUserGroups(array("user_group_id" => 1));
 			if(!$user_groups) {
@@ -1009,9 +1015,9 @@ class Setup extends Model {
 			}
 
 
-			include_once("class/items/item.core.class.php");
-			include_once("class/items/item.class.php");
-			$IC = new Item();
+			include_once("classes/items/items.core.class.php");
+			include_once("classes/items/items.class.php");
+			$IC = new Items();
 
 
 			//
@@ -1019,18 +1025,21 @@ class Setup extends Model {
 			//
 			if(!$IC->getItems() && session()->value("user_id")) {
 
+				include_once("classes/items/type.post.class.php");
+				$PC = new TypePost();
+
 				$tasks[] = "Creating test content";
 
 				unset($_POST);
 				$_POST["name"] = "Welcome to the basement";
 				$_POST["html"] = "<p>This is a test post made by the setup script. You can delete this post.</p>";
 				$_POST["status"] = 1;
-				$item = $IC->saveItem("post");
+				$item = $PC->save(array("save", "post"));
 
 				// add a tag
 				unset($_POST);
 				$_POST["tags"] = "post:My first tag";
-				$IC->addTag(array("tags", "add", $item["id"]));
+				$PC->addTag(array("tags", "add", $item["id"]));
 
 			}
 

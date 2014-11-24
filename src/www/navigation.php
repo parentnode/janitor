@@ -17,57 +17,67 @@ $page->pageTitle("Navigation");
 
 if(is_array($action) && count($action)) {
 
-	// LIST ITEM
-	if(count($action) >= 1 && $action[0] == "list") {
+	// LIST/EDIT/NEW/EDIT_NODE/NEW_NODE
+	if(preg_match("/^(list|edit|new|edit_node|new_node)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/navigation/list.php"
+			"templates" => "janitor/navigation/".$action[0].".php"
 		));
 		exit();
-
-	}
-	// NEW ITEM
-	else if(count($action) == 1 && $action[0] == "new") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/navigation/new.php"
-		));
-		exit();
-
-	}
-	// EDIT ITEM
-	else if(count($action) == 2 && $action[0] == "edit") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/navigation/edit.php"
-		));
-		exit();
-
 	}
 
-	// ADD NAVIGATION NODE
-	else if(count($action) == 2 && $action[0] == "new_node") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/navigation/new_node.php"
-		));
-		exit();
-
-	}
-	// EDIT NAVIGATION NODE
-	else if(count($action) == 2 && $action[0] == "edit_node") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/navigation/edit_node.php"
-		));
-		exit();
-
-	}
+	// // LIST ITEM
+	// if(count($action) >= 1 && $action[0] == "list") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/navigation/list.php"
+	// 	));
+	// 	exit();
+	//
+	// }
+	// // NEW ITEM
+	// else if(count($action) == 1 && $action[0] == "new") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/navigation/new.php"
+	// 	));
+	// 	exit();
+	//
+	// }
+	// // EDIT ITEM
+	// else if(count($action) == 2 && $action[0] == "edit") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/navigation/edit.php"
+	// 	));
+	// 	exit();
+	//
+	// }
+	//
+	// // ADD NAVIGATION NODE
+	// else if(count($action) == 2 && $action[0] == "new_node") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/navigation/new_node.php"
+	// 	));
+	// 	exit();
+	//
+	// }
+	// // EDIT NAVIGATION NODE
+	// else if(count($action) == 2 && $action[0] == "edit_node") {
+	//
+	// 	$page->page(array(
+	// 		"type" => "janitor",
+	// 		"templates" => "janitor/navigation/edit_node.php"
+	// 	));
+	// 	exit();
+	//
+	// }
 
 	// Class interface
 	else if($page->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {

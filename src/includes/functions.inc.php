@@ -43,15 +43,15 @@ function utf8Encode($string) {
 function RESTParams($index=false) {
 	// no path
 	if(!isset($_SERVER["PATH_INFO"]) || $_SERVER["PATH_INFO"] == "/") {
-		// TODO:Check if this works everywhere 
-
-		// EXPERIMENTAL: Testing if returning empty array will suffice
-//		return false;
 		return array();
 	}
 	else {
 		// get params
-		$params = explode("/", substr($_SERVER["PATH_INFO"], 1));
+		$params = explode("/", preg_replace("/^\/|\/$/", "", $_SERVER["PATH_INFO"]));
+		
+		// TODO: Consider introducing an additional check on actions here
+		// to ensure not "evil" stuff gets pushed through url
+
 		if($index !== false && isset($params[$index])) {
 			return $params[$index];
 		}
@@ -482,7 +482,7 @@ function normalize($string) {
 
 /**
 * Super normalizer
-* Normalizes, lowercases and replaces unknown chars with _
+* Normalizes, lowercases and replaces unknown chars with - (hyphen)
 *
 * @param string $string String to be normalized
 * @return normalized string
@@ -494,10 +494,13 @@ function superNormalize($string) {
 	$string = strtolower($string);
 
 	// remove all remaining specialchars
-	$string = preg_replace('/[^a-z0-9\-]/', '_', $string);
+	$string = preg_replace('/[^a-z0-9\_]/', '-', $string);
 
-	// remove double underscores
-	$string = preg_replace('/_+/', '_', $string);
+	// remove double hyphens
+	$string = preg_replace('/-+/', '-', $string);
+
+	// remove leading and trailing underscores
+	$string = preg_replace('/^-|-$/', '', $string);
 	
 	return $string;
 }

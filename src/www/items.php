@@ -7,8 +7,11 @@ if(isset($read_access) && $read_access) {
 include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
+// TODO: To be transformed to a content API ?
+
+
 $action = $page->actions();
-$IC = new Item();
+$IC = new Items();
 $output = new Output();
 
 

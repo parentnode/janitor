@@ -4,7 +4,7 @@
 * TODO: Implement html.core (this) and let new html.class be the one developers can add customized inputs to
 *
 */
-class HTML {
+class HTMLCore {
 
 
 	/**
@@ -83,9 +83,7 @@ class HTML {
 	* - number
 	* - integer
 	* - text
-	* - html
 	* - files
-	* - tags
 	*
 	*
 	* @return string Input element
@@ -122,9 +120,6 @@ class HTML {
 		$required = $this->getProperty($name, "required");
 		$pattern = $this->getProperty($name, "pattern");
 
-		// tags for HTML editor
-		$allowed_tags = $this->getProperty($name, "allowed_tags");
-
 		// visual feedback
 		$hint_message = $this->getProperty($name, "hint_message");
 		$error_message = $this->getProperty($name, "error_message");
@@ -151,8 +146,6 @@ class HTML {
 					case "required"        : $required         = $_value; break;
 					case "pattern"         : $pattern          = $_value; break;
 
-					case "allowed_tags"    : $allowed_tags     = $_value; break;
-
 					case "error_message"   : $error_message    = $_value; break;
 					case "hint_message"    : $hint_message     = $_value; break;
 
@@ -174,28 +167,13 @@ class HTML {
 		$att_readonly = $readonly ? $this->attribute("readonly", "readonly") : '';
 
 		// combine classname for field
-		$att_class = $this->attribute("class", "field", $type, $class, ($required ? "required" : ""), ($disabled ? "disabled" : ""), ($readonly ? "readonly" : ""), ($min ? "min:".$min : ""), ($max ? "max:".$max : ""), (($allowed_tags && $type == "html") ? "tags:".$allowed_tags : ""));
+		$att_class = $this->attribute("class", "field", $type, $class, ($required ? "required" : ""), ($disabled ? "disabled" : ""), ($readonly ? "readonly" : ""), ($min ? "min:".$min : ""), ($max ? "max:".$max : ""));
 
 		// attribute strips value for slashes etc - cannot be used for patterns
 		$att_pattern = $pattern ? ' pattern="'.$pattern.'"' : '';
 
 		// multiple selects?
 		$att_multiple = $this->attribute("multiple", ($max && $max > 1 ? "multiple" : ""));
-
-
-		// TODO: temp fix for dlaf
-		// built into page-class and create separate output function for html
-		if($type == "html" && isset($_options["add-file"]) && isset($_options["delete-file"])) {
-
-			$att_html_add = $this->attribute("data-add-file", $_options["add-file"]);
-			$att_html_delete = $this->attribute("data-delete-file", $_options["delete-file"]);
-//			$att_html_item_id = $this->attribute("data-item_id", $_options["item_id"]);
-		}
-		else {
-			$att_html_add = "";
-			$att_html_delete = "";
-//			$att_html_item_id = "";
-		}
 
 
 		// hidden field
@@ -205,7 +183,7 @@ class HTML {
 		}
 
 
-		$_ .= '<div'.$att_class.$att_html_add.$att_html_delete.'>';
+		$_ .= '<div'.$att_class.'>';
 
 			// CHECKBOX/BOOLEAN
 			// checkboxes have label after input
@@ -312,8 +290,8 @@ class HTML {
 				$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_pattern.$att_multiple.' />';
 			}
 
-			// TEXT OR HTML
-			else if($type == "text" || $type == "html") {
+			// TEXT
+			else if($type == "text") {
 				$att_max = $this->attribute("maxlength", $max);
 
 				$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.'>'.$value.'</textarea>';
@@ -329,28 +307,21 @@ class HTML {
 				$_ .= '</select>';
 			}
 
-			// TAGS 
-			else if($type == "tags") {
-				$att_name = $this->attribute("name", $name);
 
-				$_ .= '<input type="text"'.$att_name.$att_id.$att_disabled.$att_readonly.$att_pattern.' />';
-			}
 
 
 			// HINT AND ERROR MESSAGE
 			if($hint_message || $error_message) {
 				$_ .= '<div'.$this->attribute("class", "help").'>';
-
 					if($hint_message) {
 						$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
 					}
-
 					if($error_message) {
 						$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
 					}
-
 				$_ .= '</div>';
 			}
+
 
 		$_ .= '</div>'."\n";
 
@@ -362,8 +333,173 @@ class HTML {
 
 	/**
 	* SPECIAL INPUTS
-	* - location (combination of location name, latitude and longitude)
+	* TODO: maybe put these in itemtype.class or html.class 
+	* - consider whether they are a set of the Core HTML functionality
 	*/
+
+	// html
+	function inputHTML($name, $_options = false) {
+
+		// Get default settings from model first
+
+		// label
+		$label = $this->getProperty($name, "label");
+		$value = $this->getProperty($name, "value");
+
+		// frontend stuff
+		$class = $this->getProperty($name, "class");
+		$id = $this->getProperty($name, "id");
+
+		// tags for HTML editor
+		$allowed_tags = $this->getProperty($name, "allowed_tags");
+
+		// visual feedback
+		$hint_message = $this->getProperty($name, "hint_message");
+		$error_message = $this->getProperty($name, "error_message");
+
+
+		$file_add = $this->getProperty($name, "file_add");
+		$file_delete = $this->getProperty($name, "file_delete");
+
+
+		// overwrite model/defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "label"           : $label            = $_value; break;
+					case "value"           : $value            = $_value; break;
+
+					case "class"           : $class            = $_value; break;
+					case "id"              : $id               = $_value; break;
+
+					case "allowed_tags"    : $allowed_tags     = $_value; break;
+
+					case "error_message"   : $error_message    = $_value; break;
+					case "hint_message"    : $hint_message     = $_value; break;
+
+					case "file_add"        : $file_add         = $_value; break;
+					case "file_delete"     : $file_delete      = $_value; break;
+				}
+			}
+		}
+
+
+		// Start generating HTML
+		$_ = '';
+
+
+		$for = stringOr($id, "input_".$name);
+		$att_id = $this->attribute("id", $for);
+		$att_name = $this->attribute("name", $name);
+
+		$att_class = $this->attribute("class", "field", "html", $class, "tags:".$allowed_tags);
+
+		// paths for saving and deleting files
+		$att_file_add = $this->attribute("data-file-add", $file_add);
+		$att_file_delete = $this->attribute("data-file-delete", $file_delete);
+
+//		$att_html_item_id = $this->attribute("data-item_id", $_options["item_id"]);
+
+
+		$_ .= '<div'.$att_class.$att_file_add.$att_file_delete.'>';
+
+			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
+			$_ .= '<textarea'.$att_name.$att_id.'>'.$value.'</textarea>';
+
+			// Hint and error message
+			if($hint_message || $error_message) {
+				$_ .= '<div'.$this->attribute("class", "help").'>';
+				if($hint_message) {
+					$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
+				}
+				if($error_message) {
+					$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
+				}
+				$_ .= '</div>';
+			}
+
+		$_ .= '</div>'."\n";
+
+		return $_;
+	}
+
+
+	// tags
+	function inputTags($name, $_options = false) {
+
+		// Get default settings from model first
+
+		// label
+		$label = $this->getProperty($name, "label");
+
+		// frontend stuff
+		$class = $this->getProperty($name, "class");
+		$id = $this->getProperty($name, "id");
+
+		// specific tag pattern
+		$pattern = $this->getProperty($name, "pattern");
+
+		// visual feedback
+		$hint_message = $this->getProperty($name, "hint_message");
+		$error_message = $this->getProperty($name, "error_message");
+
+
+		// overwrite model/defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "label"           : $label            = $_value; break;
+
+					case "class"           : $class            = $_value; break;
+					case "id"              : $id               = $_value; break;
+
+					case "pattern"         : $pattern          = $_value; break;
+
+					case "error_message"   : $error_message    = $_value; break;
+					case "hint_message"    : $hint_message     = $_value; break;
+				}
+			}
+		}
+
+
+		// Start generating HTML
+		$_ = '';
+
+
+		$for = stringOr($id, "input_".$name);
+		$att_id = $this->attribute("id", $for);
+		$att_name = $this->attribute("name", $name);
+
+		$att_class = $this->attribute("class", "field", "tags", $class);
+
+		// attribute strips value for slashes etc - cannot be used for patterns
+		$att_pattern = $pattern ? ' pattern="'.$pattern.'"' : '';
+
+		$_ .= '<div'.$att_class.'>';
+
+			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
+			$_ .= '<input type="text"'.$att_name.$att_id.$att_pattern.' />';
+
+			// Hint and error message
+			if($hint_message || $error_message) {
+				$_ .= '<div'.$this->attribute("class", "help").'>';
+				if($hint_message) {
+					$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
+				}
+				if($error_message) {
+					$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
+				}
+				$_ .= '</div>';
+			}
+
+		$_ .= '</div>'."\n";
+
+		return $_;
+	}
+
+
 
 	function inputPrice($name, $_options = false) {
 
@@ -506,6 +642,7 @@ class HTML {
 
 
 	/**
+	* - location (combination of location name, latitude and longitude)
 	* Currently requires three fields created in model
 	* TODO: Documentation needed
 	*/
@@ -632,6 +769,9 @@ class HTML {
 
 
 
+	// OTHER HTML GENERATING FUNCTIONS
+
+
 	/**
 	* Create a simple A HREF link with access validation
 	*
@@ -720,6 +860,13 @@ class HTML {
 	function formStart($action, $_options = false) {
 
 		global $page;
+
+		// relative paths are allowed for ease of use
+		// construct absolute path using current controller path
+		if(!preg_match("/^\//", $action)) {
+			$action = $this->path."/".$action;
+		}
+
 		if(!$page->validatePath($action)) {
 			return "";
 		}
@@ -770,12 +917,12 @@ class HTML {
 	* TODO: Documentation needed
 	*/
 	function formEnd() {
-		
+
 		if(isset($this->valid_form_started) && $this->valid_form_started) {
 			$this->valid_form_started = false;
 			return '</form>'."\n";
 		}
-		
+
 	}
 
 
@@ -871,105 +1018,8 @@ class HTML {
 	// JANITOR BACKEND
 
 
-	/**
-	* Delete item
-	*/
-	function deleteButton($name, $action, $_options = false) {
-
-		global $page;
-		if(!$page->validatePath($action)) {
-			return "";
-		}
-
-		$js = false;
-
-		// overwrite defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "js"           : $js            = $_value; break;
-
-				}
-			}
-		}
-
-		if($js) {
-			$_ = '<li class="delete" data-delete-item="'.$action.'">';
-		}
-		else {
-			$_ = '<li class="delete">';
-
-			$_ .= $this->formStart($action);
-			$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
-			$_ .= $this->formEnd();
-		}
-
-		$_ .= '</li>';
-
-		return $_;
-	}
-
-
-	/**
-	* Change status of item
-	*/
-	function statusButton($enable_label, $disable_label, $action, $item, $_options = false) {
-
-		global $page;
-		if(!$page->validatePath($action)) {
-			return "";
-		}
-
-		$status_states = array(
-			0 => "disabled",
-			1 => "enabled"
-		);
-
-		$js = false;
-
-		// overwrite defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "js"                     : $js                      = $_value; break;
-
-				}
-			}
-		}
-
-		if($item && $item["id"] && isset($item["status"])) {
-
-			$state_class = $status_states[$item["status"]];
-			$change_to = ($item["status"]+1)%2;
-
-			if($js) {
-				$_ = '<li class="status '.$state_class.'" data-update-status="'.$action.'">';
-			}
-			else {
-				$_ = '<li class="status '.$state_class.'">';
-
-				$_ .= $this->formStart($action.'/'.$item["id"].'/0', array("class" => "disable"));
-				$_ .= '<input type="submit" value="'.$disable_label.'" name="disable" class="button status" />';
-				$_ .= $this->formEnd();
-
-				$_ .= $this->formStart($action.'/'.$item["id"].'/1', array("class" => "enable"));
-				$_ .= '<input type="submit" value="'.$enable_label.'" name="enable" class="button status" />';
-				$_ .= $this->formEnd();
-			}
-
-			$_ .= '</li>';
-
-		}
-
-		return $_;
-	}
-
 
 
 }
-// create standalone instance to make HTML available without model
-$HTML = new HTML();
 
 ?>

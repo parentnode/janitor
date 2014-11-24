@@ -23,7 +23,7 @@ $tags = $model->getTags();
 				
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/janitor/admin/tag/edit/".$tag["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<?= $HTML->deleteButton("Delete", "/janitor/admin/tag/deleteTag/".$tag["id"]) ?>
+					<?= $JML->deleteButton("Delete", "/janitor/admin/tag/deleteTag/".$tag["id"]) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

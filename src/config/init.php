@@ -45,16 +45,17 @@ function writeToFile($message) {
 include_once("config/config.php");
 
 
-//include_once("class/system/query.class.php");
-include_once("class/system/queryi.class.php");
-include_once("class/system/filesystem.class.php");
-include_once("class/system/output.class.php");
+include_once("classes/system/queryi.class.php");
+include_once("classes/system/filesystem.class.php");
+include_once("classes/system/output.class.php");
 
+include_once("classes/system/page.core.class.php");
+include_once("classes/system/page.class.php");
 
-include_once("class/system/page.core.class.php");
-include_once("class/system/page.class.php");
-include_once("class/system/html.class.php");
-include_once("class/system/model.class.php");
+include_once("classes/system/html.core.class.php");
+include_once("classes/system/html.class.php");
+
+include_once("classes/system/model.class.php");
 
 
 // Extend with items model - not required for static sites
@@ -66,23 +67,28 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 		exit();
 	}
 
+	include_once("classes/system/html.janitor.class.php");
 
-	include_once("class/items/item.core.class.php");
-	include_once("class/items/item.class.php");
-	include_once("class/items/tag.class.php");
 
-	include_once("class/navigation/navigation.class.php");
+	include_once("classes/items/items.core.class.php");
+	include_once("classes/items/items.class.php");
+	include_once("classes/items/itemtype.core.class.php");
+	include_once("classes/items/itemtype.class.php");
 
-	include_once("class/users/user.class.php");
-	include_once("class/users/simpleuser.class.php");
+	include_once("classes/items/tag.class.php");
 
-	//include_once("class/system/performance.class.php");
+	include_once("classes/navigation/navigation.class.php");
+
+	include_once("classes/users/user.class.php");
+	include_once("classes/users/superuser.class.php");
+
+	//include_once("classes/system/performance.class.php");
 
 
 	// Extend with cart and order
 	if(defined("SITE_SHOP") && SITE_SHOP) {
 
-		include_once("class/shop/shop.class.php");
+		include_once("classes/shop/shop.class.php");
 
 	}
 

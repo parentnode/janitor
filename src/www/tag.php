@@ -20,21 +20,12 @@ $page->pageTitle("Tags management");
 
 if(is_array($action) && count($action)) {
 
-	// LIST ITEM
-	if(count($action) == 1 && $action[0] == "list") {
+	// LIST/EDIT ITEM
+	if(preg_match("/^(list|edit)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/tag/list.php"
-		));
-		exit();
-	}
-	// EDIT ITEM
-	else if(count($action) == 2 && $action[0] == "edit") {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/tag/edit.php"
+			"templates" => "janitor/tag/".$action[0].".php"
 		));
 		exit();
 	}

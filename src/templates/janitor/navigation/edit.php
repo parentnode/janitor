@@ -12,9 +12,10 @@ $item = $model->getNavigations(array("navigation_id" => $navigation_id));
 
 function recurseNodes($nodes) {
 	global $HTML;
+	global $JML;
 //	global $indent;
 
-	$IC = new Item();
+	$IC = new Items();
 
 	$_ = "";
 	$_ .= '<ul class="nodes">';
@@ -30,14 +31,14 @@ function recurseNodes($nodes) {
 			$_ .= '<span class="link">Link: '.$node["link"].'</span>';
 		}
 		if($node["item_id"]) {
-			$item_page = $IC->getItem(array("id" => $node["item_id"]));
-			$item_page = $IC->extendItem($item_page);
+			$item_page = $IC->getItem(array("id" => $node["item_id"], "extend" => true));
+//			$item_page = $IC->extendItem($item_page);
 			$_ .= '<span class="page">Page: <a href="/janitor/page/edit/'.$item_page["item_id"].'">'.$item_page["name"].'</a></span>';
 		}
 
 		$_ .= '<ul class="actions">';
 		$_ .= $HTML->link("Edit", "/janitor/admin/navigation/edit_node/".$node["id"], array("class" => "button", "wrapper" => "li.edit"));
-		$_ .= $HTML->deleteButton("Delete", "/janitor/admin/navigation/deleteNode/".$node["id"]);
+		$_ .= $JML->deleteButton("Delete", "/janitor/admin/navigation/deleteNode/".$node["id"]);
 		$_ .= '</ul>';
 
 		if($node["nodes"]) {
@@ -60,7 +61,7 @@ function recurseNodes($nodes) {
 		<?= $HTML->link("Navigations list", "/janitor/admin/navigation/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->link("New node", "/janitor/admin/navigation/new_node/".$navigation_id, array("class" => "button primary", "wrapper" => "li.cancel")) ?>
 
-		<?= $HTML->deleteButton("Delete", "/janitor/admin/navigation/delete/".$navigation_id) ?>
+		<?= $JML->deleteButton("Delete", "/janitor/admin/navigation/delete/".$navigation_id) ?>
 	</ul>
 
 	<div class="item">
@@ -69,7 +70,7 @@ function recurseNodes($nodes) {
 	</div>
 
 	<div class="nodes i:navigationNodes"
-		data-update-order="<?= $this->validPath("/janitor/admin/navigation/updateOrder/".$navigation_id) ?>" 
+		data-item-order="<?= $this->validPath("/janitor/admin/navigation/updateOrder/".$navigation_id) ?>" 
 		data-csrf-token="<?= session()->value("csrf") ?>"
 	>
 		<h2>Navigation nodes</h2>

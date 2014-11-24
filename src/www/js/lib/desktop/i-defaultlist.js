@@ -70,7 +70,7 @@ Util.Objects["defaultList"] = new function() {
 					// inject standard item status form if node is empty
 					if(!action.childNodes.length) {
 
-						action.update_status_url = action.getAttribute("data-update-status");
+						action.update_status_url = action.getAttribute("data-item-status");
 						if(action.update_status_url) {
 							form_disable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/0", "class":"disable"});
 							u.ae(form_disable, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
@@ -118,7 +118,7 @@ Util.Objects["defaultList"] = new function() {
 					// inject standard item delete form if node is empty
 					if(!action.childNodes.length) {
 
-						action.delete_item_url = action.getAttribute("data-delete-item");
+						action.delete_item_url = action.getAttribute("data-item-delete");
 						if(action.delete_item_url) {
 							form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
 							u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
@@ -254,9 +254,9 @@ Util.Objects["defaultList"] = new function() {
 		if(u.hc(div, "taggable")) {
 			u.bug("init taggable")
 
-			div.add_tag_url = div.getAttribute("data-add-tag");
-			div.delete_tag_url = div.getAttribute("data-delete-tag");
-			div.get_tags_url = div.getAttribute("data-get-tags");
+			div.add_tag_url = div.getAttribute("data-tag-add");
+			div.delete_tag_url = div.getAttribute("data-tag-delete");
+			div.get_tags_url = div.getAttribute("data-tag-get");
 
 
 			if(div.get_tags_url && div.delete_tag_url && div.add_tag_url) {
@@ -486,7 +486,7 @@ Util.Objects["defaultList"] = new function() {
 		// sortable list
 		if(u.hc(div, "sortable") && div.list) {
 
-			div.save_order_url = div.getAttribute("data-save-order");
+			div.save_order_url = div.getAttribute("data-item-order");
 
 			if(div.save_order_url) {
 

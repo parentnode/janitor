@@ -4,47 +4,20 @@
 * This file contains Admin User functionality
 */
 
-class User extends Model {
+class SuperUser extends User {
 
 	/**
 	* Init, set varnames, validation rules
 	*/
 	function __construct() {
 
-		$this->db = SITE_DB.".users";
-		$this->db_usernames = SITE_DB.".user_usernames";
-		$this->db_addresses = SITE_DB.".user_addresses";
-		$this->db_passwords = SITE_DB.".user_passwords";
-		$this->db_newsletters = SITE_DB.".user_newsletters";
+		parent::__construct(get_class());
 
+
+		// Extended privilege user tables
 		$this->db_user_groups = SITE_DB.".user_groups";
 		$this->db_access = SITE_DB.".user_access";
 
-
-		// Nickname
-		$this->addToModel("nickname", array(
-			"type" => "string",
-			"label" => "Nickname",
-			"required" => true,
-			"hint_message" => "Write your nickname or whatever you want us to use to greet you", 
-			"error_message" => "Nickname must be filled out"
-		));
-
-		// Firstname
-		$this->addToModel("firstname", array(
-			"type" => "string",
-			"label" => "Firstname",
-			"hint_message" => "Write your first- and middlenames",
-			"error_message" => "Write your first- and middlenames"
-		));
-
-		// Lastname
-		$this->addToModel("lastname", array(
-			"type" => "string",
-			"label" => "Lastname",
-			"hint_message" => "Write your lastname",
-			"error_message" => "Write your lastname"
-		));
 
 		// Usergroup
 		$this->addToModel("user_group_id", array(
@@ -63,114 +36,6 @@ class User extends Model {
 			"error_message" => "Invalid status command"
 		));
 
-		// Language
-		$this->addToModel("language", array(
-			"type" => "string",
-			"label" => "Your preferred language",
-			"hint_message" => "Select your preferred language",
-			"error_message" => "Invalid language"
-		));
-
-
-
-		// email
-		$this->addToModel("email", array(
-			"type" => "email",
-			"label" => "Your email",
-			"hint_message" => "You can log in using your email",
-			"error_message" => "Invalid email"
-		));
-
-		// mobile
-		$this->addToModel("mobile", array(
-			"type" => "tel",
-			"label" => "Your mobile",
-			"hint_message" => "Write your mobile number",
-			"error_message" => "Invalid number"
-		));
-
-		// password
-		$this->addToModel("password", array(
-			"type" => "password",
-			"label" => "Your new password",
-			"hint_message" => "Type your new password - must be 8-20 characters",
-			"error_message" => "Invalid password"
-		));
-
-
-		// address label
-		$this->addToModel("address_label", array(
-			"type" => "string",
-			"label" => "Address label",
-			"required" => true,
-			"hint_message" => "Give this address a label (home, office, parents, etc.)",
-			"error_message" => "Invalid label"
-		));
-
-		// address label
-		$this->addToModel("address_name", array(
-			"type" => "string",
-			"label" => "Name/Company",
-			"required" => true,
-			"hint_message" => "Name on door at address, your name or company name",
-			"error_message" => "Invalid name"
-		));
-		// att
-		$this->addToModel("att", array(
-			"type" => "string",
-			"label" => "Att",
-			"hint_message" => "Att for address",
-			"error_message" => "Invalid att"
-		));
-		// address 1
-		$this->addToModel("address1", array(
-			"type" => "string",
-			"label" => "Address",
-			"required" => true,
-			"hint_message" => "Address",
-			"error_message" => "Invalid address"
-		));
-		// address 2
-		$this->addToModel("address2", array(
-			"type" => "string",
-			"label" => "Additional address",
-			"hint_message" => "Additional address info",
-			"error_message" => "Invalid address"
-		));
-		// city
-		$this->addToModel("city", array(
-			"type" => "string",
-			"label" => "City",
-			"required" => true,
-			"hint_message" => "Write your city",
-			"error_message" => "Invalid city"
-		));
-		// postal code
-		$this->addToModel("postal", array(
-			"type" => "string",
-			"label" => "Postal code",
-			"required" => true,
-			"hint_message" => "Postalcode of your city",
-			"error_message" => "Invalid postal code"
-		));
-
-		// state
-		$this->addToModel("state", array(
-			"type" => "string",
-			"label" => "State/region",
-			"hint_message" => "Write your state/region, if applicaple",
-			"error_message" => "Invalid state/region"
-		));
-
-		// country
-		$this->addToModel("country", array(
-			"type" => "string",
-			"label" => "Country",
-			"required" => true,
-			"hint_message" => "Country",
-			"error_message" => "Invalid country"
-		));
-
 
 		// User groups Model
 		// Usergroup
@@ -182,7 +47,6 @@ class User extends Model {
 			"error_message" => "Name must to be filled out"
 		));
 
-		parent::__construct();
 	}
 
 
@@ -190,6 +54,9 @@ class User extends Model {
 	// save new user
 	// /janitor/admin/user/save (values in POST)
 	function save($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
 		// does values validate
 		if(count($action) == 1 && $this->validateList(array("nickname", "user_group_id"))) {
@@ -199,7 +66,8 @@ class User extends Model {
 			// make sure type tables exist
 			$query->checkDbExistance($this->db);
 
-			$entities = $this->data_entities;
+			// get entities for current value
+			$entities = $this->getModel();
 			$names = array();
 			$values = array();
 
@@ -229,11 +97,14 @@ class User extends Model {
 	// /janitor/admin/user/update/#user_id# (values in POST)
 	function update($action) {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
 		if(count($action) == 2) {
 			$user_id = $action[1];
 			$query = new Query();
 
-			$entities = $this->data_entities;
+			$entities = $this->getModel();
 			$names = array();
 			$values = array();
 
@@ -273,8 +144,7 @@ class User extends Model {
 		
 			$query = new Query();
 
-
-			// delete item + itemtype + files
+			// update status for user
 			if($query->sql("SELECT id FROM ".$this->db." WHERE id = ".$action[1])) {
 				$query->sql("UPDATE ".$this->db." SET status = ".$action[2]." WHERE id = ".$action[1]);
 
@@ -477,6 +347,10 @@ class User extends Model {
 	// Update usernames from posted values
 	function updateUsernames($action) {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
 		if(count($action) == 2) {
 
 			$user_id = $action[1];
@@ -485,10 +359,36 @@ class User extends Model {
 			// make sure type tables exist
 			$query->checkDbExistance($this->db_usernames);
 
-			$entities = $this->data_entities;
+			$entities = $this->getModel();
 
-			$email = $entities["email"]["value"];
-			$mobile = $entities["mobile"]["value"];
+			$email = $this->getProperty("email", "value");
+			$mobile = $this->getProperty("mobile", "value");
+
+
+			$mobile_exists = false;
+			$email_exists = false;
+
+			// check if email exists
+			if($email) {
+				$email_exists_for_user_id = $this->matchUsernames(array("email" => $email));
+				if($email_exists_for_user_id && $email_exists_for_user_id["user_id"] != $user_id) {
+					$email_exists = true;
+					message()->addMessage("Email already exists", array("type" => "error"));
+				}
+			}
+			// check if mobile exists
+			if($mobile) {
+				$mobile_exists_for_user_id = $this->matchUsernames(array("mobile" => $mobile));
+				if($mobile_exists_for_user_id && $mobile_exists_for_user_id["user_id"] != $user_id) {
+					$mobile_exists = true;
+					message()->addMessage("Mobile already exists", array("type" => "error"));
+				}
+			}
+
+			if($mobile_exists || $email_exists) {
+				return false;
+			}
+
 
 			$current_email = $this->getUsernames(array("user_id" => $user_id, "type" => "email"));
 			$current_mobile = $this->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
@@ -592,6 +492,9 @@ class User extends Model {
 	// user/setPassword/#user_id#
 	function setPassword($action) {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
 		if(count($action) == 2) {
 
 			// does values validate
@@ -603,10 +506,7 @@ class User extends Model {
 				// make sure type tables exist
 				$query->checkDbExistance($this->db_passwords);
 
-
-				$entities = $this->data_entities;
-
-				$password = sha1($entities["password"]["value"]);
+				$password = sha1($this->getProperty("password", "value"));
 				if($this->hasPassword($user_id)) {
 					$sql = "UPDATE ".$this->db_passwords." SET password = '$password' WHERE user_id = $user_id";
 				}
@@ -685,6 +585,9 @@ class User extends Model {
 	// /janitor/admin/user/addAddress/#user_id# (values in POST)
 	function addAddress($action) {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
 		if(count($action) == 2 && $this->validateList(array("address_label","address_name","address1","postal","city","country"))) {
 
 			$query = new Query();
@@ -693,7 +596,7 @@ class User extends Model {
 			// make sure type tables exist
 			$query->checkDbExistance($this->db_addresses);
 
-			$entities = $this->data_entities;
+			$entities = $this->getModel();
 			$names = array();
 			$values = array();
 
@@ -720,11 +623,14 @@ class User extends Model {
 	// /janitor/admin/user/updateAddress/#address_id# (values in POST)
 	function updateAddress($action) {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
 		if(count($action) == 2) {
 			$query = new Query();
 			$address_id = $action[1];
 
-			$entities = $this->data_entities;
+			$entities = $this->getModel();
 			$names = array();
 			$values = array();
 
@@ -869,6 +775,9 @@ class User extends Model {
 	// /janitor/admin/user/saveUserGroup (values in POST)
 	function saveUserGroup($action) {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
 		// does values validate
 		if(count($action) == 1 && $this->validateList(array("user_group"))) {
 
@@ -878,7 +787,7 @@ class User extends Model {
 			$query->checkDbExistance($this->db_user_groups);
 			$query->checkDbExistance($this->db_access);
 
-			$entities = $this->data_entities;
+			$entities = $this->getModel();
 			$names = array();
 			$values = array();
 
@@ -909,10 +818,13 @@ class User extends Model {
 	// /janitor/admin/user/updateUserGroup/#user_group_id# (values in POST)
 	function updateUserGroup($action) {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
 		if(count($action) == 2) {
 
 			// does values validate
-			$entities = $this->data_entities;
+			$entities = $this->getModel();
 			$names = array();
 			$values = array();
 

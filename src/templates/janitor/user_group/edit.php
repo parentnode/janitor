@@ -8,11 +8,10 @@ $item = $model->getUserGroups(array("user_group_id" => $user_group_id));
 <div class="scene defaultEdit usergroupEdit">
 	<h1>Edit user group</h1>
 
-	<ul class="actions i:defaultEditActions item_id:<?= $item_id ?>"
-		data-csrf-token="<?= session()->value("csrf") ?>"
-		>
+	<ul class="actions i:defaultEditActions" data-csrf-token="<?= session()->value("csrf") ?>">
 		<?= $HTML->link("Groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->deleteButton("Delete", "/janitor/admin/user/deleteUserGroup/".$user_group_id, array("js" => true)) ?>
+		<?= $JML->deleteButton("Delete", "/janitor/admin/user/deleteUserGroup/".$user_group_id, array("js" => true)) ?>
+		<?= $HTML->link("Access", "/janitor/admin/user/access/edit/".$user_group_id, array("class" => "button primary", "wrapper" => "li.access")) ?>
 	</ul>
 
 	<div class="item i:defaultEdit">

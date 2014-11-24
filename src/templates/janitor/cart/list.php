@@ -2,7 +2,7 @@
 global $action;
 global $model;
 
-$IC = new Item();
+$IC = new Items();
 $carts = $model->getCarts(array("status" => 1));
 
 ?>

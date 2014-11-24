@@ -463,7 +463,7 @@ class Shop extends Model {
 		if(count($action) >= 2) {
 
 			$query = new Query();
-			$IC = new Item();
+			$IC = new Items();
 
 			$query->checkDbExistance($this->db_carts);
 			$query->checkDbExistance($this->db_cart_items);
@@ -502,7 +502,7 @@ class Shop extends Model {
 		if(count($action) >= 2) {
 
 			$query = new Query();
-			$IC = new Item();
+			$IC = new Items();
 
 			$item_id = $action[1];
 			list($cart_id, $cart_reference) = $this->validateCart($action[2], array("create" => true));
@@ -564,7 +564,7 @@ class Shop extends Model {
 	*/
 	function getOrders($_options=false) {
 
-		$user = new Simpleuser();
+		$user = new User();
 
 		// get specific cart
 		$cart_id = false;
@@ -771,8 +771,8 @@ class Shop extends Model {
 
 		if(count($action) == 2) {
 
-			$user = new Simpleuser();
-			$IC = new Item();
+			$user = new User();
+			$IC = new Items();
 			$query = new Query();
 
 

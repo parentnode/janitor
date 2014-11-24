@@ -13,9 +13,9 @@ Util.Objects["addMedia"] = new function() {
 
 
 		div.csrf_token = div.form.fields["csrf-token"].val();
-		div.delete_url = div.getAttribute("data-delete-media");
-		div.update_name_url = div.getAttribute("data-update-media-name");
-		div.save_order_url = div.getAttribute("data-save-order");
+		div.delete_url = div.getAttribute("data-media-delete");
+		div.update_name_url = div.getAttribute("data-media-name");
+		div.save_order_url = div.getAttribute("data-media-order");
 
 
 
@@ -229,7 +229,7 @@ Util.Objects["addMedia"] = new function() {
 					// Notify of event
 					page.notify(response);
 				}
-				u.request(this, this.div.save_order_url, {"method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
+				u.request(this, this.div.save_order_url+"/"+this.div.item_id, {"method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
 			}
 		}
 		else {
@@ -323,7 +323,7 @@ Util.Objects["addMediaSingle"] = new function() {
 
 
 		div.csrf_token = div.form.fields["csrf-token"].val();
-		div.delete_url = div.getAttribute("data-delete-media");
+		div.delete_url = div.getAttribute("data-media-delete");
 
 
 		div.form.file_input = u.qs("input[type=file]", div.form);

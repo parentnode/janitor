@@ -9,13 +9,13 @@ $item_id = $item["id"];
 $navigation_id = $item["navigation_id"];
 
 // get pages for page select
-$IC = new Item();
-$pages = $IC->getItems(array("itemtype" => "page", "status" => 1, "order" => "page.name ASC"));
+$IC = new Items();
+$pages = $IC->getItems(array("itemtype" => "page", "status" => 1, "order" => "page.name ASC", "extend" => true));
 // get additional info for pages select
-foreach($pages as $i => $item_page) {
-	$item_page = $IC->extendItem($item_page);
-	$pages[$i]["name"] = $item_page["name"];
-}
+// foreach($pages as $i => $item_page) {
+// 	$item_page = $IC->extendItem($item_page);
+// 	$pages[$i]["name"] = $item_page["name"];
+// }
 array_unshift($pages, array("id" => "", "name" => "Select page"));
 
 ?>

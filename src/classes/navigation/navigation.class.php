@@ -15,6 +15,9 @@ class Navigation extends Model {
 	*/
 	function __construct() {
 
+		parent::__construct(get_class());
+
+
 		$this->db = SITE_DB.".navigation";
 		$this->db_nodes = SITE_DB.".navigation_nodes";
 		$this->level_iterator = 0;
@@ -64,7 +67,6 @@ class Navigation extends Model {
 		));
 
 
-		parent::__construct();
 	}
 
 
@@ -76,6 +78,9 @@ class Navigation extends Model {
 	// save new user
 	// gets values from posted model values
 	function save() {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
 		// does values validate
 		if($this->validateList(array("name"))) {
@@ -113,6 +118,10 @@ class Navigation extends Model {
 	// /user/update/#user_id#
 	// post values
 	function update($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
 
 		if(count($action) == 2) {
 			$user_id = $action[1];
@@ -276,7 +285,7 @@ class Navigation extends Model {
 		}
 
 		$query = new Query();
-		$IC = new Item();
+		$IC = new Items();
 
 		// level iterator checker
 		$this->level_iterator++;
@@ -340,6 +349,9 @@ class Navigation extends Model {
 	// save node
 	function saveNode($action) {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
 		// does values validate
 		if(count($action) == 2 && $this->validateList(array("node_name"))) {
 
@@ -377,6 +389,9 @@ class Navigation extends Model {
 
 	// update node
 	function updateNode($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
 		// does values validate
 		if(count($action) == 2 && $this->validateList(array("node_name"), $action[1])) {

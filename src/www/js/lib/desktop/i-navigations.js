@@ -5,7 +5,7 @@ Util.Objects["navigationNodes"] = new function() {
 
 		if(div.list) {
 
-			div.list.update_order_url = div.getAttribute("data-update-order");
+			div.list.update_order_url = div.getAttribute("data-item-order");
 			div.list.csrf_token = div.getAttribute("data-csrf-token");
 			div.list.nodes = u.qsa("li.item", div.list);
 
