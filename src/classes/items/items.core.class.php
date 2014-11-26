@@ -479,7 +479,8 @@ class ItemsCore {
 	*
 	* Can receive items array to use for finding next item(s) 
 	* or receive query syntax to perform getItems request on it own
-	* TODO: This implementation is far from performance optimized, but works - consider alternate implementations
+	*
+	* @param $item_id item_id to get next from
 	*/
 	function getNext($item_id, $_options=false) {
 
@@ -495,30 +496,41 @@ class ItemsCore {
 			}
 		}
 
+		// get items if they have not been passed as argument
 		if($items === false) {
 			$items = $this->getItems($_options);
 		}
 
+		// filtering variables
 		$next_items = array();
 		$item_found = false;
 		$counted = 0;
+
+		// loop through all items, looking for starting point
 		for($i = 0; $i < count($items); $i++) {
 
+			// wait until we find starting point
 			if($item_found) {
+
+				// keep an eye on counter
 				$counted++;
 
+				// add to next scope
 				$next_items[] = $items[$i];
 
+				// end when enough items have been collected
 				if($counted == $count) {
 					break;
 				}
 			}
+
+			// found starting point
 			else if($item_id == $items[$i]["id"]) {
 				$item_found = true;
 			}
 		}
 
-
+		// return set of next items
 		return $next_items;
 	}
 
@@ -543,30 +555,41 @@ class ItemsCore {
 			}
 		}
 
+		// get items if they have not been passed as argument
 		if($items === false) {
 			$items = $this->getItems($_options);
 		}
 
+		
+		// filtering variables
 		$prev_items = array();
 		$item_found = false;
 		$counted = 0;
+		// loop backwards through all items, looking for starting point
 		for($i = count($items)-1; $i >= 0; $i--) {
 
+			// wait until we find starting point
 			if($item_found) {
+
+				// keep an eye on counter
 				$counted++;
 
+				// add to beginning of prev scope
 				array_unshift($prev_items, $items[$i]);
 
+				// end when enough items have been collected
 				if($counted == $count) {
 					break;
 				}
 			}
+
+			// found starting point
 			else if($item_id == $items[$i]["id"]) {
 				$item_found = true;
 			}
 		}
 
-
+		// return set of prev items
 		return $prev_items;
 	}
 
@@ -599,54 +622,84 @@ class ItemsCore {
 			}
 		}
 
-		// avoid extending all items, but do extend range_items
+		
+		// avoid extending all items
+		// but save extend values to extend final range_items
 		if(isset($pattern["extend"])) {
 			$extend = $pattern["extend"];
 			unset($pattern["extend"]);
 		}
 
 
-		// get all items as base
+		// get all items as base for pagination
 		$items = $this->getItems($pattern);
 
 
-		# lists the latest N posts
+		// if there is no sindex to start from
+		// lists the latest N posts
 		if(!$sindex) {
 
+			// simply add limit to items query
 			$pattern["limit"] = $limit;
-//			print_r($pattern);
 			$range_items = $this->getItems($pattern);
 
-//			print_r($range_items);
 		}
 
-		# list based on sindex
+		// range_items should be based on sindex
 		else if($sindex) {
 
+			// get the item_id based on sindex
 			$item_id = $this->getIdFromSindex($sindex);
 
-			# Lists the next N posts after sindex
+			// Lists the next N posts _after_ sindex (not including)
 			if($direction == "next") {
 
 				$range_items = $this->getNext($item_id, array("items" => $items, "count" => $limit));
 			}
-			# Lists the prev N posts before sindex
+			// Lists the prev N posts _before_ sindex (not including)
 			else if($direction == "prev") {
 
 				$range_items = $this->getPrev($item_id, array("items" => $items, "count" => $limit));
 			}
-			# Lists the next N posts starting with sindex
+
+			// No direction indicated
+			// Lists the next N posts _starting_ with sindex
 			else {
 
-				$item = $this->getItem(array("id" => $item_id));
-				$range_items = $this->getNext($item_id, array("items" => $items, "count" => $limit-1));
+				// filtering variables
+				$item_found = false;
+				$counted = 0;
 
-				array_unshift($range_items, $item);
+				// loop through all items, looking for starting point
+				for($i = 0; $i < count($items); $i++) {
+
+					// found starting point
+					if($item_id == $items[$i]["id"]) {
+						$item_found = true;
+					}
+
+					// wait until we find starting point
+					if($item_found) {
+
+						// keep an eye on counter
+						$counted++;
+
+						// add to next scope
+						$range_items[] = $items[$i];
+
+						// end when enough items have been collected
+						if($counted == $limit) {
+							break;
+						}
+					}
+
+				}
+
 			}
 
 		}
 
-		// should range items be extended, then do it now
+		// Should range items be extended, then do it now
 		if($range_items && $extend) {
 			foreach($range_items as $i => $item) {
 				$range_items[$i] = $this->extendItem($item, $extend);
@@ -665,6 +718,12 @@ class ItemsCore {
 		$prev = $first_id ? $this->getPrev($first_id, array("items" => $items, "count" => $limit)) : false;
 
 
+		// return all pagination info
+		// range_items = list of items in specified range
+		// next items
+		// previous items
+		// first id in range
+		// last id in range
 		return array("range_items" => $range_items, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "first_sindex" => $first_sindex, "last_sindex" => $last_sindex);
 	}
 
@@ -775,6 +834,7 @@ class ItemsCore {
 		$tag_id = false;
 		$tag_context = false;
 		$tag_value = false;
+		$order = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -783,11 +843,13 @@ class ItemsCore {
 					case "tag_id"     : $tag_id         = $_value; break;
 					case "context"    : $tag_context    = $_value; break;
 					case "value"      : $tag_value      = $_value; break;
+					case "order"      : $order          = $_value; break;
 				}
 			}
 		}
 
 		$query = new Query();
+
 
 		if($item_id) {
 			// specific tag exists?
@@ -796,13 +858,13 @@ class ItemsCore {
 			}
 			// get all tags with context
 			else if($tag_context) {
-				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id")) {
+				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : ""))) {
 					return $query->results();
 				}
 			}
 			// all tags
 			else {
-				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id")) {
+				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : ""))) {
 					return $query->results();
 				}
 			}
@@ -827,13 +889,13 @@ class ItemsCore {
 		else {
 			// get all tags with context
 			if($tag_context) {
-				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags WHERE tags.context = '$tag_context'")) {
+				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags WHERE tags.context = '$tag_context'".($order ? " ORDER BY $order" : ""))) {
 					return $query->results();
 				}
 			}
 			// all tags
 			else {
-				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." ORDER BY tags.context, tags.value")) {
+				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG.($order ? " ORDER BY $order" : " ORDER BY tags.context, tags.value"))) {
 					return $query->results();
 				}
 			}
