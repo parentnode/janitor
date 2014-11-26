@@ -881,6 +881,7 @@ class HTMLCore {
 		$id = false;
 		$method = "post";
 		$target = false;
+		$enctype = "application/x-www-form-urlencoded";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -892,7 +893,8 @@ class HTMLCore {
 
 					case "target"        : $target         = $_value; break;
 
-					case "method"       : $method          = $_value; break;
+					case "method"        : $method         = $_value; break;
+					case "enctype"       : $enctype        = $_value; break;
 				}
 			}
 		}
@@ -904,8 +906,9 @@ class HTMLCore {
 		$att_target = $this->attribute("target", $target);
 		$att_method = $this->attribute("method", $method);
 		$att_action = $this->attribute("action", $action);
+		$att_enctype = $this->attribute("enctype", $enctype);
 
-		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.'>'."\n";
+		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.$att_enctype.'>'."\n";
 		$_ .= '<input type="hidden" name="csrf-token" value="'.session()->value("csrf").'" />'."\n";
 
 
