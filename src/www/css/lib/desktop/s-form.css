@@ -62,9 +62,8 @@
 */
 
 /* FILES */
-#content form.upload {padding: 0 30px; text-align: left; width: 374px; position: relative; z-index: 2;}
-#content .field.files {border: 3px dashed #dedede; display: inline-block; vertical-align: top; border-radius: 5px; position: relative; padding: 0; margin-top: 2px;}
-#content .field.files input {opacity: 0; width: 356px;}
+#content .field.files {border: 3px dashed #dedede; width: 374px; display: inline-block; vertical-align: top; border-radius: 5px; position: relative; padding: 0; margin: 2px 30px 20px;}
+#content .field.files input[type="file"] {opacity: 0; width: 356px; height: 50px;}
 #content .field.files label {display: block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 18px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
 #content .field.files.loading label {display: none;}
 #content .field.files.loading {background: transparent url(/janitor/admin/img/gx_loader.gif) no-repeat center center;}

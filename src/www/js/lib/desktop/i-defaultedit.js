@@ -16,7 +16,7 @@ Util.Objects["defaultEdit"] = new function() {
 			this.response = function(response) {
 				page.notify(response);
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
 
 		}
 

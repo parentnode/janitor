@@ -48,9 +48,9 @@ class JanitorHTML {
 	}
 
 	// provide media info for JS
-	function jsMedia(&$item, $index=false) {
+	function jsMedia(&$item, $variant=false) {
 
-		$media = $this->getMedia($item, $index);
+		$media = $this->getMedia($item, $variant);
 
 		return $media ? (" format:".$media["format"]." variant:".$media["variant"]) : "";
 	}
@@ -264,6 +264,7 @@ class JanitorHTML {
 
 		$variant = "single_media";
 		$label = "Single media";
+		$init_class = "i:addMediaSingle";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -272,13 +273,14 @@ class JanitorHTML {
 
 					case "variant"           : $variant            = $_value; break;
 					case "label"             : $label              = $_value; break;
+					case "init-class"        : $init_class         = $_value; break;
 				}
 			}
 		}
 
 		$_ = '';
 
-		$_ .= '<div class="media single_media i:addMediaSingle variant:'.$variant.' item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<div class="media '.$variant.' '.$init_class.' variant:'.$variant.' item_id:'.$item["id"].'"'.$this->jsData().'>';
 		$_ .= '<h2>'.$label.'</h2>';
 		$_ .= $model->formStart($this->path."/addSingleMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject"));
 		$_ .= '<fieldset>';

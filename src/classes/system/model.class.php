@@ -40,7 +40,7 @@ class Model extends HTML {
 			"label" => "Publish date (yyyy-mm-dd hh:mm)",
 //			"pattern" => "^[\d]{4}-[\d]{2}-[\d]{2}[0-9\-\/ \:]*$",
 			"hint_message" => "Publishing date of the item. Leave empty for current time", 
-			"error_message" => "Date must be of format (yyyy-mm-dd hh:mm)"
+			"error_message" => "Datetime must be of format (yyyy-mm-dd hh:mm)"
 		));
 
 		$this->addToModel("tags", array(
@@ -71,7 +71,6 @@ class Model extends HTML {
 		$this->addToModel("single_media", array(
 			"type" => "files",
 			"label" => "Add media here",
-			"allowed_sizes" => "960x540",
 			"max" => 1,
 			"allowed_formats" => "png,jpg,mp4",
 			"hint_message" => "Add images or videos here. Use png, jpg or mp4 in 960x540.",
@@ -571,7 +570,8 @@ class Model extends HTML {
 
 		$uploads = array();
 
-//		print "input_name:" . $name;
+		// print "input_name:" . $name;
+		// print_r($_FILES);
 
 		if(isset($_FILES[$name])) {
 //			print_r($_FILES[$name]);
@@ -728,7 +728,7 @@ class Model extends HTML {
 		$max = $this->getProperty($name, "max");
 		$pattern = $this->getProperty($name, "pattern");
 
-		if(($value || $value == 0) && !($value%1) && 
+		if(($value || $value === "0") && !($value%1) && 
 			(!$min || $value >= $min) && 
 			(!$max || $value <= $max) &&
 			(!$pattern || preg_match("/".$pattern."/", $value))
@@ -755,7 +755,9 @@ class Model extends HTML {
 		$max = $this->getProperty($name, "max");
 		$pattern = $this->getProperty($name, "pattern");
 
-		if(($value || $value === 0) && !($value%1) && 
+//		print ($value || $value === "0") . ", " . (!($value%1)) . ", " . (!$min || $value >= $min) . ", ". (!$max || $value <= $max) . ", " . (!$pattern || preg_match("/".$pattern."/", $value)) . ";";
+
+		if(($value || $value === "0") && !($value%1) && 
 			(!$min || $value >= $min) && 
 			(!$max || $value <= $max) &&
 			(!$pattern || preg_match("/".$pattern."/", $value))
@@ -849,7 +851,7 @@ class Model extends HTML {
 	function isDatetime($name) {
 
 		$value = $this->getProperty($name, "value");
-		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\d]{4}-[\d]{2}-[\d]{2} [0-9]{1,2}:[0-9]{2}[0-9:]*$");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\d]{4}-[\d]{2}-[\d]{2} [0-9]{1,2}[:-]{1}[0-9]{2}[0-9:-]*$");
 		$is_before = $this->getProperty($name, "is_before");
 		$is_after = $this->getProperty($name, "is_after");
 

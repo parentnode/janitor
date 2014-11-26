@@ -21,7 +21,8 @@ Util.Objects["defaultNew"] = new function() {
 					page.notify(response);
 				}
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+//			u.bug("params:"+u.f.getParams(this))
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
 
 		}
 

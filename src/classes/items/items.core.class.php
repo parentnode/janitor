@@ -583,6 +583,8 @@ class ItemsCore {
 
 		$limit = 5;
 
+		$extend = false;
+
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
@@ -597,7 +599,12 @@ class ItemsCore {
 			}
 		}
 
-//		$IC = new Items();
+		// avoid extending all items, but do extend range_items
+		if(isset($pattern["extend"])) {
+			$extend = $pattern["extend"];
+			unset($pattern["extend"]);
+		}
+
 
 		// get all items as base
 		$items = $this->getItems($pattern);
@@ -638,6 +645,14 @@ class ItemsCore {
 			}
 
 		}
+
+		// should range items be extended, then do it now
+		if($range_items && $extend) {
+			foreach($range_items as $i => $item) {
+				$range_items[$i] = $this->extendItem($item, $extend);
+			}
+		}
+
 
 		// find indexes and ids for next/prev
 		$first_id = isset($range_items[0]) ? $range_items[0]["id"] : false;

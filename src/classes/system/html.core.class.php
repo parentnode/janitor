@@ -89,7 +89,7 @@ class HTMLCore {
 	* @return string Input element
 	*/
 	function input($name = false, $_options = false) {
-
+//		print "create input: ".$name."<br>\n";
 
 		// form security
 		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
@@ -284,10 +284,12 @@ class HTMLCore {
 			// FILES
 			else if($type == "files") {
 
+				
 				// add brackets for file input - backend is designed to handle files in array, even if there is just one
 				$att_name = $this->attribute("name", $name . "[]");
+				$att_class_value = $this->attribute("class", $value ? "uploaded" : "");
 
-				$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_pattern.$att_multiple.' />';
+				$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_pattern.$att_multiple.$att_class_value.' />';
 			}
 
 			// TEXT

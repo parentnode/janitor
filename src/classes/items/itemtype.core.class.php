@@ -171,7 +171,7 @@ class ItemtypeCore extends Model {
 
 				if($values) {
 					$sql = "INSERT INTO ".$this->db." SET id = DEFAULT,item_id = $item_id," . implode(",", $values);
-	//				print $sql;
+//					print $sql;
 
 					if($query->sql($sql)) {
 
