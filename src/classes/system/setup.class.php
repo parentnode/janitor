@@ -900,6 +900,7 @@ class Setup extends Itemtype {
 			//
 			// CREATE DEFAULT USER GROUPS AND USERS
 			//
+			include_once("classes/users/user.class.php");
 			include_once("classes/users/superuser.class.php");
 			$UC = new SuperUser();
 
