@@ -202,7 +202,7 @@ class ItemtypeCore extends Model {
 		}
 
 		// save failed, remove any stored data
-		if($item_id) {
+		if(isset($item_id)) {
 			$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $item_id");
 		}
 		message()->addMessage("Item could not be saved", array("type" => "error"));
