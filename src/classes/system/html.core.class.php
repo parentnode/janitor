@@ -1011,10 +1011,10 @@ class HTMLCore {
 	*
 	* @return string Input element
 	*/
-	function submit($name = false, $_options = false) {
+	function submit($value = false, $_options = false) {
 
 		$_options["type"] = "submit";
-		return $this->button($name, $_options);
+		return $this->button($value, $_options);
 
 	}
 
