@@ -10,15 +10,12 @@ $post_tags = $IC->getTags(array("context" => $itemtype));
 
 
 // get content pagination
-include_once("classes/items/pagination.class.php");
-$PC = new Pagination();
-
 $limit = stringOr(getVar("limit"), 5);
 $sindex = isset($action[0]) ? $action[0] : false;
 $direction = isset($action[1]) ? $action[1] : false; 
 
-$pattern = array("itemtype" => $itemtype, "status" => 1);
-$pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "limit" => $limit, "direction" => $direction));
+$pattern = array("itemtype" => $itemtype, "status" => 1, "extend" => array("tags" => true));
+$pagination = $IC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "limit" => $limit, "direction" => $direction));
 
 ?>
 
@@ -39,9 +36,7 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 <? if($pagination["range_items"]): ?>
 	<ul class="postings">
 <?		foreach($pagination["range_items"] as $item):
-			$item = $IC->extendItem($item, array("tags" => true));
-			$hardlink = (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]."/blog/".$item["sindex"];
-			$media = $item["mediae"] ? array_shift($item["mediae"]) : false; ?>
+			$media = $IC->sliceMedia($item); ?>
 		<li class="item post id:<?= $item["item_id"] ?>" itemscope itemtype="http://schema.org/Article">
 
 <?			if($media): ?>
@@ -67,7 +62,7 @@ $pagination = $PC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 				<dt class="author">Author</dt>
 				<dd class="author" itemprop="author">Martin Kæstel Nielsen</dd>
 				<dt class="hardlink">Hardlink</dt>
-				<dd class="hardlink" itemprop="url"><a href="<?= $hardlink ?>" target="_blank"><?= $hardlink ?></a></dd>
+				<dd class="hardlink" itemprop="url"><a href="<?= SITE_URL."/index/".$item["sindex"]; ?>" target="_blank"><?= $hardlink ?></a></dd>
 			</dl>
 
 			<div class="description" itemprop="articleBody">

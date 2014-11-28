@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 */
 define("SITE_UID", "JNT");
 define("SITE_NAME", "Janitor");
-define("SITE_URL", $_SERVER["SERVER_NAME"]);
+define("SITE_URL", (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]);
 define("SITE_EMAIL", "mail@domain.com");
 
 /**
