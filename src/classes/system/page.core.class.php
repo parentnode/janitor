@@ -240,6 +240,8 @@ class PageCore {
 			}
 		}
 
+		print file_exists(LOCAL_PATH."/templates/".$template) . " = ".LOCAL_PATH."/templates/".$template."<br>\n";
+
 		if(file_exists(LOCAL_PATH."/templates/".$template)) {
 			$file = LOCAL_PATH."/templates/".$template;
 		}
