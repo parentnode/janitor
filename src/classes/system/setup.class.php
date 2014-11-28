@@ -197,9 +197,6 @@ class Setup extends Itemtype {
 	// reset setup script values
 	function reset() {
 		session()->reset();
-
-		// TEMP - dev env
-		session()->value("dev", 1);
  	}
 
 
