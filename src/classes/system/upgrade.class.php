@@ -22,7 +22,7 @@ class Upgrade {
 		$query->checkDbExistance(UT_ITEMS_MEDIAE);
 
 		$sql = "SELECT * FROM ".SITE_DB.".item_".$itemtype."_mediae";
-//		print $sql."<br>\n";
+		print $sql."<br>\n";
 
 		$query->sql($sql);
 		$mediae = $query->results();
@@ -35,13 +35,13 @@ class Upgrade {
 
 
 			if(!$item_variant) {
-				print "missing variant - create variant and move file?<br>\n";
+				print "missing variant - create variant and move file??<br>\n";
 			}
 
 
 			$file = PRIVATE_FILE_PATH."/".$item_id.($item_variant ? "/".$item_variant : "")."/".$item_format;
 
-		//	print_r($media);
+//			print_r($media);
 
 			if(file_exists($file)) {
 				print "valid file: $file<br>\n";
@@ -68,7 +68,7 @@ class Upgrade {
 				$query->sql($sql);
 			}
 			else {
-				print "invalid file";
+				print "invalid file:" . $file ."<br>\n";
 			}
 
 
