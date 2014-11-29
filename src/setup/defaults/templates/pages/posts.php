@@ -14,7 +14,7 @@ $limit = stringOr(getVar("limit"), 5);
 $sindex = isset($action[0]) ? $action[0] : false;
 $direction = isset($action[1]) ? $action[1] : false; 
 
-$pattern = array("itemtype" => $itemtype, "status" => 1, "extend" => array("tags" => true));
+$pattern = array("itemtype" => $itemtype, "status" => 1, "extend" => array("tags" => true, "user" => true, "mediae" => true));
 $pagination = $IC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "limit" => $limit, "direction" => $direction));
 
 ?>
@@ -60,9 +60,9 @@ $pagination = $IC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 				<dt class="published_at">Date published</dt>
 				<dd class="published_at" itemprop="datePublished" content="2015-07-27"><?= date("Y-m-d, H:i", strtotime($item["published_at"])) ?></dd>
 				<dt class="author">Author</dt>
-				<dd class="author" itemprop="author">Martin Kæstel Nielsen</dd>
+				<dd class="author" itemprop="author"><?= $item["user_nickname"] ?></dd>
 				<dt class="hardlink">Hardlink</dt>
-				<dd class="hardlink" itemprop="url"><a href="<?= SITE_URL."/index/".$item["sindex"]; ?>" target="_blank"><?= $hardlink ?></a></dd>
+				<dd class="hardlink" itemprop="url"><a href="<?= SITE_URL."/index/".$item["sindex"] ?>" target="_blank"><?= SITE_URL."/index/".$item["sindex"] ?></a></dd>
 			</dl>
 
 			<div class="description" itemprop="articleBody">
