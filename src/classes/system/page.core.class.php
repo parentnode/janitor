@@ -493,7 +493,9 @@ class PageCore {
 		// writeToFile("segment function:" . $value);
 
 		if($value !== false) {
-			session()->value("segment", $value);
+			if(is_string($value) && preg_match("/^(basic|desktop|desktop_ie|desktop_light|tablet|mobile|mobile_touch|mobile_light|tv)$/", $value)) {
+				session()->value("segment", $value);
+			}
 		}
 		else {
 			if(!session()->value("segment")) {
