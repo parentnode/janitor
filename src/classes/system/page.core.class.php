@@ -698,6 +698,7 @@ class PageCore {
 
 		// all actions are allowed on SITE_INSTALL
 		if((defined("SITE_INSTALL") && SITE_INSTALL)) {
+//			print "all good";
 			return true;
 		}
 

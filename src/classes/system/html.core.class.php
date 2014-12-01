@@ -400,6 +400,7 @@ class HTMLCore {
 		// paths for saving and deleting files
 		$att_file_add = $this->attribute("data-file-add", $file_add);
 		$att_file_delete = $this->attribute("data-file-delete", $file_delete);
+//		print $att_file_add . "," . $att_file_delete;
 
 //		$att_html_item_id = $this->attribute("data-item_id", $_options["item_id"]);
 
