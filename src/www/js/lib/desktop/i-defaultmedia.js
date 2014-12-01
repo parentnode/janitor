@@ -313,10 +313,17 @@ Util.Objects["addMediaSingle"] = new function() {
 
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
+
 		div.image = u.qs("img", div);
+
+		div.is_media = u.hc(div, "media");
+		div.is_audio = u.hc(div, "audio");
+		div.is_video = u.hc(div, "video");
+
 
 		div.item_id = u.cv(div, "item_id");
 		div.media_variant = u.cv(div, "variant");
+		div.media_format = u.cv(div, "format");
 
 
 		u.f.init(div.form);
@@ -352,20 +359,21 @@ Util.Objects["addMediaSingle"] = new function() {
 
 				// inject/update image if everything went well
 				if(response.cms_status == "success" && response.cms_object) {
-					if(!this.div.image) {
-						this.div.image = u.ae(this.div, "img");
-						this.div.addDeleteForm();
-					}
 
-					if(response.cms_object.format == "pdf") {
-						this.div.image.src = "/images/0/pdf/x"+this.div.image.offsetHeight+".png?"+u.randomString(4);
+					this.div._format = response.cms_object.format;
+					u.rc(this.div, "format:[a-z]*");
+					u.ac(this.div, "format:"+this.div._format);
+
+					if(this.div.is_audio) {
+						this.div.addAudioPreview();
 					}
-					else if(response.cms_object.format == "zip") {
-						this.div.image.src = "/images/0/zip/x"+this.div.image.offsetHeight+".png?"+u.randomString(4);
+					else if(this.div.is_video) {
+						this.div.addVideoPreview();
 					}
 					else {
-						this.div.image.src = "/images/"+response.cms_object.item_id+"/"+response.cms_object.variant+"/x"+this.div.image.offsetHeight+"."+response.cms_object.format+"?"+u.randomString(4);
+						this.div.addImagePreview();
 					}
+
 				}
 
 				u.rc(this.file_input.field, "loading");
@@ -377,23 +385,95 @@ Util.Objects["addMediaSingle"] = new function() {
 		// add delete form
 		div.addDeleteForm = function() {
 
-			this.delete_form = u.f.addForm(this, {"action":this.delete_url+"/"+this.item_id+"/"+this.media_variant, "class":"delete"});
-			this.delete_form.div = this;
-			u.ae(this.delete_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
-			this.bn_delete = u.f.addAction(this.delete_form, {"class":"button delete"});
+			if(!this.delete_form) {
+				this.delete_form = u.f.addForm(this, {"action":this.delete_url+"/"+this.item_id+"/"+this.media_variant, "class":"delete"});
+				this.delete_form.div = this;
+				u.ae(this.delete_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
+				this.bn_delete = u.f.addAction(this.delete_form, {"class":"button delete"});
 
-			this.delete_form.deleted = function() {
-				this.div.image.parentNode.removeChild(this.div.image);
-				this.div.image = false;
-				this.parentNode.removeChild(this);
+				this.delete_form.deleted = function() {
+					this.div.image.parentNode.removeChild(this.div.image);
+					this.div.image = false;
+					this.parentNode.removeChild(this);
+				}
+				u.o.deleteMedia.init(this.delete_form);
 			}
-			u.o.deleteMedia.init(this.delete_form);
 		}
+
+
+		div.addImagePreview = function() {
+
+			if(!this.image && this.media_format) {
+				this.image = u.ae(this, "img");
+			}
+
+			if(this.media_format) {
+
+				this.addDeleteForm();
+
+				if(this.media_format == "pdf") {
+					this.image.src = "/images/0/pdf/x"+this.div.image.offsetHeight+".png?"+u.randomString(4);
+				}
+				else if(this.media_format == "zip") {
+					this.image.src = "/images/0/zip/x"+this.div.image.offsetHeight+".png?"+u.randomString(4);
+				}
+				else if(this.media_format.match(/^(jpg|png)$/)) {
+					this.image.src = "/images/"+this.item_id+"/"+this.media_variant+"/x"+this.image.offsetHeight+"."+this.media_format+"?"+u.randomString(4);
+				}
+			}
+			
+		}
+
+		div.addAudioPreview = function() {
+			
+			if(!this.audio && this.media_format) {
+
+				if(!page.audioplayer) {
+					page.audioplayer = u.audioPlayer();
+				}
+				this.audio = u.ae(div.form, "div", {"class":"audio"});
+				this.audio.div = this;
+
+			}
+
+			if(this.media_format) {
+
+				this.addDeleteForm();
+
+				this.audio.url = "/audios/"+this.item_id+"/"+this.media_variant+"/128."+this.media_format;
+
+				u.e.click(this.audio);
+				this.audio.clicked = function(event) {
+				if(!u.hc(this, "playing")) {
+						page.audioplayer.loadAndPlay(this.url);
+						u.ac(this, "playing");
+					}
+					else {
+						page.audioplayer.stop();
+						u.rc(this, "playing");
+					}
+				}
+
+			}
+
+		}
+
+		div.addVideoPreview = function() {}
+
 
 		// add initial delete form if image exists
-		if(div.image) {
-			div.addDeleteForm();
+		if(div.is_audio) {
+			div.addAudioPreview();
 		}
+		else if(div.is_audio) {
+			div.addVideoPreview();
+		}
+		else if(div.is_media) {
+			div.addImagePreview();
+		}
+
+
+//		u.bug("div.audio:" + div.audio)
 
 	}
 }

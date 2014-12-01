@@ -226,10 +226,27 @@ class JanitorHTML {
 	function editMedia($item, $_options = false) {
 		global $model;
 
+
+		$type = "mediae";
+		$label = "Media";
+		$class = "i:addMedia";
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "type"              : $type               = $_value; break;
+					case "label"             : $label              = $_value; break;
+					case "class"             : $class              = $_value; break;
+				}
+			}
+		}
+
 		$_ = '';
 
-		$_ .= '<div class="media i:addMedia sortable item_id:'.$item["id"].'"'.$this->jsData().'>';
-		$_ .= '<h2>Media</h2>';
+		$_ .= '<div class="media  '.$variant.' '.$class.'  sortable item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<h2>'.$label.'</h2>';
 		$_ .= $model->formStart($this->path."/addMedia/".$item["id"], array("class" => "upload labelstyle:inject"));
 		$_ .= '<fieldset>';
 		$_ .= $model->input("mediae");
@@ -245,10 +262,41 @@ class JanitorHTML {
 		if($item["mediae"]) {
 			foreach($item["mediae"] as $variant => $media) {
 
-				$_ .= '<li class="media image variant:'.$variant.' media_id:'.$media["id"].'">';
-				$_ .= '<img src="/images/'.$item["id"].($variant ? "/".$variant : "").'/x150.'.$media["format"].'" />';
-				$_ .= '<p>'.$media["name"].'</p>';
-				$_ .= '</li>';
+				if($type == "media") {
+
+					if(preg_match("/^(jpg|png)$/", $media["format"])) {
+						$_ .= '<li class="media image variant:'.$variant.' media_id:'.$media["id"].'">';
+						$_ .= '<img src="/images/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'" />';
+						$_ .= '<p>'.$media["name"].'</p>';
+					}
+					else if(preg_match("/^(mp3|ogv)$/", $media["format"])) {
+						$_ .= '<li class="media audio variant:'.$variant.' media_id:'.$media["id"].'">';
+						$_ .= '<a href="/audios/'.$item["id"].'/'.$variant.'/128.'.$media["format"].'">'.$media["name"].'</a>';
+					}
+					else if(preg_match("/^(mp4|mov)$/", $media["format"])) {
+						$_ .= '<li class="media video variant:'.$variant.' media_id:'.$media["id"].'">';
+						$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'">'.$media["name"].'</a>';
+					}
+					$_ .= '</li>';
+
+				}
+				else if($type == "variant") {
+
+					if(preg_match("/^(jpg|png)$/", $media["format"])) {
+						$_ .= '<li class="media image variant:'.$variant.' media_id:'.$media["id"].'">';
+						$_ .= '<img src="/images/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'" />';
+					}
+					else if(preg_match("/^(mp3|ogv)$/", $media["format"])) {
+						$_ .= '<li class="media audio variant:'.$variant.' media_id:'.$media["id"].'">';
+						$_ .= '<a href="/audios/'.$item["id"].'/'.$variant.'/128.'.$media["format"].'">'.$variant.'</a>';
+					}
+					else if(preg_match("/^(mp4|mov)$/", $media["format"])) {
+						$_ .= '<li class="media video variant:'.$variant.' media_id:'.$media["id"].'">';
+						$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'">'.$variant.'</a>';
+					}
+					$_ .= '<p>'.$variant.'</p>';
+					$_ .= '</li>';
+				}
 			}
 		}
 
@@ -264,7 +312,8 @@ class JanitorHTML {
 
 		$variant = "single_media";
 		$label = "Single media";
-		$init_class = "i:addMediaSingle";
+		$class = "";
+		$_class = "i:addMediaSingle";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -273,27 +322,44 @@ class JanitorHTML {
 
 					case "variant"           : $variant            = $_value; break;
 					case "label"             : $label              = $_value; break;
-					case "init-class"        : $init_class         = $_value; break;
+					case "class"             : $class              = $_value; break;
 				}
 			}
 		}
 
+		if(!preg_match("/i:[a-z]+/", $class)) {
+			$class = $_class." ".$class;
+		}
+
+		// get media
+		$media = $this->getMedia($item, $variant);
+		// if($media) {
+		// 	$class_input = "uploaded";
+		// }
+
 		$_ = '';
 
-		$_ .= '<div class="media '.$variant.' '.$init_class.' variant:'.$variant.' item_id:'.$item["id"].'"'.$this->jsData().'>';
+		// default view
+		$_ .= '<div class="media single_media '.$variant.' '.$class.' variant:'.$variant.' item_id:'.$item["id"].' format:'.($media ? $media["format"] : "").'"'.$this->jsData().'>';
 		$_ .= '<h2>'.$label.'</h2>';
+
 		$_ .= $model->formStart($this->path."/addSingleMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject"));
 		$_ .= '<fieldset>';
-		$_ .= $model->input($variant);
+		$_ .= $model->input($variant, array("value" => $media));
 		$_ .= '</fieldset>';
 		$_ .= $model->formEnd();
 
-		$media = $this->getMedia($item, $variant);
-		
 		if($media) {
-			$_ .= '<img src="/images/'.$item["id"].'/'.$variant.'/500x.'.$media["format"].'" />';
+			if(preg_match("/^(jpg|png)$/", $media["format"])) {
+				$_ .= '<img src="/images/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'" />';
+			}
+			else if(preg_match("/^(mp3|ogv)$/", $media["format"])) {
+				$_ .= '<a href="/audios/'.$item["id"].'/'.$variant.'/128.'.$media["format"].'">'.$media["name"].'</a>';
+			}
+			else if(preg_match("/^(mp4|mov)$/", $media["format"])) {
+				$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'">'.$media["name"].'</a>';
+			}
 		}
-
 		$_ .= '</div>';
 
 		return $_;
@@ -425,5 +491,4 @@ class JanitorHTML {
 // create standalone instance to make Janitor available 
 // TODO: consider instantiating in Template using this only?
 $JML = new JanitorHTML();
-
 ?>

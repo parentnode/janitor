@@ -71,6 +71,12 @@
 #content .scene.defaultEdit > div.single_media form.upload label {margin-top: 90px;}
 #content .scene.defaultEdit > div.single_media img {height: 216px;}
 
+/* AUDIO */
+#content .scene.defaultEdit > div.single_media form.upload input[type=file] {height: 76px;}
+#content .scene.defaultEdit > div.single_media form.upload label {margin-top: 30px;}
+#content .scene.defaultEdit > div.single_media img {height: 96px;}
+
+
 
 /* MULTIPLE FILE UPLOAD */
 #content .scene.defaultEdit > div.media ul.mediae {padding: 0 20px 0; text-align: left;}
@@ -97,11 +103,11 @@
 #content .scene.defaultEdit > div.media ul.mediae li.image {height: 150px;}
 
 /* EDIT AUDIO */
-#content .scene.defaultEdit > div.media ul.mediae li.audio {width: 50px; height: 70px;
-	background: transparent url(/janitor/admin/img//bg_bn_play_medium.png) no-repeat 0px 20px;
+#content .scene.defaultEdit > div.media > a {display: none;} 
+#content .scene.defaultEdit > div.media div.audio {/*width: 50px;*/ margin: 0 30px 20px; height: 50px; width: 384px; /*position: absolute; top: 40px; left: 150px;*/
+	background: transparent url(/janitor/admin/img//bg_bn_play_medium.png) no-repeat center 0;
 }
-#content .scene.defaultEdit > div.media ul.mediae li.audio.playing {background-position: 0 -80px;}
-#content .scene.defaultEdit > div.media ul.mediae li.audio a {display: block; text-indent: -9999px;}
+#content .scene.defaultEdit > div.media div.audio.playing {background-position: center -100px;}
 
 /* EDIT VIDEO */
 #content .scene.defaultEdit > div.media ul.mediae li.video {width: 150px;

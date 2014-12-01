@@ -21,6 +21,13 @@
 /* LIST WITH IMAGE (DEFAULTS FOR 160-WIDTH IMAGE) */
 #content .defaultList ul.items > li.image {background-repeat: no-repeat; min-height: 100px; padding-left: 160px; background-position: 0px center;}
 
+/* LIST WITH AUDIO (DEFAULTS FOR 80-WIDTH PLAYER) */
+#content .defaultList ul.items > li.audio {padding-left: 80px;}
+#content .defaultList ul.items > li.audio div.audioplayer {position: absolute; top: 16px; left: 30px; width: 50px; height: 50px; 
+	background: transparent url(/janitor/admin/img/bg_bn_play_medium.png) no-repeat 0px 0px;
+}
+#content .defaultList ul.items > li.playing div.audioplayer {background-position: 0px -100px;}
+
 
 /* HIDE ADDITIONAL INFO AS DEFAULT */
 #content .defaultList ul.items > li .description,

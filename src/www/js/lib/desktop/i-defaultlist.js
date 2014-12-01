@@ -181,70 +181,81 @@ Util.Objects["defaultList"] = new function() {
 
 			// show node image
 			node._format = u.cv(node, "format");
-			node._width = u.cv(node, "width");
-			node._height = u.cv(node, "height");
-			if(node._format && node._width && node._height) {
-				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x"+node._height+"."+node._format;
-			}
-			else if(node._format && node._width) {
-				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x."+node._format;
-			}
-			else if(node._format && node._height) {
-				node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+"x"+node._height+"."+node._format;
-			}
-			else if(u.hc(node, "image")) {
-				if(node._width) {
-					node._image_src = "/images/0/missing/"+node._width+"x.png";
-				}
-				else if(node._height) {
-					node._image_src = "/images/0/missing/x"+node._height+".png";
-				}
-			}
 
-			if(node._image_src) {
-				u.as(node, "backgroundImage", "url("+node._image_src+")");
-			}
+			if(u.hc(node, "image")) {
 
+				node._width = u.cv(node, "width");
+				node._height = u.cv(node, "height");
+
+				if(node._format && node._width && node._height) {
+					node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x"+node._height+"."+node._format;
+				}
+				else if(node._format && node._width) {
+					node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x."+node._format;
+				}
+				else if(node._format && node._height) {
+					node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+"x"+node._height+"."+node._format;
+				}
+				else {
+					if(node._width) {
+						node._image_src = "/images/0/missing/"+node._width+"x.png";
+					}
+					else if(node._height) {
+						node._image_src = "/images/0/missing/x"+node._height+".png";
+					}
+				}
+
+				if(node._image_src) {
+					u.as(node, "backgroundImage", "url("+node._image_src+")");
+				}
+			}
 
 			// show audio player
-			node._audio = u.cv(node, "audio");
-			if(node._audio) {
-				u.ac(node, "audio");
+//			node._audio = u.cv(node, "audio");
+			if(u.hc(node, "audio")) {
 
-				if(!page.audioplayer) {
-					page.audioplayer = u.audioPlayer();
-				}
-				var audio = u.ie(node, "div", {"class":"audio"});
-				audio.scene = this;
-				audio.url = "/audios/"+node._item_id+"/128."+node._audio;
+				var audio = u.ie(node, "div", {"class":"audioplayer"});
 
-				u.e.click(audio);
-				audio.clicked = function(event) {
+				if(node._format) {
 
-					if(!u.hc(this.parentNode, "playing")) {
-						// add global audio player for sound effects
+					if(!page.audioplayer) {
+						page.audioplayer = u.audioPlayer();
+					}
+					audio.scene = this;
+					audio.url = "/audios/"+node._item_id+"/"+node._variant+"/128."+node._format;
 
-						var node, i;
-						for(i = 0; node = this.scene.nodes[i]; i++) {
-							u.rc(node, "playing");
+					u.e.click(audio);
+					audio.clicked = function(event) {
+
+						if(!u.hc(this.parentNode, "playing")) {
+							// add global audio player for sound effects
+
+							var node, i;
+							for(i = 0; node = this.scene.nodes[i]; i++) {
+								u.rc(node, "playing");
+							}
+
+							page.audioplayer.loadAndPlay(this.url);
+							u.ac(this.parentNode, "playing");
 						}
-
-						page.audioplayer.loadAndPlay(this.url);
-						u.ac(this.parentNode, "playing");
+						else {
+							page.audioplayer.stop();
+							u.rc(this.parentNode, "playing");
+						}
 					}
-					else {
-						page.audioplayer.stop();
-						u.rc(this.parentNode, "playing");
-					}
+				}
+				else {
+					u.ac(audio, "disabled");
 				}
 			}
 
 			// TODO: inject video preview
-			node._video = u.cv(node, "video");
-			if(node._video) {
+			if(u.hc(node, "audio")) {
+				node._video = u.cv(node, "video");
+				if(node._video) {
 
+				}
 			}
-
 
 			node._ready = true;
 		}
