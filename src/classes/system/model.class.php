@@ -523,6 +523,9 @@ class Model extends HTML {
 	function proportionTest($uploads, $proportions) {
 
 		$proportion_array = explode(",", $proportions);
+		foreach($proportion_array as $i => $proportion) {
+			$proportion_array[$i] = round($proportion, 2);
+		}
 		foreach($uploads as $upload) {
 			if(!isset($upload["proportion"]) || array_search($upload["proportion"], $proportion_array) === false) {
 //				print "bad proportion";
