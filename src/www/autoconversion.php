@@ -6,7 +6,6 @@ if(isset($read_access) && $read_access) {
 
 include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
-
 // script needs to be able to handle following extensions:
 
 // IMAGE
@@ -23,7 +22,6 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 // AUDIO
 // mp3
 // ogg
-
 
 
 // error handling
@@ -51,7 +49,7 @@ function conversionFailed($reason) {
 
 	// dangerous to return HTML - receiving JS will expect media, not HTML
 	else {
-		header("Location: /janitor/admin/404");
+//		header("Location: /janitor/admin/404");
 	}
 	exit();
 }
@@ -111,6 +109,19 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P
 	}
 }
 // AUDIO
+// IMAGE WITH VARIANT
+// /audios/{id}/{variant}/{bitrate}.{format}
+if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>\w*)\/(?P<bitrate>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+	$request_type = $matches["request_type"];
+
+	if($request_type == "audios") {
+
+		$id = $matches["id"];
+		$bitrate = $matches["bitrate"];
+		$format = $matches["format"];
+		$variant = "/".$matches["variant"];
+	}
+}
 // /audios/{id}/{bitrate}.{format}
 else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
@@ -121,7 +132,7 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d*).(
 		$bitrate = $matches["bitrate"];
 		$format = $matches["format"];
 
-		//	print $id . ":" . $bitrate .":". $format ."<br>";
+//			print $id . ":" . $bitrate .":". $format ."<br>";
 
 		// TODO: implement bitrate control in audio class first
 		// $max_bitrate = 320;
@@ -264,14 +275,34 @@ else if($request_type == "audios" && ($format == "mp3" || $format == "ogg")) {
 
 	$Audio = new Audio();
 
-	if($format == "mp3" && file_exists(PRIVATE_FILE_PATH."/$id/mp3")) {
-		$input_file = PRIVATE_FILE_PATH."/$id/mp3";
+	// jpg, and source is available
+	if($format == "mp3") {
+
+		if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp3")) {
+			$input_file = PRIVATE_FILE_PATH."/$id$variant/mp3";
+		}
+		else if(file_exists(PRIVATE_FILE_PATH."/$id/mp3")) {
+			$input_file = PRIVATE_FILE_PATH."/$id/mp3";
+		}
 	}
-	else if($format == "ogg" && file_exists(PRIVATE_FILE_PATH."/$id/ogg")) {
-		$input_file = PRIVATE_FILE_PATH."/$id/ogg";
+	// png, and source is available
+	else if($format == "ogg") {
+		
+		if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogg")) {
+			$input_file = PRIVATE_FILE_PATH."/$id$variant/ogg";
+		}
+		else if(file_exists(PRIVATE_FILE_PATH."/$id/ogg")) {
+			$input_file = PRIVATE_FILE_PATH."/$id/ogg";
+		}
+	}
+	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp3")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp3";
 	}
 	else if(file_exists(PRIVATE_FILE_PATH."/$id/mp3")) {
 		$input_file = PRIVATE_FILE_PATH."/$id/mp3";
+	}
+	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogg")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogg";
 	}
 	else if(file_exists(PRIVATE_FILE_PATH."/$id/ogg")) {
 		$input_file = PRIVATE_FILE_PATH."/$id/ogg";
