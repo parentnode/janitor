@@ -109,7 +109,7 @@ class JanitorHTML {
 
 		$_ .= '<ul class="actions">';
 		$_ .= $model->link("Cancel", $this->path."/list", array("class" => "button key:esc", "wrapper" => "li.cancel"));
-		$_ .= $model->submit("Save", array("class" => "primary key:s", "wrapper" => "li.save"));
+		$_ .= $model->submit("Save and continue", array("class" => "primary key:s", "wrapper" => "li.save"));
 		$_ .= '</ul>';
 
 		return $_;
@@ -245,7 +245,7 @@ class JanitorHTML {
 
 		$_ = '';
 
-		$_ .= '<div class="media  '.$variant.' '.$class.'  sortable item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<div class="media  '.$type.' '.$class.' sortable item_id:'.$item["id"].'"'.$this->jsData().'>';
 		$_ .= '<h2>'.$label.'</h2>';
 		$_ .= $model->formStart($this->path."/addMedia/".$item["id"], array("class" => "upload labelstyle:inject"));
 		$_ .= '<fieldset>';
@@ -259,40 +259,41 @@ class JanitorHTML {
 
 		$_ .= '<ul class="mediae">';
 
+		
 		if($item["mediae"]) {
 			foreach($item["mediae"] as $variant => $media) {
 
-				if($type == "media") {
+				if($type == "mediae") {
 
 					if(preg_match("/^(jpg|png)$/", $media["format"])) {
-						$_ .= '<li class="media image variant:'.$variant.' media_id:'.$media["id"].'">';
-						$_ .= '<img src="/images/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'" />';
-						$_ .= '<p>'.$media["name"].'</p>';
+						$_ .= '<li class="media image variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].' width:'.$media["width"].' height:'.$media["height"].'">';
+						$_ .= '<a href="/images/'.$item["id"].'/'.$variant.'/x150.'.$media["format"].'">'.$media["name"].'</a>';
 					}
 					else if(preg_match("/^(mp3|ogv)$/", $media["format"])) {
-						$_ .= '<li class="media audio variant:'.$variant.' media_id:'.$media["id"].'">';
+						$_ .= '<li class="media audio variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].'">';
 						$_ .= '<a href="/audios/'.$item["id"].'/'.$variant.'/128.'.$media["format"].'">'.$media["name"].'</a>';
 					}
 					else if(preg_match("/^(mp4|mov)$/", $media["format"])) {
-						$_ .= '<li class="media video variant:'.$variant.' media_id:'.$media["id"].'">';
-						$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'">'.$media["name"].'</a>';
+						$_ .= '<li class="media video variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].' width:'.$media["width"].' height:'.$media["height"].'">';
+						$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/x150.'.$media["format"].'">'.$media["name"].'</a>';
 					}
+					$_ .= '<p>'.$media["name"].'</p>';
 					$_ .= '</li>';
 
 				}
 				else if($type == "variant") {
 
 					if(preg_match("/^(jpg|png)$/", $media["format"])) {
-						$_ .= '<li class="media image variant:'.$variant.' media_id:'.$media["id"].'">';
-						$_ .= '<img src="/images/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'" />';
+						$_ .= '<li class="media image variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].' width:'.$media["width"].' height:'.$media["height"].'">';
+						$_ .= '<a href="/images/'.$item["id"].'/'.$variant.'/x150.'.$media["format"].'">'.$variant.'</a>';
 					}
 					else if(preg_match("/^(mp3|ogv)$/", $media["format"])) {
-						$_ .= '<li class="media audio variant:'.$variant.' media_id:'.$media["id"].'">';
+						$_ .= '<li class="media audio variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].'">';
 						$_ .= '<a href="/audios/'.$item["id"].'/'.$variant.'/128.'.$media["format"].'">'.$variant.'</a>';
 					}
 					else if(preg_match("/^(mp4|mov)$/", $media["format"])) {
-						$_ .= '<li class="media video variant:'.$variant.' media_id:'.$media["id"].'">';
-						$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'">'.$variant.'</a>';
+						$_ .= '<li class="media video variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].' width:'.$media["width"].' height:'.$media["height"].'">';
+						$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/x150.'.$media["format"].'">'.$variant.'</a>';
 					}
 					$_ .= '<p>'.$variant.'</p>';
 					$_ .= '</li>';
@@ -313,7 +314,7 @@ class JanitorHTML {
 		$variant = "single_media";
 		$label = "Single media";
 		$class = "";
-		$_class = "i:addMediaSingle";
+		$init_class = "i:addMediaSingle";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -323,12 +324,13 @@ class JanitorHTML {
 					case "variant"           : $variant            = $_value; break;
 					case "label"             : $label              = $_value; break;
 					case "class"             : $class              = $_value; break;
+					case "init_class"        : $init_class         = $_value; break;
 				}
 			}
 		}
 
 		if(!preg_match("/i:[a-z]+/", $class)) {
-			$class = $_class." ".$class;
+			$class = $class." ".$init_class;
 		}
 
 		// get media
@@ -350,8 +352,9 @@ class JanitorHTML {
 		$_ .= $model->formEnd();
 
 		if($media) {
+			$_ .= '<div class="file">';
 			if(preg_match("/^(jpg|png)$/", $media["format"])) {
-				$_ .= '<img src="/images/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'" />';
+				$_ .= '<a href="/images/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'">'.$media["name"].'</a>';
 			}
 			else if(preg_match("/^(mp3|ogv)$/", $media["format"])) {
 				$_ .= '<a href="/audios/'.$item["id"].'/'.$variant.'/128.'.$media["format"].'">'.$media["name"].'</a>';
@@ -359,7 +362,10 @@ class JanitorHTML {
 			else if(preg_match("/^(mp4|mov)$/", $media["format"])) {
 				$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'">'.$media["name"].'</a>';
 			}
+			$_ .= '<p>'.$media["name"].'</p>';
+			$_ .= '</div>';
 		}
+
 		$_ .= '</div>';
 
 		return $_;
