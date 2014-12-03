@@ -49,8 +49,8 @@ class TypePost extends Itemtype {
 
 		// Files
 		$this->addToModel("mediae", array(
-			"label" => "Add your media here",
-			"allowed_formats" => "png,jpg",
+			"label" => "Add media here",
+			"allowed_formats" => "png,jpg,mp4",
 			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
 		));
 
