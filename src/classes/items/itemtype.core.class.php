@@ -540,17 +540,26 @@ class ItemtypeCore extends Model {
 			if($this->validateList(array($variant), $item_id)) {
 				$uploads = $this->upload($item_id, array("input_name" => $variant, "variant" => $variant));
 				if($uploads) {
-					$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
-					$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)");
+
+					$name = $uploads[0]["name"];
+					$variant = $uploads[0]["variant"];
+					$format = $uploads[0]["format"];
+					$width = isset($uploads[0]["width"]) ? $uploads[0]["width"] : 0;
+					$height = isset($uploads[0]["height"]) ? $uploads[0]["height"] : 0;
+					$filesize = $uploads[0]["filesize"];
+
+					$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$variant."'");
+					$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$name."', '".$format."', '".$variant."', '".$width."', '".$height."', '".$filesize."', 0)");
 
 					return array(
 						"item_id" => $item_id, 
 						"media_id" => $query->lastInsertId(), 
-						"variant" => $uploads[0]["variant"], 
-						"format" => $uploads[0]["format"], 
-						"width" => $uploads[0]["width"], 
-						"height" => $uploads[0]["height"],
-						"filesize" => $uploads[0]["filesize"]
+						"name" => $name,
+						"variant" => $variant, 
+						"format" => $format, 
+						"width" => $width,
+						"height" => $height,
+						"filesize" => $filesize
 					);
 				}
 			}
@@ -696,8 +705,8 @@ class ItemtypeCore extends Model {
 
 		$uploads = array();
 
-//		print "files:<br>";
-//		print_r($_FILES);
+		// print "files:<br>";
+		// print_r($_FILES);
 		// print "post:<br>";
 		// print_r($_POST);
 
@@ -879,12 +888,15 @@ class ItemtypeCore extends Model {
 						}
 
 					}
+					// else {
+					// 	message()->addMessage("Format is not supported (".$upload["name"].")", array("type" => "error"));
+					// }
 
 				}
-				// file group error
-				else {
-					message()->addMessage("File problem (".$upload["name"].")");
-				}
+				// // file error
+				// else {
+				// 	message()->addMessage("Unknown file problem", array("type" => "error"));
+				// }
 			}
 
 		}
