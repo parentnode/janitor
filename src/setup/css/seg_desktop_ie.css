@@ -1,7 +1,7 @@
 
-/*seg_desktop_include.css*/
+/*seg_desktop_ie_include.css*/
 
-/*seg_desktop_include.css*/
+/*seg_desktop_ie_include.css*/
 
 /*s-fonts.css*/
 @font-face {
@@ -654,6 +654,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.defaultNew > form {padding-top: 20px;}
 #content .scene.defaultNew > form .actions {text-align: left;}
 #content .scene.defaultNew > form .actions li {padding: 0 5px 10px;}
+
 
 
 
