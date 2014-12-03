@@ -28,6 +28,13 @@
 }
 #content .defaultList ul.items > li.playing div.audioplayer {background-position: 0px -100px;}
 
+/* LIST WITH VIDEO (DEFAULTS FOR 80-WIDTH PLAYER) */
+#content .defaultList ul.items > li.video {padding-left: 80px;}
+#content .defaultList ul.items > li.video div.videoplayer {position: absolute; top: 16px; left: 30px; width: 50px; height: 50px; 
+	background: transparent url(/janitor/admin/img/bg_bn_play_medium.png) no-repeat 0px 0px;
+}
+#content .defaultList ul.items > li.playing div.videoplayer {background-position: 0px -100px;}
+
 
 /* HIDE ADDITIONAL INFO AS DEFAULT */
 #content .defaultList ul.items > li .description,

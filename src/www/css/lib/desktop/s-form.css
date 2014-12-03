@@ -63,8 +63,8 @@
 
 /* FILES */
 #content .field.files {border: 3px dashed #dedede; width: 374px; display: inline-block; vertical-align: top; border-radius: 5px; position: relative; padding: 0; margin: 2px 30px 20px;}
-#content .field.files input[type="file"] {opacity: 0; width: 356px; height: 50px;}
-#content .field.files label {display: block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 18px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
+#content .field.files input[type="file"] {opacity: 0; width: 374px; border: none; height: 60px; margin: 0; padding: 0;}
+#content .field.files label {display: block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 20px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
 #content .field.files.loading label {display: none;}
 #content .field.files.loading {background: transparent url(/janitor/admin/img/gx_loader.gif) no-repeat center center;}
 
@@ -113,6 +113,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 /* FOCUS - FILES */
 #content .field.files.focus {border-color: #c8e183;}
+#content .field.files.focus input[type="file"] {margin: 0; border: none;}
 #content .field.files.focus label {background-color: #c8e183;}
 
 

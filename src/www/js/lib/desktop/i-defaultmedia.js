@@ -2,6 +2,8 @@
 Util.Objects["addMedia"] = new function() {
 	this.init = function(div) {
 
+		u.bug("addMedia init:" + u.nodeId(div))
+
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
 		div.media_list = u.qs("ul.mediae", div);
@@ -85,34 +87,41 @@ Util.Objects["addMedia"] = new function() {
 
 
 		// add delete form
-		div.addDeleteForm = function(li) {
+		div.addDeleteForm = function(node) {
 
-			var delete_form = u.f.addForm(li, {"action":this.delete_url+"/"+this.item_id+"/"+u.cv(li, "variant"), "class":"delete"});
-			delete_form.li = li;
-			u.ae(delete_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
+			if(!node.delete_form) {
+				node.delete_form = u.f.addForm(node, {"action":this.delete_url+"/"+this.item_id+"/"+u.cv(node, "variant"), "class":"delete"});
+				node.delete_form.node = node;
+				u.ae(node.delete_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
 
-			var bn_delete = u.f.addAction(delete_form, {"class":"button delete"});
+				var bn_delete = u.f.addAction(node.delete_form, {"class":"button delete"});
 
-			delete_form.deleted = function() {
-				this.li.parentNode.removeChild(this.li);
-				u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
+				node.delete_form.deleted = function() {
+					this.node.parentNode.removeChild(this.node);
+
+					if(u.hc(this.node.div, "sortable")) {
+						u.sortable(this.node.div.media_list, {"targets":"mediae", "draggables":"media"});
+					}
+
+					this.node.delete_form = null;
+				}
+				u.o.deleteMedia.init(node.delete_form);
 			}
-			u.o.deleteMedia.init(delete_form);
 		}
 
 		// add delete form
 		div.addUpdateNameForm = function(li) {
 
-			li.p_name.li = li;
+			li.media_name.li = li;
 
 			// enable edit state
-			u.ce(li.p_name);
+			u.ce(li.media_name);
 			// eliminate dragging if sorting is also enable
-			li.p_name.inputStarted = function(event) {
+			li.media_name.inputStarted = function(event) {
 				u.e.kill(event);
 				this.li.media_list._sorting_disabled = true;
 			}
-			li.p_name.clicked = function(event) {
+			li.media_name.clicked = function(event) {
 				u.ac(this.li, "edit");
 
 				var input = this.li.update_name_form.fields["name"];
@@ -138,7 +147,7 @@ Util.Objects["addMedia"] = new function() {
 			li.update_name_form = u.f.addForm(li, {"action":this.update_name_url+"/"+this.item_id+"/"+u.cv(li, "variant"), "class":"edit"});
 			li.update_name_form.li = li;
 			var field = u.ae(li.update_name_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
-			var field = u.f.addField(li.update_name_form, {"type":"string","name":"name", "value":li.p_name.innerHTML});
+			var field = u.f.addField(li.update_name_form, {"type":"string","name":"name", "value":li.media_name.innerHTML});
 
 			// init form
 			u.f.init(li.update_name_form);
@@ -165,10 +174,10 @@ Util.Objects["addMedia"] = new function() {
 
 					// inject/update image if everything went well
 					if(response.cms_status == "success" && response.cms_object) {
-						this.li.p_name.innerHTML = this.fields["name"].val();
+						this.li.media_name.innerHTML = this.fields["name"].val();
 					}
 					else {
-						this.fields["name"].val(this.li.p_name.innerHTML);
+						this.fields["name"].val(this.li.media_name.innerHTML);
 					}
 
 				}
@@ -176,6 +185,237 @@ Util.Objects["addMedia"] = new function() {
 
 			}
 		}
+
+
+		// set media type for form
+		// previews are different for different types
+		// add preview based on current media format
+		div.addPreview = function(node) {
+
+			// remove existing image
+			if(node.image) {
+				node.image.parentNode.removeChild(node.image);
+				node.image = null;
+			}
+			// remove existing video
+			if(node.video) {
+				node.video.parentNode.removeChild(node.video);
+				node.video = null;
+			}
+
+
+			// set media type
+			node.is_image = node.media_format.match(/jpg|png|gif/i);
+			node.is_audio = node.media_format.match(/mp3|ogg/i);
+			node.is_video = node.media_format.match(/mov|mp4|ogv|3gp/i);
+			node.is_zip = node.media_format.match(/zip/i);
+			node.is_pdf = node.media_format.match(/pdf/i);
+
+
+			// file div available
+			// if(!node.media_file && node.media_format) {
+			// 	node.media_file = u.ae(node, "div", {"class":"file"});
+			// }
+
+			if(node.media_format) {
+
+				// media play button
+				node.bn_player = u.qs("a", node);
+				if(!node.bn_player) {
+					node.bn_player = u.ie(node, "a");
+				}
+				node.bn_player.node = node;
+				u.ce(node.bn_player);
+
+
+				// media name
+				node.media_name = u.qs("p", node);
+				if(!node.media_name) {
+					node.media_name = u.ae(node, "p");
+				}
+				node.media_name.node = node;
+			}
+
+
+			u.rc(node, "image|audio|video|pdf|zip");
+
+
+			// inject previews
+			if(node.is_audio) {
+				u.ac(node, "audio");
+				this.addAudioPreview(node);
+			}
+			else if(node.is_video) {
+				u.ac(node, "video");
+				this.addVideoPreview(node);
+			}
+			else if(node.is_image) {
+				u.ac(node, "image");
+				this.addImagePreview(node);
+			}
+			else if(node.is_pdf) {
+				u.ac(node, "pdf");
+				this.addPdfPreview(node);
+			}
+			else if(node.is_zip) {
+				u.ac(node, "zip");
+				this.addZipPreview(node);
+			}
+
+
+			// adjust media name width
+			if(node.media_name) {
+
+				// Set p width to match li
+				var n_w = node.offsetWidth;
+				var p_p_l = parseInt(u.gcs(node.media_name, "padding-left"));
+				var p_p_r = parseInt(u.gcs(node.media_name, "padding-right"));
+				u.as(node.media_name, "width", (n_w - p_p_l - p_p_r)+"px");
+
+				// add update form for image name
+				if(!u.hc(div, "variant") && div.update_name_url) {
+					div.addUpdateNameForm(node);
+				}
+			}
+		}
+
+		// add image container (if needed)
+		div.addImage = function(node) {
+
+			if(!node.image && node.media_format) {
+				node.image = u.ae(node, "img");
+
+				var proportion = u.cv(node, "width")/u.cv(node, "height");
+
+				u.as(node.image, "width", (node.offsetHeight*proportion)+"px");
+				u.as(node.image, "height", node.offsetHeight+"px");
+			}
+		}
+
+		// add video container (if needed)
+		div.addVideo = function(node) {
+
+			if(!page.videoplayer) {
+				page.videoplayer = u.videoPlayer();
+			}
+
+			if(!node.video && node.media_format) {
+				node.video = u.ae(node, page.videoplayer);
+
+				var proportion = u.cv(node, "width")/u.cv(node, "height");
+
+				u.as(node.video, "width", (node.offsetHeight*proportion)+"px");
+				u.as(node.video, "height", node.offsetHeight+"px");
+			}
+		}
+
+
+		// PDF preview
+		div.addPdfPreview = function(node) {
+
+			// add image if it does not exist and format is available
+			this.addImage(node);
+
+			if(node.media_format) {
+
+				this.addDeleteForm(node);
+				node.image.src = "/images/0/pdf/x"+node.offsetHeight+".png?"+u.randomString(4);
+			}
+		}
+
+		// ZIP preview
+		div.addZipPreview = function(node) {
+
+			// add image if it does not exist and format is available
+			this.addImage(node);
+
+			if(node.media_format) {
+
+				this.addDeleteForm(node);
+				node.image.src = "/images/0/zip/x"+node.offsetHeight+".png?"+u.randomString(4);
+			}
+		}
+
+		// IMAGE preview
+		div.addImagePreview = function(node) {
+
+			// add image if it does not exist and format is available
+			this.addImage(node);
+
+			if(node.media_format) {
+
+				this.addDeleteForm(node);
+				node.image.src = "/images/"+this.item_id+"/"+node.media_variant+"/x"+node.offsetHeight+"."+node.media_format+"?"+u.randomString(4);
+			}
+		}
+
+		// AUDIO preview
+		div.addAudioPreview = function(node) {
+
+			// TODO: add mp3 file "preview"-bg
+
+			// make sure we have audioplayer available
+			if(!page.audioplayer) {
+				page.audioplayer = u.audioPlayer();
+			}
+
+			// if media format is available
+			if(node.media_format) {
+
+				this.addDeleteForm(node);
+
+				node.bn_player.url = "/audios/"+this.item_id+"/"+node.media_variant+"/128."+node.media_format+"?"+u.randomString(4);
+				node.bn_player.inputStarted = function(event) {
+					u.e.kill(event);
+					this.node.media_list._sorting_disabled = true;
+				}
+				node.bn_player.clicked = function(event) {
+					if(!u.hc(this, "playing")) {
+						page.audioplayer.loadAndPlay(this.url);
+						u.ac(this, "playing");
+					}
+					else {
+						page.audioplayer.stop();
+						u.rc(this, "playing");
+					}
+
+					this.node.media_list._sorting_disabled = false;
+				}
+			}
+		}
+
+		// VIDEO preview
+		div.addVideoPreview = function(node) {
+
+			// TODO: add video file "preview"-bg
+			this.addVideo(node);
+
+			// if media format is available
+			if(node.media_format) {
+
+				this.addDeleteForm(node);
+
+				node.bn_player.url = "/videos/"+this.item_id+"/"+node.media_variant+"/x"+node.offsetHeight+"."+node.media_format+"?"+u.randomString(4);
+				node.bn_player.inputStarted = function(event) {
+					u.e.kill(event);
+					this.node.media_list._sorting_disabled = true;
+				}
+				node.bn_player.clicked = function(event) {
+					if(!u.hc(this, "playing")) {
+						this.node.video.loadAndPlay(this.url);
+						u.ac(this, "playing");
+					}
+					else {
+						this.node.video.stop();
+						u.rc(this, "playing");
+					}
+
+					this.node.media_list._sorting_disabled = false;
+				}
+			}
+		}
+
+
 
 		// image list exists?
 		if(!div.media_list) {
@@ -189,33 +429,62 @@ Util.Objects["addMedia"] = new function() {
 		// inject delete forms in existing media list
 		var i, node;
 		for(i = 0; node = div.media_list.nodes[i]; i++) {
-			node.media_list = div.media_list;
 
-			// add delete form
-			if(div.delete_url) {
-				div.addDeleteForm(node);
-			}
+			node.div = div;
+			node.media_list = div.media_list;
+			node.image = u.qs("img", node);
+
+			node.media_variant = u.cv(node, "variant");
+			node.media_format = u.cv(node, "format");
+
+			div.addPreview(node);
+
+			// // add delete form
+			// div.addDeleteForm(node);
 
 			// image name element
-			node.p_name = u.qs("p", node);
-			if(node.p_name) {
+			// node.p_name = u.qs("p", node);
+			// if(node.p_name) {
+			//
+			// 	// Set p width to match li
+			// 	var n_w = node.offsetWidth;
+			// 	var p_p_l = parseInt(u.gcs(node.p_name, "padding-left"));
+			// 	var p_p_r = parseInt(u.gcs(node.p_name, "padding-right"));
+			// 	u.as(node.p_name, "width", (n_w - p_p_l - p_p_r)+"px");
+			//
+			// 	// add update form for image name
+			// 	if(!u.hc(div, "variant") && div.update_name_url) {
+			// 		div.addUpdateNameForm(node);
+			// 	}
+			// }
 
-				// Set p width to match li
-				var n_w = node.offsetWidth;
-				var p_p_l = parseInt(u.gcs(node.p_name, "padding-left"));
-				var p_p_r = parseInt(u.gcs(node.p_name, "padding-right"));
-				u.as(node.p_name, "width", (n_w - p_p_l - p_p_r)+"px");
+			// node.is_audio = u.hc(node, "audio");
+			// node.is_video = u.hc(node, "video");
+			// node.is_media = u.hc(node, "media");
+			//
+			// node.media_format = u.cv(node, "format");
+			// node.media_variant = u.cv(node, "variant");
 
-				// add update form for image name
-				if(div.update_name_url) {
-					div.addUpdateNameForm(node);
-				}
-			}
+			// TODO: add video and media
+			// TODO: create central version of addImagePreview, addAudioPreview, addVideoPreview
+			// TODO: use addImagePreview, addAudioPreview, addVideoPreview here
+			// TODO: add central version of addUpdateNameForm
+
+			// if(node.is_audio) {
+			// 	div.addAudioPreview(node);
+			// }
+			// else if(node.is_video) {
+			// 	div.addVideoPreview(node);
+			// }
+			// else if(node.is_media) {
+			// 	div.addImagePreview(node);
+			// }
+
 		}
 
 
 		// sortable list
-		if(u.hc(div, "sortable") && div.media_list && div.save_order_url) {
+		if(!u.hc(div, "variant") && u.hc(div, "sortable") && div.media_list && div.save_order_url) {
 
 			u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
 			div.media_list.picked = function() {}
@@ -314,16 +583,121 @@ Util.Objects["addMediaSingle"] = new function() {
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
 
-		div.image = u.qs("img", div);
-
-		div.is_media = u.hc(div, "media");
-		div.is_audio = u.hc(div, "audio");
-		div.is_video = u.hc(div, "video");
-
-
+		// base media info
 		div.item_id = u.cv(div, "item_id");
 		div.media_variant = u.cv(div, "variant");
 		div.media_format = u.cv(div, "format");
+		div.media_file = u.qs("div.file", div);
+
+
+		// get media size for image and video previews
+		div.media_input = u.qs("input[type=file]", div.form);
+		div.media_input_width = div.media_input.offsetWidth+10;
+		div.media_input_height = Math.round(div.media_input_width / (div.media_input.offsetWidth/(div.media_input.offsetHeight+6)));
+
+
+
+		// set media type for form
+		// previews are different for different types
+		// add preview based on current media format
+		div.addPreview = function() {
+
+			// remove existing image
+			if(this.image) {
+				this.image.parentNode.removeChild(this.image);
+				this.image = null;
+			}
+			// remove existing video
+			if(this.video) {
+				this.video.parentNode.removeChild(this.video);
+				this.video = null;
+			}
+
+
+			// set media type
+			this.is_image = this.media_format.match(/jpg|png|gif/i);
+			this.is_audio = this.media_format.match(/mp3|ogg/i);
+			this.is_video = this.media_format.match(/mov|mp4|ogv|3gp/i);
+			this.is_zip = this.media_format.match(/zip/i);
+			this.is_pdf = this.media_format.match(/pdf/i);
+
+
+			// file div available
+			if(!this.media_file && this.media_format) {
+				this.media_file = u.ae(this, "div", {"class":"file"});
+			}
+
+			if(this.media_file) {
+				this.media_file.div = this;
+
+				// media play button
+				this.bn_player = u.qs("a", this.media_file);
+				if(!this.bn_player) {
+					this.bn_player = u.ie(this.media_file, "a");
+				}
+				this.bn_player.div = this;
+				u.ce(this.bn_player);
+
+
+				// media name
+				this.media_name = u.qs("p", this.media_file);
+				if(!this.media_name) {
+					this.media_name = u.ae(this.media_file, "p");
+				}
+				this.media_name.div = this;
+			}
+
+
+			u.rc(this, "image|audio|video|pdf|zip");
+
+
+			// inject previews
+			if(this.is_audio) {
+				u.ac(this, "audio");
+				this.addAudioPreview();
+			}
+			else if(this.is_video) {
+				u.ac(this, "video");
+				this.addVideoPreview();
+			}
+			else if(this.is_image) {
+				u.ac(this, "image");
+				this.addImagePreview();
+			}
+			else if(this.is_pdf) {
+				u.ac(this, "pdf");
+				this.addPdfPreview();
+			}
+			else if(this.is_zip) {
+				u.ac(this, "zip");
+				this.addZipPreview();
+			}
+		}
+
+		// add image container (if needed)
+		div.addImage = function() {
+
+			if(!this.image && this.media_format) {
+				this.image = u.ae(this, "img");
+				u.as(this.image, "width", div.media_input_width+"px");
+				u.as(this.image, "height", div.media_input_height+"px");
+			}
+		}
+
+		// add video container (if needed)
+		div.addVideo = function() {
+
+			if(!page.videoplayer) {
+				page.videoplayer = u.videoPlayer();
+			}
+
+			if(!this.video && this.media_format) {
+				this.video = u.ae(this, page.videoplayer);
+				u.as(this.video, "width", div.media_input_width+"px");
+				u.as(this.video, "height", div.media_input_height+"px");
+			}
+		}
+
 
 
 		u.f.init(div.form);
@@ -344,36 +718,47 @@ Util.Objects["addMediaSingle"] = new function() {
 			u.ac(this.file_input.field, "loading");
 			u.rc(this.file_input.field, "focus");
 
+				// hide existing image while waiting for response
 			if(this.div.image) {
 				u.as(this.div.image, "display", "none");
 			}
+			if(this.div.video) {
+				u.as(this.div.video, "display", "none");
+			}
+			if(this.div.media_file) {
+				u.as(this.div.media_file, "display", "none");
+			}
+
 
 			var form_data = new FormData(this);
 			this.response = function(response) {
 				page.notify(response);
 
-				// hide existing image while waiting for response
+				// show existing previews (will be updated sutomatically if response is valid)
 				if(this.div.image) {
 					u.as(this.div.image, "display", "block");
 				}
+				if(this.div.video) {
+					u.as(this.div.video, "display", "block");
+				}
+				if(this.div.media_file) {
+					u.as(this.div.media_file, "display", "block");
+				}
 
-				// inject/update image if everything went well
+
+				// inject/update preview if everything went well
 				if(response.cms_status == "success" && response.cms_object) {
 
-					this.div._format = response.cms_object.format;
+					this.div.media_format = response.cms_object.format;
+
 					u.rc(this.div, "format:[a-z]*");
 					u.ac(this.div, "format:"+this.div._format);
 
-					if(this.div.is_audio) {
-						this.div.addAudioPreview();
-					}
-					else if(this.div.is_video) {
-						this.div.addVideoPreview();
-					}
-					else {
-						this.div.addImagePreview();
-					}
+					// inject preview
+					this.div.addPreview();
 
+					// update media name (preview makes sure name container is available)
+					this.div.media_name.innerHTML = response.cms_object.name;
 				}
 
 				u.rc(this.file_input.field, "loading");
@@ -392,59 +777,87 @@ Util.Objects["addMediaSingle"] = new function() {
 				this.bn_delete = u.f.addAction(this.delete_form, {"class":"button delete"});
 
 				this.delete_form.deleted = function() {
-					this.div.image.parentNode.removeChild(this.div.image);
-					this.div.image = false;
+
+					if(this.div.video) {
+						this.div.video.parentNode.removeChild(this.div.video);
+						this.div.video = false;
+					}
+					if(this.div.image) {
+						this.div.image.parentNode.removeChild(this.div.image);
+						this.div.image = false;
+					}
+					if(this.div.media_file) {
+						this.div.media_file.parentNode.removeChild(this.div.media_file);
+						this.div.media_file = false;
+					}
+
+					// remove delete_form
 					this.parentNode.removeChild(this);
+					this.div.delete_form = null;
 				}
 				u.o.deleteMedia.init(this.delete_form);
 			}
 		}
 
 
-		div.addImagePreview = function() {
 
-			if(!this.image && this.media_format) {
-				this.image = u.ae(this, "img");
-			}
+		// PDF preview
+		div.addPdfPreview = function() {
+
+			// add image if it does not exist and format is available
+			this.addImage();
 
 			if(this.media_format) {
 
 				this.addDeleteForm();
-
-				if(this.media_format == "pdf") {
-					this.image.src = "/images/0/pdf/x"+this.div.image.offsetHeight+".png?"+u.randomString(4);
-				}
-				else if(this.media_format == "zip") {
-					this.image.src = "/images/0/zip/x"+this.div.image.offsetHeight+".png?"+u.randomString(4);
-				}
-				else if(this.media_format.match(/^(jpg|png)$/)) {
-					this.image.src = "/images/"+this.item_id+"/"+this.media_variant+"/x"+this.image.offsetHeight+"."+this.media_format+"?"+u.randomString(4);
-				}
+				this.image.src = "/images/0/pdf/x"+this.media_input_height+".png?"+u.randomString(4);
 			}
-			
 		}
 
-		div.addAudioPreview = function() {
-			
-			if(!this.audio && this.media_format) {
+		// ZIP preview
+		div.addZipPreview = function() {
 
-				if(!page.audioplayer) {
-					page.audioplayer = u.audioPlayer();
-				}
-				this.audio = u.ae(div.form, "div", {"class":"audio"});
-				this.audio.div = this;
-
-			}
+			// add image if it does not exist and format is available
+			this.addImage();
 
 			if(this.media_format) {
 
 				this.addDeleteForm();
+				this.image.src = "/images/0/zip/x"+this.media_input_height+".png?"+u.randomString(4);
+			}
+		}
 
-				this.audio.url = "/audios/"+this.item_id+"/"+this.media_variant+"/128."+this.media_format;
+		// IMAGE preview
+		div.addImagePreview = function() {
 
-				u.e.click(this.audio);
-				this.audio.clicked = function(event) {
-				if(!u.hc(this, "playing")) {
+			// add image if it does not exist and format is available
+			this.addImage();
+
+			if(this.media_format) {
+
+				this.addDeleteForm();
+				this.image.src = "/images/"+this.item_id+"/"+this.media_variant+"/x"+this.media_input_height+"."+this.media_format+"?"+u.randomString(4);
+			}
+		}
+
+		// AUDIO preview
+		div.addAudioPreview = function() {
+
+			// TODO: add mp3 file "preview"-bg
+
+			// make sure we have audioplayer available
+			if(!page.audioplayer) {
+				page.audioplayer = u.audioPlayer();
+			}
+
+			// if media format is available
+			if(this.media_format) {
+
+				this.addDeleteForm();
+
+				this.bn_player.url = "/audios/"+this.item_id+"/"+this.media_variant+"/128."+this.media_format+"?"+u.randomString(4);
+				this.bn_player.clicked = function(event) {
+					if(!u.hc(this, "playing")) {
 						page.audioplayer.loadAndPlay(this.url);
 						u.ac(this, "playing");
 					}
@@ -453,27 +866,37 @@ Util.Objects["addMediaSingle"] = new function() {
 						u.rc(this, "playing");
 					}
 				}
-
 			}
-
 		}
 
-		div.addVideoPreview = function() {}
+		// VIDEO preview
+		div.addVideoPreview = function() {
 
+			// TODO: add video file "preview"-bg
+			this.addVideo();
 
-		// add initial delete form if image exists
-		if(div.is_audio) {
-			div.addAudioPreview();
+			// if media format is available
+			if(this.media_format) {
+
+				this.addDeleteForm();
+
+				this.bn_player.url = "/videos/"+this.item_id+"/"+this.media_variant+"/x"+this.media_input_height+"."+this.media_format+"?"+u.randomString(4);
+				this.bn_player.clicked = function(event) {
+					if(!u.hc(this, "playing")) {
+						this.div.video.loadAndPlay(this.url);
+						u.ac(this, "playing");
+					}
+					else {
+						this.div.video.stop();
+						u.rc(this, "playing");
+					}
+				}
+			}
 		}
-		else if(div.is_audio) {
-			div.addVideoPreview();
-		}
-		else if(div.is_media) {
-			div.addImagePreview();
-		}
 
 
-//		u.bug("div.audio:" + div.audio)
+		// add start preview
+		div.addPreview();
 
 	}
 }

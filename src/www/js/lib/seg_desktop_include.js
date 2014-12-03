@@ -8,13 +8,15 @@ document.write('<script type="text/javascript" src="/js/manipulator/src/u-dom.js
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-request.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-sortable.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-keyboard.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-audio.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-video.js"></script>');
 
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-history.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-navigation.js"></script>');
 
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_8/src/beta-u-audio.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_8/src/beta-u-video.js"></script>');
+// document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_8/src/beta-u-audio.js"></script>');
+// document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_8/src/beta-u-video.js"></script>');
 
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-page.js"></script>');
