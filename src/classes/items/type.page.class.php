@@ -46,33 +46,16 @@ class TypePage extends Itemtype {
 
 		// HTML
 		$this->addToModel("html", array(
-			// "type" => "html",
-			// "label" => "HTML content",
 			"required" => true,
-			// "allowed_tags" => "h2,h3,h4,p,ul,ol,download",
-			// "hint_message" => "Write the page content",
-			// "error_message" => "A page without any words? How weird."
 		));
 
 
 		// Single media
 		$this->addToModel("single_media", array(
-//			"type" => "files",
-			// "label" => "Drag Image here",
 			"allowed_sizes" => "960x540",
 			"allowed_formats" => "png,jpg",
-//			"max" => 1,
-			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x540aaa."
-//			"error_message" => "Image does not fit requirements."
+			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x540"
 		));
-
-		// // Tags
-		// $this->addToModel("tags", array(
-		// 	"type" => "tags",
-		// 	"label" => "Tag",
-		// 	"hint_message" => "Start typing to filter available tags. A correct tag has this format: context:value.",
-		// 	"error_message" => "Tag must conform to tag format: context:value."
-		// ));
 
 	}
 	//
