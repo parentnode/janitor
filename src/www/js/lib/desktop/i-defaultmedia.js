@@ -40,38 +40,37 @@ Util.Objects["addMedia"] = new function() {
 				// inject/update image if everything went well
 				if(response.cms_status == "success" && response.cms_object) {
 
-					var i, media, li, image;
+					var i, media, node, image;
 					for(i = 0; media = response.cms_object[i]; i++) {
-						var li = u.ie(div.media_list, "li");
 
-						li.media_list = this.div.media_list;
-
-						u.ac(li, "media image");
-						u.ac(li, "variant:"+media.variant);
-						u.ac(li, "media_id:"+media.media_id);
-						var image = u.ae(li, "img");
-						image.src = "/images/"+media.item_id+"/"+media.variant+"/x"+li.offsetHeight+"."+media.format+"?"+u.randomString(4);
-
-						// is name returned from upload
-						if(media.name) {
-							li.p_name = u.ae(li, "p", {"html":media.name});
-
-							// Set p width to match li
-							var n_w = media.width/media.height * li.offsetHeight;
-							var p_p_l = parseInt(u.gcs(li.p_name, "padding-left"));
-							var p_p_r = parseInt(u.gcs(li.p_name, "padding-right"));
-							u.as(li.p_name, "width", (n_w - p_p_l - p_p_r)+"px");
-
-							// add update form for image name
-							if(this.div.update_name_url) {
-								this.div.addUpdateNameForm(li);
+						if(u.hc(this.div, "variant")) {
+							var existing_variant = u.ge("variant:"+media.variant);
+							if(existing_variant) {
+								existing_variant.parentNode.removeChild(existing_variant);
 							}
 						}
 
-						// add delete form for image
-						if(this.div.delete_url) {
-							this.div.addDeleteForm(li);
+						var node = u.ie(div.media_list, "li");
+
+						node.media_list = this.div.media_list;
+						node.media_format = media.format;
+						node.media_variant = media.variant;
+						
+						u.ac(node, "format:"+media.format);
+						u.ac(node, "variant:"+media.variant);
+						u.ac(node, "media_id:"+media.media_id);
+
+						// inject preview
+						this.div.addPreview(node);
+
+						// update media name (preview makes sure name container is available)
+						if(u.hc(this.div, "variant")) {
+							node.media_name.innerHTML = media.variant;
 						}
+						else {
+							node.media_name.innerHTML = media.name;
+						}
+
 					}
 
 					if(this.div.save_order_url) {
@@ -110,21 +109,21 @@ Util.Objects["addMedia"] = new function() {
 		}
 
 		// add delete form
-		div.addUpdateNameForm = function(li) {
+		div.addUpdateNameForm = function(node) {
 
-			li.media_name.li = li;
+			node.media_name.node = node;
 
 			// enable edit state
-			u.ce(li.media_name);
+			u.ce(node.media_name);
 			// eliminate dragging if sorting is also enable
-			li.media_name.inputStarted = function(event) {
+			node.media_name.inputStarted = function(event) {
 				u.e.kill(event);
-				this.li.media_list._sorting_disabled = true;
+				this.node.media_list._sorting_disabled = true;
 			}
-			li.media_name.clicked = function(event) {
-				u.ac(this.li, "edit");
+			node.media_name.clicked = function(event) {
+				u.ac(this.node, "edit");
 
-				var input = this.li.update_name_form.fields["name"];
+				var input = this.node.update_name_form.fields["name"];
 				var field = input.field;
 
 				input.focus();
@@ -144,28 +143,28 @@ Util.Objects["addMedia"] = new function() {
 			}
 
 			// add update form
-			li.update_name_form = u.f.addForm(li, {"action":this.update_name_url+"/"+this.item_id+"/"+u.cv(li, "variant"), "class":"edit"});
-			li.update_name_form.li = li;
-			var field = u.ae(li.update_name_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
-			var field = u.f.addField(li.update_name_form, {"type":"string","name":"name", "value":li.media_name.innerHTML});
+			node.update_name_form = u.f.addForm(node, {"action":this.update_name_url+"/"+this.item_id+"/"+u.cv(node, "variant"), "class":"edit"});
+			node.update_name_form.node = node;
+			var field = u.ae(node.update_name_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
+			var field = u.f.addField(node.update_name_form, {"type":"string","name":"name", "value":node.media_name.innerHTML});
 
 			// init form
-			u.f.init(li.update_name_form);
+			u.f.init(node.update_name_form);
 
 			// submit on blur
-			li.update_name_form.fields["name"].blurred = function() {
+			node.update_name_form.fields["name"].blurred = function() {
 				u.bug("blurred")
 				this.form.updateName();
 			}
 
 			// do nothing on submit - it is handled on blur
-			li.update_name_form.submitted = function() {}
+			node.update_name_form.submitted = function() {}
 
 			// update name
-			li.update_name_form.updateName = function() {
+			node.update_name_form.updateName = function() {
 
-				u.rc(this.li, "edit");
-				this.li.media_list._sorting_disabled = false;
+				u.rc(this.node, "edit");
+				this.node.media_list._sorting_disabled = false;
 
 				// submit new image name
 				this.response = function(response) {
@@ -174,10 +173,10 @@ Util.Objects["addMedia"] = new function() {
 
 					// inject/update image if everything went well
 					if(response.cms_status == "success" && response.cms_object) {
-						this.li.media_name.innerHTML = this.fields["name"].val();
+						this.node.media_name.innerHTML = this.fields["name"].val();
 					}
 					else {
-						this.fields["name"].val(this.li.media_name.innerHTML);
+						this.fields["name"].val(this.node.media_name.innerHTML);
 					}
 
 				}
@@ -273,8 +272,8 @@ Util.Objects["addMedia"] = new function() {
 				u.as(node.media_name, "width", (n_w - p_p_l - p_p_r)+"px");
 
 				// add update form for image name
-				if(!u.hc(div, "variant") && div.update_name_url) {
-					div.addUpdateNameForm(node);
+				if(!u.hc(this, "variant") && this.update_name_url) {
+					this.addUpdateNameForm(node);
 				}
 			}
 		}
@@ -438,47 +437,6 @@ Util.Objects["addMedia"] = new function() {
 			node.media_format = u.cv(node, "format");
 
 			div.addPreview(node);
-
-			// // add delete form
-			// div.addDeleteForm(node);
-
-			// image name element
-			// node.p_name = u.qs("p", node);
-			// if(node.p_name) {
-			//
-			// 	// Set p width to match li
-			// 	var n_w = node.offsetWidth;
-			// 	var p_p_l = parseInt(u.gcs(node.p_name, "padding-left"));
-			// 	var p_p_r = parseInt(u.gcs(node.p_name, "padding-right"));
-			// 	u.as(node.p_name, "width", (n_w - p_p_l - p_p_r)+"px");
-			//
-			// 	// add update form for image name
-			// 	if(!u.hc(div, "variant") && div.update_name_url) {
-			// 		div.addUpdateNameForm(node);
-			// 	}
-			// }
-
-			// node.is_audio = u.hc(node, "audio");
-			// node.is_video = u.hc(node, "video");
-			// node.is_media = u.hc(node, "media");
-			//
-			// node.media_format = u.cv(node, "format");
-			// node.media_variant = u.cv(node, "variant");
-
-			// TODO: add video and media
-			// TODO: create central version of addImagePreview, addAudioPreview, addVideoPreview
-			// TODO: use addImagePreview, addAudioPreview, addVideoPreview here
-			// TODO: add central version of addUpdateNameForm
-
-			// if(node.is_audio) {
-			// 	div.addAudioPreview(node);
-			// }
-			// else if(node.is_video) {
-			// 	div.addVideoPreview(node);
-			// }
-			// else if(node.is_media) {
-			// 	div.addImagePreview(node);
-			// }
 
 		}
 
@@ -752,7 +710,7 @@ Util.Objects["addMediaSingle"] = new function() {
 					this.div.media_format = response.cms_object.format;
 
 					u.rc(this.div, "format:[a-z]*");
-					u.ac(this.div, "format:"+this.div._format);
+					u.ac(this.div, "format:"+this.div.media_format);
 
 					// inject preview
 					this.div.addPreview();

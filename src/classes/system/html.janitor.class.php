@@ -51,7 +51,7 @@ class JanitorHTML {
 	function jsMedia(&$item, $variant=false) {
 
 		$media = $this->getMedia($item, $variant);
-
+		
 		return $media ? (" format:".$media["format"]." variant:".$media["variant"]) : "";
 	}
 
