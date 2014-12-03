@@ -53,7 +53,7 @@ class Model extends HTML {
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "HTML",
-			"allowed_tags" => "p,h2,h3,h4,code,ul,ol,mp4,png,jpg,vimeo,youtube,download",
+			"allowed_tags" => "p,h2,h3,h4,ul,ol,download", //,mp4,png,jpg,vimeo,youtube,code",
 			"hint_message" => "Write!",
 			"error_message" => "No words? How weird.",
 			"file_delete" => $page->validPath($this->path."/deleteHTMLFile"),
@@ -459,9 +459,10 @@ class Model extends HTML {
 	function isUnique($name, $item_id) {
 
 		$value = $this->getProperty($name, "value");
+		$db = $this->getProperty($name, "unique");
 
 		$query = new Query();
-		$sql = "SELECT id FROM ".$entity["unique"]." WHERE $name = '".$value."'".($item_id ? " AND item_id != ".$item_id : "");
+		$sql = "SELECT id FROM ".$db." WHERE $name = '".$value."'".($item_id ? " AND item_id != ".$item_id : "");
 		if($item_id) {
 			
 		}
@@ -556,7 +557,7 @@ class Model extends HTML {
 		$format_array = explode(",", $formats);
 		foreach($uploads as $upload) {
 			if(array_search($upload["format"], $format_array) === false) {
-//				print "bad format";
+//				print "bad format:".$upload["format"]."<br>\n";
 				return false;
 			}
 		}
