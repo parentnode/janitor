@@ -317,7 +317,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 /* DEFAULT TEXT TAG STYLING */
 #content .field.html .editor div.tag.h1 div.text {font-size: 36px;}
 #content .field.html .editor div.tag.h2 div.text {font-size: 30px;}
-#content .field.html .editor div.tag.h3 div.text {font-size: 30px;}
+#content .field.html .editor div.tag.h3 div.text {font-size: 20px;}
 #content .field.html .editor div.tag.h4 div.text {font-size: 16px;}
 #content .field.html .editor div.tag.h5 div.text {font-size: 14px;}
 #content .field.html .editor div.tag.p div.text {font-size: 14px;}
