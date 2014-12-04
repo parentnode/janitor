@@ -495,6 +495,7 @@ class Model extends HTML {
 		// print_r($uploads);
 
 		if(
+			$uploads &&
 			(!$min || count($value) >= $min) && 
 			(!$max || count($value) <= $max) &&
 			(!$proportions || $this->proportionTest($uploads, $proportions)) &&
