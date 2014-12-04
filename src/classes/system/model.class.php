@@ -38,7 +38,6 @@ class Model extends HTML {
 		$this->addToModel("published_at", array(
 			"type" => "datetime",
 			"label" => "Publish date (yyyy-mm-dd hh:mm)",
-//			"pattern" => "^[\d]{4}-[\d]{2}-[\d]{2}[0-9\-\/ \:]*$",
 			"hint_message" => "Publishing date of the item. Leave empty for current time", 
 			"error_message" => "Datetime must be of format (yyyy-mm-dd hh:mm)"
 		));
@@ -145,7 +144,7 @@ class Model extends HTML {
 					case "label"                 : $this->setProperty($name, "label",                $_value); break;
 					case "type"                  : $this->setProperty($name, "type",                 $_value); break;
 					case "value"                 : $this->setProperty($name, "value",                $_value); break;
-					case "options"               : $this->setProperty($name, "id",                   $_value); break;
+					case "options"               : $this->setProperty($name, "options",              $_value); break;
 
 					case "id"                    : $this->setProperty($name, "id",                   $_value); break;
 					case "class"                 : $this->setProperty($name, "class",                $_value); break;
@@ -245,7 +244,7 @@ class Model extends HTML {
 	* TODO: Documentation required
 	*/
 	function setProperty($name, $property, $value) {
-		 $this->data_entities[$name][$property] = $value;
+		$this->data_entities[$name][$property] = $value;
 	}
 
 	/**
@@ -367,10 +366,14 @@ class Model extends HTML {
 		if(
 			$this->getProperty($name, "type") == "string" || 
 			$this->getProperty($name, "type") == "text"  || 
-			$this->getProperty($name, "type") == "html" || 
 			$this->getProperty($name, "type") == "select"
 		) {
 			if($this->isString($name)) {
+				return true;
+			}
+		}
+		else if($this->getProperty($name, "type") == "html") {
+			if($this->isHTML($name)) {
 				return true;
 			}
 		}
@@ -409,24 +412,13 @@ class Model extends HTML {
 				return true;
 			}
 		}
-		else if($this->getProperty($name, "type") == "array") {
-			if($this->isArray($name)) {
-				return true;
-			}
-		}
-		else if(
-			$this->getProperty($name, "type") == "date") {
+		else if($this->getProperty($name, "type") == "date") {
 			if($this->isDate($name)) {
 				return true;
 			}
 		}
 		else if($this->getProperty($name, "type") == "datetime") {
 			if($this->isDatetime($name)) {
-				return true;
-			}
-		}
-		else if($this->getProperty($name, "type") == "timestamp") {
-			if($this->isTimestamp($name)) {
 				return true;
 			}
 		}
@@ -719,6 +711,37 @@ class Model extends HTML {
 		}
 	}
 
+
+	/**
+	* Is string string?
+	*
+	* @param string $name Element identifier
+	* @return bool
+	*/
+	function isHTML($name) {
+
+		$value = $this->getProperty($name, "value");
+		$min_length = $this->getProperty($name, "min");
+		$max_length = $this->getProperty($name, "max");
+
+		// remove all HTML tags
+		$value = strip_tags($value);
+
+		if(
+			($value || $value === "0") && is_string($value) && 
+			(!$min_length || strlen($value) >= $min_length) && 
+			(!$max_length || strlen($value) <= $max_length)
+		) {
+			$this->setProperty($name, "error", false);
+			return true;
+		}
+		else {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+	}
+
+
 	/**
 	* Is string numeric?
 	*
@@ -931,27 +954,6 @@ class Model extends HTML {
 		}
 	}
 
-	/**
-	* Check if array is array
-	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
-	* @return bool
-	* TODO: Faulty Array validation
-	*/
-	function isArray($name) {
-		$entity = $this->data_entities[$name];
-
-		$array = $this->obj->vars[$element];
-		$min_length = $this->getRuleDetails($rule, 0);
-		if(is_array($array) && count(cleanArray($array)) && (!$min_length || count(cleanArray($array)) >= $min_length)) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
 
 
 	/**
@@ -969,39 +971,6 @@ class Model extends HTML {
 
 		return true;
 
-	}
-
-
-	/**
-	* Check if timestamp is entered correctly
-	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
-	* @return bool
-	* TODO: Faulty timestamp validation
-	*/
-	function isTimestamp($name) {
-		$entity = $this->data_entities[$name];
-
-		$after = $this->getRuleDetails($rule, 0);
-		$before = $this->getRuleDetails($rule, 1);
-
-		list($date, $time) = explode(" ", $this->obj->vars[$element]);
-
-		$date = preg_replace('/[\/\.-]/', '-', $date);
-		$string = $this->obj->vars[$element];
-
-		$date = explode('-', $date);
-		$time = explode(':', $time);
-
-		if(count($date) == 3 && count($time) == 2) {
-			$timestamp = mktime($time[0], $time[1], 0, $date[1], $date[0], $date[2]);
-
-			if(checkdate($date[1], $date[0], $date[2]) && (!$after || $timestamp > $after) && (!$before || $timestamp < $before)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 
