@@ -157,10 +157,10 @@ class HTMLCore {
 
 		$_ = '';
 
+
 		$for = stringOr($id, "input_".preg_replace("/\[\]/", "", $name));
 		$att_id = $this->attribute("id", $for);
 		$att_name = $this->attribute("name", $name);
-
 
 		// restrictions
 		$att_disabled = $disabled ? $this->attribute("disabled", "disabled") : '';
@@ -172,7 +172,7 @@ class HTMLCore {
 		// attribute strips value for slashes etc - cannot be used for patterns
 		$att_pattern = $pattern ? ' pattern="'.$pattern.'"' : '';
 
-		// multiple selects?
+		// multiple selects/files
 		$att_multiple = $this->attribute("multiple", ($max && $max > 1 ? "multiple" : ""));
 
 
@@ -284,7 +284,6 @@ class HTMLCore {
 			// FILES
 			else if($type == "files") {
 
-				
 				// add brackets for file input - backend is designed to handle files in array, even if there is just one
 				$att_name = $this->attribute("name", $name . "[]");
 				$att_class_value = $this->attribute("class", $value ? "uploaded" : "");
