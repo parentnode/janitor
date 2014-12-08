@@ -5,8 +5,6 @@ class Upgrade {
 
 	function __construct() {
 
-
-
 	}
 
 
@@ -97,8 +95,7 @@ class Upgrade {
 
 	// V 0.7 to v 0.8 UPGRADE HELPERS
 
-	function moveMediaeToItems($itemtype, $variant) {
-
+	function moveMediaeToItems($itemtype) {
 
 		$query = new Query();
 		$IC = new Items();
