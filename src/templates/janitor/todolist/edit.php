@@ -19,7 +19,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true)))
 
 			<fieldset>
 				<?= $model->input("name", array("value" => $item["name"])) ?>
-				<?= $model->input("class", array("value" => $item["class"])) ?>
+				<?= $model->input("classname", array("value" => $item["class"])) ?>
 			</fieldset>
 
 			<?= $JML->editActions($item) ?>

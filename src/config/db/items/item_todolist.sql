@@ -3,7 +3,7 @@ CREATE TABLE `SITE_DB`.`item_todolist` (
   `item_id` int(11) NOT NULL,
 
   `name` varchar(50) NOT NULL,
-  `class` varchar(50) NULL,
+  `classname` varchar(50) NULL,
 
   `position` int(11) DEFAULT '0',
 
