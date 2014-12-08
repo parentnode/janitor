@@ -4,7 +4,7 @@ global $IC;
 global $model;
 global $itemtype;
 
-$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC", "extend" => array("all" => true)));
+$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC", "extend" => true));
 ?>
 <div class="scene defaultList <?= $itemtype ?>List">
 	<h1>Photo collections</h1>

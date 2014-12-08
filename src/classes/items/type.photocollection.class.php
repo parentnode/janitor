@@ -17,7 +17,6 @@ class TypePhotocollection extends Itemtype {
 
 		// itemtype database
 		$this->db = SITE_DB.".item_photocollection";
-//		$this->db_mediae = SITE_DB.".item_photocollection_mediae";
 
 
 		// Name
