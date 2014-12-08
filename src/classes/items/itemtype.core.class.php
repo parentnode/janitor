@@ -351,6 +351,32 @@ class ItemtypeCore extends Model {
 
 
 
+	// Update item order
+	// /janitor/[admin/]#itemtype#/updateOrder (order comma-separated in POST)
+	// TODO: implement itemtype checks
+	function updateOrder($action) {
+
+		$order_list = getPost("order");
+		if(count($action) == 1 && $order_list) {
+
+			$query = new Query();
+			$order = explode(",", $order_list);
+
+			for($i = 0; $i < count($order); $i++) {
+				$item_id = $order[$i];
+				$sql = "UPDATE ".$this->db." SET position = ".($i+1)." WHERE item_id = ".$item_id;
+				$query->sql($sql);
+			}
+
+			message()->addMessage("Order updated");
+			return true;
+		}
+
+		message()->addMessage("Order could not be updated - please refresh your browser", array("type" => "error"));
+		return false;
+
+	}
+
 
 
 
