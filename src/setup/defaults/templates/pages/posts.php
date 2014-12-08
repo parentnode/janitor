@@ -6,7 +6,7 @@ $itemtype = "post";
 
 
 // get post tags for listing
-$post_tags = $IC->getTags(array("context" => $itemtype));
+$categories = $IC->getTags(array("context" => $itemtype));
 
 
 // get content pagination
@@ -22,11 +22,11 @@ $pagination = $IC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 <div class="scene posts i:generic">
 	<h1>Janitor is alive</h1>
 
-<?	if($post_tags): ?>
+<?	if($categories): ?>
 	<div class="categories">
 		<h2>Categories</h2>
 		<ul class="tags">
-<?		foreach($post_tags as $tag): ?>
+<?		foreach($categories as $tag): ?>
 			<li><a href="/index/tag/<?= urlencode($tag["value"]) ?>"><?= $tag["value"] ?></a></li>
 <?		endforeach; ?>
 		</ul>

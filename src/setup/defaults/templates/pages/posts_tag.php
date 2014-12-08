@@ -7,7 +7,7 @@ $itemtype = "post";
 $tag = urldecode($action[1]);
 
 // get tags for filters
-$post_tags = $IC->getTags(array("context" => $itemtype));
+$categories = $IC->getTags(array("context" => $itemtype));
 
 
 // get content pagination
@@ -81,10 +81,10 @@ $pagination = $IC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 <? endif; ?>
 
 
-<?	if($post_tags): ?>
+<?	if($categories): ?>
 	<h2>Categories</h2>
 	<ul class="tags">
-<?		foreach($post_tags as $tag): ?>
+<?		foreach($categories as $tag): ?>
 		<li><a href="/index/tag/<?= urlencode($tag["value"]) ?>"><?= $tag["value"] ?></a></li>
 <?		endforeach; ?>
 	</ul>
