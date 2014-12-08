@@ -55,14 +55,6 @@ class TypeTodo extends Itemtype {
 			"error_message" => "Date must be of format (yyyy-mm-dd hh:mm:ss)"
 		));
 
-		// // Tags
-		// $this->addToModel("tags", array(
-		// 	"type" => "tags",
-		// 	"label" => "Tag",
-		// 	"hint_message" => "Start typing to filter available tags. A correct tag has this format: context:value.",
-		// 	"error_message" => "Tag must conform to tag format: context:value."
-		// ));
-
 	}
 
 

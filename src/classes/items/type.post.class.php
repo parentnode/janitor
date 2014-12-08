@@ -17,7 +17,6 @@ class TypePost extends Itemtype {
 
 		// itemtype database
 		$this->db = SITE_DB.".item_post";
-		$this->db_mediae = SITE_DB.".item_post_mediae";
 
 
 		// Published
