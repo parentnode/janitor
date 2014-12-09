@@ -50,8 +50,9 @@ Util.Objects["addMedia"] = new function() {
 							}
 						}
 
-						var node = u.ie(div.media_list, "li");
+						var node = u.ie(this.div.media_list, "li", {"class":"media"});
 
+						node.div = this.div;
 						node.media_list = this.div.media_list;
 						node.media_format = media.format;
 						node.media_variant = media.variant;
@@ -69,6 +70,13 @@ Util.Objects["addMedia"] = new function() {
 						}
 						else {
 							node.media_name.innerHTML = media.name;
+						}
+
+						this.div.adjustMediaName(node);
+
+						// add update form for image name
+						if(!u.hc(this.div, "variant") && this.div.update_name_url) {
+							this.div.addUpdateNameForm(node);
 						}
 
 					}
@@ -261,6 +269,11 @@ Util.Objects["addMedia"] = new function() {
 				this.addZipPreview(node);
 			}
 
+		}
+
+
+		div.adjustMediaName = function(node) {
+			u.bug("adjust media name:" + u.nodeId(node) + ", " + node.media_name)
 
 			// adjust media name width
 			if(node.media_name) {
@@ -271,11 +284,8 @@ Util.Objects["addMedia"] = new function() {
 				var p_p_r = parseInt(u.gcs(node.media_name, "padding-right"));
 				u.as(node.media_name, "width", (n_w - p_p_l - p_p_r)+"px");
 
-				// add update form for image name
-				if(!u.hc(this, "variant") && this.update_name_url) {
-					this.addUpdateNameForm(node);
-				}
 			}
+
 		}
 
 		// add image container (if needed)
@@ -344,7 +354,14 @@ Util.Objects["addMedia"] = new function() {
 			if(node.media_format) {
 
 				this.addDeleteForm(node);
-				node.image.src = "/images/"+this.item_id+"/"+node.media_variant+"/x"+node.offsetHeight+"."+node.media_format+"?"+u.randomString(4);
+
+				node.loaded = function(queue) {
+					this.image.src = queue[0].image.src;
+
+					this.div.adjustMediaName(this);
+					
+				}
+				u.preloader(node, ["/images/"+this.item_id+"/"+node.media_variant+"/x"+node.offsetHeight+"."+node.media_format+"?"+u.randomString(4)]);
 			}
 		}
 
@@ -437,6 +454,14 @@ Util.Objects["addMedia"] = new function() {
 			node.media_format = u.cv(node, "format");
 
 			div.addPreview(node);
+
+			div.adjustMediaName(node);
+
+			// add update form for image name
+			if(!u.hc(div, "variant") && div.update_name_url) {
+				div.addUpdateNameForm(node);
+			}
+
 
 		}
 
