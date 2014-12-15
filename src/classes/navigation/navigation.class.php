@@ -240,7 +240,7 @@ class Navigation extends Model {
 
 		// get all navigations
 		// and get sublevels if required
-		else {
+		else if(!$handle && !$navigation_id) {
 
 			$navigations = false;
 
