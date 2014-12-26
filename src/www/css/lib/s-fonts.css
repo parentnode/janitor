@@ -1,5 +1,5 @@
 @font-face {
-	font-family: 'OpenSansRegular';
+	font-family: 'OpenSans';
 	src: url('/janitor/admin/fonts/opensans-regular-webfont.woff') format('woff'),
 		 url('/janitor/admin/fonts/opensans-regular-webfont.ttf') format('truetype'),
 		 url('/janitor/admin/fonts/opensans-regular-webfont.svg#OpenSansRegular') format('svg');
