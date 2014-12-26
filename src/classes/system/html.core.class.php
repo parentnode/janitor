@@ -210,7 +210,7 @@ class HTMLCore {
 
 					$radio_for = "input_".preg_replace("/\[\]/", "", $name."_".$radio_value);
 					$att_radio_id = $this->attribute("id", $for);
-					$att_radio_value = $this->attribute("id", $for);
+					$att_radio_value = $this->attribute("value", $radio_value);
 					$att_radio_checked = $this->attribute("checked", ($value == $radio_value ? "checked" : ""));
 
 					$_ .= '<div class="item">';
@@ -361,6 +361,8 @@ class HTMLCore {
 
 		$file_add = $this->getProperty($name, "file_add");
 		$file_delete = $this->getProperty($name, "file_delete");
+		$media_add = $this->getProperty($name, "media_add");
+		$media_delete = $this->getProperty($name, "media_delete");
 
 
 		// overwrite model/defaults
@@ -381,6 +383,9 @@ class HTMLCore {
 
 					case "file_add"        : $file_add         = $_value; break;
 					case "file_delete"     : $file_delete      = $_value; break;
+
+					case "media_add"       : $media_add        = $_value; break;
+					case "media_delete"    : $media_delete     = $_value; break;
 				}
 			}
 		}
@@ -396,18 +401,36 @@ class HTMLCore {
 
 		$att_class = $this->attribute("class", "field", "html", $class, "tags:".$allowed_tags);
 
+		// get default paths if not specif
+		global $page;
+		if(!$file_add) {
+			$file_add = $page->validPath($this->path."/addHTMLFile");
+		}
+		if(!$file_delete) {
+			$file_delete = $page->validPath($this->path."/deleteHTMLFile");
+		}
+		if(!$media_add) {
+			$media_add = $page->validPath($this->path."/addHTMLMedia");
+		}
+		if(!$media_delete) {
+			$media_delete = $page->validPath($this->path."/deleteHTMLMedia");
+		}
+
 		// paths for saving and deleting files
 		$att_file_add = $this->attribute("data-file-add", $file_add);
 		$att_file_delete = $this->attribute("data-file-delete", $file_delete);
-//		print $att_file_add . "," . $att_file_delete;
+		$att_media_add = $this->attribute("data-media-add", $media_add);
+		$att_media_delete = $this->attribute("data-media-delete", $media_delete);
 
+//		print $att_file_add . "," . $att_file_delete;
 //		$att_html_item_id = $this->attribute("data-item_id", $_options["item_id"]);
 
 
-		$_ .= '<div'.$att_class.$att_file_add.$att_file_delete.'>';
+		$_ .= '<div'.$att_class.$att_file_add.$att_file_delete.$att_media_add.$att_media_delete.'>';
 
 			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
-			$_ .= '<textarea'.$att_name.$att_id.'>'.$value.'</textarea>';
+			// entity values in textarea will be interpreted, so double encode them
+			$_ .= '<textarea'.$att_name.$att_id.'>'.htmlentities($value).'</textarea>';
 
 			// Hint and error message
 			if($hint_message || $error_message) {
