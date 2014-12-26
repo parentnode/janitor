@@ -65,7 +65,7 @@ $id = false;
 // /images/{id}/{variant}/x{height}.{format}
 // VIDEO WITH VARIANT
 // /videos/{id}/{variant}/{width}x{height}.{format}
-if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>\w*)\/(?P<width>\d*)x(?P<height>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
 
 	if($request_type == "images" || $request_type == "videos") {
@@ -111,7 +111,7 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P
 // AUDIO
 // IMAGE WITH VARIANT
 // /audios/{id}/{variant}/{bitrate}.{format}
-if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>\w*)\/(?P<bitrate>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<bitrate>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
 
 	if($request_type == "audios") {

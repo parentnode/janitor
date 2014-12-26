@@ -52,11 +52,9 @@ class Model extends HTML {
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "HTML",
-			"allowed_tags" => "p,h2,h3,h4,ul,ol,download", //,mp4,png,jpg,vimeo,youtube,code",
+			"allowed_tags" => "p,h2,h3,h4,ul,ol,download,jpg,png", //,mp4,vimeo,youtube,code",
 			"hint_message" => "Write!",
-			"error_message" => "No words? How weird.",
-			"file_delete" => $page->validPath($this->path."/deleteHTMLFile"),
-			"file_add" => $page->validPath($this->path."/addHTMLFile")
+			"error_message" => "No words? How weird."
 		));
 
 		$this->addToModel("mediae", array(
@@ -422,6 +420,22 @@ class Model extends HTML {
 				return true;
 			}
 		}
+		else if($this->getProperty($name, "type") == "checkbox") {
+			if($this->isChecked($name)) {
+				return true;
+			}
+		}
+		else if($this->getProperty($name, "type") == "radiobuttons") {
+			if($this->isChecked($name)) {
+				return true;
+			}
+		}
+		else if($this->getProperty($name, "type") == "location") {
+			if($this->isLocation($name)) {
+				return true;
+			}
+		}
+
 		else if($this->getProperty($name, "type") == "prices") {
 			if($this->isPrices($name)) {
 				return true;
@@ -924,6 +938,43 @@ class Model extends HTML {
 		}
 	}
 
+	/**
+	* Check if checkbox/radiobutton is checked
+	*
+	* @param string $name Element identifier
+	* @return bool
+	*/
+	function isChecked($name) {
+
+		$value = $this->getProperty($name, "value");
+
+		if($value) {
+			$this->setProperty($name, "error", false);
+			return true;
+		}
+		else {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+	}
+
+	/**
+	* Check if GeoLocation is entered correctly
+	*
+	* @param string $name Element identifier
+	* @return bool
+	*
+	* TODO: faulty geolocation validation - 
+	*/
+	function isLocation($name) {
+
+
+		$entity = $this->data_entities[$name];
+
+
+		return true;
+
+	}
 
 
 
@@ -954,27 +1005,6 @@ class Model extends HTML {
 			return false;
 		}
 	}
-
-
-
-	/**
-	* Check if GeoLocation is entered correctly
-	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
-	* @return bool
-	*
-	* TODO: faulty geolocation validation - maybe it should be deleted
-	*/
-	function isGeoLocation($name) {
-		$entity = $this->data_entities[$name];
-
-
-		return true;
-
-	}
-
-
 
 	// TODO: Faulty price validation
 	function isPrices($name) {

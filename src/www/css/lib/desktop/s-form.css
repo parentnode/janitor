@@ -246,6 +246,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 /* HTML EDITOR */
 #content .field.html {border-top: 1px solid #dedede; padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #dedede; margin-bottom: 10px; z-index: 3;}
+#content .field.html.optionsshown {z-index: 60 !important;}
 
 /* USE HELP */
 #content .field.html div.html_editor_hint {width: 383px;}
@@ -284,7 +285,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.html .editor div.dragged {z-index: 15;}
 #content .field.html .editor div.tag .drag {display: none; position: absolute; top: 0px; left: -20px; border-top-left-radius: 15px; border-bottom-left-radius: 15px; background: #dedede; width: 30px; height: 30px; cursor: move;}
 #content .field.html .editor div.tag:hover .drag {display: block;}
-#content .field.html .editor div.tag .remove {display: none; position: absolute; top: 0px; right: -10px; border-radius: 15px; background: #dedede; width: 30px; height: 30px; cursor: pointer;
+#content .field.html .editor div.tag .remove {display: none; position: absolute; top: 0px; right: -15px; border-radius: 15px; background: #dedede; width: 30px; height: 30px; cursor: pointer;
 	background: #dedede url(/janitor/admin/img/bg_icons.png) no-repeat 8px -42px;
 }
 #content .field.html .editor div.tag:hover .remove {display: block;}
@@ -300,6 +301,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.html .editor div.tag ul.type.open li.selected {background-color: #5c5c5c !important; color: #ffffff !important;}
 /* CUSTOM FONT SIZES FOR SOME TYPES */
 #content .field.html .editor div.tag ul.type li.code {font-size: 8px; padding-top: 11px;}
+#content .field.html .editor div.tag ul.type li.media {font-size: 8px; padding-top: 11px;}
 #content .field.html .editor div.tag ul.type li.youtube {font-size: 8px; padding-top: 11px;}
 
 /* TAG EDITABLE CONTENT */
@@ -322,6 +324,14 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.html .editor div.tag.h5 div.text {font-size: 14px;}
 #content .field.html .editor div.tag.p div.text {font-size: 14px;}
 
+/* DEFAULT CODE TAG STYLING */
+#content .field.html .editor div.tag.code div.text {font-size: 12px; line-height: 1.761em; white-space: pre;
+	font-family: "Monaco", "Courier New", "Courier";
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+}
+
 /* DEFAULT LIST TAG STYLING */
 #content .field.html .editor div.tag.ul {padding-left: 50px;}
 #content .field.html .editor div.tag.ol {padding-left: 50px;}
@@ -330,9 +340,18 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 /* DEFAULT FILE TAG STYLING */
 #content .field.html .editor div.tag.file .text {padding: 0 6px; height: 28px;}
+#content .field.html .editor div.tag.file.done .text {color: #aaaaaa; font-size: 13px; padding: 4px 6px; line-height: 1.461em; height: auto; text-decoration: underline;}
+#content .field.html .editor div.tag.file.done.focus .text {color: #333333;}
 #content .field.html .editor div.tag.file .text label {padding: 5px 0 0; display: block; text-align: center; position: absolute; z-index: 1; width: 332px; color: #aaaaaa;}
-#content .field.html .editor div.tag.file .text label.done {text-align: left; color: #333333;}
 #content .field.html .editor div.tag.file input {width: 316px; opacity: 0; height: 18px; position: relative; z-index: 2;}
+
+/* DEFAULT MEDIA TAG STYLING */
+#content .field.html .editor div.tag.media .text {padding: 0 6px; height: 28px;}
+#content .field.html .editor div.tag.media.done .text {color: #aaaaaa; font-size: 13px; padding: 4px 6px; line-height: 1.461em; height: auto;}
+#content .field.html .editor div.tag.media.done.focus .text {color: #333333;}
+#content .field.html .editor div.tag.media .text label {padding: 5px 0 0; display: block; text-align: center; position: absolute; z-index: 1; width: 332px; color: #aaaaaa;}
+#content .field.html .editor div.tag.media input {width: 316px; opacity: 0; height: 18px; position: relative; z-index: 2;}
+#content .field.html .editor div.tag.media img {width: 344px; margin: 2px;}
 
 
 

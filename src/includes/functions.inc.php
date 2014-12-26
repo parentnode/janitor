@@ -188,8 +188,9 @@ function stripDisallowed($string) {
 
 		// some weird <br> issue in PHP DOM
 		// I cannot load document with <br> tags and when I save HTML it automatically replaces all <br /> with <br> which I then again cannot load.
-		$string = htmlspecialchars(preg_replace("/<br>/", "<br />", $string), 32, "UTF-8", false);
+		$string = htmlspecialchars(preg_replace("/<br>/", "<br />", $string), 32, "UTF-8", true);
 
+//		print "3\n".$string."\n";
 // 		print htmlentities($string) ."<br>";
 
 		// loadHTML needs content definition for UTF-8 - it should be enough to state it in the constructor, but it does not work

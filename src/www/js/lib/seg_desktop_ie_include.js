@@ -3,6 +3,10 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/manipulato
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-debug.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-events-browser.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-form.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-builder.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-htmleditor.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-geolocation.js"></script>');
+
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-geometry.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-dom.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-request.js"></script>');

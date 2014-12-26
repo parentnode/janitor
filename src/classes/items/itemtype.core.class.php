@@ -936,6 +936,73 @@ class ItemtypeCore extends Model {
 	// HTML EDITOR
 
 
+
+	// custom function to add html media
+	// TODO: implement itemtype checks
+	// /janitor/[admin/]#itemtype#/addHTMLMedia/#item_id#
+	function addHTMLMedia($action) {
+
+		if(count($action) == 2) {
+			$query = new Query();
+			$IC = new Items();
+			$item_id = $action[1];
+
+			$query->checkDbExistance(UT_ITEMS_MEDIAE);
+
+//			$variant = stringOr(getPost("variant"), "HTML-".randomKey(8));
+
+
+			// Image single_media
+			$uploads = $this->upload($item_id, array("input_name" => "htmleditor_media", "variant" => "HTML-".randomKey(8)));
+			if($uploads) {
+				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
+				$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)");
+
+				return array(
+					"item_id" => $item_id, 
+					"media_id" => $query->lastInsertId(), 
+					"name" => $uploads[0]["name"], 
+					"variant" => $uploads[0]["variant"], 
+					"format" => $uploads[0]["format"], 
+					"width" => $uploads[0]["width"],
+					"height" => $uploads[0]["height"],
+					"filesize" => $uploads[0]["filesize"]
+				);
+			}
+		}
+
+		return false;
+	}
+
+	// delete media from HTML editor - 3 parameters exactly
+	// TODO: implement itemtype checks
+	// /janitor/[admin/]#itemtype#/deleteHTMLMedia/#item_id#/#variant#
+	function deleteHTMLMedia($action) {
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$fs = new FileSystem();
+			$item_id = $action[1];
+			$variant = $action[2];
+
+
+			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
+			if($query->sql($sql)) {
+				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+
+				message()->addMessage("Media deleted");
+				return true;
+			}
+		}
+
+		message()->addMessage("Media could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+
+
 	// custom function to add html file
 	// TODO: implement itemtype checks
 	// /janitor/[admin/]#itemtype#/addHTMLFile/#item_id#
@@ -952,7 +1019,7 @@ class ItemtypeCore extends Model {
 
 
 			// Image single_media
-			$uploads = $IC->uploadHTMLFile($item_id, array("input_name" => "htmleditor_file"));
+			$uploads = $this->uploadHTMLFile($item_id, array("input_name" => "htmleditor_file"));
 			if($uploads) {
 				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
 				$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '0', '0', '".$uploads[0]["filesize"]."', 0)");
