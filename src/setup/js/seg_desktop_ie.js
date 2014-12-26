@@ -3569,24 +3569,37 @@ Util.debugURL = function(url) {
 	return document.domain.match(/.local$/);
 }
 Util.nodeId = function(node, include_path) {
-	if(!node) {
-		u.bug("Not a node:" + node + " - called from: "+arguments.callee.caller)
-		return "Unindentifiable node!";
-	}
-	if(!include_path) {
-		return node.id ? node.nodeName+"#"+node.id : (node.className ? node.nodeName+"."+node.className : (node.name ? node.nodeName + "["+node.name+"]" : node.nodeName));
-	}
-	else {
-		if(node.parentNode && node.parentNode.nodeName != "HTML") {
-			return u.nodeId(node.parentNode, include_path) + "->" + u.nodeId(node);
+	try {
+		if(!include_path) {
+			return node.id ? node.nodeName+"#"+node.id : (node.className ? node.nodeName+"."+node.className : (node.name ? node.nodeName + "["+node.name+"]" : node.nodeName));
 		}
 		else {
-			return u.nodeId(node);
+			if(node.parentNode && node.parentNode.nodeName != "HTML") {
+				return u.nodeId(node.parentNode, include_path) + "->" + u.nodeId(node);
+			}
+			else {
+				return u.nodeId(node);
+			}
 		}
+	}
+	catch(exception) {
+		u.exception("u.nodeId", arguments, exception);
 	}
 	return "Unindentifiable node!";
 }
-Util.exception = function(_in, _from, exception, regarding) {
+Util.exception = function(name, arguments, exception) {
+	u.bug("Exception in: " + name + " (" + exception + ")");
+	u.bug("Invoked with arguments:");
+	u.xInObject(arguments);
+	u.bug("Called from:");
+	if(arguments.callee.caller.name) {
+		u.bug("arguments.callee.caller.name:" + arguments.callee.caller.name)
+	}
+	else {
+		u.bug("arguments.callee.caller:" + arguments.callee.caller.toString().substring(0, 250));
+	}
+}
+Util.exception2 = function(_in, _from, exception, regarding) {
 	u.bug("Exception ("+exception+") in "+_in);
 	var x;
 	for(x in regarding) {
@@ -3645,22 +3658,31 @@ Util.bug = function(message, corner, color) {
 		}
 	}
 }
-Util.xInObject = function(object) {
+Util.xInObject = function(object, return_string) {
 	if(u.debugURL()) {
-		var x, s = "--- start object ---<br>\n";
+		var x, s = "--- start object ---\n";
 		for(x in object) {
-			if(object[x] && typeof(object[x]) == "object" && typeof(object[x].nodeName) == "string") {
-				s += x + "=" + object[x]+" -> " + u.nodeId(object[x], 1) + "<br>\n";
+			if(object[x] && typeof(object[x]) == "object" && typeof(object[x].nodeName) != "string") {
+				s += x + "=" + object[x]+" => \n";
+				s += u.xInObject(object[x], true);
+			}
+			else if(object[x] && typeof(object[x]) == "object" && typeof(object[x].nodeName) == "string") {
+				s += x + "=" + object[x]+" -> " + u.nodeId(object[x], 1) + "\n";
 			}
 			else if(object[x] && typeof(object[x]) == "function") {
-				s += x + "=function<br>\n";
+				s += x + "=function\n";
 			}
 			else {
-				s += x + "=" + object[x]+"<br>\n";
+				s += x + "=" + object[x]+"\n";
 			}
 		}
-		s += "--- end object ---"
-		u.bug(s);
+		s += "--- end object ---\n";
+		if(return_string) {
+			return s;
+		}
+		else {
+			u.bug(s);
+		}
 	}
 }
 
@@ -3780,7 +3802,7 @@ Util.Form = u.f = new function() {
 			var custom_init;
 			for(custom_init in this.customInit) {
 				if(field.className.match(custom_init)) {
-					this.customInit[custom_init](field);
+					this.customInit[custom_init](form, field);
 					field._initialized = true;
 				}
 			}
@@ -3804,20 +3826,39 @@ Util.Form = u.f = new function() {
 					field._input._label = u.qs("label[for="+field._input.id+"]", field);
 					field._input.val = this._value;
 					if(u.hc(field, "autoexpand")) {
-						this.autoExpand(field._input);
+						var current_height = parseInt(u.gcs(field._input, "height"));
+						var current_value = field._input.val();
+						field._input.value = "";
+						u.as(field._input, "overflow", "hidden");
+						field._input.autoexpand_offset = 0;
+						if(parseInt(u.gcs(field._input, "height")) != field._input.scrollHeight) {
+							field._input.autoexpand_offset = field._input.scrollHeight - parseInt(u.gcs(field._input, "height"));
+						}
+						field._input.value = current_value;
+						field._input.setHeight = function() {
+							var textarea_height = parseInt(u.gcs(this, "height"));
+							if(this.val()) {
+								if(u.browser("webkit") || u.browser("firefox", ">=29")) {
+									if(this.scrollHeight - this.autoexpand_offset > textarea_height) {
+										u.a.setHeight(this, this.scrollHeight);
+									}
+								}
+								else if(u.browser("opera") || u.browser("explorer")) {
+									if(this.scrollHeight > textarea_height) {
+										u.a.setHeight(this, this.scrollHeight);
+									}
+								}
+								else {
+									u.a.setHeight(this, this.scrollHeight);
+								}
+							}
+						}
+						u.e.addEvent(field._input, "keyup", field._input.setHeight);
+						field._input.setHeight();
 					}
 					u.e.addEvent(field._input, "keyup", this._updated);
 					u.e.addEvent(field._input, "change", this._changed);
 					this.activateInput(field._input);
-					this.validate(field._input);
-				}
-				else if(u.hc(field, "html")) {
-					field._input = u.qs("textarea", field);
-					field._input.field = field;
-					form.fields[field._input.name] = field._input;
-					field._input._label = u.qs("label[for="+field._input.id+"]", field);
-					field._input.val = this._value;
-					this.textEditor(field);
 					this.validate(field._input);
 				}
 				else if(u.hc(field, "select")) {
@@ -3902,25 +3943,16 @@ Util.Form = u.f = new function() {
 					field._input._label = u.qs("label[for="+field._input.id+"]", field);
 					u.e.addEvent(field._input, "change", this._updated);
 					u.e.addEvent(field._input, "change", this._changed);
-					this.fileUpload(field);
-					this.validate(field._input);
-				}
-				else if(u.hc(field, "location")) {
-					field._inputs = u.qsa("input", field);
-					field._input = field._inputs[0];
-					for(j = 0; input = field._inputs[j]; j++) {
-						input.field = field;
-						form.fields[input.name] = input;
-						input._label = u.qs("label[for="+input.id+"]", field);
-						input.val = this._value;
-						u.e.addEvent(input, "keyup", this._updated);
-						u.e.addEvent(input, "change", this._changed);
-						this.inputOnEnter(input);
-						this.activateInput(input);
+					u.e.addEvent(field._input, "focus", this._focus);
+					u.e.addEvent(field._input, "blur", this._blur);
+					if(u.e.event_pref == "mouse") {
+						u.e.addEvent(field._input, "dragenter", this._focus);
+						u.e.addEvent(field._input, "dragleave", this._blur);
+						u.e.addEvent(field._input, "mouseenter", this._mouseenter);
+						u.e.addEvent(field._input, "mouseleave", this._mouseleave);
 					}
-					if(navigator.geolocation) {
-						this.geoLocation(field);
-					}
+					u.e.addEvent(field._input, "blur", this._validate);
+					field._input.val = this._value_file;
 					this.validate(field._input);
 				}
 				else if(u.hc(field, "tags")) {
@@ -4059,6 +4091,27 @@ Util.Form = u.f = new function() {
 			return this.default_value != this.options[this.selectedIndex].value ? this.options[this.selectedIndex].value : "";
 		}
 	}
+	this._value_file = function(value) {
+		if(value !== undefined) {
+			this.value = value;
+		}
+		else {
+			if(this.value && this.files && this.files.length) {
+				var i, file, files = [];
+				for(i = 0; file = this.files[i]; i++) {
+					files.push(file);
+				}
+				return files;
+			}
+			else if(this.value) {
+				return this.value;
+			}
+			else if(u.hc(this, "uploaded")){
+				return true;
+			}
+			return "";
+		}
+	}
 	this.inputOnEnter = function(node) {
 		node.keyPressed = function(event) {
 			if(this.nodeName.match(/input/i) && (event.keyCode == 40 || event.keyCode == 38)) {
@@ -4148,8 +4201,8 @@ Util.Form = u.f = new function() {
 		u.f.positionHint(this.field);
 	}
 	this._focus = function(event) {
-		this.field.focused = true;
-		this.focused = true;
+		this.field.is_focused = true;
+		this.is_focused = true;
 		u.ac(this.field, "focus");
 		u.ac(this, "focus");
 		u.as(this.field, "zIndex", this.form._focus_z_index);
@@ -4165,8 +4218,8 @@ Util.Form = u.f = new function() {
 		}
 	}
 	this._blur = function(event) {
-		this.field.focused = false;
-		this.focused = false;
+		this.field.is_focused = false;
+		this.is_focused = false;
 		u.rc(this.field, "focus");
 		u.rc(this, "focus");
 		u.as(this.field, "zIndex", this.field._base_z_index);
@@ -4282,7 +4335,7 @@ Util.Form = u.f = new function() {
 		u.e.addEvent(action, "blur", this._button_blur);
 	}
 	this.updateDefaultState = function(iN) {
-		if(iN.focused || iN.val() !== "") {
+		if(iN.is_focused || iN.val() !== "") {
 			u.rc(iN, "default");
 			if(iN.val() === "") {
 				iN.val("");
@@ -4329,1039 +4382,6 @@ Util.Form = u.f = new function() {
 			u.rc(iN, "error");
 			u.rc(iN.field, "error");
 		}
-	}
-	this.autoExpand = function(iN) {
-		var current_height = parseInt(u.gcs(iN, "height"));
-		var current_value = iN.val();
-		iN.value = "";
-		u.as(iN, "overflow", "hidden");
-		iN.autoexpand_offset = 0;
-		if(parseInt(u.gcs(iN, "height")) != iN.scrollHeight) {
-			iN.autoexpand_offset = iN.scrollHeight - parseInt(u.gcs(iN, "height"));
-		}
-		iN.value = current_value;
-		iN.setHeight = function() {
-			var textarea_height = parseInt(u.gcs(this, "height"));
-			if(this.val()) {
-				if(u.browser("webkit") || u.browser("firefox", ">=29")) {
-					if(this.scrollHeight - this.autoexpand_offset > textarea_height) {
-						u.a.setHeight(this, this.scrollHeight);
-					}
-				}
-				else if(u.browser("opera") || u.browser("explorer")) {
-					if(this.scrollHeight > textarea_height) {
-						u.a.setHeight(this, this.scrollHeight);
-					}
-				}
-				else {
-					u.a.setHeight(this, this.scrollHeight);
-				}
-			}
-		}
-		u.e.addEvent(iN, "keyup", iN.setHeight);
-		iN.setHeight();
-	}
-	this.fileUpload = function(field) {
-		u.e.addEvent(field._input, "focus", this._focus);
-		u.e.addEvent(field._input, "blur", this._blur);
-		if(u.e.event_pref == "mouse") {
-			u.e.addEvent(field._input, "dragenter", this._focus);
-			u.e.addEvent(field._input, "dragleave", this._blur);
-			u.e.addEvent(field._input, "mouseenter", this._mouseenter);
-			u.e.addEvent(field._input, "mouseleave", this._mouseleave);
-		}
-		u.e.addEvent(field._input, "blur", this._validate);
-		field._input.val = function(value) {
-			if(value !== undefined) {
-				this.value = value;
-			}
-			else {
-				if(this.value && this.files && this.files.length) {
-					var i, file, files = [];
-					for(i = 0; file = this.files[i]; i++) {
-						files.push(file);
-					}
-					return files;
-				}
-				else if(this.value) {
-					return this.value;
-				}
-				else if(u.hc(this, "uploaded")){
-					return true;
-				}
-				return "";
-			}
-		}
-	}
-	this.geoLocation = function(field) {
- 		u.ac(field, "geolocation");
-		field.lat_input = u.qs("div.latitude input", field);
-		field.lat_input.autocomplete = "off";
-		field.lat_input.field = field;
-		field.lon_input = u.qs("div.longitude input", field);
-		field.lon_input.autocomplete = "off";
-		field.lon_input.field = field;
-		field.showMap = function() {
-			if(!window._mapsiframe) {
-				var lat = this.lat_input.val() !== "" ? this.lat_input.val() : 0;
-				var lon = this.lon_input.val() !== "" ? this.lon_input.val() : 0;
-				var maps_url = "https://maps.googleapis.com/maps/api/js" + (u.gapi_key ? "?key="+u.gapi_key : "");
-				var html = '<html><head>';
-				html += '<style type="text/css">body {margin: 0;}#map {width: 300px; height: 300px;}} </style>';
-				html += '<script type="text/javascript" src="'+maps_url+'"></script>';
-				html += '<script type="text/javascript">';
-				html += 'var map, marker;';
-				html += 'var initialize = function() {';
-				html += '	window._map_loaded = true;';
-				html += '	var mapOptions = {center: new google.maps.LatLng('+lat+', '+lon+'),zoom: 15};';
-				html += '	map = new google.maps.Map(document.getElementById("map"),mapOptions);';
-				html += '	marker = new google.maps.Marker({position: new google.maps.LatLng('+lat+', '+lon+'), draggable:true});';
-				html += '	marker.setMap(map);';
-				html += '	marker.dragend = function(event_type) {';
-				html += '		var lat_marker = Math.round(marker.getPosition().lat()*100000)/100000;';
-				html += '		var lon_marker = Math.round(marker.getPosition().lng()*100000)/100000;';
-				html += '		field.lon_input.val(lon_marker);';
-				html += '		field.lat_input.val(lat_marker);';
-				html += '	};';
-				html += '	marker.addListener("dragend", marker.dragend);';
-				html += '};';
-				html += 'var centerMap = function(lat, lon) {';
-				html += '	var loc = new google.maps.LatLng(lat, lon);';
-				html += '	map.setCenter(loc);';
-				html += '	marker.setPosition(loc);';
-				html += '};';
-				html += 'google.maps.event.addDomListener(window, "load", initialize);';
-				html += '</script>';
-				html += '</head><body><div id="map"></div></body></html>';
-				window._mapsiframe = u.ae(document.body, "iframe", {"id":"geolocationmap"});
-				window._mapsiframe.doc = window._mapsiframe.contentDocument? window._mapsiframe.contentDocument: window._mapsiframe.contentWindow.document;
-				window._mapsiframe.doc.open();
-				window._mapsiframe.doc.write(html);
-				window._mapsiframe.doc.close();
-			}
-			else {
-				this.updateMap();
-			}
-			window._mapsiframe.contentWindow.field = this;
-			u.as(window._mapsiframe, "left", (u.absX(this.bn_geolocation)+this.bn_geolocation.offsetWidth+10)+"px");
-			u.as(window._mapsiframe, "top", (u.absY(this.bn_geolocation) + (this.bn_geolocation.offsetHeight/2) -(window._mapsiframe.offsetHeight/2))+"px");
-		}
-		field.updateMap = function() {
-			if(window._mapsiframe && window._mapsiframe.contentWindow && window._mapsiframe.contentWindow._map_loaded) {
-				window._mapsiframe.contentWindow.centerMap(this.lat_input.val(), this.lon_input.val());
-			}
-		}
-		field.move_map = function(event) {
-			var factor;
-			if(this._move_direction) {
-				if(event && event.shiftKey) {
-					factor = 0.001;
-				}
-				else {
-					factor = 0.0001;
-				}
-				if(this._move_direction == "38") {
-					this.lat_input.val(u.round(parseFloat(this.lat_input.val())+factor, 6));
-				}
-				else if(this._move_direction == "40") {
-					this.lat_input.val(u.round(parseFloat(this.lat_input.val())-factor, 6));
-				}
-				else if(this._move_direction == "39") {
-					this.lon_input.val(u.round(parseFloat(this.lon_input.val())+factor, 6));
-				}
-				else if(this._move_direction == "37") {
-					this.lon_input.val(u.round(parseFloat(this.lon_input.val())-factor, 6));
-				}
-				this.updateMap();
-			}
-		}
-		field.hideMap = function() {
-			u.t.resetTimer(this.t_hide_map);
-			if(window._mapsiframe) {
-				document.body.removeChild(window._mapsiframe);
-				window._mapsiframe = null;
-			}
-		}
-		field._end_move_map = function(event) {
-			this.field._move_direction = false;
-		}
-		field._start_move_map = function(event) {
-			if(event.keyCode.toString().match(/37|38|39|40/)) {
-				this.field._move_direction = event.keyCode;
-				this.field.move_map(event);
-			}
-		}
-		u.e.addEvent(field.lat_input, "keydown", field._start_move_map);
-		u.e.addEvent(field.lon_input, "keydown", field._start_move_map);
-		u.e.addEvent(field.lat_input, "keyup", field._end_move_map);
-		u.e.addEvent(field.lon_input, "keyup", field._end_move_map);
-		field.lat_input.updated = field.lon_input.updated = function() {
-			this.field.updateMap();
-		}
-		field.lat_input.focused = field.lon_input.focused = function() {
-			u.t.resetTimer(this.field.t_hide_map);
-			this.field.showMap();
-		}
-		field.lat_input.blurred = field.lon_input.blurred = function() {
-			this.field.t_hide_map = u.t.setTimer(this.field, this.field.hideMap, 800);
-		}
-		field.bn_geolocation = u.ae(field, "div", {"class":"geolocation"});
-		field.bn_geolocation.field = field;
-		u.ce(field.bn_geolocation);
-		field.bn_geolocation.clicked = function() {
-			u.a.transition(this, "all 0.5s ease-in-out");
-			this.transitioned = function() {
-				var new_scale;
-				if(this._scale == 1.4) {
-					new_scale = 1;
-				}
-				else {
-					new_scale = 1.4;
-				}
-				u.a.scale(this, new_scale);
-			}
-			this.transitioned();
-			window._geoLocationField = this.field;
-			window._foundLocation = function(position) {
-				var lat = position.coords.latitude;
-				var lon = position.coords.longitude;
-				window._geoLocationField.lat_input.val(u.round(lat, 6));
-				window._geoLocationField.lon_input.val(u.round(lon, 6));
-				window._geoLocationField.lat_input.focus();
-				window._geoLocationField.lon_input.focus();
-				window._geoLocationField.showMap();
-				u.a.transition(window._geoLocationField.bn_geolocation, "none");
-				u.a.scale(window._geoLocationField.bn_geolocation, 1);
-			}
-			window._noLocation = function() {
-				alert('Could not find location');
-			}
-			navigator.geolocation.getCurrentPosition(window._foundLocation, window._noLocation);
-		}
-	}
-	this.textEditor = function(field) {
-		u.bug("init editor")
-		var hint_has_been_shown = u.getCookie("html-editor-hint-v1", {"path":"/"});
-		if(!hint_has_been_shown) {
-			var editor_hint = u.ie(field, "div", {"class":"html_editor_hint"});
-			var editor_hint_open = u.ae(editor_hint, "div", {"class":"open", "html":"I'd like to know more about the Editor"});
-			var editor_hint_content = u.ae(editor_hint, "div", {"class":"html_editor_hint_content"});
-			editor_hint_open.editor_hint_content = editor_hint_content;
-			u.ce(editor_hint_open);
-			editor_hint_open.clicked = function() {
-				if(this.editor_hint_content.is_shown) {
-					this.innerHTML = "I'd like to know more about the Editor";
-					u.as(editor_hint_content, "display", "none");
-					this.editor_hint_content.is_shown = false;
-				}
-				else {
-					this.innerHTML = "Hide help for now";
-					u.as(editor_hint_content, "display", "block");
-					this.editor_hint_content.is_shown = true;
-				}
-			}
-			u.ae(editor_hint_content, "p", {"html":"If you are new to using the Janitor HTML editor here are a few tips to working better with the editor."});
-			u.ae(editor_hint_content, "p", {"html":"This HTML editor has been developed to maintain a strict control of the design - therefore it looks different from other HTML editors. The features available are aligned with the design of the specific page, and the Editor might not have the same features available in every context."});
-			u.ae(editor_hint_content, "h4", {"html":"General use:"});
-			u.ae(editor_hint_content, "p", {"html":"All HTML nodes can be deleted using the Trashcan in the Right side. The Editor allways requires one node to exist and you cannot delete the last remaining node."});
-			u.ae(editor_hint_content, "p", {"html":"HTML nodes can be re-ordered by dragging the bubble in the Left side."});
-			u.ae(editor_hint_content, "p", {"html":"You can add new nodes by clicking on the + below the editor. The options availble are the ones allowed for the current content type."});
-			u.ae(editor_hint_content, "h4", {"html":"Text nodes:"});
-			u.ae(editor_hint_content, "p", {"html":"&lt;H1&gt;,&lt;H2&gt;,&lt;H3&gt;,&lt;H4&gt;,&lt;H5&gt;,&lt;H6&gt;,&lt;P&gt;,&lt;CODE&gt;"});
-			u.ae(editor_hint_content, "p", {"html":"Text nodes are for headlines and paragraphs - regular text."});
-			u.ae(editor_hint_content, "p", {"html":"You can activate the inline formatting tool by selecting text in your Text node."});
-			u.ae(editor_hint_content, "p", {"html":"If you press ENTER inside a Text node, a new Text node will be created below the current one."});
-			u.ae(editor_hint_content, "p", {"html":"If you press BACKSPACE twice inside an empty Text node it will be deleted"});
-			u.ae(editor_hint_content, "h4", {"html":"List nodes:"});
-			u.ae(editor_hint_content, "p", {"html":"&lt;UL&gt;,&lt;OL&gt;"});
-			u.ae(editor_hint_content, "p", {"html":"There are two types of list nodes: Unordered lists (UL w/ bullets) and Ordered lists (OL w/ numbers). Each of them can have one or many List items."});
-			u.ae(editor_hint_content, "p", {"html":"You can activate the inline formatting tool by selecting text in your List item."});
-			u.ae(editor_hint_content, "p", {"html":"If you press ENTER inside a List item, a new List item will be created below the current one."});
-			u.ae(editor_hint_content, "p", {"html":"If you press BACKSPACE twice inside an empty List item it will be deleted. If it is the last List item in the List node, the List node will be deleted as well."});
-			u.ae(editor_hint_content, "h4", {"html":"File nodes:"});
-			u.ae(editor_hint_content, "p", {"html":"Drag you file to the node or click the node to select your file."});
-			u.ae(editor_hint_content, "p", {"html":"If you add other file-types than PDF's, the file will be zipped on the server and made availble for download as ZIP file."});
-			var editor_hint_close = u.ae(editor_hint_content, "div", {"class":"close", "html":"I got it, don't tell me again"});
-			u.ce(editor_hint_close);
-			editor_hint_close.editor_hint = editor_hint;
-			editor_hint_close.clicked = function() {
-				u.saveCookie("html-editor-hint-v1", 1, {"path":"/"});
-				this.editor_hint.parentNode.removeChild(this.editor_hint);
-			}
-		}
-		field.text_support = "h1,h2,h3,h4,h5,h6,p,code";
-		field.list_support = "ul,ol";
-		field.media_support = "png,jpg,mp4";
-		field.ext_video_support = "youtube,vimeo";
-		field.file_support = "download"; 
-		field.allowed_tags = u.cv(field, "tags");
-		if(!field.allowed_tags) {
-			u.bug("allowed_tags not specified")
-			return;
-		}
-		field.filterAllowedTags = function(type) {
-			tags = this.allowed_tags.split(",");
-			this[type+"_allowed"] = new Array();
-			var tag, i;
-			for(i = 0; tag = tags[i]; i++) {
-				if(tag.match(this[type+"_support"].split(",").join("|"))) {
-					this[type+"_allowed"].push(tag);
-				}
-			}
-		}
-		field.filterAllowedTags("text");
-		field.filterAllowedTags("list");
-		field.filterAllowedTags("media");
-		field.filterAllowedTags("ext_video");
-		field.filterAllowedTags("file");
-		field.file_add_action = field.getAttribute("data-file-add");
-		field.file_delete_action = field.getAttribute("data-file-delete");
-		field.item_id;
-		var item_id_match = field._input.form.action.match(/\/([0-9]+)(\/|$)/);
-		if(item_id_match) {
-			field.item_id = item_id_match[1];
-		}
-		field._viewer = u.ae(field, "div", {"class":"viewer"});
-		field._editor = u.ae(field, "div", {"class":"editor"});
-		field._editor.field = field;
-		field._editor.dropped = function() {
-			this.field.update();
-		}
-		field.addOptions = function() {
-			this.bn_show_raw = u.ae(this._input._label, "span", {"html":"(RAW HTML)"});
-			this.bn_show_raw.field = this;
-			u.ce(this.bn_show_raw);
-			this.bn_show_raw.clicked = function() {
-				if(u.hc(this.field._input, "show")) {
-					u.rc(this.field._input, "show");
-				}
-				else {
-					u.ac(this.field._input, "show");
-				}
-			}
-			this.options = u.ae(this, "ul", {"class":"options"});
-			this.bn_add = u.ae(this.options, "li", {"class":"add", "html":"+"});
-			this.bn_add.field = field;
-			u.ce(this.bn_add);
-			this.bn_add.clicked = function(event) {
-				if(u.hc(this.field.options, "show")) {
-					u.rc(this.field.options, "show");
-				}
-				else {
-					u.ac(this.field.options, "show");
-				}
-			}
-			if(this.text_allowed.length) {
-				this.bn_add_text = u.ae(this.options, "li", {"class":"text", "html":"Text ("+this.text_allowed.join(", ")+")"});
-				this.bn_add_text.field = field;
-				u.ce(this.bn_add_text);
-				this.bn_add_text.clicked = function(event) {
-					this.field.addTextTag(this.field.text_allowed[0]);
-					u.rc(this.field.options, "show");
-				}
-			}
-			if(this.list_allowed.length) {
-				this.bn_add_list = u.ae(this.options, "li", {"class":"list", "html":"List ("+this.list_allowed.join(", ")+")"});
-				this.bn_add_list.field = field;
-				u.ce(this.bn_add_list);
-				this.bn_add_list.clicked = function(event) {
-					this.field.addListTag(this.field.list_allowed[0]);
-					u.rc(this.field.options, "show");
-				}
-			}
-			if(this.media_allowed.length) {
-				this.bn_add_media = u.ae(this.options, "li", {"class":"list", "html":"Media ("+this.media_allowed.join(", ")+")"});
-				this.bn_add_media.field = field;
-				u.ce(this.bn_add_media);
-				this.bn_add_media.clicked = function(event) {
-					this.field.addMediaTag();
-					u.rc(this.field.options, "show");
-				}
-			}
-			if(this.ext_video_allowed.length) {
-				this.bn_add_ext_video = u.ae(this.options, "li", {"class":"video", "html":"External video ("+this.ext_video_allowed.join(", ")+")"});
-				this.bn_add_ext_video.field = field;
-				u.ce(this.bn_add_ext_video);
-				this.bn_add_ext_video.clicked = function(event) {
-					this.field.addExternalVideoTag();
-					u.rc(this.field.options, "show");
-				}
-			}
-			if(this.file_allowed.length && this.item_id && this.file_add_action && this.file_delete_action) {
-				this.bn_add_file = u.ae(this.options, "li", {"class":"file", "html":"Downloadable file"});
-				this.bn_add_file.field = field;
-				u.ce(this.bn_add_file);
-				this.bn_add_file.clicked = function(event) {
-					this.field.addFileTag();
-					u.rc(this.field.options, "show");
-				}
-			}
-			else if(this.file_allowed.length) {
-				u.bug("some information is missing to support file upload:\nitem_id="+this.item_id+"\nfile_add_action="+this.file_add_action+"\nfile_delete_action="+this.file_delete_action);
-			}
-		}
-		field.update = function() {
-			this.updateViewer();
-			this.updateContent();
-		}
-		field.updateViewer = function() {
-			var tags = u.qsa("div.tag", this);
-			var i, tag, j, list, li, lis, div, p, a;
-			this._viewer.innerHTML = "";
-			for(i = 0; tag = tags[i]; i++) {
-				if(u.hc(tag, this.text_allowed.join("|"))) {
-					u.ae(this._viewer, tag._type.val(), {"html":tag._input.val()});
-				}
-				else if(u.hc(tag, this.list_allowed.join("|"))) {
-					list = u.ae(this._viewer, tag._type.val());
-					lis = u.qsa("div.li", tag);
-					for(j = 0; li = lis[j]; j++) {
-						li = u.ae(list, tag._type.val(), {"html":li._input.val()});
-					}
-				}
-				else if(u.hc(tag, this.ext_video_allowed.join("|"))) {
-					div = u.ae(this._viewer, "div", {"class":tag._type.val()+" video_id:"+tag._video_id});
-				}
-				else if(u.hc(tag, "file")) {
-					div = u.ae(this._viewer, "div", {"class":"file item_id:"+tag._item_id+" variant:"+tag._variant+" name:"+tag._name + " filesize:"+tag._filesize});
-					p = u.ae(div, "p", {"html":"DOWNLOAD: "});
-					a = u.ae(p, "a", {"href":"/download/"+tag._item_id+"/"+tag._variant+"/"+tag._name, "html":tag._name + " ("+u.round(tag._filesize/1000, 2)+" Kb)"});
-				}
-			}
-		}
-		field.updateContent = function() {
-			var tags = u.qsa("div.tag", this);
-			this._input.val("");
-			var i, node, tag, type, value, j, html = "";
-			for(i = 0; tag = tags[i]; i++) {
-				if(u.hc(tag, this.text_allowed.join("|"))) {
-					type = tag._type.val();
-					html += "<"+type+">"+tag._input.val()+"</"+type+">\n";
-				}
-				else if(u.hc(tag, this.list_allowed.join("|"))) {
-					type = tag._type.val();
-					html += "<"+type+">\n";
-					lis = u.qsa("div.li", tag);
-					for(j = 0; li = lis[j]; j++) {
-						html += "\t<li>"+li._input.val()+"</li>\n";
-					}
-					html += "</"+type+">\n";
-				}
-				else if(u.hc(tag, this.ext_video_allowed.join("|"))) {
-					html += '<div class="'+tag._type.val()+' video_id:'+tag._video_id+'"></div>\n';
-				}
-				else if(u.hc(tag, "file")) {
-					html += '<div class="file item_id:'+tag._item_id+' variant:'+tag._variant+' name:'+tag._name+' filesize:'+tag._filesize+'">'+"\n";
-					html += '\t<p>DOWNLOAD: <a href="/download/'+tag._item_id+'/'+tag._variant+'/'+tag._name+'">'+tag._name+" ("+u.round(tag._filesize/1000, 2)+" Kb)</a></p>";
-					html += "</div>\n";
-				}
-			}
-			this._input.val(html);
-		}
-		field.createTag = function(allowed_tags, type) {
-			var tag = u.ae(this._editor, "div", {"class":"tag"});
-			tag.field = this;
-			tag._drag = u.ae(tag, "div", {"class":"drag"});
-			tag._drag.field = this;
-			tag._drag.tag = tag;
-			this.createTagSelector(tag, allowed_tags);
-			tag._type.val(type);
-			tag._remove = u.ae(tag, "div", {"class":"remove"});
-			tag._remove.field = this;
-			tag._remove.tag = tag;
-			u.ce(tag._remove);
-			tag._remove.clicked = function() {
-				this.field.deleteTag(this.tag);
-			}
-			return tag;
-		}
-		field.deleteTag = function(tag) {
-			if(u.qsa("div.tag", this).length > 1) {
-				if(u.hc(tag, "file")) {
-					this.deleteFile(tag);
-				}
-				tag.parentNode.removeChild(tag);
-				u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
-				this.update();
-				this._input.form.submit();
-			}
-		}
-		field.createTagSelector = function(tag, allowed_tags) {
-			var i, allowed_tag;
-			tag._type = u.ae(tag, "ul", {"class":"type"});
-			tag._type.field = this;
-			tag._type.tag = tag;
-			for(i = 0; allowed_tag = allowed_tags[i]; i++) {
-				u.ae(tag._type, "li", {"html":allowed_tag, "class":allowed_tag});
-			}
-			tag._type.val = function(value) {
-				if(value !== undefined) {
-					var i, option;
-					for(i = 0; option = this.childNodes[i]; i++) {
-						if(u.text(option) == value) {
-							if(this.selected_option) {
-								u.rc(this.selected_option, "selected");
-								u.rc(this.tag, u.text(this.selected_option));
-							}
-							u.ac(option, "selected");
-							this.selected_option = option;
-							u.ac(this.tag, value);
-							return option;
-						}
-					}
-					u.ac(this.childNodes[0], "selected");
-					this.selected_option = this.childNodes[0];
-					u.ac(this.tag, u.text(this.childNodes[0]));
-					return this.childNodes[0];
-				}
-				else {
-					return u.text(this.selected_option);
-				}
-			}
-			if(allowed_tags.length > 1) {
-				u.ce(tag._type);
-				tag._type.clicked = function(event) {
-					u.t.resetTimer(this.t_autohide);
-					if(u.hc(this, "open")) {
-						u.rc(this, "open");
-						u.rc(this.tag, "focus");
-						u.as(this, "top", 0);
-						if(event.target) {
-							this.val(u.text(event.target));
-						}
-						u.e.removeEvent(this, "mouseout", this.autohide);
-						u.e.removeEvent(this, "mouseover", this.delayautohide);
-						this.field.update();
-					}
-					else {
-						u.ac(this, "open");
-						u.ac(this.tag, "focus");
-						u.as(this, "top", -(this.selected_option.offsetTop) + "px");
-						u.e.addEvent(this, "mouseout", this.autohide);
-						u.e.addEvent(this, "mouseover", this.delayautohide);
-					}
-				}
-				tag._type.hide = function() {
-					u.rc(this, "open");
-					u.rc(this.tag, "focus");
-					u.as(this, "top", 0);
-					u.e.removeEvent(this, "mouseout", this.autohide);
-					u.e.removeEvent(this, "mouseover", this.delayautohide);
-					u.t.resetTimer(this.t_autohide);
-				}
-				tag._type.autohide = function(event) {
-					u.t.resetTimer(this.t_autohide);
-					this.t_autohide = u.t.setTimer(this, this.hide, 800);
-				}
-				tag._type.delayautohide = function(event) {
-					u.t.resetTimer(this.t_autohide);
-				}
-			}
-		}
-		field.addExternalVideoTag = function() {}
-		field.addMediaTag = function() {}
-		field.addFileTag = function(value) {
-			var tag = this.createTag(["file"], "file");
-			tag._text = u.ae(tag, "div", {"class":"text"});
-			if(value) {
-				tag._variant = u.cv(node, "variant");
-				tag._name = u.cv(node, "name");
-				tag._item_id = u.cv(node, "item_id");
-				tag._filesize = u.cv(node, "filesize");
-				tag._label = u.ae(tag._text, "label", {"class":"done", "html":tag._name + " ("+u.round(tag._filesize/1000, 2)+" Kb)"});
-			}
-			else {
-				tag._label = u.ae(tag._text, "label", {"html":"Drag file here"});
-				tag._input = u.ae(tag._text, "input", {"type":"file", "name":"htmleditor_file"});
-				tag._input.tag = tag;
-				tag._input.field = this;
-				tag._input.val = function(value) {
-					u.bug("this shouldn't be called from anywhere")
-				}
-				u.e.addEvent(tag._input, "change", this._file_updated);
-				u.e.addEvent(tag._input, "focus", this._focused_content);
-				u.e.addEvent(tag._input, "blur", this._blurred_content);
-				if(u.e.event_pref == "mouse") {
-					u.e.addEvent(tag._input, "mouseenter", u.f._mouseenter);
-					u.e.addEvent(tag._input, "mouseleave", u.f._mouseleave);
-				}
-			}
-			u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
-			return tag;
-		}
-		field.deleteFile = function(tag) {
-			var form_data = new FormData();
-			form_data.append("csrf-token", this._input.form.fields["csrf-token"].val());
-			tag.response = function(response) {
-				page.notify(response);
-				if(response.cms_status && response.cms_status == "success") {
-					this.field.update();
-				}
-			}
-			u.request(tag, this.file_delete_action+"/"+tag._item_id+"/"+tag._variant, {"method":"post", "params":form_data});
-		}
-		field.addListTag = function(type, value) {
-			var tag = this.createTag(this.list_allowed, type);
-			this.addListItem(tag, value);
-			u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
-			return tag;
-		}
-		field.addListItem = function(tag, value) {
-			var li = u.ae(tag, "div", {"class":"li"});
-			li.tag = tag;
-			li.field = this;
-			li._input = u.ae(li, "div", {"class":"text", "contentEditable":true});
-			li._input.li = li;
-			li._input.tag = tag;
-			li._input.field = this;
-			li._input.val = function(value) {
-				if(value !== undefined) {
-					this.innerHTML = value;
-				}
-				return this.innerHTML;
-			}
-			li._input.val(u.stringOr(value));
-			u.e.addEvent(li._input, "keydown", this._changing_content);
-			u.e.addEvent(li._input, "keyup", this._changed_content);
-			u.e.addEvent(li._input, "mouseup", this._changed_content);
-			u.e.addEvent(li._input, "focus", this._focused_content);
-			u.e.addEvent(li._input, "blur", this._blurred_content);
-			if(u.e.event_pref == "mouse") {
-				u.e.addEvent(li._input, "mouseenter", u.f._mouseenter);
-				u.e.addEvent(li._input, "mouseleave", u.f._mouseleave);
-			}
-			u.e.addEvent(li._input, "paste", this._pasted_content);
-			return li;
-		}
-		field.addTextTag = function(type, value) {
-			var tag = this.createTag(this.text_allowed, type);
-			tag._input = u.ae(tag, "div", {"class":"text", "contentEditable":true});
-			tag._input.tag = tag;
-			tag._input.field = this;
-			tag._input.val = function(value) {
-				if(value !== undefined) {
-					this.innerHTML = value;
-				}
-				return this.innerHTML;
-			}
-			tag._input.val(u.stringOr(value));
-			u.e.addEvent(tag._input, "keydown", this._changing_content);
-			u.e.addEvent(tag._input, "keyup", this._changed_content);
-			u.e.addEvent(tag._input, "mouseup", this._changed_content);
-			u.e.addEvent(tag._input, "focus", this._focused_content);
-			u.e.addEvent(tag._input, "blur", this._blurred_content);
-			if(u.e.event_pref == "mouse") {
-				u.e.addEvent(tag._input, "mouseenter", u.f._mouseenter);
-				u.e.addEvent(tag._input, "mouseleave", u.f._mouseleave);
-			}
-			u.e.addEvent(tag._input, "paste", this._pasted_content);
-			tag.addNew = function() {
-				this.field.addTextItem(this.field.text_allowed[0]);
-			}
-			u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
-			return tag;
-		}
-		field._focused_content = function(event) {
-			this.field.focused = true;
-			u.ac(this.tag, "focus");
-			u.ac(this.field, "focus");
-			u.as(this.field, "zIndex", this.field._input.form._focus_z_index);
-			u.f.positionHint(this.field);
-			if(event.rangeOffset == 1) {
-				var range = document.createRange();
-				range.selectNodeContents(this);
-				range.collapse(false);
-				var selection = window.getSelection();
-				selection.removeAllRanges();
-				selection.addRange(range);
-			}
-		}
-		field._blurred_content = function() {
-			this.field.focused = false;
-			u.rc(this.tag, "focus");
-			u.rc(this.field, "focus");
-			u.as(this.field, "zIndex", this.field._base_z_index);
-			u.f.positionHint(this.field);
-			this.field.hideSelectionOptions();
-		}
-		field._file_updated = function(event) {
-			var form_data = new FormData();
-			form_data.append(this.name, this.files[0], this.value);
-			form_data.append("csrf-token", this.form.fields["csrf-token"].val());
-			this.response = function(response) {
-				page.notify(response);
-				if(response.cms_status && response.cms_status == "success") {
-					this.parentNode.removeChild(this);
-					this.tag._label.innerHTML = response.cms_object["name"] + " ("+ u.round((response.cms_object["filesize"]/1000), 2) +"Kb)";
-					this.tag._variant = response.cms_object["variant"];
-					this.tag._filesize = response.cms_object["filesize"]
-					this.tag._name = response.cms_object["name"]
-					this.tag._item_id = response.cms_object["item_id"]
-					u.ac(this.tag._label, "done");
-					this.tag.field.update();
-					this.tag.field._input.form.submit();
-				}
-			}
-			u.request(this, this.field.file_add_action+"/"+this.field.item_id, {"method":"post", "params":form_data});
-		}
-		field._changing_content = function(event) {
-			if(event.keyCode == 13) {
-				u.e.kill(event);
-			}
-		}
-		field._changed_content = function(event) {
-			var selection = window.getSelection(); 
-			if(event.keyCode == 13) {
-				u.e.kill(event);
-				if(!event.ctrlKey && !event.metaKey) {
-					if(u.hc(this.tag, this.field.list_allowed.join("|"))) {
-						var new_li = this.field.addListItem(this.tag);
-						var next_li = u.ns(this.li);
-						if(next_li) {
-							this.tag.insertBefore(new_li, next_li);
-						}
-						else {
-							this.tag.appendChild(new_li);
-						}
-						new_li._input.focus();
-					}
-					else {
-						var new_tag = this.field.addTextTag(this.field.text_allowed[0]);
-						var next_tag = u.ns(this.tag);
-						if(next_tag) {
-							this.tag.parentNode.insertBefore(new_tag, next_tag);
-						}
-						else {
-							this.tag.parentNode.appendChild(new_tag);
-						}
-						new_tag._input.focus();
-					}
-				}
-				else {
-					if(selection && selection.isCollapsed) {
-						var br = document.createElement("br");
-						range = selection.getRangeAt(0);
-						range.insertNode(br);
-						range.collapse(false);
-						var selection = window.getSelection();
-						selection.removeAllRanges();
-						selection.addRange(range);
-					}
-				}
-			}
-			else if(event.keyCode == 8) {
-				if(this.is_deletable) {
-					u.e.kill(event);
-					var all_tags = u.qsa("div.tag", this.field);
-					var all_lis = u.qsa("div.li", this.tag);
-					var prev = this.field.findPreviousInput(this);
-					if(u.hc(this.tag, this.field.list_allowed.join("|"))) {
-						if(all_tags.length > 1 || all_lis.length > 1) {
-							this.tag.removeChild(this.li);
-							if(!u.qsa("div.li", this.tag).length) {
-								this.tag.parentNode.removeChild(this.tag);
-							}
-						}
-					}
-					else {
-						if(all_tags.length > 1) {
-							this.tag.parentNode.removeChild(this.tag);
-						}
-					}
-					u.sortable(this.field._editor, {"draggables":"tag", "targets":"editor"});
-					if(prev) {
-						prev.focus();
-					}
-				}
-				else if(!this.val() || !this.val().replace(/<br>/, "")) {
-					this.is_deletable = true;
-				}
-				else if(selection.anchorNode != this && selection.anchorNode.innerHTML == "") {
-					selection.anchorNode.parentNode.removeChild(selection.anchorNode);
-				}
-			}
-			else {
-				this.is_deletable = false;
-			}
-			this.field.hideSelectionOptions();
-			if(selection && !selection.isCollapsed) {
-				var node = selection.anchorNode;
-				while(node != this) {
-					if(node.nodeName == "HTML" || !node.parentNode) {
-						break;
-					}
-					node = node.parentNode;
-				}
-				if(node == this) {
-					this.field.showSelectionOptions(this, selection);
-				}
-			}
-			// 	
-			this.field.update();
-		}
-		field._pasted_content = function(event) {
-			u.e.kill(event);
-			var i, node;
-			var paste_content = event.clipboardData.getData("text/plain");
-			if(paste_content !== "") {
-				var paste_parts = paste_content.split(/\n\r|\n|\r/g);
-				var text_nodes = [];
-				for(i = 0; text = paste_parts[i]; i++) {
-					text_nodes.push(document.createTextNode(text));
-					text_nodes.push(document.createElement("br"));
-				}
- 				var text_node = document.createTextNode(paste_content);
-				for(i = text_nodes.length-1; node = text_nodes[i]; i--) {
-					window.getSelection().getRangeAt(0).insertNode(node);
-				}
-				var range = document.createRange();
-				range.selectNodeContents(this);
-				range.collapse(false);
-				var selection = window.getSelection();
-				selection.removeAllRanges();
-				selection.addRange(range);
-			}
-		}
-		field.findPreviousInput = function(iN) {
-			var prev = false;
-			if(u.hc(iN.tag, this.list_allowed.join("|"))) {
-				prev = u.ps(iN.li, "drag|remove|type");
-			}
-			if(!prev) {
-				prev = u.ps(iN.tag);
-				if(prev && u.hc(prev, this.list_allowed.join("|"))) {
-					var items = u.qsa("div.li", prev);
-					prev = items[items.length-1];
-				}
-			}
-			if(!prev) {
-				prev = u.qs("div.tag", this);
-				if(u.hc(prev, this.list_allowed.join("|"))) {
-					prev = u.qs("div.li", prev);
-				}
-			}
-			return prev ? prev._input : false;
-		}
-		field.hideSelectionOptions = function() {
-			if(this.selection_options && !this.selection_options.is_active) {
-				this.selection_options.parentNode.removeChild(this.selection_options);
-				this.selection_options = null;
-			}
-			this.update();
-		}
-		field.showSelectionOptions = function(node, selection) {
-			var x = u.absX(node);
-			var y = u.absY(node);
-			this.selection_options = u.ae(document.body, "div", {"id":"selection_options"});
-			u.as(this.selection_options, "top", y+"px");
-			u.as(this.selection_options, "left", (x + node.offsetWidth) +"px");
-			var ul = u.ae(this.selection_options, "ul", {"class":"options"});
-			this.selection_options._link = u.ae(ul, "li", {"class":"link", "html":"Link"});
-			this.selection_options._link.field = this;
-			this.selection_options._link.selection = selection;
-			u.ce(this.selection_options._link);
-			this.selection_options._link.inputStarted = function(event) {
-				u.e.kill(event);
-				this.field.selection_options.is_active = true;
-			}
-			this.selection_options._link.clicked = function(event) {
-				u.e.kill(event);
-				this.field.addAnchorTag(this.selection);
-			}
-			this.selection_options._em = u.ae(ul, "li", {"class":"em", "html":"Itallic"});
-			this.selection_options._em.field = this;
-			this.selection_options._em.selection = selection;
-			u.ce(this.selection_options._em);
-			this.selection_options._em.inputStarted = function(event) {
-				u.e.kill(event);
-			}
-			this.selection_options._em.clicked = function(event) {
-				u.e.kill(event);
-				this.field.addEmTag(this.selection);
-			}
-			this.selection_options._strong = u.ae(ul, "li", {"class":"strong", "html":"Bold"});
-			this.selection_options._strong.field = this;
-			this.selection_options._strong.selection = selection;
-			u.ce(this.selection_options._strong);
-			this.selection_options._strong.inputStarted = function(event) {
-				u.e.kill(event);
-			}
-			this.selection_options._strong.clicked = function(event) {
-				u.e.kill(event);
-				this.field.addStrongTag(this.selection);
-			}
-		}
-		field.deleteOption = function(node) {
-			node.over = function(event) {
-				u.t.resetTimer(this.t_out);
-				if(!this.bn_delete) {
-					this.bn_delete = u.ae(document.body, "span", {"class":"delete_selection", "html":"X"});
-					this.bn_delete.node = this;
-					this.bn_delete.over = function(event) {
-						u.t.resetTimer(this.node.t_out);
-					}
-					this.bn_delete.out = function(event) {
-						this.node.t_out = u.t.setTimer(this.node, this.node.reallyout, 300);
-					}
-					u.e.addEvent(this.bn_delete, "mouseover", this.bn_delete.over);
-					u.e.addEvent(this.bn_delete, "mouseout", this.bn_delete.out);
-					u.ce(this.bn_delete);
-					this.bn_delete.clicked = function() {
-						u.e.kill(event);
-						if(this.node.field.selection_options) {
-							this.node.field.selection_options.is_active = false;
-							this.node.field.hideSelectionOptions();
-						}
-						var fragment = document.createTextNode(this.node.innerHTML);
-						this.node.parentNode.replaceChild(fragment, this.node);
-						this.node.reallyout();
-						this.node.field.update();
-					}
-					u.as(this.bn_delete, "top", (u.absY(this)-5)+"px");
-					u.as(this.bn_delete, "left", (u.absX(this)+this.offsetWidth-5)+"px");
-				}
-			}
-			node.out = function(event) {
-				u.t.resetTimer(this.t_out);
-				this.t_out = u.t.setTimer(this, this.reallyout, 300);
-			}
-			node.reallyout = function(event) {
-				if(this.bn_delete) {
-					document.body.removeChild(this.bn_delete);
-					this.bn_delete = null;
-				}
-			}
-			u.e.addEvent(node, "mouseover", node.over);
-			u.e.addEvent(node, "mouseout", node.out);
-		}
-		field.activateInlineFormatting = function(input) {
-			var i, node;
-			var inline_tags = u.qsa("a,strong,em,span", input);
-			for(i = 0; node = inline_tags[i]; i++) {
-				node.field = input.field;
-				this.deleteOption(node);
-			}
-		}
-		field.anchorOptions = function(node) {
-			var form = u.f.addForm(this.selection_options, {"class":"labelstyle:inject"});
-			u.ae(form, "h3", {"html":"Link options"});
-			var fieldset = u.f.addFieldset(form);
-			var input_url = u.f.addField(fieldset, {"label":"url", "name":"url"});
-			var input_target = u.f.addField(fieldset, {"type":"checkbox", "label":"New window?", "name":"target"});
-			var bn_save = u.f.addAction(form, {"value":"Create link", "class":"button"});
-			u.f.init(form);
-			form.a = node;
-			form.field = this;
-			form.submitted = function() {
-				if(this.fields["url"].val() && this.fields["url"].val() != this.fields["url"].default_value) {
-					this.a.href = this.fields["url"].val();
-				}
-				if(this.fields["target"].val() && this.fields["target"].val() != this.fields["target"].default_value) {
-					this.a.target = "_blank";
-				}
-				this.field.selection_options.is_active = false;
-				this.field.hideSelectionOptions();
-			}
-		}
-		field.addAnchorTag = function(selection) {
-			var range, a, url, target;
-			var a = document.createElement("a");
-			a.field = this;
-			range = selection.getRangeAt(0);
-			range.surroundContents(a);
-			selection.removeAllRanges();
-			this.anchorOptions(a);
-			this.deleteOption(a);
-		}
-		field.addStrongTag = function(selection) {
-			var range, a, url, target;
-			var strong = document.createElement("strong");
-			strong.field = this;
-			range = selection.getRangeAt(0);
-			range.surroundContents(strong);
-			selection.removeAllRanges();
-			this.deleteOption(strong);
-			this.hideSelectionOptions();
-		}
-		field.addEmTag = function(selection) {
-			var range, a, url, target;
-			var em = document.createElement("em");
-			em.field = this;
-			range = selection.getRangeAt(0);
-			range.surroundContents(em);
-			selection.removeAllRanges();
-			this.deleteOption(em);
-			this.hideSelectionOptions();
-		}
-		field.spanOptions = function(node) {}
-		field.addSpanTag = function(selection) {
-			var span = document.createElement("span");
-			span.field = this;
-			var range = selection.getRangeAt(0);
-			range.surroundContents(span);
-			selection.removeAllRanges();
-			this.deleteOption(span);
-			this.hideSelectionOptions();
-		}
-		field._viewer.innerHTML = field._input.val();
-		var value, node, i, tag, j, lis, li;
-		var nodes = u.cn(field._viewer, "br");
-		if(nodes.length) {
-			for(i = 0; node = field._viewer.childNodes[i]; i++) {
-				if(node.nodeName == "#text") {
-					if(node.nodeValue.trim()) {
-						var fragments = node.nodeValue.trim().split(/\n\r\n\r|\n\n|\r\r/g);
-						if(fragments) {
-							for(index in fragments) {
-								value = fragments[index].replace(/\n\r|\n|\r/g, "<br>");
-								tag = field.addTextTag("p", fragments[index]);
-								field.activateInlineFormatting(tag._input);
-							}
-						}
-						else {
-							value = node.nodeValue; 
-							tag = field.addTextTag("p", value);
-							field.activateInlineFormatting(tag._input);
-						}
-					}
-				}
-				else if(node.nodeName.toLowerCase().match(field.text_allowed.join("|"))) {
-					value = node.innerHTML.replace(/\n\r|\n|\r/g, "<br>"); 
-					tag = field.addTextTag(node.nodeName.toLowerCase(), value);
-					field.activateInlineFormatting(tag._input);
-				}
-				else if(node.nodeName.toLowerCase().match(field.list_allowed.join("|"))) {
-					var lis = u.qsa("li", node);
-					value = lis[0].innerHTML.replace(/\n\r|\n|\r/g, "<br>");
-					tag = field.addListTag(node.nodeName.toLowerCase(), value);
-					var li = u.qs("div.li", tag);
-					field.activateInlineFormatting(li._input);
-					if(lis.length > 1) {
-						for(j = 1; li = lis[j]; j++) {
-							value = li.innerHTML.replace(/\n\r|\n|\r/g, "<br>");
-							li = field.addListItem(tag, value);
-							field.activateInlineFormatting(li._input);
-						}
-					}
-				}
-				else {
-					if(u.hc(node, "file")) {
-						field.addFileTag(node);
-					}
-					else {
-						alert("HTML contains unautorized node:" + node.nodeName + "\nIt has been altered to conform with SEO and design.");
-					}
-				}
-			}
-		}
-		else {
-			value = field._viewer.innerHTML.replace(/\<br[\/]?\>/g, "\n");
-			tag = field.addTextTag(field.text_allowed[0], value);
-			field.activateInlineFormatting(tag._input);
-		}
-		u.sortable(field._editor, {"draggables":"tag", "targets":"editor"});
-		field.updateViewer();
-		field.addOptions();
 	}
 	this.validate = function(iN) {
 		if(!iN.form._validation) {
@@ -5479,57 +4499,6 @@ Util.Form = u.f = new function() {
 					this.fieldError(iN);
 				}
 			}
-			else if(u.hc(iN.field, "html")) {
-				min = Number(u.cv(iN.field, "min"));
-				max = Number(u.cv(iN.field, "max"));
-				min = min ? min : 1;
-				max = max ? max : 10000000;
-				pattern = iN.getAttribute("pattern");
-				if(
-					u.text(iN.field._viewer) &&
-					u.text(iN.field._viewer).length >= min && 
-					u.text(iN.field._viewer).length <= max && 
-					(!pattern || iN.val().match("^"+pattern+"$"))
-				) {
-					this.fieldCorrect(iN);
-				}
-				else {
-					this.fieldError(iN);
-				}
-			}
-			else if(u.hc(iN.field, "select")) {
-				if(iN.val() !== "") {
-					this.fieldCorrect(iN);
-				}
-				else {
-					this.fieldError(iN);
-				}
-			}
-			else if(u.hc(iN.field, "checkbox|boolean|radiobuttons")) {
-				if(iN.val()) {
-					this.fieldCorrect(iN);
-				}
-				else {
-					this.fieldError(iN);
-				}
-			}
-			else if(u.hc(iN.field, "string")) {
-				min = Number(u.cv(iN.field, "min"));
-				max = Number(u.cv(iN.field, "max"));
-				min = min ? min : 1;
-				max = max ? max : 255;
-				pattern = iN.getAttribute("pattern");
-				if(
-					iN.val().length >= min &&
-					iN.val().length <= max && 
-					(!pattern || iN.val().match("^"+pattern+"$"))
-				) {
-					this.fieldCorrect(iN);
-				}
-				else {
-					this.fieldError(iN);
-				}
-			}
 			else if(u.hc(iN.field, "date")) {
 				pattern = iN.getAttribute("pattern");
 				if(
@@ -5554,6 +4523,55 @@ Util.Form = u.f = new function() {
 					this.fieldError(iN);
 				}
 			}
+			else if(u.hc(iN.field, "files")) {
+				min = Number(u.cv(iN.field, "min"));
+				max = Number(u.cv(iN.field, "max"));
+				min = min ? min : 1;
+				max = max ? max : 10000000;
+				if(
+					u.hc(iN, "uploaded") ||
+					(iN.val().length >= min && 
+					iN.val().length <= max)
+				) {
+					this.fieldCorrect(iN);
+				}
+				else {
+					this.fieldError(iN);
+				}
+			}
+			else if(u.hc(iN.field, "select")) {
+				if(iN.val() !== "") {
+					this.fieldCorrect(iN);
+				}
+				else {
+					this.fieldError(iN);
+				}
+			}
+			else if(u.hc(iN.field, "checkbox|boolean|radiobuttons")) {
+				if(iN.val() !== "") {
+					this.fieldCorrect(iN);
+				}
+				else {
+					this.fieldError(iN);
+				}
+			}
+			else if(u.hc(iN.field, "string")) {
+				min = Number(u.cv(iN.field, "min"));
+				max = Number(u.cv(iN.field, "max"));
+				min = min ? min : 1;
+				max = max ? max : 255;
+				pattern = iN.getAttribute("pattern");
+				if(
+					iN.val().length >= min &&
+					iN.val().length <= max && 
+					(!pattern || iN.val().match("^"+pattern+"$"))
+				) {
+					this.fieldCorrect(iN);
+				}
+				else {
+					this.fieldError(iN);
+				}
+			}
 			else if(u.hc(iN.field, "tags")) {
 				if(
 					!pattern && iN.val().match(/\:/) ||
@@ -5568,77 +4586,6 @@ Util.Form = u.f = new function() {
 			else if(u.hc(iN.field, "prices")) {
 				if(
 					!isNaN(iN.val())
-				) {
-					this.fieldCorrect(iN);
-				}
-				else {
-					this.fieldError(iN);
-				}
-			}
-			else if(u.hc(iN.field, "location")) {
-				var loc_fields = 0;
-				if(iN.field._input) {
-					loc_fields++;
-					min = 1;
-					max = 255;
-					if(
-						iN.field._input.val().length >= min &&
-						iN.field._input.val().length <= max
-					) {
-						this.fieldCorrect(iN.field._input);
-					}
-					else {
-						this.fieldError(iN.field._input);
-					}
-				}
-				if(iN.field.lat_input) {
-					loc_fields++;
-					min = -90;
-					max = 90;
-					if(
-						!isNaN(iN.field.lat_input.val()) && 
-						iN.field.lat_input.val() >= min && 
-						iN.field.lat_input.val() <= max
-					) {
-						this.fieldCorrect(iN.field.lat_input);
-					}
-					else {
-						this.fieldError(iN.field.lat_input);
-					}
-				}
-				if(iN.field.lon_input) {
-					loc_fields++;
-					min = -180;
-					max = 180;
-					if(
-						!isNaN(iN.field.lon_input.val()) && 
-						iN.field.lon_input.val() >= min && 
-						iN.field.lon_input.val() <= max
-					) {
-						this.fieldCorrect(iN.field.lon_input);
-					}
-					else {
-						this.fieldError(iN.field.lon_input);
-					}
-				}
-				if(u.qsa("input.error", iN.field).length) {
-					u.rc(iN.field, "correct");
-					u.ac(iN.field, "error");
-				}
-				else if(u.qsa("input.correct", iN.field).length == loc_fields) {
-					u.ac(iN.field, "correct");
-					u.rc(iN.field, "error");
-				}
-			}
-			else if(u.hc(iN.field, "files")) {
-				min = Number(u.cv(iN.field, "min"));
-				max = Number(u.cv(iN.field, "max"));
-				min = min ? min : 1;
-				max = max ? max : 10000000;
-				if(
-					u.hc(iN, "uploaded") ||
-					(iN.val().length >= min && 
-					iN.val().length <= max)
 				) {
 					this.fieldCorrect(iN);
 				}
@@ -5821,20 +4768,22 @@ u.f.recurseName = function(object, indexes, value) {
 	}
 	return object;
 }
-u.f.addForm = function(node, settings) {
-u.bug("addform")
+
+
+/*u-form-builder.js*/
+u.f.addForm = function(node, _options) {
 	var form_name = "js_form";
 	var form_action = "#";
 	var form_method = "post";
 	var form_class = "";
-	if(typeof(settings) == "object") {
-		var argument;
-		for(argument in settings) {
-			switch(argument) {
-				case "name"			: form_name				= settings[argument]; break;
-				case "action"		: form_action			= settings[argument]; break;
-				case "method"		: form_method			= settings[argument]; break;
-				case "class"		: form_class			= settings[argument]; break;
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "name"			: form_name				= _options[_argument]; break;
+				case "action"		: form_action			= _options[_argument]; break;
+				case "method"		: form_method			= _options[_argument]; break;
+				case "class"		: form_class			= _options[_argument]; break;
 			}
 		}
 	}
@@ -5844,21 +4793,21 @@ u.bug("addform")
 u.f.addFieldset = function(node) {
 	return u.ae(node, "fieldset");
 }
-u.f.addField = function(node, settings) {
+u.f.addField = function(node, _options) {
 	var field_type = "string";
 	var field_label = "Value";
 	var field_name = "js_name";
 	var field_value = "";
 	var field_class = "";
-	if(typeof(settings) == "object") {
-		var argument;
-		for(argument in settings) {
-			switch(argument) {
-				case "type"			: field_type			= settings[argument]; break;
-				case "label"		: field_label			= settings[argument]; break;
-				case "name"			: field_name			= settings[argument]; break;
-				case "value"		: field_value			= settings[argument]; break;
-				case "class"		: field_class			= settings[argument]; break;
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "type"			: field_type			= _options[_argument]; break;
+				case "label"		: field_label			= _options[_argument]; break;
+				case "name"			: field_name			= _options[_argument]; break;
+				case "value"		: field_value			= _options[_argument]; break;
+				case "class"		: field_class			= _options[_argument]; break;
 			}
 		}
 	}
@@ -5884,27 +4833,27 @@ u.f.addField = function(node, settings) {
 	}
 	return field;
 }
-u.f.addAction = function(node, settings) {
+u.f.addAction = function(node, _options) {
 	var action_type = "submit";
 	var action_name = "js_name";
 	var action_value = "";
 	var action_class = "";
-	if(typeof(settings) == "object") {
-		var argument;
-		for(argument in settings) {
-			switch(argument) {
-				case "type"			: action_type			= settings[argument]; break;
-				case "name"			: action_name			= settings[argument]; break;
-				case "value"		: action_value			= settings[argument]; break;
-				case "class"		: action_class			= settings[argument]; break;
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "type"			: action_type			= _options[_argument]; break;
+				case "name"			: action_name			= _options[_argument]; break;
+				case "value"		: action_value			= _options[_argument]; break;
+				case "class"		: action_class			= _options[_argument]; break;
 			}
 		}
 	}
-	var p_ul = node.nodeName.toLowerCase() == "ul" ? node : u.pn(node, "ul");
+	var p_ul = node.nodeName.toLowerCase() == "ul" ? node : u.pn(node, {"include":"ul"});
 	if(!u.hc(p_ul, "actions")) {
 		p_ul = u.ae(node, "ul", {"class":"actions"});
 	}
-	var p_li = node.nodeName.toLowerCase() == "li" ? node : u.pn(node, "li");
+	var p_li = node.nodeName.toLowerCase() == "li" ? node : u.pn(node, {"include":"li"});
 	if(p_ul != p_li.parentNode) {
 		p_li = u.ae(p_ul, "li", {"class":action_name});
 	}
@@ -5913,6 +4862,1410 @@ u.f.addAction = function(node, settings) {
 	}
 	var action = u.ae(p_li, "input", {"type":action_type, "class":action_class, "value":action_value, "name":action_name})
 	return action;
+}
+
+
+/*u-form-htmleditor.js*/
+Util.Form.customInit["html"] = function(form, field) {
+	field._input = u.qs("textarea", field);
+	field._input.field = field;
+	form.fields[field._input.name] = field._input;
+	field._input._label = u.qs("label[for="+field._input.id+"]", field);
+	field._input.val = u.f._value;
+	u.f.textEditor(field);
+	u.f.validate(field._input);
+}
+Util.Form.customValidate["html"] = function(iN) {
+	min = Number(u.cv(iN.field, "min"));
+	max = Number(u.cv(iN.field, "max"));
+	min = min ? min : 1;
+	max = max ? max : 10000000;
+	pattern = iN.getAttribute("pattern");
+	if(
+		u.text(iN.field._viewer) &&
+		u.text(iN.field._viewer).length >= min && 
+		u.text(iN.field._viewer).length <= max && 
+		(!pattern || iN.val().match("^"+pattern+"$"))
+	) {
+		u.f.fieldCorrect(iN);
+	}
+	else {
+		u.f.fieldError(iN);
+	}
+}
+u.f.textEditor = function(field) {
+	u.bug("init custom editor")
+	var hint_has_been_shown = u.getCookie("html-editor-hint-v1", {"path":"/"});
+	if(!hint_has_been_shown) {
+		var editor_hint = u.ie(field, "div", {"class":"html_editor_hint"});
+		var editor_hint_open = u.ae(editor_hint, "div", {"class":"open", "html":"I'd like to know more about the Editor"});
+		var editor_hint_content = u.ae(editor_hint, "div", {"class":"html_editor_hint_content"});
+		editor_hint_open.editor_hint_content = editor_hint_content;
+		u.ce(editor_hint_open);
+		editor_hint_open.clicked = function() {
+			if(this.editor_hint_content.is_shown) {
+				this.innerHTML = "I'd like to know more about the Editor";
+				u.as(editor_hint_content, "display", "none");
+				this.editor_hint_content.is_shown = false;
+			}
+			else {
+				this.innerHTML = "Hide help for now";
+				u.as(editor_hint_content, "display", "block");
+				this.editor_hint_content.is_shown = true;
+			}
+		}
+		u.ae(editor_hint_content, "p", {"html":"If you are new to using the Janitor HTML editor here are a few tips to working better with the editor."});
+		u.ae(editor_hint_content, "p", {"html":"This HTML editor has been developed to maintain a strict control of the design - therefore it looks different from other HTML editors. The features available are aligned with the design of the specific page, and the Editor might not have the same features available in every context."});
+		u.ae(editor_hint_content, "h4", {"html":"General use:"});
+		u.ae(editor_hint_content, "p", {"html":"All HTML nodes can be deleted using the Trashcan in the Right side. The Editor allways requires one node to exist and you cannot delete the last remaining node."});
+		u.ae(editor_hint_content, "p", {"html":"HTML nodes can be re-ordered by dragging the bubble in the Left side."});
+		u.ae(editor_hint_content, "p", {"html":"You can add new nodes by clicking on the + below the editor. The options availble are the ones allowed for the current content type."});
+		u.ae(editor_hint_content, "h4", {"html":"Text nodes:"});
+		u.ae(editor_hint_content, "p", {"html":"&lt;H1&gt;,&lt;H2&gt;,&lt;H3&gt;,&lt;H4&gt;,&lt;H5&gt;,&lt;H6&gt;,&lt;P&gt;,&lt;CODE&gt;"});
+		u.ae(editor_hint_content, "p", {"html":"Text nodes are for headlines and paragraphs - regular text."});
+		u.ae(editor_hint_content, "p", {"html":"You can activate the inline formatting tool by selecting text in your Text node."});
+		u.ae(editor_hint_content, "p", {"html":"If you press ENTER inside a Text node, a new Text node will be created below the current one."});
+		u.ae(editor_hint_content, "p", {"html":"If you press BACKSPACE twice inside an empty Text node it will be deleted"});
+		u.ae(editor_hint_content, "h4", {"html":"List nodes:"});
+		u.ae(editor_hint_content, "p", {"html":"&lt;UL&gt;,&lt;OL&gt;"});
+		u.ae(editor_hint_content, "p", {"html":"There are two types of list nodes: Unordered lists (UL w/ bullets) and Ordered lists (OL w/ numbers). Each of them can have one or many List items."});
+		u.ae(editor_hint_content, "p", {"html":"You can activate the inline formatting tool by selecting text in your List item."});
+		u.ae(editor_hint_content, "p", {"html":"If you press ENTER inside a List item, a new List item will be created below the current one."});
+		u.ae(editor_hint_content, "p", {"html":"If you press BACKSPACE twice inside an empty List item it will be deleted. If it is the last List item in the List node, the List node will be deleted as well."});
+		u.ae(editor_hint_content, "h4", {"html":"File nodes:"});
+		u.ae(editor_hint_content, "p", {"html":"Drag you file to the node or click the node to select your file."});
+		u.ae(editor_hint_content, "p", {"html":"If you add other file-types than PDF's, the file will be zipped on the server and made availble for download as ZIP file."});
+		var editor_hint_close = u.ae(editor_hint_content, "div", {"class":"close", "html":"I got it, don't tell me again"});
+		u.ce(editor_hint_close);
+		editor_hint_close.editor_hint = editor_hint;
+		editor_hint_close.clicked = function() {
+			u.saveCookie("html-editor-hint-v1", 1, {"path":"/"});
+			this.editor_hint.parentNode.removeChild(this.editor_hint);
+		}
+	}
+	field.text_support = "h1,h2,h3,h4,h5,h6,p";
+	field.code_support = "code";
+	field.list_support = "ul,ol";
+	field.media_support = "png,jpg,mp4";
+	field.ext_video_support = "youtube,vimeo";
+	field.file_support = "download"; 
+	field.allowed_tags = u.cv(field, "tags");
+	if(!field.allowed_tags) {
+		u.bug("allowed_tags not specified")
+		return;
+	}
+	field.filterAllowedTags = function(type) {
+		tags = this.allowed_tags.split(",");
+		this[type+"_allowed"] = new Array();
+		var tag, i;
+		for(i = 0; tag = tags[i]; i++) {
+			if(tag.match("^("+this[type+"_support"].split(",").join("|")+")$")) {
+				this[type+"_allowed"].push(tag);
+			}
+		}
+	}
+	field.filterAllowedTags("text");
+	field.filterAllowedTags("list");
+	field.filterAllowedTags("media");
+	field.filterAllowedTags("ext_video");
+	field.filterAllowedTags("file");
+	field.filterAllowedTags("code");
+	field.file_add_action = field.getAttribute("data-file-add");
+	field.file_delete_action = field.getAttribute("data-file-delete");
+	field.media_add_action = field.getAttribute("data-media-add");
+	field.media_delete_action = field.getAttribute("data-media-delete");
+	field.item_id;
+	var item_id_match = field._input.form.action.match(/\/([0-9]+)(\/|$)/);
+	if(item_id_match) {
+		field.item_id = item_id_match[1];
+	}
+	field._viewer = u.ae(field, "div", {"class":"viewer"});
+	field._editor = u.ae(field, "div", {"class":"editor"});
+	field._editor.field = field;
+	field._editor.dropped = function() {
+		this.field.update();
+	}
+	field.addOptions = function() {
+		this.bn_show_raw = u.ae(this._input._label, "span", {"html":"(RAW HTML)"});
+		this.bn_show_raw.field = this;
+		u.ce(this.bn_show_raw);
+		this.bn_show_raw.clicked = function() {
+			if(u.hc(this.field._input, "show")) {
+				u.rc(this.field._input, "show");
+			}
+			else {
+				u.ac(this.field._input, "show");
+			}
+		}
+		this.options = u.ae(this, "ul", {"class":"options"});
+		this.bn_add = u.ae(this.options, "li", {"class":"add", "html":"+"});
+		this.bn_add.field = field;
+		u.ce(this.bn_add);
+		this.bn_add.clicked = function(event) {
+			if(u.hc(this.field.options, "show")) {
+				u.rc(this.field.options, "show");
+				u.rc(this.field, "optionsshown");
+			}
+			else {
+				u.ac(this.field.options, "show");
+				u.ac(this.field, "optionsshown");
+			}
+		}
+		if(this.text_allowed.length) {
+			this.bn_add_text = u.ae(this.options, "li", {"class":"text", "html":"Text ("+this.text_allowed.join(", ")+")"});
+			this.bn_add_text.field = field;
+			u.ce(this.bn_add_text);
+			this.bn_add_text.clicked = function(event) {
+				this.field.addTextTag(this.field.text_allowed[0]);
+				u.rc(this.field.options, "show");
+			}
+		}
+		if(this.list_allowed.length) {
+			this.bn_add_list = u.ae(this.options, "li", {"class":"list", "html":"List ("+this.list_allowed.join(", ")+")"});
+			this.bn_add_list.field = field;
+			u.ce(this.bn_add_list);
+			this.bn_add_list.clicked = function(event) {
+				this.field.addListTag(this.field.list_allowed[0]);
+				u.rc(this.field.options, "show");
+			}
+		}
+		if(this.code_allowed.length) {
+			this.bn_add_code = u.ae(this.options, "li", {"class":"code", "html":"Code"});
+			this.bn_add_code.field = field;
+			u.ce(this.bn_add_code);
+			this.bn_add_code.clicked = function(event) {
+				this.field.addCodeTag(this.field.code_allowed[0]);
+				u.rc(this.field.options, "show");
+			}
+		}
+		if(this.media_allowed.length && this.item_id && this.media_add_action && this.media_delete_action) {
+			this.bn_add_media = u.ae(this.options, "li", {"class":"list", "html":"Media ("+this.media_allowed.join(", ")+")"});
+			this.bn_add_media.field = field;
+			u.ce(this.bn_add_media);
+			this.bn_add_media.clicked = function(event) {
+				this.field.addMediaTag();
+				u.rc(this.field.options, "show");
+			}
+		}
+		else if(this.media_allowed.length) {
+			u.bug("some information is missing to support media upload:\nitem_id="+this.item_id+"\nmedia_add_action="+this.media_add_action+"\nmedia_delete_action="+this.media_delete_action);
+		}
+		if(this.ext_video_allowed.length) {
+			this.bn_add_ext_video = u.ae(this.options, "li", {"class":"video", "html":"External video ("+this.ext_video_allowed.join(", ")+")"});
+			this.bn_add_ext_video.field = field;
+			u.ce(this.bn_add_ext_video);
+			this.bn_add_ext_video.clicked = function(event) {
+				this.field.addExternalVideoTag();
+				u.rc(this.field.options, "show");
+			}
+		}
+		if(this.file_allowed.length && this.item_id && this.file_add_action && this.file_delete_action) {
+			this.bn_add_file = u.ae(this.options, "li", {"class":"file", "html":"Downloadable file"});
+			this.bn_add_file.field = field;
+			u.ce(this.bn_add_file);
+			this.bn_add_file.clicked = function(event) {
+				this.field.addFileTag();
+				u.rc(this.field.options, "show");
+			}
+		}
+		else if(this.file_allowed.length) {
+			u.bug("some information is missing to support file upload:\nitem_id="+this.item_id+"\nfile_add_action="+this.file_add_action+"\nfile_delete_action="+this.file_delete_action);
+		}
+	}
+	field.update = function() {
+		this.updateViewer();
+		this.updateContent();
+	}
+	field.updateViewer = function() {
+		var tags = u.qsa("div.tag", this);
+		var i, tag, j, list, li, lis, div, p, a;
+		this._viewer.innerHTML = "";
+		for(i = 0; tag = tags[i]; i++) {
+			if(u.hc(tag, this.text_allowed.join("|"))) {
+				u.ae(this._viewer, tag._type.val(), {"html":tag._input.val()});
+			}
+			else if(u.hc(tag, this.list_allowed.join("|"))) {
+				list = u.ae(this._viewer, tag._type.val());
+				lis = u.qsa("div.li", tag);
+				for(j = 0; li = lis[j]; j++) {
+					li = u.ae(list, tag._type.val(), {"html":li._input.val()});
+				}
+			}
+			else if(u.hc(tag, this.ext_video_allowed.join("|"))) {
+				div = u.ae(this._viewer, "div", {"class":tag._type.val()+" video_id:"+tag._video_id});
+			}
+			else if(u.hc(tag, "code")) {
+				div = u.ae(this._viewer, "code", {"html":tag._input.val()});
+			}
+			else if(u.hc(tag, "file") && tag._variant) {
+				div = u.ae(this._viewer, "div", {"class":"file item_id:"+tag._item_id+" variant:"+tag._variant+" name:"+tag._name + " filesize:"+tag._filesize});
+				p = u.ae(div, "p");
+				a = u.ae(p, "a", {"href":"/download/"+tag._item_id+"/"+tag._variant+"/"+tag._name, "html":tag._input.val()});
+			}
+			else if(u.hc(tag, "media") && tag._variant) {
+				div = u.ae(this._viewer, "div", {"class":"media item_id:"+tag._item_id+" variant:"+tag._variant+" name:"+tag._name + " filesize:"+tag._filesize + " format:"+tag._format});
+				p = u.ae(div, "p");
+				a = u.ae(p, "a", {"href":"/images/"+tag._item_id+"/"+tag._variant+"/480x."+tag._format, "html":tag._input.val()});
+			}
+		}
+	}
+	field.updateContent = function() {
+		var tags = u.qsa("div.tag", this);
+		this._input.val("");
+		var i, node, tag, type, value, j, html = "";
+		for(i = 0; tag = tags[i]; i++) {
+			if(u.hc(tag, this.text_allowed.join("|"))) {
+				type = tag._type.val();
+				html += "<"+type+">"+tag._input.val()+"</"+type+">\n";
+			}
+			else if(u.hc(tag, this.list_allowed.join("|"))) {
+				type = tag._type.val();
+				html += "<"+type+">\n";
+				lis = u.qsa("div.li", tag);
+				for(j = 0; li = lis[j]; j++) {
+					html += "\t<li>"+li._input.val()+"</li>\n";
+				}
+				html += "</"+type+">\n";
+			}
+			else if(u.hc(tag, this.ext_video_allowed.join("|"))) {
+				html += '<div class="'+tag._type.val()+' video_id:'+tag._video_id+'"></div>\n';
+			}
+			else if(u.hc(tag, "code")) {
+				html += '<code>'+tag._input.val()+'</code>'+"\n";
+			}
+			else if(u.hc(tag, "media") && tag._variant) {
+				html += '<div class="media item_id:'+tag._item_id+' variant:'+tag._variant+' name:'+tag._name+' filesize:'+tag._filesize+' format:'+tag._format+'">'+"\n";
+				html += '\t<p><a href="/images/'+tag._item_id+'/'+tag._variant+'/480x.'+tag._format+'">'+tag._input.val()+"</a></p>";
+				html += "</div>\n";
+			}
+			else if(u.hc(tag, "file") && tag._variant) {
+				html += '<div class="file item_id:'+tag._item_id+' variant:'+tag._variant+' name:'+tag._name+' filesize:'+tag._filesize+'">'+"\n";
+				html += '\t<p><a href="/download/'+tag._item_id+'/'+tag._variant+'/'+tag._name+'">'+tag._input.val()+"</a></p>";
+				html += "</div>\n";
+			}
+		}
+		this._input.val(html);
+	}
+	field.createTag = function(allowed_tags, type) {
+		var tag = u.ae(this._editor, "div", {"class":"tag"});
+		tag.field = this;
+		tag._drag = u.ae(tag, "div", {"class":"drag"});
+		tag._drag.field = this;
+		tag._drag.tag = tag;
+		this.createTagSelector(tag, allowed_tags);
+		tag._type.val(type);
+		tag._remove = u.ae(tag, "div", {"class":"remove"});
+		tag._remove.field = this;
+		tag._remove.tag = tag;
+		u.ce(tag._remove);
+		tag._remove.clicked = function() {
+			this.field.deleteTag(this.tag);
+		}
+		return tag;
+	}
+	field.deleteTag = function(tag) {
+		if(u.qsa("div.tag", this).length > 1) {
+			if(u.hc(tag, "file")) {
+				this.deleteFile(tag);
+			}
+			tag.parentNode.removeChild(tag);
+			u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
+			this.update();
+			this._input.form.submit();
+		}
+	}
+	field.createTagSelector = function(tag, allowed_tags) {
+		var i, allowed_tag;
+		tag._type = u.ae(tag, "ul", {"class":"type"});
+		tag._type.field = this;
+		tag._type.tag = tag;
+		for(i = 0; allowed_tag = allowed_tags[i]; i++) {
+			u.ae(tag._type, "li", {"html":allowed_tag, "class":allowed_tag});
+		}
+		tag._type.val = function(value) {
+			if(value !== undefined) {
+				var i, option;
+				for(i = 0; option = this.childNodes[i]; i++) {
+					if(u.text(option) == value) {
+						if(this.selected_option) {
+							u.rc(this.selected_option, "selected");
+							u.rc(this.tag, u.text(this.selected_option));
+						}
+						u.ac(option, "selected");
+						this.selected_option = option;
+						u.ac(this.tag, value);
+						return option;
+					}
+				}
+				u.ac(this.childNodes[0], "selected");
+				this.selected_option = this.childNodes[0];
+				u.ac(this.tag, u.text(this.childNodes[0]));
+				return this.childNodes[0];
+			}
+			else {
+				return u.text(this.selected_option);
+			}
+		}
+		if(allowed_tags.length > 1) {
+			u.ce(tag._type);
+			tag._type.clicked = function(event) {
+				u.t.resetTimer(this.t_autohide);
+				if(u.hc(this, "open")) {
+					u.rc(this, "open");
+					u.rc(this.tag, "focus");
+					u.as(this, "top", 0);
+					if(event.target) {
+						this.val(u.text(event.target));
+					}
+					u.e.removeEvent(this, "mouseout", this.autohide);
+					u.e.removeEvent(this, "mouseover", this.delayautohide);
+					this.field.returnFocus(this.tag);
+					this.field.update();
+				}
+				else {
+					u.ac(this, "open");
+					u.ac(this.tag, "focus");
+					u.as(this, "top", -(this.selected_option.offsetTop) + "px");
+					u.e.addEvent(this, "mouseout", this.autohide);
+					u.e.addEvent(this, "mouseover", this.delayautohide);
+				}
+			}
+			tag._type.hide = function() {
+				u.rc(this, "open");
+				u.rc(this.tag, "focus");
+				u.as(this, "top", 0);
+				u.e.removeEvent(this, "mouseout", this.autohide);
+				u.e.removeEvent(this, "mouseover", this.delayautohide);
+				u.t.resetTimer(this.t_autohide);
+				this.field.returnFocus(this);
+			}
+			tag._type.autohide = function(event) {
+				u.t.resetTimer(this.t_autohide);
+				this.t_autohide = u.t.setTimer(this, this.hide, 800);
+			}
+			tag._type.delayautohide = function(event) {
+				u.t.resetTimer(this.t_autohide);
+			}
+		}
+	}
+	field.addExternalVideoTag = function() {}
+	field.addMediaTag = function(node) {
+		var tag = this.createTag(["media"], "media");
+		tag._input = u.ae(tag, "div", {"class":"text"});
+		tag._input.tag = tag;
+		tag._input.field = this;
+		if(node) {
+			tag._name = u.cv(node, "name");
+			tag._item_id = u.cv(node, "item_id");
+			tag._filesize = u.cv(node, "filesize");
+			tag._format = u.cv(node, "format");
+			tag._variant = u.cv(node, "variant");
+			tag._input.contentEditable = true;
+			tag._input.innerHTML = u.qs("a", node).innerHTML;
+			tag._image = u.ie(tag, "img");
+			tag._image.src = "/images/"+tag._item_id+"/"+tag._variant+"/400x."+tag._format;
+			tag._input.val = function(value) {
+				if(value !== undefined) {
+					this.innerHTML = value;
+				}
+				return this.innerHTML;
+			}
+			u.e.addEvent(tag._input, "keydown", tag.field._changing_content);
+			u.e.addEvent(tag._input, "keyup", this._changed_media_content);
+			u.e.addEvent(tag._input, "mouseup", this._changed_media_content);
+			u.e.addEvent(tag._input, "focus", tag.field._focused_content);
+			u.e.addEvent(tag._input, "blur", tag.field._blurred_content);
+			u.ac(tag, "done");
+		}
+		else {
+			tag._text = tag._input;
+			tag._text.tag = tag;
+			tag._text.field = this;
+			tag._label = u.ae(tag._text, "label", {"html":"Drag media here"});
+			tag._input = u.ae(tag._text, "input", {"type":"file", "name":"htmleditor_media[]"});
+			tag._input.tag = tag;
+			tag._input.field = this;
+			tag._input.val = function(value) {return false;}
+			u.e.addEvent(tag._input, "change", this._media_updated);
+			u.e.addEvent(tag._input, "focus", this._focused_content);
+			u.e.addEvent(tag._input, "blur", this._blurred_content);
+			if(u.e.event_pref == "mouse") {
+				u.e.addEvent(tag._input, "mouseenter", u.f._mouseenter);
+				u.e.addEvent(tag._input, "mouseleave", u.f._mouseleave);
+			}
+		}
+		u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
+		return tag;
+	}
+	field.deleteMedia = function(tag) {
+		var form_data = new FormData();
+		form_data.append("csrf-token", this._input.form.fields["csrf-token"].val());
+		tag.response = function(response) {
+			page.notify(response);
+			if(response.cms_status && response.cms_status == "success") {
+				this.field.update();
+			}
+		}
+		u.request(tag, this.file_delete_action+"/"+tag._item_id+"/"+tag._variant, {"method":"post", "params":form_data});
+	}
+	field._media_updated = function(event) {
+		var form_data = new FormData();
+		form_data.append(this.name, this.files[0], this.value);
+		form_data.append("csrf-token", this.form.fields["csrf-token"].val());
+		this.response = function(response) {
+			page.notify(response);
+			if(response.cms_status && response.cms_status == "success") {
+				this.parentNode.removeChild(this.tag._label);
+				this.parentNode.removeChild(this);
+				this.tag._input = this.tag._text;
+				this.tag._variant = response.cms_object["variant"];
+				this.tag._filesize = response.cms_object["filesize"]
+				this.tag._format = response.cms_object["format"]
+				this.tag._width = response.cms_object["width"]
+				this.tag._height = response.cms_object["height"]
+				this.tag._name = response.cms_object["name"]
+				this.tag._item_id = response.cms_object["item_id"]
+				this.tag._input.contentEditable = true;
+				this.tag._image = u.ie(this.tag, "img");
+				this.tag._image.src = "/images/"+this.tag._item_id+"/"+this.tag._variant+"/400x."+this.tag._format;
+				this.tag._input.innerHTML = this.tag._name + " ("+ u.round((this.tag._filesize/1000), 2) +"Kb)";
+				this.tag._input.val = function(value) {
+					if(value !== undefined) {
+						this.innerHTML = value;
+					}
+					return this.innerHTML;
+				}
+				u.e.addEvent(this.tag._input, "keydown", this.tag.field._changing_content);
+				u.e.addEvent(this.tag._input, "keyup", this.tag.field._changed_media_content);
+				u.e.addEvent(this.tag._input, "mouseup", this.tag.field._changed_media_content);
+				u.e.addEvent(this.tag._input, "focus", this.tag.field._focused_content);
+				u.e.addEvent(this.tag._input, "blur", this.tag.field._blurred_content);
+				u.ac(this.tag, "done");
+				this.tag.field.update();
+				this.tag.field._input.form.submit();
+			}
+		}
+		u.request(this, this.field.media_add_action+"/"+this.field.item_id, {"method":"post", "params":form_data});
+	}
+	field._changed_media_content = function(event) {
+		if(this.val() && !this.val().replace(/<br>/, "")) {
+			this.val("");
+		}
+		this.field.update();
+	}
+	field.addFileTag = function(node) {
+		var tag = this.createTag(["file"], "file");
+		tag._input = u.ae(tag, "div", {"class":"text"});
+		tag._input.tag = tag;
+		tag._input.field = this;
+		if(node) {
+			tag._input.contentEditable = true;
+			tag._variant = u.cv(node, "variant");
+			tag._name = u.cv(node, "name");
+			tag._item_id = u.cv(node, "item_id");
+			tag._filesize = u.cv(node, "filesize");
+			tag._input.innerHTML = u.qs("a", node).innerHTML;
+			tag._input.val = function(value) {
+				if(value !== undefined) {
+					this.innerHTML = value;
+				}
+				return this.innerHTML;
+			}
+			u.e.addEvent(tag._input, "keydown", tag.field._changing_content);
+			u.e.addEvent(tag._input, "keyup", this._changed_file_content);
+			u.e.addEvent(tag._input, "mouseup", this._changed_file_content);
+			u.e.addEvent(tag._input, "focus", tag.field._focused_content);
+			u.e.addEvent(tag._input, "blur", tag.field._blurred_content);
+			u.ac(tag, "done");
+		}
+		else {
+			tag._text = tag._input;
+			tag._text.tag = tag;
+			tag._text.field = this;
+			tag._label = u.ae(tag._text, "label", {"html":"Drag file here"});
+			tag._input = u.ae(tag._text, "input", {"type":"file", "name":"htmleditor_file"});
+			tag._input.tag = tag;
+			tag._input.field = this;
+			tag._input.val = function(value) {return false;}
+			u.e.addEvent(tag._input, "change", this._file_updated);
+			u.e.addEvent(tag._input, "focus", this._focused_content);
+			u.e.addEvent(tag._input, "blur", this._blurred_content);
+			if(u.e.event_pref == "mouse") {
+				u.e.addEvent(tag._input, "mouseenter", u.f._mouseenter);
+				u.e.addEvent(tag._input, "mouseleave", u.f._mouseleave);
+			}
+		}
+		u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
+		return tag;
+	}
+	field.deleteFile = function(tag) {
+		var form_data = new FormData();
+		form_data.append("csrf-token", this._input.form.fields["csrf-token"].val());
+		tag.response = function(response) {
+			page.notify(response);
+			if(response.cms_status && response.cms_status == "success") {
+				this.field.update();
+			}
+		}
+		u.request(tag, this.file_delete_action+"/"+tag._item_id+"/"+tag._variant, {"method":"post", "params":form_data});
+	}
+	field._file_updated = function(event) {
+		var form_data = new FormData();
+		form_data.append(this.name, this.files[0], this.value);
+		form_data.append("csrf-token", this.form.fields["csrf-token"].val());
+		this.response = function(response) {
+			page.notify(response);
+			if(response.cms_status && response.cms_status == "success") {
+				this.parentNode.removeChild(this.tag._label);
+				this.parentNode.removeChild(this);
+				this.tag._variant = response.cms_object["variant"];
+				this.tag._filesize = response.cms_object["filesize"]
+				this.tag._name = response.cms_object["name"]
+				this.tag._item_id = response.cms_object["item_id"]
+				this.tag._text.contentEditable = true;
+				this.tag._text.innerHTML = this.tag._name + " ("+ u.round((this.tag._filesize/1000), 2) +"Kb)";
+				this.tag._input = this.tag._text;
+				this.tag._input.val = function(value) {
+					if(value !== undefined) {
+						this.innerHTML = value;
+					}
+					return this.innerHTML;
+				}
+				u.e.addEvent(this.tag._input, "keydown", this.tag.field._changing_content);
+				u.e.addEvent(this.tag._input, "keyup", this.tag.field._changed_file_content);
+				u.e.addEvent(this.tag._input, "mouseup", this.tag.field._changed_file_content);
+				u.e.addEvent(this.tag._input, "focus", this.tag.field._focused_content);
+				u.e.addEvent(this.tag._input, "blur", this.tag.field._blurred_content);
+				u.ac(this.tag, "done");
+				this.tag.field.update();
+				this.tag.field._input.form.submit();
+			}
+		}
+		u.request(this, this.field.file_add_action+"/"+this.field.item_id, {"method":"post", "params":form_data});
+	}
+	field._changed_file_content = function(event) {
+		if(this.val() && !this.val().replace(/<br>/, "")) {
+			this.val("");
+		}
+		this.field.update();
+	}
+	field.addCodeTag = function(type, value) {
+		var tag = this.createTag(this.code_allowed, type);
+		tag._input = u.ae(tag, "div", {"class":"text", "contentEditable":true});
+		tag._input.tag = tag;
+		tag._input.field = this;
+		tag._input.val = function(value) {
+			if(value !== undefined) {
+				this.innerHTML = value;
+			}
+			return this.innerHTML;
+		}
+		tag._input.val(u.stringOr(value));
+		u.e.addEvent(tag._input, "keydown", this._changing_code_content);
+		u.e.addEvent(tag._input, "keyup", this._code_updated);
+		u.e.addEvent(tag._input, "mouseup", this._code_updated);
+		u.e.addEvent(tag._input, "focus", this._focused_content);
+		u.e.addEvent(tag._input, "blur", this._blurred_content);
+		if(u.e.event_pref == "mouse") {
+			u.e.addEvent(tag._input, "mouseenter", u.f._mouseenter);
+			u.e.addEvent(tag._input, "mouseleave", u.f._mouseleave);
+		}
+		u.e.addEvent(tag._input, "paste", this._pasted_content);
+		tag.addNew = function() {
+			this.field.addTextItem(this.field.text_allowed[0]);
+		}
+		u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
+		return tag;
+	}
+	field._changing_code_content = function(event) {
+		if(event.keyCode == 13 || event.keyCode == 9) {
+			u.e.kill(event);
+		}
+	}
+	field._code_updated = function(event) {
+		var selection = window.getSelection(); 
+		if(event.keyCode == 13) {
+			u.e.kill(event);
+			if(selection && selection.isCollapsed) {
+				var br = document.createTextNode("\n");
+				range = selection.getRangeAt(0);
+				range.insertNode(br);
+				range.collapse(false);
+				var selection = window.getSelection();
+				selection.removeAllRanges();
+				selection.addRange(range);
+			}
+		}
+		if(event.keyCode == 9) {
+			u.e.kill(event);
+			if(selection && selection.isCollapsed) {
+				var br = document.createTextNode("\t");
+				range = selection.getRangeAt(0);
+				range.insertNode(br);
+				range.collapse(false);
+				var selection = window.getSelection();
+				selection.removeAllRanges();
+				selection.addRange(range);
+			}
+		}
+		else if(event.keyCode == 8) {
+			if(this.is_deletable) {
+				u.e.kill(event);
+				var all_tags = u.qsa("div.tag", this.field);
+				var prev = this.field.findPreviousInput(this);
+				if(prev) {
+					this.tag.parentNode.removeChild(this.tag);
+					prev.focus();
+				}
+				u.sortable(this.field._editor, {"draggables":"tag", "targets":"editor"});
+			}
+			else if(!this.val() || !this.val().replace(/<br>/, "")) {
+				this.is_deletable = true;
+			}
+			else if(selection.anchorNode != this && selection.anchorNode.innerHTML == "") {
+				selection.anchorNode.parentNode.removeChild(selection.anchorNode);
+			}
+		}
+		else {
+			this.is_deletable = false;
+		}
+		this.field.hideSelectionOptions();
+		if(selection && !selection.isCollapsed) {
+			var node = selection.anchorNode;
+			while(node != this) {
+				if(node.nodeName == "HTML" || !node.parentNode) {
+					break;
+				}
+				node = node.parentNode;
+			}
+			if(node == this) {
+				this.field.showSelectionOptions(this, selection);
+			}
+		}
+		// 	
+		this.field.update();
+	}
+	field.addListTag = function(type, value) {
+		var tag = this.createTag(this.list_allowed, type);
+		this.addListItem(tag, value);
+		u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
+		return tag;
+	}
+	field.addListItem = function(tag, value) {
+		var li = u.ae(tag, "div", {"class":"li"});
+		li.tag = tag;
+		li.field = this;
+		li._input = u.ae(li, "div", {"class":"text", "contentEditable":true});
+		li._input.li = li;
+		li._input.tag = tag;
+		li._input.field = this;
+		li._input.val = function(value) {
+			if(value !== undefined) {
+				this.innerHTML = value;
+			}
+			return this.innerHTML;
+		}
+		li._input.val(u.stringOr(value));
+		u.e.addEvent(li._input, "keydown", this._changing_content);
+		u.e.addEvent(li._input, "keyup", this._changed_content);
+		u.e.addEvent(li._input, "mouseup", this._changed_content);
+		u.e.addEvent(li._input, "focus", this._focused_content);
+		u.e.addEvent(li._input, "blur", this._blurred_content);
+		if(u.e.event_pref == "mouse") {
+			u.e.addEvent(li._input, "mouseenter", u.f._mouseenter);
+			u.e.addEvent(li._input, "mouseleave", u.f._mouseleave);
+		}
+		u.e.addEvent(li._input, "paste", this._pasted_content);
+		return li;
+	}
+	field.addTextTag = function(type, value) {
+		var tag = this.createTag(this.text_allowed, type);
+		tag._input = u.ae(tag, "div", {"class":"text", "contentEditable":true});
+		tag._input.tag = tag;
+		tag._input.field = this;
+		tag._input.val = function(value) {
+			if(value !== undefined) {
+				this.innerHTML = value;
+			}
+			return this.innerHTML;
+		}
+		tag._input.val(u.stringOr(value));
+		u.e.addEvent(tag._input, "keydown", this._changing_content);
+		u.e.addEvent(tag._input, "keyup", this._changed_content);
+		u.e.addEvent(tag._input, "mouseup", this._changed_content);
+		u.e.addEvent(tag._input, "focus", this._focused_content);
+		u.e.addEvent(tag._input, "blur", this._blurred_content);
+		if(u.e.event_pref == "mouse") {
+			u.e.addEvent(tag._input, "mouseenter", u.f._mouseenter);
+			u.e.addEvent(tag._input, "mouseleave", u.f._mouseleave);
+		}
+		u.e.addEvent(tag._input, "paste", this._pasted_content);
+		tag.addNew = function() {
+			this.field.addTextItem(this.field.text_allowed[0]);
+		}
+		u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
+		return tag;
+	}
+	field._changing_content = function(event) {
+		if(event.keyCode == 13) {
+			u.e.kill(event);
+		}
+	}
+	field._changed_content = function(event) {
+		var selection = window.getSelection(); 
+		if(event.keyCode == 13) {
+			u.e.kill(event);
+			if(!event.ctrlKey && !event.metaKey) {
+				if(u.hc(this.tag, this.field.list_allowed.join("|"))) {
+					var new_li = this.field.addListItem(this.tag);
+					var next_li = u.ns(this.li);
+					if(next_li) {
+						this.tag.insertBefore(new_li, next_li);
+					}
+					else {
+						this.tag.appendChild(new_li);
+					}
+					new_li._input.focus();
+				}
+				else {
+					var new_tag = this.field.addTextTag(this.field.text_allowed[0]);
+					var next_tag = u.ns(this.tag);
+					if(next_tag) {
+						this.tag.parentNode.insertBefore(new_tag, next_tag);
+					}
+					else {
+						this.tag.parentNode.appendChild(new_tag);
+					}
+					new_tag._input.focus();
+				}
+			}
+			else {
+				if(selection && selection.isCollapsed) {
+					var br = document.createElement("br");
+					range = selection.getRangeAt(0);
+					range.insertNode(br);
+					range.collapse(false);
+					var selection = window.getSelection();
+					selection.removeAllRanges();
+					selection.addRange(range);
+				}
+			}
+		}
+		else if(event.keyCode == 8) {
+			if(this.is_deletable) {
+				u.e.kill(event);
+				var all_tags = u.qsa("div.tag", this.field);
+				var prev = this.field.findPreviousInput(this);
+				if(u.hc(this.tag, this.field.list_allowed.join("|"))) {
+					var all_lis = u.qsa("div.li", this.tag);
+					if(prev) {
+						this.tag.removeChild(this.li);
+						if(!u.qsa("div.li", this.tag).length) {
+							this.tag.parentNode.removeChild(this.tag);
+						}
+					}
+				}
+				else {
+					if(prev) {
+						this.tag.parentNode.removeChild(this.tag);
+					}
+				}
+				u.sortable(this.field._editor, {"draggables":"tag", "targets":"editor"});
+				if(prev) {
+					prev.focus();
+				}
+			}
+			else if(!this.val() || !this.val().replace(/<br>/, "")) {
+				this.is_deletable = true;
+			}
+			else if(selection.anchorNode != this && selection.anchorNode.innerHTML == "") {
+				selection.anchorNode.parentNode.removeChild(selection.anchorNode);
+			}
+		}
+		else {
+			this.is_deletable = false;
+		}
+		this.field.hideSelectionOptions();
+		if(selection && !selection.isCollapsed) {
+			var node = selection.anchorNode;
+			while(node != this) {
+				if(node.nodeName == "HTML" || !node.parentNode) {
+					break;
+				}
+				node = node.parentNode;
+			}
+			if(node == this) {
+				this.field.showSelectionOptions(this, selection);
+			}
+		}
+		// 	
+		this.field.update();
+	}
+	field._focused_content = function(event) {
+		this.field.is_focused = true;
+		u.ac(this.tag, "focus");
+		u.ac(this.field, "focus");
+		u.as(this.field, "zIndex", this.field._input.form._focus_z_index);
+		u.f.positionHint(this.field);
+		if(event.rangeOffset == 1) {
+			var range = document.createRange();
+			range.selectNodeContents(this);
+			range.collapse(false);
+			var selection = window.getSelection();
+			selection.removeAllRanges();
+			selection.addRange(range);
+		}
+	}
+	field._blurred_content = function() {
+		this.field.is_focused = false;
+		u.rc(this.tag, "focus");
+		u.rc(this.field, "focus");
+		u.as(this.field, "zIndex", this.field._base_z_index);
+		u.f.positionHint(this.field);
+		this.field.hideSelectionOptions();
+	}
+	field._pasted_content = function(event) {
+		u.e.kill(event);
+		var i, node;
+		var paste_content = event.clipboardData.getData("text/plain");
+		if(paste_content !== "") {
+			var paste_parts = paste_content.split(/\n\r|\n|\r/g);
+			var text_nodes = [];
+			for(i = 0; text = paste_parts[i]; i++) {
+				text_nodes.push(document.createTextNode(text));
+				text_nodes.push(document.createElement("br"));
+			}
+			var text_node = document.createTextNode(paste_content);
+			for(i = text_nodes.length-1; node = text_nodes[i]; i--) {
+				window.getSelection().getRangeAt(0).insertNode(node);
+			}
+			var range = document.createRange();
+			range.selectNodeContents(this);
+			range.collapse(false);
+			var selection = window.getSelection();
+			selection.removeAllRanges();
+			selection.addRange(range);
+		}
+	}
+	field.findPreviousInput = function(iN) {
+		var prev = false;
+		if(u.hc(iN.tag, this.list_allowed.join("|"))) {
+			prev = u.ps(iN.li, {"exclude":".drag,.remove,.type"});
+		}
+		if(!prev) {
+			prev = u.ps(iN.tag);
+			if(prev && u.hc(prev, this.list_allowed.join("|"))) {
+				var items = u.qsa("div.li", prev);
+				prev = items[items.length-1];
+			}
+			else if(prev && u.hc(prev, "file")) {
+				if(!prev._variant) {
+					var prev_iN = this.findPreviousInput(prev._input);
+					if(prev_iN) {
+						prev = prev_iN.tag;
+					}
+					else {
+						prev = false;
+					}
+				}
+			}
+		}
+		if(!prev) {
+			prev = u.qs("div.tag", this);
+			if(u.hc(prev, this.list_allowed.join("|"))) {
+				prev = u.qs("div.li", prev);
+			}
+			else if(prev && u.hc(prev, "file")) {
+				if(!prev._variant) {
+					var prev_iN = this.findPreviousInput(prev._input);
+					if(prev_iN) {
+						prev = prev_iN.tag;
+					}
+					else {
+						prev = false;
+					}
+				}
+			}
+		}
+		return prev ? prev._input : false;
+	}
+	field.returnFocus = function(tag) {
+		if(u.hc(tag, this.text_allowed.join("|"))) {
+			tag._input.focus();
+		}
+		else if(u.hc(tag, this.code_allowed.join("|"))) {
+			tag._input.focus();
+		}
+		else if(u.hc(tag, this.list_allowed.join("|"))) {
+			var li = u.qs("div.li", tag);
+			li._input.focus();
+		}
+	}
+	field.hideSelectionOptions = function() {
+		if(this.selection_options && !this.selection_options.is_active) {
+			this.selection_options.parentNode.removeChild(this.selection_options);
+			this.selection_options = null;
+		}
+		this.update();
+	}
+	field.showSelectionOptions = function(node, selection) {
+		var x = u.absX(node);
+		var y = u.absY(node);
+		this.selection_options = u.ae(document.body, "div", {"id":"selection_options"});
+		u.as(this.selection_options, "top", y+"px");
+		u.as(this.selection_options, "left", (x + node.offsetWidth) +"px");
+		var ul = u.ae(this.selection_options, "ul", {"class":"options"});
+		this.selection_options._link = u.ae(ul, "li", {"class":"link", "html":"Link"});
+		this.selection_options._link.field = this;
+		this.selection_options._link.selection = selection;
+		u.ce(this.selection_options._link);
+		this.selection_options._link.inputStarted = function(event) {
+			u.e.kill(event);
+			this.field.selection_options.is_active = true;
+		}
+		this.selection_options._link.clicked = function(event) {
+			u.e.kill(event);
+			this.field.addAnchorTag(this.selection);
+		}
+		this.selection_options._em = u.ae(ul, "li", {"class":"em", "html":"Itallic"});
+		this.selection_options._em.field = this;
+		this.selection_options._em.selection = selection;
+		u.ce(this.selection_options._em);
+		this.selection_options._em.inputStarted = function(event) {
+			u.e.kill(event);
+		}
+		this.selection_options._em.clicked = function(event) {
+			u.e.kill(event);
+			this.field.addEmTag(this.selection);
+		}
+		this.selection_options._strong = u.ae(ul, "li", {"class":"strong", "html":"Bold"});
+		this.selection_options._strong.field = this;
+		this.selection_options._strong.selection = selection;
+		u.ce(this.selection_options._strong);
+		this.selection_options._strong.inputStarted = function(event) {
+			u.e.kill(event);
+		}
+		this.selection_options._strong.clicked = function(event) {
+			u.e.kill(event);
+			this.field.addStrongTag(this.selection);
+		}
+	}
+	field.deleteOption = function(node) {
+		node.over = function(event) {
+			u.t.resetTimer(this.t_out);
+			if(!this.bn_delete) {
+				this.bn_delete = u.ae(document.body, "span", {"class":"delete_selection", "html":"X"});
+				this.bn_delete.node = this;
+				this.bn_delete.over = function(event) {
+					u.t.resetTimer(this.node.t_out);
+				}
+				this.bn_delete.out = function(event) {
+					this.node.t_out = u.t.setTimer(this.node, this.node.reallyout, 300);
+				}
+				u.e.addEvent(this.bn_delete, "mouseover", this.bn_delete.over);
+				u.e.addEvent(this.bn_delete, "mouseout", this.bn_delete.out);
+				u.ce(this.bn_delete);
+				this.bn_delete.clicked = function() {
+					u.e.kill(event);
+					if(this.node.field.selection_options) {
+						this.node.field.selection_options.is_active = false;
+						this.node.field.hideSelectionOptions();
+					}
+					var fragment = document.createTextNode(this.node.innerHTML);
+					this.node.parentNode.replaceChild(fragment, this.node);
+					this.node.reallyout();
+					this.node.field.update();
+				}
+				u.as(this.bn_delete, "top", (u.absY(this)-5)+"px");
+				u.as(this.bn_delete, "left", (u.absX(this)+this.offsetWidth-5)+"px");
+			}
+		}
+		node.out = function(event) {
+			u.t.resetTimer(this.t_out);
+			this.t_out = u.t.setTimer(this, this.reallyout, 300);
+		}
+		node.reallyout = function(event) {
+			if(this.bn_delete) {
+				document.body.removeChild(this.bn_delete);
+				this.bn_delete = null;
+			}
+		}
+		u.e.addEvent(node, "mouseover", node.over);
+		u.e.addEvent(node, "mouseout", node.out);
+	}
+	field.activateInlineFormatting = function(input) {
+		var i, node;
+		var inline_tags = u.qsa("a,strong,em,span", input);
+		for(i = 0; node = inline_tags[i]; i++) {
+			node.field = input.field;
+			this.deleteOption(node);
+		}
+	}
+	field.anchorOptions = function(node) {
+		var form = u.f.addForm(this.selection_options, {"class":"labelstyle:inject"});
+		u.ae(form, "h3", {"html":"Link options"});
+		var fieldset = u.f.addFieldset(form);
+		var input_url = u.f.addField(fieldset, {"label":"url", "name":"url"});
+		var input_target = u.f.addField(fieldset, {"type":"checkbox", "label":"New window?", "name":"target"});
+		var bn_save = u.f.addAction(form, {"value":"Create link", "class":"button"});
+		u.f.init(form);
+		form.a = node;
+		form.field = this;
+		form.submitted = function() {
+			if(this.fields["url"].val() && this.fields["url"].val() != this.fields["url"].default_value) {
+				this.a.href = this.fields["url"].val();
+			}
+			if(this.fields["target"].val() && this.fields["target"].val() != this.fields["target"].default_value) {
+				this.a.target = "_blank";
+			}
+			this.field.selection_options.is_active = false;
+			this.field.hideSelectionOptions();
+		}
+	}
+	field.addAnchorTag = function(selection) {
+		var range, a, url, target;
+		var a = document.createElement("a");
+		a.field = this;
+		range = selection.getRangeAt(0);
+		range.surroundContents(a);
+		selection.removeAllRanges();
+		this.anchorOptions(a);
+		this.deleteOption(a);
+	}
+	field.addStrongTag = function(selection) {
+		var range, a, url, target;
+		var strong = document.createElement("strong");
+		strong.field = this;
+		range = selection.getRangeAt(0);
+		range.surroundContents(strong);
+		selection.removeAllRanges();
+		this.deleteOption(strong);
+		this.hideSelectionOptions();
+	}
+	field.addEmTag = function(selection) {
+		var range, a, url, target;
+		var em = document.createElement("em");
+		em.field = this;
+		range = selection.getRangeAt(0);
+		range.surroundContents(em);
+		selection.removeAllRanges();
+		this.deleteOption(em);
+		this.hideSelectionOptions();
+	}
+	field.spanOptions = function(node) {}
+	field.addSpanTag = function(selection) {
+		var span = document.createElement("span");
+		span.field = this;
+		var range = selection.getRangeAt(0);
+		range.surroundContents(span);
+		selection.removeAllRanges();
+		this.deleteOption(span);
+		this.hideSelectionOptions();
+	}
+	field._viewer.innerHTML = field._input.val();
+	var value, node, i, tag, j, lis, li;
+	var nodes = u.cn(field._viewer, {"exclude":"br"});
+	if(nodes.length) {
+		for(i = 0; node = field._viewer.childNodes[i]; i++) {
+			if(node.nodeName == "#text") {
+				if(node.nodeValue.trim()) {
+					var fragments = node.nodeValue.trim().split(/\n\r\n\r|\n\n|\r\r/g);
+					if(fragments) {
+						for(index in fragments) {
+							value = fragments[index].replace(/\n\r|\n|\r/g, "<br>");
+							tag = field.addTextTag("p", fragments[index]);
+							field.activateInlineFormatting(tag._input);
+						}
+					}
+					else {
+						value = node.nodeValue; 
+						tag = field.addTextTag("p", value);
+						field.activateInlineFormatting(tag._input);
+					}
+				}
+			}
+			else if(node.nodeName.toLowerCase().match(field.text_allowed.join("|"))) {
+				value = node.innerHTML.replace(/\n\r|\n|\r/g, "<br>"); 
+				tag = field.addTextTag(node.nodeName.toLowerCase(), value);
+				field.activateInlineFormatting(tag._input);
+			}
+			else if(node.nodeName.toLowerCase().match(field.code_allowed.join("|"))) {
+				// 
+				tag = field.addCodeTag(node.nodeName.toLowerCase(), node.innerHTML);
+				field.activateInlineFormatting(tag._input);
+			}
+			else if(node.nodeName.toLowerCase().match(field.list_allowed.join("|"))) {
+				var lis = u.qsa("li", node);
+				value = lis[0].innerHTML.replace(/\n\r|\n|\r/g, "<br>");
+				tag = field.addListTag(node.nodeName.toLowerCase(), value);
+				var li = u.qs("div.li", tag);
+				field.activateInlineFormatting(li._input);
+				if(lis.length > 1) {
+					for(j = 1; li = lis[j]; j++) {
+						value = li.innerHTML.replace(/\n\r|\n|\r/g, "<br>");
+						li = field.addListItem(tag, value);
+						field.activateInlineFormatting(li._input);
+					}
+				}
+			}
+			else if(u.hc(node, "file")) {
+				field.addFileTag(node);
+			}
+			else if(u.hc(node, "media")) {
+				field.addMediaTag(node);
+			}
+			else if(node.nodeName.toLowerCase().match(/dl|ul|ol/)) {
+				var children = u.cn(node);
+				for(j = 0; child = children[j]; j++) {
+					value = child.innerHTML.replace(/\n\r|\n|\r/g, "");
+					tag = field.addTextTag(field.text_allowed[0], value);
+					field.activateInlineFormatting(tag._input);
+				}
+			}
+			else if(node.nodeName.toLowerCase().match(/h1|h2|h3|h4|h5|code/)) {
+				value = node.innerHTML.replace(/\n\r|\n|\r/g, "");
+				tag = field.addTextTag(field.text_allowed[0], value);
+				field.activateInlineFormatting(tag._input);
+			}
+			else {
+				alert("HTML contains unautorized node:" + node.nodeName + "("+u.nodeId(node)+")" + "\nIt has been altered to conform with SEO and design.");
+			}
+		}
+	}
+	else {
+		value = field._viewer.innerHTML.replace(/\<br[\/]?\>/g, "\n");
+		tag = field.addTextTag(field.text_allowed[0], value);
+		field.activateInlineFormatting(tag._input);
+	}
+	u.sortable(field._editor, {"draggables":"tag", "targets":"editor"});
+	field.updateViewer();
+	field.addOptions();
+}
+
+
+/*u-form-geolocation.js*/
+Util.Form.customInit["location"] = function(form, field) {
+	field._inputs = u.qsa("input", field);
+	field._input = field._inputs[0];
+	for(j = 0; input = field._inputs[j]; j++) {
+		input.field = field;
+		form.fields[input.name] = input;
+		input._label = u.qs("label[for="+input.id+"]", field);
+		input.val = u.f._value;
+		u.e.addEvent(input, "keyup", u.f._updated);
+		u.e.addEvent(input, "change", u.f._changed);
+		u.f.inputOnEnter(input);
+		u.f.activateInput(input);
+	}
+	if(navigator.geolocation) {
+		u.f.geoLocation(field);
+	}
+	u.f.validate(field._input);
+}
+Util.Form.customValidate["location"] = function(iN) {
+	var loc_fields = 0;
+	if(iN.field._input) {
+		loc_fields++;
+		min = 1;
+		max = 255;
+		if(
+			iN.field._input.val().length >= min &&
+			iN.field._input.val().length <= max
+		) {
+			u.f.fieldCorrect(iN.field._input);
+		}
+		else {
+			u.f.fieldError(iN.field._input);
+		}
+	}
+	if(iN.field.lat_input) {
+		loc_fields++;
+		min = -90;
+		max = 90;
+		if(
+			!isNaN(iN.field.lat_input.val()) && 
+			iN.field.lat_input.val() >= min && 
+			iN.field.lat_input.val() <= max
+		) {
+			u.f.fieldCorrect(iN.field.lat_input);
+		}
+		else {
+			u.f.fieldError(iN.field.lat_input);
+		}
+	}
+	if(iN.field.lon_input) {
+		loc_fields++;
+		min = -180;
+		max = 180;
+		if(
+			!isNaN(iN.field.lon_input.val()) && 
+			iN.field.lon_input.val() >= min && 
+			iN.field.lon_input.val() <= max
+		) {
+			u.f.fieldCorrect(iN.field.lon_input);
+		}
+		else {
+			u.f.fieldError(iN.field.lon_input);
+		}
+	}
+	if(u.qsa("input.error", iN.field).length) {
+		u.rc(iN.field, "correct");
+		u.ac(iN.field, "error");
+	}
+	else if(u.qsa("input.correct", iN.field).length == loc_fields) {
+		u.ac(iN.field, "correct");
+		u.rc(iN.field, "error");
+	}
+}
+Util.Form.geoLocation = function(field) {
+	u.ac(field, "geolocation");
+	field.lat_input = u.qs("div.latitude input", field);
+	field.lat_input.autocomplete = "off";
+	field.lat_input.field = field;
+	field.lon_input = u.qs("div.longitude input", field);
+	field.lon_input.autocomplete = "off";
+	field.lon_input.field = field;
+	field.showMap = function() {
+		if(!window._mapsiframe) {
+			var lat = this.lat_input.val() !== "" ? this.lat_input.val() : 0;
+			var lon = this.lon_input.val() !== "" ? this.lon_input.val() : 0;
+			var maps_url = "https://maps.googleapis.com/maps/api/js" + (u.gapi_key ? "?key="+u.gapi_key : "");
+			var html = '<html><head>';
+			html += '<style type="text/css">body {margin: 0;} #map {width: 300px; height: 300px;} #close {width: 25px; height: 25px; position: absolute; top: 0; left: 0; background: #ffffff; z-index: 10; border-bottom-right-radius: 10px; cursor: pointer;}</style>';
+			html += '<script type="text/javascript" src="'+maps_url+'"></script>';
+			html += '<script type="text/javascript">';
+			html += 'var map, marker;';
+			html += 'var initialize = function() {';
+			html += '	window._map_loaded = true;';
+			html += '	var close = document.getElementById("close");';
+			html += '	close.onclick = function() {field.hideMap();};';
+			html += '	var mapOptions = {center: new google.maps.LatLng('+lat+', '+lon+'),zoom: 15, streetViewControl: false, zoomControlOptions: {position: google.maps.ControlPosition.LEFT_CENTER}};';
+			html += '	map = new google.maps.Map(document.getElementById("map"),mapOptions);';
+			html += '	marker = new google.maps.Marker({position: new google.maps.LatLng('+lat+', '+lon+'), draggable:true});';
+			html += '	marker.setMap(map);';
+			html += '	marker.dragend = function(event_type) {';
+			html += '		var lat_marker = Math.round(marker.getPosition().lat()*100000)/100000;';
+			html += '		var lon_marker = Math.round(marker.getPosition().lng()*100000)/100000;';
+			html += '		field.lon_input.val(lon_marker);';
+			html += '		field.lat_input.val(lat_marker);';
+			html += '	};';
+			html += '	marker.addListener("dragend", marker.dragend);';
+			html += '};';
+			html += 'var centerMap = function(lat, lon) {';
+			html += '	var loc = new google.maps.LatLng(lat, lon);';
+			html += '	map.setCenter(loc);';
+			html += '	marker.setPosition(loc);';
+			html += '};';
+			html += 'google.maps.event.addDomListener(window, "load", initialize);';
+			html += '</script>';
+			html += '</head><body><div id="map"></div><div id="close"></div></body></html>';
+			window._mapsiframe = u.ae(document.body, "iframe", {"id":"geolocationmap"});
+			window._mapsiframe.field = this;
+			window._mapsiframe.doc = window._mapsiframe.contentDocument? window._mapsiframe.contentDocument: window._mapsiframe.contentWindow.document;
+			window._mapsiframe.doc.open();
+			window._mapsiframe.doc.write(html);
+			window._mapsiframe.doc.close();
+		}
+		else {
+		}
+		window._mapsiframe.contentWindow.field = this;
+		u.as(window._mapsiframe, "left", (u.absX(this.bn_geolocation)+this.bn_geolocation.offsetWidth+10)+"px");
+		u.as(window._mapsiframe, "top", (u.absY(this.bn_geolocation) + (this.bn_geolocation.offsetHeight/2) -(window._mapsiframe.offsetHeight/2))+"px");
+	}
+	field.updateMap = function() {
+		if(window._mapsiframe && window._mapsiframe.contentWindow && window._mapsiframe.contentWindow._map_loaded) {
+			window._mapsiframe.contentWindow.centerMap(this.lat_input.val(), this.lon_input.val());
+		}
+	}
+	field.moveMap = function(event) {
+		var factor;
+		if(this._move_direction) {
+			if(event && event.shiftKey) {
+				factor = 0.001;
+			}
+			else {
+				factor = 0.0001;
+			}
+			if(this._move_direction == "38") {
+				this.lat_input.val(u.round(parseFloat(this.lat_input.val())+factor, 6));
+			}
+			else if(this._move_direction == "40") {
+				this.lat_input.val(u.round(parseFloat(this.lat_input.val())-factor, 6));
+			}
+			else if(this._move_direction == "39") {
+				this.lon_input.val(u.round(parseFloat(this.lon_input.val())+factor, 6));
+			}
+			else if(this._move_direction == "37") {
+				this.lon_input.val(u.round(parseFloat(this.lon_input.val())-factor, 6));
+			}
+			this.updateMap();
+		}
+	}
+	field.hideMap = function() {
+		u.t.resetTimer(this.t_hide_map);
+		if(window._mapsiframe) {
+			document.body.removeChild(window._mapsiframe);
+			window._mapsiframe = null;
+		}
+	}
+	field._end_move_map = function(event) {
+		this.field._move_direction = false;
+	}
+	field._start_move_map = function(event) {
+		if(event.keyCode.toString().match(/37|38|39|40/)) {
+			this.field._move_direction = event.keyCode;
+			this.field.moveMap(event);
+		}
+	}
+	u.e.addEvent(field.lat_input, "keydown", field._start_move_map);
+	u.e.addEvent(field.lon_input, "keydown", field._start_move_map);
+	u.e.addEvent(field.lat_input, "keyup", field._end_move_map);
+	u.e.addEvent(field.lon_input, "keyup", field._end_move_map);
+	field.lat_input.updated = field.lon_input.updated = function() {
+		this.field.updateMap();
+	}
+	field.lat_input.focused = field.lon_input.focused = function() {
+		u.t.resetTimer(this.field.t_hide_map);
+		this.field.showMap();
+	}
+	field.lat_input.blurred = field.lon_input.blurred = function() {
+	}
+	field.bn_geolocation = u.ae(field, "div", {"class":"geolocation"});
+	field.bn_geolocation.field = field;
+	u.ce(field.bn_geolocation);
+	field.bn_geolocation.clicked = function() {
+		u.a.transition(this, "all 0.5s ease-in-out");
+		this.transitioned = function() {
+			var new_scale;
+			if(this._scale == 1.4) {
+				new_scale = 1;
+			}
+			else {
+				new_scale = 1.4;
+			}
+			u.a.scale(this, new_scale);
+		}
+		this.transitioned();
+		window._geoLocationField = this.field;
+		window._foundLocation = function(position) {
+			var lat = position.coords.latitude;
+			var lon = position.coords.longitude;
+			window._geoLocationField.lat_input.val(u.round(lat, 6));
+			window._geoLocationField.lon_input.val(u.round(lon, 6));
+			window._geoLocationField.lat_input.focus();
+			window._geoLocationField.lon_input.focus();
+			u.a.transition(window._geoLocationField.bn_geolocation, "none");
+			u.a.scale(window._geoLocationField.bn_geolocation, 1);
+			window._geoLocationField.showMap();
+			window._geoLocationField.updateMap();
+		}
+		window._noLocation = function() {
+			u.a.transition(window._geoLocationField.bn_geolocation, "none");
+			u.a.scale(window._geoLocationField.bn_geolocation, 1);
+			alert('Could not find location');
+		}
+		navigator.geolocation.getCurrentPosition(window._foundLocation, window._noLocation);
+	}
 }
 
 
@@ -5979,8 +6332,14 @@ Util.querySelector = u.qs = function(query, scope) {
 	return scope.querySelector(query);
 }
 Util.querySelectorAll = u.qsa = function(query, scope) {
-	scope = scope ? scope : document;
-	return scope.querySelectorAll(query);
+	try {
+		scope = scope ? scope : document;
+		return scope.querySelectorAll(query);
+	}
+	catch(exception) {
+		u.exception("u.qsa", arguments, exception);
+	}
+	return [];
 }
 Util.getElement = u.ge = function(identifier, scope) {
 	var node, i, regexp;
@@ -6008,44 +6367,84 @@ Util.getElements = u.ges = function(identifier, scope) {
 	}
 	return nodes.length ? nodes : scope.getElementsByTagName(identifier);
 }
-Util.parentNode = u.pn = function(node, node_type) {
-	if(node_type) {
-		if(node.parentNode) {
-			var parent = node.parentNode;
-		}
-		while(parent.nodeName.toLowerCase() != node_type.toLowerCase()) {
-			if(parent.parentNode) {
-				parent = parent.parentNode;
-			}
-			else {
-				return false;
+Util.parentNode = u.pn = function(node, _options) {
+	var exclude = "";
+	var include = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "include"      : include       = _options[_argument]; break;
+				case "exclude"      : exclude       = _options[_argument]; break;
 			}
 		}
-		return parent;
 	}
-	else {
-		return node.parentNode;
+	var exclude_nodes = exclude ? u.qsa(exclude) : [];
+	var include_nodes = include ? u.qsa(include) : [];
+	node = node.parentNode;
+	while(node && (node.nodeType == 3 || node.nodeType == 8 || (exclude && (u.inNodeList(node, exclude_nodes))) || (include && (!u.inNodeList(node, include_nodes))))) {
+		node = node.parentNode;
 	}
+	return node;
 }
-Util.previousSibling = u.ps = function(node, exclude) {
+Util.previousSibling = u.ps = function(node, _options) {
+	var exclude = "";
+	var include = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "include"      : include       = _options[_argument]; break;
+				case "exclude"      : exclude       = _options[_argument]; break;
+			}
+		}
+	}
+	var exclude_nodes = exclude ? u.qsa(exclude, node.parentNode) : [];
+	var include_nodes = include ? u.qsa(include, node.parentNode) : [];
 	node = node.previousSibling;
-	while(node && (node.nodeType == 3 || node.nodeType == 8 || exclude && (u.hc(node, exclude) || node.nodeName.toLowerCase().match(exclude)))) {
+	while(node && (node.nodeType == 3 || node.nodeType == 8 || (exclude && (u.inNodeList(node, exclude_nodes))) || (include && (!u.inNodeList(node, include_nodes))))) {
 		node = node.previousSibling;
 	}
 	return node;
 }
-Util.nextSibling = u.ns = function(node, exclude) {
+Util.nextSibling = u.ns = function(node, _options) {
+	var exclude = "";
+	var include = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "include"      : include       = _options[_argument]; break;
+				case "exclude"      : exclude       = _options[_argument]; break;
+			}
+		}
+	}
+	var exclude_nodes = exclude ? u.qsa(exclude, node.parentNode) : [];
+	var include_nodes = include ? u.qsa(include, node.parentNode) : [];
 	node = node.nextSibling;
-	while(node && (node.nodeType == 3 || node.nodeType == 8 || exclude && (u.hc(node, exclude) || node.nodeName.toLowerCase().match(exclude)))) {
+	while(node && (node.nodeType == 3 || node.nodeType == 8 || (exclude && (u.inNodeList(node, exclude_nodes))) || (include && (!u.inNodeList(node, include_nodes))))) {
 		node = node.nextSibling;
 	}
 	return node;
 }
-Util.childNodes = u.cn = function(node, exclude) {
+Util.childNodes = u.cn = function(node, _options) {
+	var exclude = "";
+	var include = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "include"      : include       = _options[_argument]; break;
+				case "exclude"      : exclude       = _options[_argument]; break;
+			}
+		}
+	}
+	var exclude_nodes = exclude ? u.qsa(exclude, node) : [];
+	var include_nodes = include ? u.qsa(include, node) : [];
 	var i, child;
 	var children = new Array();
 	for(i = 0; child = node.childNodes[i]; i++) {
-		if(child && child.nodeType != 3 && child.nodeType != 8 && (!exclude || (!u.hc(child, exclude) && !child.nodeName.toLowerCase().match(exclude) ))) {
+		if(child && child.nodeType != 3 && child.nodeType != 8 && (!exclude || (!u.inNodeList(child, exclude_nodes))) && (!include || (u.inNodeList(child, include_nodes)))) {
 			children.push(child);
 		}
 	}
@@ -6069,9 +6468,7 @@ Util.appendElement = u.ae = function(parent, node_type, attributes) {
 		return node;
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.ae, called from: "+arguments.callee.caller.name);
-		u.bug("node:" + u.nodeId(parent, 1));
-		u.xInObject(attributes);
+		u.exception("u.ae", arguments, exception);
 	}
 	return false;
 }
@@ -6093,9 +6490,7 @@ Util.insertElement = u.ie = function(parent, node_type, attributes) {
 		return node;
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.ie, called from: "+arguments.callee.caller);
-		u.bug("node:" + u.nodeId(parent, 1));
-		u.xInObject(attributes);
+		u.exception("u.ie", arguments, exception);
 	}
 	return false;
 }
@@ -6112,9 +6507,7 @@ Util.wrapElement = u.we = function(node, node_type, attributes) {
 		return wrapper_node;
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.we, called from: "+arguments.callee.caller);
-		u.bug("node:" + u.nodeId(node, 1));
-		u.xInObject(attributes);
+		u.exception("u.we", arguments, exception);
 	}
 	return false;
 }
@@ -6134,15 +6527,26 @@ Util.wrapContent = u.wc = function(node, node_type, attributes) {
 		return wrapper_node;
 	}
 	catch(exception) {
-		u.exception("u.wc", arguments.callee.caller, exception, {"node":node, "node_type":node_type, "attributes":attributes})
+		u.exception("u.wc", arguments, exception);
 	}
 	return false;
 }
 Util.textContent = u.text = function(node) {
 	return node.textContent;
 }
-Util.clickableElement = u.ce = function(node, options) {
-	var a = (node.nodeName.toLowerCase() == "a" ? node : u.qs("a", node));
+Util.clickableElement = u.ce = function(node, _options) {
+	node._use_link = "a";
+	node._click_type = "manual";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "use"			: node._use_link		= _options[_argument]; break;
+				case "type"			: node._click_type		= _options[_argument]; break;
+			}
+		}
+	}
+	var a = (node.nodeName.toLowerCase() == "a" ? node : u.qs(node._use_link, node));
 	if(a) {
 		u.ac(node, "link");
 		if(a.getAttribute("href") !== null) {
@@ -6155,26 +6559,17 @@ Util.clickableElement = u.ce = function(node, options) {
 	}
 	if(typeof(u.e.click) == "function") {
 		u.e.click(node);
-		if(typeof(options) == "object") {
-			var argument;
-			for(argument in options) {
-				switch(argument) {
-					case "type"			: node._click_type		= options[argument]; break;
-					case "method"		: node._click_method	= options[argument]; break;
+		if(node._click_type == "link") {
+			node.clicked = function(event) {
+				if(event && (event.metaKey || event.ctrlKey)) {
+					window.open(this.url);
 				}
-			}
-			if(node._click_type == "link") {
-				node.clicked = function(event) {
-					if(event && (event.metaKey || event.ctrlKey)) {
-						window.open(this.url);
+				else {
+					if(typeof(page.navigate) == "function") {
+						page.navigate(this.url);
 					}
 					else {
-						if(typeof(page.navigate) == "function") {
-							page.navigate(this.url);
-						}
-						else {
-							location.href = this.url;
-						}
+						location.href = this.url;
 					}
 				}
 			}
@@ -6190,7 +6585,7 @@ Util.classVar = u.cv = function(node, var_name) {
 		}
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.cv, called from: "+arguments.callee.caller);
+		u.exception("u.cv", arguments, exception);
 	}
 	return false;
 }
@@ -6202,7 +6597,7 @@ Util.setClass = u.sc = function(node, classname) {
 		return old_class;
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.setClass, called from: "+arguments.callee.caller);
+		u.exception("u.sc", arguments, exception);
 	}
 	return false;
 }
@@ -6216,7 +6611,7 @@ Util.hasClass = u.hc = function(node, classname) {
 		}
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.hasClass("+u.nodeId(node)+", "+classname+"), called from: "+arguments.callee.caller);
+		u.exception("u.hc", arguments, exception);
 	}
 	return false;
 }
@@ -6232,7 +6627,7 @@ Util.addClass = u.ac = function(node, classname, dom_update) {
 		}
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.addClass, called from: "+arguments.callee.caller);
+		u.exception("u.ac", arguments, exception);
 	}
 	return false;
 }
@@ -6246,7 +6641,7 @@ Util.removeClass = u.rc = function(node, classname, dom_update) {
 		}
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.removeClass, called from: "+arguments.callee.caller);
+		u.exception("u.rc", arguments, exception);
 	}
 	return false;
 }
@@ -6269,7 +6664,7 @@ Util.toggleClass = u.tc = function(node, classname, _classname, dom_update) {
 		return node.className;
 	}
 	catch(exception) {
-		u.bug("Exception ("+exception+") in u.toggleClass, called from: "+arguments.callee.caller);
+		u.exception("u.tc", arguments, exception);
 	}
 	return false;
 }
@@ -6288,6 +6683,7 @@ Util.applyStyles = u.ass = function(node, styles, dom_update) {
 }
 Util.getComputedStyle = u.gcs = function(node, property) {
 	node.offsetHeight;
+	property = property.replace(/([A-Z]{1})/g, function(word){return word.replace(/([A-Z]{1})/, "-$1").toLowerCase()});
 	if(document.defaultView && document.defaultView.getComputedStyle) {
 		return document.defaultView.getComputedStyle(node, null).getPropertyValue(property);
 	}
@@ -6302,10 +6698,17 @@ Util.hasFixedParent = u.hfp = function(node) {
 	}
 	return false;
 }
+Util.selectText = function(node) {
+	var selection = window.getSelection();
+	var range = document.createRange();
+	range.selectNodeContents(node);
+	selection.removeAllRanges();
+	selection.addRange(range);
+}
 Util.inNodeList = function(node, list) {
 	var i, list_node;
 	for(i = 0; list_node = list[i]; i++) {
-		if(list_node = node) {
+		if(list_node === node) {
 			return true;
 		}
 	}
@@ -6748,7 +7151,7 @@ u.sortable = function(scope, _options) {
 	}
 	scope.getRelation = function(node) {
 		if(!node.parentNode.relation_id) {
-			var li_relation = u.pn(node, "li");
+			var li_relation = u.pn(node, {"include":"li"});
 			if(u.inNodeList(li_relation, this.draggable_nodes)) {
 				node.parentNode.relation_id = u.cv(li_relation, "id");
 			}
@@ -6961,6 +7364,9 @@ Util.History = u.h = new function() {
 			return return_string;
 		}
 	}
+	this.resolveCurrentUrl = function() {
+		return !location.hash ? this.getCleanUrl(location.href) : this.getCleanHash(location.hash);
+	}
 }
 
 
@@ -7014,7 +7420,7 @@ u.navigation = function(_options) {
 		}
 		else if(u.h.getCleanHash(location.hash) != u.h.getCleanUrl(location.href) && location.hash.match(/^#\//)) {
 			page._nav_path = u.h.getCleanUrl(location.href);
-			page._navigate();
+			page._navigate(u.h.getCleanHash(location.hash), page);
 		}
 		else {
 			u.init(page.cN);
@@ -8158,27 +8564,32 @@ Util.Objects["addMedia"] = new function() {
 			this.response = function(response) {
 				page.notify(response);
 				if(response.cms_status == "success" && response.cms_object) {
-					var i, media, li, image;
+					var i, media, node, image;
 					for(i = 0; media = response.cms_object[i]; i++) {
-						var li = u.ie(div.media_list, "li");
-						li.media_list = this.div.media_list;
-						u.ac(li, "media image");
-						u.ac(li, "variant:"+media.variant);
-						u.ac(li, "media_id:"+media.media_id);
-						var image = u.ae(li, "img");
-						image.src = "/images/"+media.item_id+"/"+media.variant+"/x"+li.offsetHeight+"."+media.format+"?"+u.randomString(4);
-						if(media.name) {
-							li.p_name = u.ae(li, "p", {"html":media.name});
-							var n_w = media.width/media.height * li.offsetHeight;
-							var p_p_l = parseInt(u.gcs(li.p_name, "padding-left"));
-							var p_p_r = parseInt(u.gcs(li.p_name, "padding-right"));
-							u.as(li.p_name, "width", (n_w - p_p_l - p_p_r)+"px");
-							if(this.div.update_name_url) {
-								this.div.addUpdateNameForm(li);
+						if(u.hc(this.div, "variant")) {
+							var existing_variant = u.ge("variant:"+media.variant);
+							if(existing_variant) {
+								existing_variant.parentNode.removeChild(existing_variant);
 							}
 						}
-						if(this.div.delete_url) {
-							this.div.addDeleteForm(li);
+						var node = u.ie(this.div.media_list, "li", {"class":"media"});
+						node.div = this.div;
+						node.media_list = this.div.media_list;
+						node.media_format = media.format;
+						node.media_variant = media.variant;
+						u.ac(node, "format:"+media.format);
+						u.ac(node, "variant:"+media.variant);
+						u.ac(node, "media_id:"+media.media_id);
+						this.div.addPreview(node);
+						if(u.hc(this.div, "variant")) {
+							node.media_name.innerHTML = media.variant;
+						}
+						else {
+							node.media_name.innerHTML = media.name;
+						}
+						this.div.adjustMediaName(node);
+						if(!u.hc(this.div, "variant") && this.div.update_name_url) {
+							this.div.addUpdateNameForm(node);
 						}
 					}
 					if(this.div.save_order_url) {
@@ -8206,16 +8617,16 @@ Util.Objects["addMedia"] = new function() {
 				u.o.deleteMedia.init(node.delete_form);
 			}
 		}
-		div.addUpdateNameForm = function(li) {
-			li.media_name.li = li;
-			u.ce(li.media_name);
-			li.media_name.inputStarted = function(event) {
+		div.addUpdateNameForm = function(node) {
+			node.media_name.node = node;
+			u.ce(node.media_name);
+			node.media_name.inputStarted = function(event) {
 				u.e.kill(event);
-				this.li.media_list._sorting_disabled = true;
+				this.node.media_list._sorting_disabled = true;
 			}
-			li.media_name.clicked = function(event) {
-				u.ac(this.li, "edit");
-				var input = this.li.update_name_form.fields["name"];
+			node.media_name.clicked = function(event) {
+				u.ac(this.node, "edit");
+				var input = this.node.update_name_form.fields["name"];
 				var field = input.field;
 				input.focus();
 				var f_w = field.offsetWidth;
@@ -8229,26 +8640,26 @@ Util.Objects["addMedia"] = new function() {
 				var i_b_r = parseInt(u.gcs(input, "border-right-width"));
 				u.as(input, "width", (f_w - f_p_l - f_p_r - i_p_l - i_p_r - i_m_l - i_m_r - i_b_l - i_b_r)+"px");
 			}
-			li.update_name_form = u.f.addForm(li, {"action":this.update_name_url+"/"+this.item_id+"/"+u.cv(li, "variant"), "class":"edit"});
-			li.update_name_form.li = li;
-			var field = u.ae(li.update_name_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
-			var field = u.f.addField(li.update_name_form, {"type":"string","name":"name", "value":li.media_name.innerHTML});
-			u.f.init(li.update_name_form);
-			li.update_name_form.fields["name"].blurred = function() {
+			node.update_name_form = u.f.addForm(node, {"action":this.update_name_url+"/"+this.item_id+"/"+u.cv(node, "variant"), "class":"edit"});
+			node.update_name_form.node = node;
+			var field = u.ae(node.update_name_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
+			var field = u.f.addField(node.update_name_form, {"type":"string","name":"name", "value":node.media_name.innerHTML});
+			u.f.init(node.update_name_form);
+			node.update_name_form.fields["name"].blurred = function() {
 				u.bug("blurred")
 				this.form.updateName();
 			}
-			li.update_name_form.submitted = function() {}
-			li.update_name_form.updateName = function() {
-				u.rc(this.li, "edit");
-				this.li.media_list._sorting_disabled = false;
+			node.update_name_form.submitted = function() {}
+			node.update_name_form.updateName = function() {
+				u.rc(this.node, "edit");
+				this.node.media_list._sorting_disabled = false;
 				this.response = function(response) {
 					page.notify(response);
 					if(response.cms_status == "success" && response.cms_object) {
-						this.li.media_name.innerHTML = this.fields["name"].val();
+						this.node.media_name.innerHTML = this.fields["name"].val();
 					}
 					else {
-						this.fields["name"].val(this.li.media_name.innerHTML);
+						this.fields["name"].val(this.node.media_name.innerHTML);
 					}
 				}
 				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
@@ -8302,14 +8713,14 @@ Util.Objects["addMedia"] = new function() {
 				u.ac(node, "zip");
 				this.addZipPreview(node);
 			}
+		}
+		div.adjustMediaName = function(node) {
+			u.bug("adjust media name:" + u.nodeId(node) + ", " + node.media_name)
 			if(node.media_name) {
 				var n_w = node.offsetWidth;
 				var p_p_l = parseInt(u.gcs(node.media_name, "padding-left"));
 				var p_p_r = parseInt(u.gcs(node.media_name, "padding-right"));
 				u.as(node.media_name, "width", (n_w - p_p_l - p_p_r)+"px");
-				if(!u.hc(div, "variant") && div.update_name_url) {
-					div.addUpdateNameForm(node);
-				}
 			}
 		}
 		div.addImage = function(node) {
@@ -8349,7 +8760,11 @@ Util.Objects["addMedia"] = new function() {
 			this.addImage(node);
 			if(node.media_format) {
 				this.addDeleteForm(node);
-				node.image.src = "/images/"+this.item_id+"/"+node.media_variant+"/x"+node.offsetHeight+"."+node.media_format+"?"+u.randomString(4);
+				node.loaded = function(queue) {
+					this.image.src = queue[0].image.src;
+					this.div.adjustMediaName(this);
+				}
+				u.preloader(node, ["/images/"+this.item_id+"/"+node.media_variant+"/x"+node.offsetHeight+"."+node.media_format+"?"+u.randomString(4)]);
 			}
 		}
 		div.addAudioPreview = function(node) {
@@ -8411,9 +8826,10 @@ Util.Objects["addMedia"] = new function() {
 			node.media_variant = u.cv(node, "variant");
 			node.media_format = u.cv(node, "format");
 			div.addPreview(node);
-			// 
-			// 	
-			// 	
+			div.adjustMediaName(node);
+			if(!u.hc(div, "variant") && div.update_name_url) {
+				div.addUpdateNameForm(node);
+			}
 		}
 		if(!u.hc(div, "variant") && u.hc(div, "sortable") && div.media_list && div.save_order_url) {
 			u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
@@ -8600,7 +9016,7 @@ Util.Objects["addMediaSingle"] = new function() {
 				if(response.cms_status == "success" && response.cms_object) {
 					this.div.media_format = response.cms_object.format;
 					u.rc(this.div, "format:[a-z]*");
-					u.ac(this.div, "format:"+this.div._format);
+					u.ac(this.div, "format:"+this.div.media_format);
 					this.div.addPreview();
 					this.div.media_name.innerHTML = response.cms_object.name;
 				}
