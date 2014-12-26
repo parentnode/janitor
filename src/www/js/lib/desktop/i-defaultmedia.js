@@ -2,7 +2,7 @@
 Util.Objects["addMedia"] = new function() {
 	this.init = function(div) {
 
-		u.bug("addMedia init:" + u.nodeId(div))
+//		u.bug("addMedia init:" + u.nodeId(div))
 
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
@@ -273,7 +273,7 @@ Util.Objects["addMedia"] = new function() {
 
 
 		div.adjustMediaName = function(node) {
-			u.bug("adjust media name:" + u.nodeId(node) + ", " + node.media_name)
+//			u.bug("adjust media name:" + u.nodeId(node) + ", " + node.media_name)
 
 			// adjust media name width
 			if(node.media_name) {
