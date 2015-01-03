@@ -302,7 +302,8 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 /* CUSTOM FONT SIZES FOR SOME TYPES */
 #content .field.html .editor div.tag ul.type li.code {font-size: 8px; padding-top: 11px;}
 #content .field.html .editor div.tag ul.type li.media {font-size: 8px; padding-top: 11px;}
-#content .field.html .editor div.tag ul.type li.youtube {font-size: 8px; padding-top: 11px;}
+#content .field.html .editor div.tag ul.type li.youtube {font-size: 8px; padding: 7px 5px; max-width: 4.4ch; word-wrap: break-word;}
+#content .field.html .editor div.tag ul.type li.vimeo {font-size: 8px; padding-top: 11px;}
 
 /* TAG EDITABLE CONTENT */
 #content .field.html .editor div.tag div.text {display: inline-block; vertical-align: top; width: 334px; height: auto; padding: 4px 6px; line-height: 1.375em; border-radius: 3px; background-color: #F5F7F8; color: #333333; box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; min-height: 20px;}
@@ -325,7 +326,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.html .editor div.tag.p div.text {font-size: 14px;}
 
 /* DEFAULT CODE TAG STYLING */
-#content .field.html .editor div.tag.code div.text {font-size: 12px; line-height: 1.761em; white-space: pre;
+#content .field.html .editor div.tag.code div.text {font-size: 12px; line-height: 1.761em; white-space: pre-wrap;
 	font-family: "Monaco", "Courier New", "Courier";
 	-moz-tab-size: 4;
 	-o-tab-size: 4;
@@ -353,6 +354,11 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.html .editor div.tag.media input {width: 316px; opacity: 0; height: 18px; position: relative; z-index: 2;}
 #content .field.html .editor div.tag.media img {width: 344px; margin: 2px;}
 
+/* DEFAULT EXTERNAL VIDEO TAG STYLING */
+#content .field.html .editor div.tag.vimeo .text,
+#content .field.html .editor div.tag.youtube .text {padding: 0 6px; height: 28px; color: #aaaaaa; font-size: 13px; padding: 4px 6px; line-height: 1.461em; height: auto;}
+#content .field.html .editor div.tag.vimeo.focus .text,
+#content .field.html .editor div.tag.youtube.focus .text {color: #333333;}
 
 
 /* SELECTION OPTIONS PANE */
