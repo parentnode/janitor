@@ -494,6 +494,9 @@ function superNormalize($string) {
 	// lowercase
 	$string = strtolower($string);
 
+	// strip HTML
+	$string = strip_tags($string);
+
 	// remove all remaining specialchars
 	$string = preg_replace('/[^a-z0-9\_]/', '-', $string);
 
