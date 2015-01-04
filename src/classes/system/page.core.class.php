@@ -169,7 +169,7 @@ class PageCore {
 						}
 						// Standard size for everyone else
 						else {
-							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/250.jpg");
+							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/250x.jpg");
 						}
 
 						break;
