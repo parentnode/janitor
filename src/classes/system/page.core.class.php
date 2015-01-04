@@ -123,7 +123,7 @@ class PageCore {
 	* Facebook OG metadata tags
 	*
 	*/
-	function OG_metaData($item = false, $_options = false) {
+	function sharingMetaData($item = false, $_options = false) {
 
 
 		if($item !== false) {
@@ -154,8 +154,24 @@ class PageCore {
 			if(isset($item[$image_index])) {
 				foreach($item[$image_index] as $image) {
 					if(preg_match("/jpg|png/", $image["format"])) {
-//						$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x.".$image["format"]);
-						$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/300x200.jpg");
+
+						// Facebook size
+						if(strpos("facebookexternalhit", $_SERVER["HTTP_USER_AGENT"]) !== false) {
+							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x.".$image["format"]);
+						}
+						// Google Plus size
+						else if(strpos("Google", $_SERVER["HTTP_USER_AGENT"]) !== false) {
+							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/497x373.".$image["format"]);
+						}
+						// Linkedin size
+						else if(strpos("LinkedInBot", $_SERVER["HTTP_USER_AGENT"]) !== false) {
+							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/180x110.".$image["format"]);
+						}
+						// Standard size for everyone else
+						else {
+							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/250.jpg");
+						}
+
 						break;
 					}
 				}
