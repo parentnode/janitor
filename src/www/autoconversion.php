@@ -196,6 +196,7 @@ if($request_type == "images" && ($format == "jpg" || $format == "png" || $format
 	if($Image->convert($input_file, $output_file, array("compression" => 93, "allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
 
 		// redirect to new image
+		http_send_status(200);
 		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format);
 		exit();
 
