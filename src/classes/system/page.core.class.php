@@ -154,7 +154,8 @@ class PageCore {
 			if(isset($item[$image_index])) {
 				foreach($item[$image_index] as $image) {
 					if(preg_match("/jpg|png/", $image["format"])) {
-						$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x.".$image["format"]);
+//						$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x.".$image["format"]);
+						$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/220x.png");
 						break;
 					}
 				}
