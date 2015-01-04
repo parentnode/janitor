@@ -157,7 +157,7 @@ class PageCore {
 
 						// Facebook size
 						if(strpos($_SERVER["HTTP_USER_AGENT"], "facebookexternalhit") !== false) {
-							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x.".$image["format"]);
+							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x630.".$image["format"]);
 						}
 						// Google Plus size
 						else if(strpos($_SERVER["HTTP_USER_AGENT"], "Google") !== false) {
@@ -185,6 +185,7 @@ class PageCore {
 			$_ .= '<meta property="og:title" content="'.$this->pageTitle().'" />';
 			$_ .= '<meta property="og:description" content="'.$this->pageDescription().'" />';
 			$_ .= '<meta property="og:image" content="'.SITE_URL.$this->pageImage().'" />';
+			$_ .= '<meta property="og:url" content="'.SITE_URL.$this->url.'" />';
 
 			return $_;
 		}
