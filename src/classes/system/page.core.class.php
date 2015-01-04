@@ -167,7 +167,7 @@ class PageCore {
 
 			$_ .= '<meta property="og:title" content="'.$this->pageTitle().'" />';
 			$_ .= '<meta property="og:description" content="'.$this->pageDescription().'" />';
-			$_ .= '<meta property="og:image" content="'.$this->pageImage().'" />';
+			$_ .= '<meta property="og:image" content="'.SITE_URL.$this->pageImage().'" />';
 
 			return $_;
 		}
