@@ -157,6 +157,7 @@ class PageCore {
 
 						// Facebook size
 						if(strpos("facebookexternalhit", $_SERVER["HTTP_USER_AGENT"]) !== false) {
+							$this->pageTitle($item[$title_index] . " for facebook");
 							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x.".$image["format"]);
 						}
 						// Google Plus size
