@@ -151,7 +151,7 @@ class PageCore {
 				$this->pageDescription($item[$description_index]);
 			}
 
-			if(isset($item[$image_index])) {
+			if(isset($item[$image_index]) && $item[$image_index]) {
 				foreach($item[$image_index] as $image) {
 					if(preg_match("/jpg|png/", $image["format"])) {
 
@@ -161,7 +161,7 @@ class PageCore {
 						}
 						// Google Plus size
 						else if(strpos($_SERVER["HTTP_USER_AGENT"], "Google") !== false) {
-							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/300x300.png");
+							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/300x300.".$image["format"]);
 						}
 						// Linkedin size
 						else if(strpos($_SERVER["HTTP_USER_AGENT"], "LinkedInBot") !== false) {

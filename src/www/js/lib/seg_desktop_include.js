@@ -10,7 +10,7 @@ document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-g
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-geometry.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-dom.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-request.js"></script>');
-document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-sortable.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-sortable.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-keyboard.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-audio.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-video.js"></script>');
