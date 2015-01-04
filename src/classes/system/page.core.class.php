@@ -161,7 +161,7 @@ class PageCore {
 						}
 						// Google Plus size
 						else if(strpos($_SERVER["HTTP_USER_AGENT"], "Google") !== false) {
-							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/150x150.".$image["format"]);
+							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/300x300.png");
 						}
 						// Linkedin size
 						else if(strpos($_SERVER["HTTP_USER_AGENT"], "LinkedInBot") !== false) {
