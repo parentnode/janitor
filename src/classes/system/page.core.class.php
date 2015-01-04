@@ -156,16 +156,15 @@ class PageCore {
 					if(preg_match("/jpg|png/", $image["format"])) {
 
 						// Facebook size
-						if(strpos("facebookexternalhit", $_SERVER["HTTP_USER_AGENT"]) !== false) {
-							$this->pageTitle($item[$title_index] . " for facebook");
+						if(strpos($_SERVER["HTTP_USER_AGENT"], "facebookexternalhit") !== false) {
 							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x.".$image["format"]);
 						}
 						// Google Plus size
-						else if(strpos("Google", $_SERVER["HTTP_USER_AGENT"]) !== false) {
+						else if(strpos($_SERVER["HTTP_USER_AGENT"], "Google") !== false) {
 							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/497x373.".$image["format"]);
 						}
 						// Linkedin size
-						else if(strpos("LinkedInBot", $_SERVER["HTTP_USER_AGENT"]) !== false) {
+						else if(strpos($_SERVER["HTTP_USER_AGENT"], "LinkedInBot") !== false) {
 							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/180x110.".$image["format"]);
 						}
 						// Standard size for everyone else
