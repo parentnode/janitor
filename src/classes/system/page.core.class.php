@@ -30,6 +30,8 @@ class PageCore {
 	// page output variables
 	public $page_title;
 	public $page_description;
+	public $page_image;
+
 	public $body_class;
 	public $content_class;
 
@@ -116,6 +118,64 @@ class PageCore {
 
 
 	/**
+	* Set OG meta data from $item
+	*
+	* Facebook OG metadata tags
+	*
+	*/
+	function OG_metaData($item = false, $_options = false) {
+
+
+		if($item !== false) {
+
+			$description_index = "description";
+			$title_index = "name";
+			$image_index = "mediae";
+
+			if($_options !== false) {
+				foreach($_options as $_option => $_value) {
+					switch($_option) {
+						case "description"       : $description_index = $_value; break;
+						case "title"             : $title_index = $_value; break;
+						case "image"             : $image_index = $_value; break;
+					}
+				}
+			}
+
+
+			if(isset($item[$title_index])) {
+				$this->pageTitle($item[$title_index]);
+			}
+
+			if(isset($item[$description_index])) {
+				$this->pageDescription($item[$description_index]);
+			}
+
+			if(isset($item[$image_index])) {
+				foreach($item[$image_index] as $image) {
+					if(preg_match("/jpg|png/", $image["format"])) {
+						$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x.".$image["format"]);
+						break;
+					}
+				}
+			}
+
+		}
+		else {
+
+			$_ = '';
+
+			$_ .= '<meta property="og:title" content="'.$this->pageTitle().'" />';
+			$_ .= '<meta property="og:description" content="'.$this->pageDescription().'" />';
+			$_ .= '<meta property="og:image" content="'.$this->pageImage().'" />';
+
+			return $_;
+		}
+
+	}
+
+
+	/**
 	* Get page title
 	*
 	* - fallback to SITE_NAME
@@ -145,7 +205,7 @@ class PageCore {
 	*
 	* - Fallback to DEFAULT_PAGE_DESCRIPTION, then $this->title
 	*
-	* @uses Page::title
+	* @uses Page::pageTitle
 	* @return String page description
 	*/
 	function pageDescription($value = false) {
@@ -160,13 +220,41 @@ class PageCore {
 				return $this->page_description;
 			}
 			// Default page description from config file if available
-			else if(defined(DEFAULT_PAGE_DESCRIPTION)) {
+			else if(defined("DEFAULT_PAGE_DESCRIPTION")) {
 				return DEFAULT_PAGE_DESCRIPTION;
 			}
 			// last resort - use page title
 			else {
 				return $this->pageTitle();
 			}
+		}
+	}
+
+	/**
+	* Get page image
+	*
+	* - Fallback to DEFAULT_PAGE_IMAGE
+	*
+	* @return String page image
+	*/
+	function pageImage($value = false) {
+		// set description
+		if($value !== false) {
+			$this->page_image = $value;
+		}
+		// get description
+		else {
+			// if description already set
+			if($this->page_image) {
+				return $this->page_image;
+			}
+			// Default page description from config file if available
+			else if(defined("DEFAULT_PAGE_IMAGE")) {
+				return DEFAULT_PAGE_IMAGE;
+			}
+
+			// last resort favicon
+			return "/favicon.png";
 		}
 	}
 
