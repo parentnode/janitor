@@ -117,7 +117,7 @@ class SuperUser extends User {
 
 			if($this->validateList($names, $user_id)) {
 				if($values) {
-					$sql = "UPDATE ".$this->db." SET ".implode(",", $values)." WHERE id = ".$user_id;
+					$sql = "UPDATE ".$this->db." SET ".implode(",", $values).",modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
 //					print $sql;
 				}
 
@@ -302,7 +302,13 @@ class SuperUser extends User {
 
 
 
+
 	// USERNAMES
+	// usernames are thought to allow multiple emails or mobile numbers, but for now
+	// they are restricted to just one of each
+	//
+	// At later point interface and functionality should be expanded to intended level
+
 
 	// get usernames or specific username
 	function getUsernames($_options) {
@@ -345,12 +351,13 @@ class SuperUser extends User {
 	}
 
 	// Update usernames from posted values
-	function updateUsernames($action) {
+	// /janitor/admin/user/updateEmail/#user_id#
+	function updateEmail($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-
+		// does action match expected
 		if(count($action) == 2) {
 
 			$user_id = $action[1];
@@ -359,118 +366,146 @@ class SuperUser extends User {
 			// make sure type tables exist
 			$query->checkDbExistance($this->db_usernames);
 
-			$entities = $this->getModel();
-
 			$email = $this->getProperty("email", "value");
-			$mobile = $this->getProperty("mobile", "value");
-
-
-			$mobile_exists = false;
-			$email_exists = false;
 
 			// check if email exists
-			if($email) {
-				$email_exists_for_user_id = $this->matchUsernames(array("email" => $email));
-				if($email_exists_for_user_id && $email_exists_for_user_id["user_id"] != $user_id) {
-					$email_exists = true;
-					message()->addMessage("Email already exists", array("type" => "error"));
-				}
-			}
-			// check if mobile exists
-			if($mobile) {
-				$mobile_exists_for_user_id = $this->matchUsernames(array("mobile" => $mobile));
-				if($mobile_exists_for_user_id && $mobile_exists_for_user_id["user_id"] != $user_id) {
-					$mobile_exists = true;
-					message()->addMessage("Mobile already exists", array("type" => "error"));
-				}
-			}
-
-			if($mobile_exists || $email_exists) {
+			if($this->userExists(array("email" => $email, "user_id" => $user_id))) {
+				message()->addMessage("Email already exists", array("type" => "error"));
 				return false;
 			}
 
 
 			$current_email = $this->getUsernames(array("user_id" => $user_id, "type" => "email"));
-			$current_mobile = $this->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
 
-			// email does not exist
-			if($email && !$current_email) {
-				$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, type = 'email', user_id = $user_id";
-//				print $sql."<br>";
-				if($query->sql($sql)) {
-					message()->addMessage("Email added");
+			// email is sent
+			if($email) {
+
+				// email has not been set before
+				if(!$current_email) {
+
+					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, type = 'email', user_id = $user_id";
+	//				print $sql."<br>";
+					if($query->sql($sql)) {
+						message()->addMessage("Email added");
+						return true;
+					}
 				}
-				else {
-					message()->addMessage("Could not add email", array("type" => "error"));
+
+				// email is changed
+				else if($email != $current_email) {
+
+					$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0 WHERE type = 'email' AND user_id = $user_id";
+	//				print $sql."<br>";
+					if($query->sql($sql)) {
+						message()->addMessage("Email updated");
+						return true;
+					}
+				}
+
+				// email is NOT changed
+				else if($email == $current_email) {
+
+					message()->addMessage("Email unchanged");
+					return true;
 				}
 			}
-			// email should be deleted?
+
+			// email is not sent
 			else if(!$email && $current_email !== false) {
 
 				$sql = "DELETE FROM $this->db_usernames WHERE type = 'email' AND user_id = $user_id";
 //				print $sql."<br>";
 				if($query->sql($sql)) {
 					message()->addMessage("Email deleted");
-				}
-				else {
-					message()->addMessage("Could not delete email", array("type" => "error"));
-				}
-			}
-			// email is changed?
-			else if($email != $current_email) {
-
-				$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0 WHERE type = 'email' AND user_id = $user_id";
-//				print $sql."<br>";
-				if($query->sql($sql)) {
-					message()->addMessage("Email updated");
-				}
-				else {
-					message()->addMessage("Could not update email", array("type" => "error"));
+					return true;
 				}
 			}
 
-			// mobile does not exist
-			if($mobile && !$current_mobile) {
-				$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 0, type = 'mobile', user_id = $user_id";
-//				print $sql."<br>";
-				if($query->sql($sql)) {
-					message()->addMessage("Mobile added");
+		}
+
+		message()->addMessage("Could not update email", array("type" => "error"));
+		return false;
+
+	}
+
+	// Update usernames from posted values
+	// /janitor/admin/user/updateMobile/#user_id#
+	function updateMobile($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does action match expected
+		if(count($action) == 2) {
+
+			$user_id = $action[1];
+			$query = new Query();
+
+			// make sure type tables exist
+			$query->checkDbExistance($this->db_usernames);
+
+			$mobile = $this->getProperty("mobile", "value");
+
+			// check if mobile exists
+			if($this->userExists(array("mobile" => $mobile, "user_id" => $user_id))) {
+				message()->addMessage("Mobile already exists", array("type" => "error"));
+				return false;
+			}
+
+
+			$current_mobile = $this->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
+
+			// mobile is sent
+			if($mobile) {
+
+				// mobile has not been set before
+				if(!$current_mobile) {
+
+					$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 0, type = 'mobile', user_id = $user_id";
+	//				print $sql."<br>";
+					if($query->sql($sql)) {
+						message()->addMessage("Mobile added");
+						return true;
+					}
 				}
-				else {
-					message()->addMessage("Could not add mobile", array("type" => "error"));
+
+				// mobile is changed
+				else if($mobile != $current_mobile) {
+
+					$sql = "UPDATE $this->db_usernames SET username = '$mobile', verified = 0 WHERE type = 'mobile' AND user_id = $user_id";
+	//				print $sql."<br>";
+					if($query->sql($sql)) {
+						message()->addMessage("Mobile updated");
+						return true;
+					}
+				}
+
+				// mobile is NOT changed
+				else if($mobile == $current_mobile) {
+
+					message()->addMessage("Mobile unchanged");
+					return true;
 				}
 			}
-			// is mobile changed?
-			else if(!$mobile && $current_mobile != false) {
+
+			// mobile is not sent
+			else if(!$mobile && $current_mobile !== false) {
 
 				$sql = "DELETE FROM $this->db_usernames WHERE type = 'mobile' AND user_id = $user_id";
 //				print $sql."<br>";
 				if($query->sql($sql)) {
 					message()->addMessage("Mobile deleted");
-				}
-				else {
-					message()->addMessage("Could not delete mobile", array("type" => "error"));
-				}
-			}
-			// mobile is changed?
-			else if($mobile != $current_mobile) {
-
-				$sql = "UPDATE $this->db_usernames SET username = '$mobile', verified = 0 WHERE type = 'mobile' AND user_id = $user_id";
-//				print $sql."<br>";
-				if($query->sql($sql)) {
-					message()->addMessage("Mobile updated");
-				}
-				else {
-					message()->addMessage("Could not update mobile", array("type" => "error"));
+					return true;
 				}
 			}
 
 		}
-		return true;
+
+		message()->addMessage("Could not update mobile", array("type" => "error"));
+		return false;
+
 	}
 
-	// NOT NEEDED YET AS updateUsernames also reset usernames
-	function deleteUsername() {}
 
 
 
@@ -523,6 +558,7 @@ class SuperUser extends User {
 		message()->addMessage("Password could not be saved", array("type" => "error"));
 		return false;
 	}
+
 
 	// TODO: reset password needs to be implemented
 	// start reset password procedure
@@ -608,7 +644,7 @@ class SuperUser extends User {
 			}
 
 			if($values) {
-				$sql = "INSERT INTO ".$this->db_addresses." SET user_id=$user_id,modified_at=CURRENT_TIMESTAMP," . implode(",", $values);
+				$sql = "INSERT INTO ".$this->db_addresses." SET user_id=$user_id," . implode(",", $values);
 //				print $sql;
 
 				if($query->sql($sql)) {
@@ -617,6 +653,9 @@ class SuperUser extends User {
 				}
 			}
 		}
+
+		message()->addMessage("Address could not be saved", array("type" => "error"));
+		return false;
 	}
 
 	// update an address
@@ -642,7 +681,7 @@ class SuperUser extends User {
 			}
 
 			if($values) {
-				$sql = "UPDATE ".$this->db_addresses." SET ".implode(",", $values)." WHERE id = ".$address_id;
+				$sql = "UPDATE ".$this->db_addresses." SET ".implode(",", $values).",modified_at=CURRENT_TIMESTAMP WHERE id = ".$address_id;
 //				print $sql;
 			}
 
@@ -678,13 +717,14 @@ class SuperUser extends User {
 
 
 
+
 	// NEWSLETTERS
 
 	// get newsletter info
 	// get all newsletters (list of available newsletters)
 	// get newsletters for user
 	// get state of specific newsletter for specific user
-	function getNewsletters($_options) {
+	function getNewsletters($_options = false) {
 
 		$user_id = false;
 		$newsletter = false;
@@ -720,7 +760,7 @@ class SuperUser extends User {
 		}
 		// get list of all newsletters
 		else {
-			$sql = "SELECT newsletter FROM ".$this->db_newsletters." GROUP BY newsletter";
+			$sql = "SELECT * FROM ".$this->db_newsletters." GROUP BY newsletter";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -728,7 +768,64 @@ class SuperUser extends User {
 
 	}
 
-	function updateNewsletters($action){}
+
+	// /janitor/admin/user/addNewsletter/#user_id#
+	function addNewsletter($action){
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 2 && $this->validateList(array("newsletter"))) {
+
+			$query = new Query();
+			$user_id = $action[1];
+
+			$newsletter = $this->getProperty("newsletter", "value");
+
+			// make sure type tables exist
+			$query->checkDbExistance($this->db_newsletters);
+
+			// already signed up
+			$sql = "SELECT id FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter = '$newsletter'";
+			if(!$query->sql($sql)) {
+				$sql = "INSERT INTO $this->db_newsletters SET user_id = $user_id, newsletter = '$newsletter'";
+				$query->sql($sql);
+			}
+
+			message()->addMessage("Subscribed to newsletter: ".$newsletter);
+			return true;
+		}
+
+		message()->addMessage("Could not subscribe to newsletter", array("type" => "error"));
+		return false;
+	}
+
+	// /janitor/admin/user/deleteNewsletter/#user_id#/#newsletter_id#
+	function deleteNewsletter($action){
+
+		// does values validate
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$user_id = $action[1];
+			$newsletter = urldecode($action[2]);
+
+			$sql = "DELETE FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter = '$newsletter'";
+//			print $sql."<br>\n";
+			if($query->sql($sql)) {
+
+				message()->addMessage("Unsubscribed from newsletter: $newsletter");
+				return true;
+			}
+		}
+
+		message()->addMessage("Could not unsubscribe from newsletter", array("type" => "error"));
+		return false;
+
+	}
+
+
 
 
 
