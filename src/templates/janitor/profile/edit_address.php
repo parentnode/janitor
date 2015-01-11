@@ -2,11 +2,9 @@
 global $action;
 global $model;
 
-$user_id = $action[1];
-$address_id = $action[2];
+$address_id = $action[1];
 
 $address = $model->getAddresses(array("address_id" => $address_id));
-
 $country_options = $model->toOptions($this->countries(), "id", "name");
 ?>
 
@@ -16,13 +14,13 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 	<ul class="actions i:defaultEditActions item_id:<?= $address_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
-		<?= $model->link("Back to user", "/janitor/admin/user/edit/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $JML->deleteButton("Delete address", "/janitor/admin/user/deleteAddress/".$address_id) ?>
+		<?= $model->link("Back to user", "/janitor/admin/profile", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $JML->deleteButton("Delete address", "/janitor/admin/profile/deleteAddress/".$address_id) ?>
 	</ul>
 
 	<div class="addresses">
 		<h2>Address</h2>
-		<?= $model->formStart("/janitor/admin/user/updateAddress/".$address_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<?= $model->formStart("updateAddress/".$address_id, array("class" => "i:addressProfile labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("address_label", array("value" => $address["address_label"] )) ?>
 				<?= $model->input("address_name", array("value" => $address["address_name"] )) ?>
@@ -36,7 +34,7 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 			</fieldset>
 
 			<ul class="actions">
-				<?= $model->link("Back", "/janitor/admin/user/edit/".$user_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->link("Back", "/janitor/admin/profile", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 				<?= $model->submit("Update address", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>

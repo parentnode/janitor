@@ -19,6 +19,8 @@
 
 /* USERNAMES */
 #content .scene.userEdit > div.usernames {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.usernames form.email {padding-bottom: 10px; border-bottom: 1px solid #dedede;}
+#content .scene.userEdit > div.usernames form.mobile {padding-top: 20px;}
 #content .scene.userEdit > div.usernames .actions {text-align: left;}
 #content .scene.userEdit > div.usernames .actions li {padding: 0 5px 10px;}
 
@@ -46,20 +48,21 @@
 #content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; bottom: 0; left: 0; padding: 0;}
 #content .scene.userEdit > div.addresses ul.addresses > li .actions li {padding-left: 0;}
 
-/*
-#content .scene.userEdit > div.addresses ul.addresses > li .actions li a {text-indent: -9999px; 
-background-image: url(/janitor/admin/img//bg_icons.png);
-	background-repeat: no-repeat;
-	background-position: 6px -17px;
-}
-#content .scene.userEdit > div.addresses ul.addresses > li .actions li a:hover {background-position: 6px 7px;
-}
-*/
+
 
 /* NEWSLETTERS */
-#content .scene.userEdit > div.newsletters {padding: 0 0 20px 0; border-bottom: 1px solid #dedede;}
-#content .scene.userEdit > div.newsletters ul.newsletters {padding: 0 30px;}
+#content .scene.userEdit > div.newsletters {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.newsletters ul.newsletters {padding: 0 30px 10px;}
 #content .scene.userEdit > div.newsletters ul.newsletters > li {display: block; padding: 0 0 10px;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li h3 {padding: 4px 0 0; display: inline-block; vertical-align: top;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions {padding: 0 10px 0 0; display: inline-block; vertical-align: top;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li {padding: 0;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li input {width: 100px; text-align: center;}
+#content .scene.userEdit > div.newsletters > ul.actions {padding-top: 20px; border-top: 1px solid #dedede;}
+
+#content .scene.userEdit > div.newsletters ul.newsletters > li.subscribed li.subscribe {display: none;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li.subscribed li.delete {display: inline-block;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li li.delete {display: none;}
 
 
 /* ACCESS */
@@ -85,3 +88,8 @@ background-image: url(/janitor/admin/img//bg_icons.png);
 #content .defaultList.userContentList .views li a {text-decoration: none;}
 #content .defaultList.userContentList .views li.selected {background-color: #f5f7f8; color: #aaaaaa;}
 
+
+
+/* PROFILE */
+#content .scene.profileEdit h1,
+#content .scene.profileContentList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}

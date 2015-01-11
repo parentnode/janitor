@@ -24,7 +24,8 @@ $has_password = $model->hasPassword($user_id);
 $addresses = $model->getAddresses(array("user_id" => $user_id));
 
 // get newsletters
-$newsletters = $model->getNewsletters(array("user_id" => $user_id));
+$all_newsletters = $model->getNewsletters();
+$user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 
 ?>
 <div class="scene defaultEdit userEdit">
@@ -72,20 +73,31 @@ $newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		<?= $model->formEnd() ?>
 	</div>
 
+
 	<div class="usernames i:usernames">
 		<h2>Email and Mobile number</h2>
-		<p>Your email and mobilenumber are your unique usernames.</p> 
+		<p>Your email and mobile number are your unique usernames and can be used for login.</p> 
 
-		<?= $model->formStart("/janitor/admin/user/updateUsernames/".$user_id, array("class" => "labelstyle:inject")) ?>
+		<?= $model->formStart("updateEmail/".$user_id, array("class" => "email labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("email", array("value" => stringOr($email))) ?>
+			</fieldset>
+			<ul class="actions">
+				<?= $model->submit("Update email", array("class" => "primary", "wrapper" => "li.save")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+
+		<?= $model->formStart("updateMobile/".$user_id, array("class" => "mobile labelstyle:inject")) ?>
+			<fieldset>
 				<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
 			</fieldset>
 			<ul class="actions">
-				<?= $model->submit("Update usernames", array("class" => "primary", "wrapper" => "li.save")) ?>
+				<?= $model->submit("Update mobile", array("class" => "primary", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
+
 	</div>
+
 
 	<div class="password i:password">
 		<h2>Password</h2>
@@ -140,19 +152,32 @@ $newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		</ul>
 	</div>
 
-	<div class="newsletters">
+	<div class="newsletters i:newsletters">
 		<h2>Newsletters</h2>
-<?		if($newsletters): ?>
-		<p>You are subscribed to these newsletters</p>
-
-		<ul class="newsletters i:userNewsletters">
-<?			foreach($newsletters as $newsletter): ?>
-			<li><?= $newsletter["newsletter"] ?></li>
+<?		if($all_newsletters): ?>
+		<ul class="newsletters">
+<?			foreach($all_newsletters as $newsletter): ?>
+			<li class="<?= arrayKeyValue($user_newsletters, "newsletter", $newsletter["newsletter"]) !== false ? "subscribed" : "" ?>">
+				<ul class="actions">
+					<?= $JML->deleteButton("Unsubscribe", "/janitor/admin/user/deleteNewsletter/".$user_id."/".urlencode($newsletter["newsletter"])) ?>
+					<li class="subscribe">
+					<?= $model->formStart("/janitor/admin/user/addNewsletter/".$user_id) ?>
+						<?= $model->input("newsletter", array("type" => "hidden", "value" => $newsletter["newsletter"]))?>
+						<?= $model->submit("Subscribe", array("class" => "primary")) ?>
+					<?= $model->formEnd() ?>
+					</li>
+				</ul>
+				<h3><?= $newsletter["newsletter"] ?></h3>
+			</li>
 <?			endforeach; ?>
 		</ul>
 <?		else: ?>
-		<p>You don't have any newsletters subscription for your account</p>
+		<p>You don't have any newsletter subscriptions for your account</p>
 <?		endif; ?>
+
+		<ul class="actions">
+			<?= $model->link("Add newsletter subscription", "/janitor/admin/user/add_newsletter/".$user_id, array("class" => "button primary", "wrapper" => "li.newsletter")) ?>
+		</ul>
 	</div>
 
 </div>

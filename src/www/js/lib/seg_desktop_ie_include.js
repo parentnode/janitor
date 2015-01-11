@@ -35,6 +35,7 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-navigations.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-users.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-profile-desktop.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/u-notifier.js"></script>');
 

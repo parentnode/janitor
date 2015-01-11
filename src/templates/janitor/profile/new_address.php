@@ -2,17 +2,15 @@
 global $action;
 global $model;
 
-$user_id = $action[1];
-
 ?>
 <div class="scene defaultNew userAddress">
 	<h1>New address</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("Back to user", "/janitor/admin/user/edit/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("Back to user", "/janitor/admin/profile", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<?= $model->formStart("/janitor/admin/user/addAddress/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+	<?= $model->formStart("/janitor/admin/profile/addAddress", array("class" => "i:addressProfile labelstyle:inject")) ?>
 		<fieldset>
 			<?= $model->input("address_label") ?>
 			<?= $model->input("address_name") ?>
@@ -29,7 +27,7 @@ $user_id = $action[1];
 		</fieldset>
 
 		<ul class="actions">
-			<?= $model->link("Back", "/janitor/admin/user/edit/".$user_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+			<?= $model->link("Back", "/janitor/admin/profile", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 			<?= $model->submit("Save address", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 		</ul>
 	<?= $model->formEnd() ?>

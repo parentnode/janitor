@@ -1,8 +1,41 @@
-// default new form
-Util.Objects["usernames"] = new function() {
+// PROFILE UPDATES DO NOT RETURN SERVER MESSAGES
+// AS THESE ARE THOUGHT TO BE IMPLEMENTED IN FRONTEND
+
+Util.Objects["editProfile"] = new function() {
 	this.init = function(div) {
 
-//		u.bug("div usernames")
+		div._item_id = u.cv(div, "item_id");
+
+		// primary form
+		var form = u.qs("form", div);
+		form.div = div;
+
+		u.f.init(form);
+		form.submitted = function(iN) {
+
+			this.response = function(response) {
+
+				if(response.cms_status == "success") {
+					response.cms_message = ["Profile updated"];
+				}
+				else {
+					response.cms_message = ["Profile could not be updated"];
+				}
+
+				page.notify(response);
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+
+		}
+
+	}
+}
+
+// default new form
+Util.Objects["usernamesProfile"] = new function() {
+	this.init = function(div) {
+		u.bug("init usernamesProfile")
+
 		var form;
 
 		form = u.qs("form.email", div);
@@ -11,10 +44,17 @@ Util.Objects["usernames"] = new function() {
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
-				page.notify(response);
 
-				if(response.cms_status == "error") {
+				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Email already exists"]});
 					u.f.fieldError(this.fields["email"]);
+				}
+				else if(response.cms_status == "error") {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Email could not be updated"]});
+					u.f.fieldError(this.fields["email"]);
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Email updated"]});
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
@@ -26,10 +66,17 @@ Util.Objects["usernames"] = new function() {
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
-				page.notify(response);
 
-				if(response.cms_status == "error") {
+				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Mobile already exists"]});
 					u.f.fieldError(this.fields["mobile"]);
+				}
+				else if(response.cms_status == "error") {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Mobile could not be updated"]});
+					u.f.fieldError(this.fields["mobile"]);
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Mobile updated"]});
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
@@ -38,24 +85,19 @@ Util.Objects["usernames"] = new function() {
 	}
 }
 
-// password form
-Util.Objects["password"] = new function() {
+// default new form
+Util.Objects["passwordProfile"] = new function() {
 	this.init = function(div) {
 
 		var password_state = u.qs("div.password_state", div);
 		var new_password = u.qs("div.new_password", div);
-
-		var a_create = u.qs(".password_missing a");
 		var a_change = u.qs(".password_set a");
 
-		a_create.new_password = new_password;
 		a_change.new_password = new_password;
-		a_create.password_state = password_state;
 		a_change.password_state = password_state;
 
-		u.ce(a_create);
 		u.ce(a_change);
-		a_create.clicked = a_change.clicked = function() {
+		a_change.clicked = function() {
 			u.as(this.password_state, "display", "none");
 			u.as(this.new_password, "display", "block");
 		}
@@ -73,8 +115,13 @@ Util.Objects["password"] = new function() {
 					u.ac(this.password_state, "set");
 					u.as(this.password_state, "display", "block");
 					u.as(this.new_password, "display", "none");
+
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Password updated"});
 				}
-				page.notify(response);
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Password could not be updated"});
+				}
+
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 			this.fields["password"].val("");
@@ -84,8 +131,34 @@ Util.Objects["password"] = new function() {
 	}
 }
 
-// userNewsletters subscribe+unsubscribe form
-Util.Objects["newsletters"] = new function() {
+// default new form
+Util.Objects["addressProfile"] = new function() {
+	this.init = function(form) {
+
+		u.f.init(form);
+
+		form.actions["cancel"].clicked = function(event) {
+			location.href = this.url;
+		}
+
+		form.submitted = function(iN) {
+
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					location.href = this.actions["cancel"].url;
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+
+		}
+	}
+}
+
+// userNewsletters unsubscribe form
+Util.Objects["newslettersProfile"] = new function() {
 	this.init = function(div) {
 
 		var i, node;
@@ -123,11 +196,13 @@ Util.Objects["newsletters"] = new function() {
 
 						this.response = function(response) {
 
-							// show message
-							page.notify(response);
 
 							if(response.cms_status == "success") {
+								page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Unsubscribed from newsletter"});
 								u.rc(this.node, "subscribed");
+							}
+							else {
+								page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not unsubscribe"});
 							}
 							this.restore();
 
@@ -157,7 +232,11 @@ Util.Objects["newsletters"] = new function() {
 
 						if(response.cms_status == "success") {
 							u.ac(this.node, "subscribed");
+							page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Subscribed to newsletter"});
 							//this.node.parentNode.removeChild(this.node);
+						}
+						else {
+							page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not subscribe to newsletter"});
 						}
 					}
 					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
@@ -165,50 +244,5 @@ Util.Objects["newsletters"] = new function() {
 				}
 			}
 		}
-	}
-}
-
-
-Util.Objects["accessEdit"] = new function() {
-	this.init = function(div) {
-
-		div._item_id = u.cv(div, "item_id");
-
-		// primary form
-		var form = u.qs("form", div);
-		u.f.init(form);
-		form.actions["cancel"].clicked = function(event) {
-			location.href = this.url;
-		}
-		form.submitted = function(iN) {
-
-			this.response = function(response) {
-				page.notify(response);
-			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-
-		}
-
-		// enable select all on controller heading
-		var i, group;
-		var groups = u.qsa("li.action", form);
-		for(i = 0; group = groups[i]; i++) {
-
-			var h3 = u.qs("h3", group);
-			h3.group = group;
-			u.ce(h3)
-			h3.clicked = function() {
-
-				var i, input;
-				var inputs = u.qsa("input[type=checkbox]", this.group);
-				for(i = 0; input = inputs[i]; i++) {
-					input.val(1);
-				}
-
-			}
-
-		}
-
-
 	}
 }
