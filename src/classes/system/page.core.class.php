@@ -1017,7 +1017,7 @@ class PageCore {
 			}
 		}
 
-		message()->addMessage("Wrong username or password. Try again.", array("type" => "error"));
+		message()->addMessage("Computer says NO!", array("type" => "error"));
 		return false;
 	}
 
