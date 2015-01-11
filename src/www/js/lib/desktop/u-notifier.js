@@ -17,9 +17,6 @@ u.notifier = function(node) {
 	
 	node.notify = function(response, _options) {
 
-
-//		u.bug("message:" + message+","+ message.message[0])
-
 		var class_name = "message";
 
 		// additional info passed to function as JSON object
@@ -61,7 +58,7 @@ u.notifier = function(node) {
 			
 			}
 			else if(typeof(message) == "string") {
-				output = u.ae(this.notifications, "div", {"class":class_name, "html":message});
+				output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":message});
 			}
 		
 		}
