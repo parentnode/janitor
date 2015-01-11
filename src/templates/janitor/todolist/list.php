@@ -11,6 +11,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC",
 
 	<ul class="actions">
 		<?= $JML->listNew(array("label" => "New list")) ?>
+		<?= $HTML->link("TODOs", "/janitor/admin/todo/list", array("class" => "button", "wrapper" => "li.todos")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList taggable filters sortable"<?= $JML->jsData() ?>>
