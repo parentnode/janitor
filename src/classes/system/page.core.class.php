@@ -161,7 +161,20 @@ class PageCore {
 						}
 						// Google Plus size
 						else if(strpos($_SERVER["HTTP_USER_AGENT"], "Google") !== false) {
-							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/300x300.".$image["format"]);
+
+							$this->mail(array("subject" => "generate image for google", "message" => "generate image for google", "template" => "postandgets"));
+
+							// Google will not accept Janitors image generation on the fly method
+							// pregenerate for google
+							$image_parts = $item["id"]."/".$image["variant"]."/300x300.".$image["format"];
+							if(!file_exists(PUBLIC_FILE_PATH."/".$image_parts)) {
+								file_get_contents(SITE_URL."/images/".$image_parts);
+							}
+
+
+							$this->pageImage("/images/".$image_parts);
+
+
 						}
 						// Linkedin size
 						else if(strpos($_SERVER["HTTP_USER_AGENT"], "LinkedInBot") !== false) {
