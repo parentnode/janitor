@@ -79,8 +79,8 @@ if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?
 		//	print $request_type . ":" . $id . ":" . $width . ":" . $height .":". $format .":".$variant."<br>";
 
 
-		// max size detection (2000x1500 or similar amount of pixels)
-		$max_pixels = 3000000;
+		// max size detection (2000x2000 or similar amount of pixels)
+		$max_pixels = 4000000;
 		
 	}
 }
@@ -103,8 +103,8 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P
 		//	print $request_type . ":" . $id . ":" . $width . ":" . $height .":". $format .":".$variant."<br>";
 
 
-		// max size detection (1500x1000 or similar amount of pixels)
-		$max_pixels = 1500000;
+		// max size detection (2000x2000 or similar amount of pixels)
+		$max_pixels = 4000000;
 
 	}
 }
