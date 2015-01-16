@@ -571,7 +571,7 @@ class SuperUser extends User {
 	// return addresses
 	// can return all addresses for a user, or a specific address
 	// Adds country_name for stored country ISO value
-	function getAddresses($_options) {
+	function getAddresses($_options = false) {
 
 		$user_id = false;
 		$address_id = false;
