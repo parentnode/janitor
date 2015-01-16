@@ -17,7 +17,7 @@ Util.Objects["defaultNew"] = new function() {
 //					alert(response);
 					location.href = this.actions["cancel"].url.replace("\/list", "/edit/"+response.cms_object.item_id);
 				}
-				else if(response.cms_message) {
+				else {
 					page.notify(response);
 				}
 			}
