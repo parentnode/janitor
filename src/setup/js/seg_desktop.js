@@ -3217,25 +3217,6 @@ Util.exception = function(name, arguments, exception) {
 		u.bug("arguments.callee.caller:" + arguments.callee.caller.toString().substring(0, 250));
 	}
 }
-Util.exception2 = function(_in, _from, exception, regarding) {
-	u.bug("Exception ("+exception+") in "+_in);
-	var x;
-	for(x in regarding) {
-		if(x == "node") {
-			u.bug("node:" + (typeof(node.nodeName) ? u.nodeId(regarding[x], 1) : "Unindentifiable node:" + regarding[x]));
-		}
-		else {
-			if(typeof(regarding[x]) == "object") {
-				u.bug(x+":");
-				u.xInObject(regarding[x]);
-			}
-			else {
-				u.bug(x+"="+regarding[x]);
-			}
-		}
-	}
-	u.bug("Called from: "+_from);
-}
 Util.bug = function(message, corner, color) {
 	if(u.debugURL()) {
 		if(!u.bug_console_only) {
@@ -4673,7 +4654,7 @@ u.f.textEditor = function(field) {
 			this.bn_add_ext_video.field = field;
 			u.ce(this.bn_add_ext_video);
 			this.bn_add_ext_video.clicked = function(event) {
-				this.field.addExternalVideoTag();
+				this.field.addExternalVideoTag(this.field.ext_video_allowed[0]);
 				u.rc(this.field.options, "show");
 			}
 		}
@@ -4709,7 +4690,7 @@ u.f.textEditor = function(field) {
 					li = u.ae(list, tag._type.val(), {"html":li._input.val()});
 				}
 			}
-			else if(u.hc(tag, this.ext_video_allowed.join("|"))) {
+			else if(u.hc(tag, this.ext_video_allowed.join("|")) && tag._video_id) {
 				div = u.ae(this._viewer, "div", {"class":tag._type.val()+" video_id:"+tag._video_id});
 			}
 			else if(u.hc(tag, "code")) {
@@ -4745,7 +4726,7 @@ u.f.textEditor = function(field) {
 				}
 				html += "</"+type+">\n";
 			}
-			else if(u.hc(tag, this.ext_video_allowed.join("|"))) {
+			else if(u.hc(tag, this.ext_video_allowed.join("|")) && tag._video_id) {
 				html += '<div class="'+tag._type.val()+' video_id:'+tag._video_id+'"></div>\n';
 			}
 			else if(u.hc(tag, "code")) {
@@ -4785,6 +4766,9 @@ u.f.textEditor = function(field) {
 		if(u.qsa("div.tag", this).length > 1) {
 			if(u.hc(tag, "file")) {
 				this.deleteFile(tag);
+			}
+			else if(u.hc(tag, "media")) {
+				this.deleteMedia(tag);
 			}
 			tag.parentNode.removeChild(tag);
 			u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
@@ -4866,7 +4850,36 @@ u.f.textEditor = function(field) {
 			}
 		}
 	}
-	field.addExternalVideoTag = function() {}
+	field.addExternalVideoTag = function(type, node) {
+		var tag = this.createTag(this.ext_video_allowed, type);
+		tag._input = u.ae(tag, "div", {"class":"text", "contentEditable":true});
+		tag._input.tag = tag;
+		tag._input.field = this;
+		if(node) {
+			tag._video_id = u.cv(node, "video_id");
+			tag._input.innerHTML = tag._video_id;
+		}
+		tag._input.val = function(value) {
+			if(value !== undefined) {
+				this.innerHTML = value;
+			}
+			return this.innerHTML;
+		}
+		u.e.addEvent(tag._input, "keydown", tag.field._changing_content);
+		u.e.addEvent(tag._input, "keyup", this._changed_ext_video_content);
+		u.e.addEvent(tag._input, "mouseup", this._changed_ext_video_content);
+		u.e.addEvent(tag._input, "focus", tag.field._focused_content);
+		u.e.addEvent(tag._input, "blur", tag.field._blurred_content);
+		u.sortable(this._editor, {"draggables":"tag", "targets":"editor"});
+		return tag;
+	}
+	field._changed_ext_video_content = function(event) {
+		if(this.val() && !this.val().replace(/<br>/, "")) {
+			this.val("");
+		}
+		this.tag._video_id = this.val();
+		this.tag.field.update();
+	}
 	field.addMediaTag = function(node) {
 		var tag = this.createTag(["media"], "media");
 		tag._input = u.ae(tag, "div", {"class":"text"});
@@ -5411,7 +5424,7 @@ u.f.textEditor = function(field) {
 		if(u.hc(tag, this.text_allowed.join("|"))) {
 			tag._input.focus();
 		}
-		else if(u.hc(tag, this.code_allowed.join("|"))) {
+		else if(u.hc(tag, "code")) {
 			tag._input.focus();
 		}
 		else if(u.hc(tag, this.list_allowed.join("|"))) {
@@ -5607,7 +5620,7 @@ u.f.textEditor = function(field) {
 				tag = field.addTextTag(node.nodeName.toLowerCase(), value);
 				field.activateInlineFormatting(tag._input);
 			}
-			else if(node.nodeName.toLowerCase().match(field.code_allowed.join("|"))) {
+			else if(node.nodeName.toLowerCase() == "code") {
 				// 
 				tag = field.addCodeTag(node.nodeName.toLowerCase(), node.innerHTML);
 				field.activateInlineFormatting(tag._input);
@@ -5625,6 +5638,9 @@ u.f.textEditor = function(field) {
 						field.activateInlineFormatting(li._input);
 					}
 				}
+			}
+			else if(u.hc(node, "youtube|vimeo")) {
+				field.addExternalVideoTag(node.className.match(field.ext_video_allowed.join("|")), node);
 			}
 			else if(u.hc(node, "file")) {
 				field.addFileTag(node);
@@ -6150,7 +6166,12 @@ Util.wrapContent = u.wc = function(node, node_type, attributes) {
 	return false;
 }
 Util.textContent = u.text = function(node) {
-	return node.textContent;
+	try {
+		return node.textContent;
+	}
+	catch(exception) {
+		u.exception("u.text", arguments, exception);
+	}
 }
 Util.clickableElement = u.ce = function(node, _options) {
 	node._use_link = "a";
@@ -6559,7 +6580,7 @@ Util.validateResponse = function(response){
 }
 
 
-/*beta-u-sortable.js*/
+/*u-sortable.js*/
 u.sortable = function(scope, _options) {
 	scope.callback_picked = "picked";
 	scope.callback_moved = "moved";
@@ -6569,16 +6590,16 @@ u.sortable = function(scope, _options) {
 	scope.layout;
 	scope.allow_nesting = false;
 	if(typeof(_options) == "object") {
-		var argument;
-		for(argument in _options) {
-			switch(argument) {
-				case "picked"				: scope.callback_picked		= _options[argument]; break;
-				case "moved"				: scope.callback_moved		= _options[argument]; break;
-				case "dropped"				: scope.callback_dropped	= _options[argument]; break;
-				case "draggables"			: scope.draggables			= _options[argument]; break;
-				case "targets"				: scope.targets				= _options[argument]; break;
-				case "layout"				: scope.layout				= _options[argument]; break;
-				case "allow_nesting"		: scope.allow_nesting		= _options[argument]; break;
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "picked"				: scope.callback_picked		= _options[_argument]; break;
+				case "moved"				: scope.callback_moved		= _options[_argument]; break;
+				case "dropped"				: scope.callback_dropped	= _options[_argument]; break;
+				case "draggables"			: scope.draggables			= _options[_argument]; break;
+				case "targets"				: scope.targets				= _options[_argument]; break;
+				case "layout"				: scope.layout				= _options[_argument]; break;
+				case "allow_nesting"		: scope.allow_nesting		= _options[_argument]; break;
 			}
 		}
 	}
@@ -8217,7 +8238,7 @@ Util.Objects["defaultNew"] = new function() {
 				if(response.cms_status == "success" && response.cms_object) {
 					location.href = this.actions["cancel"].url.replace("\/list", "/edit/"+response.cms_object.item_id);
 				}
-				else if(response.cms_message) {
+				else {
 					page.notify(response);
 				}
 			}
@@ -8490,7 +8511,6 @@ Util.Objects["defaultTags"] = new function() {
 /*i-defaultmedia.js*/
 Util.Objects["addMedia"] = new function() {
 	this.init = function(div) {
-		u.bug("addMedia init:" + u.nodeId(div))
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
 		div.media_list = u.qs("ul.mediae", div);
@@ -8663,7 +8683,6 @@ Util.Objects["addMedia"] = new function() {
 			}
 		}
 		div.adjustMediaName = function(node) {
-			u.bug("adjust media name:" + u.nodeId(node) + ", " + node.media_name)
 			if(node.media_name) {
 				var n_w = node.offsetWidth;
 				var p_p_l = parseInt(u.gcs(node.media_name, "padding-left"));
@@ -9138,20 +9157,25 @@ Util.Objects["navigationNodes"] = new function() {
 /*i-users.js*/
 Util.Objects["usernames"] = new function() {
 	this.init = function(div) {
-		var form = u.qs("form", div);
+		var form;
+		form = u.qs("form.email", div);
 		u.f.init(form);
 		form.submitted = function(iN) {
 			this.response = function(response) {
 				page.notify(response);
 				if(response.cms_status == "error") {
-					for(x in response.cms_message) {
-						if(response.cms_message[x].match(/email/i)) {
-							u.f.fieldError(this.fields["email"]);
-						}
-						if(response.cms_message[x].match(/mobile/i)) {
-							u.f.fieldError(this.fields["mobile"]);
-						}
-					}
+					u.f.fieldError(this.fields["email"]);
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+		}
+		form = u.qs("form.mobile", div);
+		u.f.init(form);
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				page.notify(response);
+				if(response.cms_status == "error") {
+					u.f.fieldError(this.fields["mobile"]);
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
@@ -9192,22 +9216,54 @@ Util.Objects["password"] = new function() {
 		}
 	}
 }
-Util.Objects["formAddressNew"] = new function() {
-	this.init = function(form) {
-		u.f.init(form);
-		form.actions["cancel"].clicked = function(event) {
-			location.href = this.url;
-		}
-		form.submitted = function(iN) {
-			this.response = function(response) {
-				if(response.cms_status == "success" && response.cms_object) {
-					location.href = this.actions["cancel"].url.replace("\/list", "/edit/"+response.cms_object.item_id);
+Util.Objects["newsletters"] = new function() {
+	this.init = function(div) {
+		var i, node;
+		div.newsletters = u.qsa("ul.newsletters > li", div);
+		for(i = 0; node = div.newsletters[i]; i++) {
+			node.li_delete = u.qs("li.delete", node);
+			node.li_subscribe = u.qs("li.subscribe", node);
+			if(node.li_delete) {
+				node.li_delete.form = u.qs("form", node.li_delete)
+				u.f.init(node.li_delete.form);
+				node.li_delete.form.node = node;
+				node.li_delete.form.restore = function(event) {
+					this.actions["delete"].value = "Unsubscribe";
+					u.rc(this.actions["delete"], "confirm");
 				}
-				else if(response.cms_message) {
-					page.notify(response);
+				node.li_delete.form.submitted = function() {
+					if(!u.hc(this.actions["delete"], "confirm")) {
+						u.ac(this.actions["delete"], "confirm");
+						this.actions["delete"].value = "Confirm";
+						this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+					}
+					else {
+						u.t.resetTimer(this.t_confirm);
+						this.response = function(response) {
+							page.notify(response);
+							if(response.cms_status == "success") {
+								u.rc(this.node, "subscribed");
+							}
+							this.restore();
+						}
+						u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+					}
 				}
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			if(node.li_subscribe) {
+				node.li_subscribe.form = u.qs("form", node.li_subscribe)
+				u.f.init(node.li_subscribe.form);
+				node.li_subscribe.form.node = node;
+				node.li_subscribe.form.submitted = function() {
+					this.response = function(response) {
+						page.notify(response);
+						if(response.cms_status == "success") {
+							u.ac(this.node, "subscribed");
+						}
+					}
+					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+				}
+			}
 		}
 	}
 }
@@ -9241,6 +9297,181 @@ Util.Objects["accessEdit"] = new function() {
 		}
 	}
 }
+
+/*i-profile-desktop.js*/
+Util.Objects["editProfile"] = new function() {
+	this.init = function(div) {
+		div._item_id = u.cv(div, "item_id");
+		var form = u.qs("form", div);
+		form.div = div;
+		u.f.init(form);
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					response.cms_message = ["Profile updated"];
+				}
+				else {
+					response.cms_message = ["Profile could not be updated"];
+				}
+				page.notify(response);
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+		}
+	}
+}
+Util.Objects["usernamesProfile"] = new function() {
+	this.init = function(div) {
+		u.bug("init usernamesProfile")
+		var form;
+		form = u.qs("form.email", div);
+		u.f.init(form);
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Email already exists"]});
+					u.f.fieldError(this.fields["email"]);
+				}
+				else if(response.cms_status == "error") {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Email could not be updated"]});
+					u.f.fieldError(this.fields["email"]);
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Email updated"]});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+		}
+		form = u.qs("form.mobile", div);
+		u.f.init(form);
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Mobile already exists"]});
+					u.f.fieldError(this.fields["mobile"]);
+				}
+				else if(response.cms_status == "error") {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Mobile could not be updated"]});
+					u.f.fieldError(this.fields["mobile"]);
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Mobile updated"]});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+		}
+	}
+}
+Util.Objects["passwordProfile"] = new function() {
+	this.init = function(div) {
+		var password_state = u.qs("div.password_state", div);
+		var new_password = u.qs("div.new_password", div);
+		var a_change = u.qs(".password_set a");
+		a_change.new_password = new_password;
+		a_change.password_state = password_state;
+		u.ce(a_change);
+		a_change.clicked = function() {
+			u.as(this.password_state, "display", "none");
+			u.as(this.new_password, "display", "block");
+		}
+		var form = u.qs("form", div);
+		form.password_state = password_state;
+		form.new_password = new_password;
+		u.f.init(form);
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					u.ac(this.password_state, "set");
+					u.as(this.password_state, "display", "block");
+					u.as(this.new_password, "display", "none");
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Password updated"});
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Password could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			this.fields["password"].val("");
+		}
+	}
+}
+Util.Objects["addressProfile"] = new function() {
+	this.init = function(form) {
+		u.f.init(form);
+		form.actions["cancel"].clicked = function(event) {
+			location.href = this.url;
+		}
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					location.href = this.actions["cancel"].url;
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+		}
+	}
+}
+Util.Objects["newslettersProfile"] = new function() {
+	this.init = function(div) {
+		var i, node;
+		div.newsletters = u.qsa("ul.newsletters > li", div);
+		for(i = 0; node = div.newsletters[i]; i++) {
+			node.li_delete = u.qs("li.delete", node);
+			node.li_subscribe = u.qs("li.subscribe", node);
+			if(node.li_delete) {
+				node.li_delete.form = u.qs("form", node.li_delete)
+				u.f.init(node.li_delete.form);
+				node.li_delete.form.node = node;
+				node.li_delete.form.restore = function(event) {
+					this.actions["delete"].value = "Unsubscribe";
+					u.rc(this.actions["delete"], "confirm");
+				}
+				node.li_delete.form.submitted = function() {
+					if(!u.hc(this.actions["delete"], "confirm")) {
+						u.ac(this.actions["delete"], "confirm");
+						this.actions["delete"].value = "Confirm";
+						this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+					}
+					else {
+						u.t.resetTimer(this.t_confirm);
+						this.response = function(response) {
+							if(response.cms_status == "success") {
+								page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Unsubscribed from newsletter"});
+								u.rc(this.node, "subscribed");
+							}
+							else {
+								page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not unsubscribe"});
+							}
+							this.restore();
+						}
+						u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+					}
+				}
+			}
+			if(node.li_subscribe) {
+				node.li_subscribe.form = u.qs("form", node.li_subscribe)
+				u.f.init(node.li_subscribe.form);
+				node.li_subscribe.form.node = node;
+				node.li_subscribe.form.submitted = function() {
+					this.response = function(response) {
+						page.notify(response);
+						if(response.cms_status == "success") {
+							u.ac(this.node, "subscribed");
+							page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Subscribed to newsletter"});
+						}
+						else {
+							page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not subscribe to newsletter"});
+						}
+					}
+					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+				}
+			}
+		}
+	}
+}
+
 
 /*u-notifier.js*/
 u.notifier = function(node) {
@@ -9285,7 +9516,7 @@ u.notifier = function(node) {
 				}
 			}
 			else if(typeof(message) == "string") {
-				output = u.ae(this.notifications, "div", {"class":class_name, "html":message});
+				output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":message});
 			}
 		}
 		else if(typeof(response) == "object" && response.isHTML) {

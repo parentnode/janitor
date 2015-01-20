@@ -696,7 +696,7 @@ class Setup extends Itemtype {
 					copy($this->framework_path."/templates/janitor/post/list.php", $this->local_path."/templates/janitor/post/list.php");
 
 					copy($this->framework_path."/config/db/items/item_post.sql", $this->local_path."/config/db/item_post.sql");
-					copy($this->framework_path."/config/db/items/item_post_mediae.sql", $this->local_path."/config/db/item_post_mediae.sql");
+//					copy($this->framework_path."/config/db/items/item_post_mediae.sql", $this->local_path."/config/db/item_post_mediae.sql");
 
 					copy($this->framework_path."/classes/items/type.post.class.php", $this->local_path."/classes/items/type.post.class.php");
 
@@ -996,7 +996,7 @@ class Setup extends Itemtype {
 					unset($_POST);
 					$_POST["email"] = ADMIN_EMAIL;
 					$UC->getPostedEntities();
-					$UC->updateUsernames(array("updateUsernames", $user_id));
+					$UC->updateEmail(array("updateEmail", $user_id));
 
 					// SET PASSWORD
 					unset($_POST);
