@@ -285,12 +285,16 @@ class Setup extends Itemtype {
 
 
 		// check ffmpeg
+		// wierd version names on windows
 		$this->ffmpeg = $this->isInstalled(array(
 			"/opt/local/bin/ffmpeg -version", 
-			"/usr/local/bin/ffmpeg -version"
-		), array("ffmpeg version 2.[1-9]{1}")) || $this->isInstalled(array(
+			"/usr/local/bin/ffmpeg -version",
 			"/srv/ffmpeg/bin/ffmpeg -version"
-		), array("ffmpeg version N-67742-g3f07dd6"));
+		), array(
+			"ffmpeg version 2.[1-9]{1}",
+			"ffmpeg version N-67742-g3f07dd6",
+			"ffmpeg version N-67521-g48efe9e"
+		));
 
 		// If use ffmpeg as a php module:
 		// $this->ffmpeg = (array_search("ffmpeg", $php_modules) !== false);
