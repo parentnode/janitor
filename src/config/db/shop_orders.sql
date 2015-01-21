@@ -33,6 +33,6 @@ CREATE TABLE `SITE_DB`.`shop_orders` (
   PRIMARY KEY (`id`),
   KEY `cart_id` (`cart_id`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `orders_cart_ibfk_1` FOREIGN KEY (`cart_id`) REFERENCES `shop_carts` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `orders_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE
+  CONSTRAINT `orders_cart_ibfk_1` FOREIGN KEY (`cart_id`) REFERENCES `SITE_DB`.`shop_carts` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `orders_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `SITE_DB`.`users` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

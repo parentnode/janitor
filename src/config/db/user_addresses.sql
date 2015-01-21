@@ -19,6 +19,6 @@ CREATE TABLE `SITE_DB`.`user_addresses` (
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   KEY `country` (`country`),
-  CONSTRAINT `item_addresses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT `item_addresses_ibfk_2` FOREIGN KEY (`country`) REFERENCES `countries` (`id`) ON UPDATE CASCADE
+  CONSTRAINT `item_addresses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `SITE_DB`.`users` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT `item_addresses_ibfk_2` FOREIGN KEY (`country`) REFERENCES `SITE_DB`.`countries` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

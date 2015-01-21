@@ -10,5 +10,5 @@ CREATE TABLE `SITE_DB`.`item_todolist` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `item_id` (`item_id`),
-  CONSTRAINT `item_todolist_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `item_todolist_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `SITE_DB`.`items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

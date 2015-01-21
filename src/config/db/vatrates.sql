@@ -8,5 +8,5 @@ CREATE TABLE `vatrates` (
 
   PRIMARY KEY  (`id`),
   KEY `country` (`country`),
-  CONSTRAINT `vatrates_ibfk_1` FOREIGN KEY (`country`) REFERENCES `countries` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `vatrates_ibfk_1` FOREIGN KEY (`country`) REFERENCES `SITE_DB`.`countries` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

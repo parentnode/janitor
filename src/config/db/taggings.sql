@@ -7,7 +7,7 @@ CREATE TABLE `SITE_DB`.`taggings` (
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),
   KEY `tag_id` (`tag_id`),
-  CONSTRAINT `taggings_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `taggings_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `taggings_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `SITE_DB`.`items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `taggings_ibfk_2` FOREIGN KEY (`tag_id`) REFERENCES `SITE_DB`.`tags` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
