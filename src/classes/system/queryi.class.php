@@ -305,7 +305,7 @@ class Query {
 				exit();
 			}
 
-			print "failed creating database table: $db_file: ".$this->error."<br>\n";
+			print "failed creating database table: $db_file: ".$this->con->error."<br>\n";
 			exit();
 		}
 	}
