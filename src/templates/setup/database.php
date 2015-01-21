@@ -41,7 +41,7 @@ $db_check = $model->checkDatabaseSettings();
 
 		<?= $model->input("db_host", array("value" => $model->db_host)) ?>
 		<?= $model->input("db_root_user", array("value" => $model->db_root_user, "required" => ($db_check ? false : true))) ?>
-		<?= $model->input("db_root_pass", array("value" => $model->db_root_pass, "required" => ($db_check ? false : true), "min" => 1)) ?>
+		<?= $model->input("db_root_pass", array("value" => $model->db_root_pass)) ?>
 	</fieldset>
 
 	<h2>New Janitor database</h2>
