@@ -35,7 +35,7 @@ $db_check = $model->checkDatabaseSettings();
 <? endif;?>
 
 
-	<h2>Root database information --</h2>
+	<h2>Root database information</h2>
 	<p>Setting up a new database requires an Admin user with permission to create the Database.</p>
 	<fieldset>
 
