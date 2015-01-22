@@ -35,13 +35,13 @@ $db_check = $model->checkDatabaseSettings();
 <? endif;?>
 
 
-	<h2>Root database information</h2>
+	<h2>Root database information --</h2>
 	<p>Setting up a new database requires an Admin user with permission to create the Database.</p>
 	<fieldset>
 
 		<?= $model->input("db_host", array("value" => $model->db_host)) ?>
 		<?= $model->input("db_root_user", array("value" => $model->db_root_user, "required" => ($db_check ? false : true))) ?>
-		<?= $model->input("db_root_pass", array("value" => $model->db_root_pass)) ?>
+		<?= $model->input("db_root_pass", array("value" => $model->db_root_pass, "min" => 1)) ?>
 	</fieldset>
 
 	<h2>New Janitor database</h2>
