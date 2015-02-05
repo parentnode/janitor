@@ -1158,16 +1158,18 @@ class PageCore {
 		$message = "";
 		$recipients = false;
 		$template = false;
+		$attachments = false;
 		$object = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "recipients" : $recipients = $_value; break;
-					case "template"   : $template   = $_value; break;
-					case "object"     : $object     = $_value; break;
-					case "message"    : $message    = $_value; break;
-					case "subject"    : $subject    = $_value; break;
+					case "recipients"     : $recipients     = $_value; break;
+					case "template"       : $template       = $_value; break;
+					case "object"         : $object         = $_value; break;
+					case "message"        : $message        = $_value; break;
+					case "subject"        : $subject        = $_value; break;
+					case "attachments"    : $attachments    = $_value; break;
 				}
 			}
 		}
@@ -1221,6 +1223,18 @@ class PageCore {
 			}
 
 			$mail->Body = $message;
+
+			// Attachments
+			if($attachments) {
+				if(is_array($attachments)) {
+					foreach($attachments as $attachment) {
+						$mail->addAttachment($attachment, basename($attachment));
+					}
+				}
+				else {
+					$mail->addAttachment($attachments, basename($attachments));
+				}
+			}
 
 			return $mail->Send();
 		}
