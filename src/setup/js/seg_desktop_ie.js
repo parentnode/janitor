@@ -6752,10 +6752,10 @@ Util.nodeWithin = u.nw = function(node, scope) {
 
 
 /*u-request.js*/
-Util.createRequestObject = u.createRequestObject = function() {
+Util.createRequestObject = function() {
 	return new XMLHttpRequest();
 }
-Util.request = u.request = function(node, url, _options) {
+Util.request = function(node, url, _options) {
 	var request_id = u.randomString(6);
 	node[request_id] = {};
 	node[request_id].request_url = url;

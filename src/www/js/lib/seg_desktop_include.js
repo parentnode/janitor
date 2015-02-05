@@ -14,6 +14,7 @@ document.write('<script type="text/javascript" src="/js/manipulator/src/u-sortab
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-keyboard.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-audio.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-video.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-system.js"></script>');
 
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-history.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-navigation.js"></script>');
