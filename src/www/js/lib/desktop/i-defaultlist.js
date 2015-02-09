@@ -45,7 +45,7 @@ Util.Objects["defaultList"] = new function() {
 			this.scrolled();
 		}
 		// set window scroll handler
-		var event_id = u.e.addWindowScrollEvent(div, div._scrollHandler);
+		div.scroll_event_id = u.e.addWindowScrollEvent(div, div._scrollHandler);
 
 
 		div.buildNode = function(node) {
