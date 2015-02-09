@@ -14,7 +14,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status D
 		<?= $HTML->link("TODO Lists", "/janitor/admin/todolist/list", array("class" => "button", "wrapper" => "li.todolist")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList taggable filters">
+	<div class="all_items i:defaultList taggable filters"<?= $JML->jsData() ?>>
 <?		if($items): ?>
 		<ul class="items">
 <?			foreach($items as $item): ?>
