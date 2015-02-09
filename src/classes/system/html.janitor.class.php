@@ -380,7 +380,7 @@ class JanitorHTML {
 		$_ .= '<ul class="tags">';
 		if($tags) {
 			foreach($tags as $tag) {
-				$_ .= '<li><span class="context">'.$tag["context"].'</span>:<span class="value">'.$tag["value"].'</span></li>';
+				$_ .= '<li class="'.$tag["context"].'"><span class="context">'.$tag["context"].'</span>:<span class="value">'.$tag["value"].'</span></li>';
 			}
 		}
 		$_ .= '</ul>';
