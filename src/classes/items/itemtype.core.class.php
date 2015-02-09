@@ -397,6 +397,7 @@ class ItemtypeCore extends Model {
 
 		if(count($action) == 2 && $this->validateList(array("tags"))) {
 
+
 			$query = new Query();
 			$item_id = $action[1];
 
