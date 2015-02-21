@@ -690,6 +690,8 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 
 /*s-form-desktop_ie.css*/
 #content .field.files input[type="file"] {font-size: 130px;}
+#content .field.html .editor div.tag.media input {font-size: 130px;}
+#content .field.html .editor div.tag.file input {font-size: 130px;}
 
 
 
