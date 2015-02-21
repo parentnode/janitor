@@ -26,7 +26,7 @@ $username = stringOr(getPost("username"));
 		</fieldset>
 
 		<ul class="actions">
-			<li class="login"><input type="submit" value="Log in" class="button primary" /></li>
+			<?= $model->submit("Log in", array("class" => "primary key:s", "wrapper" => "li.login")) ?>
 		</ul>
 	<?= $model->formEnd() ?>
 
