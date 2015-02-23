@@ -947,21 +947,11 @@ class PageCore {
 					$_POST["csrf-token"] != session()->value("csrf")
 				)
 			) {
-				// something is fishy, clean up
-				unset($_GET);
-				unset($_POST);
-				unset($_FILES);
 
-				// make sure the user is logged out
+				message()->addMessage("CSRF Autorization failed", array("type" => "error"));
+
+				// make sure the user is logged out (throwoff will exit)
 				$this->throwOff();
-
-				// notify admin about possible breach attempt
-				$this->mail(array(
-					"subject" => "CSRF Autorization failed ".SITE_URL, 
-					"message" => "CSRF circumvention attempted:".$this->url,
-					"template" => "system"
-				));
-//				message()->addMessage("Autorization failed", array("type" => "error"));
 				return false;
 			}
 			else if($_SERVER["REQUEST_METHOD"] != "POST") {
@@ -1046,7 +1036,7 @@ class PageCore {
 
 		session()->reset();
 
-		header("Location: /index.php");
+		header("Location: /");
 		exit();
 	}
 
@@ -1064,6 +1054,11 @@ class PageCore {
 			"message" => "insufficient privileges:".$this->url, 
 			"template" => "system"
 		));
+
+		// something is fishy, clean up
+		unset($_GET);
+		unset($_POST);
+		unset($_FILES);
 
 		//$this->user_id = "";
 		session()->reset();
