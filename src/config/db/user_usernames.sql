@@ -6,6 +6,7 @@ CREATE TABLE `SITE_DB`.`user_usernames` (
   `type` varchar(255) NOT NULL,
 
   `verified` int(11) NOT NULL,
+  `verification_code` varchar(8) NOT NULL,
 
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
