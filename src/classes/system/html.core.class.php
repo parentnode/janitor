@@ -430,7 +430,7 @@ class HTMLCore {
 
 			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
 			// entity values in textarea will be interpreted, so double encode them
-			$_ .= '<textarea'.$att_name.$att_id.'>'.htmlentities($value).'</textarea>';
+			$_ .= '<textarea'.$att_name.$att_id.'>'.htmlentities($value, ENT_COMPAT, "UTF-8").'</textarea>';
 
 			// Hint and error message
 			if($hint_message || $error_message) {
