@@ -26,6 +26,7 @@ define("DEFAULT_COUNTRY_ISO", "DK");
 
 // ENABLE ITEMS MODEL
 define("SITE_ITEMS", false);
+define("SITE_SIGNUP", false);
 
 // Enable notifications (send collection email after N notifications)
 define("SITE_COLLECT_NOTIFICATIONS", 50);

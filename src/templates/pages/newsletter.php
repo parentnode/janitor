@@ -1,10 +1,6 @@
 <?php
 global $action;
 global $model;
-
-$email = $model->getProperty("email", "value");
-$nickname = $model->getProperty("nickname", "value");
-	
 ?>
 <div class="scene newsletter i:newsletter">
 
@@ -31,7 +27,7 @@ $nickname = $model->getProperty("nickname", "value");
 		</fieldset>
 
 		<ul class="actions">
-			<li class="signup"><input type="submit" value="Subscribe" class="button primary" /></li>
+			<?= $model->submit("Subscribe", array("class" => "primary", "wrapper" => "li.signup")) ?>
 		</ul>
 	<?= $model->formEnd() ?>
 

@@ -31,7 +31,7 @@ $model->setProperty("password", "value", "");
 		</fieldset>
 
 		<ul class="actions">
-			<li class="signup"><input type="submit" value="Sign up" class="button primary" /></li>
+			<?= $model->submit("Sign up", array("class" => "primary", "wrapper" => "li.signup")) ?>
 		</ul>
 	<?= $model->formEnd() ?>
 

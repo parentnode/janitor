@@ -26,11 +26,11 @@ $username = stringOr(getPost("username"));
 		</fieldset>
 
 		<ul class="actions">
-			<?= $model->submit("Log in", array("class" => "primary key:s", "wrapper" => "li.login")) ?>
+			<?= $model->submit("Log in", array("class" => "primary", "wrapper" => "li.login")) ?>
 		</ul>
 	<?= $model->formEnd() ?>
 
-<?	if(file_exists(LOCAL_PATH."/www/signup.php")): ?>
+<?	if(defined("SITE_SIGNUP") && SITE_SIGNUP && file_exists(LOCAL_PATH."/www/signup.php")): ?>
 	<p>Not registered yet? <a href="/signup">Sign up now</a>.</p>
 <?	endif; ?>
 
