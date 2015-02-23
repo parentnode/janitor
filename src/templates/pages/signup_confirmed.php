@@ -13,4 +13,5 @@ $username = $action[2];
 
 	<p>Go to <a href="/janitor/admin/profile">Janitor</a> to update your profile and/or change newsletter subscriptions.</p>
 
+	<p>Thanks for signing up!</p>
 </div>
