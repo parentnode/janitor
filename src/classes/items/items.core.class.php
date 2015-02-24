@@ -326,7 +326,7 @@ class ItemsCore {
 		}
 
 		// if tags are available make complex query
-		if($tags) {
+		if(isset($tags) && $tags) {
 
 			$query = new Query();
 
