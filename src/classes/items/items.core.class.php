@@ -297,9 +297,138 @@ class ItemsCore {
 	* Related items
 	*
 	* Looks for items of same itemtype, with the best matching tags
+	* Otherwise find random items
 	*/
-	function getRelatedItems($item, $_options = false) {
-		return false;
+	function getRelatedItems($_options = false) {
+
+		$related_items = array();
+		$limit = 5;
+		$limit = 5;
+		$extend = false;
+		$exclude_array = array();
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "itemtype"   : $itemtype   = $_value; break;
+					case "tags"       : $tags       = $_value; break;
+					case "limit"      : $limit      = $_value; break;
+
+					case "exclude"    : $exclude    = $_value; break;
+
+					case "extend"     : $extend     = $_value; break;
+				}
+			}
+		}
+
+		if(isset($exclude)) {
+			$exclude_array = explode(";", $exclude);
+		}
+
+		// if tags are available make complex query
+		if($tags) {
+
+			$query = new Query();
+
+			$SELECT = array();
+			$FROM = array();
+			$LEFTJOIN = array();
+			$WHERE = array();
+			$GROUP_BY = "";
+			$ORDER = array();
+			$LIMIT = "";
+
+			$SELECT[] = "items.id";
+			$SELECT[] = "items.sindex";
+			$SELECT[] = "items.status";
+			$SELECT[] = "items.itemtype";
+			$SELECT[] = "items.user_id";
+
+			$SELECT[] = "items.created_at";
+			$SELECT[] = "items.modified_at";
+			$SELECT[] = "items.published_at";
+
+		 	$FROM[] = UT_ITEMS." as items";
+
+			$WHERE[] = "items.status = 1";
+
+			// add exclude exceptions
+			foreach($exclude_array as $exclude_id) {
+				$WHERE[] = "items.id != $exclude_id";
+			}
+
+			// add itemtype if available
+			if(isset($itemtype)) {
+				$WHERE[] = "items.itemtype = '$itemtype'";
+			}
+
+			// tag query
+			$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
+			$LEFTJOIN[] = UT_TAG." as tags ON tags.id = taggings.tag_id";
+
+			// create tag SQL
+			$tag_sql = "";
+			foreach($tags as $tag) {
+				$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '".$tag["context"]."' AND tags.value = '".$tag["value"]."'";
+			}
+			$WHERE[] = "(".$tag_sql.")";
+
+			// Order result for best matches first
+			$ORDER[] = "count(*) DESC, published_at DESC";
+			$GROUP_BY = "items.id";
+
+			// set limit
+			if(isset($limit)) {
+				$LIMIT = " LIMIT $limit";
+			}
+
+			$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $LIMIT;
+//			print $sql."<br>\n";
+
+			$query->sql($sql);
+			$related_items = $query->results();
+
+		}
+
+		// update exclude values to exlude any tags matches
+		if($related_items) {
+			foreach($related_items as $item) {
+				$exclude_array[] = $item["id"];
+			}
+		}
+
+
+		// not enough related items found 
+		// (or no tags was included in request)
+		if(count($related_items) < $limit) {
+
+			// create search pattern
+			$pattern = array("status" => 1);
+
+			// add itemtype to search pattern if possible
+			if($itemtype) {
+				$pattern["itemtype"] = $itemtype;
+			}
+			if($exclude_array) {
+				$pattern["exclude"] = implode(";", $exclude_array);
+			}
+
+			$pattern["limit"] = $limit - count($related_items);
+			$pattern["order"] = "RAND()";
+
+			// find some suitable random items 
+			$items = $this->getItems($pattern);
+
+			// merge items to get the combined stack
+			$related_items = array_merge($related_items, $items);
+		}
+
+		// should items be extended?
+		if(isset($extend)) {
+			$related_items = $this->extendItems($related_items, $extend);
+		}
+
+		return $related_items;
 	}
 
 
@@ -311,9 +440,11 @@ class ItemsCore {
 	* $status     Int 
 	* $tags       
 	* $sindex
-	* $itemtype  
-	* $limit
-	* $user_id
+	* $itemtype (match itemtype) 
+	* $limit (limit of returned result)
+	* $user_id (match user id)
+	* $exclude (;-separated item id's to exclude)
+	* $extend (automatically extend items with itemtype info before returning)
 	*
 	* @param String $sindex Optional navigation index - s(earch)index
 	*
@@ -324,16 +455,18 @@ class ItemsCore {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "itemtype"   : $itemtype   = $_value; break;
-					case "status"     : $status     = $_value; break;
-					case "tags"       : $tags       = $_value; break;
-					case "sindex"     : $sindex     = $_value; break;
-					case "order"      : $order      = $_value; break;
-					case "limit"      : $limit      = $_value; break;
+					case "itemtype"      : $itemtype   = $_value; break;
+					case "status"        : $status     = $_value; break;
+					case "tags"          : $tags       = $_value; break;
+					case "sindex"        : $sindex     = $_value; break;
+					case "order"         : $order      = $_value; break;
+					case "limit"         : $limit      = $_value; break;
 
-					case "user_id"    : $user_id    = $_value; break;
+					case "user_id"       : $user_id    = $_value; break;
 
-					case "extend"     : $extend     = $_value; break;
+					case "exclude"       : $exclude    = $_value; break;
+
+					case "extend"        : $extend     = $_value; break;
 					
 					// TODO: implement date ranges
 
@@ -373,6 +506,13 @@ class ItemsCore {
 
 		if(isset($user_id)) {
 			$WHERE[] = "items.user_id = $user_id";
+		}
+
+		if(isset($exclude)) {
+			$exclude_array = explode(";", $exclude);
+			foreach($exclude_array as $exclude_id) {
+				$WHERE[] = "items.id != $exclude_id";
+			}
 		}
 
 		// TODO: implement dateranges
