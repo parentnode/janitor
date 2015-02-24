@@ -49,6 +49,14 @@ class Model extends HTML {
 			"error_message" => "Tag must conform to tag format: context:value."
 		));
 
+		$this->addToModel("comment", array(
+			"type" => "text",
+			"label" => "New comment",
+			"class" => "autoexpand",
+			"hint_message" => "Leave a new comment.",
+			"error_message" => "Comment cannot be empty."
+		));
+
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "HTML",

@@ -88,6 +88,13 @@
 #content .defaultList.userContentList .views li a {text-decoration: none;}
 #content .defaultList.userContentList .views li.selected {background-color: #f5f7f8; color: #aaaaaa;}
 
+/* COMMENTS */
+#content .defaultList.userContentList div.comments ul.items > li {}
+#content .defaultList.userContentList div.comments ul.items > li ul.info {padding: 0 30px 5px;}
+#content .defaultList.userContentList div.comments ul.items > li ul.info li {display: inline-block; vertical-align: top;}
+#content .defaultList.userContentList div.comments ul.items > li ul.info li.user:after {content: ",\00a0";}
+#content .defaultList.userContentList div.comments ul.items > li p.comment {color: #313942; padding-bottom: 15px;}
+
 
 
 /* PROFILE */

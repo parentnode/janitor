@@ -70,6 +70,8 @@ class JanitorHTML {
 		$_ .= ' data-media-order="'.$page->validPath($this->path."/updateMediaOrder").'"';
 		$_ .= ' data-media-delete="'.$page->validPath($this->path."/deleteMedia").'"';
 		$_ .= ' data-media-name="'.$page->validPath($this->path."/updateMediaName").'"';
+		$_ .= ' data-comment-update="'.$page->validPath($this->path."/updateComment").'"';
+		$_ .= ' data-comment-delete="'.$page->validPath($this->path."/deleteComment").'"';
 
 		return $_;
 	}
@@ -371,6 +373,32 @@ class JanitorHTML {
 		return $_;
 	}
 
+	// edit Comments form for edit page
+	function editComments($item, $_options = false) {
+		global $model;
+
+		$_ = '';
+
+		$_ .= '<div class="comments i:defaultComments item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<h2>Comments</h2>';
+
+		$_ .= $this->commentList($item["comments"]);
+
+		$_ .= $model->formStart($this->path."/addComment/".$item["id"], array("class" => "labelstyle:inject"));
+		$_ .= '<fieldset>';
+		$_ .= $model->input("comment", array("id" => "comment_".$item["id"]));
+		$_ .= '</fieldset>';
+
+		$_ .= '<ul class="actions">';
+		$_ .= $model->submit("Add new comment", array("class" => "primary", "wrapper" => "li.save"));
+		$_ .= '</ul>';
+		$_ .= $model->formEnd();
+		$_ .= '</div>';
+
+		return $_;
+	}
+
+
 
 	// simple tag list
 	function tagList($tags) {
@@ -381,6 +409,29 @@ class JanitorHTML {
 		if($tags) {
 			foreach($tags as $tag) {
 				$_ .= '<li class="'.$tag["context"].'"><span class="context">'.$tag["context"].'</span>:<span class="value">'.$tag["value"].'</span></li>';
+			}
+		}
+		$_ .= '</ul>';
+
+		return $_;
+	}
+
+
+	// simple comment list
+	function commentList($comments) {
+
+		$_ = '';
+
+		$_ .= '<ul class="comments">';
+		if($comments) {
+			foreach($comments as $comment) {
+				$_ .= '<li class="comment comment_id:'.$comment["id"].'">';
+					$_ .= '<ul class="info">';
+						$_ .= '<li class="user">'.$comment["nickname"].'</li>';
+						$_ .= '<li class="created_at">'. date("Y-m-d, H:i", strtotime($comment["created_at"])).'</li>';
+					$_ .= '</ul>';
+					$_ .= '<p class="comment">'.$comment["comment"].'</p>';
+				$_ .= '</li>';
 			}
 		}
 		$_ .= '</ul>';

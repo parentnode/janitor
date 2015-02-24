@@ -15,8 +15,13 @@ define("UT_ITEMS",              SITE_DB.".items");                             /
 // MEDIAE
 define("UT_ITEMS_MEDIAE",       SITE_DB.".items_mediae");                      // Items Mediae
 
+// COMMENTS
+define("UT_ITEMS_COMMENTS",     SITE_DB.".items_comments");                    // Items Comments
+
+// TAGS
 define("UT_TAG",                SITE_DB.".tags");                              // Item tags
 define("UT_TAGGINGS",           SITE_DB.".taggings");                          // Item tags relations
+
 
 // SHOP EXTENSIONS
 define("UT_PRICES",             SITE_DB.".prices");                            // Item prices
@@ -217,6 +222,11 @@ class ItemsCore {
 				$item["mediae"] = $this->getMediae(array("item_id" => $item["id"]));
 			}
 
+			// add comments
+			if($all || $comments) {
+				$item["comments"] = $this->getComments(array("item_id" => $item["id"]));
+			}
+
 			// add prices
 			if($all || $prices) {
 				$item["prices"] = $this->getPrices(array("item_id" => $item["id"]));
@@ -279,6 +289,16 @@ class ItemsCore {
 
 			return $item;
 		}
+		return false;
+	}
+
+
+	/**
+	* Related items
+	*
+	* Looks for items of same itemtype, with the best matching tags
+	*/
+	function getRelatedItems($item, $_options = false) {
 		return false;
 	}
 
@@ -900,6 +920,67 @@ class ItemsCore {
 				}
 			}
 			
+		}
+		return false;
+	}
+
+
+
+
+	// COMMENTS
+
+
+	// get tag, optionally based on item_id, limited to context, or just check if specific tag exists
+	function getComments($_options=false) {
+
+		$item_id = false;
+		$comment_id = false;
+		$user_id = false;
+		$order = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"     : $item_id        = $_value; break;
+					case "comment_id"  : $comment_id     = $_value; break;
+					case "user_id"     : $user_id        = $_value; break;
+
+					case "order"       : $order          = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		// Get all comments for item_id
+		if($item_id) {
+
+			$sql = "SELECT comments.id, comments.comment, comments.created_at, users.nickname FROM ".UT_ITEMS_COMMENTS." as comments, ".SITE_DB.".users as users WHERE comments.item_id = $item_id AND comments.user_id = users.id".($order ? " ORDER BY $order" : "");
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+		}
+		// Get all comments by user_id and related items
+		else if($user_id) {
+			if($query->sql("SELECT * FROM ".UT_ITEMS_COMMENTS." as comments WHERE user_id = $user_id".($order ? " ORDER BY $order" : ""))) {
+				$comments = $query->results();
+				foreach($comments as $index => $comment) {
+					$comments[$index]["item"] = $this->getItem(array("id" => $comment["item_id"], "extend" => true));
+				}
+				return $comments;
+			}
+		}
+		// get comment using comment_id
+		else if($comment_id) {
+			if($query->sql("SELECT comments.id, comments.comment, comments.created_at, users.nickname FROM ".UT_ITEMS_COMMENTS." as comments, ".SITE_DB.".users as users WHERE comments.id = '$comment_id' AND comments.user_id = users.id")) {
+				return $query->result(0);
+			}
+		}
+		// get all comments
+		else {
+			if($query->sql("SELECT comments.id, comments.comment, comments.created_at, users.nickname FROM ".UT_ITEMS_COMMENTS." as comments, ".SITE_DB.".users as users WHERE comments.user_id = users.id" . ($order ? " ORDER BY $order" : " ORDER BY created_at"))) {
+				return $query->results();
+			}
 		}
 		return false;
 	}

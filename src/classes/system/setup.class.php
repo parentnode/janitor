@@ -845,6 +845,9 @@ class Setup extends Itemtype {
 			$query->checkDbExistance($this->db_janitor_db.".tags");
 			$query->checkDbExistance($this->db_janitor_db.".taggings");
 
+			$query->checkDbExistance($this->db_janitor_db.".items_mediae");
+			$query->checkDbExistance($this->db_janitor_db.".items_comments");
+
 
 
 			//

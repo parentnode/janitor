@@ -15,6 +15,7 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-defaulttags.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-defaultmedia.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-defaultcomments.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-navigations.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-users.js"></script>');

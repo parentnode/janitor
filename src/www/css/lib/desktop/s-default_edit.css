@@ -44,7 +44,7 @@
 
 
 /* EDIT MEDIA */
-#content .scene.defaultEdit > div.media {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.media {padding: 0 0 10px; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.media form.upload {text-align: left; position: relative; z-index: 2;}
 #content .scene.defaultEdit > div.media form.upload .actions {display: none;}
 /*
@@ -120,4 +120,19 @@
 
 #content .scene.defaultEdit > div.media ul.mediae li.video video {width: 100%; height: 100%;}
 #content .scene.defaultEdit > div.media ul.mediae li a.playing {background-position: center -100px;}
+
+
+/* COMMENTS */
+#content .scene.defaultEdit > div.comments {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.comments ul.comments {border-top: 1px solid #dedede; padding-top: 15px;}
+#content .scene.defaultEdit > div.comments ul.comments > li {display: block; border-bottom: 1px solid #dedede; margin-bottom: 15px; position: relative;}
+#content .scene.defaultEdit > div.comments ul.comments > li ul.info {padding: 0 30px 5px;}
+#content .scene.defaultEdit > div.comments ul.comments > li ul.info li {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.comments ul.comments > li ul.info li.user:after {content: ",\00a0";}
+#content .scene.defaultEdit > div.comments ul.comments > li p.comment {color: #313942; padding-bottom: 15px;}
+
+#content .scene.defaultEdit > div.comments ul.comments > li > ul.actions {position: absolute; top: 0; right: 0;}
+#content .scene.defaultEdit > div.comments ul.comments > li > ul.actions li {display: inline-block; vertical-align: top;}
+
+#content .scene.defaultEdit > div.comments > form {padding-bottom: 10px; padding-top: 5px;}
 

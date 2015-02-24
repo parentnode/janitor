@@ -291,6 +291,9 @@ class ItemtypeCore extends Model {
 
 			if($this->validateList($names, $item_id) && $this->updateItem($item_id)) {
 
+				// add existing data to version-control-table
+				$query->versionControl($item_id, $values);
+
 				$sql = "UPDATE ".$this->db." SET ".implode(",", $values)." WHERE item_id = ".$item_id;
 //				print $sql;
 				if($query->sql($sql)) {
@@ -492,11 +495,7 @@ class ItemtypeCore extends Model {
 
 
 
-
-
 	// MEDIA 
-
-
 
 
 
@@ -1241,7 +1240,110 @@ class ItemtypeCore extends Model {
 
 
 
+	// COMMENTS
 
+	// add comment to item
+	// comment is sent in $_POST
+
+	// /janitor/[admin/]#itemtype#/addComment/#item_id#
+	function addComment($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$item_id = $action[1];
+
+			$query->checkDbExistance(UT_ITEMS_COMMENTS);
+
+			if($this->validateList(array("comment"), $item_id)) {
+
+				$user_id = session()->value("user_id");
+				$comment = $this->getProperty("comment", "value");
+
+				if($query->sql("INSERT INTO ".UT_ITEMS_COMMENTS." VALUES(DEFAULT, $item_id, '$comment', $user_id, DEFAULT)")) {
+					message()->addMessage("Comment added");
+
+					$comment_id = $query->lastInsertId();
+					$IC = new Items();
+					$new_comment = $IC->getComments(array("comment_id" => $comment_id));
+					$new_comment["created_at"] = date("Y-m-d, H:i", strtotime($new_comment["created_at"]));
+					return $new_comment;
+				}
+
+
+			}
+
+		}
+
+		message()->addMessage("Comment could not be added", array("type" => "error"));
+		return false;
+	}
+
+	// /janitor/[admin/]#itemtype#/updateComment/#item_id#/#comment_id#
+	function updateComment($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$comment_id = $action[2];
+
+			$query->checkDbExistance(UT_ITEMS_COMMENTS);
+
+			if($this->validateList(array("comment"), $item_id)) {
+
+				$comment = $this->getProperty("comment", "value");
+
+				if($query->sql("UPDATE ".UT_ITEMS_COMMENTS." SET comment = '$comment' WHERE id = $comment_id AND item_id = $item_id")) {
+					message()->addMessage("Comment updated");
+					return true;
+				}
+
+
+			}
+
+		}
+
+		message()->addMessage("Comment could not be updated", array("type" => "error"));
+		return false;
+	}
+
+
+	// delete comment
+	// /janitor/[admin/]#itemtype#/deleteComment/#item_id#/#comment_id#
+	// TODO: implement itemtype checks
+ 	function deleteComment($action) {
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$comment_id = $action[2];
+
+			if($query->sql("DELETE FROM ".UT_ITEMS_COMMENTS." WHERE item_id = $item_id AND id = $comment_id")) {
+
+				message()->addMessage("Comment deleted");
+				return true;
+			}
+		}
+
+		message()->addMessage("Comment could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+
+
+
+
+	// NOT UPDATED TO NEW FUNCTION LAYOUT
 
 	// PRICES
 

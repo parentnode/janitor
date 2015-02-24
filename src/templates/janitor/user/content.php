@@ -9,6 +9,7 @@ $IC = new Items();
 
 $user = $model->getUsers(array("user_id" => $user_id));
 $items = $IC->getItems(array("user_id" => $user_id, "extend" => true));
+$comments = $IC->getComments(array("user_id" => $user_id));
 
 $orders = false;
 
@@ -93,6 +94,45 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 <? 		endif; ?>
 	</div>
 
+
+	<h2>Comments</h2>
+	<div class="all_items comments i:defaultList filters"
+		data-csrf-token="<?= session()->value("csrf") ?>"
+		>
+<? 		if($comments): ?>
+		<ul class="items">
+<? 			foreach($comments as $comment): 
+
+				// find path to itemtype
+				// We don know whether it is an inherited controller or a local one
+				// - look in the two most obvious places
+				if(file_exists(LOCAL_PATH."/www/janitor/".$comment["item"]["itemtype"].".php")) {
+					$path = "/janitor/".$comment["item"]["itemtype"];
+				}
+				else if(file_exists(FRAMEWORK_PATH."/www/".$comment["item"]["itemtype"].".php")) {
+					$path = "/janitor/admin/".$comment["item"]["itemtype"];
+				}
+				else {
+					$path = false;
+				}
+?>
+			<li class="item comment_id:<?= $comment["item_id"] ?>">
+				<h3>Comment for: <?= $comment["item"]["name"] ?></h3>
+				<ul class="info">
+					<li class="created_at"><?= date("Y-m-d, H:i", strtotime($comment["created_at"])) ?></li>
+				</ul>
+				<p class="comment"><?= $comment["comment"] ?></p>
+
+				<ul class="actions">
+					<?= $path ? $HTML->link("Edit", $path."/edit/".$comment["item"]["id"], array("class" => "button", "wrapper" => "li.edit")) : "" ?>
+				</ul>
+			</li>
+<? 			endforeach; ?>
+		</ul>
+<? 		else: ?>
+		<p>No comments.</p>
+<? 		endif; ?>
+	</div>
 
 
 </div>
