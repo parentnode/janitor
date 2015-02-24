@@ -246,6 +246,102 @@ class Query {
 		return $this->result_count;
 	}
 
+	/**
+	* Automated version control
+	* Creates a new table + _versions and copies existing data to table before updating
+	* @param $item_id Item to be versioned
+	* @param $new_values Values to be updated to, to check if there are any changes to version
+	*/
+	function versionControl($item_id, $new_values) {
+
+		$IC = new Items();
+		$item = $IC->getItem(array("id" => $item_id));
+		$itemtype = $item["itemtype"];
+		$model = $IC->typeObject($itemtype);
+
+		// custom versionControl for model?
+		if(method_exists($model, "versionControl")) {
+			$model->versionControl($item_id);
+		}
+
+		// standard implementation
+		else {
+			$db_table = $model->db;
+			list($db, $table) = explode(".", $db_table);
+
+			$version_table = $table."_versions";
+
+			// check if versions table exists
+			if(!$this->sql("SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$version_table'")) {
+
+				$db_file = false;
+
+				// look for matching db sql file
+				if(file_exists(LOCAL_PATH.'/config/db/'.$table.'.sql')) {
+					$db_file = LOCAL_PATH.'/config/db/'.$table.'.sql';
+				}
+				else if(file_exists(FRAMEWORK_PATH.'/config/db/'.$table.'.sql')) {
+					$db_file = FRAMEWORK_PATH.'/config/db/'.$table.'.sql';
+				}
+				else if(file_exists(FRAMEWORK_PATH.'/config/db/items/'.$table.'.sql')) {
+					$db_file = FRAMEWORK_PATH.'/config/db/items/'.$table.'.sql';
+				}
+
+				if($db_file) {
+	//				print $db_file."<br>";
+					$sql = file_get_contents($db_file);
+					$sql = str_replace("SITE_DB", SITE_DB, $sql);
+					// update table name in SQL string
+					$sql = str_replace("item_".$itemtype, "item_".$itemtype."_versions", $sql);
+
+					// add versioned column for timestamp
+					$sql = str_replace("PRIMARY KEY", "`versioned` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY", $sql);
+
+	//				print $sql . "##";
+					$this->sql($sql);
+				}
+			}
+
+			// get current item
+			$sql = "SELECT * FROM $db_table WHERE item_id = $item_id";
+			$this->sql($sql);
+			$item = $this->result(0);
+
+			// prepare data for injection
+			$data = array();
+			foreach($item as $name => $value) {
+				if($name != "id") {
+					$data[] = $name."='".prepareForDB($value)."'";
+				}
+			}
+
+			// don't store "no change" updates
+			$sql = "SELECT * FROM `$db`.`$table` WHERE ".implode(" AND ", $new_values);
+//			print $sql."\n";
+			if(!$this->sql($sql)) {
+
+				// don't store existing versions
+				// TODO: consider this again - it breaks version history but gives less entries - what is preferred?
+				$sql = "SELECT * FROM `$db`.`$version_table` WHERE ".implode(" AND ", $data);
+				if(!$this->sql($sql)) {
+					// insert version data
+					$sql = "INSERT INTO `$db`.`$version_table` SET ".implode(",", $data);
+		//			print $sql;
+					$this->sql($sql);
+				}
+
+				// but then update versioned timestamp
+				else {
+					$version_id = $this->result(0, "id");
+					$sql = "UPDATE `$db`.`$version_table` SET versioned = CURRENT_TIMESTAMP WHERE id = $version_id";
+					$this->sql($sql);
+				}
+			}
+
+			// TODO: make some algoritm to clean up version tables
+		}
+	}
+
 
 	/**
 	* Create DB-table if it does not already exist
