@@ -677,10 +677,18 @@ class PageCore {
 			// check permissions
 			if(!$this->checkPermissions($controller, $action, $access_item)) {
 
+
+				$dev = session()->value("dev");
+				$segment = session()->value("segment");
+
+
 				session()->reset();
 
 				// save current url, to be able to redirect after login
 				session()->value("login_forward", $this->url);
+				session()->value("dev", $dev);
+				session()->value("segment", $segment);
+
 
 				// redirect to login
 				header("Location: /login");
