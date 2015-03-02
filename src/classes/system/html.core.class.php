@@ -42,9 +42,21 @@ class HTMLCore {
 	* This function facilitates the conversion between the two types
 	* TODO: Documentation needed
 	*/
-	function toOptions($multi_array, $value_index, $text_index) {
+	function toOptions($multi_array, $value_index, $text_index, $_options = false) {
 
-		$options = array();
+		$add = array();
+		// overwrite model/defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "add"           : $add            = $_value; break;
+				}
+			}
+		}
+
+		$options = $add;
+		
 		foreach($multi_array as $array) {
 			$options[$array[$value_index]] = $array[$text_index];
 		}
