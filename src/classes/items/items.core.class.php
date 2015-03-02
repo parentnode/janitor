@@ -18,6 +18,12 @@ define("UT_ITEMS_MEDIAE",       SITE_DB.".items_mediae");                      /
 // COMMENTS
 define("UT_ITEMS_COMMENTS",     SITE_DB.".items_comments");                    // Items Comments
 
+// QnAs
+define("UT_ITEMS_QNA",          SITE_DB.".items_qna");                         // Items Questions and Answers
+
+// READ STATE
+define("UT_ITEMS_READSTATE",    SITE_DB.".items_readstate");                   // Items Read state
+
 // TAGS
 define("UT_TAG",                SITE_DB.".tags");                              // Item tags
 define("UT_TAGGINGS",           SITE_DB.".taggings");                          // Item tags relations
@@ -80,6 +86,8 @@ class ItemsCore {
 
 		$id = false;
 		$sindex = false;
+		$tags = false;
+
 		$extend = false;
 
 		if($_options !== false) {
@@ -88,7 +96,9 @@ class ItemsCore {
 					case "id"        : $id             = $_value; break;
 					case "sindex"    : $sindex         = $_value; break;
 
-					case "extend"     : $extend        = $_value; break;
+					case "tags"      : $tags            = $_value; break;
+
+					case "extend"    : $extend        = $_value; break;
 				}
 			}
 		}
@@ -102,6 +112,49 @@ class ItemsCore {
 		else if($sindex) {
 			$sql = "SELECT * FROM ".UT_ITEMS." WHERE sindex = '$sindex'";
 		}
+		else if($tags) {
+			
+			$SELECT = array();
+			$FROM = array();
+			$LEFTJOIN = array();
+			$WHERE = array();
+			$GROUP_BY = "";
+			$HAVING = "";
+
+			$SELECT[] = "items.id";
+			$SELECT[] = "items.sindex";
+			$SELECT[] = "items.status";
+			$SELECT[] = "items.itemtype";
+			$SELECT[] = "items.user_id";
+
+			$SELECT[] = "items.created_at";
+			$SELECT[] = "items.modified_at";
+			$SELECT[] = "items.published_at";
+
+		 	$FROM[] = UT_ITEMS." as items";
+
+			$WHERE[] = "items.status = 1";
+
+			// tag query
+			$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
+			$LEFTJOIN[] = UT_TAG." as tags ON tags.id = taggings.tag_id";
+
+			$tag_array = explode(";", $tags);
+
+			// create tag SQL
+			$tag_sql = "";
+			foreach($tag_array as $tag) {
+				list($context, $value) = explode(":", $tag);
+				$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '".$context."' AND tags.value = '".$value."'";
+			}
+			$WHERE[] = "(".$tag_sql.")";
+			$HAVING = "count(*) = ".count($tag_array);
+			$GROUP_BY = "items.id";
+
+
+			$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY));
+		}
+		
 //		print $sql."<br>";
 
 		if($sql && $query->sql($sql)) {
@@ -132,41 +185,6 @@ class ItemsCore {
 		return false;
 	}
 
-	/**
-	* Global getCompleteItem (both getItem and get on itemtype)
-	* + tags
-	* + prices
-	* + ratings
-	* + comments
-	*
-	* @param $_options Named Array containing id or sindex to get
-	*/
-	// function getCompleteItem($_options = false) {
-	//
-	// 	$item = $this->getItem($_options);
-	// 	if($item) {
-	//
-	// 		// get the specific type data
-	// 		$typeObject = $this->TypeObject($item["itemtype"]);
-	// 		if(method_exists($typeObject, "get")) {
-	// 			$item = array_merge($item, $typeObject->get($item["id"]));
-	// 		}
-	// 		else {
-	// 			$item = array_merge($item, $this->getSimpleType($item["id"], $typeObject));
-	// 		}
-	//
-	// 		// add prices and tags
-	// 		$item["prices"] = $this->getPrices(array("item_id" => $item["id"]));
-	// 		$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
-	//
-	// 		// TODO: add comments and ratings
-	// 		// $item["ratings"] = $this->getRatings(array("item_id" => $item["id"]));
-	// 		// $item["comments"] = $this->getComments(array("item_id" => $item["id"]));
-	//
-	// 		return $item;
-	// 	}
-	// 	return false;
-	// }
 
 
 	/**
@@ -187,6 +205,7 @@ class ItemsCore {
 			$prices = false;
 			$ratings = false;
 			$comments = false;
+			$readstate = false;
 
 			// global setting for getting everything
 			$all = false;
@@ -201,6 +220,7 @@ class ItemsCore {
 						case "prices"       : $prices         = $_value; break;
 						case "ratings"      : $ratings        = $_value; break;
 						case "comments"     : $comments       = $_value; break;
+						case "readstate"    : $readstate      = $_value; break;
 
 						case "all"          : $all            = $_value; break;
 					}
@@ -227,9 +247,9 @@ class ItemsCore {
 				$item["comments"] = $this->getComments(array("item_id" => $item["id"]));
 			}
 
-			// add prices
-			if($all || $prices) {
-				$item["prices"] = $this->getPrices(array("item_id" => $item["id"]));
+			// add readstate
+			if($all || $readstate) {
+				$item["readstate"] = $this->getReadstate(array("item_id" => $item["id"]));
 			}
 
 			// add tags
@@ -244,13 +264,17 @@ class ItemsCore {
 				$item["user_nickname"] = $user ? $user["nickname"] : "N/A";
 			}
 
+
+			// add prices
+			if($all || $prices) {
+				$item["prices"] = $this->getPrices(array("item_id" => $item["id"]));
+			}
+
+
 			// TODO: Implement ratings and comments
 			// NOT IMPLEMENTED YET
 			// if($everything || $ratings) {
 			//	$item["ratings"] = $this->getRatings(array("item_id" => $item["id"]));
-			// }
-			// if($everything || $comments) {
-			//	$item["comments"] = $this->getComments(array("item_id" => $item["id"]));
 			// }
 
 			return $item;
@@ -297,12 +321,13 @@ class ItemsCore {
 	* Related items
 	*
 	* Looks for items of same itemtype, with the best matching tags
+	* Can also filter items with readstate
 	* Otherwise find random items
 	*/
 	function getRelatedItems($_options = false) {
 
 		$related_items = array();
-		$limit = 5;
+		$autofill = true;
 		$limit = 5;
 		$extend = false;
 		$exclude_array = array();
@@ -310,13 +335,15 @@ class ItemsCore {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "itemtype"   : $itemtype   = $_value; break;
-					case "tags"       : $tags       = $_value; break;
-					case "limit"      : $limit      = $_value; break;
+					case "itemtype"      : $itemtype      = $_value; break;
+					case "tags"          : $tags          = $_value; break;
+					case "autofill"      : $autofill      = $_value; break;
+					case "no_readstate"  : $no_readstate  = $_value; break;
+					case "limit"         : $limit         = $_value; break;
 
-					case "exclude"    : $exclude    = $_value; break;
+					case "exclude"       : $exclude       = $_value; break;
 
-					case "extend"     : $extend     = $_value; break;
+					case "extend"        : $extend        = $_value; break;
 				}
 			}
 		}
@@ -362,6 +389,12 @@ class ItemsCore {
 				$WHERE[] = "items.itemtype = '$itemtype'";
 			}
 
+			// filter readstates
+			if(isset($no_readstate) && $no_readstate) {
+				$user_id = session()->value("user_id");
+				$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_ITEMS_READSTATE." WHERE user_id = $user_id)";
+			}
+
 			// tag query
 			$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
 			$LEFTJOIN[] = UT_TAG." as tags ON tags.id = taggings.tag_id";
@@ -398,16 +431,19 @@ class ItemsCore {
 		}
 
 
-		// not enough related items found 
+		// not enough related items found and autofill is true
 		// (or no tags was included in request)
-		if(count($related_items) < $limit) {
+		if($autofill && count($related_items) < $limit) {
 
 			// create search pattern
 			$pattern = array("status" => 1);
 
 			// add itemtype to search pattern if possible
-			if($itemtype) {
+			if(isset($itemtype) && $itemtype) {
 				$pattern["itemtype"] = $itemtype;
+			}
+			if(isset($no_readstate) && $no_readstate) {
+				$pattern["no_readstate"] = $no_readstate;
 			}
 			if($exclude_array) {
 				$pattern["exclude"] = implode(";", $exclude_array);
@@ -455,18 +491,19 @@ class ItemsCore {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "itemtype"      : $itemtype   = $_value; break;
-					case "status"        : $status     = $_value; break;
-					case "tags"          : $tags       = $_value; break;
-					case "sindex"        : $sindex     = $_value; break;
-					case "order"         : $order      = $_value; break;
-					case "limit"         : $limit      = $_value; break;
+					case "itemtype"      : $itemtype      = $_value; break;
+					case "status"        : $status        = $_value; break;
+					case "tags"          : $tags          = $_value; break;
+					case "sindex"        : $sindex        = $_value; break;
+					case "order"         : $order         = $_value; break;
+					case "limit"         : $limit         = $_value; break;
 
-					case "user_id"       : $user_id    = $_value; break;
+					case "no_readstate"  : $no_readstate  = $_value; break;
+					case "user_id"       : $user_id       = $_value; break;
 
-					case "exclude"       : $exclude    = $_value; break;
+					case "exclude"       : $exclude       = $_value; break;
 
-					case "extend"        : $extend     = $_value; break;
+					case "extend"        : $extend        = $_value; break;
 					
 					// TODO: implement date ranges
 
@@ -507,6 +544,16 @@ class ItemsCore {
 		if(isset($user_id)) {
 			$WHERE[] = "items.user_id = $user_id";
 		}
+
+
+		// filter on readstates
+		if(isset($no_readstate) && $no_readstate) {
+			if(!isset($user_id)) {
+				$user_id = session()->value("user_id");
+			}
+			$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_ITEMS_READSTATE." WHERE user_id = $user_id)";
+		}
+
 
 		if(isset($exclude)) {
 			$exclude_array = explode(";", $exclude);
@@ -1018,7 +1065,8 @@ class ItemsCore {
 			}
 			// get all tags with context
 			else if($tag_context) {
-				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : ""))) {
+				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : "");
+				if($query->sql($sql)) {
 					return $query->results();
 				}
 			}
@@ -1070,7 +1118,7 @@ class ItemsCore {
 	// COMMENTS
 
 
-	// get tag, optionally based on item_id, limited to context, or just check if specific tag exists
+	// get comments, optionally based on item_id, user_id or comment_id
 	function getComments($_options=false) {
 
 		$item_id = false;
@@ -1122,6 +1170,45 @@ class ItemsCore {
 				return $query->results();
 			}
 		}
+		return false;
+	}
+
+
+
+
+	// READSTATES
+
+
+	// get readstate, optionally based on item_id or user_id
+	// defaults to current user (never for user_id = 1 - guest)
+	function getReadstate($_options=false) {
+
+		$item_id = false;
+		$user_id = session()->value("user_id");
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"     : $item_id        = $_value; break;
+					case "user_id"     : $user_id        = $_value; break;
+
+				}
+			}
+		}
+
+		if($user_id > 1) {
+			$query = new Query();
+
+			// Get all comments for item_id
+			if($item_id) {
+
+				$sql = "SELECT read_at FROM ".UT_ITEMS_READSTATE." WHERE item_id = $item_id AND user_id = $user_id";
+				if($query->sql($sql)) {
+					return $query->result(0, "read_at");
+				}
+			}
+		}
+
 		return false;
 	}
 
