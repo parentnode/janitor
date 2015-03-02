@@ -48,9 +48,16 @@ function RESTParams($index=false) {
 	else {
 		// get params
 		$params = explode("/", preg_replace("/^\/|\/$/", "", $_SERVER["PATH_INFO"]));
-		
+
+
 		// TODO: Consider introducing an additional check on actions here
 		// to ensure not "evil" stuff gets pushed through url
+		// EXPERIMENTAL: this method is in test phase
+		// will add slashes and check for mysql stuff
+		foreach($params as $i => $param) {
+			$params[$i] = prepareForDB($param);
+		}
+
 
 		if($index !== false && isset($params[$index])) {
 			return $params[$index];
