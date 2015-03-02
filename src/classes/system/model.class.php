@@ -35,6 +35,13 @@ class Model extends HTML {
 		// define default models (Janitor model allows these element on all itemtypes)
 		// optimized for backend implementation
 
+		$this->addToModel("user_id", array(
+			"type" => "user_id",
+			"label" => "Assign to user",
+			"hint_message" => "Select user to assign item to", 
+			"error_message" => "User must exist"
+		));
+
 		$this->addToModel("published_at", array(
 			"type" => "datetime",
 			"label" => "Publish date (yyyy-mm-dd hh:mm)",
@@ -44,7 +51,7 @@ class Model extends HTML {
 
 		$this->addToModel("tags", array(
 			"type" => "tag",
-			"label" => "Tag",
+			"label" => "Add tag or type to filter existing tags",
 			"hint_message" => "Select existing tag or add a new tag.",
 			"error_message" => "Tag must conform to tag format: context:value."
 		));
@@ -370,6 +377,7 @@ class Model extends HTML {
 
 		// string or text field
 		if(
+			$this->getProperty($name, "type") == "hidden" || 
 			$this->getProperty($name, "type") == "string" || 
 			$this->getProperty($name, "type") == "text"  || 
 			$this->getProperty($name, "type") == "select"
@@ -455,6 +463,12 @@ class Model extends HTML {
 			}
 		}
 
+		else if($this->getProperty($name, "type") == "user_id") {
+			if($this->isUser($name)) {
+				return true;
+			}
+		}
+
 		// either type was not found or validation failed
 		$error_message = $this->getProperty($name, "error_message");
 		$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occured";
@@ -489,6 +503,27 @@ class Model extends HTML {
 		$this->setProperty($name, "error", false);
 		return true;
 	}
+
+	/**
+	* Check if user_id is valid user
+	*
+	* @param string $name Element identifier
+	* @return bool
+	*/
+	function isUser($name) {
+
+		$value = $this->getProperty($name, "value");
+
+		$UC = new User();
+		if(!$UC->getUserInfo(array("user_id" => $value))) {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+
+		$this->setProperty($name, "error", false);
+		return true;
+	}
+
 
 	/**
 	* Is file valid?
