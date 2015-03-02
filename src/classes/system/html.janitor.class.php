@@ -72,6 +72,8 @@ class JanitorHTML {
 		$_ .= ' data-media-name="'.$page->validPath($this->path."/updateMediaName").'"';
 		$_ .= ' data-comment-update="'.$page->validPath($this->path."/updateComment").'"';
 		$_ .= ' data-comment-delete="'.$page->validPath($this->path."/deleteComment").'"';
+		$_ .= ' data-qna-update="'.$page->validPath($this->path."/updateQnA").'"';
+		$_ .= ' data-qna-delete="'.$page->validPath($this->path."/deleteQnA").'"';
 
 		return $_;
 	}
@@ -398,6 +400,30 @@ class JanitorHTML {
 		return $_;
 	}
 
+	// // edit Comments form for edit page
+	// function editQnA($item, $_options = false) {
+	// 	global $model;
+	//
+	// 	$_ = '';
+	//
+	// 	$_ .= '<div class="qna i:defaultQnA item_id:'.$item["id"].'"'.$this->jsData().'>';
+	// 	$_ .= '<h2>Questions and Answers</h2>';
+	//
+	// 	$_ .= $this->qnaList($item["qna"]);
+	//
+	// 	$_ .= $model->formStart($this->path."/addQuestion/".$item["id"], array("class" => "labelstyle:inject"));
+	// 	$_ .= '<fieldset>';
+	// 	$_ .= $model->input("question", array("id" => "question_".$item["id"]));
+	// 	$_ .= '</fieldset>';
+	//
+	// 	$_ .= '<ul class="actions">';
+	// 	$_ .= $model->submit("Add new question", array("class" => "primary", "wrapper" => "li.save"));
+	// 	$_ .= '</ul>';
+	// 	$_ .= $model->formEnd();
+	// 	$_ .= '</div>';
+	//
+	// 	return $_;
+	// }
 
 
 	// simple tag list
@@ -440,6 +466,93 @@ class JanitorHTML {
 	}
 
 
+	function listTodos($item) {
+		global $model;
+
+		$IC = new Items();
+
+		$_ = '';
+		$_ .= '<div class="todos i:defaultTodos item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<h2>TODOs</h2>';
+
+		$todo_tag = $IC->getTags(array("item_id" => $item["item_id"], "context" => "todo"));
+		if($todo_tag) {
+			$todos = $IC->getItems(array("itemtype" => "todo", "status" => 1, "tags" => $todo_tag[0]["context"].":".$todo_tag[0]["value"], "extend" => array("user" => true)));
+
+			$_ .= '<ul class="todos">';
+			if($todos) {
+				foreach($todos as $todo) {
+					$_ .= '<li class="todo todo_id:'.$todo["id"].'">';
+						$_ .= stringOr($model->link($todo["name"], "/janitor/admin/todo/edit/".$todo["id"], array("target" => "_blank")), $todo["name"]);
+						$_ .= ", Assigned to: ".$todo["user_nickname"];
+					$_ .= '</li>';
+				}
+			}
+			$_ .= '</ul>';
+			
+		}
+		else {
+			$_ .= '<p>No TODOs</p>';
+		}
+
+		$_ .= '</div>';
+
+		return $_;
+	}
+
+
+	// simple QnA list
+	// QnA list is different because it links to separate item
+	function listQnas($item) {
+		global $model;
+
+		// look for QnA tag on item
+		// if QnA tag exists, find QnA items and list them
+		$IC = new Items();
+
+		$_ = '';
+		$_ .= '<div class="qnas i:defaultQnas item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<h2>Questions and Answers</h2>';
+
+
+		$qna_tag = $IC->getTags(array("item_id" => $item["item_id"], "context" => "qna"));
+		if($qna_tag) {
+			$qnas = $IC->getItems(array("itemtype" => "qna", "status" => 1, "tags" => $qna_tag[0]["context"].":".$qna_tag[0]["value"], "extend" => array("tags" => true, "user" => true)));
+
+//			print_r($qnas);
+			
+			$_ .= '<ul class="qnas">';
+			if($qnas) {
+				foreach($qnas as $qna) {
+					$_ .= '<li class="qna qna_id:'.$qna["id"].'">';
+						$_ .= '<ul class="info">';
+							$_ .= '<li class="user">'.$qna["user_nickname"].'</li>';
+							$_ .= '<li class="created_at">'. date("Y-m-d, H:i", strtotime($qna["created_at"])).'</li>';
+						$_ .= '</ul>';
+						$_ .= '<p class="question">'.stringOr($model->link($qna["name"], "/janitor/admin/qna/edit/".$qna["id"], array("target" => "_blank")), $qna["name"]).'</p>';
+
+						// is answer available
+						if($qna["answer"]) {
+							$_ .= '<p class="answer">'.$qna["answer"].'</p>';
+						}
+						else {
+							$_ .= '<p class="answer">No answer yet</p>';
+						}
+					$_ .= '</li>';
+				}
+			}
+			$_ .= '</ul>';
+			
+		}
+		else {
+			$_ .= '<p>No questions</p>';
+		}
+//		print_r($qna_tag);
+
+		$_ .= '</div>';
+
+		return $_;
+	}
 
 
 
@@ -538,6 +651,81 @@ class JanitorHTML {
 			$_ .= '</li>';
 
 		}
+
+		return $_;
+	}
+
+
+
+	// USER DASHBOARDS
+
+
+	// Current user TODOs dashboard
+	function listUserTodos() {
+		global $HTML;
+
+		$IC = new Items();
+		$model = $IC->typeObject("todo");
+		$todos = $IC->getItems(array("itemtype" => "todo", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
+
+		$_ = '';
+		$_ .= '<div class="todos">';
+		$_ .= '<h2>TODOs</h2>';
+
+		if($todos) {
+			$_ .= '<ul class="todos">';
+			foreach($todos as $todo) {
+				$_ .= '<li class="todo todo_id:'.$todo["id"].'">';
+					$_ .= '<h3>'.stringOr($HTML->link($todo["name"], "/janitor/admin/todo/edit/".$todo["id"], array("target" => "_blank")), $todo["name"]).'</h3>';
+					$_ .= '<dl class="info">';
+						$_ .= '<dt class="priority">Priority</dt>';
+						$_ .= '<dd class="priority '.strtolower($model->todo_priority[$todo["priority"]]).'">'.$model->todo_priority[$todo["priority"]].'</dd>';
+						$_ .= '<dt class="deadline">Deadline</dt>';
+						$_ .= '<dd class="deadline'.(strtotime($todo["deadline"]) < time() ? " overdue" : "").'">'.date("Y-m-d", strtotime($todo["deadline"])).'</dd>';
+					$_ .= '</dl>';
+					$_ .= $this->tagList($todo["tags"]);
+				$_ .= '</li>';
+			}
+			$_ .= '</ul>';
+		}
+		else {
+			$_ .= '<p>No TODOs</p>';
+		}
+
+		$_ .= '</div>';
+
+		return $_;
+	}
+
+
+	// Current open questions dashboard
+	function listOpenQuestions() {
+		global $HTML;
+
+		$IC = new Items();
+		$qnas = $IC->getItems(array("itemtype" => "qna", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
+
+		$_ = '';
+		$_ .= '<div class="qnas">';
+		$_ .= '<h2>Unanswered questions</h2>';
+
+		if($qnas) {
+			$_ .= '<ul class="qnas">';
+			foreach($qnas as $qna) {
+				if(!$qna["answer"]) {
+				$_ .= '<li class="qna qna_id:'.$qna["id"].'">';
+					$_ .= '<h3>'.stringOr($HTML->link($qna["name"], "/janitor/admin/qna/edit/".$qna["id"], array("target" => "_blank")), $qna["name"]).'</h3>';
+					$_ .= $this->tagList($qna["tags"]);
+				$_ .= '</li>';
+				}
+			}
+			$_ .= '</ul>';
+		}
+		else {
+			$_ .= '<p>No questions</p>';
+		}
+
+		$_ .= '</div>';
 
 		return $_;
 	}

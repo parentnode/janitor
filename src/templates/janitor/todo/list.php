@@ -4,7 +4,7 @@ global $IC;
 global $model;
 global $itemtype;
 
-$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status DESC, todo.deadline DESC, todo.priority DESC", "extend" => array("tags" => true)));
+$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status DESC, todo.deadline DESC, todo.priority DESC", "extend" => array("tags" => true, "user" => true)));
 ?>
 <div class="scene defaultList <?= $itemtype ?>List">
 	<h1>TODOs</h1>
@@ -20,11 +20,13 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status D
 <?			foreach($items as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
 				<h3><?= $item["name"] ?></h3>
-				<dl>
+				<dl class="info">
 					<dt class="priority">Priority</dt>
-					<dd class="priority"><?= $model->todo_priority[$item["priority"]] ?></dd>
+					<dd class="priority <?= strtolower($model->todo_priority[$item["priority"]]) ?>"><?= $model->todo_priority[$item["priority"]] ?></dd>
 					<dt class="deadline">Deadline</dt>
-					<dd class="deadline"><?= date("Y-m-d, h:i:s", strtotime($item["deadline"])) ?></dd>
+					<dd class="deadline<?= strtotime($item["deadline"]) < time() ? " overdue" : "" ?>"><?= date("Y-m-d", strtotime($item["deadline"])) ?></dd>
+					<dt class="assigned_to">Assigned to</dt>
+					<dd class="assigned_to"><?= $item["user_nickname"] ?></dd>
 				</dl>
 
 				<?= $JML->tagList($item["tags"]) ?>

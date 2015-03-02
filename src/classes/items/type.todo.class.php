@@ -20,6 +20,15 @@ class TypeTodo extends Itemtype {
 
 		$this->todo_priority = array(0 => "Low", 5 => "Medium", 10 => "High");
 		$this->todo_status = array(0 => "Closed", 1 => "Open");
+		
+
+		// find users with todo privileges
+		$db_users = SITE_DB.".users";
+		$db_access = SITE_DB.".user_access";
+		$query = new Query();
+		if($query->sql("SELECT users.nickname, users.id FROM ".$db_users." as users, ".$db_access." as access WHERE users.user_group_id = access.user_group_id AND access.controller = '/janitor/admin/todo' AND access.action = '/edit' AND permission = 1 ORDER BY users.nickname")) {
+			 $this->users = $this->toOptions($query->results(), "id", "nickname");
+		}
 
 		// Name
 		$this->addToModel("name", array(
@@ -34,7 +43,15 @@ class TypeTodo extends Itemtype {
 		$this->addToModel("description", array(
 			"type" => "text",
 			"label" => "Description",
-			"hint_message" => "Write a meaningful description of the product. Remember product descriptions are very important for Google - Make sure to use varied language and include all relevant keywords in your description."
+			"hint_message" => "Write a meaningful description of the TODO."
+		));
+
+		// Assigned to
+		$this->addToModel("user_id", array(
+			"type" => "user_id",
+			"options" => $this->users,
+			"label" => "Assign the task",
+			"hint_message" => "Who should take care of this?"
 		));
 
 		// Priority
@@ -60,7 +77,6 @@ class TypeTodo extends Itemtype {
 
 	// CMS SECTION
 	// custom loopback function
-
 
 	// used for frontend communication
 
