@@ -258,6 +258,7 @@ class ItemtypeCore extends Model {
 	*/
 	# /janitor/[admin/]#itemtype#/update/#item_id#
 	// TODO: implement itemtype checks
+	// TODO: this is copied to todo.class
 	function update($action) {
 
 		// Get posted values to make them available for models
@@ -278,7 +279,7 @@ class ItemtypeCore extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && !preg_match("/^(files|tags|prices)$/", $entity["type"]) && !preg_match("/^(published_at|status|htmleditor_file)$/", $name)) {
+				if($entity["value"] !== false && !preg_match("/^(files|tags|prices)$/", $entity["type"]) && !preg_match("/^(published_at|status|user_id|htmleditor_file)$/", $name)) {
 
 					// consider reimplementing files in basic save
 					// it's a bigger question
@@ -330,7 +331,7 @@ class ItemtypeCore extends Model {
 
 		$query = new Query();
 
-		// is published_at validates?
+		// is published_at valid?
 		if($this->validateList(array("published_at"))) {
 			$sql = "UPDATE ".UT_ITEMS." SET published_at='".toTimestamp($this->getProperty("published_at", "value"))."' WHERE id = $item_id";
 //			print $sql;
@@ -338,6 +339,13 @@ class ItemtypeCore extends Model {
 		}
 		else {
 			return false;
+		}
+
+		// updating user id?
+		$user_id = $this->getProperty("user_id", "value");
+		if($user_id && $this->validateList(array("user_id"))) {
+			$sql = "UPDATE ".UT_ITEMS." SET user_id=$user_id WHERE id = $item_id";
+			$query->sql($sql);
 		}
 
 //		$published_at = $this->validateList(array("published_at")) ? $this->getProperty("published_at", "value") : "CURRENT_TIMESTAMP"; 
@@ -1336,6 +1344,74 @@ class ItemtypeCore extends Model {
 		}
 
 		message()->addMessage("Comment could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+
+
+
+
+	// READ STATES - INDICATES THAT THE USER HAS READ THE ITEM
+
+	// update readstate for user+item
+	// enables adding a button for the user to indicate wheter an item has been read
+	// disabled for user_id = 1 (guest)
+
+	// /janitor/[admin/]#itemtype#/updateReadstate/#item_id#
+	function updateReadstate($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$user_id = session()->value("user_id");
+
+			if($user_id > 1) {
+
+				$query->checkDbExistance(UT_ITEMS_READSTATE);
+
+				if($query->sql("SELECT ".UT_ITEMS_READSTATE." WHERE user_id = $user_id AND item_id = $item_id")) {
+					$sql = "UPDATE ".UT_ITEMS_READSTATE." SET read_at = CURRENT_TIMESTAMP WHERE user_id = $user_id AND item_id = $item_id";
+				}
+				else {
+					$sql = "INSERT INTO ".UT_ITEMS_READSTATE." VALUES(DEFAULT, $item_id, $user_id, DEFAULT)";
+				}
+
+				if($query->sql($sql)) {
+					message()->addMessage("Read state updated");
+					return true;
+				}
+			}
+		}
+
+		message()->addMessage("Read state could not be updated", array("type" => "error"));
+		return false;
+	}
+
+
+	// delete Read state
+	// /janitor/[admin/]#itemtype#/deleteReadstate/#item_id#
+	// disabled for user_id = 1 (guest)
+	// TODO: implement itemtype checks
+ 	function deleteReadstate($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$user_id = session()->value("user_id");
+
+			if($user_id > 1) {
+
+				if($query->sql("DELETE FROM ".UT_ITEMS_READSTATE." WHERE item_id = $item_id AND user_id = $user_id")) {
+
+					message()->addMessage("Read state deleted");
+					return true;
+				}
+			}
+		}
+
+		message()->addMessage("Read state could not be deleted", array("type" => "error"));
 		return false;
 	}
 
