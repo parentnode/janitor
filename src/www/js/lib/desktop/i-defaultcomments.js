@@ -134,7 +134,7 @@ Util.Objects["defaultComments"] = new function() {
 
 				if(response.cms_status == "success" && response.cms_object) {
 
-					var comment_li = u.ae(this.list, "li", {"class":"comment_id:"+response.cms_object["id"]});
+					var comment_li = u.ae(this.list, "li", {"class":"comment comment_id:"+response.cms_object["id"]});
 					var info = u.ae(comment_li, "ul", {"class":"info"});
 					u.ae(info, "li", {"class":"user", "html":response.cms_object["nickname"]});
 					u.ae(info, "li", {"class":"created_at", "html":response.cms_object["created_at"]});

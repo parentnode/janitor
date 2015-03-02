@@ -136,3 +136,20 @@
 
 #content .scene.defaultEdit > div.comments > form {padding-bottom: 10px; padding-top: 5px;}
 
+
+/* TODOS */
+#content .scene.defaultEdit > div.todos {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.todos ul.todos {list-style: disc; list-style-position: outside; margin-left: 15px; padding: 0 0 20px 30px;}
+#content .scene.defaultEdit > div.todos ul.todos > li {display: list-item;}
+#content .scene.defaultEdit > div.todos ul.todos > li {color: #313942 !important; padding-bottom: 7px;}
+#content .scene.defaultEdit > div.todos ul.todos > li a {color: #313942 !important;}
+
+
+#content .scene.defaultEdit > div.qnas {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.qnas ul.qnas {}
+#content .scene.defaultEdit > div.qnas ul.qnas > li ul.info {padding: 0 30px 0px;}
+#content .scene.defaultEdit > div.qnas ul.qnas > li ul.info li {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.qnas ul.qnas > li ul.info li.user:after {content: ",\00a0";}
+#content .scene.defaultEdit > div.qnas ul.qnas > li {display: block; border-top: 1px solid #dedede; position: relative; padding-bottom: 8px; padding-top: 15px;}
+#content .scene.defaultEdit > div.qnas ul.qnas > li p {padding-bottom: 7px;}
+

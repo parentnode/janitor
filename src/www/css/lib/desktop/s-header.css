@@ -20,10 +20,12 @@ body.page #navigation .page a,
 body.post #navigation .post a,
 body.photocollection #navigation .photocollection a,
 body.todo #navigation .todo a,
+body.qna #navigation .qna a,
 body.todolist #navigation .todo a,
 
 body.profile #navigation .profile a,
 body.navigation #navigation .navigation a,
 body.shop #navigation .shop a,
 body.tags #navigation .tags a,
-body.user #navigation .user a {padding-left: 35px; color: #ffffff;}
+body.user #navigation .user a,
+body.usergroup #navigation .user a {padding-left: 35px; color: #ffffff;}

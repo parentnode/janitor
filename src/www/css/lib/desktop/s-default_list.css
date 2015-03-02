@@ -37,8 +37,13 @@
 
 
 /* HIDE ADDITIONAL INFO AS DEFAULT */
-#content .defaultList ul.items > li .description,
-#content .defaultList ul.items > li dl {display: none;}
+#content .defaultList ul.items > li .description {display: none;}
+#content .defaultList ul.items > li dl {overflow: hidden; padding: 3px 30px;
+	
+}
+#content .defaultList ul.items > li dt {float: left; clear: left;}
+#content .defaultList ul.items > li dt:after {content: ":\00a0";}
+#content .defaultList ul.items > li dd {float: left;clear: right; padding: 0 0 3px;}
 
 /* ACTIONS ALIGN RIGHT */
 #content .defaultList ul.items > li .actions {position: absolute; top: 0px; padding: 0; right: 20px;}

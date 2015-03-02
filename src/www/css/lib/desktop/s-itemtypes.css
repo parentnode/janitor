@@ -8,5 +8,11 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 /* TODOLIST */
 #content .todolistList ul.items > li h3 {padding-bottom: 16px;}
 
-/* TODOitem */
+/* TASK */
 #content .todoList ul.items > li h3 {padding-bottom: 16px;}
+#content .todoList ul.items > li dd.overdue,
+#content .todoList ul.items > li dd.high
+{color: #df0000;}
+
+/* QnA list */
+#content .qnaList ul.items > li p {padding-bottom: 0px; padding-right: 220px;}
