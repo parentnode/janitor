@@ -1,7 +1,8 @@
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9/full/seg_desktop_ie.js"></script>');
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9/src/u-form-htmleditor.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-htmleditor.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9/src/u-form-geolocation.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-builder.js"></script>');
 
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-page.js"></script>');
