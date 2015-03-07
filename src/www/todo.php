@@ -1,7 +1,10 @@
 <?php
 $access_item["/"] = true;
 $access_item["/edit"] = true;
+$access_item["/update"] = "/edit";
 $access_item["/new"] = true;
+$access_item["/save"] = "/new";
+$access_item["/addTag"] = "/new";
 if(isset($read_access) && $read_access) {
 	return;
 }
