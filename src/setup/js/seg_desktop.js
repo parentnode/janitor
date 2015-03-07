@@ -5384,6 +5384,9 @@ u.f.textEditor = function(field) {
 		if(event.keyCode == 13 || event.keyCode == 9) {
 			u.e.kill(event);
 		}
+		if(event.keyCode == 9 && event.shiftKey) {
+			this.field.backwards_tab = true;
+		}
 	}
 	field._code_updated = function(event) {
 		var selection = window.getSelection(); 
@@ -5513,6 +5516,9 @@ u.f.textEditor = function(field) {
 		if(event.keyCode == 13) {
 			u.e.kill(event);
 		}
+		if(event.keyCode == 9 && event.shiftKey) {
+			this.field.backwards_tab = true;
+		}
 	}
 	field._changed_content = function(event) {
 		var selection = window.getSelection(); 
@@ -5561,7 +5567,8 @@ u.f.textEditor = function(field) {
 				var prev = this.field.findPreviousInput(this);
 				if(u.hc(this.tag, this.field.list_allowed.join("|"))) {
 					var all_lis = u.qsa("div.li", this.tag);
-					if(prev) {
+					if(prev || all_tags.length > 1) {
+						this.li._input.blur();
 						this.tag.removeChild(this.li);
 						if(!u.qsa("div.li", this.tag).length) {
 							this.tag.parentNode.removeChild(this.tag);
@@ -5569,13 +5576,23 @@ u.f.textEditor = function(field) {
 					}
 				}
 				else {
-					if(prev) {
+					if(prev || all_tags.length > 1) {
 						this.tag.parentNode.removeChild(this.tag);
 					}
 				}
 				u.sortable(this.field._editor, {"draggables":"tag", "targets":"editor"});
 				if(prev) {
 					prev.focus();
+				}
+				else {
+					if(u.hc(this.tag, this.field.list_allowed.join("|"))) {
+						var all_lis = u.qsa("div.li", this.tag);
+						all_lis[0]._input.focus();
+					}
+					else {
+						var all_tags = u.qsa("div.tag", this.field);
+						all_tags[0]._input.focus();
+					}
 				}
 			}
 			else if(!this.val() || !this.val().replace(/<br>/, "")) {
@@ -5610,7 +5627,8 @@ u.f.textEditor = function(field) {
 		u.ac(this.field, "focus");
 		u.as(this.field, "zIndex", this.field._input.form._focus_z_index);
 		u.f.positionHint(this.field);
-		if(event.rangeOffset == 1) {
+		if(this.field.backwards_tab) {
+			this.field.backwards_tab = false;
 			var range = document.createRange();
 			range.selectNodeContents(this);
 			range.collapse(false);
@@ -5632,22 +5650,24 @@ u.f.textEditor = function(field) {
 		var i, node;
 		var paste_content = event.clipboardData.getData("text/plain");
 		if(paste_content !== "") {
-			var paste_parts = paste_content.split(/\n\r|\n|\r/g);
+			var selection = window.getSelection();
+			if(!selection.isCollapsed) {
+				selection.deleteFromDocument();
+			}
+			var paste_parts = paste_content.trim().split(/\n\r|\n|\r/g);
 			var text_nodes = [];
 			for(i = 0; text = paste_parts[i]; i++) {
 				text_nodes.push(document.createTextNode(text));
-				text_nodes.push(document.createElement("br"));
+				if(paste_parts.length && i < paste_parts.length-1) {
+					text_nodes.push(document.createElement("br"));
+				}
 			}
-			var text_node = document.createTextNode(paste_content);
 			for(i = text_nodes.length-1; node = text_nodes[i]; i--) {
-				window.getSelection().getRangeAt(0).insertNode(node);
+				var range = selection.getRangeAt(0);
+				range.insertNode(node);
+				selection.addRange(range);
 			}
-			var range = document.createRange();
-			range.selectNodeContents(this);
-			range.collapse(false);
-			var selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange(range);
+			selection.collapseToEnd();
 		}
 	}
 	field.findPreviousInput = function(iN) {
@@ -5690,7 +5710,7 @@ u.f.textEditor = function(field) {
 				}
 			}
 		}
-		return prev ? prev._input : false;
+		return prev && prev._input != iN ? prev._input : false;
 	}
 	field.returnFocus = function(tag) {
 		if(u.hc(tag, this.text_allowed.join("|"))) {
@@ -5888,7 +5908,7 @@ u.f.textEditor = function(field) {
 				}
 			}
 			else if(node.nodeName.toLowerCase().match(field.text_allowed.join("|"))) {
-				value = node.innerHTML.replace(/\n\r|\n|\r/g, "<br>"); 
+				value = node.innerHTML.trim().replace(/(<br>|<br \/>)$/, "").replace(/\n\r|\n|\r/g, "<br>"); 
 				tag = field.addTextTag(node.nodeName.toLowerCase(), value);
 				field.activateInlineFormatting(tag._input);
 			}
@@ -5899,13 +5919,13 @@ u.f.textEditor = function(field) {
 			}
 			else if(node.nodeName.toLowerCase().match(field.list_allowed.join("|"))) {
 				var lis = u.qsa("li", node);
-				value = lis[0].innerHTML.replace(/\n\r|\n|\r/g, "<br>");
+				value = lis[0].innerHTML.trim().replace(/(<br>|<br \/>)$/, "").replace(/\n\r|\n|\r/g, "<br>");
 				tag = field.addListTag(node.nodeName.toLowerCase(), value);
 				var li = u.qs("div.li", tag);
 				field.activateInlineFormatting(li._input);
 				if(lis.length > 1) {
 					for(j = 1; li = lis[j]; j++) {
-						value = li.innerHTML.replace(/\n\r|\n|\r/g, "<br>");
+						value = li.innerHTML.trim().replace(/(<br>|<br \/>)$/, "").replace(/\n\r|\n|\r/g, "<br>");
 						li = field.addListItem(tag, value);
 						field.activateInlineFormatting(li._input);
 					}
@@ -6171,6 +6191,105 @@ Util.Form.geoLocation = function(field) {
 		}
 		navigator.geolocation.getCurrentPosition(window._foundLocation, window._noLocation);
 	}
+}
+
+
+/*u-form-builder.js*/
+u.f.addForm = function(node, _options) {
+	var form_name = "js_form";
+	var form_action = "#";
+	var form_method = "post";
+	var form_class = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "name"			: form_name				= _options[_argument]; break;
+				case "action"		: form_action			= _options[_argument]; break;
+				case "method"		: form_method			= _options[_argument]; break;
+				case "class"		: form_class			= _options[_argument]; break;
+			}
+		}
+	}
+	var form = u.ae(node, "form", {"class":form_class, "name": form_name, "action":form_action, "method":form_method});
+	return form;
+}
+u.f.addFieldset = function(node) {
+	return u.ae(node, "fieldset");
+}
+u.f.addField = function(node, _options) {
+	var field_type = "string";
+	var field_label = "Value";
+	var field_name = "js_name";
+	var field_value = "";
+	var field_class = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "type"			: field_type			= _options[_argument]; break;
+				case "label"		: field_label			= _options[_argument]; break;
+				case "name"			: field_name			= _options[_argument]; break;
+				case "value"		: field_value			= _options[_argument]; break;
+				case "class"		: field_class			= _options[_argument]; break;
+			}
+		}
+	}
+	var input_id = "input_"+field_type+"_"+field_name;
+	var field = u.ae(node, "div", {"class":"field "+field_type+" "+field_class});
+	if(field_type == "string") {
+		var label = u.ae(field, "label", {"for":input_id, "html":field_label});
+		var input = u.ae(field, "input", {"id":input_id, "value":field_value, "name":field_name, "type":"text"});
+	}
+	else if(field_type == "email" || field_type == "number" || field_type == "tel") {
+		var label = u.ae(field, "label", {"for":input_id, "html":field_label});
+		var input = u.ae(field, "input", {"id":input_id, "value":field_value, "name":field_name, "type":field_type});
+	}
+	else if(field_type == "checkbox") {
+		var input = u.ae(field, "input", {"id":input_id, "value":"true", "name":field_name, "type":field_type});
+		var label = u.ae(field, "label", {"for":input_id, "html":field_label});
+	}
+	else if(field_type == "text") {
+		var label = u.ae(field, "label", {"for":input_id, "html":field_label});
+		var input = u.ae(field, "textarea", {"id":input_id, "html":field_value, "name":field_name});
+	}
+	else if(field_type == "select") {
+		u.bug("Select not implemented yet")
+	}
+	else {
+		u.bug("input type not implemented yet")
+	}
+	return field;
+}
+u.f.addAction = function(node, _options) {
+	var action_type = "submit";
+	var action_name = "js_name";
+	var action_value = "";
+	var action_class = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "type"			: action_type			= _options[_argument]; break;
+				case "name"			: action_name			= _options[_argument]; break;
+				case "value"		: action_value			= _options[_argument]; break;
+				case "class"		: action_class			= _options[_argument]; break;
+			}
+		}
+	}
+	var p_ul = node.nodeName.toLowerCase() == "ul" ? node : u.pn(node, {"include":"ul"});
+	if(!p_ul || !u.hc(p_ul, "actions")) {
+		p_ul = u.ae(node, "ul", {"class":"actions"});
+	}
+	var p_li = node.nodeName.toLowerCase() == "li" ? node : u.pn(node, {"include":"li"});
+	if(!p_li || p_ul != p_li.parentNode) {
+		p_li = u.ae(p_ul, "li", {"class":action_name});
+	}
+	else {
+		p_li = node;
+	}
+	var action = u.ae(p_li, "input", {"type":action_type, "class":action_class, "value":action_value, "name":action_name})
+	return action;
 }
 
 
@@ -6624,6 +6743,23 @@ Util.Objects["defaultEdit"] = new function() {
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
 		}
+		form.autosave = function() {
+			for(name in this.fields) {
+				if(this.fields[name].field) {
+					u.f.validate(this.fields[name]);
+				}
+			}
+			if(!u.qs(".field.error", this)) {
+				this.submitted();
+			}
+		}
+		u.t.setInterval(form, "autosave", 15000);
+		form.cancelBackspace = function(event) {
+			if(event.keyCode == 8 && !u.qsa(".field.focus").length) {
+				u.e.kill(event);
+			}
+		}
+		u.e.addEvent(document.body, "keydown", form.cancelBackspace);
 	}
 }
 
@@ -7478,6 +7614,116 @@ Util.Objects["addMediaSingle"] = new function() {
 		div.addPreview();
 	}
 }
+
+/*i-defaultcomments.js*/
+Util.Objects["defaultComments"] = new function() {
+	this.init = function(div) {
+		div.item_id = u.cv(div, "item_id");
+		div._comments_form = u.qs("form", div);
+		div._comments_form.div = div;
+		u.f.init(div._comments_form);
+		div.csrf_token = div._comments_form.fields["csrf-token"].value;
+		div.add_comment_url = div._comments_form.action;
+		div.delete_comment_url = div.getAttribute("data-comment-delete");
+		div.update_comment_url = div.getAttribute("data-comment-update");
+		div._comments_form.list = u.qs("ul.comments", div);
+		div.initComment = function(node) {
+			node.div = this;
+			if(this.delete_comment_url || this.update_comment_url) {
+				var actions = u.ae(node, "ul", {"class":"actions"});
+				var li;
+				if(this.update_comment_url) {
+					li = u.ae(actions, "li", {"class":"edit"});
+					bn_edit = u.ae(li, "a", {"html":"Edit", "class":"button edit"});
+					bn_edit.node = node;
+					u.ce(bn_edit);
+					bn_edit.clicked = function() {
+						var actions, bn_cancel, bn_update, form;
+						form = u.f.addForm(this.node, {"action":this.node.div.update_comment_url+"/"+this.node.div.item_id+"/"+u.cv(this.node, "comment_id"), "class":"edit"});
+						u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.node.div.csrf_token});
+						u.f.addField(form, {"type":"text", "name":"comment", "value": u.qs("p.comment", this.node).innerHTML});
+						form.node = node;
+						actions = u.ae(form, "ul", {"class":"actions"});
+						bn_update = u.f.addAction(actions, {"value":"Update", "class":"button primary update", "name":"update"});
+						bn_cancel = u.f.addAction(actions, {"value":"Cancel", "class":"button cancel", "type":"button", "name":"cancel"});
+						u.f.init(form);
+						form.submitted = function() {
+							this.response = function(response) {
+								page.notify(response);
+								if(response.cms_status == "success") {
+									u.qs("p.comment", this.node).innerHTML = this.fields["comment"].val();
+									this.parentNode.removeChild(this);
+								}
+							}
+							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+						}
+						u.ce(bn_cancel);
+						bn_cancel.clicked = function(event) {
+							u.e.kill(event);
+							this.form.parentNode.removeChild(this.form);
+						}
+					}
+				}
+				if(this.delete_comment_url) {
+					li = u.ae(actions, "li", {"class":"delete"});
+					var form = u.f.addForm(li, {"action":this.delete_comment_url+"/"+this.item_id+"/"+u.cv(node, "comment_id"), "class":"delete"});
+					u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+					form.node = node;
+					bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
+					u.f.init(form);
+					form.restore = function(event) {
+						this.actions["delete"].value = "Delete";
+						u.rc(this.actions["delete"], "confirm");
+					}
+					form.submitted = function() {
+						if(!u.hc(this.actions["delete"], "confirm")) {
+							u.ac(this.actions["delete"], "confirm");
+							this.actions["delete"].value = "Confirm";
+							this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+						}
+						else {
+							u.t.resetTimer(this.t_confirm);
+							this.response = function(response) {
+								page.notify(response);
+								if(response.cms_status == "success") {
+									if(response.cms_object && response.cms_object.constraint_error) {
+										this.value = "Delete";
+										u.ac(this, "disabled");
+									}
+									else {
+										this.node.parentNode.removeChild(this.node);
+									}
+								}
+							}
+							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+						}
+					}
+				}
+			}
+		}
+		div._comments_form.submitted = function(iN) {
+			this.response = function(response) {
+				page.notify(response);
+				if(response.cms_status == "success" && response.cms_object) {
+					var comment_li = u.ae(this.list, "li", {"class":"comment comment_id:"+response.cms_object["id"]});
+					var info = u.ae(comment_li, "ul", {"class":"info"});
+					u.ae(info, "li", {"class":"user", "html":response.cms_object["nickname"]});
+					u.ae(info, "li", {"class":"created_at", "html":response.cms_object["created_at"]});
+					u.ae(comment_li, "p", {"class":"comment", "html":response.cms_object["comment"]})
+					this.div.initComment(comment_li);
+					this.fields["comment"].val("");
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+		}
+		div.comments = u.qsa("li.comment", div._comments_form.list);
+		var i, node;
+		for(i = 0; node = div.comments[i]; i++) {
+			div.initComment(node);
+		}
+	}
+}
+
 
 /*i-navigations.js*/
 Util.Objects["navigationNodes"] = new function() {
