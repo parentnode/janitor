@@ -479,16 +479,19 @@ class JanitorHTML {
 		if($todo_tag) {
 			$todos = $IC->getItems(array("itemtype" => "todo", "status" => 1, "tags" => $todo_tag[0]["context"].":".$todo_tag[0]["value"], "extend" => array("user" => true)));
 
-			$_ .= '<ul class="todos">';
 			if($todos) {
+			$_ .= '<ul class="todos">';
 				foreach($todos as $todo) {
 					$_ .= '<li class="todo todo_id:'.$todo["id"].'">';
 						$_ .= stringOr($model->link($todo["name"], "/janitor/admin/todo/edit/".$todo["id"], array("target" => "_blank")), $todo["name"]);
 						$_ .= ", Assigned to: ".$todo["user_nickname"];
 					$_ .= '</li>';
 				}
-			}
 			$_ .= '</ul>';
+			}
+			else {
+				$_ .= '<p>No TODOs</p>';
+			}
 			
 		}
 		else {
@@ -519,10 +522,8 @@ class JanitorHTML {
 		if($qna_tag) {
 			$qnas = $IC->getItems(array("itemtype" => "qna", "status" => 1, "tags" => $qna_tag[0]["context"].":".$qna_tag[0]["value"], "extend" => array("tags" => true, "user" => true)));
 
-//			print_r($qnas);
-			
-			$_ .= '<ul class="qnas">';
 			if($qnas) {
+			$_ .= '<ul class="qnas">';
 				foreach($qnas as $qna) {
 					$_ .= '<li class="qna qna_id:'.$qna["id"].'">';
 						$_ .= '<ul class="info">';
@@ -540,14 +541,15 @@ class JanitorHTML {
 						}
 					$_ .= '</li>';
 				}
-			}
 			$_ .= '</ul>';
-			
+			}
+			else {
+				$_ .= '<p>No questions</p>';
+			}
 		}
 		else {
 			$_ .= '<p>No questions</p>';
 		}
-//		print_r($qna_tag);
 
 		$_ .= '</div>';
 
