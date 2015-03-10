@@ -28,12 +28,23 @@ function recurseNodes($nodes) {
 		$_ .= '<h3>'.$node["name"].'</h3>';
 
 		if($node["link"]) {
-			$_ .= '<span class="link">Link: '.$node["link"].'</span>';
+			$_ .= '<span class="link">'.$node["link"].'</span>';
 		}
-		if($node["item_id"]) {
-			$item_page = $IC->getItem(array("id" => $node["item_id"], "extend" => true));
-//			$item_page = $IC->extendItem($item_page);
-			$_ .= '<span class="page">Page: <a href="/janitor/page/edit/'.$item_page["item_id"].'">'.$item_page["name"].'</a></span>';
+// 		if($node["item_id"]) {
+// 			$pageitem = $IC->getItem(array("id" => $node["item_id"], "extend" => true));
+// //			$item_page = $IC->extendItem($item_page);
+// 			$_ .= '<span class="page"><a href="/janitor/page/edit/'.$pageitem["item_id"].'">'.$pageitem["name"].'</a></span>,';
+// 			$_ .= '<span class="controller">'.$node["controller"].'</span>';
+// 		}
+
+		if($node["classname"]) {
+			$_ .= '<span class="class">"'.$node["classname"].'"</span>';
+		}
+		if($node["target"]) {
+			$_ .= '<span class="target">'.$node["target"].'</span>';
+		}
+		if($node["fallback"]) {
+			$_ .= '<span class="fallback">('.$node["fallback"].')</span>';
 		}
 
 		$_ .= '<ul class="actions">';

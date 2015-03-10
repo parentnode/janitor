@@ -46,15 +46,22 @@ class Navigation extends Model {
 		$this->addToModel("node_link", array(
 			"type" => "string",
 			"label" => "Static link",
-			"hint_message" => "A node can be a static link",
+			"hint_message" => "Type absolute url, starting with / or http://",
 			"error_message" => ""
 		));
 
 		// node_page_id
-		$this->addToModel("node_page_id", array(
+		$this->addToModel("node_item_id", array(
 			"type" => "integer",
 			"label" => "Page",
 			"hint_message" => "Select an existing page as link for this node",
+			"error_message" => ""
+		));
+		// node_page_controller
+		$this->addToModel("node_item_controller", array(
+			"type" => "string",
+			"label" => "Controller",
+			"hint_message" => "Select an existing controller to render this page",
 			"error_message" => ""
 		));
 
@@ -63,6 +70,20 @@ class Navigation extends Model {
 			"type" => "string",
 			"label" => "Node classname",
 			"hint_message" => "Add a classname to this node",
+			"error_message" => ""
+		));
+		// node_target
+		$this->addToModel("node_target", array(
+			"type" => "string",
+			"label" => "Open link in new window",
+			"hint_message" => "Add a target to this link",
+			"error_message" => ""
+		));
+		// node_fallback
+		$this->addToModel("node_fallback", array(
+			"type" => "string",
+			"label" => "Fallback url",
+			"hint_message" => "You can provide a fallback link, in case the end user does not have access to the given page. Leave empty to hide link for unautorized users.",
 			"error_message" => ""
 		));
 
@@ -75,7 +96,8 @@ class Navigation extends Model {
 	*
 	*/
 
-	// save new user
+	// save new navigation
+	// /janitor/admin/navigation/save
 	// gets values from posted model values
 	function save() {
 
@@ -113,49 +135,7 @@ class Navigation extends Model {
 		return false;
 	}
 
-
-	// update user
-	// /user/update/#user_id#
-	// post values
-	function update($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-
-		if(count($action) == 2) {
-			$user_id = $action[1];
-			$query = new Query();
-
-			$entities = $this->data_entities;
-			$names = array();
-			$values = array();
-
-			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && preg_match("/^(user_group_id|firstname|lastname|nickname|language)$/", $name)) {
-					$names[] = $name;
-					$values[] = $name."='".$entity["value"]."'";
-				}
-			}
-
-			if($this->validateList($names, $user_id)) {
-				if($values) {
-					$sql = "UPDATE ".$this->db." SET ".implode(",", $values)." WHERE id = ".$user_id;
-//					print $sql;
-				}
-
-				if(!$values || $query->sql($sql)) {
-					message()->addMessage("User updated");
-					return true;
-				}
-			}
-		}
-		message()->addMessage("Updating user failed", array("type" => "error"));
-		return false;
-	}
-
-
-	// delete user
+	// delete navigation
 	// /janitor/admin/navigation/delete/#navigation_id#
 	function delete($action) {
 
@@ -273,6 +253,7 @@ class Navigation extends Model {
 		// default values
 		$levels = false;
 		$relation = false;
+		$nested_path = "";
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -280,6 +261,8 @@ class Navigation extends Model {
 
 					case "levels"            : $levels             = $_value; break;
 					case "relation"          : $relation           = $_value; break;
+
+					case "nested_path"       : $nested_path        = $_value; break;
 				}
 			}
 		}
@@ -309,19 +292,34 @@ class Navigation extends Model {
 			foreach($results as $i => $node) {
 				$nodes[$i]["id"] = $node["id"];
 				$nodes[$i]["name"] = $node["node_name"];
-				$nodes[$i]["link"] = $node["node_link"];
-				$nodes[$i]["item_id"] = $node["node_page_id"];
-				$nodes[$i]["classname"] = $node["node_classname"];
 
-				// get sindex for page
-				if($node["node_page_id"]) {
-					$page = $IC->getItem(array("id" => $node["node_page_id"]));
-					$nodes[$i]["sindex"] = $page["sindex"];
+				$nodes[$i]["target"] = $node["node_target"];
+				$nodes[$i]["classname"] = $node["node_classname"];
+				$nodes[$i]["fallback"] = $node["node_fallback"];
+
+				// $nodes[$i]["item_id"] = $node["node_item_id"];
+				// $nodes[$i]["controller"] = $node["node_item_controller"];
+
+				// get create link for page
+				if($node["node_item_id"]) {
+					$page = $IC->getItem(array("id" => $node["node_item_id"]));
+
+					// create nested link structure
+					$nodes[$i]["link"] = $node["node_item_controller"].$nested_path."/".$page["sindex"];
+				}
+				// absolute static link
+				else {
+					$nodes[$i]["link"] = $node["node_link"];
 				}
 
 				// go deeper?
 				if($levels === false || $levels > $this->level_iterator) {
 					$_options["relation"] = $node["id"];
+
+					// update nested paths
+					$_options["nested_path"] = $nested_path."/".superNormalize($node["node_name"]);
+
+					// get child nodes
 					$nodes[$i]["nodes"] = $this->getNavigationNodes($navigation_id, $_options);
 				}
 			}
@@ -333,7 +331,7 @@ class Navigation extends Model {
 	}
 
 
-	// get specific navigation node information
+	// get specific navigation node information (for edit_node template)
 	function getNode($id) {
 
 		$query = new Query();
@@ -363,7 +361,19 @@ class Navigation extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false) {
+				if($name == "node_target") {
+					if($entity["value"]) {
+						$names[] = $name;
+						$values[] = $name."='_blank'";
+					}
+				}
+				else if($name == "node_item_id") {
+					if($entity["value"]) {
+						$names[] = $name;
+						$values[] = $name."='".$entity["value"]."'";
+					}
+				}
+				else if($entity["value"] !== false) {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
 				}
@@ -402,7 +412,28 @@ class Navigation extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false) {
+				// specific values for target and page references
+				if($name == "node_target") {
+					if($entity["value"]) {
+						$names[] = $name;
+						$values[] = $name."='_blank'";
+					}
+					else {
+						$names[] = $name;
+						$values[] = $name."=NULL";
+					}
+				}
+				else if($name == "node_item_id") {
+					if($entity["value"]) {
+						$names[] = $name;
+						$values[] = $name."='".$entity["value"]."'";
+					}
+					else {
+						$names[] = $name;
+						$values[] = $name."=NULL";
+					}
+				}
+				else if($entity["value"] !== false) {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
 				}
