@@ -665,36 +665,42 @@ class JanitorHTML {
 	// Current user TODOs dashboard
 	function listUserTodos() {
 		global $HTML;
-
-		$IC = new Items();
-		$model = $IC->typeObject("todo");
-		$todos = $IC->getItems(array("itemtype" => "todo", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
+		global $page;
 
 		$_ = '';
-		$_ .= '<div class="todos">';
-		$_ .= '<h2>TODOs</h2>';
 
-		if($todos) {
-			$_ .= '<ul class="todos">';
-			foreach($todos as $todo) {
-				$_ .= '<li class="todo todo_id:'.$todo["id"].'">';
-					$_ .= '<h3>'.stringOr($HTML->link($todo["name"], "/janitor/admin/todo/edit/".$todo["id"], array("target" => "_blank")), $todo["name"]).'</h3>';
-					$_ .= '<dl class="info">';
-						$_ .= '<dt class="priority">Priority</dt>';
-						$_ .= '<dd class="priority '.strtolower($model->todo_priority[$todo["priority"]]).'">'.$model->todo_priority[$todo["priority"]].'</dd>';
-						$_ .= '<dt class="deadline">Deadline</dt>';
-						$_ .= '<dd class="deadline'.(strtotime($todo["deadline"]) < time() ? " overdue" : "").'">'.date("Y-m-d", strtotime($todo["deadline"])).'</dd>';
-					$_ .= '</dl>';
-					$_ .= $this->tagList($todo["tags"]);
-				$_ .= '</li>';
+		// only show todos if user has access
+		if($page->validatePath("/janitor/admin/todo")) {
+			
+			$IC = new Items();
+			$model = $IC->typeObject("todo");
+			$todos = $IC->getItems(array("itemtype" => "todo", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
+
+			$_ .= '<div class="todos">';
+			$_ .= '<h2>TODOs</h2>';
+
+			if($todos) {
+				$_ .= '<ul class="todos">';
+				foreach($todos as $todo) {
+					$_ .= '<li class="todo todo_id:'.$todo["id"].'">';
+						$_ .= '<h3>'.stringOr($HTML->link($todo["name"], "/janitor/admin/todo/edit/".$todo["id"], array("target" => "_blank")), $todo["name"]).'</h3>';
+						$_ .= '<dl class="info">';
+							$_ .= '<dt class="priority">Priority</dt>';
+							$_ .= '<dd class="priority '.strtolower($model->todo_priority[$todo["priority"]]).'">'.$model->todo_priority[$todo["priority"]].'</dd>';
+							$_ .= '<dt class="deadline">Deadline</dt>';
+							$_ .= '<dd class="deadline'.(strtotime($todo["deadline"]) < time() ? " overdue" : "").'">'.date("Y-m-d", strtotime($todo["deadline"])).'</dd>';
+						$_ .= '</dl>';
+						$_ .= $this->tagList($todo["tags"]);
+					$_ .= '</li>';
+				}
+				$_ .= '</ul>';
 			}
-			$_ .= '</ul>';
-		}
-		else {
-			$_ .= '<p>No TODOs</p>';
-		}
+			else {
+				$_ .= '<p>No TODOs</p>';
+			}
 
-		$_ .= '</div>';
+			$_ .= '</div>';
+		}
 
 		return $_;
 	}
@@ -703,31 +709,39 @@ class JanitorHTML {
 	// Current open questions dashboard
 	function listOpenQuestions() {
 		global $HTML;
+		global $page;
 
-		$IC = new Items();
-		$qnas = $IC->getItems(array("itemtype" => "qna", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
 
 		$_ = '';
-		$_ .= '<div class="qnas">';
-		$_ .= '<h2>Unanswered questions</h2>';
 
-		if($qnas) {
-			$_ .= '<ul class="qnas">';
-			foreach($qnas as $qna) {
-				if(!$qna["answer"]) {
-				$_ .= '<li class="qna qna_id:'.$qna["id"].'">';
-					$_ .= '<h3>'.stringOr($HTML->link($qna["name"], "/janitor/admin/qna/edit/".$qna["id"], array("target" => "_blank")), $qna["name"]).'</h3>';
-					$_ .= $this->tagList($qna["tags"]);
-				$_ .= '</li>';
+		// only show todos if user has access
+		if($page->validatePath("/janitor/admin/qna")) {
+
+			$IC = new Items();
+			$qnas = $IC->getItems(array("itemtype" => "qna", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
+
+			$_ .= '<div class="qnas">';
+			$_ .= '<h2>Unanswered questions</h2>';
+
+			if($qnas) {
+				$_ .= '<ul class="qnas">';
+				foreach($qnas as $qna) {
+					if(!$qna["answer"]) {
+					$_ .= '<li class="qna qna_id:'.$qna["id"].'">';
+						$_ .= '<h3>'.stringOr($HTML->link($qna["name"], "/janitor/admin/qna/edit/".$qna["id"], array("target" => "_blank")), $qna["name"]).'</h3>';
+						$_ .= $this->tagList($qna["tags"]);
+					$_ .= '</li>';
+					}
 				}
+				$_ .= '</ul>';
 			}
-			$_ .= '</ul>';
-		}
-		else {
-			$_ .= '<p>No questions</p>';
-		}
+			else {
+				$_ .= '<p>No questions</p>';
+			}
 
-		$_ .= '</div>';
+			$_ .= '</div>';
+
+		}
 
 		return $_;
 	}
