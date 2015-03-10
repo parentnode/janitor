@@ -572,6 +572,7 @@ class PageCore {
 	* Get/set current currency
 	*
 	* Pass value to set currency
+	* DEPRECATED - NEEDS TO BE UPDATED WHEN SHOP IS REWRITTEN
 	*
 	* @return Array containing currency info 
 	*/
