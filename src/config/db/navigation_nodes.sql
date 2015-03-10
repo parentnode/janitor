@@ -8,7 +8,7 @@ CREATE TABLE `SITE_DB`.`navigation_nodes` (
   `node_item_controller` varchar(255) DEFAULT NULL,
 
   `node_classname` varchar(255) DEFAULT NULL,
-  `node_target` varchar(255) DEFAULT "",
+  `node_target` varchar(255) DEFAULT NULL,
   `node_fallback` varchar(255) DEFAULT NULL,
 
   `relation` int(11) DEFAULT 0,
