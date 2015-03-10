@@ -1042,7 +1042,13 @@ class PageCore {
 		session()->reset("user_group_id");
 		session()->reset("user_group_permissions");
 
+		$dev = session()->value("dev");
+		$segment = session()->value("segment");
+
 		session()->reset();
+
+		session()->value("dev", $dev);
+		session()->value("segment", $segment);
 
 		header("Location: /");
 		exit();
@@ -1070,9 +1076,11 @@ class PageCore {
 
 		//$this->user_id = "";
 		session()->reset();
-		if($url) {
-			session()->value("LoginForward", $url);
-		}
+
+		// disabled due to the risk of throwoff loop
+//		if($url) {
+//			session()->value("LoginForward", $url);
+//		}
 		print '<script type="text/javacript">location.href="/login?page_status=logoff"</script>';
 
 		header("Location: /login");
