@@ -55,6 +55,8 @@ Util.Objects["page"] = new function() {
 				// set scroll handler
 				u.e.addEvent(window, "scroll", page.scrolled);
 
+				// initialize header
+				page.initHeader();
 
 				// adds notifier and page.notify function
 				u.notifier(page);
@@ -62,6 +64,15 @@ Util.Objects["page"] = new function() {
 				// adds notifier and page.notify function
 				u.navigation(page);
 			}
+		}
+
+
+		page.initHeader = function() {
+
+			var janitor = u.ie(this.hN, "ul", {"class":"janitor"});
+			u.ae(janitor, u.qs(".servicenavigation .front", page.hN));
+
+			u.ae(page, u.qs(".servicenavigation", page.hN))
 		}
 
 		// create icon svg
