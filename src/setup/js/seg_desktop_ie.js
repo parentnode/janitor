@@ -6704,9 +6704,15 @@ Util.Objects["page"] = new function() {
 				this.is_ready = true;
 				u.e.addEvent(window, "resize", page.resized);
 				u.e.addEvent(window, "scroll", page.scrolled);
+				page.initHeader();
 				u.notifier(page);
 				u.navigation(page);
 			}
+		}
+		page.initHeader = function() {
+			var janitor = u.ie(this.hN, "ul", {"class":"janitor"});
+			u.ae(janitor, u.qs(".servicenavigation .front", page.hN));
+			u.ae(page, u.qs(".servicenavigation", page.hN))
 		}
 		page.svgIcon = function(icon) {
 			var path;
