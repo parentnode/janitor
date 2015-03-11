@@ -20,14 +20,64 @@ Util.Objects["page"] = new function() {
 		page.fN = u.qs("#footer", page);
 
 
-		// adds notifier and page.notify function
-		u.notifier(page);
 
-		// adds notifier and page.notify function
-		u.navigation(page);
+		// global scroll handler 
+		page.resized = function() {
 
-		// page is ready
-		u.addClass(page, "ready");
+			// forward resize event to current scene
+			if(page.cN && page.cN.scene && typeof(page.cN.scene.resized) == "function") {
+				page.cN.scene.resized();
+			}
+
+		}
+
+		// global scroll handler 
+		page.scrolled = function() {
+
+			// forward scroll event to current scene
+			if(page.cN && page.cN.scene && typeof(page.cN.scene.scrolled) == "function") {
+				page.cN.scene.scrolled();
+			}
+
+		}
+
+		// Page is ready - called from several places, evaluates when page is ready to be shown
+		page.ready = function() {
+//				u.bug("page ready")
+
+			// page is ready to be shown - only initalize if not already shown
+			if(!this.is_ready) {
+
+				// page is ready
+				this.is_ready = true;
+
+				// set resize handler
+				u.e.addEvent(window, "resize", page.resized);
+				// set scroll handler
+				u.e.addEvent(window, "scroll", page.scrolled);
+
+				// initialize header
+				page.initHeader();
+
+				// adds notifier and page.notify function
+				u.notifier(page);
+
+				// adds notifier and page.notify function
+				u.navigation(page);
+			}
+		}
+
+
+		page.initHeader = function() {
+
+			var janitor = u.ie(this.hN, "ul", {"class":"janitor"});
+			u.ae(janitor, u.qs(".servicenavigation .front", page.hN));
+
+			u.ae(page, u.qs(".servicenavigation", page.hN))
+		}
+
+		page.ready();
+
 	}
 }
 

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<!-- (c) & (p) parentnode.dk 2009-2014 //-->
+	<!-- (c) & (p) parentnode.dk 2009-2015 //-->
 	<!-- All material protected by copyrightlaws, as if you didnt know //-->
 	<!-- If you want to help build the ultimate frontend-centered platform, visit parentnode.dk -->
 	<title>Janitor setup</title>
