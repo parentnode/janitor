@@ -3,9 +3,6 @@ Util.Objects["login"] = new function() {
 
 		scene.resized = function() {
 //			u.bug("scene.resized:" + u.nodeId(this));
-
-			// refresh dom
-			//this.offsetHeight;
 		}
 
 		scene.scrolled = function() {

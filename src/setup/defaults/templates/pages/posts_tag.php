@@ -25,7 +25,7 @@ $pagination = $IC->paginate(array("pattern" => $pattern, "sindex" => $sindex, "l
 
 <?	if($pagination["range_items"]): ?>
 
-	<ul class="postings i:articlelist">
+	<ul class="items postings">
 <?		foreach($pagination["range_items"] as $item):
 			$media = $IC->sliceMedia($item); ?>
 		<li class="item post id:<?= $item["item_id"] ?>" itemscope itemtype="http://schema.org/Article">

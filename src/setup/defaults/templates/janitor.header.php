@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<?= $this->language() ?>">
 <head>
-	<!-- (c) & (p) parentNode.dk 2009-2014 //-->
+	<!-- (c) & (p) parentNode.dk 2009-2015 //-->
 	<!-- All material protected by copyrightlaws, as if you didnt know //-->
 	<!-- If you want to help build the ultimate frontend-centered platform, visit parentnode.dk -->
 	<title><?= $this->pageTitle() ?></title>
@@ -26,8 +26,9 @@
 <div id="page" class="i:page">
 	<div id="header">
 		<ul class="servicenavigation">
-			<li class="keynav front"><a href="/janitor"><?= SITE_NAME ?></a></li>
+			<li class="keynav front"><a href="/janitor">Janitor</a></li>
 <?			if(session()->value("user_id") && session()->value("user_group_id") > 1): ?>
+			<li class="keynav web nofollow"><a href="/"><?= SITE_NAME ?></a></li>
 			<li class="keynav user nofollow"><a href="?logoff=true">Logoff</a></li>
 <?			else: ?>
 			<li class="keynav user nofollow"><a href="/login">Login</a></li>

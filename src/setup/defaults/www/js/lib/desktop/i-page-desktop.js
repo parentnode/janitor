@@ -18,14 +18,24 @@ Util.Objects["page"] = new function() {
 		// global resize handler 
 		page.resized = function() {
 //			u.bug("page.resized:" + u.nodeId(this));
+
+			// forward scroll event to current scene
+			if(page.cN && page.cN.scene && typeof(page.cN.scene.resized) == "function") {
+				page.cN.scene.resized();
+			}
 		}
 
 		// global scroll handler 
 		page.scrolled = function() {
 //			u.bug("page.scrolled:" + u.nodeId(this))
+
+			// forward scroll event to current scene
+			if(page.cN && page.cN.scene && typeof(page.cN.scene.scrolled) == "function") {
+				page.cN.scene.scrolled();
+			}
 		}
 
-		// Page is ready - called from several places, evaluates when page is ready to be shown
+		// Page is ready
 		page.ready = function() {
 //			u.bug("page.ready:" + u.nodeId(this));
 
@@ -40,8 +50,18 @@ Util.Objects["page"] = new function() {
 				// set scroll handler
 				u.e.addEvent(window, "scroll", page.scrolled);
 
+				this.initHeader();
 			}
 
+		}
+
+		// initialize header
+		page.initHeader = function() {
+			var frontpage_link = u.qs("li.front a", this.nN);
+			if(frontpage_link) {
+				var logo = u.ae(this.hN, "a", {"class":"logo", "href":frontpage_link.href, "html":frontpage_link.innerHTML});
+				u.ce(logo, {"type":"link"});
+			}
 		}
 
 		// ready to start page builing process
@@ -50,4 +70,3 @@ Util.Objects["page"] = new function() {
 }
 
 u.e.addDOMReadyEvent(u.init);
-

@@ -7128,7 +7128,9 @@ Util.Objects["defaultEdit"] = new function() {
 			location.href = this.url;
 		}
 		form.submitted = function(iN) {
+			u.t.resetTimer(page.t_autosave);
 			this.response = function(response) {
+				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
 				page.notify(response);
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
@@ -7143,7 +7145,9 @@ Util.Objects["defaultEdit"] = new function() {
 				this.submitted();
 			}
 		}
-		u.t.setInterval(form, "autosave", 15000);
+		page._autosave_node = form;
+		page._autosave_interval = 5000;
+		page.t_autosave = u.t.setTimer(form, "autosave", page._autosave_interval);
 		form.cancelBackspace = function(event) {
 			if(event.keyCode == 8 && !u.qsa(".field.focus").length) {
 				u.e.kill(event);
@@ -8559,6 +8563,9 @@ u.notifier = function(node) {
 		else if(typeof(response) == "object" && response.isHTML) {
 			var login = u.qs(".scene.login", response);
 			if(login) {
+				if(page.t_autosave) {
+					u.t.resetTimer(page.t_autosave);
+				}
 				var overlay = u.ae(document.body, "div", {"id":"login_overlay"});
 				u.ae(overlay, login);
 				u.as(document.body, "overflow", "hidden");
@@ -8591,6 +8598,9 @@ u.notifier = function(node) {
 							}
 							this.overlay.parentNode.removeChild(this.overlay);
 							u.as(document.body, "overflow", "auto");
+							if(page._autosave_node && page._autosave_interval) {
+								u.t.setTimer(page._autosave_node, "autosave", page._autosave_interval);
+							}
 						}
 						else {
 							alert("login error")

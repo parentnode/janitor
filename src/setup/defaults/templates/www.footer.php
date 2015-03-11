@@ -1,8 +1,22 @@
+<?
+$navigation = session()->value("navigation_main");
+// or get complete structure from system
+if(!$navigation) {
+
+	$NC = new Navigation();
+	$navigation = $NC->getNavigations(array("handle" => "main"));
+	session()->value("navigation_main", $navigation);
+}
+?>
 	</div>
 
 	<div id="navigation">
 		<ul class="navigation">
-			<li class="front"><a href="/">Frontpage</a></li>
+<?		if($navigation):
+			foreach($navigation["nodes"] as $node): ?>
+			<?= $HTML->navigationLink($node); ?>
+<?			endforeach;
+	 	endif; ?>
 		</ul>
 	</div>
 
