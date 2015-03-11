@@ -48,7 +48,7 @@ Util.Objects["defaultEdit"] = new function() {
 			}
 		}
 		page._autosave_node = form;
-		page._autosave_interval = 5000;
+		page._autosave_interval = 15000;
 		page.t_autosave = u.t.setTimer(form, "autosave", page._autosave_interval);
 
 
