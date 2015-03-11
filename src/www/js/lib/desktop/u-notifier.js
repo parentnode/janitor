@@ -67,6 +67,13 @@ u.notifier = function(node) {
 			// check for login
 			var login = u.qs(".scene.login", response);
 			if(login) {
+
+				// stop autosave
+				if(page.t_autosave) {
+					u.t.resetTimer(page.t_autosave);
+				}
+
+
 				var overlay = u.ae(document.body, "div", {"id":"login_overlay"});
 				u.ae(overlay, login);
 				u.as(document.body, "overflow", "hidden");
@@ -102,6 +109,11 @@ u.notifier = function(node) {
 
 							this.overlay.parentNode.removeChild(this.overlay);
 							u.as(document.body, "overflow", "auto");
+
+							// start autosave again
+							if(page._autosave_node && page._autosave_interval) {
+								u.t.setTimer(page._autosave_node, "autosave", page._autosave_interval);
+							}
 							
 //							u.bug("vars:" + vars.length)
 						}

@@ -16,8 +16,17 @@ Util.Objects["defaultEdit"] = new function() {
 		}
 		form.submitted = function(iN) {
 
+			// stop autosave (this could be a manual save)
+			u.t.resetTimer(page.t_autosave);
+
 			this.response = function(response) {
+				// restart autosave
+				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
+
+				// notifier will kill autosave if necessary (if login is required)
+				// could happen if user log off in other tab
 				page.notify(response);
+
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
 
@@ -37,9 +46,10 @@ Util.Objects["defaultEdit"] = new function() {
 			if(!u.qs(".field.error", this)) {
 				this.submitted();
 			}
-
 		}
-		u.t.setInterval(form, "autosave", 15000);
+		page._autosave_node = form;
+		page._autosave_interval = 5000;
+		page.t_autosave = u.t.setTimer(form, "autosave", page._autosave_interval);
 
 
 		// kill backspace to avoid leaving for unintended
