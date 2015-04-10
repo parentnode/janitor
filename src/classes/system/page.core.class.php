@@ -939,6 +939,7 @@ class PageCore {
 		if($this->validatePath($path)) {
 			return $path;
 		}
+		return "";
 	}
 
 
@@ -1078,10 +1079,9 @@ class PageCore {
 		//$this->user_id = "";
 		session()->reset();
 
-		// disabled due to the risk of throwoff loop
-//		if($url) {
-//			session()->value("LoginForward", $url);
-//		}
+		if($url) {
+			session()->value("LoginForward", $url);
+		}
 		print '<script type="text/javacript">location.href="/login?page_status=logoff"</script>';
 
 		header("Location: /login");
