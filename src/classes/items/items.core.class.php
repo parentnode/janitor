@@ -254,7 +254,16 @@ class ItemsCore {
 
 			// add tags
 			if($all || $tags) {
-				$item["tags"] = $this->getTags(array("item_id" => $item["id"]));
+				// custom settings for getTags (order or context)
+				if(is_array($tags)) {
+					$tags["item_id"] = $item["id"];
+				}
+				else {
+					$tags = array("item_id" => $item["id"]);
+				}
+
+				// get tags
+				$item["tags"] = $this->getTags($tags);
 			}
 
 			// add user nickname
