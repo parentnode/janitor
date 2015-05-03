@@ -60,7 +60,7 @@ class ItemtypeCore extends Model {
 	function delete($action) {
 
 		if(count($action) == 2) {
-			$itemtype = $action[0];
+//			$itemtype = $action[0];
 			$item_id = $action[1];
 
 			$query = new Query();
