@@ -38,7 +38,23 @@ Util.Objects["defaultEdit"] = new function() {
 
 			for(name in this.fields) {
 				if(this.fields[name].field) {
-					u.f.validate(this.fields[name]);
+
+					// field has not been used yet
+					if(!this.fields[name].used) {
+
+						// check for required and value
+						if(u.hc(this.fields[name].field, "required") && !this.fields[name].val()) {
+
+							// cannot save due to missing values - keep trying
+							page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
+							return false;
+						}
+
+					}
+					// do actual validation
+					else {
+						u.f.validate(this.fields[name]);
+					}
 				}
 			}
 
@@ -46,7 +62,13 @@ Util.Objects["defaultEdit"] = new function() {
 			if(!u.qs(".field.error", this)) {
 				this.submitted();
 			}
+			// keep auto save going
+			else {
+				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
+			}
 		}
+
+
 		page._autosave_node = form;
 		page._autosave_interval = 15000;
 		page.t_autosave = u.t.setTimer(form, "autosave", page._autosave_interval);
