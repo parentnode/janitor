@@ -55,8 +55,10 @@ class Tag extends Model {
 	function getTags() {
 
 		$query = new Query();
-
-		if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." ORDER BY tags.context, tags.value")) {
+		$sql = "SELECT tags.id as id, tags.context as context, tags.value as value, count(taggings.id) as tag_count FROM ".UT_TAG." as tags LEFT JOIN ".UT_TAGGINGS."  as taggings ON tags.id = taggings.tag_id GROUP BY tags.id ORDER BY tags.context, tags.value";
+//		print $sql;
+		if($query->sql($sql)) {
+			
 			return $query->results();
 		}
 

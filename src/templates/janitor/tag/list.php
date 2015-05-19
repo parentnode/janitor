@@ -3,6 +3,11 @@ global $action;
 global $model;
 
 $tags = $model->getTags();
+
+$IC = new Items();
+$IC->getItems(array("tags" => "brand:Google"));
+
+//print_r($tags);
 ?>
 <div class="scene defaultList tagList">
 	<h1>Tags</h1>
@@ -18,8 +23,8 @@ $tags = $model->getTags();
 <?		if($tags): ?>
 		<ul class="items">
 <?			foreach($tags as $tag): ?>
-			<li class="item tag_id:<?= $tag["id"] ?>">
-				<h3><?= $tag["context"] ?>:<?= $tag["value"] ?></h3>
+			<li class="item tag_id:<?= $tag["id"] ?><?= !$tag["tag_count"] ? " unused" : "" ?>">
+				<h3><?= $tag["context"] ?>:<?= $tag["value"] ?> <span class="count">(<?= pluralize($tag["tag_count"], "item", "items") ?>)</span></h3>
 				
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/janitor/admin/tag/edit/".$tag["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
