@@ -3,7 +3,13 @@ u.bug_console_only = true;
 Util.Objects["page"] = new function() {
 	this.init = function(page) {
 
+		u.bug("init page:" + page)
 		var i, node;
+
+
+		// make sure page is globally available
+//		window.page = page;
+
 
 		// main elements
 		// header element
@@ -62,7 +68,7 @@ Util.Objects["page"] = new function() {
 				u.notifier(page);
 
 				// adds notifier and page.notify function
-				u.navigation(page);
+				u.navigation();
 			}
 		}
 

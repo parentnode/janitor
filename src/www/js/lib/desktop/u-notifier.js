@@ -33,7 +33,7 @@ u.notifier = function(node) {
 
 		var output;
 
-		u.bug("message:" + typeof(response) + "; JSON: " + response.isJSON + "; HTML: " + response.isHTML);
+//		u.bug("message:" + typeof(response) + "; JSON: " + response.isJSON + "; HTML: " + response.isHTML);
 
 		if(typeof(response) == "object" && response.isJSON) {
 
@@ -43,7 +43,7 @@ u.notifier = function(node) {
 			// TODO: message can be JSON object
 			if(typeof(message) == "object") {
 				for(type in message) {
-					u.bug("typeof(message[type]:" + typeof(message[type]) + "; " + type);
+//					u.bug("typeof(message[type]:" + typeof(message[type]) + "; " + type);
 					if(typeof(message[type]) == "string") {
 						output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":message[type]});
 					}

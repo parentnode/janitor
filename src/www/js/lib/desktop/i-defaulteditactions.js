@@ -1,21 +1,22 @@
 Util.Objects["defaultEditActions"] = new function() {
 	this.init = function(node) {
+		u.bug("defaultEditActions:" + u.nodeId(node));
 
 		node._item_id = u.cv(node, "item_id");
 		node.csrf_token = node.getAttribute("data-csrf-token");
 
-		var cancel = u.qs("li.cancel a");
+		var bn_cancel = u.qs("li.cancel a", node);
 
 		// delete button
-		var action = u.qs("li.delete");
+		var bn_delete = u.qs("li.delete", node);
 
-		if(action && cancel && cancel.href) {
+		if(bn_delete && bn_cancel && bn_cancel.href) {
 
 			// inject standard item delete form if node is empty
-			if(!action.childNodes.length) {
-				action.delete_item_url = action.getAttribute("data-item-delete");
-				if(action.delete_item_url) {
-					form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
+			if(!bn_delete.childNodes.length) {
+				bn_delete.delete_item_url = bn_delete.getAttribute("data-item-delete");
+				if(bn_delete.delete_item_url) {
+					form = u.f.addForm(bn_delete, {"action":bn_delete.delete_item_url, "class":"delete"});
 					u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":node.csrf_token});
 					form.node = node;
 					bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
@@ -23,14 +24,14 @@ Util.Objects["defaultEditActions"] = new function() {
 			}
 			// look for valid forms
 			else {
-				form = u.qs("form", action);
+				form = u.qs("form", bn_delete);
 			}
 
 			// init if form is available
 			if(form) {
 				u.f.init(form);
 
-				form.cancel_url = cancel.href;
+				form.cancel_url = bn_cancel.href;
 
 				form.restore = function(event) {
 					this.actions["delete"].value = "Delete";
@@ -70,5 +71,24 @@ Util.Objects["defaultEditActions"] = new function() {
 				}
 			}
 		}
+		
+		// add autosave option
+
+		// bn_autosave = u.ae(node, "li", {"class":"autosave on", "html":"Autosave ON"});
+		// u.e.click(bn_autosave);
+		// bn_autosave.clicked = function() {
+		// 	if(u.hc(this, "on")) {
+		//
+		// 		u.rc(this, "on");
+		// 		page.autosave_disabled = true;
+		// 	}
+		// 	else {
+		//
+		// 		u.ac(this, "on");
+		// 		page.autosave_disabled = false;
+		// 	}
+		// 	u.bug("toggle autosave")
+		// }
+
 	}
 }

@@ -21,7 +21,7 @@ Util.Objects["defaultEdit"] = new function() {
 
 			this.response = function(response) {
 				// restart autosave
-				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
+//				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
 
 				// notifier will kill autosave if necessary (if login is required)
 				// could happen if user log off in other tab
@@ -32,49 +32,80 @@ Util.Objects["defaultEdit"] = new function() {
 
 		}
 
+		form.updated = function() {
+//			u.bug("form has been update")
 
-		// enable autosaving for testing
-		form.autosave = function() {
+			this.change_state = true;
+			u.t.resetTimer(page.t_autosave);
 
-			for(name in this.fields) {
-				if(this.fields[name].field) {
+			if(!page.autosave_disabled) {
 
-					// field has not been used yet
-					if(!this.fields[name].used) {
-
-						// check for required and value
-						if(u.hc(this.fields[name].field, "required") && !this.fields[name].val()) {
-
-							// cannot save due to missing values - keep trying
-							page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
-							return false;
-						}
-
-					}
-					// do actual validation
-					else {
-						u.f.validate(this.fields[name]);
-					}
-				}
-			}
-
-			// if error is found after validation
-			if(!u.qs(".field.error", this)) {
-				this.submitted();
-			}
-			// keep auto save going
-			else {
+//				u.bug("start autosave loop after update")
 				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
+
 			}
 		}
 
+		// enable autosaving for testing
+		form.autosave = function() {
+//			u.bug("autosaving")
+
+			// is autosave on?
+			if(!page.autosave_disabled && this.change_state) {
+
+//				u.bug("autosave execute")
+
+
+				for(name in this.fields) {
+					if(this.fields[name].field) {
+
+						// field has not been used yet
+						if(!this.fields[name].used) {
+
+							// check for required and value
+							if(u.hc(this.fields[name].field, "required") && !this.fields[name].val()) {
+
+								// cannot save due to missing values - keep trying
+//								page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
+								return false;
+							}
+
+						}
+						// do actual validation
+						else {
+							u.f.validate(this.fields[name]);
+						}
+					}
+				}
+
+				// if error is found after validation
+				if(!u.qs(".field.error", this)) {
+					this.change_state = false;
+					this.submitted();
+				}
+				// keep auto save going
+				// else {
+				// 	page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
+				// }
+
+			}
+
+			// autosave is turned off
+			else {
+
+				
+			}
+
+		}
+
+		form.change_state = false;
 
 		page._autosave_node = form;
-		page._autosave_interval = 15000;
+		page._autosave_interval = 3000;
 		page.t_autosave = u.t.setTimer(form, "autosave", page._autosave_interval);
 
 
-		// kill backspace to avoid leaving for unintended
+		// kill backspace to avoid leaving page unintended (backspace is history.back)
 		form.cancelBackspace = function(event) {
 //			u.bug("ss:" + u.qsa(".field.focus", this).length);
 			if(event.keyCode == 8 && !u.qsa(".field.focus").length) {
