@@ -45,6 +45,7 @@ Util.Objects["login"] = new function() {
 			this._form = u.qs("form", this);
 			u.f.init(this._form);
 
+			this._form.fields["username"].focus();
 
 			page.cN.scene = this;
 			page.resized();
