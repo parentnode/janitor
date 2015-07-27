@@ -998,10 +998,13 @@ class PageCore {
 //			print $sql;
 			if($query->sql($sql)) {
 
+
 				// add user_id and user_group_id to session
 				session()->value("user_id", $query->result(0, "id"));
 				session()->value("user_group_id", $query->result(0, "user_group_id"));
 				session()->reset("user_group_permissions");
+
+				$this->addLog("Login: ".$username ." (".session()->value("user_id").")");
 
 				// set new csrf token for user
 				session()->value("csrf", gen_uuid());
@@ -1026,6 +1029,8 @@ class PageCore {
 			}
 		}
 
+		$this->addLog("Login error: ".$username);
+
 		message()->addMessage("Computer says NO!", array("type" => "error"));
 		return false;
 	}
@@ -1037,7 +1042,7 @@ class PageCore {
 	*/
 	function logOff() {
 
-		$this->addLog("Logoff: ".$user_id);
+		$this->addLog("Logoff: ".session()->value("user_id"));
 		//$this->user_id = "";
 
 		session()->reset("user_id");
