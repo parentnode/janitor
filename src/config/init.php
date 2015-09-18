@@ -41,10 +41,10 @@ function writeToFile($message) {
 }
 
 
-// page class + extension
+// base configuration
 include_once("config/config.php");
 
-
+// page class + extension
 include_once("classes/system/queryi.class.php");
 include_once("classes/system/filesystem.class.php");
 include_once("classes/system/output.class.php");
