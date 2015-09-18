@@ -12,11 +12,11 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <? if(session()->value("dev")) { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/lib/seg_<?= $this->segment() ?>_include.css" />
-	<script type="text/javascript" src="/janitor/js/lib/seg_<?= $this->segment() ?>_include.js"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/lib/seg_<?= $this->segment(array("type" => "janitor")) ?>_include.css" />
+	<script type="text/javascript" src="/janitor/js/lib/seg_<?= $this->segment(array("type" => "janitor")) ?>_include.js"></script>
 <? } else { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/seg_<?= $this->segment() ?>.css" />
-	<script type="text/javascript" src="/janitor/js/seg_<?= $this->segment() ?>.js"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/seg_<?= $this->segment(array("type" => "janitor")) ?>.css" />
+	<script type="text/javascript" src="/janitor/js/seg_<?= $this->segment(array("type" => "janitor")) ?>.js"></script>
 <? } ?>
 
 </head>

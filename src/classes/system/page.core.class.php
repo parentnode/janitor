@@ -87,7 +87,7 @@ class PageCore {
 		}
 		// set segment
 		if(getVar("segment")) {
-			$this->segment(getVar("segment"));
+			$this->segment(array("value" => getVar("segment")));
 		}
 		// set language
 		if(getVar("language")) {
@@ -602,38 +602,135 @@ class PageCore {
 	/**
 	* Access device API and get info about current useragent
 	*
+	* @param Array $_options Settings for segment function
 	* @return Array containing device info, or fallback 
 	*/
 	// returns currently used browser info to be stored in session
-	function segment($value = false) {
+	function segment($_options = false) {
 		// writeToFile("segment function:" . $value);
 
-		if($value !== false) {
-			if(is_string($value) && preg_match("/^(basic|desktop|desktop_ie|desktop_light|tablet|mobile|mobile_touch|mobile_light|tv)$/", $value)) {
-				session()->value("segment", $value);
+//		print "segment called";
+		// get any stored value
+		$session = session()->value("segment");
+
+//		print "current session is: ".$session;
+
+		$value = false;
+		$type = "www";
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "type"        : $type         = $_value; break;
+					case "value"       : $value        = $_value; break;
+				}
 			}
 		}
-		else {
-			if(!session()->value("segment")) {
-				// writeToFile("request new segment:" . $value);
 
-				$device_id = @file_get_contents("http://detector.dearapi.com/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
+
+		// setting value
+		if($value !== false) {
+//			if(is_string($value) && preg_match("/^(basic|desktop|desktop_ie|desktop_light|tablet|mobile|mobile_touch|mobile_light|tv)$/", $value)) {
+			if(is_string($value) && preg_match("/^[a-z_]+)$/", $value)) {
+
+				// are we setting a specific type
+				if($type !== false) {
+					$session[$type] = $value;
+				}
+				// or "original" segment value
+				else {
+					// clear out existing values and prepare for new
+					unset($session);
+					$session["segment"] = $value;
+				}
+				// TODO: add local grouping options in config.php - to allow using the live API and groupings at the same time
+
+				session()->value("segment", $session);
+
+//				session()->value("segment", $value);
+				return true;
+
+			}
+			// invalid segment value
+			return false;
+		}
+		// getting value for type
+		else if ($type !== false){
+
+//			print "\ntype: " . $type;
+
+			// is something missing
+			if(!$session || !isset($session[$type])) {
+				// writeToFile("request new segment:" . $type);
+
+//				print "\nlookup: " . $type;
+
+				// if we don't have our base segment yet, get it now
+				if(!$session) {
+
+//					print "\nsession";
+
+					$session["segment"] = @file_get_contents("http://detector-v3.dearapi.com/text?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
+
+					// if the request failed, pass default segment back
+					// don't update - make attempt again on next function call
+					if(!$session["segment"]) {
+
+//						print "\nfailed lookup";
+						return "desktop";
+
+					}
+
+				}
+//				print "\nfind type";
+
+				// get specified interface type settings
+				@include_once("config/segments.core.php");
+				@include_once("config/segments.php");
+				// 
+
+//				print "\ninclusion done: " . $session["segment"];
+
+				if(isset($segments_config[$type]) && isset($segments_config[$type][$session["segment"]])) {
+
+//					print "\nset type: " . $segments_config[$type][$session["segment"]];
+					$session[$type] = $segments_config[$type][$session["segment"]];
+
+				}
+				else if(isset($segments_config["www"]) && isset($segments_config["www"][$session["segment"]])) {
+//					print "\nset fallback type: " . $segments_config["www"][$session["segment"]];
+
+					$session[$type] = $segments_config["www"][$session["segment"]];
+
+				}
+//				else {
+//					print "what the hell";
+//				}
+
+				session()->value("segment", $session);
+
 		//		$device_id = file_get_contents("http://detector.api/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
-				$device = (array) simplexml_load_string($device_id);
+//				$device = (array) simplexml_load_string($device_id);
 //				print_r($device);
 
-				if($device && isset($device["segment"])) {
-					session()->value("segment", $device["segment"]);
-				}
-				else {
-					// offline default value
-					session()->value("segment", "desktop");
-				}
-			}
+				// if($segment) {
+				// 	session()->value("segment", $session);
+				// }
+				// else {
+				// 	// offline default value
+				// 	session()->value("segment", "desktop");
+				// }
 
-			return session()->value("segment");
+			}
+//			print "\nreturn value: " . $session[$type] . "\n";
+			return $session[$type];
+
+			 //session()->value("segment");
 		}
 
+		// getting original segment value
+		return isset($session["segment"]) ? $session["segment"] : "desktop";
 	}
 
 
