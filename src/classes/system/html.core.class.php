@@ -280,7 +280,12 @@ class HTMLCore {
 			// STRING
 			else if($type == "string") {
 				$att_value = $this->attribute("value", $value);
-				$att_max = $this->attribute("maxlength", $max);
+				if($max) {
+					$att_max = $this->attribute("maxlength", $max);
+				}
+				else {
+					$att_max = $this->attribute("maxlength", 255);
+				}
 
 				$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_pattern.' />';
 			}
