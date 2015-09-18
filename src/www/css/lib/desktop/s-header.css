@@ -33,4 +33,5 @@ body.navigation #navigation .navigation a,
 body.shop #navigation .shop a,
 body.tags #navigation .tags a,
 body.user #navigation .user a,
+body.logs #navigation .logs a,
 body.usergroup #navigation .user a {padding-left: 35px; color: #ffffff;}

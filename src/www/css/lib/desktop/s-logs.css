@@ -1,0 +1,3 @@
+#content .defaultList.logList h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
+
+#content .defaultList.logList ul.items > li ul.loglines li {padding: 0 30px; display: block;}

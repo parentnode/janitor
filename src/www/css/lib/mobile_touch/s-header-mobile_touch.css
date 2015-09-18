@@ -34,4 +34,5 @@ body.todolist #navigation .todolist a,
 body.navigation #navigation .navigation a,
 body.shop #navigation .shop a,
 body.tags #navigation .tags a,
+body.logs #navigation .logs a,
 body.user #navigation .user a {padding-left: 35px; color: #ffffff;}
