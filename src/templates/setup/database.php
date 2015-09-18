@@ -48,7 +48,7 @@ $db_check = $model->checkDatabaseSettings();
 	<p>Specify new database name and username and password.</p>
 	<fieldset>
 
-		<?= $model->input("db_janitor_db", array("value" => $model->db_janitor_db)) ?>
+		<?= $model->input("db_janitor_db", array("value" => $model->db_janitor_db, "pattern" => "[a-zA-Z_]+")) ?>
 		<?= $model->input("db_janitor_user", array("value" => $model->db_janitor_user)) ?>
 		<?= $model->input("db_janitor_pass", array("value" => $model->db_janitor_pass)) ?>
 	</fieldset>
