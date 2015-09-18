@@ -398,13 +398,20 @@ class User extends Model {
 
 					// send welcome email
 					global $page;
+					$page->addLog("New User created: " . $email);
+
 					$page->mail(array("subject" => "signup", "message" => "EMAIL:$email\nPASSWORD:$mail_password\nVERIFICATION:$verification_code", "recipients" => $email, "template" => "signup"));
 
+					$page->mail(array(
+						"subject" => "New User created: " . $email, 
+						"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
+						"template" => "system"
+					));
 
 					// return enough information to the frontend
 					return array("user_id" => $user_id, "email" => $email);
 				}
-			}			
+			}
 		}
 
 		return false;

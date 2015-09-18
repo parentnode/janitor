@@ -83,6 +83,9 @@ class SuperUser extends User {
 //				print $sql;
 
 				if($query->sql($sql)) {
+					global $page;
+					$page->addLog("User created (" . $query->lastInsertId() . ") by (" . session()->value("user_id") . ")");
+
 					message()->addMessage("User created");
 					return array("item_id" => $query->lastInsertId());
 				}
