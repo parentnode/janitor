@@ -87,7 +87,8 @@ class PageCore {
 		}
 		// set segment
 		if(getVar("segment")) {
-			$this->segment(array("value" => getVar("segment")));
+			// set real segment value
+			$this->segment(array("value" => getVar("segment"), "type" => "segment"));
 		}
 		// set language
 		if(getVar("language")) {
@@ -611,9 +612,9 @@ class PageCore {
 
 //		print "segment called";
 		// get any stored value
-		$session = session()->value("segment");
+		$segment_session = session()->value("segment");
 
-//		print "current session is: ".$session;
+//		print "current session is: ".$segment_session;
 
 		$value = false;
 		$type = "www";
@@ -629,24 +630,26 @@ class PageCore {
 		}
 
 
-		// setting value
+		// setting new value
 		if($value !== false) {
 //			if(is_string($value) && preg_match("/^(basic|desktop|desktop_ie|desktop_light|tablet|mobile|mobile_touch|mobile_light|tv)$/", $value)) {
-			if(is_string($value) && preg_match("/^[a-z_]+)$/", $value)) {
+			if(is_string($value) && preg_match("/^[a-z_]+$/", $value)) {
 
+//				print "set segment:". $value;
 				// are we setting a specific type
-				if($type !== false) {
-					$session[$type] = $value;
-				}
-				// or "original" segment value
-				else {
+				// if($type !== false) {
+				//
+				// 	$segment_session[$type] = $value;
+				// }
+				// // or "original" segment value
+				// else {
+					// always set global segment as everything is deducted from this
 					// clear out existing values and prepare for new
-					unset($session);
-					$session["segment"] = $value;
-				}
-				// TODO: add local grouping options in config.php - to allow using the live API and groupings at the same time
+					unset($segment_session);
+					$segment_session["segment"] = $value;
+//				}
 
-				session()->value("segment", $session);
+				session()->value("segment", $segment_session);
 
 //				session()->value("segment", $value);
 				return true;
@@ -658,24 +661,25 @@ class PageCore {
 		// getting value for type
 		else if ($type !== false){
 
-//			print "\ntype: " . $type;
+//			print_r($segment_session);
+//			print "\nget type: " . $type;
 
 			// is something missing
-			if(!$session || !isset($session[$type])) {
+			if(!$segment_session || !isset($segment_session[$type])) {
 				// writeToFile("request new segment:" . $type);
 
 //				print "\nlookup: " . $type;
 
 				// if we don't have our base segment yet, get it now
-				if(!$session) {
+				if(!$segment_session) {
 
-//					print "\nsession";
+//					print "\nno real session segment";
 
-					$session["segment"] = @file_get_contents("http://detector-v3.dearapi.com/text?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
+					$segment_session["segment"] = @file_get_contents("http://detector-v3.dearapi.com/text?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
 
 					// if the request failed, pass default segment back
 					// don't update - make attempt again on next function call
-					if(!$session["segment"]) {
+					if(!$segment_session["segment"]) {
 
 //						print "\nfailed lookup";
 						return "desktop";
@@ -690,32 +694,32 @@ class PageCore {
 				@include_once("config/segments.php");
 				// 
 
-//				print "\ninclusion done: " . $session["segment"];
+//				print "\ninclusion done: " . $segment_session["segment"];
 
-				if(isset($segments_config[$type]) && isset($segments_config[$type][$session["segment"]])) {
+				if(isset($segments_config[$type]) && isset($segments_config[$type][$segment_session["segment"]])) {
 
-//					print "\nset type: " . $segments_config[$type][$session["segment"]];
-					$session[$type] = $segments_config[$type][$session["segment"]];
+//					print "\nset type: " . $segments_config[$type][$segment_session["segment"]];
+					$segment_session[$type] = $segments_config[$type][$segment_session["segment"]];
 
 				}
-				else if(isset($segments_config["www"]) && isset($segments_config["www"][$session["segment"]])) {
-//					print "\nset fallback type: " . $segments_config["www"][$session["segment"]];
+				else if(isset($segments_config["www"]) && isset($segments_config["www"][$segment_session["segment"]])) {
+//					print "\nset fallback type: " . $segments_config["www"][$segment_session["segment"]];
 
-					$session[$type] = $segments_config["www"][$session["segment"]];
+					$segment_session[$type] = $segments_config["www"][$segment_session["segment"]];
 
 				}
 //				else {
 //					print "what the hell";
 //				}
 
-				session()->value("segment", $session);
+				session()->value("segment", $segment_session);
 
 		//		$device_id = file_get_contents("http://detector.api/xml?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
 //				$device = (array) simplexml_load_string($device_id);
 //				print_r($device);
 
 				// if($segment) {
-				// 	session()->value("segment", $session);
+				// 	session()->value("segment", $segment_session);
 				// }
 				// else {
 				// 	// offline default value
@@ -723,14 +727,14 @@ class PageCore {
 				// }
 
 			}
-//			print "\nreturn value: " . $session[$type] . "\n";
-			return $session[$type];
+//			print "\nreturn value: " . $segment_session[$type] . "\n";
+			return $segment_session[$type];
 
 			 //session()->value("segment");
 		}
 
 		// getting original segment value
-		return isset($session["segment"]) ? $session["segment"] : "desktop";
+		return isset($segment_session["segment"]) ? $segment_session["segment"] : "desktop";
 	}
 
 
