@@ -34,6 +34,7 @@ class PageCore {
 
 	public $body_class;
 	public $content_class;
+	public $header_includes;
 
 
 
@@ -204,7 +205,7 @@ class PageCore {
 
 
 	/**
-	* Get page title
+	* Get/set page title
 	*
 	* - fallback to SITE_NAME
 	*
@@ -229,7 +230,7 @@ class PageCore {
 	}
 
 	/**
-	* Get page description
+	* Get/set page description
 	*
 	* - Fallback to DEFAULT_PAGE_DESCRIPTION, then $this->title
 	*
@@ -259,7 +260,7 @@ class PageCore {
 	}
 
 	/**
-	* Get page image
+	* Get/set page image
 	*
 	* - Fallback to DEFAULT_PAGE_IMAGE
 	*
@@ -288,7 +289,7 @@ class PageCore {
 
 
 	/**
-	* Get body class
+	* Get/set body class
 	* this can be sat via page->header
 	* 
 	* @return String body class
@@ -312,7 +313,7 @@ class PageCore {
 
 
 	/**
-	* Get content class
+	* Get/set content class
 	* this can be sat via page->header
 	* 
 	* @return String body class
@@ -334,6 +335,43 @@ class PageCore {
 		}
 	}
 
+	/**
+	* Get/set header includes
+	* 
+	* @param Array $files to be included
+	* @return String of include statements
+	*/
+	function headerIncludes($files = false) {
+		// set
+		if($files !== false) {
+			// add files to include list (includes can be added more than once)
+			if(!$this->header_includes) {
+				$this->header_includes = array();
+			}
+			// add $files to header_includes array
+			$this->header_includes = array_merge($this->header_includes, $files);
+		}
+		// get
+		else {
+			// loop through header_includes and create correct include statements
+			if($this->header_includes) {
+				$_ = "";
+				foreach($this->header_includes as $include) {
+					if(preg_match("/\.js$/", $include)) {
+						$_ .= '<script type="text/javascript" src="'.$include.'"></script>';
+					}
+					else if(preg_match("/\.css$/", $include)) {
+						$_ .= '<link type="text/css" rel="stylesheet" media="all" href="'.$include.'" />';
+					}
+				}
+
+				return $_."\n";
+			}
+			else {
+				return "";
+			}
+		}
+	}
 
 	/**
 	* Load external template
