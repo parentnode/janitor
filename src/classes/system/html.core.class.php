@@ -207,16 +207,15 @@ class HTMLCore {
 				// fallback hidden input so checkbox always sends value (even when not checked)
 				$_ .= '<input type="hidden"'.$att_name.' value="0" />';
 				$_ .= '<input type="checkbox"'.$att_name.$att_id.$att_value.$att_checked.$att_disabled.$att_readonly.$att_pattern.' />';
+
+				// LABEL after input
+				$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
 			}
-
-
-			// All other inputs have label in front of input
-			// LABEL
-			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
-
-
 			// RADIOBUTTONS
-			if($type == "radiobuttons") {
+			else if($type == "radiobuttons") {
+
+				// LABEL
+				$_ .= '<label>'.$label.'</label>';
 
 				foreach($options as $radio_value => $radio_label) {
 
@@ -231,100 +230,107 @@ class HTMLCore {
 					$_ .= '</div>';
 				}
 			}
+			else {
 
-			// DATE
-			if($type == "date") {
-				$att_value = $this->attribute("value", $value);
-				$att_max = $this->attribute("max", $max);
-				$att_min = $this->attribute("min", $min);
 
-				$_ .= '<input type="date"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
-			}
+				// All other inputs have label in front of input
+				// LABEL
+				$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
 
-			// DATETIME
-			else if($type == "datetime") {
-				$att_value = $this->attribute("value", $value);
-				$att_max = $this->attribute("max", $max);
-				$att_min = $this->attribute("min", $min);
 
-				$_ .= '<input type="datetime"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
-			}
+				// DATE
+				if($type == "date") {
+					$att_value = $this->attribute("value", $value);
+					$att_max = $this->attribute("max", $max);
+					$att_min = $this->attribute("min", $min);
 
-			// EMAIL
-			else if($type == "email") {
-				$att_value = $this->attribute("value", $value);
-				$att_max = $this->attribute("max", $max);
-				$att_min = $this->attribute("min", $min);
+					$_ .= '<input type="date"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+				}
 
-				$_ .= '<input type="email"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
-			}
+				// DATETIME
+				else if($type == "datetime") {
+					$att_value = $this->attribute("value", $value);
+					$att_max = $this->attribute("max", $max);
+					$att_min = $this->attribute("min", $min);
 
-			// TEL
-			else if($type == "tel") {
-				$att_value = $this->attribute("value", $value);
-				$att_max = $this->attribute("max", $max);
-				$att_min = $this->attribute("min", $min);
+					$_ .= '<input type="datetime"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+				}
 
-				$_ .= '<input type="tel"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
-			}
+				// EMAIL
+				else if($type == "email") {
+					$att_value = $this->attribute("value", $value);
+					$att_max = $this->attribute("max", $max);
+					$att_min = $this->attribute("min", $min);
 
-			// PASSWORD
-			else if($type == "password") {
-				$att_value = $this->attribute("value", $value);
-				$att_max = $this->attribute("max", $max);
-				$att_min = $this->attribute("min", $min);
+					$_ .= '<input type="email"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+				}
 
-				$_ .= '<input type="password"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
-			}
+				// TEL
+				else if($type == "tel") {
+					$att_value = $this->attribute("value", $value);
+					$att_max = $this->attribute("max", $max);
+					$att_min = $this->attribute("min", $min);
 
-			// STRING
-			else if($type == "string") {
-				$att_value = $this->attribute("value", $value);
-				if($max) {
+					$_ .= '<input type="tel"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+				}
+
+				// PASSWORD
+				else if($type == "password") {
+					$att_value = $this->attribute("value", $value);
+					$att_max = $this->attribute("max", $max);
+					$att_min = $this->attribute("min", $min);
+
+					$_ .= '<input type="password"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+				}
+
+				// STRING
+				else if($type == "string") {
+					$att_value = $this->attribute("value", $value);
+					if($max) {
+						$att_max = $this->attribute("maxlength", $max);
+					}
+					else {
+						$att_max = $this->attribute("maxlength", 255);
+					}
+
+					$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_pattern.' />';
+				}
+
+				// NUMBER OR INTEGER
+				else if($type == "number" || $type == "integer") {
+					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("maxlength", $max);
+
+					$_ .= '<input type="number"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_pattern.' />';
 				}
-				else {
-					$att_max = $this->attribute("maxlength", 255);
+
+				// FILES
+				else if($type == "files") {
+
+					// add brackets for file input - backend is designed to handle files in array, even if there is just one
+					$att_name = $this->attribute("name", $name . "[]");
+					$att_class_value = $this->attribute("class", $value ? "uploaded" : "");
+
+					$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_pattern.$att_multiple.$att_class_value.' />';
 				}
 
-				$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_pattern.' />';
-			}
+				// TEXT
+				else if($type == "text") {
+					$att_max = $this->attribute("maxlength", $max);
 
-			// NUMBER OR INTEGER
-			else if($type == "number" || $type == "integer") {
-				$att_value = $this->attribute("value", $value);
-				$att_max = $this->attribute("maxlength", $max);
-
-				$_ .= '<input type="number"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_pattern.' />';
-			}
-
-			// FILES
-			else if($type == "files") {
-
-				// add brackets for file input - backend is designed to handle files in array, even if there is just one
-				$att_name = $this->attribute("name", $name . "[]");
-				$att_class_value = $this->attribute("class", $value ? "uploaded" : "");
-
-				$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_pattern.$att_multiple.$att_class_value.' />';
-			}
-
-			// TEXT
-			else if($type == "text") {
-				$att_max = $this->attribute("maxlength", $max);
-
-				$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.'>'.$value.'</textarea>';
-			}
-
-			// SELECT
-			else if($type == "select") {
-
-				$_ .= '<select'.$att_name.$att_id.$att_disabled.$att_readonly.'>';
-				foreach($options as $select_option => $select_value) {
-					$_ .= '<option value="'.$select_option.'"'.($value == $select_option ? ' selected="selected"' : '').'>'.$select_value.'</option>';
+					$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.'>'.$value.'</textarea>';
 				}
-				$_ .= '</select>';
-			}
 
+				// SELECT
+				else if($type == "select") {
+
+					$_ .= '<select'.$att_name.$att_id.$att_disabled.$att_readonly.'>';
+					foreach($options as $select_option => $select_value) {
+						$_ .= '<option value="'.$select_option.'"'.($value == $select_option ? ' selected="selected"' : '').'>'.$select_value.'</option>';
+					}
+					$_ .= '</select>';
+				}
+			}
 
 
 
