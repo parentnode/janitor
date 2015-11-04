@@ -1,5 +1,5 @@
 <?php
-	
+
 // segment translations
 // fallback settings for sites without specific segments configuration
 // override this config by placing your own statements in config/segments.php

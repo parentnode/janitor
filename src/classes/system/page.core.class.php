@@ -687,6 +687,9 @@ class PageCore {
 					$segment_session["segment"] = $value;
 //				}
 
+				// print "existing values after set:";
+				// print_r($segment_session);
+
 				session()->value("segment", $segment_session);
 
 //				session()->value("segment", $value);
@@ -699,8 +702,9 @@ class PageCore {
 		// getting value for type
 		else if ($type !== false){
 
-//			print_r($segment_session);
-//			print "\nget type: " . $type;
+			// print "\nget type: " . $type;
+			// print "existing values before get:";
+			// print_r($segment_session);
 
 			// is something missing
 			if(!$segment_session || !isset($segment_session[$type])) {
@@ -728,11 +732,12 @@ class PageCore {
 //				print "\nfind type";
 
 				// get specified interface type settings
-				@include_once("config/segments.core.php");
-				@include_once("config/segments.php");
+				@include("config/segments.core.php");
+				@include("config/segments.php");
 				// 
 
-//				print "\ninclusion done: " . $segment_session["segment"];
+				// print "\ninclusion done: " . $segment_session["segment"];
+				// print_r($segments_config);
 
 				if(isset($segments_config[$type]) && isset($segments_config[$type][$segment_session["segment"]])) {
 
