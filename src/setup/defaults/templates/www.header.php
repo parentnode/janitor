@@ -21,6 +21,8 @@
 	<link type="text/css" rel="stylesheet" media="all" href="/css/seg_<?= $this->segment() ?>.css" />
 	<script type="text/javascript" src="/js/seg_<?= $this->segment() ?>.js"></script>
 <? } ?>
+
+	<?= $this->headerIncludes() ?>
 </head>
 
 <body<?= $HTML->attribute("class", $this->bodyClass()) ?>>

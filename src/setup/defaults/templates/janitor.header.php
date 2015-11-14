@@ -21,6 +21,7 @@
 	<script type="text/javascript" src="/janitor/js/seg_<?= $this->segment(array("type" => "janitor")) ?>.js"></script>
 <? } ?>
 
+	<?= $this->headerIncludes() ?>
 </head>
 
 <body<?= $HTML->attribute("class", $this->bodyClass()) ?>>

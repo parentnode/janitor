@@ -736,6 +736,9 @@ class Setup extends Itemtype {
 				$file_mail = preg_replace("/###SITE_NAME###/", $this->site_name, $file_mail);
 				file_put_contents($this->project_path."/apache/httpd-vhosts.conf", $file_mail);
 
+				// copy segments overwriting
+				copy($this->framework_path."/setup/defaults/config/segments.php", $this->local_path."/config/segments.php");
+
 			}
 
 
