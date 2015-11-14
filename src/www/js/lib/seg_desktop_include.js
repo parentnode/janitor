@@ -22,11 +22,11 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-navigations.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-users.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-profile-desktop.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-profile.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/u-notifier.js"></script>');
 
-document.write('<script type="text/javascript" src="/js/lib/ga.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9/src/u-googleanalytics.js"></script>');
+// document.write('<script type="text/javascript" src="/js/lib/ga.js"></script>');
+// document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9/src/u-googleanalytics.js"></script>');
 
 

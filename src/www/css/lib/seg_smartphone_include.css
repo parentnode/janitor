@@ -1,14 +1,16 @@
 @import url(/janitor/admin/css/lib/s-fonts.css);
-@import url(/janitor/admin/css/lib/mobile_touch/s-page-mobile_touch.css);
+@import url(/janitor/admin/css/lib/smartphone/s-page.css);
 
-@import url(/janitor/admin/css/lib/mobile_touch/s-header-mobile_touch.css);
+@import url(/janitor/admin/css/lib/smartphone/s-header.css);
 
-@import url(/janitor/admin/css/lib/mobile_touch/s-content-mobile_touch.css);
-@import url(/janitor/admin/css/lib/mobile_touch/s-footer-mobile_touch.css);
+@import url(/janitor/admin/css/lib/smartphone/s-content.css);
+@import url(/janitor/admin/css/lib/smartphone/s-footer.css);
 
 @import url(/janitor/admin/css/lib/desktop/s-login_overlay.css);
 
-@import url(/janitor/admin/css/lib/mobile_touch/s-form-mobile_touch.css);
+@import url(/janitor/admin/css/lib/smartphone/s-form.css);
+
+
 
 @import url(/janitor/admin/css/lib/desktop/s-notifications.css);
 

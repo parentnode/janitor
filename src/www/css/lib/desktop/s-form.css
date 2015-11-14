@@ -63,7 +63,10 @@
 
 /* FILES */
 #content .field.files {border: 3px dashed #dedede; width: 374px; display: inline-block; vertical-align: top; border-radius: 5px; position: relative; padding: 0; margin: 2px 30px 20px;}
-#content .field.files input[type="file"] {opacity: 0; width: 374px; border: none; height: 60px; margin: 0; padding: 0;}
+#content .field.files input[type="file"] {opacity: 0; width: 374px; border: none; height: 60px; margin: 0; padding: 0;
+	/* IE HACK */
+	font-size: 130px;
+}
 #content .field.files label {display: block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 20px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
 #content .field.files.loading label {display: none;}
 #content .field.files.loading {background: transparent url(/janitor/admin/img/gx_loader.gif) no-repeat center center;}
@@ -347,14 +350,20 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.html .editor div.tag.file.done .text {color: #aaaaaa; font-size: 13px; padding: 4px 6px; line-height: 1.461em; height: auto; text-decoration: underline;}
 #content .field.html .editor div.tag.file.done.focus .text {color: #333333;}
 #content .field.html .editor div.tag.file .text label {padding: 5px 0 0; display: block; text-align: center; position: absolute; z-index: 1; /*width: 332px;*/width: 432px; color: #aaaaaa;}
-#content .field.html .editor div.tag.file input {/*width: 316px;*/width: 416px; opacity: 0; height: 18px; position: relative; z-index: 2;}
+#content .field.html .editor div.tag.file input {/*width: 316px;*/width: 416px; opacity: 0; height: 18px; position: relative; z-index: 2;
+	/* IE HACK */
+	font-size: 130px;
+}
 
 /* DEFAULT MEDIA TAG STYLING */
 #content .field.html .editor div.tag.media .text {padding: 0 6px; height: 28px;}
 #content .field.html .editor div.tag.media.done .text {color: #aaaaaa; font-size: 13px; padding: 4px 6px; line-height: 1.461em; height: auto;}
 #content .field.html .editor div.tag.media.done.focus .text {color: #333333;}
 #content .field.html .editor div.tag.media .text label {padding: 5px 0 0; display: block; text-align: center; position: absolute; z-index: 1; /*width: 332px;*/width: 432px; color: #aaaaaa;}
-#content .field.html .editor div.tag.media input {/*width: 316px;*/width: 416px; opacity: 0; height: 18px; position: relative; z-index: 2;}
+#content .field.html .editor div.tag.media input {/*width: 316px;*/width: 416px; opacity: 0; height: 18px; position: relative; z-index: 2;
+	/* IE HACK */
+	font-size: 130px;
+}
 #content .field.html .editor div.tag.media img {/*width: 344px;*/width: 444px; margin: 2px;}
 
 /* DEFAULT EXTERNAL VIDEO TAG STYLING */
