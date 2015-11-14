@@ -4737,12 +4737,99 @@ Util.videoPlayer = function(_options) {
 }
 
 
+/*u-navigation.js*/
+u.navigation = function(_options) {
+	var navigation_node = page;
+	var callback_navigate = "_navigate";
+	var initialization_scope = page.cN;
+	if(typeof(_options) == "object") {
+		var argument;
+		for(argument in _options) {
+			switch(argument) {
+				case "callback"       : callback_navigate           = _options[argument]; break;
+				case "node"           : navigation_node             = _options[argument]; break;
+				case "scope"          : initialization_scope        = _options[argument]; break;
+			}
+		}
+	}
+	window._man_nav_path = window._man_nav_path ? window._man_nav_path : u.h.getCleanUrl(location.href, 1);
+	navigation_node._navigate = function(url) {
+		url = u.h.getCleanUrl(url);
+		u.stats.pageView(url);
+		if(
+			!window._man_nav_path || 
+			(!u.h.popstate && window._man_nav_path != u.h.getCleanHash(location.hash, 1)) || 
+			(u.h.popstate && window._man_nav_path != u.h.getCleanUrl(location.href, 1))
+		) {
+			if(this.cN && typeof(this.cN.navigate) == "function") {
+				this.cN.navigate(url);
+			}
+		}
+		else {
+			if(this.cN.scene && this.cN.scene.parentNode && typeof(this.cN.scene.navigate) == "function") {
+				this.cN.scene.navigate(url);
+			}
+			else if(this.cN && typeof(this.cN.navigate) == "function") {
+				this.cN.navigate(url);
+			}
+		}
+		if(!u.h.popstate) {
+			window._man_nav_path = u.h.getCleanHash(location.hash, 1);
+		}
+		else {
+			window._man_nav_path = u.h.getCleanUrl(location.href, 1);
+		}
+	}
+	if(location.hash.length && location.hash.match(/^#!/)) {
+		location.hash = location.hash.replace(/!/, "");
+	}
+	var callback_after_init = false;
+	if(!this.is_initialized) {
+		this.is_initialized = true;
+		if(!u.h.popstate) {
+			if(location.hash.length < 2) {
+				window._man_nav_path = u.h.getCleanUrl(location.href);
+				u.h.navigate(window._man_nav_path);
+				u.init(initialization_scope);
+			}
+			else if(location.hash.match(/^#\//) && u.h.getCleanHash(location.hash) != u.h.getCleanUrl(location.href)) {
+				callback_after_init = u.h.getCleanHash(location.hash);
+			}
+			else {
+				u.init(initialization_scope);
+			}
+		}
+		else {
+			if(u.h.getCleanHash(location.hash) != u.h.getCleanUrl(location.href) && location.hash.match(/^#\//)) {
+				window._man_nav_path = u.h.getCleanHash(location.hash);
+				u.h.navigate(window._man_nav_path);
+				callback_after_init = window._man_nav_path;
+			}
+			else {
+				u.init(initialization_scope);
+			}
+		}
+		var random_string = u.randomString(8);
+		if(callback_after_init) {
+			eval('navigation_node._initNavigation_'+random_string+' = function() {u.h.addEvent(this, {"callback":"'+callback_navigate+'"});u.h.callback("'+callback_after_init+'");}');
+		}
+		else {
+			eval('navigation_node._initNavigation_'+random_string+' = function() {u.h.addEvent(this, {"callback":"'+callback_navigate+'"});}');
+		}
+		u.t.setTimer(navigation_node, "_initNavigation_"+random_string, 100);
+	}
+	else {
+		u.h.callbacks.push({"node":navigation_node, "callback":callback_navigate});
+	}
+}
+
+
 /*u-form-htmleditor.js*/
 Util.Form.customInit["html"] = function(form, field) {
 	field._input = u.qs("textarea", field);
 	field._input.field = field;
 	form.fields[field._input.name] = field._input;
-	field._input._label = u.qs("label[for="+field._input.id+"]", field);
+	field._input._label = u.qs("label[for='"+field._input.id+"']", field);
 	field._input.val = u.f._value;
 	u.f.textEditor(field);
 	u.f.validate(field._input);
@@ -4946,6 +5033,12 @@ u.f.textEditor = function(field) {
 	field.update = function() {
 		this.updateViewer();
 		this.updateContent();
+		if(this._input.form && typeof(this._input.form.updated) == "function") {
+			this._input.form.updated(this._input);
+		}
+		if(this._input.form && typeof(this._input.form.changed) == "function") {
+			this._input.form.changed(this._input);
+		}
 	}
 	field.updateViewer = function() {
 		var tags = u.qsa("div.tag", this);
@@ -6214,8 +6307,17 @@ u.f.addForm = function(node, _options) {
 	var form = u.ae(node, "form", {"class":form_class, "name": form_name, "action":form_action, "method":form_method});
 	return form;
 }
-u.f.addFieldset = function(node) {
-	return u.ae(node, "fieldset");
+u.f.addFieldset = function(node, _options) {
+	var fieldset_class = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "class"			: fieldset_class			= _options[_argument]; break;
+			}
+		}
+	}
+	return u.ae(node, "fieldset", {"class":fieldset_class});
 }
 u.f.addField = function(node, _options) {
 	var field_type = "string";
@@ -6223,6 +6325,7 @@ u.f.addField = function(node, _options) {
 	var field_name = "js_name";
 	var field_value = "";
 	var field_class = "";
+	var field_maxlength = "";
 	if(typeof(_options) == "object") {
 		var _argument;
 		for(_argument in _options) {
@@ -6232,6 +6335,7 @@ u.f.addField = function(node, _options) {
 				case "name"			: field_name			= _options[_argument]; break;
 				case "value"		: field_value			= _options[_argument]; break;
 				case "class"		: field_class			= _options[_argument]; break;
+				case "max"			: field_maxlength		= _options[_argument]; break;
 			}
 		}
 	}
@@ -6239,14 +6343,14 @@ u.f.addField = function(node, _options) {
 	var field = u.ae(node, "div", {"class":"field "+field_type+" "+field_class});
 	if(field_type == "string") {
 		var label = u.ae(field, "label", {"for":input_id, "html":field_label});
-		var input = u.ae(field, "input", {"id":input_id, "value":field_value, "name":field_name, "type":"text"});
+		var input = u.ae(field, "input", {"id":input_id, "value":field_value, "name":field_name, "type":"text", "maxlength":field_maxlength});
 	}
 	else if(field_type == "email" || field_type == "number" || field_type == "tel") {
 		var label = u.ae(field, "label", {"for":input_id, "html":field_label});
 		var input = u.ae(field, "input", {"id":input_id, "value":field_value, "name":field_name, "type":field_type});
 	}
 	else if(field_type == "checkbox") {
-		var input = u.ae(field, "input", {"id":input_id, "value":"true", "name":field_name, "type":field_type});
+		var input = u.ae(field, "input", {"id":input_id, "value":(field_value ? field_value : "true"), "name":field_name, "type":field_type});
 		var label = u.ae(field, "label", {"for":input_id, "html":field_label});
 	}
 	else if(field_type == "text") {
@@ -6279,7 +6383,10 @@ u.f.addAction = function(node, _options) {
 	}
 	var p_ul = node.nodeName.toLowerCase() == "ul" ? node : u.pn(node, {"include":"ul"});
 	if(!p_ul || !u.hc(p_ul, "actions")) {
-		p_ul = u.ae(node, "ul", {"class":"actions"});
+		if(node.nodeName.toLowerCase() == "form") {
+			p_ul = u.qs("ul.actions", node);
+		}
+		p_ul = p_ul ? p_ul : u.ae(node, "ul", {"class":"actions"});
 	}
 	var p_li = node.nodeName.toLowerCase() == "li" ? node : u.pn(node, {"include":"li"});
 	if(!p_li || p_ul != p_li.parentNode) {
@@ -6297,6 +6404,7 @@ u.f.addAction = function(node, _options) {
 u.bug_console_only = true;
 Util.Objects["page"] = new function() {
 	this.init = function(page) {
+		u.bug("init page:" + page)
 		var i, node;
 		page.hN = u.qs("#header", page);
 		page.cN = u.qs("#content", page);
@@ -6322,7 +6430,7 @@ Util.Objects["page"] = new function() {
 				u.e.addEvent(window, "scroll", page.scrolled);
 				page.initHeader();
 				u.notifier(page);
-				u.navigation(page);
+				u.navigation();
 			}
 		}
 		page.initHeader = function() {
@@ -6365,6 +6473,7 @@ Util.Objects["login"] = new function() {
 		scene.ready = function() {
 			this._form = u.qs("form", this);
 			u.f.init(this._form);
+			this._form.fields["username"].focus();
 			page.cN.scene = this;
 			page.resized();
 		}
@@ -6746,23 +6855,42 @@ Util.Objects["defaultEdit"] = new function() {
 		form.submitted = function(iN) {
 			u.t.resetTimer(page.t_autosave);
 			this.response = function(response) {
-				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
 				page.notify(response);
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
 		}
-		form.autosave = function() {
-			for(name in this.fields) {
-				if(this.fields[name].field) {
-					u.f.validate(this.fields[name]);
-				}
-			}
-			if(!u.qs(".field.error", this)) {
-				this.submitted();
+		form.updated = function() {
+			this.change_state = true;
+			u.t.resetTimer(page.t_autosave);
+			if(!page.autosave_disabled) {
+				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
 			}
 		}
+		form.autosave = function() {
+			if(!page.autosave_disabled && this.change_state) {
+				for(name in this.fields) {
+					if(this.fields[name].field) {
+						if(!this.fields[name].used) {
+							if(u.hc(this.fields[name].field, "required") && !this.fields[name].val()) {
+								return false;
+							}
+						}
+						else {
+							u.f.validate(this.fields[name]);
+						}
+					}
+				}
+				if(!u.qs(".field.error", this)) {
+					this.change_state = false;
+					this.submitted();
+				}
+			}
+			else {
+			}
+		}
+		form.change_state = false;
 		page._autosave_node = form;
-		page._autosave_interval = 5000;
+		page._autosave_interval = 3000;
 		page.t_autosave = u.t.setTimer(form, "autosave", page._autosave_interval);
 		form.cancelBackspace = function(event) {
 			if(event.keyCode == 8 && !u.qsa(".field.focus").length) {
@@ -6847,26 +6975,27 @@ Util.Objects["defaultEditStatus"] = new function() {
 /*i-defaulteditactions.js*/
 Util.Objects["defaultEditActions"] = new function() {
 	this.init = function(node) {
+		u.bug("defaultEditActions:" + u.nodeId(node));
 		node._item_id = u.cv(node, "item_id");
 		node.csrf_token = node.getAttribute("data-csrf-token");
-		var cancel = u.qs("li.cancel a");
-		var action = u.qs("li.delete");
-		if(action && cancel && cancel.href) {
-			if(!action.childNodes.length) {
-				action.delete_item_url = action.getAttribute("data-item-delete");
-				if(action.delete_item_url) {
-					form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
+		var bn_cancel = u.qs("li.cancel a", node);
+		var bn_delete = u.qs("li.delete", node);
+		if(bn_delete && bn_cancel && bn_cancel.href) {
+			if(!bn_delete.childNodes.length) {
+				bn_delete.delete_item_url = bn_delete.getAttribute("data-item-delete");
+				if(bn_delete.delete_item_url) {
+					form = u.f.addForm(bn_delete, {"action":bn_delete.delete_item_url, "class":"delete"});
 					u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":node.csrf_token});
 					form.node = node;
 					bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
 				}
 			}
 			else {
-				form = u.qs("form", action);
+				form = u.qs("form", bn_delete);
 			}
 			if(form) {
 				u.f.init(form);
-				form.cancel_url = cancel.href;
+				form.cancel_url = bn_cancel.href;
 				form.restore = function(event) {
 					this.actions["delete"].value = "Delete";
 					u.rc(this.actions["delete"], "confirm");
@@ -7955,7 +8084,7 @@ Util.Objects["accessEdit"] = new function() {
 	}
 }
 
-/*i-profile-desktop.js*/
+/*i-profile.js*/
 Util.Objects["editProfile"] = new function() {
 	this.init = function(div) {
 		div._item_id = u.cv(div, "item_id");
@@ -8154,13 +8283,11 @@ u.notifier = function(node) {
 			}
 		}
 		var output;
-		u.bug("message:" + typeof(response) + "; JSON: " + response.isJSON + "; HTML: " + response.isHTML);
 		if(typeof(response) == "object" && response.isJSON) {
 			var message = response.cms_message;
 			var cms_status = response.cms_status;
 			if(typeof(message) == "object") {
 				for(type in message) {
-					u.bug("typeof(message[type]:" + typeof(message[type]) + "; " + type);
 					if(typeof(message[type]) == "string") {
 						output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":message[type]});
 					}
@@ -8231,44 +8358,8 @@ u.notifier = function(node) {
 }
 
 
-/*ga.js*/
 
-
-/*u-googleanalytics.js*/
-if(u.ga_account) {
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-    ga('create', u.ga_account, u.ga_domain);
-    ga('send', 'pageview');
-	u.stats = new function() {
-		this.pageView = function(url) {
-			ga('send', 'pageview', url);
-		}
-		this.event = function(node, action, label) {
-			ga('_trackEvent', location.href.replace(document.location.protocol + "//" + document.domain, ""), action, (label ? label : this.nodeSnippet(node)));
-		}
-		this.customVar = function(slot, name, value, scope) {
-			//       slot,		
-			//       name,		
-			//       value,	
-			//       scope		
-		}
-		this.nodeSnippet = function(e) {
-			if(e.textContent != undefined) {
-				return u.cutString(e.textContent.trim(), 20) + "(<"+e.nodeName+">)";
-			}
-			else {
-				return u.cutString(e.innerText.trim(), 20) + "(<"+e.nodeName+">)";
-			}
-		}
-	}
-}
-
-
-
-/*i-page-desktop.js*/
+/*i-page.js*/
 u.bug_console_only = true;
 Util.Objects["page"] = new function() {
 	this.init = function(page) {
@@ -8311,7 +8402,7 @@ Util.Objects["page"] = new function() {
 u.e.addDOMReadyEvent(u.init)
 
 
-/*i-progress-desktop.js*/
+/*i-progress.js*/
 Util.Objects["start"] = new function() {
 	this.init = function(scene) {
 		var bn_start = u.qs(".actions li.start", scene);

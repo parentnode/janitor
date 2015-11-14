@@ -82,6 +82,7 @@ body.navigation #navigation .navigation a,
 body.shop #navigation .shop a,
 body.tags #navigation .tags a,
 body.user #navigation .user a,
+body.logs #navigation .logs a,
 body.usergroup #navigation .user a {padding-left: 35px; color: #ffffff;}
 
 
@@ -179,7 +180,9 @@ body.usergroup #navigation .user a {padding-left: 35px; color: #ffffff;}
 #content .field.radiobuttons div.item input {width: auto; height: auto; padding: 0; margin: 1px 10px 0 3px; border: 0;}
 #content .field.radiobuttons div.item label {font-size: 1.077rem; line-height: 1em; display: inline-block; vertical-align: top; text-align: left; width: auto;}
 #content .field.files {border: 3px dashed #dedede; width: 374px; display: inline-block; vertical-align: top; border-radius: 5px; position: relative; padding: 0; margin: 2px 30px 20px;}
-#content .field.files input[type="file"] {opacity: 0; width: 374px; border: none; height: 60px; margin: 0; padding: 0;}
+#content .field.files input[type="file"] {opacity: 0; width: 374px; border: none; height: 60px; margin: 0; padding: 0;
+	font-size: 130px;
+}
 #content .field.files label {display: block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 20px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
 #content .field.files.loading label {display: none;}
 #content .field.files.loading {background: transparent url(/janitor/admin/img/gx_loader.gif) no-repeat center center;}
@@ -357,12 +360,16 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.html .editor div.tag.file.done .text {color: #aaaaaa; font-size: 13px; padding: 4px 6px; line-height: 1.461em; height: auto; text-decoration: underline;}
 #content .field.html .editor div.tag.file.done.focus .text {color: #333333;}
 #content .field.html .editor div.tag.file .text label {padding: 5px 0 0; display: block; text-align: center; position: absolute; z-index: 1; width: 432px; color: #aaaaaa;}
-#content .field.html .editor div.tag.file input {width: 416px; opacity: 0; height: 18px; position: relative; z-index: 2;}
+#content .field.html .editor div.tag.file input {width: 416px; opacity: 0; height: 18px; position: relative; z-index: 2;
+	font-size: 130px;
+}
 #content .field.html .editor div.tag.media .text {padding: 0 6px; height: 28px;}
 #content .field.html .editor div.tag.media.done .text {color: #aaaaaa; font-size: 13px; padding: 4px 6px; line-height: 1.461em; height: auto;}
 #content .field.html .editor div.tag.media.done.focus .text {color: #333333;}
 #content .field.html .editor div.tag.media .text label {padding: 5px 0 0; display: block; text-align: center; position: absolute; z-index: 1; width: 432px; color: #aaaaaa;}
-#content .field.html .editor div.tag.media input {width: 416px; opacity: 0; height: 18px; position: relative; z-index: 2;}
+#content .field.html .editor div.tag.media input {width: 416px; opacity: 0; height: 18px; position: relative; z-index: 2;
+	font-size: 130px;
+}
 #content .field.html .editor div.tag.media img {width: 444px; margin: 2px;}
 #content .field.html .editor div.tag.vimeo .text,
 #content .field.html .editor div.tag.youtube .text {padding: 0 6px; height: 28px; color: #aaaaaa; font-size: 13px; padding: 4px 6px; line-height: 1.461em; height: auto;}
@@ -433,6 +440,8 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.tagList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 #content .scene.tagList h1 + p {padding-top: 16px;}
 #content .scene.tagList ul.items > li h3 {padding: 16px 30px;}
+#content .scene.tagList ul.items > li.unused {background: orange;}
+#content .scene.tagList ul.items > li > h3 > span {font-size: 12px;}
 #content .scene.tagEdit ul.tag_items {padding: 16px 30px;}
 #content .scene.tagEdit ul.tag_items li {display: block; padding: 2px 0;}
 #content .scene.tagEdit ul.tag_items dt {display: none;}
@@ -528,6 +537,10 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.profileContentList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 
 
+/*s-logs.css*/
+#content .defaultList.logList h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
+#content .defaultList.logList ul.items > li ul.loglines li {padding: 0 30px; display: block;}
+
 /*s-navigations.css*/
 #content .defaultList.navigationsList ul.items > li h3 {padding-bottom: 16px;}
 #content .defaultEdit.navigationNodeEdit form > fieldset,
@@ -571,7 +584,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .defaultEdit.navigationEdit ul.nodes li ul.actions input.button {font-size: 0.87em; height: 22px;}
 
 
-/*s-front-desktop.css*/
+/*s-front.css*/
 #content .scene.front h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
 #content .scene.front > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
 #content .scene.front div.todos {border-top: 1px solid #bbbbbb; padding-bottom: 10px;}
@@ -757,7 +770,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 
 
 
-/*s-pages-desktop.css*/
+/*s-pages.css*/
 #content .scene.start h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 #content .scene.start ul.requirements {padding: 0 30px 20px;}
 #content .scene.start ul.requirements li {display: block; padding: 0 0 10px;}
