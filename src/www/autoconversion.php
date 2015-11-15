@@ -295,7 +295,6 @@ else if($request_type == "audios" && ($format == "mp3" || $format == "ogg")) {
 	}
 
 	$output_file = PUBLIC_FILE_PATH."/".$id.$variant."/".$bitrate.".".$format;
-//	$output_file = PUBLIC_FILE_PATH."/".$id.$variant."/".$width."x".$height.".".$format;
 
 
 	// scale image (will autoconvert)
