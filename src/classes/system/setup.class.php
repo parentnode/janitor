@@ -728,13 +728,13 @@ class Setup extends Itemtype {
 				file_put_contents($this->local_path."/config/config.php", $file_config);
 
 				// apache
-				$file_mail = file_get_contents($this->framework_path."/setup/defaults/config/httpd-vhosts.template.conf");
-				$file_mail = preg_replace("/###LOCAL_PATH###/", $this->local_path, $file_mail);
-				$file_mail = preg_replace("/###FRAMEWORK_PATH###/", $this->framework_path, $file_mail);
-				$file_mail = preg_replace("/###PROJECT_PATH###/", $this->project_path, $file_mail);
-				$file_mail = preg_replace("/###SITE_URL###/", SITE_URL, $file_mail);
-				$file_mail = preg_replace("/###SITE_NAME###/", $this->site_name, $file_mail);
-				file_put_contents($this->project_path."/apache/httpd-vhosts.conf", $file_mail);
+				$file_apache = file_get_contents($this->framework_path."/setup/defaults/config/httpd-vhosts.template.conf");
+				$file_apache = preg_replace("/###LOCAL_PATH###/", $this->local_path, $file_apache);
+				$file_apache = preg_replace("/###FRAMEWORK_PATH###/", $this->framework_path, $file_apache);
+				$file_apache = preg_replace("/###PROJECT_PATH###/", $this->project_path, $file_apache);
+				$file_apache = preg_replace("/###SITE_URL###/", SITE_URL, $file_apache);
+				$file_apache = preg_replace("/###LOG_NAME###/", superNormalize($this->site_name), $file_apache);
+				file_put_contents($this->project_path."/apache/httpd-vhosts.conf", $file_apache);
 
 				// copy segments overwriting
 				copy($this->framework_path."/setup/defaults/config/segments.php", $this->local_path."/config/segments.php");

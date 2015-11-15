@@ -4824,6 +4824,136 @@ u.navigation = function(_options) {
 }
 
 
+/*u-history.js*/
+Util.History = u.h = new function() {
+	this.popstate = ("onpopstate" in window);
+	this.callbacks = [];
+	this.is_listening = false;
+	this.navigate = function(url, node) {
+		if(this.popstate) {
+			history.pushState({}, url, url);
+			this.callback(url);
+		}
+		else {
+			location.hash = u.h.getCleanUrl(url);
+		}
+	}
+	this.callback = function(url) {
+		var i, recipient;
+		for(i = 0; recipient = this.callbacks[i]; i++) {
+			if(typeof(recipient.node[recipient.callback]) == "function") {
+				recipient.node[recipient.callback](url);
+			}
+		}
+	}
+	this.removeEvent = function(node, _options) {
+		var callback_urlchange = "navigate";
+		if(typeof(_options) == "object") {
+			var argument;
+			for(argument in _options) {
+				switch(argument) {
+					case "callback"		: callback_urlchange		= _options[argument]; break;
+				}
+			}
+		}
+		var i, recipient;
+		for(i = 0; recipient = this.callbacks[i]; i++) {
+			if(recipient.node == node && recipient.callback == callback_urlchange) {
+				this.callbacks.splice(i, 1);
+				break;
+			}
+		}
+	}
+	this.addEvent = function(node, _options) {
+		var callback_urlchange = "navigate";
+		if(typeof(_options) == "object") {
+			var argument;
+			for(argument in _options) {
+				switch(argument) {
+					case "callback"		: callback_urlchange		= _options[argument]; break;
+				}
+			}
+		}
+		if(!this.is_listening) {
+			this.is_listening = true;
+			if(this.popstate) {
+				u.e.addEvent(window, "popstate", this._urlChanged);
+			}
+			else if("onhashchange" in window && !u.browser("explorer", "<=7")) {
+				u.e.addEvent(window, "hashchange", this._hashChanged);
+			}
+			else {
+				u.h._current_hash = window.location.hash;
+				window.onhashchange = this._hashChanged;
+				setInterval(
+					function() {
+						if(window.location.hash !== u.h._current_hash) {
+							u.h._current_hash = window.location.hash;
+							window.onhashchange();
+						}
+					}, 200
+				);
+			}
+		}
+		this.callbacks.push({"node":node, "callback":callback_urlchange});
+	}
+	this._urlChanged = function(event) {
+		var url = u.h.getCleanUrl(location.href);
+		if(event.state || (!event.state && event.path)) {
+			u.h.callback(url);
+		}
+		else {
+			history.replaceState({}, url, url);
+		}
+	}
+	this._hashChanged = function(event) {
+		if(!location.hash || !location.hash.match(/^#\//)) {
+			location.hash = "#/"
+			return;
+		}
+		var url = u.h.getCleanHash(location.hash);
+		u.h.callback(url);
+	}
+	this.trail = [];
+	this.addToTrail = function(url, node) {
+		this.trail.push({"url":url, "node":node});
+	}
+	this.getCleanUrl = function(string, levels) {
+		string = string.replace(location.protocol+"//"+document.domain, "").match(/[^#$]+/)[0];
+		if(!levels) {
+			return string;
+		}
+		else {
+			var i, return_string = "";
+			var path = string.split("/");
+			levels = levels > path.length-1 ? path.length-1 : levels;
+			for(i = 1; i <= levels; i++) {
+				return_string += "/" + path[i];
+			}
+			return return_string;
+		}
+	}
+	this.getCleanHash = function(string, levels) {
+		string = string.replace("#", "");
+		if(!levels) {
+			return string;
+		}
+		else {
+			var i, return_string = "";
+			var hash = string.split("/");
+			levels = levels > hash.length-1 ? hash.length-1 : levels;
+			for(i = 1; i <= levels; i++) {
+				return_string += "/" + hash[i];
+			}
+			return return_string;
+		}
+	}
+	this.resolveCurrentUrl = function() {
+		return !location.hash ? this.getCleanUrl(location.href) : this.getCleanHash(location.hash);
+	}
+}
+
+
 /*u-form-htmleditor.js*/
 Util.Form.customInit["html"] = function(form, field) {
 	field._input = u.qs("textarea", field);
