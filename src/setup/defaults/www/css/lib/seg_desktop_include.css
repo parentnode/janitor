@@ -1,13 +1,13 @@
 @import url(/css/lib/s-fonts.css);
 
 
-@import url(/css/lib/desktop/s-page-desktop.css);
-@import url(/css/lib/desktop/s-header-desktop.css);
-@import url(/css/lib/desktop/s-footer-desktop.css);
+@import url(/css/lib/desktop/s-page.css);
+@import url(/css/lib/desktop/s-header.css);
+@import url(/css/lib/desktop/s-footer.css);
 
-@import url(/css/lib/desktop/s-content-desktop.css);
-@import url(/css/lib/desktop/s-form-desktop.css);
-@import url(/css/lib/desktop/s-hovers-desktop.css);
+@import url(/css/lib/desktop/s-content.css);
+@import url(/css/lib/desktop/s-form.css);
+@import url(/css/lib/desktop/s-hovers.css);
 
-@import url(/css/lib/desktop/s-pages-desktop.css);
-@import url(/css/lib/desktop/s-pages-hovers-desktop.css);
+@import url(/css/lib/desktop/s-pages.css);
+@import url(/css/lib/desktop/s-pages-hovers.css);
