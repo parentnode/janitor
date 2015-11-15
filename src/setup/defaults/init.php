@@ -9,6 +9,7 @@ if(isset($_SERVER["FRAMEWORK_PATH"]) && isset($_SERVER["LOCAL_PATH"])) {
 	define("FRAMEWORK_PATH", $_SERVER["FRAMEWORK_PATH"]);
 	define("LOCAL_PATH", $_SERVER["LOCAL_PATH"]);
 	define("PROJECT_PATH", realpath(LOCAL_PATH."/.."));
+	define("LOG_FILE_PATH", LOCAL_PATH."/library/log");
 
 	// setup type - initialization of existing project
 	define("SETUP_TYPE", "init");
@@ -63,9 +64,11 @@ include_once("classes/system/setup.class.php");
 if(!defined("LOCAL_PATH")) {
 	if(isset($_SESSION["project_path"]) && $_SESSION["project_path"]) {
 		define("LOCAL_PATH", $_SESSION["project_path"]."/src");
+		define("LOG_FILE_PATH", LOCAL_PATH."/library/log");
 	}
 	else {
 		define("LOCAL_PATH", FRAMEWORK_PATH);
+		define("LOG_FILE_PATH", LOCAL_PATH."/library/log");
 	}
 }
 
