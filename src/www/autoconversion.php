@@ -131,6 +131,7 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d*).(
 		$id = $matches["id"];
 		$bitrate = $matches["bitrate"];
 		$format = $matches["format"];
+		$variant = "";
 
 //			print $id . ":" . $bitrate .":". $format ."<br>";
 
@@ -275,50 +276,33 @@ else if($request_type == "audios" && ($format == "mp3" || $format == "ogg")) {
 
 	$Audio = new Audio();
 
-	// jpg, and source is available
-	if($format == "mp3") {
-
-		if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp3")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/mp3";
-		}
-		else if(file_exists(PRIVATE_FILE_PATH."/$id/mp3")) {
-			$input_file = PRIVATE_FILE_PATH."/$id/mp3";
-		}
+	// mp3, and source is available
+	if($format == "mp3" && file_exists(PRIVATE_FILE_PATH."/$id$variant/mp3")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp3";
 	}
-	// png, and source is available
-	else if($format == "ogg") {
-		
-		if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogg")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/ogg";
-		}
-		else if(file_exists(PRIVATE_FILE_PATH."/$id/ogg")) {
-			$input_file = PRIVATE_FILE_PATH."/$id/ogg";
-		}
+	// ogg, and source is available
+	else if($format == "ogg" && file_exists(PRIVATE_FILE_PATH."/$id$variant/ogg")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogg";
 	}
 	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp3")) {
 		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp3";
 	}
-	else if(file_exists(PRIVATE_FILE_PATH."/$id/mp3")) {
-		$input_file = PRIVATE_FILE_PATH."/$id/mp3";
-	}
 	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogg")) {
 		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogg";
-	}
-	else if(file_exists(PRIVATE_FILE_PATH."/$id/ogg")) {
-		$input_file = PRIVATE_FILE_PATH."/$id/ogg";
 	}
 	else {
 		conversionFailed("no valid source available");
 	}
 
-	$output_file = PUBLIC_FILE_PATH."/".$id."/".$bitrate.".".$format;
+	$output_file = PUBLIC_FILE_PATH."/".$id.$variant."/".$bitrate.".".$format;
+//	$output_file = PUBLIC_FILE_PATH."/".$id.$variant."/".$width."x".$height.".".$format;
 
 
 	// scale image (will autoconvert)
 	if($Audio->convert($input_file, $output_file, array("bitrate" => $bitrate, "format" => $format))) {
 		// TODO: implement bit rate control in audio class first, "max_bitrate" => $max_bitrate
 		// redirect to new image
-		header("Location: /".$request_type."/".$id."/".$bitrate.".".$format);
+		header("Location: /".$request_type."/".$id.$variant."/".$bitrate.".".$format);
 		exit();
 
 	}
