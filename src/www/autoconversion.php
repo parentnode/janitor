@@ -27,12 +27,67 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 // error handling
 function conversionFailed($reason) {
 	global $page;
+
+	global $id;
+	global $variant;
+	global $request_type;
+	global $format;
+
 	global $width;
 	global $height;
-	global $request_type;
+
+	global $bitrate;
+
+	// get into the detail to make debugging as easy as possible
+	$reason .= "\n".$_SERVER["REQUEST_URI"];
+	$reason .= "\n\nRequest type: ".$request_type;
+	$reason .= "\nFormat: ".$format;
+
+	if($request_type == "audios") {
+		if(!$bitrate) {
+			$reason .= "\nBitrate: MISSING";
+		}
+		else {
+			$reason .= "\nBitrate: ".$bitrate;
+		}
+	}
+	else {
+		if(!$width && !$height) {
+			$reason .= "\nWidth and Height: MISSING";
+		}
+		else if($width) {
+			$reason .= "\nWidth: ".$width;
+		}
+		else if($height) {
+			$reason .= "\nHeight: ".$height;
+		}
+	}
+
+	// specify reason
+	if($id && !file_exists(PRIVATE_FILE_PATH."/$id")) {
+		$reason .= "\n\nID does not exist: ".$id;
+	}
+	else if($id && $variant && !file_exists(PRIVATE_FILE_PATH."/$id$variant")) {
+		$reason .= "\n\nVariant does not exist: ".$variant;
+	}
+	
+	// show what we got
+	if($id && file_exists(PRIVATE_FILE_PATH."/$id")) {
+		$fs = new FileSystem();
+		$files = $fs->files(PRIVATE_FILE_PATH."/$id");
+		$reason .= "\n\nPrivate files:\n";
+		foreach($files as $file) {
+			$reason .= str_replace(PRIVATE_FILE_PATH, "", $file)."\n";
+		}
+		$files = $fs->files(PUBLIC_FILE_PATH."/$id");
+		$reason .= "\nPublic files:\n";
+		foreach($files as $file) {
+			$reason .= str_replace(PUBLIC_FILE_PATH, "", $file)."\n";
+		}
+	}
 
 	$page->mail(array(
-		"subject" => "Autoconversion failed", 
+		"subject" => "Autoconversion failed ($request_type)", 
 		"message" => $reason,
 		"template" => "system"
 	));
@@ -44,7 +99,8 @@ function conversionFailed($reason) {
 	//	print file_exists(PRIVATE_FILE_PATH."/0/missing/png")." && ". $width ."&&". $height;
 	if($request_type == "images" && file_exists(PRIVATE_FILE_PATH."/0/missing/png") && ($width || $height)) {
 
-		header("Location: /images/0/missing/".$width."x".$height.".png");
+//		header("Location: /images/0/missing/".$width."x".$height.".png");
+
 	}
 
 	// dangerous to return HTML - receiving JS will expect media, not HTML
@@ -56,6 +112,7 @@ function conversionFailed($reason) {
 
 
 $id = false;
+$variant = "";
 
 // Get conversion details
 // parse file info from path
@@ -65,7 +122,7 @@ $id = false;
 // /images/{id}/{variant}/x{height}.{format}
 // VIDEO WITH VARIANT
 // /videos/{id}/{variant}/{width}x{height}.{format}
-if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
 
 	if($request_type == "images" || $request_type == "videos") {
@@ -76,7 +133,7 @@ if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?
 		$format = $matches["format"];
 		$variant = "/".$matches["variant"];
 
-		//	print $request_type . ":" . $id . ":" . $width . ":" . $height .":". $format .":".$variant."<br>";
+		//	print "request:" . $request_type . " id:" . $id . " width:" . $width . " height:" . $height ." format:". $format ." variant:".$variant."<br>";
 
 
 		// max size detection (2000x2000 or similar amount of pixels)
@@ -89,7 +146,7 @@ if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?
 // /images/{id}/x{height}.{format}
 // VIDEO
 // /videos/{id}/{width}x{height}.{format}
-else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
 
 	if($request_type == "images" || $request_type == "videos") {
@@ -98,9 +155,8 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P
 		$width = $matches["width"];
 		$height = $matches["height"];
 		$format = $matches["format"];
-		$variant = "";
 
-		//	print $request_type . ":" . $id . ":" . $width . ":" . $height .":". $format .":".$variant."<br>";
+		//	print "request:" . $request_type . " id:" . $id . " width:" . $width . " height:" . $height ." format:". $format ." variant:".$variant."<br>";
 
 
 		// max size detection (2000x2000 or similar amount of pixels)
@@ -111,7 +167,7 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P
 // AUDIO
 // IMAGE WITH VARIANT
 // /audios/{id}/{variant}/{bitrate}.{format}
-if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<bitrate>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<bitrate>\d+)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
 
 	if($request_type == "audios") {
@@ -120,10 +176,12 @@ if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?
 		$bitrate = $matches["bitrate"];
 		$format = $matches["format"];
 		$variant = "/".$matches["variant"];
+
+		//	print "request:" . $request_type . " id:" . $id . " bitrate:" . $bitrate ." format:". $format ." variant:".$variant."<br>";
 	}
 }
 // /audios/{id}/{bitrate}.{format}
-else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d*).(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d+)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
 
 	if($request_type == "audios") {
@@ -131,29 +189,25 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d*).(
 		$id = $matches["id"];
 		$bitrate = $matches["bitrate"];
 		$format = $matches["format"];
-		$variant = "";
-
-//			print $id . ":" . $bitrate .":". $format ."<br>";
 
 		// TODO: implement bitrate control in audio class first
 		// $max_bitrate = 320;
+
+		//	print "request:" . $request_type . " id:" . $id . " bitrate:" . $bitrate ." format:". $format ." variant:".$variant."<br>";
 	}
 }
 
-// ERROR - MISSING INFO
+// ERROR - MISSING ID - STOP IMMEDIATELY
 // id can be 0, but not false
-if($id === false) {
+if($id === false || !file_exists(PRIVATE_FILE_PATH."/$id$variant")) {
 //	print "missing info";
 	conversionFailed("Missing or bad path info - request ignored");
 }
 
 
-// collect log autoconvertion for bundled notification
-$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
-
 
 // images
-if($request_type == "images" && ($format == "jpg" || $format == "png" || $format == "gif")) {
+if($request_type == "images" && ($width || $height) && ($format == "jpg" || $format == "png" || $format == "gif")) {
 	include_once("classes/system/image.class.php");
 
 	$Image = new Image();
@@ -196,6 +250,9 @@ if($request_type == "images" && ($format == "jpg" || $format == "png" || $format
 	// scale image (will autoconvert)
 	if($Image->convert($input_file, $output_file, array("compression" => 93, "allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
 
+		// collect log autoconvertion for bundled notification
+		$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
+
 		// redirect to new image
 		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format);
 		exit();
@@ -209,7 +266,7 @@ if($request_type == "images" && ($format == "jpg" || $format == "png" || $format
 }
 
 // video
-else if($request_type == "videos" && ($format == "mp4" || $format == "ogv" || $format == "mov" || $format == "3gp")) {
+else if($request_type == "videos" && ($width || $height) && ($format == "mp4" || $format == "ogv" || $format == "mov" || $format == "3gp")) {
 		include_once("classes/system/video.class.php");
 
 		$Video = new Video();
@@ -259,6 +316,9 @@ else if($request_type == "videos" && ($format == "mp4" || $format == "ogv" || $f
 		// scale image (will autoconvert)
 		if($Video->convert($input_file, $output_file, array("allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
 
+			// collect log autoconvertion for bundled notification
+			$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
+
 			// redirect to new image
 			header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format);
 			exit();
@@ -271,7 +331,7 @@ else if($request_type == "videos" && ($format == "mp4" || $format == "ogv" || $f
 }
 
 // audio
-else if($request_type == "audios" && ($format == "mp3" || $format == "ogg")) {
+else if($request_type == "audios" && $bitrate && ($format == "mp3" || $format == "ogg")) {
 	include_once("classes/system/audio.class.php");
 
 	$Audio = new Audio();
@@ -301,6 +361,10 @@ else if($request_type == "audios" && ($format == "mp3" || $format == "ogg")) {
 	if($Audio->convert($input_file, $output_file, array("bitrate" => $bitrate, "format" => $format))) {
 		// TODO: implement bit rate control in audio class first, "max_bitrate" => $max_bitrate
 		// redirect to new image
+
+		// collect log autoconvertion for bundled notification
+		$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
+
 		header("Location: /".$request_type."/".$id.$variant."/".$bitrate.".".$format);
 		exit();
 
@@ -310,5 +374,8 @@ else if($request_type == "audios" && ($format == "mp3" || $format == "ogg")) {
 	}
 
 }
+
+// something weren't as expected
+conversionFailed("Missing or bad path info - request not completed");
 
 ?>
