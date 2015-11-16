@@ -815,10 +815,13 @@ class ItemsCore {
 	// create meaningful pagination
 	function paginate($_options) {
 
+		$range_items = false;
+
 		$direction = false;
 		$id = false;
 		$sindex = false;
 		$pattern = false;
+
 
 		$limit = 5;
 
@@ -922,12 +925,11 @@ class ItemsCore {
 			}
 		}
 
-
 		// find indexes and ids for next/prev
-		$first_id = isset($range_items[0]) ? $range_items[0]["id"] : false;
-		$first_sindex = isset($range_items[0]) ? $range_items[0]["sindex"] : false;
-		$last_id = isset($range_items[count($range_items)-1]) ? $range_items[count($range_items)-1]["id"] : false;
-		$last_sindex = isset($range_items[count($range_items)-1]) ? $range_items[count($range_items)-1]["sindex"] : false;
+		$first_id = (isset($range_items) && isset($range_items[0])) ? $range_items[0]["id"] : false;
+		$first_sindex = (isset($range_items) && isset($range_items[0])) ? $range_items[0]["sindex"] : false;
+		$last_id = (isset($range_items) && isset($range_items[count($range_items)-1])) ? $range_items[count($range_items)-1]["id"] : false;
+		$last_sindex = (isset($range_items) && isset($range_items[count($range_items)-1])) ? $range_items[count($range_items)-1]["sindex"] : false;
 
 		// look for next/prev item availability
 		$next = $last_id ? $this->getNext($last_id, array("items" => $items, "count" => $limit)) : false;
