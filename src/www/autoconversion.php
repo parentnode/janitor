@@ -99,7 +99,7 @@ function conversionFailed($reason) {
 	//	print file_exists(PRIVATE_FILE_PATH."/0/missing/png")." && ". $width ."&&". $height;
 	if($request_type == "images" && file_exists(PRIVATE_FILE_PATH."/0/missing/png") && ($width || $height)) {
 
-//		header("Location: /images/0/missing/".$width."x".$height.".png");
+		header("Location: /images/0/missing/".$width."x".$height.".png", true, 404);
 
 	}
 
