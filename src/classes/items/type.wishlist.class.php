@@ -49,7 +49,7 @@ class TypeWishlist extends Itemtype {
 
 
 	// // Update item order
-	// // /janitor/wishlist/updateOrder (order comma-separated in POST)
+	// // /janitor/admin/wishlist/updateOrder (order comma-separated in POST)
 	// function updateOrder($action) {
 	//
 	// 	$order_list = getPost("order");
