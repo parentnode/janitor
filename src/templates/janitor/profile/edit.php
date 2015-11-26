@@ -8,6 +8,9 @@ $item = $model->getUser();
 // get languages for select
 $language_options = $model->toOptions($this->languages(), "id", "name");
 
+// api token
+$apitoken = $model->getToken();
+
 // get addresses
 $addresses = $item["addresses"];
 
@@ -74,17 +77,34 @@ $user_newsletters = $item["newsletters"];
 			<p class="password_set">Your password is encrypted and cannot be shown here. <a>Change password</a></p>
 		</div>
 		<div class="new_password">
-			<p>Type your new password:</p>
-
-			<?= $model->formStart("/janitor/admin/profile/setPassword") ?>
+			<p>Please type your existing password and your new password.</p>
+			<?= $model->formStart("setPassword", array("class" => "password")) ?>
 				<fieldset>
-					<?= $model->input("password") ?>
+					<?= $model->input("old_password", array("required" => true)) ?>
+					<?= $model->input("new_password", array("required" => true)) ?>
 				</fieldset>
 				<ul class="actions">
 					<?= $model->submit("Update password", array("class" => "primary", "wrapper" => "li.save")) ?>
+					<?= $model->button("Cancel", array("wrapper" => "li.cancel")) ?>
 				</ul>
 			<?= $model->formEnd() ?>
 		</div>
+	</div>
+
+	<div class="apitoken i:apitokenProfile">
+		<h2>API Token</h2>
+		<p class="token"><?= stringOr($apitoken, "N/A") ?></p>
+
+		<?= $model->formStart("renewToken", array("class" => "renew")) ?>
+			<ul class="actions">
+				<?= $model->submit(($apitoken ? "Renew API token" : "Create API token"), array("class" => "primary", "wrapper" => "li.renew")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+		<?= $model->formStart("disableToken", array("class" => "disable")) ?>
+			<ul class="actions">
+				<?= $model->submit("Disable token", array("class" => "secondary".($apitoken ? "" : " disabled"), "wrapper" => "li.renew")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
 	</div>
 
 	<div class="addresses">

@@ -569,6 +569,71 @@ class SuperUser extends User {
 
 
 
+	// API TOKEN
+
+	// get users api token
+	function getToken($user_id = false) {
+
+		$query = new Query();
+		// make sure type tables exist
+		$query->checkDbExistance($this->db_apitokens);
+
+		$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
+		if($query->sql($sql)) {
+			return $query->result(0, "token");
+		}
+		return false;
+	}
+
+	// create new api token
+	// user/renewToken/#user_id#
+	function renewToken($action) {
+
+		$user_id = $action[1];
+
+		$token = gen_uuid();
+		$query = new Query();
+
+		// make sure type tables exist
+		$query->checkDbExistance($this->db_apitokens);
+
+		$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
+		if($query->sql($sql)) {
+			$sql = "UPDATE ".$this->db_apitokens." SET token = '$token' WHERE user_id = $user_id";
+		}
+		else {
+			$sql = "INSERT INTO ".$this->db_apitokens." SET user_id = $user_id, token = '$token'";
+		}
+		if($query->sql($sql)) {
+			return $token;
+		}
+
+		return false;
+	}
+
+	// disable api token
+	// /janitor/admin/profile/disableToken
+	function disableToken($action) {
+
+
+		$user_id = $action[1];
+
+		$query = new Query();
+
+		// make sure type tables exist
+		$query->checkDbExistance($this->db_apitokens);
+
+		$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = $user_id";
+//		print $sql;
+		if($query->sql($sql)) {
+			return true;
+		}
+
+		return false;
+	}
+
+
+
 	// ADDRESSES
 
 	// return addresses

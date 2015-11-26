@@ -93,28 +93,33 @@ Util.Objects["passwordProfile"] = new function() {
 		var new_password = u.qs("div.new_password", div);
 		var a_change = u.qs(".password_set a");
 
-		a_change.new_password = new_password;
-		a_change.password_state = password_state;
+		a_change._new_password = new_password;
+		a_change._password_state = password_state;
 
 		u.ce(a_change);
 		a_change.clicked = function() {
-			u.as(this.password_state, "display", "none");
-			u.as(this.new_password, "display", "block");
+			u.as(this._password_state, "display", "none");
+			u.as(this._new_password, "display", "block");
 		}
 
 		var form = u.qs("form", div);
-		form.password_state = password_state;
-		form.new_password = new_password;
+		form._password_state = password_state;
+		form._new_password = new_password;
 
 		u.f.init(form);
+
+		form.actions["cancel"].clicked = function() {
+			u.as(this.form._password_state, "display", "block");
+			u.as(this.form._new_password, "display", "none");
+		}
 
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
 				if(response.cms_status == "success") {
-					u.ac(this.password_state, "set");
-					u.as(this.password_state, "display", "block");
-					u.as(this.new_password, "display", "none");
+					u.ac(this._password_state, "set");
+					u.as(this._password_state, "display", "block");
+					u.as(this._new_password, "display", "none");
 
 					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Password updated"});
 				}
@@ -124,7 +129,40 @@ Util.Objects["passwordProfile"] = new function() {
 
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-			this.fields["password"].val("");
+			this.fields["new_password"].val("");
+			this.fields["old_password"].val("");
+
+		}
+
+	}
+}
+
+
+// default new form
+Util.Objects["apitokenProfile"] = new function() {
+	this.init = function(div) {
+
+		var token = u.qs("p.token", div);
+
+		var form = u.qs("form", div);
+		form._token = token;
+
+		u.f.init(form);
+
+		form.submitted = function(iN) {
+
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					this._token.innerHTML = response.cms_object;
+
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token updated"});
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be updated"});
+				}
+
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 
 		}
 

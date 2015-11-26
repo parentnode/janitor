@@ -39,6 +39,12 @@
 #content .scene.userEdit > div.password .actions li {padding: 0 5px 10px;}
 
 
+/* API TOKEN */
+#content .scene.userEdit > div.apitoken {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.apitoken form {display: inline-block; vertical-align: top;}
+#content .scene.userEdit > div.apitoken form.renew ul.actions {padding-right: 0;}
+#content .scene.userEdit > div.apitoken form.disable ul.actions {padding-left: 0;}
+
 /* ADDRESSES */
 #content .scene.userEdit > div.addresses {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.addresses ul.addresses {padding: 0 30px;}
@@ -100,3 +106,6 @@
 /* PROFILE */
 #content .scene.profileEdit h1,
 #content .scene.profileContentList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+
+#content .scene.profileEdit div.password label {display: block; padding-left: 3px;}
+#content .scene.profileEdit div.password .indicator {top: 20px;}

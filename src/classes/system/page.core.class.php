@@ -82,6 +82,10 @@ class PageCore {
 		if(getVar("login") == "true") {
 			$this->logIn();
 		}
+		// login in progress
+		if(getVar("token")) {
+			$this->tokenLogIn();
+		}
 		// logoff
 		if(getVar("logoff") == "true") {
 			$this->logOff();
@@ -1179,6 +1183,49 @@ class PageCore {
 		return false;
 	}
 
+	/**
+	* Log in using token
+	*/
+	function tokenLogIn() {
+
+		$token = getVar("token");
+		$username = getVar("username");
+
+		if($token && $username) {
+			$query = new Query();
+
+			// make login query
+			// look for user with username and password
+			$sql = "SELECT users.id as id, users.user_group_id as user_group_id FROM ".SITE_DB.".users as users, ".SITE_DB.".user_apitokens as tokens, ".SITE_DB.".user_usernames as usernames WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = tokens.user_id AND tokens.token='$token' AND usernames.username='$username'";
+//			print $sql;
+			if($query->sql($sql)) {
+
+
+				// add user_id and user_group_id to session
+				session()->value("user_id", $query->result(0, "id"));
+				session()->value("user_group_id", $query->result(0, "user_group_id"));
+				session()->reset("user_group_permissions");
+
+				$this->addLog("Token login: ".$username ." (".session()->value("user_id").")");
+
+				// set new csrf token for user
+				session()->value("csrf", gen_uuid());
+
+				if(getVar("credentials")) {
+					$output = new Output();
+					$output->screen(array("csrf-token" => session()->value("csrf")));
+					exit;
+				}
+
+				return;
+			}
+		}
+
+		$this->addLog("Token login error: ".$username);
+
+		message()->addMessage("Computer says NO!", array("type" => "error"));
+		return false;
+	}
 
 	/**
 	* Simple logoff

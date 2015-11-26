@@ -52,6 +52,7 @@ class User extends Model {
 		$this->db_usernames = SITE_DB.".user_usernames";
 		$this->db_addresses = SITE_DB.".user_addresses";
 		$this->db_passwords = SITE_DB.".user_passwords";
+		$this->db_apitokens = SITE_DB.".user_apitokens";
 		$this->db_newsletters = SITE_DB.".user_newsletters";
 
 
@@ -112,6 +113,22 @@ class User extends Model {
 			"type" => "password",
 			"label" => "Password",
 			"hint_message" => "Type your password - must be 8-20 characters",
+			"error_message" => "Invalid password"
+		));
+
+		// new_password
+		$this->addToModel("new_password", array(
+			"type" => "password",
+			"label" => "New password",
+			"hint_message" => "Type your new password - must be 8-20 characters",
+			"error_message" => "Invalid password"
+		));
+
+		// old_password
+		$this->addToModel("old_password", array(
+			"type" => "password",
+			"label" => "Existing password",
+			"hint_message" => "Type your existing password - must be 8-20 characters",
 			"error_message" => "Invalid password"
 		));
 
@@ -726,27 +743,37 @@ class User extends Model {
 		if(count($action) == 1 && $user_id) {
 
 			// does values validate
-			if($this->validateList(array("password"))) {
+			if($this->validateList(array("new_password", "old_password"))) {
 
 				$query = new Query();
 
 				// make sure type tables exist
 				$query->checkDbExistance($this->db_passwords);
 
-				$password = sha1($this->getProperty("password", "value"));
+				$old_password = sha1($this->getProperty("old_password", "value"));
+				$new_password = sha1($this->getProperty("new_password", "value"));
 
-				// DELETE OLD PASSWORD
-				$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = $user_id";
+
+				$sql = "SELECT password FROM ".$this->db_passwords." WHERE user_id = $user_id";
 				if($query->sql($sql)) {
+					if($old_password == $query->result(0, "password")) {
 
-					// SAVE NEW PASSWORD
-					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
-					if($query->sql($sql)) {
+						// DELETE OLD PASSWORD
+						$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = $user_id";
+						if($query->sql($sql)) {
 
-//						message()->addMessage("Password saved");
-						return true;
+							// SAVE NEW PASSWORD
+							$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
+							if($query->sql($sql)) {
+
+//								message()->addMessage("Password saved");
+								return true;
+							}
+						}
+
 					}
 				}
+
 			}
 		}
 
@@ -754,6 +781,76 @@ class User extends Model {
 		return false;
 	}
 
+
+
+
+	// API TOKEN
+
+	// get users api token
+	function getToken($user_id = false) {
+
+		$user_id = session()->value("user_id");
+
+		$query = new Query();
+		// make sure type tables exist
+		$query->checkDbExistance($this->db_apitokens);
+
+		$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
+		if($query->sql($sql)) {
+			return $query->result(0, "token");
+		}
+		return false;
+	}
+
+	// create new api token
+	// /janitor/admin/profile/renewToken
+	function renewToken($action) {
+
+
+		$user_id = session()->value("user_id");
+
+		$token = gen_uuid();
+		$query = new Query();
+
+		// make sure type tables exist
+		$query->checkDbExistance($this->db_apitokens);
+
+		$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
+//		print $sql;
+		if($query->sql($sql)) {
+			$sql = "UPDATE ".$this->db_apitokens." SET token = '$token' WHERE user_id = $user_id";
+		}
+		else {
+			$sql = "INSERT INTO ".$this->db_apitokens." SET user_id = $user_id, token = '$token'";
+		}
+//		print $sql;
+		if($query->sql($sql)) {
+			return $token;
+		}
+
+		return false;
+	}
+
+	// disable api token
+	// /janitor/admin/profile/disableToken
+	function disableToken($action) {
+
+
+		$user_id = session()->value("user_id");
+
+		$query = new Query();
+
+		// make sure type tables exist
+		$query->checkDbExistance($this->db_apitokens);
+
+		$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = $user_id";
+//		print $sql;
+		if($query->sql($sql)) {
+			return true;
+		}
+
+		return false;
+	}
 
 
 
@@ -891,7 +988,7 @@ class User extends Model {
 	}
 
 	// Delete address
-	// /janitor/admin/user/deleteAddress/#address_id#
+	// /janitor/admin/profile/deleteAddress/#address_id#
 	function deleteAddress($action) {
 		
 		$user_id = session()->value("user_id");

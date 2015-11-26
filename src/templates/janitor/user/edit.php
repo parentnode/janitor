@@ -19,6 +19,8 @@ $email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
 // password state
 $has_password = $model->hasPassword($user_id);
 
+// api token
+$apitoken = $model->getToken($user_id);
 
 // get addresses
 $addresses = $model->getAddresses(array("user_id" => $user_id));
@@ -35,6 +37,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
 		<?= $JML->deleteButton("Delete", "/janitor/admin/user/delete/".$user_id) ?>
 	</ul>
 
@@ -114,9 +117,26 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 				</fieldset>
 				<ul class="actions">
 					<?= $model->submit("Update password", array("class" => "primary", "wrapper" => "li.save")) ?>
+					<?= $model->button("Cancel", array("wrapper" => "li.cancel")) ?>
 				</ul>
 			<?= $model->formEnd() ?>
 		</div>
+	</div>
+
+	<div class="apitoken i:apitoken">
+		<h2>API Token</h2>
+		<p class="token"><?= stringOr($apitoken, "N/A") ?></p>
+
+		<?= $model->formStart("renewToken/".$user_id, array("class" => "renew")) ?>
+			<ul class="actions">
+				<?= $model->submit(($apitoken ? "Renew API token" : "Create API token"), array("class" => "primary", "name" => "renew", "wrapper" => "li.renew")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+		<?= $model->formStart("disableToken/".$user_id, array("class" => "disable")) ?>
+			<ul class="actions">
+				<?= $model->submit("Disable token", array("class" => "secondary".($apitoken ? "" : " disabled"), "name" => "disable", "wrapper" => "li.renew")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
 	</div>
 
 	<div class="addresses">

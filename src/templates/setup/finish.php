@@ -48,10 +48,10 @@ $all_check = $model->checkAllSettings();
 			Copy this into your terminal to set file permissions to production settings. You want to make
 			sure this is done to protect your files from unintended manipulation.
 		</p>
-		<code>sudo chown -R root:<?= $model->deploy_user ?> <?= $model->project_path ?> &&
-sudo chmod -R 755 <?= $model->project_path ?> &&
+		<code>sudo chown -R root:<?= $model->deploy_user ?> <?= $model->project_path ?>
+sudo chmod -R 755 <?= $model->project_path ?>
 
-sudo chown -R <?= $model->apache_user ?>:<?= $model->deploy_user ?> <?= $model->project_path ?>/src/library &&
+sudo chown -R <?= $model->apache_user ?>:<?= $model->deploy_user ?> <?= $model->project_path ?>/src/library
 sudo chmod -R 770 <?= $model->project_path ?>/src/library</code>
 
 

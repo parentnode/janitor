@@ -11,6 +11,8 @@ $access_item["/updateUsernames"] = true;
 $access_item["/updateEmail"] = "/updateUsernames";
 $access_item["/updateMobile"] = "/updateUsernames";
 $access_item["/setPassword"] = true;
+$access_item["/renewToken"] = true;
+$access_item["/disableToken"] = "/renewToken";
 
 $access_item["/addess"] = true;
 $access_item["/new_address"] = "/addess";
