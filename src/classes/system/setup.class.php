@@ -1052,6 +1052,8 @@ class Setup extends Itemtype {
 			}
 
 
+			// TODO: make sure messages are not stacked
+
 
 			//
 			// GIT SETTINGS
