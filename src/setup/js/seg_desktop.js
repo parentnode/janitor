@@ -4737,6 +4737,106 @@ Util.videoPlayer = function(_options) {
 }
 
 
+/*beta-u-notifier.js*/
+u.notifier = function(node) {
+	var notifications = u.qs("div.notifications", node);
+	if(!notifications) {
+		node.notifications = u.ae(node, "div", {"id":"notifications"});
+	}
+	node.notifications.hide_delay = 4500;
+	node.notifications.hide = function() {
+		u.a.transition(this, "all 0.5s ease-in-out");
+		u.a.translate(this, 0, -this.offsetHeight);
+	}
+	node.notify = function(response, _options) {
+		var class_name = "message";
+		if(typeof(_options) == "object") {
+			var argument;
+			for(argument in _options) {
+				switch(argument) {
+					case "class"	: class_name	= _options[argument]; break;
+				}
+			}
+		}
+		var output;
+		if(typeof(response) == "object" && response.isJSON) {
+			var message = response.cms_message;
+			var cms_status = response.cms_status;
+			if(typeof(message) == "object") {
+				for(type in message) {
+					if(typeof(message[type]) == "string") {
+						output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":message[type]});
+					}
+					else if(typeof(message[type]) == "object" && message[type].length) {
+						var node, i;
+						for(i = 0; _message = message[type][i]; i++) {
+							output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":_message});
+						}
+					}
+				}
+			}
+			else if(typeof(message) == "string") {
+				output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":message});
+			}
+			if(typeof(this.notifications.show) == "function") {
+				this.notifications.show();
+			}
+		}
+		else if(typeof(response) == "object" && response.isHTML) {
+			var login = u.qs(".scene.login", response);
+			if(login) {
+				if(page.t_autosave) {
+					u.t.resetTimer(page.t_autosave);
+				}
+				var overlay = u.ae(document.body, "div", {"id":"login_overlay"});
+				u.ae(overlay, login);
+				u.as(document.body, "overflow", "hidden");
+				var form = u.qs("form", overlay);
+				form.overlay = overlay;
+				u.ae(form, "input", {"type":"hidden", "name":"ajaxlogin", "value":"true"})
+				u.f.init(form);
+				form.submitted = function() {
+					this.response = function(response) {
+						if(response.isJSON && response.cms_status) {
+							var csrf_token = response.cms_object["csrf-token"];
+							u.bug("new token:" + csrf_token);
+							var data_vars = u.qsa("[data-csrf-token]", page);
+							var input_vars = u.qsa("[name=csrf-token]", page);
+							var dom_vars = u.qsa("*", page);
+							var i, node;
+							for(i = 0; node = data_vars[i]; i++) {
+								u.bug("data:" + u.nodeId(node) + ", " + node.getAttribute("data-csrf-token"));
+								node.setAttribute("data-csrf-token", csrf_token);
+							}
+							for(i = 0; node = input_vars[i]; i++) {
+								u.bug("input:" + u.nodeId(node) + ", " + node.value);
+								node.value = csrf_token;
+							}
+							for(i = 0; node = dom_vars[i]; i++) {
+								if(node.csrf_token) {
+									u.bug("dom:" + u.nodeId(node) + ", " + node.csrf_token);
+									node.csrf_token = csrf_token;
+								}
+							}
+							this.overlay.parentNode.removeChild(this.overlay);
+							u.as(document.body, "overflow", "auto");
+							if(page._autosave_node && page._autosave_interval) {
+								u.t.setTimer(page._autosave_node, "autosave", page._autosave_interval);
+							}
+						}
+						else {
+							alert("login error")
+						}
+					}
+					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				}
+			}
+		}
+		u.t.setTimer(this.notifications, this.notifications.hide, this.notifications.hide_delay);
+	}
+}
+
+
 /*u-navigation.js*/
 u.navigation = function(_options) {
 	var navigation_node = page;
@@ -8104,31 +8204,73 @@ Util.Objects["password"] = new function() {
 		var new_password = u.qs("div.new_password", div);
 		var a_create = u.qs(".password_missing a");
 		var a_change = u.qs(".password_set a");
-		a_create.new_password = new_password;
-		a_change.new_password = new_password;
-		a_create.password_state = password_state;
-		a_change.password_state = password_state;
+		a_create._new_password = new_password;
+		a_change._new_password = new_password;
+		a_create._password_state = password_state;
+		a_change._password_state = password_state;
 		u.ce(a_create);
 		u.ce(a_change);
 		a_create.clicked = a_change.clicked = function() {
-			u.as(this.password_state, "display", "none");
-			u.as(this.new_password, "display", "block");
+			u.as(this._password_state, "display", "none");
+			u.as(this._new_password, "display", "block");
 		}
 		var form = u.qs("form", div);
-		form.password_state = password_state;
-		form.new_password = new_password;
+		form._password_state = password_state;
+		form._new_password = new_password;
 		u.f.init(form);
+		form.actions["cancel"].clicked = function() {
+			u.as(this.form._password_state, "display", "block");
+			u.as(this.form._new_password, "display", "none");
+		}
 		form.submitted = function(iN) {
 			this.response = function(response) {
 				if(response.cms_status == "success") {
-					u.ac(this.password_state, "set");
-					u.as(this.password_state, "display", "block");
-					u.as(this.new_password, "display", "none");
+					u.ac(this._password_state, "set");
+					u.as(this._password_state, "display", "block");
+					u.as(this._new_password, "display", "none");
 				}
 				page.notify(response);
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 			this.fields["password"].val("");
+		}
+	}
+}
+Util.Objects["apitoken"] = new function() {
+	this.init = function(div) {
+		var token = u.qs("p.token", div);
+		var renew_form = u.qs("form.renew", div);
+		var disable_form = u.qs("form.disable", div);
+		renew_form._token = token;
+		renew_form.disable_form = disable_form
+		disable_form._token = token;
+		u.f.init(renew_form);
+		u.f.init(disable_form);
+		renew_form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					this._token.innerHTML = response.cms_object;
+					u.rc(this.disable_form.actions["disable"], "disabled");
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token updated"});
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+		}
+		disable_form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					this._token.innerHTML = "N/A";
+					u.ac(this.actions["disable"], "disabled");
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token disabled"});
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be disables"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 		}
 	}
 }
@@ -8282,23 +8424,27 @@ Util.Objects["passwordProfile"] = new function() {
 		var password_state = u.qs("div.password_state", div);
 		var new_password = u.qs("div.new_password", div);
 		var a_change = u.qs(".password_set a");
-		a_change.new_password = new_password;
-		a_change.password_state = password_state;
+		a_change._new_password = new_password;
+		a_change._password_state = password_state;
 		u.ce(a_change);
 		a_change.clicked = function() {
-			u.as(this.password_state, "display", "none");
-			u.as(this.new_password, "display", "block");
+			u.as(this._password_state, "display", "none");
+			u.as(this._new_password, "display", "block");
 		}
 		var form = u.qs("form", div);
-		form.password_state = password_state;
-		form.new_password = new_password;
+		form._password_state = password_state;
+		form._new_password = new_password;
 		u.f.init(form);
+		form.actions["cancel"].clicked = function() {
+			u.as(this.form._password_state, "display", "block");
+			u.as(this.form._new_password, "display", "none");
+		}
 		form.submitted = function(iN) {
 			this.response = function(response) {
 				if(response.cms_status == "success") {
-					u.ac(this.password_state, "set");
-					u.as(this.password_state, "display", "block");
-					u.as(this.new_password, "display", "none");
+					u.ac(this._password_state, "set");
+					u.as(this._password_state, "display", "block");
+					u.as(this._new_password, "display", "none");
 					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Password updated"});
 				}
 				else {
@@ -8306,7 +8452,28 @@ Util.Objects["passwordProfile"] = new function() {
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-			this.fields["password"].val("");
+			this.fields["new_password"].val("");
+			this.fields["old_password"].val("");
+		}
+	}
+}
+Util.Objects["apitokenProfile"] = new function() {
+	this.init = function(div) {
+		var token = u.qs("p.token", div);
+		var form = u.qs("form", div);
+		form._token = token;
+		u.f.init(form);
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					this._token.innerHTML = response.cms_object;
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token updated"});
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 		}
 	}
 }
@@ -8385,105 +8552,6 @@ Util.Objects["newslettersProfile"] = new function() {
 				}
 			}
 		}
-	}
-}
-
-
-/*u-notifier.js*/
-u.notifier = function(node) {
-	var notifications = u.qs("div.notifications", node);
-	if(!notifications) {
-		node.notifications = u.ae(node, "div", {"id":"notifications"});
-	}
-	node.notifications.hide = function() {
-		this.transitioned = function() {
-			u.a.transition(this, "none");
-		}
-		u.a.transition(this, "all 0.5s ease-in-out");
-		u.a.translate(this, 0, -this.offsetHeight);
-	}
-	node.notify = function(response, _options) {
-		var class_name = "message";
-		if(typeof(_options) == "object") {
-			var argument;
-			for(argument in _options) {
-				switch(argument) {
-					case "class"	: class_name	= _options[argument]; break;
-				}
-			}
-		}
-		var output;
-		if(typeof(response) == "object" && response.isJSON) {
-			var message = response.cms_message;
-			var cms_status = response.cms_status;
-			if(typeof(message) == "object") {
-				for(type in message) {
-					if(typeof(message[type]) == "string") {
-						output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":message[type]});
-					}
-					else if(typeof(message[type]) == "object" && message[type].length) {
-						var node, i;
-						for(i = 0; _message = message[type][i]; i++) {
-							output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":_message});
-						}
-					}
-				}
-			}
-			else if(typeof(message) == "string") {
-				output = u.ae(this.notifications, "div", {"class":class_name+" "+cms_status, "html":message});
-			}
-		}
-		else if(typeof(response) == "object" && response.isHTML) {
-			var login = u.qs(".scene.login", response);
-			if(login) {
-				if(page.t_autosave) {
-					u.t.resetTimer(page.t_autosave);
-				}
-				var overlay = u.ae(document.body, "div", {"id":"login_overlay"});
-				u.ae(overlay, login);
-				u.as(document.body, "overflow", "hidden");
-				var form = u.qs("form", overlay);
-				form.overlay = overlay;
-				u.ae(form, "input", {"type":"hidden", "name":"ajaxlogin", "value":"true"})
-				u.f.init(form);
-				form.submitted = function() {
-					this.response = function(response) {
-						if(response.isJSON && response.cms_status) {
-							var csrf_token = response.cms_object["csrf-token"];
-							u.bug("new token:" + csrf_token);
-							var data_vars = u.qsa("[data-csrf-token]", page);
-							var input_vars = u.qsa("[name=csrf-token]", page);
-							var dom_vars = u.qsa("*", page);
-							var i, node;
-							for(i = 0; node = data_vars[i]; i++) {
-								u.bug("data:" + u.nodeId(node) + ", " + node.getAttribute("data-csrf-token"));
-								node.setAttribute("data-csrf-token", csrf_token);
-							}
-							for(i = 0; node = input_vars[i]; i++) {
-								u.bug("input:" + u.nodeId(node) + ", " + node.value);
-								node.value = csrf_token;
-							}
-							for(i = 0; node = dom_vars[i]; i++) {
-								if(node.csrf_token) {
-									u.bug("dom:" + u.nodeId(node) + ", " + node.csrf_token);
-									node.csrf_token = csrf_token;
-								}
-							}
-							this.overlay.parentNode.removeChild(this.overlay);
-							u.as(document.body, "overflow", "auto");
-							if(page._autosave_node && page._autosave_interval) {
-								u.t.setTimer(page._autosave_node, "autosave", page._autosave_interval);
-							}
-						}
-						else {
-							alert("login error")
-						}
-					}
-					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
-				}
-			}
-		}
-		u.t.setTimer(this.notifications, this.notifications.hide, 4500);
 	}
 }
 

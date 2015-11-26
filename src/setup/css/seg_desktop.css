@@ -497,6 +497,10 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.userEdit > div.password div.new_password {display: none;}
 #content .scene.userEdit > div.password .actions {text-align: left;}
 #content .scene.userEdit > div.password .actions li {padding: 0 5px 10px;}
+#content .scene.userEdit > div.apitoken {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.apitoken form {display: inline-block; vertical-align: top;}
+#content .scene.userEdit > div.apitoken form.renew ul.actions {padding-right: 0;}
+#content .scene.userEdit > div.apitoken form.disable ul.actions {padding-left: 0;}
 #content .scene.userEdit > div.addresses {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.addresses ul.addresses {padding: 0 30px;}
 #content .scene.userEdit > div.addresses ul.addresses > li {display: inline-block; vertical-align: top; width: 250px; margin-right: 30px; margin-bottom: 20px; height: 150px; padding: 0 0 20px; border-bottom: 1px solid #dedede; position: relative;}
@@ -535,7 +539,8 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .defaultList.userContentList div.comments ul.items > li p.comment {color: #313942; padding-bottom: 15px;}
 #content .scene.profileEdit h1,
 #content .scene.profileContentList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
-
+#content .scene.profileEdit div.password label {display: block; padding-left: 3px;}
+#content .scene.profileEdit div.password .indicator {top: 20px;}
 
 /*s-logs.css*/
 #content .defaultList.logList h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
