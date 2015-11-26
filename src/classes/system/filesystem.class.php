@@ -17,20 +17,10 @@ class FileSystem {
 	* @uses FileSystem::valid
 	*/
 //	function folderIterator($start_path, $iteration_path="", $exclude=array(), $extensions=false, $files=false) {
-	function files($path, $options = false) {
+	function files($path, $_options = false) {
 //		print $path."<br>";
-		// options only used to pass on to valid()
-		// if($options !== false) {
-		// 	foreach($options as $option => $value) {
-		// 		switch($option) {
-		// 			case "deny_folders" 		: $deny_folders = $value; 		break;
-		// 			case "allow_folders" 		: $allow_folders = $value; 		break;
-		// 			case "deny_extensions" 	: $deny_extensions = $value; 	break;
-		// 			case "allow_extensions" 	: $allow_extensions = $value; 		break;
-		// 		}
-		// 	}
-		// }
 
+		// options only used to pass on to valid()
 
 		$files = array();
 
@@ -40,11 +30,11 @@ class FileSystem {
 //			print $file . "<br>";
 			$current_path = "$path/$file";
 
-			if($this->valid($current_path, $options)) {
+			if($this->valid($current_path, $_options)) {
 
 				// file is a directory - iterate
 				if(is_dir("$current_path")) {
-					$files = array_merge($files, $this->files($current_path, $options));
+					$files = array_merge($files, $this->files($current_path, $_options));
 				}
 				// index file
 				else {
@@ -63,48 +53,72 @@ class FileSystem {
 	* @param String $allow_folders Comma-separated list of allowed extensions
 	* @param String $deny_extensions Comma-separated list of denied extensions
 	* @param String $allow_extensions Comma-separated list of allowed extensions
-	* @return boolean It the folder/file valid or not
+	* @return boolean Is the folder/file valid or not
 	*/
 //	function validFolder($file, $exclude_folders = array(), $allowed_extensions=false) {
-	function valid($file, $options = false) {
+	function valid($file, $_options = false) {
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "deny_folders" 		: $deny_folders = explode(",", $value);		break;
-					case "allow_folders" 		: $allow_folders = explode(",", $value);		break;
-					case "deny_extensions"		: $deny_extensions = explode(",", $value);	break;
-					case "allow_extensions" 	: $allow_extensions = explode(",", $value);	break;
+		$include_tempfiles = false;
+		$deny_folders = false;
+		$allow_folders = false;
+		$deny_extensions = false;
+		$allow_extensions = false;
+
+	
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "include_tempfiles" 	: $include_tempfiles = $_value; 				break;
+					case "deny_folders" 		: $deny_folders = explode(",", $_value);		break;
+					case "allow_folders" 		: $allow_folders = explode(",", $_value);		break;
+					case "deny_extensions"		: $deny_extensions = explode(",", $_value);		break;
+					case "allow_extensions" 	: $allow_extensions = explode(",", $_value);	break;
 				}
 			}
 		}
 
 		$file_name = basename($file);
 
+		// if($file == "/srv/sites/parentnode/janitor_parentnode_dk/src/library/public/filesystem-test/level2/level23/") {
+		// 	print_r($_options);
+		// 	print "filename:" . $file_name;
+		// 	print "is_file:".is_file($file)."\n";
+		// 	print "is_dir:".is_dir($file)."\n";
+		// 	print "deny_folders:" . (!$deny_folders || array_search($file_name, $deny_folders) === false)."\n";
+		// 	print "allow_folders (".is_array($allow_folders)."):" . (!$allow_folders || array_search($file_name, $allow_folders) !== false)."\n";
+		// }
+
 		if(
 			// ignore files starting with . and _ (conf, temp and directory links)
-			substr($file_name, 0, 1) != "." && 
-			substr($file_name, 0, 1) != "_" && 
+			$file_name !== "." && 
+			$file_name !== ".." &&
+			($include_tempfiles || !preg_match("/^[\.\_]+/", $file_name)) &&
 
 			(
 				!is_dir($file) || 
 				(	
-					!isset($deny_folders) || array_search($file_name, $deny_folders) === false
+					!$deny_folders || count(array_intersect(explode("/", $file), $deny_folders)) === 0
 				) &&
 				(
-					!isset($allow_folders) || array_search($file_name, $allow_folders) !== false
+					!$allow_folders || count(array_intersect(explode("/", $file), $allow_folders)) > 0
 				)
 			) &&
 			(
 				!is_file($file) || 
 				(
-					!isset($deny_extensions) || array_search(substr($file_name, -3), $deny_extensions) === false
+					!$deny_extensions || array_search(substr($file_name, -3), $deny_extensions) === false
 				) &&
 				(
-					!isset($allow_extensions) || array_search(substr($file_name, -3), $allow_extensions) !== false
+					!$allow_extensions || array_search(substr($file_name, -3), $allow_extensions) !== false
+				) &&
+				(
+					!$deny_folders || count(array_intersect(explode("/", $file), $deny_folders)) === 0
+				) &&
+				(
+					!$allow_folders || count(array_intersect(explode("/", $file), $allow_folders)) > 0
 				)
 			)
-			
+
 		) {
 			return true;
 		}
@@ -142,96 +156,103 @@ class FileSystem {
 	* Recursively delete folder and subfolders if empty
 	*
 	* @param string $path Path to start deletion
+	* @param array $_options Optional options to pass to valid and option to delete temp/system files 
 	* @return string
 	*/
-	function removeEmptyDirRecursively($path, $options = false) {
+	function removeEmptyDirRecursively($path, $_options = false) {
 
-//		print "PATH:$path<br>";
+//		print "PATH:$path\n";
 
 		$delete_tempfiles = false;
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "delete_tempfiles" : $delete_tempfiles = $value; break;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "delete_tempfiles" : $delete_tempfiles = $_value; break;
 				}
 			}
 		}
 
-		if($this->valid($path, $options)) {
+		// include tempfiles in options if they should be deleted
+		if($delete_tempfiles) {
+			$_options["include_tempfiles"] = true;
+		}
 
-			$is_empty = true;
+		$is_empty = true;
 //			print "Empty is true<br>";
 
+		// read directory contents
+		if(file_exists($path)) {
 			$dir = opendir($path);
 			while($entry = readdir($dir)) {
 
-//				print "entry:" . $entry."<br>";
-				$is_valid = true;
+	//			print "entry:" . $entry."\n";
 
-				if(is_file("$path/$entry") && (strpos($entry, "_") === 0 || strpos("$entry", ".") === 0)) {
+				// is entry a file
+				if(is_file("$path/$entry")) {
 
-					if(!$delete_tempfiles) {
-//						print "temp/hidden file found: $entry<br>";
+	//				print "is file ($path/$entry)"."\n";
+
+					// tempfile - allow deletion
+					if(!($delete_tempfiles && preg_match("/^[\.\_]+/", $entry))) { 
+	//					print "tempfile?\n";
 						$is_empty = false;
 					}
+					else if($this->valid("$path/$entry", $_options)) {
+	//					print "delete tempfile: $path/$entry\n";
+
+						unlink("$path/$entry");
+					}
+
 				}
 
- 				if($this->valid("$path/$entry", $options)) {
-	
-					if(is_dir("$path/$entry")) {
-//						print "trying to delete sub: $entry<br>";
-						$rm = $this->removeEmptyDirRecursively("$path/$entry", $options);
-//						print "rm for $entry: #$rm#<br>";
-						if(!$rm) {
-//							print "BAD RM<br>";
+				// if entry a directory
+				else if(is_dir("$path/$entry")) {
+
+	//				print "is directory ($path/$entry)"."\n";
+
+					// is real directory (not . or ..)
+	 				if($this->valid("$path/$entry")) {
+
+	//					print "look for subs to delete: $entry\n";
+						if(!$this->removeEmptyDirRecursively("$path/$entry", $_options)) {
 							$is_empty = false;
 						}
+
 					}
-					else {
-//						print "file found: $entry<br>";
-						$is_empty = false;
-					}
-				}
-				// invalid but folder ref
-				else if(is_dir("$path/$entry") && ($entry == "." || $entry == "..")) {
-
-					$is_valid = false;
 
 				}
-				// invalid file
-				else {
-//					print "invalid path/entry: $path/$entry<br>";
-					$is_empty = false;
-					$is_valid = false;
-				}
 
-				if($is_empty && $is_valid) {
-//					print "DELETE $path/$entry<br>";
-					rmdir("$path/$entry");
-				}
-				else {
-//					print "DONT DELETE $path/$entry ($is_empty) ($is_valid)<br>";
-				}
 			}
 			closedir($dir);
 
 			if($is_empty) {
-				rmdir("$path/$entry");
-//			 	print "Folder is empty: $path/$entry<br>";
+
+	//			print "check validity before deleting ($path/$entry)\n";
+
+				if($this->valid("$path/$entry", $_options)) {
+	//				print "Remove folder: $path/$entry\n";
+
+					// try to delete folder
+					if(!@rmdir("$path/$entry")) {
+						$is_empty = false;
+					}
+
+				}
+				// 
+				else {
+					$is_empty = false;
+				}
 			}
 			else {
-//			 	print "Folder is not empty: $path/$entry<br>";
-				
+	//		 	print "Folder is not empty: $path/$entry<br>";
 			}
 
-//			print "$path/$entry IS EMPTY: $is_empty, IS VALID: $is_valid<br>";
-			return $is_empty;
 		}
-		else {
-//			print "invalid path: $path<br>";
-			return false;
-		}
+
+
+//		print "$path/$entry IS EMPTY: $is_empty\n";
+		return $is_empty;
 
 	}
 
@@ -282,6 +303,8 @@ class FileSystem {
 			return true;
 		}
 		else if(is_file($path)) {
+			// make sure desination path exists
+			$this->makeDirRecursively(dirname($dest));
 			return copy($path, $dest);
 		}
 		else {
