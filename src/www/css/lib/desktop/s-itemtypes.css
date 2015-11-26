@@ -14,5 +14,13 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 #content .todoList ul.items > li dd.high
 {color: #df0000;}
 
+
 /* QnA list */
 #content .qnaList ul.items > li p {padding-bottom: 0px; padding-right: 220px;}
+
+
+
+/* WISHLIST */
+#content .wishList ul.items > li dl {display: block; padding: 5px 30px;}
+#content .wishList ul.items > li dl dt.reserved {display: none;}
+#content .wishList ul.items > li dl dd.reserved {font-size: 14px;}
