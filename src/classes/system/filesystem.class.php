@@ -79,6 +79,13 @@ class FileSystem {
 
 		$file_name = basename($file);
 
+		// find file extension
+		$file_extension = false;
+		preg_match("/\.([a-zA-Z0-9]{1,5})$/", $file_name, $extension_match);
+		if($extension_match) {
+			$file_extension = $extension_match[1];
+		}
+
 		// if($file == "/srv/sites/parentnode/janitor_parentnode_dk/src/library/public/filesystem-test/level2/level23/") {
 		// 	print_r($_options);
 		// 	print "filename:" . $file_name;
@@ -106,10 +113,10 @@ class FileSystem {
 			(
 				!is_file($file) || 
 				(
-					!$deny_extensions || array_search(substr($file_name, -3), $deny_extensions) === false
+					(!$deny_extensions || !$file_extension) || array_search($file_extension, $deny_extensions) === false
 				) &&
 				(
-					!$allow_extensions || array_search(substr($file_name, -3), $allow_extensions) !== false
+					!$allow_extensions || ($file_extension && array_search($file_extension, $allow_extensions) !== false)
 				) &&
 				(
 					!$deny_folders || count(array_intersect(explode("/", $file), $deny_folders)) === 0
