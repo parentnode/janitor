@@ -98,48 +98,59 @@ Util.Objects["apitoken"] = new function() {
 		var renew_form = u.qs("form.renew", div);
 		var disable_form = u.qs("form.disable", div);
 
-		renew_form._token = token;
-		renew_form.disable_form = disable_form
-		disable_form._token = token;
+		if(renew_form) {
+			renew_form._token = token;
 
-		u.f.init(renew_form);
-		u.f.init(disable_form);
+			if(disable_form) {
+				renew_form.disable_form = disable_form;
+			}
 
-		renew_form.submitted = function(iN) {
+			u.f.init(renew_form);
 
-			this.response = function(response) {
-				if(response.cms_status == "success") {
-					this._token.innerHTML = response.cms_object;
-					u.rc(this.disable_form.actions["disable"], "disabled");
+			renew_form.submitted = function(iN) {
 
-					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token updated"});
+				this.response = function(response) {
+					if(response.cms_status == "success") {
+						this._token.innerHTML = response.cms_object;
+						if(this.disable_form) {
+							u.rc(this.disable_form.actions["disable"], "disabled");
+						}
+
+						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token updated"});
+					}
+					else {
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be updated"});
+					}
+
 				}
-				else {
-					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be updated"});
-				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-
 		}
 
+		if(disable_form) {
+			disable_form._token = token;
 
-		disable_form.submitted = function(iN) {
+			u.f.init(disable_form);
 
-			this.response = function(response) {
-				if(response.cms_status == "success") {
-					this._token.innerHTML = "N/A";
-					u.ac(this.actions["disable"], "disabled");
-					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token disabled"});
+			disable_form.submitted = function(iN) {
+
+				this.response = function(response) {
+					if(response.cms_status == "success") {
+						this._token.innerHTML = "N/A";
+						u.ac(this.actions["disable"], "disabled");
+						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token disabled"});
+					}
+					else {
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be disables"});
+					}
+
 				}
-				else {
-					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be disables"});
-				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-
 		}
+
 
 	}
 }
