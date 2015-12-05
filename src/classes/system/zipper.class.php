@@ -15,6 +15,7 @@ class Zipper {
 		$flag = ZipArchive::CREATE;
 		$paths = true;
 		$delete = false;
+		$delete_files = array();
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -28,9 +29,12 @@ class Zipper {
 
 
 		$zip = new ZipArchive();
-		$zip->open($dest, $flag);
 
 		foreach($files as $file) {
+
+			// open zip destination
+			$zip->open($dest, $flag);
+
 
 			// determine name to store
 			if($paths === false) {
@@ -45,24 +49,30 @@ class Zipper {
 
 					$stored_name = str_replace($path, "", $file);
 				}
-
 			}
 
+			// add file to 
 			if($zip->addFile($file, $stored_name)) {
 
 				// add file to delete array (if files needs to be deleted)
 				$delete_files[] = $file;
 
 			}
-			// something went wrong
-			else {
-				$zip->close();
-				unlink($dest);
-				return false;
-			}
+// 			// something went wrong
+// 			else {
+// 				// clear delete files array
+//
+// 				$delete_files = array();
+// 				$zip->close();
+//
+// //				unlink($dest);
+// 				return false;
+// 			}
+
+			$zip->close();
+
 		}
 
-		$zip->close();
 
 
 		// delete after zipping?
