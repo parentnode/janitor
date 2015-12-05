@@ -58,16 +58,6 @@ class Zipper {
 				$delete_files[] = $file;
 
 			}
-// 			// something went wrong
-// 			else {
-// 				// clear delete files array
-//
-// 				$delete_files = array();
-// 				$zip->close();
-//
-// //				unlink($dest);
-// 				return false;
-// 			}
 
 			$zip->close();
 
