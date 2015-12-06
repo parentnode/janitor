@@ -9,11 +9,8 @@ $model_wish = $IC->typeObject("wish");
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => true));
 
-// get wishlist tag
-$tag = $model->getWishlistTag($item_id);
-
 // get wishes order
-$ordered_wishes = $model->getOrderedWishes($item_id, $tag);
+$ordered_wishes = $model->getOrderedWishes($item_id);
 
 
 // reset "return to wishlist" state
