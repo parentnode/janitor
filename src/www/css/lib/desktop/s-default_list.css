@@ -60,9 +60,10 @@
 
 
 /* SORTABLE */
-#content div.all_items .sortable ul.items > li.item h3 {padding-left: 60px;}
-#content div.all_items .sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 8px; left: 20px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
-#content div.all_items .sortable ul.items > li.item ul.tags {padding-left: 55px;}
+#content div.all_items.sortable ul.items > li.item h3 {padding-left: 60px;}
+#content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 8px; left: 20px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
+#content div.all_items.sortable ul.items > li.item ul.tags {padding-left: 55px;}
+#content div.all_items.sortable ul.items > li.item dl {padding-left: 60px;}
 
 /* SORTABLE LIST WITH IMAGE (DEFAULTS FOR 160-WIDTH IMAGE) */
-#content div.all_items .sortable ul.items > li.image {padding-left: 190px; background-position: 60px center;}
+#content div.all_items.sortable ul.items > li.image {padding-left: 190px; background-position: 60px center;}

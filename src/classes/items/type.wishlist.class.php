@@ -16,6 +16,7 @@ class TypeWishlist extends Itemtype {
 
 		// itemtype database
 		$this->db = SITE_DB.".item_wishlist";
+		$this->db_wishes_order = SITE_DB.".item_wishlist_wishes_order";
 
 		// Name
 		$this->addToModel("name", array(
@@ -34,13 +35,6 @@ class TypeWishlist extends Itemtype {
 			"hint_message" => "If you don't know what this is, just leave it empty"
 		));
 
-		// // Tags
-		// $this->addToModel("tags", array(
-		// 	"type" => "tags",
-		// 	"label" => "Tag",
-		// 	"hint_message" => "Start typing to filter available tags. A correct tag has this format: context:value.",
-		// 	"error_message" => "Tag must conform to tag format: context:value."
-		// ));
 	}
 
 
@@ -48,31 +42,125 @@ class TypeWishlist extends Itemtype {
 	// custom loopback function
 
 
-	// // Update item order
-	// // /janitor/admin/wishlist/updateOrder (order comma-separated in POST)
-	// function updateOrder($action) {
-	//
-	// 	$order_list = getPost("order");
-	// 	if(count($action) == 1 && $order_list) {
-	//
-	// 		$query = new Query();
-	// 		$order = explode(",", $order_list);
-	//
-	// 		for($i = 0; $i < count($order); $i++) {
-	// 			$item_id = $order[$i];
-	// 			$sql = "UPDATE ".$this->db." SET position = ".($i+1)." WHERE item_id = ".$item_id;
-	// 			$query->sql($sql);
-	// 		}
-	//
-	// 		message()->addMessage("Wishlist order updated");
-	// 		return true;
-	// 	}
-	//
-	// 	message()->addMessage("Wishlist order could not be updated - please refresh your browser", array("type" => "error"));
-	// 	return false;
-	//
-	// }
+	// Update item order
+	// /janitor/admin/wishlist/updateOrder (order comma-separated in POST)
+	function updateWishOrder($action) {
 
+		$order_list = getPost("order");
+		if(count($action) == 2 && $order_list) {
+
+			$wishlist_id = $action[1];
+
+			$query = new Query();
+			// make sure type tables exist
+			$query->checkDbExistance($this->db_wishes_order);
+
+			$order = explode(",", $order_list);
+			$sql = "DELETE FROM ".$this->db_wishes_order." WHERE item_id = ".$wishlist_id;
+			$query->sql($sql);
+
+
+			for($i = 0; $i < count($order); $i++) {
+				$wish_id = $order[$i];
+				$sql = "INSERT INTO ".$this->db_wishes_order." SET position = ".($i+1).", item_id = ".$wishlist_id.", wish_id = ".$wish_id;
+				$query->sql($sql);
+			}
+
+			message()->addMessage("Wish order updated");
+			return true;
+		}
+
+		message()->addMessage("Wish order could not be updated - please refresh your browser", array("type" => "error"));
+		return false;
+
+	}
+
+	// delete wishlist tag, when wishlist is deleted
+	function preDelete($item_id) {
+
+		$IC = new Items();
+
+		$item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true)));
+		$tag_index = arrayKeyValue($item["tags"], "context", "wishlist");
+		if($tag_index !== false) {
+			// delete wishlist tag, when wishlist is deleted
+			$TC = new Tag();
+			$TC->deleteTag(array("deleteTag", $item["tags"][$tag_index]["id"]));
+		}
+
+		return true;
+	}
+
+	// get wishlist tag
+	function getWishlistTag($item_id) {
+
+		// TODO: maybe better to use getTags here?
+		$IC = new Items();
+		$item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true)));
+
+		$tag_index = arrayKeyValue($item["tags"], "context", "wishlist");
+		if($tag_index !== false) {
+			$tag = "wishlist:".addslashes($item["tags"][$tag_index]["value"]);
+		}
+		// create tag if wishlist doesnt have tag already
+		else {
+			$tag = "wishlist:".$item["name"];
+			$_POST["tags"] = $tag;
+			$this->addTag(array("addTag", $item["id"]));
+		}
+		return $tag;
+	}
+
+	// get correctly ordered wishes for this wishlist
+	function getOrderedWishes($item_id, $tag = false) {
+
+		if($tag === false) {
+			$tag = $this->getWishlistTag($item_id);
+		}
+
+		$query = new Query();
+		$IC = new Items();
+
+		// get all wishes (new elements could be added without being ordered yet)
+		$wishlist_wishes = $IC->getItems(array("itemtype" => "wish", "tags" => $tag, "extend" => array("tags" => true, "mediae" => true)));
+
+//		print_r($wishlist_wishes);
+
+		// get wish order
+		$sql = "SELECT * FROM ".$this->db_wishes_order." WHERE item_id = ".$item_id." ORDER BY position";
+		$query->sql($sql);
+		$ordered_wishes = $query->results();
+
+//		print_r($ordered_wishes);
+
+		foreach($ordered_wishes as $wish_index => $ordered_wish) {
+			// ordered wish position in all wishes?
+			$position = arrayKeyValue($wishlist_wishes, "id", $ordered_wish["wish_id"]);
+			// it is there, so we remove it from the all (and unordered stack)
+			if($position !== false) {
+				// copy full item to order stack in correct position
+				$ordered_wishes[$wish_index] = $wishlist_wishes[$position];
+				// remove it from full stack
+				unset($wishlist_wishes[$position]);
+			}
+			// it is not there, so it must have been removed
+			else {
+				unset($ordered_wishes[$wish_index]);
+				// remove from ordered list now
+				$sql = "DELETE FROM ".$this->db_wishes_order." WHERE item_id = ".$item["id"]." AND wish_id = ".$ordered_wish["wish_id"];
+				$query->sql($sql);
+			}
+		}
+
+		// add unordered wishes to ordered list
+		foreach($wishlist_wishes as $wishlist_wish) {
+			$ordered_wishes[] = $wishlist_wish;
+		}
+
+		// return all wishes, with the ordered once first
+		return $ordered_wishes;
+
+	}
 }
 
 ?>

@@ -24,7 +24,10 @@ session()->reset("return_to_wishlist");
 
 	<div class="wishlists">
 		<h2>Wishlists</h2>
-		<div class="all_items i:defaultList filters sortable"<?= $JML->jsData() ?>>
+		<div class="all_items i:defaultList filters sortable"
+			data-csrf-token="<?= session()->value("csrf") ?>"
+			data-item-order="<?= $this->validPath("/janitor/admin/wishlist/updateOrder") ?>"
+		>
 	<?		if($wishlists): ?>
 			<ul class="items ">
 	<?			foreach($wishlists as $wishlist):

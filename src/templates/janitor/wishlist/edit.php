@@ -7,19 +7,13 @@ global $itemtype;
 $model_wish = $IC->typeObject("wish");
 
 $item_id = $action[1];
-$item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true)));
+$item = $IC->getItem(array("id" => $item_id, "extend" => true));
 
-$tag_index = arrayKeyValue($item["tags"], "context", "wishlist");
-if($tag_index !== false) {
-	$tag = "wishlist:".addslashes($item["tags"][$tag_index]["value"]);
-}
-// create tag if wishlist doesnt have tag already
-else {
-	$tag = "wishlist:".$item["name"];
-	$_POST["tags"] = $tag;
-	$model->addTag(array("addTag", $item["id"]));
-}
-$wishlist_wishes = $IC->getItems(array("itemtype" => "wish", "tags" => $tag, "extend" => array("tags" => true, "mediae" => true)));
+// get wishlist tag
+$tag = $model->getWishlistTag($item_id);
+
+// get wishes order
+$ordered_wishes = $model->getOrderedWishes($item_id, $tag);
 
 
 // reset "return to wishlist" state
@@ -62,13 +56,13 @@ session()->reset("return_to_wishlist");
 
 	<div class="wishes">
 		<h2>Wishes</h2>
-		<div class="all_items i:defaultList i:newWish wishlist_id:<?= $item["id"]?> taggable filters sortable"
-			<?= $JML->jsData() ?>
-			data-new-wish-url="<?= $this->validPath("/janitor/admin/wish/new") ?>" 
+		<div class="all_items i:defaultList wishlist_id:<?= $item["id"]?> taggable filters sortable"
+			data-csrf-token="<?= session()->value("csrf") ?>"
+			data-item-order="<?= $this->validPath("/janitor/admin/wishlist/updateWishOrder/".$item["id"]) ?>"
 			>
-	<?		if($wishlist_wishes): ?>
+	<?		if($ordered_wishes): ?>
 			<ul class="items">
-	<?			foreach($wishlist_wishes as $item): ?>
+				<? foreach($ordered_wishes as $item): ?>
 				<li class="item draggable image item_id:<?= $item["id"] ?> width:160<?= $JML->jsMedia($item) ?>">
 					<div class="drag"></div>
 					<h3><?= $item["name"] ?></h3>
@@ -80,7 +74,7 @@ session()->reset("return_to_wishlist");
 					<?= $JML->tagList($item["tags"]) ?>
 
 				 </li>
-	<?			endforeach; ?>
+			 	<? endforeach; ?>
 			</ul>
 	<?		else: ?>
 			<p>No wishes.</p>
