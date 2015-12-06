@@ -24,24 +24,27 @@ class FileSystem {
 
 		$files = array();
 
-		$handle = opendir("$path");
-		while(($file = readdir($handle)) !== false) {
+		if(file_exists("$path")) {
+			$handle = opendir("$path");
+			while(($file = readdir($handle)) !== false) {
 
-//			print $file . "<br>";
-			$current_path = "$path/$file";
+	//			print $file . "<br>";
+				$current_path = "$path/$file";
 
-			if($this->valid($current_path, $_options)) {
+				if($this->valid($current_path, $_options)) {
 
-				// file is a directory - iterate
-				if(is_dir("$current_path")) {
-					$files = array_merge($files, $this->files($current_path, $_options));
-				}
-				// index file
-				else {
-					$files[] = "$current_path";
+					// file is a directory - iterate
+					if(is_dir("$current_path")) {
+						$files = array_merge($files, $this->files($current_path, $_options));
+					}
+					// index file
+					else {
+						$files[] = "$current_path";
+					}
 				}
 			}
 		}
+
 		return $files;
 	}
 
