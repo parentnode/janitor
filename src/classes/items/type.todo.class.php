@@ -23,11 +23,12 @@ class TypeTodo extends Itemtype {
 		
 
 		// find users with todo privileges
+		$this->users = array();
 		$db_users = SITE_DB.".users";
 		$db_access = SITE_DB.".user_access";
 		$query = new Query();
 		if($query->sql("SELECT users.nickname, users.id FROM ".$db_users." as users, ".$db_access." as access WHERE users.user_group_id = access.user_group_id AND access.controller = '/janitor/admin/todo' AND access.action = '/edit' AND permission = 1 ORDER BY users.nickname")) {
-			 $this->users = $this->toOptions($query->results(), "id", "nickname");
+			$this->users = $this->toOptions($query->results(), "id", "nickname");
 		}
 
 		// Name
