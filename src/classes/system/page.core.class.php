@@ -1197,7 +1197,7 @@ class PageCore {
 
 			// make login query
 			// look for user with username and password
-			$sql = "SELECT users.id as id, users.user_group_id as user_group_id FROM ".SITE_DB.".users as users, ".SITE_DB.".user_apitokens as tokens, ".SITE_DB.".user_usernames as usernames WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = tokens.user_id AND tokens.token='$token' AND usernames.username='$username'";
+			$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_apitokens as tokens, ".SITE_DB.".user_usernames as usernames WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = tokens.user_id AND tokens.token='$token' AND usernames.username='$username'";
 //			print $sql;
 			if($query->sql($sql)) {
 
@@ -1206,6 +1206,7 @@ class PageCore {
 				session()->value("user_id", $query->result(0, "id"));
 				session()->value("user_group_id", $query->result(0, "user_group_id"));
 				session()->reset("user_group_permissions");
+				session()->value("user_nickname", $query->result(0, "nickname"));
 
 				$this->addLog("Token login: ".$username ." (".session()->value("user_id").")");
 
