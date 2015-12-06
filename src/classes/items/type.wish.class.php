@@ -73,15 +73,19 @@ class TypeWish extends Itemtype {
 	// add wishlist tag after save (if wish was created from wishlist)
 	function postSave($item_id) {
 
+		$IC = new Items();
+
 		$return_to_wishlist = session()->value("return_to_wishlist");
 		if($return_to_wishlist) {
-			$IC = new Items();
 			$model_wishlist = $IC->typeObject("wishlist");
 			$wishlist_tag = $model_wishlist->getWishlistTag($return_to_wishlist);
 
 			$_POST["tags"] = $wishlist_tag;
 			$this->addTag(array("addTag", $item_id));
 		}
+
+		// enable item
+		$this->status(array("status", $item_id, 1));
 	}
 
 
