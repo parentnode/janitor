@@ -75,6 +75,8 @@ class TypeWishlist extends Itemtype {
 
 	}
 
+	// internal helper functions
+
 	// delete wishlist tag, when wishlist is deleted
 	function preDelete($item_id) {
 
@@ -112,11 +114,22 @@ class TypeWishlist extends Itemtype {
 	}
 
 	// get correctly ordered wishes for this wishlist
-	function getOrderedWishes($item_id, $tag = false) {
+	function getOrderedWishes($item_id, $_options = false) {
 
-		if($tag === false) {
-			$tag = $this->getWishlistTag($item_id);
+		$status = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "status"           : $status            = $_value; break;
+				}
+			}
 		}
+
+		// get wishlist tag
+		$tag = $this->getWishlistTag($item_id);
 
 		$query = new Query();
 		$IC = new Items();
@@ -139,7 +152,23 @@ class TypeWishlist extends Itemtype {
 			// it is there, so we remove it from the all (and unordered stack)
 			if($position !== false) {
 				// copy full item to order stack in correct position
-				$ordered_wishes[$wish_index] = $wishlist_wishes[$position];
+				// only allow enabled items
+
+				if($status !== false) {
+					// status matches
+					if($wishlist_wishes[$position]["status"] == $status) {
+						$ordered_wishes[$wish_index] = $wishlist_wishes[$position];
+					}
+					// remove from ordered stack
+					else {
+						unset($ordered_wishes[$wish_index]);
+					}
+				}
+				// no status specified
+				else {
+					$ordered_wishes[$wish_index] = $wishlist_wishes[$position];
+				}
+
 				// remove it from full stack
 				unset($wishlist_wishes[$position]);
 			}
