@@ -1,5 +1,7 @@
 <?php
 $access_item["/"] = true;
+$access_item["/renewToken"] = true;
+$access_item["/disableToken"] = "/renewToken";
 //$access_item = false;
 
 if(isset($read_access) && $read_access) {
