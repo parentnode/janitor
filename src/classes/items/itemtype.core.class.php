@@ -68,13 +68,33 @@ class ItemtypeCore extends Model {
 
 			// delete item + itemtype + files
 			if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
-			
-				$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $item_id");
-				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
-				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
 
-				message()->addMessage("Item deleted");
-				return true;
+
+				// EXPERIMENTAL: include pre/post functions to all itemtype.core functions to make extendability better
+				$pre_delete_state = true;
+
+				// itemtype pre delete handler?
+				if(method_exists($this, "preDelete")) {
+					$pre_delete_state = $this->preDelete($item_id);
+				}
+
+				// pre delete state allows full delete
+				if($pre_delete_state) {
+					$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $item_id");
+					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
+					$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
+
+					message()->addMessage("Item deleted");
+
+
+					// itemtype post delete handler?
+					if(method_exists($this, "postDelete")) {
+						$this->postDelete($item_id);
+					}
+
+
+					return true;
+				}
 			}
 		}
 
@@ -194,8 +214,15 @@ class ItemtypeCore extends Model {
 						message()->addMessage("Item saved");
 						// return current item
 						$IC = new Items();
+
+
+						// itemtype post save handler?
+						if(method_exists($this, "postSave")) {
+							$this->postSave($item_id);
+						}
+
 						return $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
-;
+
 					}
 				}
 			}
