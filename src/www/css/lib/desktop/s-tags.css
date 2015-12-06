@@ -10,7 +10,7 @@
 #content ul.tags li.add {font-size: 0.923rem;}
 
 
-#content .scene > div.tags {padding: 0 0 20px; border-bottom: 1px solid #aaaaaa;}
+#content .scene > div.tags {padding: 0 0 20px; border-bottom: 1px solid #aaaaaa; overflow: hidden;}
 #content .scene > div.tags ul.tags {padding: 0 125px 0 25px;}
 
 

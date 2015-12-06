@@ -6,11 +6,25 @@ global $itemtype;
 
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true)));
+
+$return_to_wishlist = session()->value("return_to_wishlist");
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit wish</h1>
 
-	<?= $JML->editGlobalActions($item) ?>
+	<?
+	// return to specific wishlist
+	if($return_to_wishlist):
+		print $JML->editGlobalActions($item, array("modify" => array(
+			"list" => [
+				"label" => "Back", 
+				"url" => "/janitor/admin/wishlist/edit/".$return_to_wishlist
+			])));
+	// standard back button
+	else:
+		print $JML->editGlobalActions($item);
+	endif;
+	?>
 
 
 	<div class="item i:defaultEdit">

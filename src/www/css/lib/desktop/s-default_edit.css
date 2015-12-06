@@ -7,10 +7,11 @@
 /* EDIT VIEW - STATUS */
 #content .scene.defaultEdit > div.status {border-bottom: 1px solid #bbbbbb;}
 #content .scene.defaultEdit > div.status .actions {padding: 0;}
-#content .scene.defaultEdit > div.status .actions li.status {display: block; padding: 10px 0px; text-align: right;}
+#content .scene.defaultEdit > div.status .actions li.status {display: block; padding: 10px 0px; text-align: right; height: 27px;}
 #content .scene.defaultEdit > div.status .actions li.status form {display: inline-block; vertical-align: top; padding-right: 30px;}
+#content .scene.defaultEdit > div.status .actions li.status form.disable:after {left: 3px;}
 #content .scene.defaultEdit > div.status .actions li.status form h3 {padding-top: 5px; padding-bottom: 0; font-size: 13px;}
-#content .scene.defaultEdit > div.status .actions li.status.disabled {background: orange;}
+/*#content .scene.defaultEdit > div.status .actions li.status.disabled {background: orange;}*/
 
 #content .scene.defaultEdit > div.status .actions li.status.disabled form.disable {display: none;}
 #content .scene.defaultEdit > div.status .actions li.status.enabled form.enable {display: none;}

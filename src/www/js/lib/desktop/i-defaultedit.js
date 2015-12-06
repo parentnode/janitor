@@ -11,9 +11,9 @@ Util.Objects["defaultEdit"] = new function() {
 
 
 		u.f.init(form);
-		form.actions["cancel"].clicked = function(event) {
-			location.href = this.url;
-		}
+		// form.actions["cancel"].clicked = function(event) {
+		// 	location.href = this.url;
+		// }
 		form.submitted = function(iN) {
 
 			// stop autosave (this could be a manual save)

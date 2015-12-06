@@ -332,6 +332,7 @@ Util.Objects["defaultList"] = new function() {
 					node._tag_options._field = u.ae(node._tag_options, "div", {"class":"field"});
 
 					node._tag_options._tagfilter = u.ae(node._tag_options._field, "input", {"class":"filter ignoreinput"});
+					node._tag_options._tagfilter.focus();
 					node._tag_options._tagfilter.node = node;
 
 					node._tag_options._tagfilter.onkeyup = function() {

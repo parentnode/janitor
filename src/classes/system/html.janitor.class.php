@@ -109,11 +109,51 @@ class JanitorHTML {
 	function newActions($_options = false) {
 		global $model;
 
+		// standard settings
+		$standard = array(
+			"cancel" => array(
+				"label" => "Cancel",
+				"url" => $this->path."/list",
+				"options" => array("class" => "button key:esc", "wrapper" => "li.cancel")
+			),
+			"save" => array(
+				"label" => "Save and continue",
+				"options" => array("class" => "primary key:s", "wrapper" => "li.save")
+			)
+		);
+		// extend with these settings
+		$modify = "";
+		$extend = "";
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "modify"           : $modify            = $_value; break;
+					case "extend"           : $extend            = $_value; break;
+				}
+			}
+		}
+
+		if($modify) {
+			foreach($modify as $index => $values) {
+				if(isset($standard[$index])) {
+					foreach($values as $attribute => $value) {
+						$standard[$index][$attribute] = $value;
+					}
+				}
+			}
+		}
+
+		// TODO: implement extend options
+
+
 		$_ = '';
 
 		$_ .= '<ul class="actions">';
-		$_ .= $model->link("Cancel", $this->path."/list", array("class" => "button key:esc", "wrapper" => "li.cancel"));
-		$_ .= $model->submit("Save and continue", array("class" => "primary key:s", "wrapper" => "li.save"));
+		$_ .= $model->link($standard["cancel"]["label"], $standard["cancel"]["url"], $standard["cancel"]["options"]);
+		$_ .= $model->submit($standard["save"]["label"], $standard["save"]["options"]);
 		$_ .= '</ul>';
 
 		return $_;
@@ -169,18 +209,62 @@ class JanitorHTML {
 	function editGlobalActions($item, $_options = false) {
 		global $model;
 
+		// standard settings
+		$standard = array(
+			"list" => array(
+				"label" => "List",
+				"url" => $this->path."/list",
+				"options" => array("class" => "button", "wrapper" => "li.cancel")
+			),
+			"delete" => array(
+				"label" => "Delete",
+				"url" => $this->path."/delete/".$item["id"]
+			),
+			"status" => array(
+				"label_enable" => "Enable",
+				"label_disable" => "Disable",
+				"url" => $this->path."/status"
+			)
+		);
+		// extend with these settings
+		$modify = "";
+		$extend = "";
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "modify"           : $modify            = $_value; break;
+					case "extend"           : $extend            = $_value; break;
+				}
+			}
+		}
+
+		if($modify) {
+			foreach($modify as $index => $values) {
+				if(isset($standard[$index])) {
+					foreach($values as $attribute => $value) {
+						$standard[$index][$attribute] = $value;
+					}
+				}
+			}
+		}
+
+
+
 		$_ = '';
 
 		// BACK AND DELETE
 		$_ .= '<ul class="actions i:defaultEditActions item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'">';
-		$_ .= $model->link("List", $this->path."/list", array("class" => "button", "wrapper" => "li.cancel"));
-		$_ .= $this->deleteButton("Delete", $this->path."/delete/".$item["id"], array("js" => true));
+		$_ .= $model->link($standard["list"]["label"], $standard["list"]["url"], $standard["list"]["options"]);
+		$_ .= $this->deleteButton($standard["delete"]["label"], $standard["delete"]["url"], array("js" => true));
 		$_ .= '</ul>';
 
 		// STATUS
 		$_ .= '<div class="status i:defaultEditStatus item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'">';
 		$_ .= '<ul class="actions">';
-		$_ .= $this->statusButton("Enable", "Disable", $this->path."/status", $item, array("js" => true));
+		$_ .= $this->statusButton($standard["status"]["label_enable"], $standard["status"]["label_disable"], $standard["status"]["url"], $item, array("js" => true));
 		$_ .= '</ul>';
 		$_ .= '</div>';
 
@@ -194,7 +278,7 @@ class JanitorHTML {
 		$_ = '';
 
 		$_ .= '<ul class="actions">';
-		$_ .= $model->link("Cancel", $this->path."/list", array("class" => "button key:esc", "wrapper" => "li.cancel"));
+		//$_ .= $model->link("Cancel", $this->path."/list", array("class" => "button key:esc", "wrapper" => "li.cancel"));
 		$_ .= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save"));
 		$_ .= '</ul>';
 

@@ -16,6 +16,7 @@ class TypeWish extends Itemtype {
 
 		// itemtype database
 		$this->db = SITE_DB.".item_wish";
+		$this->db_wishlists = SITE_DB.".item_wishlist";
 
 		$this->wish_reserved = array(0 => "Available", 1 => "Reserved");
 
@@ -90,6 +91,23 @@ class TypeWish extends Itemtype {
 	// un-reserve wish
 	// /wishlist/unreserve/#item_id#
 	function unreserve($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$sql = "UPDATE ".$this->db." SET reserved = 0 WHERE item_id = ".$action[1];
+			if($query->sql($sql)) {
+				return true;
+			}
+
+		}
+		return false;
+	}
+
+
+	// create wishlist for given tag
+	// /wishlist/unreserve/#item_id#
+	function createWishlist($action) {
 
 		if(count($action) == 2) {
 

@@ -1,5 +1,6 @@
 Util.Objects["defaultEditStatus"] = new function() {
 	this.init = function(node) {
+//		u.bug("init defaultEditStatus")
 
 		node._item_id = u.cv(node, "item_id");
 		node.csrf_token = node.getAttribute("data-csrf-token");

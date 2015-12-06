@@ -8,16 +8,22 @@ global $itemtype;
 	<h1>New wishlist</h1>
 
 	<ul class="actions">
-		<?= $JML->newList(array("label" => "List")) ?>
+		<?= $model->link("Back to overview", "/janitor/admin/wish/list", array("class" => "button primary key:esc", "wrapper" => "li.back")); ?>
 	</ul>
 
-	<?= $model->formStart("save/".$itemtype, array("class" => "i:defaultNew labelstyle:inject")) ?>
+	<?= $model->formStart("save", array("class" => "i:defaultNew labelstyle:inject")) ?>
 		<fieldset>
 			<?= $model->input("name") ?>
 			<?= $model->input("classname") ?>
 		</fieldset>
 
-		<?= $JML->newActions() ?>
+		<?= $JML->newActions(
+		array("modify" => array(
+			"cancel" => array(
+				"url" => "/janitor/admin/wish/list",
+			)
+		))) ?>
+
 	<?= $model->formEnd() ?>
 
 </div>

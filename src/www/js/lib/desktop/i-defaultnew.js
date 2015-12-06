@@ -13,9 +13,10 @@ Util.Objects["defaultNew"] = new function() {
 			this.response = function(response) {
 				if(response.cms_status == "success" && response.cms_object) {
 
-
+					//alert("this.action:" + this.action)
 //					alert(response);
-					location.href = this.actions["cancel"].url.replace("\/list", "/edit/"+response.cms_object.item_id);
+					location.href = this.action.replace("\/save", "/edit/"+response.cms_object.item_id);
+//					location.href = this.actions["cancel"].url.replace("\/list", "/edit/"+response.cms_object.item_id);
 				}
 				else {
 					page.notify(response);

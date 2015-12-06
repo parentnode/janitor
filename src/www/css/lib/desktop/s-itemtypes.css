@@ -11,8 +11,7 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 /* TASK */
 #content .todoList ul.items > li h3 {padding-bottom: 16px;}
 #content .todoList ul.items > li dd.overdue,
-#content .todoList ul.items > li dd.high
-{color: #df0000;}
+#content .todoList ul.items > li dd.high {color: #df0000;}
 
 
 /* QnA list */
@@ -21,6 +20,16 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 
 
 /* WISHLIST */
-#content .wishList ul.items > li dl {display: block; padding: 5px 30px;}
-#content .wishList ul.items > li dl dt.reserved {display: none;}
-#content .wishList ul.items > li dl dd.reserved {font-size: 14px;}
+
+#content .scene.wishList div.item {padding: 0 0 20px; border-bottom: 1px solid #aaaaaa;}
+
+#content .scene.wishList > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
+
+#content .scene.wishlistList ul.items > li h3,
+#content .scene.wishList div.wishlists ul.items > li h3 {padding-bottom: 16px;}
+
+#content .scene.wishList div.wishlists {padding: 0 0 50px; border-bottom: 1px solid #aaaaaa;}
+
+#content .scene.wishList ul.items > li dl {display: block; padding: 5px 30px;}
+#content .scene.wishList ul.items > li dl dt.reserved {display: none;}
+#content .scene.wishList ul.items > li dl dd.reserved {font-size: 14px;}

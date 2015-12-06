@@ -7,6 +7,8 @@ Util.Objects["defaultTags"] = new function() {
 		div._tags_form = u.qs("form", div);
 		div._tags_form.div = div;
 
+		u.toggleHeader(div);
+
 
 		u.f.init(div._tags_form);
 
