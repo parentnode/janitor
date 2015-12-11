@@ -259,8 +259,8 @@ class HTMLCore {
 				// EMAIL
 				else if($type == "email") {
 					$att_value = $this->attribute("value", $value);
-					$att_max = $this->attribute("max", $max);
-					$att_min = $this->attribute("min", $min);
+					$att_max = $this->attribute("maxlength", stringOr($max, 255));
+					$att_min = $this->attribute("minlength", $min);
 
 					$_ .= '<input type="email"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 				}
@@ -268,8 +268,8 @@ class HTMLCore {
 				// TEL
 				else if($type == "tel") {
 					$att_value = $this->attribute("value", $value);
-					$att_max = $this->attribute("max", $max);
-					$att_min = $this->attribute("min", $min);
+					$att_max = $this->attribute("maxlength", stringOr($max, 255));
+					$att_min = $this->attribute("minlength", $min);
 
 					$_ .= '<input type="tel"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 				}
@@ -277,8 +277,8 @@ class HTMLCore {
 				// PASSWORD
 				else if($type == "password") {
 					$att_value = $this->attribute("value", $value);
-					$att_max = $this->attribute("max", $max);
-					$att_min = $this->attribute("min", $min);
+					$att_max = $this->attribute("maxlength", stringOr($max, 255));
+					$att_min = $this->attribute("minlength", $min);
 
 					$_ .= '<input type="password"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 				}
@@ -286,22 +286,19 @@ class HTMLCore {
 				// STRING
 				else if($type == "string") {
 					$att_value = $this->attribute("value", $value);
-					if($max) {
-						$att_max = $this->attribute("maxlength", $max);
-					}
-					else {
-						$att_max = $this->attribute("maxlength", 255);
-					}
+					$att_max = $this->attribute("maxlength", stringOr($max, 255));
+					$att_min = $this->attribute("minlength", $min);
 
-					$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_pattern.' />';
+					$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// NUMBER OR INTEGER
 				else if($type == "number" || $type == "integer") {
 					$att_value = $this->attribute("value", $value);
-					$att_max = $this->attribute("maxlength", $max);
+					$att_max = $this->attribute("max", $max);
+					$att_min = $this->attribute("min", $min);
 
-					$_ .= '<input type="number"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_pattern.' />';
+					$_ .= '<input type="number"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// FILES
@@ -317,8 +314,9 @@ class HTMLCore {
 				// TEXT
 				else if($type == "text") {
 					$att_max = $this->attribute("maxlength", $max);
+					$att_min = $this->attribute("minlength", $min);
 
-					$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.'>'.$value.'</textarea>';
+					$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.$att_min.'>'.$value.'</textarea>';
 				}
 
 				// SELECT
