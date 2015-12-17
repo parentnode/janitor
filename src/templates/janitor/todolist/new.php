@@ -8,7 +8,7 @@ global $itemtype;
 	<h1>New TODO list</h1>
 
 	<ul class="actions">
-		<?= $JML->newList(array("label" => "List")) ?>
+		<?= $model->link("Back to overview", "/janitor/admin/todo/list", array("class" => "button primary key:esc", "wrapper" => "li.back")); ?>
 	</ul>
 
 	<?= $model->formStart("save", array("class" => "i:defaultNew labelstyle:inject")) ?>
@@ -17,7 +17,13 @@ global $itemtype;
 			<?= $model->input("classname") ?>
 		</fieldset>
 
-		<?= $JML->newActions() ?>
+		<?= $JML->newActions(
+		array("modify" => array(
+			"cancel" => array(
+				"url" => "/janitor/admin/wish/list",
+			)
+		))) ?>
+
 	<?= $model->formEnd() ?>
 
 </div>

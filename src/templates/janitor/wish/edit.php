@@ -26,7 +26,6 @@ $return_to_wishlist = session()->value("return_to_wishlist");
 	endif;
 	?>
 
-
 	<div class="item i:defaultEdit">
 		<h2>Wish</h2>
 		<?= $model->formStart("update/".$item["id"], array("class" => "labelstyle:inject")) ?>

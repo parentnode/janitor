@@ -18,7 +18,7 @@ class TypeTodo extends Itemtype {
 		// itemtype database
 		$this->db = SITE_DB.".item_todo";
 
-		$this->todo_priority = array(0 => "Low", 5 => "Medium", 10 => "High");
+		$this->todo_priority = array(0 => "Hold", 1 => "Low", 2 => "Medium", 3 => "High");
 		$this->todo_status = array(0 => "Closed", 1 => "Open");
 		
 
@@ -73,6 +73,26 @@ class TypeTodo extends Itemtype {
 			"error_message" => "Date must be of format (yyyy-mm-dd hh:mm:ss)"
 		));
 
+	}
+
+
+
+	// add todolist tag after save (if todo was created from todolist)
+	function postSave($item_id) {
+
+		$IC = new Items();
+
+		$return_to_todolist = session()->value("return_to_todolist");
+		if($return_to_todolist) {
+			$model_todolist = $IC->typeObject("todolist");
+			$todolist_tag = $model_todolist->getWishlistTag($return_to_todolist);
+
+			$_POST["tags"] = $todolist_tag;
+			$this->addTag(array("addTag", $item_id));
+		}
+
+		// enable item
+		$this->status(array("status", $item_id, 1));
 	}
 
 

@@ -6,12 +6,25 @@ global $itemtype;
 
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "comments" => true)));
+
+$return_to_todolist = session()->value("return_to_todolist");
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit task</h1>
 
-	<?= $JML->editGlobalActions($item) ?>
-
+	<?
+	// return to specific todolist
+	if($return_to_todolist):
+		print $JML->editGlobalActions($item, array("modify" => array(
+			"list" => [
+				"label" => "Back", 
+				"url" => "/janitor/admin/todolist/edit/".$return_to_todolist
+			])));
+	// standard back button
+	else:
+		print $JML->editGlobalActions($item);
+	endif;
+	?>
 
 	<div class="item i:defaultEdit">
 		<h2>Task</h2>

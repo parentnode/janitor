@@ -70,9 +70,7 @@ session()->reset("return_to_wishlist");
 
 					<?= $JML->tagList($item["tags"]) ?>
 
-					<ul class="actions">
-						<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/wish/status", $item, array("js" => true)); ?>
-					</ul>
+					<?= $JML->listActions($item) ?>
 
 				 </li>
 			 	<? endforeach; ?>

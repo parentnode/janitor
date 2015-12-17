@@ -19,8 +19,8 @@ $page->pageTitle("TODO list");
 
 if(is_array($action) && count($action)) {
 
-	// LIST/EDIT/NEW ITEM
-	if(preg_match("/^(list|edit|new)$/", $action[0])) {
+	// EDIT/NEW ITEM
+	if(preg_match("/^(edit|new)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
