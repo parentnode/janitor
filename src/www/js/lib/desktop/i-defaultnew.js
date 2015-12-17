@@ -4,9 +4,9 @@ Util.Objects["defaultNew"] = new function() {
 
 		u.f.init(form);
 
-		form.actions["cancel"].clicked = function(event) {
-			location.href = this.url;
-		}
+		// form.actions["cancel"].clicked = function(event) {
+		// 	location.href = this.url;
+		// }
 
 		form.submitted = function(iN) {
 
