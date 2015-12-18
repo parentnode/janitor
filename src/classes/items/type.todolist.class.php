@@ -35,6 +35,13 @@ class TypeTodolist extends Itemtype {
 			"hint_message" => "If you don't know what this is, just leave it empty"
 		));
 
+		// Description
+		$this->addToModel("description", array(
+			"type" => "text",
+			"label" => "Description",
+			"hint_message" => "Description for this TODO list"
+		));
+
 	}
 
 

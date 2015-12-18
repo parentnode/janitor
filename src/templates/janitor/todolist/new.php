@@ -15,6 +15,7 @@ global $itemtype;
 		<fieldset>
 			<?= $model->input("name") ?>
 			<?= $model->input("classname") ?>
+			<?= $model->input("description") ?>
 		</fieldset>
 
 		<?= $JML->newActions(

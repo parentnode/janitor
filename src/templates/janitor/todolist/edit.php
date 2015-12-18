@@ -22,7 +22,7 @@ session()->reset("return_to_todolist");
 
 	<ul class="actions i:defaultEditActions item_id:<?= $item["id"] ?>" data-csrf-token="<?= session()->value("csrf") ?>">
 		<?= $model->link("Back", "/janitor/admin/todo/list", array("class" => "button", "wrapper" => "li.cancel")); ?>
-		<?= $model->link("New todo", "/janitor/admin/todo/new/todolist/".$item["id"], array("class" => "button primary", "wrapper" => "li.new")); ?>
+		<?= $model->link("New task", "/janitor/admin/todo/new/todolist/".$item["id"], array("class" => "button primary", "wrapper" => "li.new")); ?>
 		<?= $JML->deleteButton("Delete", "/janitor/admin/todolist/delete/".$item["id"], array("js" => true)); ?>
 	</ul>
 
@@ -40,6 +40,7 @@ session()->reset("return_to_todolist");
 			<fieldset>
 				<?= $model->input("name", array("value" => $item["name"])) ?>
 				<?= $model->input("classname", array("value" => $item["classname"])) ?>
+				<?= $model->input("description", array("value" => $item["description"])) ?>
 			</fieldset>
 
 			<ul class="actions">

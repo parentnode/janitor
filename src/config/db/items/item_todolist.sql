@@ -4,6 +4,7 @@ CREATE TABLE `SITE_DB`.`item_todolist` (
 
   `name` varchar(50) NOT NULL,
   `classname` varchar(50) NULL,
+  `description` text NOT NULL,
 
   `position` int(11) DEFAULT '0',
 

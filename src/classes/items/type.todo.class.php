@@ -85,7 +85,7 @@ class TypeTodo extends Itemtype {
 		$return_to_todolist = session()->value("return_to_todolist");
 		if($return_to_todolist) {
 			$model_todolist = $IC->typeObject("todolist");
-			$todolist_tag = $model_todolist->getWishlistTag($return_to_todolist);
+			$todolist_tag = $model_todolist->getTodolistTag($return_to_todolist);
 
 			$_POST["tags"] = $todolist_tag;
 			$this->addTag(array("addTag", $item_id));
