@@ -30,7 +30,7 @@ if(count($action) == 3 && $action[1] == "todolist") {
 			<?= $model->input("name") ?>
 			<?= $model->input("description", array("class" => "autoexpand")) ?>
 			<?= $model->input("priority") ?>
-			<?= $model->input("deadline", array("value" => date("Y-m-d", time()+(7*24*60*60)))) ?>
+			<?= $model->input("deadline") ?>
 		</fieldset>
 
 		<?= $JML->newActions() ?>

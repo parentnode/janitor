@@ -14,8 +14,8 @@ $ordered_todos = $model->getOrderedTodos($item_id);
 
 
 // reset "return to todolist" state
-session()->reset("return_to_todolist");
-
+//session()->reset("return_to_todolist");
+session()->value("return_to_todolist", $item_id);
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit TODO list</h1>
@@ -56,6 +56,9 @@ session()->reset("return_to_todolist");
 		<div class="all_items i:defaultList todolist_id:<?= $item["id"]?> taggable filters sortable"
 			data-csrf-token="<?= session()->value("csrf") ?>"
 			data-item-order="<?= $this->validPath("/janitor/admin/todolist/updateTodoOrder/".$item["id"]) ?>"
+			data-tag-get="<?= $this->validPath("/janitor/admin/items/tags") ?>" 
+			data-tag-delete="<?= $this->validPath("/janitor/admin/todo/deleteTag") ?>"
+			data-tag-add="<?= $this->validPath("/janitor/admin/todo/addTag") ?>"
 			>
 	<?		if($ordered_todos): ?>
 			<ul class="items">
@@ -66,15 +69,21 @@ session()->reset("return_to_todolist");
 					<dl class="info">
 						<dt class="priority">Priority2</dt>
 						<dd class="priority <?= strtolower($model_todo->todo_priority[$item["priority"]]) ?>"><?= $model_todo->todo_priority[$item["priority"]] ?></dd>
-						<dt class="deadline">Deadline</dt>
+						<? if(strtotime($item["deadline"]) > 0): ?>
+						<dt class="deadline">Deadline:</dt>
 						<dd class="deadline<?= strtotime($item["deadline"]) < time() ? " overdue" : "" ?>"><?= date("Y-m-d", strtotime($item["deadline"])) ?></dd>
+						<? endif; ?>
 						<dt class="assigned_to">Assigned to</dt>
 						<dd class="assigned_to"><?= $item["user_nickname"] ?></dd>
 					</dl>
 
 					<?= $JML->tagList($item["tags"]) ?>
 
-					<?= $JML->listActions($item) ?>
+					<ul class="actions">
+						<?= $model->link("Edit", "/janitor/admin/todo/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")); ?>
+						<?= $JML->deleteButton("Delete", "/janitor/admin/todo/delete/".$item["id"], array("js" => true)); ?>
+						<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/todo/status", $item, array("js" => true)); ?>
+					</ul>
 
 				 </li>
 			 	<? endforeach; ?>

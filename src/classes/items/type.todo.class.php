@@ -18,7 +18,7 @@ class TypeTodo extends Itemtype {
 		// itemtype database
 		$this->db = SITE_DB.".item_todo";
 
-		$this->todo_priority = array(0 => "Hold", 1 => "Low", 2 => "Medium", 3 => "High");
+		$this->todo_priority = array(1 => "Low", 2 => "Medium", 3 => "High", 0 => "Hold");
 		$this->todo_status = array(0 => "Closed", 1 => "Open");
 		
 
