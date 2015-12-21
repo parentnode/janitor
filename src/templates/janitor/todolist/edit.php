@@ -66,8 +66,11 @@ session()->value("return_to_todolist", $item_id);
 				<li class="item draggable item_id:<?= $item["id"] ?>">
 					<div class="drag"></div>
 					<h3><?= $item["name"] ?></h3>
+					<p class="description"><?= $item["description"] ?></p>
 					<dl class="info">
-						<dt class="priority">Priority2</dt>
+						<dt class="state">State</dt>
+						<dd class="state <?= strtolower($model_todo->todo_state[$item["state"]]) ?>"><?= $model_todo->todo_state[$item["state"]] ?></dd>
+						<dt class="priority">Priority</dt>
 						<dd class="priority <?= strtolower($model_todo->todo_priority[$item["priority"]]) ?>"><?= $model_todo->todo_priority[$item["priority"]] ?></dd>
 						<? if(strtotime($item["deadline"]) > 0): ?>
 						<dt class="deadline">Deadline:</dt>

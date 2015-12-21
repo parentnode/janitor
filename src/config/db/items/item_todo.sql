@@ -7,6 +7,7 @@ CREATE TABLE `SITE_DB`.`item_todo` (
 
   `deadline` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `priority` int (11) DEFAULT 0,
+  `state` int (11) DEFAULT 0,
 
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),

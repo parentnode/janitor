@@ -35,6 +35,7 @@ $return_to_todolist = session()->value("return_to_todolist");
 				<?= $model->input("description", array("class" => "autoexpand", "value" => $item["description"])) ?>
 				<?= $model->input("user_id", array("type" => "select", "value" => $item["user_id"])) ?>
 				<?= $model->input("priority", array("value" => $item["priority"])) ?>
+				<?= $model->input("state", array("value" => $item["state"])) ?>
 				<?= $model->input("deadline", array("value" => (strtotime($item["deadline"]) > 0 ? date("Y-m-h", strtotime($item["deadline"])) : ""))) ?>
 			</fieldset>
 

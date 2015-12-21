@@ -18,9 +18,9 @@ class TypeTodo extends Itemtype {
 		// itemtype database
 		$this->db = SITE_DB.".item_todo";
 
-		$this->todo_priority = array(1 => "Low", 2 => "Medium", 3 => "High", 0 => "Hold");
-		$this->todo_status = array(0 => "Closed", 1 => "Open");
-		
+		$this->todo_priority = array(0 => "Low", 10 => "Medium", 20 => "High");
+		$this->todo_state = array(0 => "Waiting", 30 => "In progress", 20 => "Test", 10 => "Done");
+
 
 		// find users with todo privileges
 		$this->users = array();
@@ -61,6 +61,15 @@ class TypeTodo extends Itemtype {
 			"options" => $this->todo_priority,
 			"label" => "Prioritize the task",
 			"hint_message" => "How important is it to get done?",
+			"error_message" => "priority error"
+		));
+
+		// State
+		$this->addToModel("state", array(
+			"type" => "select",
+			"options" => $this->todo_state,
+			"label" => "Current state of progress",
+			"hint_message" => "Are you working on this?",
 			"error_message" => "priority error"
 		));
 

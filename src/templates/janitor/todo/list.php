@@ -8,7 +8,7 @@ global $itemtype;
 $todolists = $IC->getItems(array("itemtype" => "todolist", "order" => "position ASC", "extend" => array("tags" => true)));
 
 // get all todos for complete overview
-$todos = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status DESC, todo.deadline DESC, todo.priority DESC", "extend" => array("tags" => true, "user" => true)));
+$todos = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status DESC, todo.state DESC, todo.deadline DESC, todo.priority DESC", "extend" => array("tags" => true, "user" => true)));
 
 // reset "return to todolist" state
 session()->reset("return_to_todolist");
@@ -66,7 +66,11 @@ session()->reset("return_to_todolist");
 	<?			foreach($todos as $item): ?>
 				<li class="item item_id:<?= $item["id"] ?>">
 					<h3><?= $item["name"] ?></h3>
+
+					<p class="description"><?= $item["description"] ?></p>
 					<dl class="info">
+						<dt class="state">State</dt>
+						<dd class="state <?= strtolower($model->todo_state[$item["state"]]) ?>"><?= $model->todo_state[$item["state"]] ?></dd>
 						<dt class="priority">Priority</dt>
 						<dd class="priority <?= strtolower($model->todo_priority[$item["priority"]]) ?>"><?= $model->todo_priority[$item["priority"]] ?></dd>
 						<dt class="deadline">Deadline</dt>
