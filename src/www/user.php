@@ -14,12 +14,12 @@ $access_item["/setPassword"] = true;
 $access_item["/renewToken"] = true;
 $access_item["/disableToken"] = "/renewToken";
 
-$access_item["/addess"] = true;
-$access_item["/new_address"] = "/addess";
-$access_item["/edit_address"] = "/addess";
-$access_item["/addAddress"] = "/addess";
-$access_item["/updateAddress"] = "/addess";
-$access_item["/deleteAddress"] = "/addess";
+$access_item["/address"] = true;
+$access_item["/new_address"] = "/address";
+$access_item["/edit_address"] = "/address";
+$access_item["/addAddress"] = "/address";
+$access_item["/updateAddress"] = "/address";
+$access_item["/deleteAddress"] = "/address";
 
 $access_item["/newsletters"] = true;
 $access_item["/add_newsletter"] = "/newsletters";
