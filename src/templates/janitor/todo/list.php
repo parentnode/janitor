@@ -73,8 +73,10 @@ session()->reset("return_to_todolist");
 						<dd class="state <?= strtolower($model->todo_state[$item["state"]]) ?>"><?= $model->todo_state[$item["state"]] ?></dd>
 						<dt class="priority">Priority</dt>
 						<dd class="priority <?= strtolower($model->todo_priority[$item["priority"]]) ?>"><?= $model->todo_priority[$item["priority"]] ?></dd>
+						<? if(strtotime($item["deadline"]) > 0): ?>
 						<dt class="deadline">Deadline</dt>
 						<dd class="deadline<?= strtotime($item["deadline"]) < time() ? " overdue" : "" ?>"><?= date("Y-m-d", strtotime($item["deadline"])) ?></dd>
+						<? endif; ?>
 						<dt class="assigned_to">Assigned to</dt>
 						<dd class="assigned_to"><?= $item["user_nickname"] ?></dd>
 					</dl>
