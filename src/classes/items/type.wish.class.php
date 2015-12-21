@@ -33,9 +33,9 @@ class TypeWish extends Itemtype {
 		// Price
 		$this->addToModel("price", array(
 			"type" => "integer",
-			"label" => "Price",
+			"label" => "Price starting at",
 			"required" => true,
-			"hint_message" => "Price or price range of wish", 
+			"hint_message" => "State the lowest price observed", 
 			"error_message" => "Price must be indicated"
 		));
 
