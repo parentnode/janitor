@@ -323,6 +323,9 @@ class User extends Model {
 	// will also add subscription for newsletter if it is sent along with signup
 	function newUser($action) {
 
+		global $page;
+		$page->addLog("user->newUser: initiated");
+
 		// only attempt user creation if signup are allowed for this site
 		if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 
@@ -333,6 +336,7 @@ class User extends Model {
 
 			// if user already exists, return error
 			if($this->userExists(array("email" => $email))) {
+				$page->addLog("user->newUser: user exists ($email)");
 				return array("status" => "USER_EXISTS");
 			}
 
@@ -414,10 +418,26 @@ class User extends Model {
 
 
 					// send welcome email
-					global $page;
-					$page->addLog("New User created: " . $email);
-
-					$page->mail(array("subject" => "signup", "message" => "EMAIL:$email\nPASSWORD:$mail_password\nVERIFICATION:$verification_code", "recipients" => $email, "template" => "signup"));
+					$page->addLog("user->newUser: created: " . $email);
+					// success
+					if(0 && $mail_password && $verification_code) {
+						$page->mail(array(
+							"values" => array(
+								"EMAIL" => $email, 
+								"PASSWORD" => $mail_password, 
+								"VERIFICATION" => $verification_code
+							), 
+							"recipients" => $email, 
+							"template" => "signup"
+						));
+					}
+					// error
+					else {
+						$page->mail(array(
+							"recipients" => $email, 
+							"template" => "signup_error"
+						));
+					}
 
 					$page->mail(array(
 						"subject" => "New User created: " . $email, 
@@ -431,6 +451,7 @@ class User extends Model {
 			}
 		}
 
+		$page->addLog("user->newUser failed: " . $sql);
 		return false;
 	}
 
