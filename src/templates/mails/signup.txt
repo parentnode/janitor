@@ -1,0 +1,19 @@
+SUBJECT:Activate your account on {SITE_NAME}!
+
+Thank you for being curious.
+
+Activate your account by clicking the link below:
+{SITE_URL}/signup/confirm/email/{EMAIL}/{VERIFICATION}
+
+
+Your account details:
+
+Url: {SITE_URL}
+Username: {EMAIL}
+Password: {PASSWORD}
+
+If you want to update your details or newsletter subscription, please visit {SITE_URL}/janitor/admin/profile.
+
+
+Greetings,
+{SITE_NAME}

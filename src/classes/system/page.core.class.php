@@ -1366,6 +1366,7 @@ class PageCore {
 
 		$subject = "Mail from ".SITE_URL;
 		$message = "";
+		$values = "";
 		$recipients = false;
 		$template = false;
 		$attachments = false;
@@ -1378,6 +1379,7 @@ class PageCore {
 					case "template"       : $template       = $_value; break;
 					case "object"         : $object         = $_value; break;
 					case "message"        : $message        = $_value; break;
+					case "values"         : $values         = $_value; break;
 					case "subject"        : $subject        = $_value; break;
 					case "attachments"    : $attachments    = $_value; break;
 				}
@@ -1390,9 +1392,53 @@ class PageCore {
 		}
 		// include template
 		if($template) {
-			// include formatting template
-			@include("templates/mails/$template.php");
+			$message_template = false;
+
+			// include local formatting text template
+			if(file_exists(LOCAL_PATH."/templates/mails/$template.txt")) {
+				$message_template = file_get_contents(LOCAL_PATH."/templates/mails/$template.txt");
+			}
+			// include framework formatting text template
+			else if(file_exists(FRAMEWORK_PATH."/templates/mails/$template.txt")) {
+				$message_template = file_get_contents(FRAMEWORK_PATH."/templates/mails/$template.txt");
+			}
+
+			if($message_template) {
+
+				// look for subject
+				if(preg_match("/^SUBJECT\:([^\n]+)\n/", $message_template, $subject_match)) {
+
+					$subject = $subject_match[1];
+					$message_template = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $message_template);
+				}
+
+				// parse values from message_template
+				if($values && is_array($values)) {
+
+					foreach($values as $key => $value) {
+						$message_template = preg_replace("/{".$key."}/", $value, $message_template);
+					}
+
+					$message_template = preg_replace("/{SITE_URL}/", SITE_URL, $message_template);
+					$message_template = preg_replace("/{SITE_NAME}/", SITE_NAME, $message_template);
+					$message_template = preg_replace("/{ADMIN_EMAIL}/", ADMIN_EMAIL, $message_template);
+					$message_template = preg_replace("/{SITE_EMAIL}/", SITE_EMAIL, $message_template);
+
+				}
+
+				// this is the new message
+				$message = trim($message_template);
+
+			}
+			// support old template method (with parameter replacement inside template and execution of PHP)
+			else {
+
+				@include("templates/mails/$template.php");
+
+			}
 		}
+
+//		print $message;
 
 		// only attmempt sending if recipient is specified
 		if($message && $recipients) {
@@ -1401,7 +1447,7 @@ class PageCore {
 			$mail             = new PHPMailer();
 			$mail->Subject    = $subject;
 
-			//$mail->SMTPDebug  = 1;                     // enables SMTP debug information (for testing)
+//			$mail->SMTPDebug  = 1;                     // enables SMTP debug information (for testing)
 
 			$mail->CharSet    = "UTF-8";
 			$mail->IsSMTP();
