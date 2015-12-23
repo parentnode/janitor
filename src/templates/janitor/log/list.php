@@ -3,7 +3,7 @@ global $action;
 global $LC;
 
 $logs = $LC->getLogs();
-
+arsort($logs);
 ?>
 <div class="scene defaultList logList">
 	<h1>Logs</h1>
@@ -14,7 +14,7 @@ $logs = $LC->getLogs();
 <?			foreach($logs as $log):
 				$loglines = file($log); ?>
 			<li class="item">
-				<h3><?= $log ?></h3>
+				<h3><?= str_replace(LOG_FILE_PATH, "", $log) ?></h3>
 				
 				<ul class="loglines">
 <?				foreach($loglines as $logline): ?>
