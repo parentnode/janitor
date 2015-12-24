@@ -25,7 +25,7 @@ foreach($raw_controllers as $i => $raw_controller) {
 		<?= $model->link("Node list", "/janitor/admin/navigation/edit/".$navigation_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<?= $model->formStart("/janitor/admin/navigation/saveNode/".$navigation_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+	<?= $model->formStart("/janitor/admin/navigation/saveNode/".$navigation_id, array("class" => "i:newNavigationNode labelstyle:inject")) ?>
 		<fieldset>
 			<h2>Create a new navigation node</h2>
 

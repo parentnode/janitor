@@ -32,9 +32,9 @@ foreach($raw_controllers as $i => $raw_controller) {
 		<?= $model->link("List", "/janitor/admin/navigation/edit/".$navigation_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<div class="item i:defaultEdit">
+	<div class="item i:editNavigationNode">
 		<h2>Edit navigation node</h2>
-		<?= $model->formStart("/janitor/admin/navigation/updateNode/".$item_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/navigation/updateNode/".$item_id, array("class" => "labelstyle:inject")) ?>
 
 			<fieldset>
 				<?= $model->input("node_name", array("value" => $item["node_name"])) ?>
