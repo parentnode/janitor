@@ -36,7 +36,7 @@ $segments_config = array(
 		"desktop_ie10"  => "desktop",
 		"desktop"       => "desktop",
 
-		"smartphone"    => "smartphone",
+		"smartphone"    => "unsupported",
 
 		"desktop_light" => "unsupported",
 		"desktop_ie9"   => "unsupported",
