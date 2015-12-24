@@ -417,10 +417,13 @@ class User extends Model {
 					}
 
 
-					// send welcome email
+					// add log
 					$page->addLog("user->newUser: created: " . $email);
+
 					// success
-					if(0 && $mail_password && $verification_code) {
+					// send welcome email
+					if($mail_password && $verification_code) {
+						// send verification email to user
 						$page->mail(array(
 							"values" => array(
 								"EMAIL" => $email, 
@@ -430,20 +433,30 @@ class User extends Model {
 							"recipients" => $email, 
 							"template" => "signup"
 						));
+
+						// send notification email to admin
+						$page->mail(array(
+							"subject" => "New User created: " . $email, 
+							"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
+							"template" => "system"
+						));
 					}
 					// error
 					else {
+						// send error email notification
 						$page->mail(array(
 							"recipients" => $email, 
 							"template" => "signup_error"
 						));
+
+						// send notification email to admin
+						$page->mail(array(
+							"subject" => "New User created: " . $email, 
+							"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
+							"template" => "system"
+						));
 					}
 
-					$page->mail(array(
-						"subject" => "New User created: " . $email, 
-						"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
-						"template" => "system"
-					));
 
 					// return enough information to the frontend
 					return array("user_id" => $user_id, "email" => $email);
