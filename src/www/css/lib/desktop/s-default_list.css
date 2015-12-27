@@ -1,16 +1,16 @@
 /* LIST WRAPPERS */
-#content .defaultList .all_items > h2,
-#content .defaultList .enabled_items > h2,
-#content .defaultList .disabled_items > h2 {padding: 10px 30px 11px;}
+#content div.all_items > h2,
+#content div.enabled_items > h2,
+#content div.disabled_items > h2 {padding: 10px 30px 11px;}
 
-#content .defaultList .all_items > p,
-#content .defaultList .enabled_items > p,
-#content .defaultList .disabled_items > p {padding: 10px 30px 11px;}
+#content div.all_items > p,
+#content div.enabled_items > p,
+#content div.disabled_items > p {padding: 10px 30px 11px;}
 
-#content .defaultList .enabled_items,
-#content .defaultList .disabled_items {border-bottom: 1px solid #dedede; margin-bottom: 20px;}
-#content .defaultList .enabled_items > p,
-#content .defaultList .disabled_items > p {padding-top: 20px;}
+#content div.enabled_items,
+#content div.disabled_items {border-bottom: 1px solid #dedede; margin-bottom: 20px;}
+#content div.enabled_items > p,
+#content div.disabled_items > p {padding-top: 20px;}
 
 
 /* LIST */

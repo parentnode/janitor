@@ -21,8 +21,8 @@
 
 
 /* EDIT VIEW - ITEM */
-#content .scene.defaultEdit > div.item {padding: 0 0 10px; border-bottom: 1px solid #bbbbbb;}
-#content .scene.defaultEdit > div.item .actions {text-align: left;}
+#content .scene.defaultEdit > div.item {padding: 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.defaultEdit > div.item .actions {text-align: left; padding-bottom: 10px;}
 #content .scene.defaultEdit > div.item .actions li {padding: 0 5px 10px;}
 
 
@@ -154,3 +154,8 @@
 #content .scene.defaultEdit > div.qnas ul.qnas > li {display: block; border-top: 1px solid #dedede; position: relative; padding-bottom: 8px; padding-top: 15px;}
 #content .scene.defaultEdit > div.qnas ul.qnas > li p {padding-bottom: 7px;}
 
+
+
+#content .scene.defaultEdit div.togglable {overflow: hidden;}
+#content .scene.defaultEdit div.togglable h2 {position: relative;}
+#content .scene.defaultEdit div.togglable h2 svg {position: absolute; top: 7px; right: 20px; stroke: #313942; stroke-width: 3px;}

@@ -8,22 +8,40 @@ $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "comments" => true)));
 
 $return_to_todolist = session()->value("return_to_todolist");
+$todo_state_view = session()->value("todo_state_view");
+
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit task</h1>
+	<h2><?= $item["name"] ?></h2>
 
 	<?
+	// different back links depending on context
+
+	// standard back button
+	$options = false;
+
 	// return to specific todolist
 	if($return_to_todolist):
-		print $JML->editGlobalActions($item, array("modify" => array(
+		$options = array("modify" => array(
 			"list" => [
-				"label" => "Back", 
-				"url" => "/janitor/admin/todolist/edit/".$return_to_todolist
-			])));
-	// standard back button
-	else:
-		print $JML->editGlobalActions($item);
+				"label" => "Back to todolist", 
+				"url" => "/janitor/admin/todolist/edit/".$return_to_todolist.($todo_state_view ? "/state/".$todo_state_view : "")
+			]
+		));
+
+	// return to specific state view
+	elseif($todo_state_view):
+		$options = array("modify" => array(
+			"list" => [
+				"label" => "Back2", 
+				"url" => "/janitor/admin/todo/list/state/".$todo_state_view
+			]
+		));
+
 	endif;
+
+	print $JML->editGlobalActions($item, $options);
 	?>
 
 	<div class="item i:defaultEdit">

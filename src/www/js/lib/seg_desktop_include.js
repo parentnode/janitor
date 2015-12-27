@@ -5,6 +5,7 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 
 document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-notifier.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-navigation.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-cookie.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-history.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-htmleditor.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9/src/u-form-geolocation.js"></script>');

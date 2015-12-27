@@ -9,20 +9,41 @@ $model_todo = $IC->typeObject("todo");
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true)));
 
-// get todos order
-$ordered_todos = $model->getOrderedTodos($item_id);
+// get tag for todolist
+$tag = $IC->getTags(array("item_id" => $item_id, "context" => "todolist"));
 
 
-// reset "return to todolist" state
-//session()->reset("return_to_todolist");
+// todo states
+$todo_states = $model_todo->todo_state;
+krsort($todo_states);
+
+// show specific state listing
+if(count($action) > 3 && $action[2] == "state") {
+	$todo_state_view = $action[3];
+	settype($todo_state_view, "int");
+ 	session()->value("todo_state_view", $todo_state_view);
+
+	$todos = $IC->getItems(array("itemtype" => "todo", "where" => "todo.state = ".$todo_state_view, "tags" => "todolist:".addslashes($tag[0]["value"]), "order" => "items.status DESC, todo.deadline DESC, todo.priority DESC", "extend" => array("tags" => true, "user" => true)));
+}
+// show all states
+else {
+	$todo_state_view = false;
+	session()->reset("todo_state_view");
+
+	$todos = $IC->getItems(array("itemtype" => "todo", "tags" => "todolist:".addslashes($tag[0]["value"]), "order" => "items.status DESC, todo.state DESC, todo.deadline DESC, todo.priority DESC", "extend" => array("tags" => true, "user" => true)));
+}
+
+
+// remember todolist to return to
 session()->value("return_to_todolist", $item_id);
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit TODO list</h1>
+	<h2><?= $item["name"] ?></h2>
 
 	<ul class="actions i:defaultEditActions item_id:<?= $item["id"] ?>" data-csrf-token="<?= session()->value("csrf") ?>">
-		<?= $model->link("Back", "/janitor/admin/todo/list", array("class" => "button", "wrapper" => "li.cancel")); ?>
-		<?= $model->link("New task", "/janitor/admin/todo/new/todolist/".$item["id"], array("class" => "button primary", "wrapper" => "li.new")); ?>
+		<?= $model->link("Back to overview", "/janitor/admin/todo/list" . ($todo_state_view ? "/state/".$todo_state_view : ""), array("class" => "button", "wrapper" => "li.cancel")); ?>
+		<?= $model->link("New task", "/janitor/admin/todo/new", array("class" => "button primary", "wrapper" => "li.new")); ?>
 		<?= $JML->deleteButton("Delete", "/janitor/admin/todolist/delete/".$item["id"], array("js" => true)); ?>
 	</ul>
 
@@ -33,7 +54,7 @@ session()->value("return_to_todolist", $item_id);
 	</div>
 
 
-	<div class="item i:defaultEdit">
+	<div class="item i:defaultEdit i:collapseHeader">
 		<h2>Todolist</h2>
 		<?= $model->formStart("update/".$item["id"], array("class" => "labelstyle:inject")) ?>
 
@@ -53,18 +74,26 @@ session()->value("return_to_todolist", $item_id);
 
 	<div class="todos">
 		<h2>Todos</h2>
-		<div class="all_items i:defaultList todolist_id:<?= $item["id"]?> taggable filters sortable"
+
+		<? if($todo_states): ?>
+		<ul class="states">
+			<? foreach($todo_states as $todo_state_id => $todo_state): ?>
+				<?= $HTML->link($todo_state, "/janitor/admin/todolist/edit/".$item["id"] . "/state/" . $todo_state_id, array("wrapper" => "li.".strtolower($todo_state) . ($todo_state_id === $todo_state_view ? ".selected" : ""))) ?>
+			<? endforeach; ?>
+			<?= $HTML->link("All", "/janitor/admin/todolist/edit/".$item["id"], array("wrapper" => "li.all" . ($todo_state_view === false ? ".selected" : ""))) ?>
+		</ul>
+		<? endif; ?>
+
+		<div class="all_items i:defaultList todolist_id:<?= $item["id"]?> filters"
 			data-csrf-token="<?= session()->value("csrf") ?>"
-			data-item-order="<?= $this->validPath("/janitor/admin/todolist/updateTodoOrder/".$item["id"]) ?>"
 			data-tag-get="<?= $this->validPath("/janitor/admin/items/tags") ?>" 
 			data-tag-delete="<?= $this->validPath("/janitor/admin/todo/deleteTag") ?>"
 			data-tag-add="<?= $this->validPath("/janitor/admin/todo/addTag") ?>"
 			>
-	<?		if($ordered_todos): ?>
+	<?		if($todos): ?>
 			<ul class="items">
-				<? foreach($ordered_todos as $item): ?>
-				<li class="item draggable item_id:<?= $item["id"] ?>">
-					<div class="drag"></div>
+				<? foreach($todos as $item): ?>
+				<li class="item item_id:<?= $item["id"] ?>">
 					<h3><?= $item["name"] ?></h3>
 					<p class="description"><?= $item["description"] ?></p>
 					<dl class="info">
@@ -80,7 +109,7 @@ session()->value("return_to_todolist", $item_id);
 						<dd class="assigned_to"><?= $item["user_nickname"] ?></dd>
 					</dl>
 
-					<?= $JML->tagList($item["tags"]) ?>
+					<? //= $JML->tagList($item["tags"]) ?>
 
 					<ul class="actions">
 						<?= $model->link("Edit", "/janitor/admin/todo/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")); ?>

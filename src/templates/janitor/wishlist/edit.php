@@ -14,16 +14,20 @@ $ordered_wishes = $model->getOrderedWishes($item_id);
 
 
 // reset "return to wishlist" state
-session()->reset("return_to_wishlist");
+//session()->reset("return_to_wishlist");
+
+// remember wishlist to return to
+session()->value("return_to_wishlist", $item_id);
 
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit wishlist</h1>
+	<h2><?= $item["name"] ?></h2>
 
 
 	<ul class="actions i:defaultEditActions item_id:<?= $item["id"] ?>" data-csrf-token="<?= session()->value("csrf") ?>">
-		<?= $model->link("Back", "/janitor/admin/wish/list", array("class" => "button", "wrapper" => "li.cancel")); ?>
-		<?= $model->link("New wish", "/janitor/admin/wish/new/wishlist/".$item["id"], array("class" => "button primary", "wrapper" => "li.new")); ?>
+		<?= $model->link("Back to overview", "/janitor/admin/wish/list", array("class" => "button", "wrapper" => "li.cancel")); ?>
+		<?= $model->link("New wish", "/janitor/admin/wish/new", array("class" => "button primary", "wrapper" => "li.new")); ?>
 		<?= $JML->deleteButton("Delete", "/janitor/admin/wishlist/delete/".$item["id"], array("js" => true)); ?>
 	</ul>
 
@@ -34,7 +38,7 @@ session()->reset("return_to_wishlist");
 	</div>
 
 
-	<div class="item i:defaultEdit">
+	<div class="item i:defaultEdit i:collapseHeader">
 		<h2>Wishlist</h2>
 		<?= $model->formStart("update/".$item["id"], array("class" => "labelstyle:inject")) ?>
 

@@ -19,7 +19,7 @@ class TypeTodo extends Itemtype {
 		$this->db = SITE_DB.".item_todo";
 
 		$this->todo_priority = array(0 => "Low", 10 => "Medium", 20 => "High");
-		$this->todo_state = array(0 => "Waiting", 30 => "In progress", 20 => "Test", 10 => "Done");
+		$this->todo_state = array(10 => "Waiting", 30 => "In progress", 20 => "Test", 1 => "Done");
 
 
 		// find users with todo privileges
@@ -85,59 +85,25 @@ class TypeTodo extends Itemtype {
 	}
 
 
+	// internal helper functions
 
 	// add todolist tag after save (if todo was created from todolist)
 	function postSave($item_id) {
 
-		$IC = new Items();
-
+		// add todolist tag if created from within todolist
 		$return_to_todolist = session()->value("return_to_todolist");
 		if($return_to_todolist) {
-			$model_todolist = $IC->typeObject("todolist");
-			$todolist_tag = $model_todolist->getTodolistTag($return_to_todolist);
 
-			$_POST["tags"] = $todolist_tag;
-			$this->addTag(array("addTag", $item_id));
+			$IC = new Items();
+			$todolist_tag = $IC->getTags(array("item_id" => $return_to_todolist, "context" => "todolist"));
+			if($todolist_tag) {
+				$_POST["tags"] = "todolist:".$todolist_tag[0]["value"];
+				$this->addTag(array("addTag", $item_id));
+			}
 		}
 
 		// enable item
 		$this->status(array("status", $item_id, 1));
-	}
-
-
-	// CMS SECTION
-	// custom loopback function
-
-	// used for frontend communication
-
-	// close task
-	// /janitor/todo/close/#item_id#
-	function close($action) {
-
-		if(count($action) == 2) {
-
-			$IC = new Items();
-			if($IC->status($action[1], 0)) {
-				return true;
-			}
-
-		}
-		return false;
-	}
-
-	// open
-	// /janitor/todo/open/#item_id#
-	function open($action) {
-
-		if(count($action) == 2) {
-
-			$IC = new Items();
-			if($IC->status($action[1], 1)) {
-				return true;
-			}
-
-		}
-		return false;
 	}
 
 }

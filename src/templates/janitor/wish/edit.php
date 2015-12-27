@@ -11,13 +11,14 @@ $return_to_wishlist = session()->value("return_to_wishlist");
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit wish</h1>
+	<h2><?= $item["name"] ?></h2>
 
 	<?
 	// return to specific wishlist
 	if($return_to_wishlist):
 		print $JML->editGlobalActions($item, array("modify" => array(
 			"list" => [
-				"label" => "Back", 
+				"label" => "Back to wishlist", 
 				"url" => "/janitor/admin/wishlist/edit/".$return_to_wishlist
 			])));
 	// standard back button
