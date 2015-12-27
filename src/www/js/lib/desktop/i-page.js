@@ -78,7 +78,46 @@ Util.Objects["page"] = new function() {
 			var janitor = u.ie(this.hN, "ul", {"class":"janitor"});
 			u.ae(janitor, u.qs(".servicenavigation .front", page.hN));
 
-			u.ae(page, u.qs(".servicenavigation", page.hN))
+			u.ae(page, u.qs(".servicenavigation", page.hN));
+
+			page.nN.sections = u.qsa("ul.sections > li", page.nN);
+			if(page.nN.sections) {
+				var i, section;
+				for(i = 0; section = page.nN.sections[i]; i++) {
+					section.header = u.qs("h3", section);
+					section.header.section = section;
+
+					u.e.click(section.header);
+					section.header.clicked = function() {
+
+						if(this.section.is_open) {
+							this.section.is_open = false;
+
+							u.as(this.section, "height", this.offsetHeight+"px");
+							u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
+							u.addExpandArrow(this);
+						}
+						else {
+							this.section.is_open = true;
+
+							u.as(this.section, "height", "auto");
+							u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
+							u.addCollapseArrow(this);
+
+						}
+						
+					}
+
+					var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
+					u.bug("state " + u.nodeId(section) + ", " + state)
+					if(!state) {
+						section.is_open = true;
+					}
+					section.header.clicked();
+
+				}
+			}
+			u.bug(page.nN.sections);
 		}
 
 		// create icon svg

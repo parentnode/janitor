@@ -14,11 +14,21 @@
 #page > .servicenavigation li a:hover {text-decoration: underline;}
 
 #navigation {}
-#navigation ul {}
-#navigation ul li {border-bottom: 1px solid #404a56; color: #8c9399; display: block; text-transform: uppercase; font-size: 1rem;}
-#navigation ul li:hover {color: #ffffff;}
+#navigation ul li {color: #8c9399; display: block; text-transform: uppercase;}
 #navigation ul li a {display: block; padding: 14px 20px 15px;}
-#navigation ul li.selected {}
+
+#navigation ul:not(.sections) > li {font-size: 12px; border-bottom: 1px solid #404a56;}
+#navigation ul:not(.sections) > li:hover {color: #ffffff;}
+
+
+#navigation > ul.sections {}
+#navigation > ul.sections > li {overflow: hidden;}
+#navigation > ul.sections h3 {color: #8c9399; padding: 14px 20px 15px; font-size: 13px; position: relative; border-bottom: 1px solid #404a56;}
+#navigation > ul.sections h3 svg {position: absolute; top: 15px; right: 20px; stroke: #8c9399; stroke-width: 2px;}
+
+#navigation > ul.sections h3:hover {color: #ffffff;}
+#navigation > ul.sections ul {}
+#navigation > ul.sections ul li {padding-left: 20px;}
 
 
 body.page #navigation .page a,
