@@ -32,6 +32,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 ?>
 <div class="scene defaultEdit userEdit">
 	<h1>Edit user</h1>
+	<h2><?= $item["nickname"] ?></h2>
 
 	<ul class="actions i:defaultEditActions item_id:<?= $user_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
