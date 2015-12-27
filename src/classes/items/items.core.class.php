@@ -504,6 +504,9 @@ class ItemsCore {
 					case "status"        : $status        = $_value; break;
 					case "tags"          : $tags          = $_value; break;
 					case "sindex"        : $sindex        = $_value; break;
+
+					case "where"         : $where         = $_value; break;
+
 					case "order"         : $order         = $_value; break;
 					case "limit"         : $limit         = $_value; break;
 
@@ -545,6 +548,15 @@ class ItemsCore {
 		$SELECT[] = "items.published_at";
 
 	 	$FROM[] = UT_ITEMS." as items";
+
+		if(isset($where)) {
+			if(is_array($where)) {
+				$WHERE = $where;
+			}
+			else {
+				$WHERE[] = $where;
+			}
+		}
 
 		if(isset($status)) {
 			$WHERE[] = "items.status = $status";
