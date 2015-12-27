@@ -190,12 +190,58 @@ class JanitorHTML {
 	function listActions($item, $_options = false) {
 		global $model;
 
+		// standard settings
+		$standard = array(
+			"edit" => array(
+				"label" => "Edit",
+				"url" => $this->path."/edit/".$item["id"],
+				"options" => array("class" => "button", "wrapper" => "li.edit")
+			),
+			"delete" => array(
+				"label" => "Delete",
+				"url" => $this->path."/delete/".$item["id"]
+			),
+			"status" => array(
+				"label_enable" => "Enable",
+				"label_disable" => "Disable",
+				"url" => $this->path."/status"
+			)
+		);
+		// extend with these settings
+		$modify = "";
+		$extend = "";
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "modify"           : $modify            = $_value; break;
+					case "extend"           : $extend            = $_value; break;
+				}
+			}
+		}
+
+		if($modify) {
+			foreach($modify as $index => $values) {
+				if(isset($standard[$index])) {
+					foreach($values as $attribute => $value) {
+						$standard[$index][$attribute] = $value;
+					}
+				}
+			}
+		}
+
 		$_ = '';
 
+
 		$_ .= '<ul class="actions">';
-		$_ .= $model->link("Edit", $this->path."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit"));
-		$_ .= $this->deleteButton("Delete", $this->path."/delete/".$item["id"], array("js" => true));
-		$_ .= $this->statusButton("Enable", "Disable", $this->path."/status", $item, array("js" => true));
+		$_ .= $model->link($standard["edit"]["label"], $standard["edit"]["url"], $standard["edit"]["options"]);
+		$_ .= $this->deleteButton($standard["delete"]["label"], $standard["delete"]["url"], array("js" => true));
+		$_ .= $this->statusButton($standard["status"]["label_enable"], $standard["status"]["label_disable"], $standard["status"]["url"], $item, array("js" => true));
+		// $_ .= $model->link("Edit", $this->path."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit"));
+		// $_ .= $this->deleteButton("Delete", $this->path."/delete/".$item["id"], array("js" => true));
+		// $_ .= $this->statusButton("Enable", "Disable", $this->path."/status", $item, array("js" => true));
 		$_ .= '</ul>';
 
 		return $_;
@@ -292,8 +338,8 @@ class JanitorHTML {
 
 		$_ = '';
 
-		$_ .= '<div class="tags i:defaultTags item_id:'.$item["id"].'"'.$this->jsData().'>';
-		$_ .= '<h2>Tags</h2>';
+		$_ .= '<div class="tags i:defaultTags i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<h2>Tags ('.($item["tags"] ? count($item["tags"]) : 0).')</h2>';
 		$_ .= $model->formStart($this->path."/addTag/".$item["id"], array("class" => "labelstyle:inject"));
 		$_ .= '<fieldset>';
 		$_ .= $model->inputTags("tags", array("id" => "tags_".$item["id"]));
@@ -459,14 +505,15 @@ class JanitorHTML {
 		return $_;
 	}
 
+
 	// edit Comments form for edit page
 	function editComments($item, $_options = false) {
 		global $model;
 
 		$_ = '';
 
-		$_ .= '<div class="comments i:defaultComments item_id:'.$item["id"].'"'.$this->jsData().'>';
-		$_ .= '<h2>Comments</h2>';
+		$_ .= '<div class="comments i:defaultComments i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<h2>Comments ('.($item["comments"] ? count($item["comments"]) : 0).')</h2>';
 
 		$_ .= $this->commentList($item["comments"]);
 
