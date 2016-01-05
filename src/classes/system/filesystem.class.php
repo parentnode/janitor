@@ -43,6 +43,7 @@ class FileSystem {
 					}
 				}
 			}
+			closedir($handle);
 		}
 
 		return $files;
@@ -58,7 +59,6 @@ class FileSystem {
 	* @param String $allow_extensions Comma-separated list of allowed extensions
 	* @return boolean Is the folder/file valid or not
 	*/
-//	function validFolder($file, $exclude_folders = array(), $allowed_extensions=false) {
 	function valid($file, $_options = false) {
 
 		$include_tempfiles = false;
@@ -322,35 +322,6 @@ class FileSystem {
 		}
 	}
 
-
-	/**
-	* Compares to files, returns difference
-	*
-	* @param string $file1 path to file
-	* @param string $file2 path to file
-	* @return string Difference
-	*/
-	/*
-	function compareFiles($file1, $file2) {
-		return shell_exec("diff -a -u -d '".$file1."' '".$file2."'");
-	}
-	*/
-
-
-	/**
-	* Get the entire content of a file  
-	*
-	* @param string $file File to retreive
-	* @return string file
-	*/
-	/*
-	function getFile($file) {
-		if(file_exists($file)){
-			return file_get_contents($file); 
-		}
-		return false;
-	}
-	*/
 
 }
 
