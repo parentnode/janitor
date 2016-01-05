@@ -34,7 +34,7 @@ $todo_state_view = session()->value("todo_state_view");
 	elseif($todo_state_view):
 		$options = array("modify" => array(
 			"list" => [
-				"label" => "Back2", 
+				"label" => "Back", 
 				"url" => "/janitor/admin/todo/list/state/".$todo_state_view
 			]
 		));
