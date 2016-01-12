@@ -34,6 +34,14 @@ class TypePage extends Itemtype {
 			"error_message" => "Title must be filled out."
 		));
 
+		// Secondary headline
+		$this->addToModel("subheader", array(
+			"type" => "string",
+			"label" => "Secondary headline",
+			"hint_message" => "Secondary headline of your page", 
+			"error_message" => "Secondary headline contains illigal characters."
+		));
+
 		// Description
 		$this->addToModel("description", array(
 			"type" => "text",

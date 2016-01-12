@@ -363,7 +363,7 @@ class JanitorHTML {
 
 		$type = "mediae";
 		$label = "Media";
-		$class = "i:addMedia";
+		$class = "i:addMedia i:collapseHeader";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -379,7 +379,7 @@ class JanitorHTML {
 
 		$_ = '';
 
-		$_ .= '<div class="media  '.$type.' '.$class.' sortable item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<div class="media '.$type.' '.$class.' sortable item_id:'.$item["id"].'"'.$this->jsData().'>';
 		$_ .= '<h2>'.$label.'</h2>';
 		$_ .= $model->formStart($this->path."/addMedia/".$item["id"], array("class" => "upload labelstyle:inject"));
 		$_ .= '<fieldset>';
@@ -448,7 +448,7 @@ class JanitorHTML {
 		$variant = "single_media";
 		$label = "Single media";
 		$class = "";
-		$init_class = "i:addMediaSingle";
+		$init_class = "i:addMediaSingle i:collapseHeader";
 
 		// overwrite defaults
 		if($_options !== false) {

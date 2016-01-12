@@ -613,6 +613,7 @@ Util.Objects["addMediaSingle"] = new function() {
 			if(this.media_file) {
 				this.media_file.div = this;
 
+
 				// media play button
 				this.bn_player = u.qs("a", this.media_file);
 				if(!this.bn_player) {
@@ -665,6 +666,9 @@ Util.Objects["addMediaSingle"] = new function() {
 				u.as(this.image, "width", div.media_input_width+"px");
 				u.as(this.image, "height", div.media_input_height+"px");
 			}
+			if(this.media_file) {
+				u.as(this.media_file, "top",( this.image.offsetTop + this.image.offsetHeight - this.media_file.offsetHeight) + "px");
+			}
 		}
 
 		// add video container (if needed)
@@ -678,6 +682,9 @@ Util.Objects["addMediaSingle"] = new function() {
 				this.video = u.ae(this, page.videoplayer);
 				u.as(this.video, "width", div.media_input_width+"px");
 				u.as(this.video, "height", div.media_input_height+"px");
+			}
+			if(this.media_file) {
+				u.as(this.media_file, "top",( this.video.offsetTop + this.video.offsetHeight - this.media_file.offsetHeight) + "px");
 			}
 		}
 
