@@ -55,6 +55,7 @@ $todo_state_view = session()->value("todo_state_view");
 				<?= $model->input("priority", array("value" => $item["priority"])) ?>
 				<?= $model->input("state", array("value" => $item["state"])) ?>
 				<?= $model->input("deadline", array("value" => (strtotime($item["deadline"]) > 0 ? date("Y-m-h", strtotime($item["deadline"])) : ""))) ?>
+				<?= $model->input("estimate", array("value" => $item["estimate"])) ?>
 			</fieldset>
 
 			<?= $JML->editActions($item) ?>

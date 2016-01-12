@@ -73,6 +73,14 @@ class TypeTodo extends Itemtype {
 			"error_message" => "priority error"
 		));
 
+		// Estimate
+		$this->addToModel("estimate", array(
+			"type" => "string",
+			"label" => "Estimate in hours",
+			"hint_message" => "How long will it take to complete this task",
+			"error_message" => "estimate error"
+		));
+
 		// Deadline
 		$this->addToModel("deadline", array(
 			"type" => "datetime",

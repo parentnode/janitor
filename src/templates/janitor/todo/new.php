@@ -32,8 +32,6 @@ $todo_state_view = session()->value("todo_state_view");
 		<fieldset>
 			<?= $model->input("name") ?>
 			<?= $model->input("description", array("class" => "autoexpand")) ?>
-			<?= $model->input("priority") ?>
-			<?= $model->input("deadline") ?>
 		</fieldset>
 
 		<?
