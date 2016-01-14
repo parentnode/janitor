@@ -805,7 +805,7 @@ class JanitorHTML {
 			
 			$IC = new Items();
 			$model = $IC->typeObject("todo");
-			$todos = $IC->getItems(array("itemtype" => "todo", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
+			$todos = $IC->getItems(array("itemtype" => "todo", "where" => "todo.priority = 20", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
 
 			$_ .= '<div class="todos">';
 			$_ .= '<h2>TODOs</h2>';
@@ -815,12 +815,6 @@ class JanitorHTML {
 				foreach($todos as $todo) {
 					$_ .= '<li class="todo todo_id:'.$todo["id"].'">';
 						$_ .= '<h3>'.stringOr($HTML->link($todo["name"], "/janitor/admin/todo/edit/".$todo["id"], array("target" => "_blank")), $todo["name"]).'</h3>';
-						$_ .= '<dl class="info">';
-							$_ .= '<dt class="priority">Priority</dt>';
-							$_ .= '<dd class="priority '.strtolower($model->todo_priority[$todo["priority"]]).'">'.$model->todo_priority[$todo["priority"]].'</dd>';
-							$_ .= '<dt class="deadline">Deadline</dt>';
-							$_ .= '<dd class="deadline'.(strtotime($todo["deadline"]) < time() ? " overdue" : "").'">'.date("Y-m-d", strtotime($todo["deadline"])).'</dd>';
-						$_ .= '</dl>';
 						$_ .= $this->tagList($todo["tags"]);
 					$_ .= '</li>';
 				}
