@@ -84,7 +84,7 @@ class FileSystem {
 
 		// find file extension
 		$file_extension = false;
-		preg_match("/\.([a-zA-Z0-9]{1,5})$/", $file_name, $extension_match);
+		preg_match("/\.([a-zA-Z0-9]{1,10})$/", $file_name, $extension_match);
 		if($extension_match) {
 			$file_extension = $extension_match[1];
 		}
@@ -322,6 +322,33 @@ class FileSystem {
 		}
 	}
 
+
+	// get human readable filesize
+	function filesize($file, $unit = false) {
+
+		$bytes = filesize($file);
+		$sizes = 'BKMGTP';
+
+		if($unit) {
+			// valid unit
+			$factor = strpos($sizes, $unit);
+
+			// invalid unit
+			if($factor === false) {
+				$factor = 0;;
+			}
+		}
+		// determine best option depending on filesize
+		else {
+			$factor = floor((strlen($bytes) - 1) / 3);
+		}
+
+		// postfix
+		$size = $sizes[intval($factor)];
+
+		return number_format($bytes / pow(1024, $factor), 2, ".", ",").$size;
+
+	}
 
 }
 
