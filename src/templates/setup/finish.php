@@ -49,7 +49,9 @@ $all_check = $model->checkAllSettings();
 			sure this is done to protect your files from unintended manipulation.
 		</p>
 		<code>sudo chown -R root:<?= $model->deploy_user ?> <?= $model->project_path ?>
+
 sudo chmod -R 755 <?= $model->project_path ?>
+
 
 sudo chown -R <?= $model->apache_user ?>:<?= $model->deploy_user ?> <?= $model->project_path ?>/src/library
 sudo chmod -R 770 <?= $model->project_path ?>/src/library</code>
