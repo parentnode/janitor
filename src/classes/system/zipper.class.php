@@ -29,40 +29,80 @@ class Zipper {
 
 
 		$zip = new ZipArchive();
+		$zip_is_open = false;
+		$zip_file_count = 0;
+
+		// only add 100 files at the time to keep below system file-limit
+		$zip_file_limit = 200;
+
+		// opening and closing zip-file can be really slow, because the files is recompressed - so do that as little as possible
+		// also be aware of system "open-file" limit - so don't add all files in one go
 
 		foreach($files as $file) {
 
-			// open zip destination
-			$zip->open($dest, $flag);
+
+			// open zip destination if not already open
+			if($zip_is_open || $zip->open($dest, $flag) === true) {
+
+				// current state values
+				$zip_is_open = true;
+				$zip_file_count++;
 
 
-			// determine name to store
-			if($paths === false) {
-				$stored_name = $file;
-			}
-			else if($paths === true) {
-				$stored_name = basename($file);
-			}
-			else {
-				$stored_name = $file;
-				foreach($paths as $path) {
-
-					$stored_name = str_replace($path, "", $file);
+				// determine name to store
+				if($paths === false) {
+					$stored_name = $file;
 				}
+				else if($paths === true) {
+					$stored_name = basename($file);
+				}
+				else {
+					$stored_name = $file;
+					foreach($paths as $path) {
+						$stored_name = str_replace($path, "", $file);
+					}
+				}
+
+				// add file to 
+				if($zip->addFile($file, $stored_name)) {
+
+					// add file to delete array (if files needs to be deleted)
+					$delete_files[] = $file;
+
+				}
+				// something went wrong
+				// close archive and exit
+				else {
+
+					$zip->close();
+					return false;
+
+				}
+
+				// zip file limit reached, close zip and reset current status flags
+				if($zip_file_count >= $zip_file_limit) {
+					$zip->close();
+					$zip_file_count = 0;
+					$zip_is_open = false;
+				}
+
 			}
 
-			// add file to 
-			if($zip->addFile($file, $stored_name)) {
+			// could not open zip file
+			// do not attempt to continue
+			else {
 
-				// add file to delete array (if files needs to be deleted)
-				$delete_files[] = $file;
+				return false;
 
 			}
 
-			$zip->close();
 
 		}
 
+		// close zip after all is done
+		if($zip_is_open) {
+			$zip->close();
+		}
 
 
 		// delete after zipping?
