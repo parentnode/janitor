@@ -974,11 +974,17 @@ class PageCore {
 			return true;
 		}
 
+
 		// no access restrictions
 		if($access_item === false) {
 			return true;
 		}
 
+		// SITE_DB is required to look up access permissions
+		else if(!defined("SITE_DB")) {
+			print "Your site is not configured yet!";
+			exit();
+		}
 
 		// get actions fragments as array to make it easier to remove fragments
 		// first index in fragments will be empty to indicate controller root

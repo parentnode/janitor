@@ -20,6 +20,7 @@ class Page extends PageCore {
 
 }
 
+// initialize new page object
 $page = new Page();
 
 ?>
