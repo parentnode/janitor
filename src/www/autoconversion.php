@@ -15,6 +15,7 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 // VIDEO
 // mp4
+// webm
 // ogv
 // mov
 // 3gp
@@ -96,10 +97,10 @@ function conversionFailed($reason) {
 	// TODO: implement constraints to avoid media generation abuse
 
 	// return missing image if it exists (and request is for image)
-	//	print file_exists(PRIVATE_FILE_PATH."/0/missing/png")." && ". $width ."&&". $height;
+	// print $request_type . ", " . file_exists(PRIVATE_FILE_PATH."/0/missing/png")." && ". $width ."&&". $height;
 	if($request_type == "images" && file_exists(PRIVATE_FILE_PATH."/0/missing/png") && ($width || $height)) {
 
-		header("Location: /images/0/missing/".$width."x".$height.".png", true, 404);
+		header("Location: /images/0/missing/".$width."x".$height.".png", true, 307);
 
 	}
 
@@ -122,7 +123,7 @@ $variant = "";
 // /images/{id}/{variant}/x{height}.{format}
 // VIDEO WITH VARIANT
 // /videos/{id}/{variant}/{width}x{height}.{format}
-if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*)\.(?P<format>\w{3,4})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
 
 	if($request_type == "images" || $request_type == "videos") {
@@ -141,12 +142,12 @@ if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?
 		
 	}
 }
-// IMAGE
+// IMAGE (without variant)
 // /images/{id}/{width}x.{format}
 // /images/{id}/x{height}.{format}
 // VIDEO
 // /videos/{id}/{width}x{height}.{format}
-else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*)\.(?P<format>\w{3,4})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
 
 	if($request_type == "images" || $request_type == "videos") {
@@ -164,10 +165,11 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P
 
 	}
 }
+
 // AUDIO
-// IMAGE WITH VARIANT
+// AUDIO WITH VARIANT
 // /audios/{id}/{variant}/{bitrate}.{format}
-if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<bitrate>\d+)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?P<bitrate>\d+)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
 	$request_type = $matches["request_type"];
 
 	if($request_type == "audios") {
@@ -223,7 +225,7 @@ if($request_type == "images" && ($width || $height) && ($format == "jpg" || $for
 		$input_file = PRIVATE_FILE_PATH."/$id$variant/png";
 	}
 	// gif, and source is available
-	else if($format == "png" && file_exists(PRIVATE_FILE_PATH."/$id$variant/gif")) {
+	else if($format == "gif" && file_exists(PRIVATE_FILE_PATH."/$id$variant/gif")) {
 		$input_file = PRIVATE_FILE_PATH."/$id$variant/gif";
 	}
 	// jpg available
@@ -266,7 +268,7 @@ if($request_type == "images" && ($width || $height) && ($format == "jpg" || $for
 }
 
 // video
-else if($request_type == "videos" && ($width || $height) && ($format == "mp4" || $format == "ogv" || $format == "mov" || $format == "3gp")) {
+else if($request_type == "videos" && ($width || $height) && ($format == "mp4" || $format == "webm" || $format == "ogv" || $format == "mov" || $format == "3gp")) {
 		include_once("classes/system/video.class.php");
 
 		$Video = new Video();
@@ -280,6 +282,10 @@ else if($request_type == "videos" && ($width || $height) && ($format == "mp4" ||
 		// mp4, and source is available
 		else if($format == "mp4" && file_exists(PRIVATE_FILE_PATH."/$id$variant/mp4")) {
 			$input_file = PRIVATE_FILE_PATH."/$id$variant/mp4";
+		}
+		// webm, and source is available
+		else if($format == "webm" && file_exists(PRIVATE_FILE_PATH."/$id$variant/webm")) {
+			$input_file = PRIVATE_FILE_PATH."/$id$variant/webm";
 		}
 		// ogv, and source is available
 		else if($format == "ogv" && file_exists(PRIVATE_FILE_PATH."/$id$variant/ogv")) {
@@ -296,6 +302,10 @@ else if($request_type == "videos" && ($width || $height) && ($format == "mp4" ||
 		// mp4 available
 		else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp4")) {
 			$input_file = PRIVATE_FILE_PATH."/$id$variant/mp4";
+		}
+		// webm available
+		else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/webm")) {
+			$input_file = PRIVATE_FILE_PATH."/$id$variant/webm";
 		}
 		// ogv available
 		else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogv")) {
@@ -331,7 +341,7 @@ else if($request_type == "videos" && ($width || $height) && ($format == "mp4" ||
 }
 
 // audio
-else if($request_type == "audios" && $bitrate && ($format == "mp3" || $format == "ogg")) {
+else if($request_type == "audios" && $bitrate && ($format == "mp3" || $format == "ogg" || $format == "wav")) {
 	include_once("classes/system/audio.class.php");
 
 	$Audio = new Audio();
@@ -344,11 +354,18 @@ else if($request_type == "audios" && $bitrate && ($format == "mp3" || $format ==
 	else if($format == "ogg" && file_exists(PRIVATE_FILE_PATH."/$id$variant/ogg")) {
 		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogg";
 	}
+	// wav, and source is available
+	else if($format == "wav" && file_exists(PRIVATE_FILE_PATH."/$id$variant/wav")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/wav";
+	}
 	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp3")) {
 		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp3";
 	}
 	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogg")) {
 		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogg";
+	}
+	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/wav")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/wav";
 	}
 	else {
 		conversionFailed("no valid source available");

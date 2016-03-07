@@ -34,15 +34,22 @@ class Audio {
 
 			// read input file
 			if($output_format == "mp3") {
-				// print $ffmpeg_path . " -i ".$input_file." -acodec libmp3lame -ar 48000 -ab ".$output_bitrate."k ".$output_file . "<br>";
-				system($ffmpeg_path . " -y -i ".$input_file." -acodec libmp3lame -ar 48000 -ab ".$output_bitrate."k ".$output_file);
+				$command = $ffmpeg_path . " -y -i ".$input_file." -c:a libmp3lame -ar 48000 -b:a ".$output_bitrate."k ".$output_file;
 			}
 			else if($output_format == "ogg") {
-				// print "ffmpeg -y -i ".$input_file." -acodec libvorbis -ar 48000 -ab ".$output_bitrate."k ".$output_file . "<br>";
-				system($ffmpeg_path . " -y -i ".$input_file." -acodec libvorbis -ar 48000 -ab ".$output_bitrate."k ".$output_file);
+				$command = $ffmpeg_path . " -y -i ".$input_file." -c:a libvorbis -ar 48000 -b:a ".$output_bitrate."k ".$output_file;
+			}
+			// else if($output_format == "wav") {
+			// 	$command = $ffmpeg_path . " -y -i ".$input_file." -c:a pcm_s32le ".$output_file;
+			// }
+
+			// proper command available
+			if($command) {
+				writeToFile($command);
+				system($command);
 			}
 
-
+			// successful conversion
 			if(file_exists($output_file)) {
 				return true;
 			}
@@ -61,54 +68,58 @@ class Audio {
 
 
 	function info($file) {
+		$audio_info = array();
+
 		$ffmpeg_path = $this->ffmpegPath();
 
 		if($ffmpeg_path) {
-			$video_info = array();
 
 			$command = $ffmpeg_path . " -i " . escapeshellarg($file) . " 2>&1";
 			exec($command, $output);
 
-//			print_r($output) . "<br>";
+			// print_r($output) . "<br>";
 
-			if(!preg_match("/Duration: (?P<hours>\d{1,3}):(?P<minutes>\d{2}):(?P<seconds>\d{2})(.(?P<fractions>\d{1,3}))?[^S]+Stream #(?P<number>\d+?\:\d+?): (?P<type>.+): (?P<codec>.*), (?P<frequency>.*), (?P<stereo>.*), (?P<module>.*), (?P<bitrate>\d+(\.\d+)?) (?P<bitrateunit>[\w\(\)]+)/", implode("\n", $output), $matches)) {
+			if(!preg_match("/Duration: (?P<hours>\d{1,3}):(?P<minutes>\d{2}):(?P<seconds>\d{2})(.(?P<fractions>\d{1,3}))?[^S]+Stream #(?P<number>\d+?\:\d+?)(?P<lan>[\(\)a-z]*): (?P<type>.+): (?P<codec>.*), (?P<frequency>.*), (?P<stereo>.*), (?P<module>.*), (?P<bitrate>\d+(\.\d+)?) (?P<bitrateunit>[\w\(\)]+)/", implode("\n", $output), $matches)) {
 				if(!preg_match('/Stream #(?:[0-9\.]+)(?:.*)\: Audio: (?P<codec>.*), (?P<frequency>.*), (?P<stereo>.*), (?P<module>.*), (?P<bitrate>\d+(\.\d+)?) (?P<bitrateunit>[\w\(\)]+)/', implode("\n", $output), $matches)) {
 					preg_match('/Could not find codec parameters \(Audio: (?P<codec>.*), (?P<frequency>.*), (?P<stereo>.*), (?P<module>.*), (?P<bitrate>\d+(\.\d+)?) (?P<bitrateunit>[\w\(\)]+)/',implode("\n", $output), $matches);
 				}
 			}
 
-			// detect width and height, or fail
+			// detect bitrate, or fail
 			if(isset($matches["bitrate"])) {
+
+				// get filesize
+				$audio_info["filesize"] = filesize($file);
 
 				// duration
 				if(isset($matches["hours"]) && isset($matches["minutes"]) && isset($matches["seconds"]) && isset($matches["fractions"])) {
-					$video_info["hours"] = $matches["hours"];
-					$video_info["minutes"] = $matches["minutes"];
-					$video_info["seconds"] = $matches["seconds"];
-					$video_info["fractions"] = $matches["fractions"];
-					$video_info["duration"] = ($matches["hours"] * 60 * 60 * 1000) + ($matches["minutes"] * 60 * 1000) + ($matches["seconds"] * 1000) + ($matches["fractions"] * 10);
+					$audio_info["hours"] = parseInt($matches["hours"]);
+					$audio_info["minutes"] = parseInt($matches["minutes"]);
+					$audio_info["seconds"] = parseInt($matches["seconds"]);
+					$audio_info["fractions"] = parseFloat("0.".$matches["fractions"])*1000;
+
+					$audio_info["duration"] = ($audio_info["hours"] * 60 * 60 * 1000) + ($audio_info["minutes"] * 60 * 1000) + ($audio_info["seconds"] * 1000) + $audio_info["fractions"];
 				}
 
 				// additional video info
 				// experimental (return bitrate in KB always)
 				if(isset($matches["bitrate"]) && isset($matches["bitrateunit"])) {
 					if($matches["bitrateunit"] == "kb") {
-						$video_info["bitrate"] = $matches["bitrate"];
+						$audio_info["bitrate"] = $matches["bitrate"];
 					}
 				}
 				if(isset($matches["format"])) {
-					$video_info["format"] = $matches["format"];
+					$audio_info["format"] = $matches["format"];
 				}
 				if(isset($matches["codec"])) {
-					$video_info["codec"] = $matches["codec"];
+					$audio_info["codec"] = $matches["codec"];
 				}
 
-				return $video_info;
 			}
 
 		}
 
-		return false;
+		return $audio_info;
 	}
 
 

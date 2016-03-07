@@ -93,6 +93,44 @@ class Video {
 			return false;
 		}
 
+
+		// special size handling for 3gp files (codec restrictions)
+		if($output_format == "3gp") {
+			
+			// allowed sizes are:
+			// sqcif = 128x96
+			// qcif = 176x144
+			// cif = 352x288
+			// 4cif = 704x576 ? ffmpeg issue
+			// 16cif = 1408x1152 ? ffmpeg issue
+
+			if($output_width <= 128) {
+				$output_width = 128;
+				$output_height = 96;
+			}
+			else if($output_width <= 176) {
+				$output_width = 176;
+				$output_height = 144;
+			}
+			else {
+			// else if($output_width <= 352) {
+				$output_width = 352;
+				$output_height = 288;
+			}
+
+			// ffmpeg creates green screen for these sizes
+			// it is considered an acceptable compromise to leave them out as 3gp is targeting old mobile devices
+			// else if($output_width <= 704) {
+			// 	$output_width = 704;
+			// 	$output_height = 576;
+			// }
+			// else {
+			// 	$output_width = 1408;
+			// 	$output_height = 1152;
+			// }
+		}
+
+
 		// remember actual canvas size
 		// canvas width and height must be divisible with 2
 		$canvas_width = $output_width%2 ? $output_width-1 : $output_width;
@@ -242,14 +280,20 @@ class Video {
 		if(!$output_bitrate) {
 
 			// should be adjusted for framerate (25), quality (2), and input_bitrate 
-//			$output_bitrate = ($output_width * $output_height * 25 * 2 * 0.07) / 1000;
 			$output_bitrate = ($output_width * $output_height * 25 * 2 * 0.07) / 1000;
 
 			// print $output_bitrate."<br>";
 			// exit();
-			// mostly ogv's needs higher bitrate when converting from compressed source
+
+			// ogv, 3gp and mov's needs higher bitrate when converting from compressed source
 			if($output_format == "ogv") {
+				$output_bitrate = $output_bitrate*2;
+			}
+			else if($output_format == "3gp") {
 				$output_bitrate = $output_bitrate*1.5;
+			}
+			else if($output_format == "mov") {
+				$output_bitrate = $output_bitrate*2;
 			}
 
 			$output_bitrate = round($output_bitrate);
@@ -280,19 +324,22 @@ class Video {
 			// print_r($info);
 			// print "<br>";
 
+
+			// set specific duration
 			$duration = "";
 			if($info["hours"] && $info["minutes"] && $info["seconds"] && $info["fractions"]) {
-				// TODO: cut off maybe 2/100 of a second more - calculate timestamp, deducts 0.02 and write out duration again ...
+
 				$h_f = 60*60*1000;
 				$m_f = 60*1000;
 				$s_f = 1000;
 
 				// print $info["fractions"] . ":" . parseFloat("0.".$info["fractions"]) . "<br>";
 				// print (parseFloat("0.".$info["fractions"])*1000) ."<br>";
-				$duration_ms = (parseInt($info["hours"])*$h_f) + (parseInt($info["minutes"])*$m_f) + (parseInt($info["seconds"])*$s_f) + parseFloat("0.".$info["fractions"])*1000;
+				$duration_ms = ($info["hours"]*$h_f) + ($info["minutes"]*$m_f) + ($info["seconds"]*$s_f) + $info["fractions"];
 
+				// EXPERIMENTAL
 				// shorten video by 20ms to avoid audio/video sync error noise
-//				$duration_ms = $duration_ms - 20;
+				// $duration_ms = $duration_ms - 20;
 
 				$hours = floor($duration_ms / ($h_f));
 				$hours = $hours < 10 ? "0".$hours : $hours;
@@ -307,46 +354,40 @@ class Video {
 			}
 
 
-			// read input file
-			// TODO: make fallback mov-version? (which does currently not work)
+
+			// MOV output
 			if($output_format == "mov") {
-
-				// print "mov:".$ffmpeg_path . " -y -i ".$input_file." -qscale 0 ".$crop.$pad." ".$output_file."<br>";
-				system($ffmpeg_path . " -y -i ".$input_file." -qscale 0 ".$crop.$pad." ".$output_file);
+				$command = $ffmpeg_path . " -y -i ".$input_file." ".$duration." -c:v mpeg2video -b:v ".$output_bitrate."k -f mov -c:a libmp3lame -ar 48000 -b:a 128k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file;
 			}
+
+			// MP4 output
 			else if($output_format == "mp4") {
-
-				// -r 20 and -g 40 gives audio/video sync issues
-				// added duration to avoid small noise bit in end of video
-
-
-				// FOR VERSION 1.1.2
-				//print $ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file . "<br>";
-//	latest			system($ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
-
-
-				// FOR VERSION 2.1.1
-				system($ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libfaac -ab 128k -qmin 10 -qmax 40 -crf 30 -vcodec libx264 -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
-
-
-//	old			system($ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec libfaac -ar 48000 -ab 128k -vcodec libx264 -b ".$output_bitrate."k -preset medium ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
+				$command = $ffmpeg_path . " -y -i ".$input_file." ".$duration." -qmin 10 -qmax 40 -crf 30 -c:v libx264 -b:v ".$output_bitrate."k -c:a libfaac -ar 48000 -b:a 128k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file;
 			}
+
+			// WEBM output
+			else if($output_format == "webm") {
+				$command = $ffmpeg_path . " -y -i ".$input_file." ".$duration." -qmin 10 -qmax 40 -crf 30 -c:v libvpx -b:v ".$output_bitrate."k -c:a libvorbis -ar 48000 -b:a 128k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file;
+			}
+
+			// OGV output
 			else if($output_format == "ogv") {
-
-
-				// print $ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec libvorbis -ar 48000 -ab 128k -vcodec libtheora -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file . "<br>";
-				system($ffmpeg_path . " -y -i ".$input_file." ".$duration." -acodec libvorbis -ab 128k -vcodec libtheora -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
-//				system($ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec libvorbis -ar 48000 -ab 128k -vcodec libtheora -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
+				$command = $ffmpeg_path . " -y -i ".$input_file." ".$duration." -c:v libtheora -b:v ".$output_bitrate."k -c:a libvorbis -ar 48000 -b:a 128k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file;
 			}
+
+			// 3GP output
 			else if($output_format == "3gp") {
-
-
-				// print $ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec aac -ac 1 -ar 8000 -r 25 -ab 32 -vcodec h263 -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file . "<br>";
-				system($ffmpeg_path . " -y -i ".$input_file." -acodec aac -ac 1 -ar 8000 -r 25 -ab 32 -vcodec h263 -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
-//				system($ffmpeg_path . " -y -i ".$input_file." -r 20 -g 40 -acodec aac -ac 1 -ar 8000 -r 25 -ab 32 -vcodec h263 -b ".$output_bitrate."k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file);
+				$command = $ffmpeg_path . " -y -i ".$input_file." ".$duration." -c:v h263 -b:v ".$output_bitrate."k -c:a libfaac -ac 1 -ar 32000 -ab 32k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file;
 			}
 
 
+			// proper command available
+			if($command) {
+				// writeToFile($command);
+				system($command);
+			}
+
+			// successful conversion
 			if(file_exists($output_file)) {
 				return true;
 			}
@@ -365,10 +406,11 @@ class Video {
 
 
 	function info($file) {
+		$video_info = false;
+
 		$ffmpeg_path = $this->ffmpegPath();
 
 		if($ffmpeg_path) {
-			$video_info = false;
 
 
 			$command = $ffmpeg_path . " -i " . escapeshellarg($file) . " 2>&1";
@@ -398,6 +440,9 @@ class Video {
 
 
 			if($stream_video && $duration) {
+
+				// get filesize
+				$video_info["filesize"] = filesize($file);
 
 				// parse Video line
 				if(!preg_match("/Video: (?P<codec>.*), (?P<format>.*), (?P<width>\d+)x(?P<height>\d+)(.*) (?P<bitrate>\d+(\.\d+)?) (?P<bitrateunit>[\w\(\)]+)\/s(.*) (?P<fps>\d+(\.\d+)?) fps/", $stream_video[0], $matches)) {
@@ -431,10 +476,12 @@ class Video {
 				}
 
 				if($matches) {
-					$video_info["hours"] = $matches["hours"];
-					$video_info["minutes"] = $matches["minutes"];
-					$video_info["seconds"] = $matches["seconds"];
-					$video_info["fractions"] = $matches["fractions"];
+					$video_info["hours"] = parseInt($matches["hours"]);
+					$video_info["minutes"] = parseInt($matches["minutes"]);
+					$video_info["seconds"] = parseInt($matches["seconds"]);
+					$video_info["fractions"] = parseFloat("0.".$matches["fractions"])*1000;
+
+					$video_info["duration"] = ($video_info["hours"] * 60 * 60 * 1000) + ($video_info["minutes"] * 60 * 1000) + ($video_info["seconds"] * 1000) + $video_info["fractions"];
 
 					if(!$video_info["bitrate"] && isset($matches["bitrate"])) {
 						$video_info["bitrate"] = $matches["bitrate"];
@@ -444,11 +491,10 @@ class Video {
 				 // print "<br>";
 			}
 
-			return $video_info;
 
 		}
 
-		return false;
+		return $video_info;
 	}
 
 

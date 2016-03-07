@@ -349,6 +349,26 @@ class Image {
 		}
 
 	}
+
+
+	function info($file) {
+		$image_info = false;
+
+		$image = new Imagick($file);
+
+		// get image size
+		$geometry = $image->getImageGeometry();
+		$image_info["width"] = $geometry['width'];
+		$image_info["height"] = $geometry['height'];
+
+		// get image format
+		$image_info["format"] = preg_replace("/jpeg/", "jpg", strtolower($image->getImageFormat()));
+
+		// get filesize
+		$image_info["filesize"] = filesize($file);
+
+		return $image_info;
+	}
 }
 
 ?>
