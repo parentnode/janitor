@@ -572,13 +572,13 @@ class PageCore {
 	*/
 	function languages() {
 
-		if(!session()->value("languages")) {
+		if(!cache()->value("languages")) {
 
 			$query = new Query();
 			$query->sql("SELECT * FROM ".UT_LANGUAGES);
-			session()->value("languages", $query->results());
+			cache()->value("languages", $query->results());
 		}
-		return session()->value("languages");
+		return cache()->value("languages");
 	}
 
 	/**
@@ -605,13 +605,13 @@ class PageCore {
 	*/
 	function countries() {
 
-		if(!session()->value("countries")) {
+		if(!cache()->value("countries")) {
 
 			$query = new Query();
 			$query->sql("SELECT * FROM ".UT_COUNTRIES);
-			session()->value("countries", $query->results());
+			cache()->value("countries", $query->results());
 		}
-		return session()->value("countries");
+		return cache()->value("countries");
 	}
 
 
@@ -835,9 +835,7 @@ class PageCore {
 
 	}
 
-
 	// recursive function to get navigation node tree
-	// optional levels of structure to get
 	function navigationNodes($navigation_id, $_options = array()) {
 
 		// default values
