@@ -29,6 +29,11 @@ define("UT_TAG",                SITE_DB.".tags");                              /
 define("UT_TAGGINGS",           SITE_DB.".taggings");                          // Item tags relations
 
 
+// NAVIGATION EXTENSIONS
+define("UT_NAV",                SITE_DB.".navigation");                        // Site navigation
+define("UT_NAV_NODES",          SITE_DB.".navigation_nodes");                  // Site navigation nodes
+
+
 // SHOP EXTENSIONS
 define("UT_PRICES",             SITE_DB.".prices");                            // Item prices
 

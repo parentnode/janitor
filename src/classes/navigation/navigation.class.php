@@ -18,8 +18,8 @@ class Navigation extends Model {
 		parent::__construct(get_class());
 
 
-		$this->db = SITE_DB.".navigation";
-		$this->db_nodes = SITE_DB.".navigation_nodes";
+		$this->db = UT_NAV; //SITE_DB.".navigation";
+		$this->db_nodes = UT_NAV_NODES; // SITE_DB.".navigation_nodes";
 		$this->level_iterator = 0;
 
 
@@ -141,7 +141,17 @@ class Navigation extends Model {
 
 		if(count($action) == 2) {
 			$query = new Query();
-			$sql = "DELETE FROM $this->db WHERE id = ".$action[1];
+			$navigation_id = $action[1];
+
+			// delete from cache
+			$sql = "SELECT handle FROM $this->db WHERE id = ".$navigation_id;
+			if($query->sql($sql)) {
+				$handle = $query->result(0, "handle");
+				cache()->reset("navigation-".$handle);
+			}
+
+
+			$sql = "DELETE FROM ".$this->db." WHERE id = ".$navigation_id;
 //			print $sql;
 			if($query->sql($sql)) {
 				message()->addMessage("Navigation deleted");
@@ -155,8 +165,221 @@ class Navigation extends Model {
 
 
 
+	// get specific navigation node information (for edit_node template)
+	function getNode($id) {
+
+		$query = new Query();
+		$sql = "SELECT * FROM ".$this->db_nodes." WHERE id = $id";
+//		print $sql."<br>";
+		if($query->sql($sql)) {
+			return $query->result(0);
+		}
+
+	}
+
+
+	// save node
+	// /janitor/admin/navigation/saveNode/#$navigation_id#
+	function saveNode($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 2 && $this->validateList(array("node_name"))) {
+
+			$query = new Query();
+			$navigation_id = $action[1];
+
+			$entities = $this->data_entities;
+			$names = array();
+			$values = array();
+
+			foreach($entities as $name => $entity) {
+				if($name == "node_target") {
+					if($entity["value"]) {
+						$names[] = $name;
+						$values[] = $name."='_blank'";
+					}
+				}
+				else if($name == "node_item_id") {
+					if($entity["value"]) {
+						$names[] = $name;
+						$values[] = $name."='".$entity["value"]."'";
+					}
+				}
+				else if($entity["value"] !== false) {
+					$names[] = $name;
+					$values[] = $name."='".$entity["value"]."'";
+				}
+			}
+
+			if($values) {
+				$sql = "INSERT INTO ".$this->db_nodes." SET id = DEFAULT, navigation_id = $navigation_id, "  . implode(",", $values);
+//				print $sql;
+
+				if($query->sql($sql)) {
+
+					// delete from cache (will be respawned on next request)
+					$sql = "SELECT handle FROM ".$this->db." WHERE id = ".$navigation_id;
+					if($query->sql($sql)) {
+						$handle = $query->result(0, "handle");
+						cache()->reset("navigation-".$handle);
+					}
+
+
+					message()->addMessage("Navigation node created");
+					return array("item_id" => $navigation_id);
+				}
+			}
+		}
+
+		message()->addMessage("Navigation node could not be created", array("type" => "error"));
+		return false;
+
+	}
+
+
+	// update node
+	// /janitor/admin/navigation/updateNode/#node_id#
+	function updateNode($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+		$node_id = $action[1];
+		
+		// does values validate
+		if(count($action) == 2 && $this->validateList(array("node_name"), $node_id)) {
+
+			// does values validate
+			$entities = $this->data_entities;
+			$names = array();
+			$values = array();
+
+			foreach($entities as $name => $entity) {
+				// specific values for target and page references
+				if($name == "node_target") {
+					if($entity["value"]) {
+						$names[] = $name;
+						$values[] = $name."='_blank'";
+					}
+					else {
+						$names[] = $name;
+						$values[] = $name."=NULL";
+					}
+				}
+				else if($name == "node_item_id") {
+					if($entity["value"]) {
+						$names[] = $name;
+						$values[] = $name."='".$entity["value"]."'";
+					}
+					else {
+						$names[] = $name;
+						$values[] = $name."=NULL";
+					}
+				}
+				else if($entity["value"] !== false) {
+					$names[] = $name;
+					$values[] = $name."='".$entity["value"]."'";
+				}
+			}
+
+			if($values) {
+				$query = new Query();
+				$sql = "UPDATE ".$this->db_nodes." SET ".implode(",", $values)." WHERE id = ".$node_id;
+//				print $sql;
+
+				if($query->sql($sql)) {
+
+
+					// delete from cache (will be respawned on next request)
+					$sql = "SELECT ".$this->db.".handle as handle FROM ".$this->db.", ".$this->db_nodes." WHERE ".$this->db_nodes.".id = ".$node_id." AND ".$this->db_nodes.".navigation_id = ".$this->db.".id";
+					if($query->sql($sql)) {
+						$handle = $query->result(0, "handle");
+						cache()->reset("navigation-".$handle);
+					}
+
+					message()->addMessage("Navigation node updated");
+					return array("item_id" => $query->lastInsertId());
+				}
+			}
+		}
+
+		message()->addMessage("Navigation node could not be updated", array("type" => "error"));
+		return false;
+	}
+
+
+	// delete navigation node - 2 parameters exactly
+	// /janitor/admin/navigation/deleteNode/#node_id#
+	function deleteNode($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$node_id = $action[1];
+
+			if($query->sql("DELETE FROM ".$this->db_nodes." WHERE id = ".$node_id)) {
+
+				// delete from cache (will be respawned on next request)
+				$sql = "SELECT ".$this->db.".handle as handle FROM ".$this->db.", ".$this->db_nodes." WHERE ".$this->db_nodes.".id = ".$node_id." AND ".$this->db_nodes.".navigation_id = ".$this->db.".id";
+				if($query->sql($sql)) {
+					$handle = $query->result(0, "handle");
+					cache()->reset("navigation-".$handle);
+				}
+
+				message()->addMessage("Navigation node deleted");
+				return true;
+			}
+
+		}
+
+		message()->addMessage("Navigation node could not be deleted - refresh your browser", array("type" => "error"));
+		return false;
+
+	}
+
+
+	// update navigation node order
+	// /janitor/admin/navigation/updateOrder/".$navigation_id
+	function updateOrder($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$navigation_id = $action[1];
+			$structure = json_decode(prepareForHTML(getPost("structure")), true);
+
+			foreach($structure as $node) {
+				
+				$sql = "UPDATE ".$this->db_nodes." SET relation = ".$node["relation"].", position = ".$node["position"]." WHERE id = ".$node["id"];
+				if(!$query->sql($sql)) {
+					message()->addMessage("Node order update failed", array("type" => "error"));
+					return false;
+				}
+			}
+
+			// delete from cache (will be respawned on next request)
+			$sql = "SELECT handle FROM ".$this->db." WHERE id = ".$navigation_id;
+			if($query->sql($sql)) {
+				$handle = $query->result(0, "handle");
+				cache()->reset("navigation-".$handle);
+			}
+
+			message()->addMessage("Node order updated");
+			return true;
+		}
+
+		message()->addMessage("Node order could not be updated", array("type" => "error"));
+		return false;
+
+	}
+
+
+
+
 	/**
-	* Get users
+	* Get navigations
 	*
 	* Get list of all navigations/link-lists
 	* Get specific navigation based on handle or navigation_id
@@ -215,6 +438,7 @@ class Navigation extends Model {
 				}
 			}
 
+			// return navigation
 			return $navigation;
 		}
 
@@ -328,178 +552,6 @@ class Navigation extends Model {
 		$this->level_iterator--;
 
 		return $nodes;
-	}
-
-
-	// get specific navigation node information (for edit_node template)
-	function getNode($id) {
-
-		$query = new Query();
-		$sql = "SELECT * FROM ".$this->db_nodes." WHERE id = $id";
-//		print $sql."<br>";
-		if($query->sql($sql)) {
-			return $query->result(0);
-		}
-
-	}
-
-
-	// save node
-	function saveNode($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-		// does values validate
-		if(count($action) == 2 && $this->validateList(array("node_name"))) {
-
-			$query = new Query();
-			$navigation_id = $action[1];
-
-			$entities = $this->data_entities;
-			$names = array();
-			$values = array();
-
-			foreach($entities as $name => $entity) {
-				if($name == "node_target") {
-					if($entity["value"]) {
-						$names[] = $name;
-						$values[] = $name."='_blank'";
-					}
-				}
-				else if($name == "node_item_id") {
-					if($entity["value"]) {
-						$names[] = $name;
-						$values[] = $name."='".$entity["value"]."'";
-					}
-				}
-				else if($entity["value"] !== false) {
-					$names[] = $name;
-					$values[] = $name."='".$entity["value"]."'";
-				}
-			}
-
-			if($values) {
-				$sql = "INSERT INTO ".$this->db_nodes." SET id = DEFAULT, navigation_id = $navigation_id, "  . implode(",", $values);
-//				print $sql;
-
-				if($query->sql($sql)) {
-
-					message()->addMessage("Navigation node created");
-					return array("item_id" => $navigation_id);
-				}
-			}
-		}
-
-		message()->addMessage("Navigation node could not be created", array("type" => "error"));
-		return false;
-
-	}
-
-
-	// update node
-	function updateNode($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-		// does values validate
-		if(count($action) == 2 && $this->validateList(array("node_name"), $action[1])) {
-
-			// does values validate
-			$entities = $this->data_entities;
-			$names = array();
-			$values = array();
-
-			foreach($entities as $name => $entity) {
-				// specific values for target and page references
-				if($name == "node_target") {
-					if($entity["value"]) {
-						$names[] = $name;
-						$values[] = $name."='_blank'";
-					}
-					else {
-						$names[] = $name;
-						$values[] = $name."=NULL";
-					}
-				}
-				else if($name == "node_item_id") {
-					if($entity["value"]) {
-						$names[] = $name;
-						$values[] = $name."='".$entity["value"]."'";
-					}
-					else {
-						$names[] = $name;
-						$values[] = $name."=NULL";
-					}
-				}
-				else if($entity["value"] !== false) {
-					$names[] = $name;
-					$values[] = $name."='".$entity["value"]."'";
-				}
-			}
-
-			if($values) {
-				$query = new Query();
-				$sql = "UPDATE ".$this->db_nodes." SET ".implode(",", $values)." WHERE id = ".$action[1];
-//				print $sql;
-
-				if($query->sql($sql)) {
-					message()->addMessage("Navigation node updated");
-					return array("item_id" => $query->lastInsertId());
-				}
-			}
-		}
-
-		message()->addMessage("Navigation node could not be updated", array("type" => "error"));
-		return false;
-	}
-
-
-	// delete navigation node - 2 parameters exactly
-	// /deleteNode/#node_id#
-	function deleteNode($action) {
-
-		if(count($action) == 2) {
-
-			$query = new Query();
-			if($query->sql("DELETE FROM ".$this->db_nodes." WHERE id = ".$action[1])) {
-				message()->addMessage("Navigation node deleted");
-				return true;
-			}
-
-		}
-
-		message()->addMessage("Navigation node could not be deleted - refresh your browser", array("type" => "error"));
-		return false;
-
-	}
-
-
-	// update navigation node order
-	function updateOrder($action) {
-
-		if(count($action) == 2) {
-
-			$query = new Query();
-			$structure = json_decode(prepareForHTML(getPost("structure")), true);
-
-			foreach($structure as $node) {
-				
-				$sql = "UPDATE ".$this->db_nodes." SET relation = ".$node["relation"].", position = ".$node["position"]." WHERE id = ".$node["id"];
-				if(!$query->sql($sql)) {
-					message()->addMessage("Node order update failed", array("type" => "error"));
-					return false;
-				}
-			}
-
-			message()->addMessage("Node order updated");
-			return true;
-		}
-
-		message()->addMessage("Node order could not be updated", array("type" => "error"));
-		return false;
-
 	}
 
 }

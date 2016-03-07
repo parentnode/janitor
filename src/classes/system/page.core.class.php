@@ -5,6 +5,7 @@ include_once("includes/functions.inc.php");
 
 include_once("classes/system/message.class.php");
 include_once("classes/system/session.class.php");
+include_once("classes/system/cache.class.php");
 
 
 /**
@@ -110,6 +111,9 @@ class PageCore {
 
 		// check access
 		$this->setActions(RESTParams());
+		
+
+//		session()->flush("test");
 	}
 
 
@@ -782,6 +786,128 @@ class PageCore {
 
 		// getting original segment value
 		return isset($segment_session["segment"]) ? $segment_session["segment"] : "desktop";
+	}
+
+
+	/**
+	* Get navigation
+	*
+	* Get specific navigation based on handle
+	* Will be returned from cache if available
+	*/
+	function navigation($handle) {
+
+		// is navigation handle specified and navigation already cached?
+		if(cache()->value("navigation-".$handle)) {
+			return cache()->value("navigation-".$handle);
+		}
+
+		$navigation = false;
+
+		$query = new Query();
+
+		// translate handle into navigation_id
+		$sql = "SELECT id FROM ".UT_NAV." WHERE handle = '$handle'";
+//		print $sql."<br>";
+		if($query->sql($sql)) {
+
+			$navigation_id = $query->result(0, "id");
+
+			$navigation = false;
+
+			$sql = "SELECT * FROM ".UT_NAV." WHERE id = '$navigation_id'";
+//			print $sql."<br>";
+			if($query->sql($sql)) {
+
+				$navigation = $query->result(0);
+
+				// get children
+				$navigation["nodes"] = $this->navigationNodes($navigation_id);
+			}
+
+			// update cache
+			cache()->value("navigation-".$handle, $navigation);
+
+		}
+
+		// return navigation
+		return $navigation;
+
+	}
+
+
+	// recursive function to get navigation node tree
+	// optional levels of structure to get
+	function navigationNodes($navigation_id, $_options = array()) {
+
+		// default values
+		$relation = false;
+		$nested_path = "";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "relation"          : $relation           = $_value; break;
+					case "nested_path"       : $nested_path        = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+		$IC = new Items();
+
+
+		$nodes = false;
+
+		// with or without relations (0 when getting 1st level navigation)
+		if(!$relation) {
+			$sql = "SELECT * FROM ".UT_NAV_NODES." WHERE navigation_id = $navigation_id AND relation = 0 ORDER BY position ASC, id ASC";
+		}
+		else {
+			$sql = "SELECT * FROM ".UT_NAV_NODES." WHERE navigation_id = $navigation_id AND relation = $relation ORDER BY position ASC, id ASC";
+		}
+//		print $sql."<br>";
+
+		// get media
+		if($query->sql($sql)) {
+
+			$results = $query->results();
+			foreach($results as $i => $node) {
+				$nodes[$i]["id"] = $node["id"];
+				$nodes[$i]["name"] = $node["node_name"];
+
+				$nodes[$i]["target"] = $node["node_target"];
+				$nodes[$i]["classname"] = $node["node_classname"];
+				$nodes[$i]["fallback"] = $node["node_fallback"];
+
+				// $nodes[$i]["item_id"] = $node["node_item_id"];
+				// $nodes[$i]["controller"] = $node["node_item_controller"];
+
+				// get create link for page
+				if($node["node_item_id"]) {
+					$page = $IC->getItem(array("id" => $node["node_item_id"]));
+
+					// create nested link structure
+					$nodes[$i]["link"] = $node["node_item_controller"].$nested_path."/".$page["sindex"];
+				}
+				// absolute static link
+				else {
+					$nodes[$i]["link"] = $node["node_link"];
+				}
+
+				// go deeper
+				$_options["relation"] = $node["id"];
+
+				// update nested paths
+				$_options["nested_path"] = $nested_path."/".superNormalize($node["node_name"]);
+
+				// get child nodes
+				$nodes[$i]["nodes"] = $this->navigationNodes($navigation_id, $_options);
+			}
+		}
+
+		return $nodes;
 	}
 
 
