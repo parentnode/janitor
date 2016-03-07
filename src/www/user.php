@@ -48,6 +48,8 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
+
+include_once("classes/users/superuser.class.php");
 $model = new SuperUser();
 
 
