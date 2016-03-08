@@ -70,7 +70,10 @@ class PageCore {
 			session()->value("user_group_id", 1);
 			session()->value("user_id", 1);
 			session()->value("csrf", gen_uuid());
-
+			session()->value("site", SITE_URL);
+			session()->value("ip", (getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR")));
+			session()->value("useragent", stripslashes($_SERVER["HTTP_USER_AGENT"]));
+			session()->value("logged_in_at", date("Y-m-d H:i:s"));
 		}
 
 //		print session()->value("user_id").", ".session()->value("user_group_id")."<br>";
@@ -111,7 +114,6 @@ class PageCore {
 
 		// check access
 		$this->setActions(RESTParams());
-		
 
 //		session()->flush("test");
 	}
@@ -1160,7 +1162,7 @@ class PageCore {
 
 			// get group and permissions from session
 			$user_group_id = session()->value("user_group_id");
-			$permissions = session()->value("user_group_permissions");
+			//$permissions = session()->value("user_group_permissions");
 
 //			print "group: ".$user_group_id."<br>\n";
 
@@ -1175,14 +1177,17 @@ class PageCore {
 				return false;
 			}
 
-			// if permissions does not exist for this user in this session
-			// this requires a database lookup - result is stored in session to 
+			$permissions = cache()->value("user_group_".$user_group_id."_permissions");
+
+
+			// if permissions does not exist for this user_group in cache
+			// this requires a database lookup - result is stored in cache 
 			// get user_access for user_group
-			else if(!$permissions) {
+			if(!$permissions) {
 
 				$query = new Query();
 				$sql = "SELECT controller, action, permission FROM ".SITE_DB.".user_access WHERE user_group_id = ".$user_group_id;
-	//			print $sql."<br>\n";
+				// print $sql."<br>\n";
 
 				if($query->sql($sql)) {
 					$results = $query->results();
@@ -1195,6 +1200,7 @@ class PageCore {
 
 				}
 
+				cache()->value("user_group_".$user_group_id."_permissions", $permissions);
 				// store permissions in session
 				session()->value("user_group_permissions", $permissions);
 			}
@@ -1276,11 +1282,11 @@ class PageCore {
 //			print $sql;
 			if($query->sql($sql)) {
 
-
 				// add user_id and user_group_id to session
-				session()->value("user_id", $query->result(0, "id"));
-				session()->value("user_group_id", $query->result(0, "user_group_id"));
+				session()->value("user_id", intval($query->result(0, "id")));
+				session()->value("user_group_id", intval($query->result(0, "user_group_id")));
 				session()->value("user_nickname", $query->result(0, "nickname"));
+				session()->value("logged_in_at", date("Y-m-d H:i:s"));
 				session()->reset("user_group_permissions");
 
 				$this->addLog("Login: ".$username ." (".session()->value("user_id").")");
