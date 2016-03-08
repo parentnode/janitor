@@ -143,18 +143,26 @@ class SuperUser extends User {
 			1 => "enabled"
 		);
 
-		if(count($action) == 3 && isset($status_states[$action[2]])) {
+		$user_id = $action[1];
+		$status = $action[2];
+
+		if(count($action) == 3 && isset($status_states[$status])) {
 		
 			$query = new Query();
 
 			// update status for user
-			if($query->sql("SELECT id FROM ".$this->db." WHERE id = ".$action[1])) {
-				$query->sql("UPDATE ".$this->db." SET status = ".$action[2]." WHERE id = ".$action[1]);
+			if($query->sql("SELECT id FROM ".$this->db." WHERE id = ".$user_id)) {
+				$query->sql("UPDATE ".$this->db." SET status = ".$status." WHERE id = ".$user_id);
 
-				message()->addMessage("User ".$status_states[$action[2]]);
+				// flush user session if user is disabled
+				if($status == 0) {
+					$this->flushUserSession(array("flushUserSession", $user_id));
+				}
+
+				message()->addMessage("User ".$status_states[$status]);
 				return true;
 			}
-			message()->addMessage("User could not be ".$status_states[$action[2]], array("type" => "error"));
+			message()->addMessage("User could not be ".$status_states[$status], array("type" => "error"));
 
 		}
 		return false;
@@ -168,9 +176,15 @@ class SuperUser extends User {
 
 		if(count($action) == 2) {
 			$query = new Query();
-			$sql = "DELETE FROM $this->db WHERE id = ".$action[1];
+			$user_id = $action[1];
+			
+			$sql = "DELETE FROM $this->db WHERE id = ".$user_id;
 //			print $sql;
 			if($query->sql($sql)) {
+				
+				// flush user session when user is deleted
+				$this->flushUserSession(array("flushUserSession", $user_id));
+
 				message()->addMessage("User deleted");
 				return true;
 			}
@@ -189,6 +203,47 @@ class SuperUser extends User {
 		return false;
 	}
 
+
+	// flush a user session from Memcached sessions
+	// /janitor/admin/user/flushUserSession/#user_id#
+	function flushUserSession($action) {
+
+		if(count($action) == 2) {
+			$user_id = $action[1];
+
+			if(class_exists("Memcached")) {
+
+				$memc = new Memcached();
+				$memc->addServer('localhost', 11211);
+
+				$keys = $memc->getAllKeys();
+
+				foreach($keys as $key) {
+
+					if(preg_match("/sess\.key/", $key)) {
+						$user = $memc->get($key);
+			//			print "session:" . $user."<br>\n";
+
+						if($user) {
+
+							$data = cache()->unserializeSession($user);
+
+							if(isset($data["SV"]) && $data["SV"]["site"] == SITE_URL && $data["SV"]["user_id"] == $user_id) {
+								$memc->delete($key);
+
+								message()->addMessage("User session flushed");
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		message()->addMessage("Flushing user session failed", array("type" => "error"));
+		return false;
+
+	}
 
 
 	// TODO: not used due to performance considerations
@@ -1141,7 +1196,8 @@ class SuperUser extends User {
 			$user_group_id = $action[1];
 
 			// clear cached permissions
-			session()->reset("user_group_permissions");
+			//session()->reset("user_group_permissions");
+			cache()->reset("user_group_".$user_group_id."_permissions");
 
 			// make sure type tables exist
 			$query->checkDbExistance($this->db_access);
