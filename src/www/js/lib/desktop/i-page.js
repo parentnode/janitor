@@ -78,6 +78,12 @@ Util.Objects["page"] = new function() {
 			var janitor = u.ie(this.hN, "ul", {"class":"janitor"});
 			u.ae(janitor, u.qs(".servicenavigation .front", page.hN));
 
+			// prepare janitor text for animation
+			var janitor_text = u.qs("li a", janitor);
+			janitor_text.innerHTML = "<span>"+janitor_text.innerHTML.split("").join("</span><span>")+"</span>"; 
+			page.hN.janitor_spans = u.qsa("span", janitor_text);
+
+
 			u.ae(page, u.qs(".servicenavigation", page.hN));
 
 			page.nN.sections = u.qsa("ul.sections > li", page.nN);
@@ -117,8 +123,79 @@ Util.Objects["page"] = new function() {
 
 				}
 			}
-			u.bug(page.nN.sections);
+
+			// enable collapsed navigation
+			u.e.hover(page.hN);
+			page.hN.over = function() {
+
+				u.t.resetTimer(this.t_navigation);
+
+				u.a.transition(this, "all 0.3s ease-in-out");
+				u.ass(this, {
+					"width":"230px"
+				});
+				u.a.transition(page.nN, "all 0.3s ease-in");
+				u.ass(page.nN, {
+					"opacity":1
+				});
+
+				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
+
+					if(i == 0) {
+						u.a.transition(span, "all 0.2s ease-in " + (i*50) + "ms");
+						u.ass(span, {
+							"transform":"translate(0, 0)"
+						});
+					}
+					else {
+						u.a.transition(span, "all 0.2s ease-in " + (i*50) + "ms");
+						u.ass(span, {
+							"opacity":1,
+							"transform":"translate(0, 0)"
+						});
+					}
+				}
+
+			}
+
+			page.hN.out = function() {
+
+				u.rc(this, "over");
+
+				var span, i;
+				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
+
+					if(i == 0) {
+						u.a.transition(span, "all 0.2s ease-in " + ((page.hN.janitor_spans.length-i)*50) + "ms");
+						u.ass(span, {
+							"transform":"translate(-8px, 0)"
+						});
+					}
+					else {
+						u.a.transition(span, "all 0.2s ease-in " + ((page.hN.janitor_spans.length-i)*50) + "ms");
+						u.ass(span, {
+							"opacity":0,
+							"transform":"translate(-8px, -30px)"
+						});
+					}
+				}
+
+				u.a.transition(page.nN, "all 0.2s ease-in");
+				u.ass(page.nN, {
+					"opacity":0
+				});
+
+				u.a.transition(this, "all 0.2s ease-in-out 300ms");
+				u.ass(this, {
+					"width":"30px"
+				});
+
+			}
+			
+			page.hN.t_navigation = u.t.setTimer(page.hN, "out", 500);
+
 		}
+
 
 		// create icon svg
 		page.svgIcon = function(icon) {
