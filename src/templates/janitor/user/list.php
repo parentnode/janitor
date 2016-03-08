@@ -27,6 +27,7 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 	<ul class="actions">
 		<?= $HTML->link("New user", "/janitor/admin/user/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
+		<?= $HTML->link("Online users", "/janitor/admin/user/online", array("class" => "button", "wrapper" => "li.online")) ?>
 	</ul>
 
 <?	if($user_groups): ?>

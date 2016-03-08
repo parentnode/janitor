@@ -39,6 +39,8 @@ $access_item["/saveUserGroup"] = "/group";
 $access_item["/updateUserGroup"] = "/group";
 
 $access_item["/content"] = true;
+$access_item["/online"] = true;
+$access_item["/flushUserSession"] = true;
 
 if(isset($read_access) && $read_access) {
 	return;
@@ -107,6 +109,16 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/content.php"
+		));
+		exit();
+	}
+
+	// ONLINE OVERVIEW
+	else if(preg_match("/^(online)$/", $action[0]) && count($action) == 1) {
+
+		$page->page(array(
+			"type" => "janitor",
+			"templates" => "janitor/user/online.php"
 		));
 		exit();
 	}

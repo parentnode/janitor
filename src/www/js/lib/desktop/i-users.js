@@ -283,3 +283,35 @@ Util.Objects["accessEdit"] = new function() {
 
 	}
 }
+
+Util.Objects["flushUserSession"] = new function() {
+	this.init = function(div) {
+
+		u.bug("div flushUserSession")
+
+		// CMS interaction urls
+		div.csrf_token = div.getAttribute("data-csrf-token");
+		div.flush_url = div.getAttribute("data-flush-url");
+
+
+		var users = u.qsa("li.item:not(.current_user)", div);
+		var i, user;
+		for(i = 0; user = users[i]; i++) {
+
+
+			var action = u.f.addAction(u.qs("ul.actions", user), {"type":"button", "class":"button", "value":"Flush"});
+			action.div = div;
+			action.user_id = u.cv(user, "user_id");
+			u.ce(action);
+			action.clicked = function() {
+
+				this.response = function(response) {
+					page.notify(response);
+				}
+				u.request(this, this.div.flush_url+"/"+this.user_id, {"method":"post", "params" : "csrf-token="+this.div.csrf_token});
+				
+			}
+		}
+
+	}
+}
