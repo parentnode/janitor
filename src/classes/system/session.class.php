@@ -7,7 +7,7 @@ if(!isset($_SESSION)) {
 }
 
 // for safety - known bugs in old devices, should be tested
-session_regenerate_id();
+session_regenerate_id(true);
 
 /**
 * This class contains session value exchange functionality
@@ -48,11 +48,20 @@ class Session {
 		if($key) {
 			unset($_SESSION["SV"][$key]);
 		}
+		// reset entire session
 		else {
-			session_unset();
+//			session_unset();
+			unset($_SESSION);
+			
+			if(ini_get("session.use_cookies")) {
+				$params = session_get_cookie_params();
+				setcookie(session_name(), '', time() - 42000, $params["path"], $params["domain"], $params["secure"], $params["httponly"]);
+			}
+
+			session_destroy();
+
 		}
 	}
-
 }
 
 $sss = new Session();
