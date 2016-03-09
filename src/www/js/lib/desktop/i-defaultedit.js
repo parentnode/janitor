@@ -33,7 +33,7 @@ Util.Objects["defaultEdit"] = new function() {
 		}
 
 		form.updated = function() {
-//			u.bug("form has been update")
+//			u.bug("form has been updated")
 
 			this.change_state = true;
 			u.t.resetTimer(page.t_autosave);
@@ -48,7 +48,7 @@ Util.Objects["defaultEdit"] = new function() {
 
 		// enable autosaving for testing
 		form.autosave = function() {
-//			u.bug("autosaving")
+//			u.bug("autosaving:" + this.change_state)
 
 			// is autosave on?
 			if(!page.autosave_disabled && this.change_state) {
@@ -78,7 +78,7 @@ Util.Objects["defaultEdit"] = new function() {
 					}
 				}
 
-				// if error is found after validation
+				// if no error is found after validation
 				if(!u.qs(".field.error", this)) {
 					this.change_state = false;
 					this.submitted();

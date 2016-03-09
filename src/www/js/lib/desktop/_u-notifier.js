@@ -93,16 +93,16 @@ u.notifier = function(node) {
 
 							var i, node;
 							for(i = 0; node = data_vars[i]; i++) {
-								u.bug("data:" + u.nodeId(node) + ", " + node.getAttribute("data-csrf-token"));
+								//u.bug("data:" + u.nodeId(node) + ", " + node.getAttribute("data-csrf-token"));
 								node.setAttribute("data-csrf-token", csrf_token);
 							}
 							for(i = 0; node = input_vars[i]; i++) {
-								u.bug("input:" + u.nodeId(node) + ", " + node.value);
+								//u.bug("input:" + u.nodeId(node) + ", " + node.value);
 								node.value = csrf_token;
 							}
 							for(i = 0; node = dom_vars[i]; i++) {
 								if(node.csrf_token) {
-									u.bug("dom:" + u.nodeId(node) + ", " + node.csrf_token);
+									//u.bug("dom:" + u.nodeId(node) + ", " + node.csrf_token);
 									node.csrf_token = csrf_token;
 								}
 							}

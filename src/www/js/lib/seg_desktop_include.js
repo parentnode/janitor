@@ -2,7 +2,9 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/manipulato
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/u-basics.js"></script>');
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_1/src/beta-u-notifier.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-notifier.js"></script>');
+
+//document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_1/src/beta-u-notifier.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_1/src/u-sortable.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_1/src/u-form-htmleditor.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_1/src/u-form-geolocation.js"></script>');
