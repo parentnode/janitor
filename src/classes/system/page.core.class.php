@@ -1294,6 +1294,10 @@ class PageCore {
 				// set new csrf token for user
 				session()->value("csrf", gen_uuid());
 
+				// regerate Session id
+				session_regenerate_id(true);
+				
+
 				if(getPost("ajaxlogin")) {
 					$output = new Output();
 					$output->screen(array("csrf-token" => session()->value("csrf")));
@@ -1348,6 +1352,9 @@ class PageCore {
 
 				// set new csrf token for user
 				session()->value("csrf", gen_uuid());
+
+				// regerate Session id
+				session_regenerate_id(true);
 
 				if(getVar("credentials")) {
 					$output = new Output();
