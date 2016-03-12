@@ -1,3 +1,6 @@
 # Contributing to Janitor
 
-Contact us at [contribute@whattheframework.org](mailto:contribute@whattheframework.org)
+Any help is welcome. 
+
+
+Please contact us at [contribute@parentnode.dk](mailto:contribute@parentnode.dk)
