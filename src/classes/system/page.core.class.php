@@ -1390,6 +1390,10 @@ class PageCore {
 
 		session()->reset();
 
+		// start new session to store existing segment and dev values
+		session_start();
+		session_regenerate_id();
+
 		session()->value("dev", $dev);
 		session()->value("segment", $segment);
 
