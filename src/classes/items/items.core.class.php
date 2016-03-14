@@ -144,7 +144,7 @@ class ItemsCore {
 
 			$WHERE[] = "items.status = 1";
 
-			if(isset($itemtype)) {
+			if($itemtype) {
 				$WHERE[] = "items.itemtype = '$itemtype'";
 			}
 
