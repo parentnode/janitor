@@ -91,7 +91,10 @@ class ItemsCore {
 
 		$id = false;
 		$sindex = false;
+
+		// tags and optional itemtype
 		$tags = false;
+		$itemtype = false;
 
 		$extend = false;
 
@@ -101,9 +104,10 @@ class ItemsCore {
 					case "id"        : $id             = $_value; break;
 					case "sindex"    : $sindex         = $_value; break;
 
-					case "tags"      : $tags            = $_value; break;
+					case "tags"      : $tags           = $_value; break;
+					case "itemtype"  : $itemtype       = $_value; break;
 
-					case "extend"    : $extend        = $_value; break;
+					case "extend"    : $extend         = $_value; break;
 				}
 			}
 		}
@@ -139,6 +143,10 @@ class ItemsCore {
 		 	$FROM[] = UT_ITEMS." as items";
 
 			$WHERE[] = "items.status = 1";
+
+			if(isset($itemtype)) {
+				$WHERE[] = "items.itemtype = '$itemtype'";
+			}
 
 			// tag query
 			$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
