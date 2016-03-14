@@ -110,6 +110,7 @@ Util.Objects["page"] = new function() {
 					section.header = u.qs("h3", section);
 					section.header.section = section;
 
+					// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
 					section.nodes = u.qsa("li", section);
 					for(j = 0; node = section.nodes[j]; j++) {
 						u.ce(node);
