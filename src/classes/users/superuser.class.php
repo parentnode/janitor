@@ -240,7 +240,7 @@ class SuperUser extends User {
 			}
 		}
 
-		message()->addMessage("Flushing user session failed", array("type" => "error"));
+		message()->addMessage("No user session found", array("type" => "error"));
 		return false;
 
 	}

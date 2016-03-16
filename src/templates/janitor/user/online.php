@@ -13,10 +13,7 @@ if(class_exists("Memcached")) {
 
 
 	$users = array();
-
 	$keys = $memc->getAllKeys();
-//	print "keys:" . count($keys)."<br>\n";
-
 
 	foreach($keys as $key) {
 		//print $key."<br><br>\n";
@@ -28,7 +25,12 @@ if(class_exists("Memcached")) {
 
 				$data = cache()->unserializeSession($user);
 
-				if(isset($data["SV"])) {
+				// collect sessions users
+				// skip current user
+				if($data && isset($data["SV"]) && $data["SV"]["csrf"] != session()->value("csrf")) {
+					// print $key . ", " . $user . "<br>";
+					// print_r($data);
+
 					$values = $data["SV"];
 
 					if($values["site"] == SITE_URL) {
@@ -49,7 +51,6 @@ if(class_exists("Memcached")) {
 	}
 
 }
-
 ?>
 <div class="scene defaultList userOnlineList">
 	<h1>Current online users</h1>
@@ -81,7 +82,7 @@ if(class_exists("Memcached")) {
 
 			</li>
 			<? foreach($users as $user): ?>
-			<li class="item user_id:<?= $user["user_id"] ?><?= $user["user_id"] == session()->value("user_id") ? " current_user" : "" ?>">
+			<li class="item user_id:<?= $user["user_id"] ?>">
 				<h3><?= $user["nickname"] ?>, <?= $user_groups[arrayKeyValue($user_groups, "id", $user["user_group_id"])]["user_group"] ?></h3>
 				<dl class="info">
 					<dt class="logged_in_at">Logged in at</dt>
@@ -93,7 +94,6 @@ if(class_exists("Memcached")) {
 				</dl>
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/janitor/admin/user/edit/".$user["user_id"], array("class"=> "button primary", "wrapper" => "li.edit")) ?>
-					<?//= $HTML->link("Flush", "/janitor/admin/user/flushUserSession/".$user["user_id"], array("class"=> "button", "wrapper" => "li.edit")) ?>
 				</ul>
 			</li>
 			<? endforeach; ?>
