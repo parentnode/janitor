@@ -50,13 +50,15 @@ dt {color: #7d848c; display: inline-block; vertical-align: top; font-size: 0.923
 .c200 {width: 50%;}
 .c133 {width: 34%;}
 .c100 {width: 25%;}
-#page {position: relative; margin-left: 230px;}
+#page {position: relative; margin-left: 30px;}
 
 
 /*s-header.css*/
-#header {background-color: #313942; position: fixed; top: 0; left: 0; width: 230px; height: 100%;}
+#header {background-color: #313942; position: fixed; z-index: 200; top: 0; left: 0; width: 30px; height: 100%;}
 #header .janitor {display: block; background-color: #64ad8e; height: 140px; padding: 0;}
 #header .janitor li.front {display: block; color: #ffffff; padding: 20px; text-transform: uppercase; font-size: 18px;}
+#header .janitor li.front a {white-space: nowrap; opacity: 0;}
+#header .janitor li.front a span {display: inline-block; vertical-align: top;}
 #page > .servicenavigation {display: block; padding: 0; position: absolute; top: 0px; right: 30px;}
 #page > .servicenavigation li.navigation {display: none;}
 #page > .servicenavigation li.help {display: none;}
@@ -65,7 +67,7 @@ dt {color: #7d848c; display: inline-block; vertical-align: top; font-size: 0.923
 #page > .servicenavigation li:last-child:after {content: "";}
 #page > .servicenavigation li a {display: inline-block; vertical-align: top;}
 #page > .servicenavigation li a:hover {text-decoration: underline;}
-#navigation {}
+#navigation {opacity: 0;}
 #navigation ul li {color: #8c9399; display: block; text-transform: uppercase;}
 #navigation ul li a {display: block; padding: 14px 20px 15px;}
 #navigation ul:not(.sections) > li {font-size: 12px; border-bottom: 1px solid #404a56;}
@@ -79,6 +81,7 @@ dt {color: #7d848c; display: inline-block; vertical-align: top; font-size: 0.923
 #navigation > ul.sections ul li {padding-left: 20px;}
 body.page #navigation .page a,
 body.post #navigation .post a,
+body.person #navigation .person a,
 body.photocollection #navigation .photocollection a,
 body.todo #navigation .todo a,
 body.qna #navigation .qna a,
@@ -487,6 +490,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 
 
 /*s-user.css*/
+#content .defaultList.userList > .actions li.online {float: right; padding: 0 0 10px 10px;}
 #content .defaultList.userList ul.items > li h3 {padding-bottom: 16px;}
 #content .defaultList.userList .userGroups {background-color: #dedede;}
 #content .defaultList.userList .userGroups li {padding: 15px 30px; border-right: 1px solid #dedede;}
@@ -551,6 +555,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .defaultList.userContentList div.comments ul.items > li ul.info li {display: inline-block; vertical-align: top;}
 #content .defaultList.userContentList div.comments ul.items > li ul.info li.user:after {content: ",\00a0";}
 #content .defaultList.userContentList div.comments ul.items > li p.comment {color: #313942; padding-bottom: 15px;}
+#content .defaultList.userOnlineList div.users ul.items dl.info {padding-top: 5px; padding-bottom: 16px;}
 #content .scene.profileEdit h1,
 #content .scene.profileContentList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 #content .scene.profileEdit div.password label {display: block; padding-left: 3px;}

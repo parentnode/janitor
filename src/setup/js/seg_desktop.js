@@ -4513,48 +4513,62 @@ u.notifier = function(node) {
 		}
 		else if(typeof(response) == "object" && response.isHTML) {
 			var login = u.qs(".scene.login", response);
-			if(login) {
+			if(login && !u.qs("#login_overlay")) {
+				this.autosave_disabled = true;
 				if(page.t_autosave) {
 					u.t.resetTimer(page.t_autosave);
 				}
 				var overlay = u.ae(document.body, "div", {"id":"login_overlay"});
+				overlay.node = this;
 				u.ae(overlay, login);
 				u.as(document.body, "overflow", "hidden");
 				var form = u.qs("form", overlay);
 				form.overlay = overlay;
 				u.ae(form, "input", {"type":"hidden", "name":"ajaxlogin", "value":"true"})
 				u.f.init(form);
+				form.fields["username"].focus();
 				form.submitted = function() {
 					this.response = function(response) {
-						if(response.isJSON && response.cms_status) {
+						if(response.isJSON && response.cms_status == "success") {
 							var csrf_token = response.cms_object["csrf-token"];
-							u.bug("new token:" + csrf_token);
 							var data_vars = u.qsa("[data-csrf-token]", page);
 							var input_vars = u.qsa("[name=csrf-token]", page);
 							var dom_vars = u.qsa("*", page);
 							var i, node;
 							for(i = 0; node = data_vars[i]; i++) {
-								u.bug("data:" + u.nodeId(node) + ", " + node.getAttribute("data-csrf-token"));
 								node.setAttribute("data-csrf-token", csrf_token);
 							}
 							for(i = 0; node = input_vars[i]; i++) {
-								u.bug("input:" + u.nodeId(node) + ", " + node.value);
 								node.value = csrf_token;
 							}
 							for(i = 0; node = dom_vars[i]; i++) {
 								if(node.csrf_token) {
-									u.bug("dom:" + u.nodeId(node) + ", " + node.csrf_token);
 									node.csrf_token = csrf_token;
 								}
 							}
 							this.overlay.parentNode.removeChild(this.overlay);
+							var multiple_overlays = u.qsa("#login_overlay");
+							if(multiple_overlays) {
+								for(i = 0; overlay = multiple_overlays[i]; i++) {
+									overlay.parentNode.removeChild(overlay);
+								}
+							}
 							u.as(document.body, "overflow", "auto");
-							if(page._autosave_node && page._autosave_interval) {
-								u.t.setTimer(page._autosave_node, "autosave", page._autosave_interval);
+							this.overlay.node.autosave_disabled = false;
+							if(this.overlay.node._autosave_node && this.overlay.node._autosave_interval) {
+								u.t.setTimer(this.overlay.node._autosave_node, "autosave", this.overlay.node._autosave_interval);
 							}
 						}
 						else {
-							alert("login error")
+							this.fields["username"].focus();
+							this.fields["password"].val("");
+							var error_message = u.qs(".errormessage", response);
+							if(error_message) {
+								this.overlay.node.notify({"isJSON":true, "cms_status":"error", "cms_message":error_message.innerHTML});
+							}
+							else {
+								this.overlay.node.notify({"isJSON":true, "cms_status":"error", "cms_message":"An error occured"});
+							}
 						}
 					}
 					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
@@ -6606,13 +6620,38 @@ Util.Objects["page"] = new function() {
 		page.initHeader = function() {
 			var janitor = u.ie(this.hN, "ul", {"class":"janitor"});
 			u.ae(janitor, u.qs(".servicenavigation .front", page.hN));
+			var janitor_text = u.qs("li a", janitor);
+			janitor_text.innerHTML = "<span>"+janitor_text.innerHTML.split("").join("</span><span>")+"</span>"; 
+			page.hN.janitor_spans = u.qsa("span", janitor_text);
+			var i, span, j, section, node;
+			for(i = 0; span = page.hN.janitor_spans[i]; i++) {
+				if(i == 0) {
+					u.ass(span, {
+						"transform":"translate(-8px, 0)"
+					});
+				}
+				else {
+					u.ass(span, {
+						"opacity":0,
+						"transform":"translate(-8px, -30px)"
+					});
+				}
+			}
+			u.ass(janitor_text, {"opacity": 1});
 			u.ae(page, u.qs(".servicenavigation", page.hN));
 			page.nN.sections = u.qsa("ul.sections > li", page.nN);
 			if(page.nN.sections) {
-				var i, section;
 				for(i = 0; section = page.nN.sections[i]; i++) {
 					section.header = u.qs("h3", section);
 					section.header.section = section;
+					section.nodes = u.qsa("li", section);
+					for(j = 0; node = section.nodes[j]; j++) {
+						u.ce(node);
+						node.clicked = function() {
+							page.hN.out();
+							location.href = this.url;
+						}
+					}
 					u.e.click(section.header);
 					section.header.clicked = function() {
 						if(this.section.is_open) {
@@ -6636,7 +6675,61 @@ Util.Objects["page"] = new function() {
 					section.header.clicked();
 				}
 			}
-			u.bug(page.nN.sections);
+			u.e.hover(page.hN);
+			page.hN.over = function() {
+				u.t.resetTimer(this.t_navigation);
+				u.a.transition(this, "all 0.3s ease-in-out");
+				u.ass(this, {
+					"width":"230px"
+				});
+				u.a.transition(page.nN, "all 0.3s ease-in");
+				u.ass(page.nN, {
+					"opacity":1
+				});
+				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
+					if(i == 0) {
+						u.a.transition(span, "all 0.2s ease-in " + (i*50) + "ms");
+						u.ass(span, {
+							"transform":"translate(0, 0)"
+						});
+					}
+					else {
+						u.a.transition(span, "all 0.2s ease-in " + (i*50) + "ms");
+						u.ass(span, {
+							"opacity":1,
+							"transform":"translate(0, 0)"
+						});
+					}
+				}
+			}
+			page.hN.out = function() {
+				u.rc(this, "over");
+				var span, i;
+				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
+					if(i == 0) {
+						u.a.transition(span, "all 0.2s ease-in " + ((page.hN.janitor_spans.length-i)*50) + "ms");
+						u.ass(span, {
+							"transform":"translate(-8px, 0)"
+						});
+					}
+					else {
+						u.a.transition(span, "all 0.2s ease-in " + ((page.hN.janitor_spans.length-i)*50) + "ms");
+						u.ass(span, {
+							"opacity":0,
+							"transform":"translate(-8px, -30px)"
+						});
+					}
+				}
+				u.a.transition(page.nN, "all 0.2s ease-in");
+				u.ass(page.nN, {
+					"opacity":0
+				});
+				u.a.transition(this, "all 0.2s ease-in-out 300ms");
+				u.ass(this, {
+					"width":"30px"
+				});
+			}
+			page.hN.t_navigation = u.t.setTimer(page.hN, "out", 500);
 		}
 		page.svgIcon = function(icon) {
 			var path;
@@ -8370,6 +8463,27 @@ Util.Objects["accessEdit"] = new function() {
 				for(i = 0; input = inputs[i]; i++) {
 					input.val(1);
 				}
+			}
+		}
+	}
+}
+Util.Objects["flushUserSession"] = new function() {
+	this.init = function(div) {
+		u.bug("div flushUserSession")
+		div.csrf_token = div.getAttribute("data-csrf-token");
+		div.flush_url = div.getAttribute("data-flush-url");
+		var users = u.qsa("li.item:not(.current_user)", div);
+		var i, user;
+		for(i = 0; user = users[i]; i++) {
+			var action = u.f.addAction(u.qs("ul.actions", user), {"type":"button", "class":"button", "value":"Flush"});
+			action.div = div;
+			action.user_id = u.cv(user, "user_id");
+			u.ce(action);
+			action.clicked = function() {
+				this.response = function(response) {
+					page.notify(response);
+				}
+				u.request(this, this.div.flush_url+"/"+this.user_id, {"method":"post", "params" : "csrf-token="+this.div.csrf_token});
 			}
 		}
 	}
