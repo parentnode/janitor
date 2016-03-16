@@ -1,4 +1,4 @@
-Copyright 2006-2016 Martin Kaestel Nielsen, http://think.dk, http://parentnode.dk
+Copyright 2006-2016 Martin Kaestel Nielsen, http://think.dk, http://parentnode.dk (Janitor)
 
 
 Permission is hereby granted, free of charge, to any person obtaining

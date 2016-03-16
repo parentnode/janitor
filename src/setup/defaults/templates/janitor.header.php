@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="<?= $this->language() ?>">
 <head>
-	<!-- (c) & (p) parentNode.dk 2009-2016 //-->
-	<!-- All material protected by copyrightlaws, as if you didnt know //-->
-	<!-- If you want to help build the ultimate frontend-centered platform, visit parentnode.dk -->
+	<!-- (c) & (p) think.dk 2002-2016 -->
+	<!-- For detailed copyright license, see /terms -->
+	<!-- If you want to use or contribute to this code, visit http://parentnode.dk -->
 	<title><?= $this->pageTitle() ?></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="keywords" content="" />

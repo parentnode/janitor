@@ -39,7 +39,7 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 
 	<div id="footer">
 		<ul class="servicenavigation">
-			<li class="copyright">Janitor, Manipulator, Modulator - parentNode - Copyright 2015</li>
+			<li class="copyright">Copyright 2016, parentNode.dk</li>
 		</ul>
 	</div>
 
