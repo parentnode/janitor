@@ -72,6 +72,13 @@ Util.Objects["page"] = new function() {
 			}
 		}
 
+		// TODO: dummy navigation handler - just refreshes the page
+		page.cN.navigate = function(url) {
+			
+			u.bug("page.navigated");
+			location.href = url;
+
+		}
 
 		page.initHeader = function() {
 
@@ -113,11 +120,10 @@ Util.Objects["page"] = new function() {
 					// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
 					section.nodes = u.qsa("li", section);
 					for(j = 0; node = section.nodes[j]; j++) {
-						u.ce(node);
+						u.ce(node, {"type":"link"});
 						
-						node.clicked = function() {
+						node.preClicked = function(event) {
 							page.hN.out();
-							location.href = this.url;
 						}
 					}
 

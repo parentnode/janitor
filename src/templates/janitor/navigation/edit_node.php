@@ -27,6 +27,7 @@ foreach($raw_controllers as $i => $raw_controller) {
 
 <div class="scene defaultEdit navigationNodeEdit">
 	<h1>Edit navigation node</h1>
+	<h2><?= $item["node_name"] ?></h2>
 
 	<ul class="actions">
 		<?= $model->link("List", "/janitor/admin/navigation/edit/".$navigation_id, array("class" => "button", "wrapper" => "li.cancel")) ?>

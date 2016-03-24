@@ -67,6 +67,7 @@ function recurseNodes($nodes) {
 ?>
 <div class="scene defaultEdit navigationEdit">
 	<h1>Edit navigation</h1>
+	<h2><?= $item["name"] ?></h2>
 
 	<ul class="actions i:defaultEditActions item_id:<?= $navigation_id ?>">
 		<?= $HTML->link("Navigations list", "/janitor/admin/navigation/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
