@@ -150,7 +150,13 @@ Util.Objects["finish"] = new function() {
 					this.div_final_touches = u.qs(".final_touches", scene);
 					u.as(this.div_final_touches, "display", "block");
 				}
-				
+				else {
+
+					// error
+					u.ae(this.ul_tasks, "li", {"html":"A problem occured: (" + response + ")"});
+
+				}
+
 			}
 			u.request(this, this.url, {"method":"post"});
 		}

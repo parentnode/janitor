@@ -2,6 +2,8 @@
 //session_start();
 
 define("SITE_INSTALL", true);
+define("SITE_URL", (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]);
+
 
 // is FRAMEWORK_PATH and LOCAL_PATH already defined?
 if(isset($_SERVER["FRAMEWORK_PATH"]) && isset($_SERVER["LOCAL_PATH"])) {

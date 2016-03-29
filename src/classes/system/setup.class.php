@@ -134,6 +134,7 @@ class Setup extends Itemtype {
 		$this->addToModel("db_janitor_user", array(
 			"type" => "string",
 			"label" => "Project database username",
+			"max" => 16,
 			"required" => true,
 			"hint_message" => "Type the username you want to grant access to the new database",
 			"error_message" => "Project database username must be filled out"
@@ -196,7 +197,12 @@ class Setup extends Itemtype {
 
 	// reset setup script values
 	function reset() {
-		session()->reset();
+		unset($_SESSION["SOFTWARE_INFO"]);
+		unset($_SESSION["CONFIG_INFO"]);
+		unset($_SESSION["DATABASE_INFO"]);
+		unset($_SESSION["MAIL_INFO"]);
+
+//		session()->reset();
  	}
 
 
@@ -660,7 +666,6 @@ class Setup extends Itemtype {
 
 			// NEW SETUP
 			if(SETUP_TYPE == "setup") {
-
 
 
 				//
