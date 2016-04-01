@@ -906,10 +906,11 @@ class HTMLCore {
 	function navigationLink($node) {
 
 		global $page;
-		if(!$page->validatePath($node["link"])) {
+		if(!preg_match("/^http[s]?\:\/\//", $node["link"]) && !$page->validatePath($node["link"])) {
 			if($node["fallback"] && $page->validatePath($node["fallback"])) {
 				$node["link"] = $node["fallback"];
-			} else {
+			} 
+			else {
 				return "";
 			}
 		}
