@@ -231,7 +231,7 @@ class PageCore {
 		else {
 			// if title already set
 			if($this->page_title) {
-				return $this->page_title;
+				return strip_tags($this->page_title);
 			}
 
 			// last resort - use constant
