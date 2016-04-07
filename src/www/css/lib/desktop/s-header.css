@@ -1,4 +1,4 @@
-#header {background-color: #313942; position: fixed; z-index: 200; top: 0; left: 0; width: 30px; height: 100%;}
+#header {background-color: #313942; position: fixed; z-index: 200; top: 0; left: 0; width: 30px; height: 100%; overflow: hidden;}
 #header .janitor {display: block; background-color: #64ad8e; height: 140px; padding: 0;}
 
 #header .janitor li.front {display: block; color: #ffffff; padding: 20px; text-transform: uppercase; font-size: 18px;}
@@ -16,25 +16,24 @@
 #page > .servicenavigation li a {display: inline-block; vertical-align: top;}
 #page > .servicenavigation li a:hover {text-decoration: underline;}
 
+
 #navigation {opacity: 0;}
 #navigation ul li {color: #8c9399; display: block; text-transform: uppercase;}
+#navigation ul li:hover {color: #ffffff;}
 #navigation ul li a {display: block; padding: 14px 20px 15px;}
 
-#navigation ul:not(.sections) > li {font-size: 12px; border-bottom: 1px solid #404a56;}
-#navigation ul:not(.sections) > li:hover {color: #ffffff;}
+#navigation > ul.navigation {}
+#navigation > ul.navigation > li {overflow: hidden; border-bottom: 1px solid #404a56;}
+#navigation > ul.navigation h3 {color: #cccccc; padding: 11px 20px 12px; font-size: 10px; position: relative; /*border-bottom: 1px solid #404a56;*/}
+#navigation > ul.navigation h3 svg {position: absolute; top: 11px; right: 20px; stroke: #8c9399; stroke-width: 2px;}
+
+#navigation > ul.navigation h3:hover {color: #ffffff;}
+#navigation > ul.navigation ul {}
+#navigation > ul.navigation ul li {padding-left: 20px; border-top: 1px solid #404a56;}
 
 
-#navigation > ul.sections {}
-#navigation > ul.sections > li {overflow: hidden;}
-#navigation > ul.sections h3 {color: #8c9399; padding: 14px 20px 15px; font-size: 13px; position: relative; border-bottom: 1px solid #404a56;}
-#navigation > ul.sections h3 svg {position: absolute; top: 15px; right: 20px; stroke: #8c9399; stroke-width: 2px;}
 
-#navigation > ul.sections h3:hover {color: #ffffff;}
-#navigation > ul.sections ul {}
-#navigation > ul.sections ul li {padding-left: 20px;}
-
-
-body.page #navigation .page a,
+/*body.page #navigation .page a,
 body.post #navigation .post a,
 body.person #navigation .person a,
 body.photocollection #navigation .photocollection a,
@@ -44,10 +43,13 @@ body.todolist #navigation .todo a,
 body.wish #navigation .wish a,
 body.wishlist #navigation .wish a,
 
+body.event #navigation .event a,
+
 body.profile #navigation .profile a,
 body.navigation #navigation .navigation a,
 body.shop #navigation .shop a,
 body.tags #navigation .tags a,
 body.user #navigation .user a,
 body.logs #navigation .logs a,
-body.usergroup #navigation .user a {padding-left: 35px; color: #ffffff;}
+body.usergroup #navigation .user a,*/
+#navigation li.selected a {padding-left: 35px; color: #ffffff;}

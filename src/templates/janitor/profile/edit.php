@@ -21,6 +21,7 @@ $user_newsletters = $item["newsletters"];
 ?>
 <div class="scene defaultEdit userEdit profileEdit">
 	<h1>User profile</h1>
+	<h2><?= $item["nickname"] ?></h2>
 
 	<ul class="views">
 		<?= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile.selected")) ?>

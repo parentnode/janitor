@@ -145,25 +145,27 @@ Util.Objects["apitokenProfile"] = new function() {
 		var token = u.qs("p.token", div);
 
 		var form = u.qs("form", div);
-		form._token = token;
+		if(form) {
+			form._token = token;
 
-		u.f.init(form);
+			u.f.init(form);
 
-		form.submitted = function(iN) {
+			form.submitted = function(iN) {
 
-			this.response = function(response) {
-				if(response.cms_status == "success") {
-					this._token.innerHTML = response.cms_object;
+				this.response = function(response) {
+					if(response.cms_status == "success") {
+						this._token.innerHTML = response.cms_object;
 
-					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token updated"});
+						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token updated"});
+					}
+					else {
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be updated"});
+					}
+
 				}
-				else {
-					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be updated"});
-				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-
 		}
 
 	}

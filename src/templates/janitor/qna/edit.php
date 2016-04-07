@@ -9,6 +9,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit Answer</h1>
+	<h2><?= $item["name"] ?></h2>
 
 	<?= $JML->editGlobalActions($item) ?>
 

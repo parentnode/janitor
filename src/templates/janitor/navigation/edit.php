@@ -18,7 +18,7 @@ function recurseNodes($nodes) {
 	$IC = new Items();
 
 	$_ = "";
-	$_ .= '<ul class="nodes">';
+	$_ .= '<ul class="nodes items">';
 
 	foreach($nodes as $node) {
 
@@ -81,7 +81,7 @@ function recurseNodes($nodes) {
 		<p><?= $item["handle"] ?></p>
 	</div>
 
-	<div class="nodes i:navigationNodes"
+	<div class="all_items sortable i:navigationNodes"
 		data-item-order="<?= $this->validPath("/janitor/admin/navigation/updateOrder/".$navigation_id) ?>" 
 		data-csrf-token="<?= session()->value("csrf") ?>"
 	>

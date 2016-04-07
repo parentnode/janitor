@@ -22,7 +22,7 @@ define("SITE_EMAIL", "mail@domain.com");
 define("DEFAULT_PAGE_DESCRIPTION", "");
 define("DEFAULT_LANGUAGE_ISO", "EN");
 define("DEFAULT_COUNTRY_ISO", "DK");
-
+define("DEFAULT_PAGE_IMAGE", "/touchicon.png");
 
 // ENABLE ITEMS MODEL
 define("SITE_ITEMS", false);

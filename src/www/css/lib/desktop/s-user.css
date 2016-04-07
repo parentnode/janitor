@@ -3,7 +3,7 @@
 #content .defaultList.userList > .actions li.online {float: right; padding: 0 0 10px 10px;}
 
 /* USERLIST */
-#content .defaultList.userList ul.items > li h3 {padding-bottom: 16px;}
+
 
 /* USERLIST - USERGROUPS */
 #content .defaultList.userList .userGroups {background-color: #dedede;}
@@ -77,18 +77,17 @@
 #content .defaultEdit.accessEdit > div.access {padding: 20px 0;}
 #content .defaultEdit.accessEdit > div.access ul.points {padding: 0 0 20px;}
 #content .defaultEdit.accessEdit > div.access ul.points li {display: block;}
+#content .defaultEdit.accessEdit > div.access ul.points li .field {padding-bottom: 10px;;}
 #content .defaultEdit.accessEdit > div.access ul.points li.action {border-top: 1px solid #dedede; padding: 10px 0 0;}
 
 
 /* USER GROUP */
-#content .defaultList.usergroupList ul.items > li h3 {padding-bottom: 16px;}
 #content .defaultEdit.usergroupEdit > ul.actions li.access {float: right;}
 
 
 /* USER CONTENT */
 #content .defaultList.userContentList h2 {padding-top: 20px; border-bottom: 1px solid #dedede;}
 #content .defaultList.userContentList div.all_items {padding-bottom: 20px;}
-#content .defaultList.userContentList ul.items > li h3 {padding-bottom: 16px;}
 #content .defaultList.userContentList ul.items > li h3 br {display: none;}
 
 /* VIEWS */
@@ -106,7 +105,6 @@
 
 
 /* ONLINE USERS */
-#content .defaultList.userOnlineList div.users ul.items dl.info {padding-top: 5px; padding-bottom: 16px;}
 
 
 

@@ -1306,6 +1306,7 @@ class PageCore {
 				else {
 					// redirect to originally requested page
 					$login_forward = session()->value("login_forward");
+					print $login_forward . "<br>";
 					if(!$login_forward || !$this->validatePath($login_forward)) {
 						$login_forward = "/";
 					}

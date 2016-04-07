@@ -36,13 +36,13 @@ $segments_config = array(
 		"desktop_ie10"  => "desktop",
 		"desktop"       => "desktop",
 
-		"smartphone"    => "unsupported",
+		"smartphone"    => "smartphone",
 
 		"desktop_light" => "unsupported",
 		"desktop_ie9"   => "unsupported",
 		"tv"            => "unsupported",
-		"tablet"        => "unsupported",
-		"tablet_light"  => "unsupported",
+		"tablet"        => "desktop",
+		"tablet_light"  => "desktop",
 		"mobile"        => "unsupported",
 		"mobile_light"  => "unsupported",
 		"seo"           => "unsupported"
@@ -59,8 +59,8 @@ $segments_config = array(
 
 		"desktop_light" => "unsupported",
 		"tv"            => "unsupported",
-		"tablet"        => "unsupported",
-		"tablet_light"  => "unsupported",
+		"tablet"        => "desktop",
+		"tablet_light"  => "desktop",
 		"mobile"        => "unsupported",
 		"mobile_light"  => "unsupported",
 		"seo"           => "unsupported"

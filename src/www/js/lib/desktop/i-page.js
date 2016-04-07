@@ -2,13 +2,19 @@ u.bug_console_only = true;
 
 Util.Objects["page"] = new function() {
 	this.init = function(page) {
-
 		u.bug("init page:" + page)
+
+		window.page = page;
+
+		// show parentnode comment in console
+		u.bug_force = true;
+		u.bug("think.dk is built using Manipulator, Janitor and Detector");
+		u.bug("Visit http://parentnode.dk for more information");
+		u.bug("Free lunch for new contributers ;-)");
+		u.bug_force = false;
+
+
 		var i, node;
-
-
-		// make sure page is globally available
-//		window.page = page;
 
 
 		// main elements
@@ -29,6 +35,9 @@ Util.Objects["page"] = new function() {
 		// global scroll handler 
 		page.resized = function() {
 
+			page.browser_h = u.browserH();
+			page.browser_w = u.browserW();
+
 			// forward resize event to current scene
 			if(page.cN && page.cN.scene && typeof(page.cN.scene.resized) == "function") {
 				page.cN.scene.resized();
@@ -38,12 +47,23 @@ Util.Objects["page"] = new function() {
 
 		// global scroll handler 
 		page.scrolled = function() {
+			u.bug("page scrolled")
+
+			page.scroll_y = u.scrollY();
 
 			// forward scroll event to current scene
 			if(page.cN && page.cN.scene && typeof(page.cN.scene.scrolled) == "function") {
 				page.cN.scene.scrolled();
 			}
 
+		}
+
+		page.orientationchanged = function() {
+
+			// forward scroll event to current scene
+			if(page.cN && page.cN.scene && typeof(page.cN.scene.orientationchanged) == "function") {
+				page.cN.scene.orientationchanged();
+			}
 		}
 
 		// Page is ready - called from several places, evaluates when page is ready to be shown
@@ -60,6 +80,8 @@ Util.Objects["page"] = new function() {
 				u.e.addEvent(window, "resize", page.resized);
 				// set scroll handler
 				u.e.addEvent(window, "scroll", page.scrolled);
+				// set orientation change handler
+				u.e.addEvent(window, "orientationchange", page.orientationchanged);
 
 				// initialize header
 				page.initHeader();
@@ -69,6 +91,9 @@ Util.Objects["page"] = new function() {
 
 				// adds notifier and page.notify function
 				u.navigation();
+
+				// initial resize
+				page.resized();
 			}
 		}
 
@@ -111,53 +136,76 @@ Util.Objects["page"] = new function() {
 
 			u.ae(page, u.qs(".servicenavigation", page.hN));
 
-			page.nN.sections = u.qsa("ul.sections > li", page.nN);
-			if(page.nN.sections) {
-				for(i = 0; section = page.nN.sections[i]; i++) {
-					section.header = u.qs("h3", section);
-					section.header.section = section;
 
-					// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
+			var sections = u.qsa("ul.navigation > li", page.nN);
+			if(sections) {
+				for(i = 0; section = sections[i]; i++) {
+
+					// nested navigation structure
 					section.nodes = u.qsa("li", section);
-					for(j = 0; node = section.nodes[j]; j++) {
-						u.ce(node, {"type":"link"});
+					if(section.nodes.length) {
+
+						// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
+						for(j = 0; node = section.nodes[j]; j++) {
+							u.ce(node, {"type":"link"});
+
+							// set selected state
+							if(u.hc(node, document.body.className)) {
+								u.ac(node, "selected");
+							}
+						}
+
+
+
+						section.header = u.qs("h3", section);
+						if(section.header) {
+							section.header.section = section;
+
+
+							u.e.click(section.header);
+							section.header.clicked = function() {
+
+								if(this.section.is_open) {
+									this.section.is_open = false;
+
+									u.as(this.section, "height", this.offsetHeight+"px");
+									u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
+									u.addExpandArrow(this);
+								}
+								else {
+									this.section.is_open = true;
+
+									u.as(this.section, "height", "auto");
+									u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
+									u.addCollapseArrow(this);
+
+								}
 						
-						node.preClicked = function(event) {
-							page.hN.out();
-						}
-					}
+							}
 
-
-					u.e.click(section.header);
-					section.header.clicked = function() {
-
-						if(this.section.is_open) {
-							this.section.is_open = false;
-
-							u.as(this.section, "height", this.offsetHeight+"px");
-							u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
-							u.addExpandArrow(this);
-						}
-						else {
-							this.section.is_open = true;
-
-							u.as(this.section, "height", "auto");
-							u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
-							u.addCollapseArrow(this);
+							var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
+							if(!state) {
+								section.is_open = true;
+							}
+							section.header.clicked();
 
 						}
-						
-					}
 
-					var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
-					u.bug("state " + u.nodeId(section) + ", " + state)
-					if(!state) {
-						section.is_open = true;
 					}
-					section.header.clicked();
+					else {
+
+						u.ce(section, {"type":"link"});
+
+						// set selected state
+						if(u.hc(section, document.body.className)) {
+							u.ac(section, "selected");
+						}
+
+					}
 
 				}
 			}
+
 
 			// enable collapsed navigation
 			u.e.hover(page.hN);
@@ -227,7 +275,7 @@ Util.Objects["page"] = new function() {
 
 			}
 			
-			page.hN.t_navigation = u.t.setTimer(page.hN, "out", 500);
+//			page.hN.t_navigation = u.t.setTimer(page.hN, "out", 500);
 
 		}
 

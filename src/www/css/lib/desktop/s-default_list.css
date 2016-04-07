@@ -13,58 +13,93 @@
 #content div.disabled_items > p {padding-top: 20px;}
 
 
+/* LIST INTRO TEXT */
+#content div.all_items > h2 + ul.items,
+#content div.all_items > p + ul.items {border-top: 1px solid #dedede;}
+
+
 /* LIST */
 #content div.all_items ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede;}
 #content div.all_items ul.items > li:hover {background-color: #edf0f2;}
-#content div.all_items ul.items > li h3 {padding: 16px 30px 0px 30px;}
+#content div.all_items ul.items > li h3 {padding: 10px 250px 10px 30px;}
 
-/* LIST WITH IMAGE (DEFAULTS FOR 160-WIDTH IMAGE) */
-#content div.all_items ul.items > li.image {background-repeat: no-repeat; min-height: 100px; padding-left: 160px; background-position: 0px center;}
 
-/* LIST WITH AUDIO (DEFAULTS FOR 80-WIDTH PLAYER) */
-#content div.all_items ul.items > li.audio {padding-left: 80px;}
-#content div.all_items ul.items > li.audio div.audioplayer {position: absolute; top: 16px; left: 30px; width: 50px; height: 50px; 
+/* LIST WITH IMAGE - PADDING CALCULATED BY JS */
+#content div.all_items.images ul.items > li {background-repeat: no-repeat; background-position: 0px center;}
+
+/* LIST WITH AUDIOPLAYER - PADDING CALCULATED BY JS */
+#content div.all_items.audios ul.items > li {}
+#content div.all_items.audios ul.items > li div.audioplayer {z-index: 10; position: absolute; top: 7px; left: 25px; width: 20px; height: 20px; 
+	background: transparent url(/janitor/admin/img/bg_bn_play_small.png) no-repeat 0px 0px;
+}
+#content div.all_items.audios ul.items > li.playing div.audioplayer {background-position: 0px -100px;}
+
+/* LIST WITH VIDEO - NOT IMPLEMENTED YET */
+#content div.all_items.videos ul.items > li {}
+#content div.all_items.videos ul.items > li div.videoplayer {z-index: 10; position: absolute; top: 10px; left: 20px; width: 50px; height: 50px; 
 	background: transparent url(/janitor/admin/img/bg_bn_play_medium.png) no-repeat 0px 0px;
 }
-#content div.all_items ul.items > li.playing div.audioplayer {background-position: 0px -100px;}
-
-/* LIST WITH VIDEO (DEFAULTS FOR 80-WIDTH PLAYER) */
-#content div.all_items ul.items > li.video {padding-left: 80px;}
-#content div.all_items ul.items > li.video div.videoplayer {position: absolute; top: 16px; left: 30px; width: 50px; height: 50px; 
-	background: transparent url(/janitor/admin/img/bg_bn_play_medium.png) no-repeat 0px 0px;
-}
-#content div.all_items ul.items > li.playing div.videoplayer {background-position: 0px -100px;}
+#content div.all_items.videos ul.items > li.playing div.videoplayer {background-position: 0px -100px;}
 
 
 /* HIDE ADDITIONAL INFO AS DEFAULT */
-#content div.all_items ul.items > li .description {display: none;}
-#content div.all_items ul.items > li dl {overflow: hidden; padding: 3px 30px;
-	
-}
+#content div.all_items ul.items > li .description {padding-bottom: 10px; margin-top: -5px; font-size: 12px; line-height: 1em;}
+#content div.all_items ul.items > li dl {overflow: hidden; padding: 0 30px 6px; margin-top: -5px;}
 #content div.all_items ul.items > li dt {float: left; clear: left;}
 #content div.all_items ul.items > li dt:after {content: ":\00a0";}
-#content div.all_items ul.items > li dd {float: left;clear: right; padding: 0 0 3px;}
+#content div.all_items ul.items > li dd {float: left; clear: right; padding: 0 0 3px;}
+
 
 /* ACTIONS ALIGN RIGHT */
-#content div.all_items ul.items > li .actions {position: absolute; top: 0px; padding: 0; right: 20px;}
-#content div.all_items ul.items > li .actions li {padding: 10px 0 10px 10px;}
+#content div.all_items ul.items > li ul.actions {position: absolute; top: 0px; padding: 0; right: 30px;}
+#content div.all_items ul.items > li ul.actions li {padding: 5px 0 5px 5px;}
+#content div.all_items ul.items > li ul.actions li a.button {padding: 4px 12px 6px;}
+#content div.all_items ul.items > li ul.actions li input.button {height: 24px;}
+
 
 
 /* FILTERS */
-#content div.all_items div.filter {text-align: right; padding: 10px 20px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content div.all_items div.filter {padding: 10px 0 4px; min-height: 28px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative;}
+
+#content div.all_items div.filter ul.tags {padding-bottom: 0; padding-right: 150px;}
+#content div.all_items div.filter ul.tags li {font-size: 12px; background-color: #dedede; cursor: pointer;}
+#content div.all_items div.filter ul.tags li.selected {background-color: #313942;}
+
 #content div.all_items div.filter.filtering {background: red;}
-#content div.all_items div.filter .field {padding: 0;}
-#content div.all_items div.filter .field label {display: inline-block; vertical-align: top; padding: 3px 4px; color: #aaaaaa;}
+
+#content div.all_items div.filter form {position: absolute; right: 30px; top: 10px;}
+#content div.all_items div.filter .field {padding: 0 0 6px;}
+/*#content div.all_items div.filter .field label {display: inline-block; vertical-align: top; padding: 3px 4px; color: #aaaaaa;}
+*/
 #content div.all_items div.filter .field input {width: 100px; height: 16px; font-size: 12px;}
 
 
 
 /* SORTABLE */
+#content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 0px; left: 15px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
 #content div.all_items.sortable ul.items > li.item h3,
-#content div.all_items.sortable ul.items > li.item p {padding-left: 60px;}
-#content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 8px; left: 20px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
-#content div.all_items.sortable ul.items > li.item ul.tags {padding-left: 55px;}
-#content div.all_items.sortable ul.items > li.item dl {padding-left: 60px;}
+#content div.all_items.sortable ul.items > li.item p,
+#content div.all_items.sortable ul.items > li.item ul.tags,
+#content div.all_items.sortable ul.items > li.item dl {padding-left: 50px;}
 
-/* SORTABLE LIST WITH IMAGE (DEFAULTS FOR 160-WIDTH IMAGE) */
-#content div.all_items.sortable ul.items > li.image {padding-left: 190px; background-position: 60px center;}
+#content div.all_items.sortable.images ul.items > li.item h3,
+#content div.all_items.sortable.images ul.items > li.item p,
+#content div.all_items.sortable.images ul.items > li.item ul.tags,
+#content div.all_items.sortable.images ul.items > li.item dl {padding-left: 55px;}
+
+#content div.all_items.sortable.audios ul.items > li.item h3,
+#content div.all_items.sortable.audios ul.items > li.item p,
+#content div.all_items.sortable.audios ul.items > li.item ul.tags,
+#content div.all_items.sortable.audios ul.items > li.item dl {padding-left: 35px;}
+
+#content div.all_items.sortable.videos ul.items > li.item h3,
+#content div.all_items.sortable.videos ul.items > li.item p,
+#content div.all_items.sortable.videos ul.items > li.item ul.tags,
+#content div.all_items.sortable.videos ul.items > li.item dl {padding-left: 55px;}
+
+
+
+/* SORTABLE LIST WITH IMAGE, AUDIO OR VIDEO */
+#content div.all_items.sortable.images ul.items > li {background-position: 50px center;}
+#content div.all_items.sortable.audios ul.items > li div.audioplayer {left: 55px;}
+#content div.all_items.sortable.videos ul.items > li div.videoplayer {left: 45px;}

@@ -57,6 +57,11 @@ class Session {
 
 			session_destroy();
 
+			// start a new session
+			session_start();
+			// regerate Session id
+			session_regenerate_id(true);
+
 		}
 	}
 }

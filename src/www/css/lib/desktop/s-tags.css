@@ -1,44 +1,46 @@
 /* BASIC TAGS */
-#content ul.tags {padding: 10px 125px 16px 25px;}
-#content ul.tags li {display: inline-block; vertical-align: top; margin: 3px; border-radius: 13px; background-color: #313942; padding: 6px 10px 7px; color: #ffffff; font-size: 0;}
-#content ul.tags li.add {padding: 6px 7px 7px 8px; cursor: pointer; width: 10px; text-align: center;}
+#content ul.tags {padding: 0 125px 4px 30px;}
+#content ul.tags li {display: inline-block; vertical-align: top; margin: 0 6px 6px 0; border-radius: 12px; background-color: #313942; padding: 4px 7px 6px; color: #ffffff; font-size: 0;}
+#content ul.tags li.add {padding: 4px 4px 6px; cursor: pointer; width: 13px; text-align: center;}
 #content ul.tags li.add:hover {background-color: #64ad8e;}
-#content ul.tags li span {font-size: 0.923rem; line-height: 1em;}
+#content ul.tags li span {font-size: 11px; line-height: 1em; color: #ffffff !important;}
 #content ul.tags li span.context {text-transform: uppercase;}
 #content ul.tags li span.context:after {content: ":";}
 #content ul.tags li span.value {}
-#content ul.tags li.add {font-size: 0.923rem;}
+#content ul.tags li.add {font-size: 11px;}
 
 
 #content .scene > div.tags {padding: 0; border-bottom: 1px solid #aaaaaa; overflow: hidden;}
-#content .scene > div.tags ul.tags {padding: 0 125px 20px 25px;}
+#content .scene > div.tags ul.tags {padding: 0 125px 14px 30px;}
 
 
-#content div.tags fieldset {display: inline-block; vertical-align: top;}
-#content div.tags fieldset .field {padding-right: 12px; padding-bottom: 0;}
-#content div.tags fieldset .field input[type=text] {width: 262px;}
+/* ADD TAG FORM */
+#content div.tagoptions fieldset {display: inline-block; vertical-align: top;}
+#content div.tagoptions fieldset .field {padding-right: 12px;}
+#content div.tagoptions fieldset .field input[type=text] {width: 262px;}
 
-#content div.tags .actions {display: inline-block; vertical-align: top; padding: 0;}
-#content div.tags .actions li {padding-left: 0;}
-#content div.tags .actions li input {margin-top: 4px;}
+#content div.tagoptions ul.actions {display: inline-block; vertical-align: top; padding: 0;}
+#content div.tagoptions ul.actions li {padding-left: 0;}
+#content div.tagoptions ul.actions li input {margin-top: 4px;}
 
 
 /* TAGGABLE */
 /* ADD TAGS ACTIVE */
-#content .addtags ul.tags li {cursor: pointer;}
-#content .addtags ul.tags li:hover,
-#content .addtags ul.tags li.add:hover {background-color: #df0000;}
-
-#content .addtags div.tagoptions ul.tags {display: block;}
+#content .edittags ul.tags li {cursor: pointer;}
+#content .edittags ul.tags li:hover,
+#content .edittags ul.tags li.add:hover {background-color: #df0000;}
+#content .edittags div.tagoptions ul.tags {display: block;}
 
 /* NEW TAGS LIST */
 #content div.tagoptions ul.tags {position: relative; z-index: 10; display: none;}
-#content div.tagoptions ul.tags li {background-color: #dedede;}
+#content div.tagoptions ul.tags li {background-color: #313942;}
 #content div.tagoptions ul.tags li:hover {background-color: #64ad8e;}
 
-#content div.tagoptions .field {}
-#content div.sortable div.tagoptions .field {padding-left: 56px;}
-#content div.tagoptions input {height: 16px; font-size: 12px;}
+/* TAGGABLE LIST ADJUSTMENTS */
+#content div.all_items div.tagoptions {padding-top: 8px;}
+#content div.all_items ul.items > li div.tagoptions ul.actions {position: static; right: auto; top: auto;}
+#content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 1px;}
+#content div.sortable div.tagoptions .field {padding-left: 48px;}
 
 
 
@@ -47,10 +49,6 @@
 
 
 /* TAG MAINTENANCE PAGE */
-#content .scene.tagList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
-#content .scene.tagList h1 + p {padding-top: 16px;}
-#content .scene.tagList ul.items > li h3 {padding: 16px 30px;}
-
 #content .scene.tagList ul.items > li.unused {background: orange;}
 #content .scene.tagList ul.items > li > h3 > span {font-size: 12px;}
 

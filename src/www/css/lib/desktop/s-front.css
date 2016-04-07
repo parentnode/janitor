@@ -1,12 +1,11 @@
 /* PAGE WITH NO TOP ACTIONS */
-#content .scene.front h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
 
 
 #content .scene.front > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
 
 
 /* TODOS DASHBOARD */
-#content .scene.front div.todos {border-top: 1px solid #bbbbbb; padding-bottom: 10px;}
+#content .scene.front div.todos {border-bottom: 1px solid #bbbbbb; padding-bottom: 10px;}
 #content .scene.front div.todos ul.todos {}
 #content .scene.front div.todos ul.todos > li.todo {position: relative; border-bottom: 1px solid #dedede; display: block; padding: 0 0 10px; margin-bottom: 10px;}
 #content .scene.front div.todos ul.todos > li.todo:last-child {border: none;}
@@ -24,7 +23,7 @@
 
 
 /* QUESTIONS DASHBOARD */
-#content .scene.front div.qnas {position: relative; border-top: 1px solid #bbbbbb; padding-bottom: 15px;}
+#content .scene.front div.qnas {position: relative; border-bottom: 1px solid #bbbbbb; padding-bottom: 15px;}
 #content .scene.front div.qnas ul.qnas {}
 #content .scene.front div.qnas ul.qnas > li.qna {position: relative; border-bottom: 1px solid #dedede; display: block; padding: 0 0 10px; margin-bottom: 10px;}
 #content .scene.front div.qnas ul.qnas > li.qna:last-child {border: none;}

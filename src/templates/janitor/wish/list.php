@@ -65,7 +65,7 @@ session()->reset("return_to_wishlist");
 	<?		if($wishes): ?>
 			<ul class="items">
 	<?			foreach($wishes as $item): ?>
-				<li class="item image item_id:<?= $item["id"] ?> width:160<?= $JML->jsMedia($item) ?>">
+				<li class="item image item_id:<?= $item["id"] ?> width:100<?= $JML->jsMedia($item) ?>">
 					<h3><?= $item["name"] ?></h3>
 					<dl>
 						<dt class="reserved">Reserved</dt>

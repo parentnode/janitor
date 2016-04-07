@@ -10,10 +10,6 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 
 #content .scene.todoList > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
 
-#content .scene.todolistList ul.items > li h3,
-#content .scene.todolistEdit div.todos ul.items > li h3 {padding-bottom: 10px; padding-right: 250px;}
-#content .scene.todolistEdit div.todos ul.items > li p.description {padding-bottom: 6px; display: block;}
-#content .scene.todolistEdit div.todos ul.items > li dl {padding-bottom: 20px;}
 #content .scene.todolistEdit div.todos ul.items > li dt {color: #313942;}
 #content .scene.todolistEdit div.todos ul.items > li dd.overdue,
 #content .scene.todolistEdit div.todos ul.items > li dd.high {color: #df0000;}
@@ -21,18 +17,16 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 #content .scene.todoList div.todolists {padding: 0 0 50px; border-bottom: 1px solid #aaaaaa;}
 
 /* TASK */
-#content .scene.todoList ul.items > li h3 {padding-bottom: 10px; padding-right: 250px;}
-#content .scene.todoList ul.items > li p.description {padding-bottom: 6px; display: block;}
 #content .scene.todoList ul.items > li dt {color: #313942;}
 #content .scene.todoList ul.items > li dd.overdue,
 #content .scene.todoList ul.items > li dd.high {color: #df0000;}
-
 
 /* VIEWS */
 #content div.todos .states {background-color: #dedede; border-top: 1px solid #bbbbbb;}
 #content div.todos .states li {padding: 15px 30px; border-right: 1px solid #dedede;}
 #content div.todos .states li a {text-decoration: none;}
 #content div.todos .states li.selected {background-color: #f5f7f8; color: #313942;}
+
 
 
 
@@ -47,11 +41,11 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 
 #content .scene.wishList > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
 
-#content .scene.wishlistList ul.items > li h3,
-#content .scene.wishList div.wishlists ul.items > li h3 {padding-bottom: 16px;}
-
+/*#content .scene.wishlistList ul.items > li h3,
+#content .scene.wishList div.wishlists ul.items > li h3 {padding-top: 10px; padding-bottom: 10px;}
+*/
 #content .scene.wishList div.wishlists {padding: 0 0 50px; border-bottom: 1px solid #aaaaaa;}
 
-#content .scene.wishList ul.items > li dl {display: block; padding: 5px 30px;}
+/*#content .scene.wishList ul.items > li dl {display: block; padding: 5px 30px;}*/
 #content .scene.wishList ul.items > li dl dt.reserved {display: none;}
 #content .scene.wishList ul.items > li dl dd.reserved {font-size: 14px;}

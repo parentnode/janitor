@@ -340,17 +340,17 @@ class JanitorHTML {
 
 		$_ .= '<div class="tags i:defaultTags i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData().'>';
 		$_ .= '<h2>Tags ('.($item["tags"] ? count($item["tags"]) : 0).')</h2>';
-		$_ .= $model->formStart($this->path."/addTag/".$item["id"], array("class" => "labelstyle:inject"));
-		$_ .= '<fieldset>';
-		$_ .= $model->inputTags("tags", array("id" => "tags_".$item["id"]));
-		$_ .= '</fieldset>';
-
-		$_ .= '<ul class="actions">';
-		$_ .= $model->submit("Add new tag", array("class" => "primary", "wrapper" => "li.save"));
-		$_ .= '</ul>';
-		$_ .= $model->formEnd();
-
 		$_ .= $this->tagList($item["tags"]);
+
+		// $_ .= $model->formStart($this->path."/addTag/".$item["id"], array("class" => "labelstyle:inject"));
+		// $_ .= '<fieldset>';
+		// $_ .= $model->inputTags("tags", array("id" => "tags_".$item["id"]));
+		// $_ .= '</fieldset>';
+		//
+		// $_ .= '<ul class="actions">';
+		// $_ .= $model->submit("Add new tag", array("class" => "primary", "wrapper" => "li.save"));
+		// $_ .= '</ul>';
+		// $_ .= $model->formEnd();
 		$_ .= '</div>';
 
 		return $_;
@@ -565,7 +565,7 @@ class JanitorHTML {
 		$_ .= '<ul class="tags">';
 		if($tags) {
 			foreach($tags as $tag) {
-				$_ .= '<li class="'.$tag["context"].'"><span class="context">'.$tag["context"].'</span>:<span class="value">'.$tag["value"].'</span></li>';
+				$_ .= '<li class="tag '.$tag["context"].'"><span class="context">'.$tag["context"].'</span>:<span class="value">'.$tag["value"].'</span></li>';
 			}
 		}
 		$_ .= '</ul>';

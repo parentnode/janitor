@@ -64,7 +64,7 @@ session()->value("return_to_wishlist", $item_id);
 	<?		if($ordered_wishes): ?>
 			<ul class="items">
 				<? foreach($ordered_wishes as $item): ?>
-				<li class="item draggable image item_id:<?= $item["id"] ?> width:160<?= $JML->jsMedia($item) ?>">
+				<li class="item draggable image item_id:<?= $item["id"] ?> width:100<?= $JML->jsMedia($item) ?>">
 					<div class="drag"></div>
 					<h3><?= $item["name"] ?></h3>
 					<dl>

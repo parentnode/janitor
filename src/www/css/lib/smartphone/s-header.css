@@ -1,31 +1,53 @@
 /* HEADER */
-#header {z-index: 10; position: fixed; height: 60px; width: 100%; top: 0; left: 0; background: #ffffff; border-bottom: 1px solid #dedede;
+#header {z-index: 100; position: fixed; height: 60px; width: 100%; top: 0; left: 0; background: #ffffff; border-bottom: 1px solid #dedede;
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	user-select: none;
 }
 
-#header .title {font-size: 24px; padding: 14px 20px 10px 0; color: #888888; cursor: pointer; display: inline-block; vertical-align: top; position: relative; z-index: 10;}
-#header .title:active {text-decoration: none;}
+#header .title {z-index: 10; font-size: 20px; padding: 14px 20px 10px 0; color: #888888; cursor: pointer; display: inline-block; vertical-align: top; position: relative;}
 
-#header .servicenavigation {/*position: absolute; top: 0; left: 0; z-index: 9; width: 100%;*/height: 60px; display: inline-block; vertical-align: top;}
-#header .servicenavigation li.navigation {/*position: absolute; right: 0; top: 0;*/ width: 30px; height: 39px; padding: 21px 15px 0;}
-#header .servicenavigation li.navigation div {border-radius: 1px; height: 3px; margin: 0 0 5px; background: #888888;}
-#header .servicenavigation li.navigation.open div {background: #cccccc;}
-#header .servicenavigation li.navigation a {display: none;}
 
-#header .servicenavigation li.front,
+#header .servicenavigation {position: absolute; top: 0; left: 0; z-index: 9; width: 100%; height: 60px; background: #ffffff;}
+#header .servicenavigation li.front {position: absolute; left: 0; top: 0; width: 30px; height: 39px; padding: 21px 15px 0;}
+#header .servicenavigation li.front div {border-radius: 1px; height: 3px; margin: 0 0 5px; background: #888888;}
+#header .servicenavigation li.front.open div {background: #cccccc;}
+#header .servicenavigation li.front a {display: none;}
+
 #header .servicenavigation li.user,
 #header .servicenavigation li.admin {display: none;}
 
 /* NAViGATION */
-#navigation {position: absolute; width: 100%; min-height: 100%; background: #313942; top: 0px; margin-right: -1px; display: none; border-right: 1px solid #dedede;}
+#navigation {position: absolute; width: 100%; overflow: hidden; min-height: 100%; background: #313942; top: 0px; margin-right: -1px; display: none; border-right: 1px solid #dedede;}
 #navigation ul {padding: 20px 0;}
-#navigation ul li {padding: 10px 20px; font-size: 20px; color: #8c9399; display: block;}
+#navigation ul li {padding: 0; font-size: 20px; color: #8c9399; display: block;}
+#navigation ul li h3 {color: #ffffff;}
 #navigation ul li:active {text-decoration: none; color: #ffffff;}
 
 
-body.page #navigation .page a,
+#navigation {opacity: 0;}
+#navigation ul li {color: #8c9399; display: block; text-transform: uppercase;}
+#navigation ul li a {display: block; padding: 14px 20px 15px; font-size: 12px; }
+
+#navigation ul:not(.sections) > li {border-bottom: 1px solid #404a56;}
+#navigation ul:not(.sections) > li:hover {color: #ffffff;}
+
+
+#navigation > ul.navigation {}
+#navigation > ul.navigation > li {overflow: hidden;}
+#navigation > ul.navigation h3 {color: #cccccc; padding: 14px 20px 15px; font-size: 10px; position: relative; /*border-bottom: 1px solid #404a56;*/}
+#navigation > ul.navigation h3 svg {position: absolute; top: 15px; right: 20px; stroke: #8c9399; stroke-width: 2px;}
+
+#navigation > ul.navigation li.link:active {background: #ffffff; color: #313942;}
+#navigation > ul.navigation ul {padding: 0;}
+#navigation > ul.navigation ul li {padding-left: 20px;}
+#navigation > ul.navigation > li.user,
+#navigation > ul.navigation > li.web {
+	border-bottom: 1px solid #404a56;
+}
+
+
+/*body.page #navigation .page a,
 body.post #navigation .post a,
 body.photocollection #navigation .photocollection a,
 body.todo #navigation .todo a,
@@ -35,4 +57,5 @@ body.navigation #navigation .navigation a,
 body.shop #navigation .shop a,
 body.tags #navigation .tags a,
 body.logs #navigation .logs a,
-body.user #navigation .user a {padding-left: 35px; color: #ffffff;}
+body.user #navigation .user a,
+*/#navigation .selected a {padding-left: 35px; color: #ffffff;}

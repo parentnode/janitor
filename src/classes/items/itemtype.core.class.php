@@ -516,10 +516,11 @@ class ItemtypeCore extends Model {
 			}
 
 			if(isset($tag_id)) {
-				$query->sql("DELETE FROM ".UT_TAGGINGS." WHERE item_id = $item_id AND tag_id = $tag_id");
+				if($query->sql("DELETE FROM ".UT_TAGGINGS." WHERE item_id = $item_id AND tag_id = $tag_id")) {
+					message()->addMessage("Tag deleted");
+					return true;
+				}
 
-				message()->addMessage("Tag deleted");
-				return true;
 			}
 		}
 

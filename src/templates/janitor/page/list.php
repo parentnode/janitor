@@ -17,8 +17,8 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DESC, p
 <?		if($items): ?>
 		<ul class="items">
 <?			foreach($items as $item): ?>
-			<li class="item image item_id:<?= $item["id"] ?> width:160<?= $JML->jsMedia($item) ?>">
-				<h3><?= $item["name"] ?></h3>
+			<li class="item image item_id:<?= $item["id"] ?> width:100<?= $JML->jsMedia($item) ?>">
+				<h3><?= strip_tags($item["name"]) ?></h3>
 
 				<?= $JML->tagList($item["tags"]) ?>
 

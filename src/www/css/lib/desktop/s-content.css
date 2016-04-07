@@ -5,20 +5,33 @@
 
 /* DEFAULT TOP */
 #content .scene {position: relative; min-height: 200px;}
-#content .scene > h1 {height: 46px; padding-bottom: 0; background: #ffffff;}
-#content .scene > h1+h2 {height: 24px; padding-bottom: 0; background: #ffffff; font-size: 14px; margin-top: -24px;}
+#content .scene > h1 {height: 46px; border-bottom: 1px solid #bbbbbb; padding-bottom: 74px; background: #ffffff;}
+#content .scene > h1 + h2 {height: 24px; padding-bottom: 0; font-size: 14px; height: 90px; margin: -90px 0 0;}
 
 /* DEFAULT TOP ACTIONS */
-#content .scene h1 + ul.actions {border-bottom: 1px solid #bbbbbb; padding: 25px 30px 0; height: 49px; background: #ffffff;}
-#content .scene h1 + h2 + ul.actions {border-bottom: 1px solid #bbbbbb; padding: 15px 30px 0; height: 49px; background: #ffffff;}
-
+#content .scene h1 + ul.actions {padding: 0 30px; height: 49px; margin: -49px 0 0;}
+#content .scene h1 + h2 + ul.actions {padding: 0 30px; height: 49px; margin: -49px 0 0;}
 #content .scene h1 + ul.actions li,
 #content .scene h1 + h2 + ul.actions li {padding-bottom: 0;}
 
+/* DELETE BUTTON */
+#content .scene > ul.actions li.delete {float: right; padding: 0 0 10px 10px;}
 
 
-#content .scene h2 {padding: 10px 30px 11px;}
+#content .scene h1 + p,
+#content .scene h1 + h3,
+#content .scene h1 + h2 + p,
+#content .scene h1 + h2 + h3,
+#content .scene h1 + ul.actions + p,
+#content .scene h1 + ul.actions + h3,
+#content .scene h1 + h2 + ul.actions + p,
+#content .scene h1 + h2 + ul.actions + h3 {padding-top: 20px;}
 
+
+
+
+/*#content .scene h2 {padding: 10px 30px 11px;}
+*/
 
 
 /* PRIMITIVE LISTS */
