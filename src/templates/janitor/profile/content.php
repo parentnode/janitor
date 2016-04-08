@@ -20,7 +20,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 }
 
 ?>
-<div class="scene defaultList userContentList profileContentList">
+<div class="scene i:scene defaultList userContentList profileContentList">
 	<h1>Content</h1>
 
 	<ul class="views">

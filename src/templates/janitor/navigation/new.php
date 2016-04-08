@@ -3,7 +3,7 @@ global $action;
 global $model;
 
 ?>
-<div class="scene defaultNew">
+<div class="scene i:scene defaultNew">
 	<h1>New navigation</h1>
 
 	<ul class="actions">

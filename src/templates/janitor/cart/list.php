@@ -6,7 +6,7 @@ $IC = new Items();
 $carts = $model->getCarts(array("status" => 1));
 
 ?>
-<div class="scene defaultList cartList">
+<div class="scene i:scene defaultList cartList">
 	<h1>Carts</h1>
 
 	<ul class="actions">

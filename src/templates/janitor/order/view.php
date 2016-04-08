@@ -4,7 +4,7 @@ global $model;
 
 $order = $model->getOrders(array("order_id" => $action[2]));
 ?>
-<div class="scene defaultView orderView">
+<div class="scene i:scene defaultView orderView">
 	<h1>View order</h1>
 
 	<ul class="actions">

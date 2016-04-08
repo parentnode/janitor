@@ -25,7 +25,7 @@ foreach($raw_controllers as $i => $raw_controller) {
 
 ?>
 
-<div class="scene defaultEdit navigationNodeEdit">
+<div class="scene i:scene defaultEdit navigationNodeEdit">
 	<h1>Edit navigation node</h1>
 	<h2><?= $item["node_name"] ?></h2>
 

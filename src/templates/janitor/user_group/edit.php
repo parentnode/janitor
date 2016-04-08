@@ -5,7 +5,7 @@ global $model;
 $user_group_id = $action[2];
 $item = $model->getUserGroups(array("user_group_id" => $user_group_id));
 ?>
-<div class="scene defaultEdit usergroupEdit">
+<div class="scene i:scene defaultEdit usergroupEdit">
 	<h1>Edit user group</h1>
 
 	<ul class="actions i:defaultEditActions" data-csrf-token="<?= session()->value("csrf") ?>">

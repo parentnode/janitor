@@ -5,6 +5,8 @@
 
 /* DEFAULT TOP */
 #content .scene {position: relative; min-height: 200px;}
+
+/* DEFAULT TOP */
 #content .scene > h1 {height: 46px; border-bottom: 1px solid #bbbbbb; padding-bottom: 74px; background: #ffffff;}
 #content .scene > h1 + h2 {height: 24px; padding-bottom: 0; font-size: 14px; height: 90px; margin: -90px 0 0;}
 
@@ -63,5 +65,5 @@
 #content .system_error, #content .system_error * {color: red !important;}
 
 
-#content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
+/*#content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}*/
 #content .scene.login form {padding-top: 30px;}

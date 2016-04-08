@@ -19,7 +19,7 @@ $all_newsletters = $model->getNewsletters();
 $user_newsletters = $item["newsletters"];
 
 ?>
-<div class="scene defaultEdit userEdit profileEdit">
+<div class="scene i:scene defaultEdit userEdit profileEdit">
 	<h1>User profile</h1>
 	<h2><?= $item["nickname"] ?></h2>
 

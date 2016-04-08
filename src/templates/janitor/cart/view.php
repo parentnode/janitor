@@ -7,7 +7,7 @@ $IC = new Items();
 $cart = $model->getCarts(array("cart_id" => $action[2]));
 
 ?>
-<div class="scene defaultView cartView">
+<div class="scene i:scene defaultView cartView">
 	<h1>View cart</h1>
 
 	<ul class="actions">

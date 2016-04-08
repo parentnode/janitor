@@ -5,7 +5,7 @@ global $model;
 $user_id = $action[1];
 
 ?>
-<div class="scene defaultNew userNewsletter">
+<div class="scene i:scene defaultNew userNewsletter">
 	<h1>Add newsletter subscription</h1>
 
 	<ul class="actions">

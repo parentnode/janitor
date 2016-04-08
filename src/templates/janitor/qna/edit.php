@@ -7,7 +7,7 @@ global $itemtype;
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "comments" => true)));
 ?>
-<div class="scene defaultEdit <?= $itemtype ?>Edit">
+<div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit Answer</h1>
 	<h2><?= $item["name"] ?></h2>
 

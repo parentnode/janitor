@@ -37,7 +37,7 @@ else {
 // remember todolist to return to
 session()->value("return_to_todolist", $item_id);
 ?>
-<div class="scene defaultEdit <?= $itemtype ?>Edit">
+<div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit TODO list</h1>
 	<h2><?= $item["name"] ?></h2>
 

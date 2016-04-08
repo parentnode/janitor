@@ -1,15 +1,17 @@
 #content {position: relative; padding-top: 60px;}
+#content .link {cursor: pointer;}
+#content a {color: #888888;}
+#content a:active {text-decoration: underline;}
 
 
 /* DEFAULT TOP */
-#content .scene {position: relative; padding: 0; background-color: #f5f7f8;}
+#content .scene {position: relative;}
 
-#content .scene .link {cursor: pointer;}
-#content .scene a {color: #888888;}
-#content .scene a:active {text-decoration: underline;}
 
-#content .scene h1 {display: none;}
-#content .scene h2,
+#content .scene > h1,
+#content .scene > h1 + h2 {display: none;}
+
+/*#content .scene h2,
 #content .scene h3,
 #content .scene h4,
 #content .scene h5,
@@ -17,20 +19,19 @@
 #content .scene p {}
 #content .scene hr {border: none; border-top: 1px solid #888888; margin: 15px 0 30px; padding: 0;}
 #content .scene p.note {font-style: italic;}
-
-
+*/
 
 /* DEFAULT TOP ACTIONS */
-#content .scene h1 + ul.actions {border-bottom: 1px solid #bbbbbb; padding: 15px 15px 0; height: 40px; margin: 0;}
+/*#content .scene h1 + h2 + ul.actions {border-bottom: 1px solid #bbbbbb; padding: 15px 15px 0; height: 40px; margin: 0;}
 #content .scene h1 + ul.actions li {padding-bottom: 0;}
 #content .scene h2 {padding: 10px 15px 11px;}
-
+*/
 
 /* PRIMITIVE LISTS */
 #content ul.list {padding: 21px 20px;}
 #content ul.list li {display: block;}
 
-#content dl.list {padding: 21px 30px; width: 600px;}
+#content dl.list {padding: 21px 20px; width: 600px;}
 #content dl.list dt,
 #content dl.list dd {padding: 5px 0; border-bottom: 1px solid #dbdfe5; height: 14px;}
 #content dl.list dt {width: 100px;}
@@ -39,8 +40,8 @@
 
 
 /* ACTIONS */
-#content .scene > ul.actions {padding-bottom: 20px; padding-top: 20px; text-align: left;}
-#content .scene > ul.actions li {padding: 0 10px 10px 0;}
+#content .scene > ul.actions {padding-bottom: 14px; padding-top: 14px; text-align: left; border-bottom: 1px solid #bbbbbb;}
+#content .scene > ul.actions li {padding: 0 10px 0 0;}
 
 
 /* COMMON SECTION DEVIDERS */
@@ -55,7 +56,6 @@
 #content .system_error, #content .system_error * {color: red !important;}
 
 
-#content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
 #content .scene.login form {padding-top: 30px;}
 
 

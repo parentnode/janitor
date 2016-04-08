@@ -16,9 +16,10 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/manipulato
 
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/smartphone/i-page.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-form.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/smartphone/i-scene.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/smartphone/i-login.js"></script>');
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-default_list.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/smartphone/i-default_list.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-default_edit.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-default_new.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-default_edit_status.js"></script>');
@@ -27,11 +28,13 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-default_tags.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-default_media.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-default_comments.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-default_prices.js"></script>');
 
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-navigations.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-users.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-profile.js"></script>');
+
 
 //document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/u-notifier.js"></script>');
 

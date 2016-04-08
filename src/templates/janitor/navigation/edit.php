@@ -65,7 +65,7 @@ function recurseNodes($nodes) {
 }
 
 ?>
-<div class="scene defaultEdit navigationEdit">
+<div class="scene i:scene defaultEdit navigationEdit">
 	<h1>Edit navigation</h1>
 	<h2><?= $item["name"] ?></h2>
 

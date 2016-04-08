@@ -5,7 +5,7 @@ global $model;
 $user_id = $action[1];
 
 ?>
-<div class="scene defaultNew userAddress">
+<div class="scene i:scene defaultNew userAddress">
 	<h1>New address</h1>
 
 	<ul class="actions">

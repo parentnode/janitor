@@ -30,7 +30,7 @@ $all_newsletters = $model->getNewsletters();
 $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 
 ?>
-<div class="scene defaultEdit userEdit">
+<div class="scene i:scene defaultEdit userEdit">
 	<h1>Edit user</h1>
 	<h2><?= $item["nickname"] ?></h2>
 

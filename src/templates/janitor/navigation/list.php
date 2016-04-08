@@ -5,7 +5,7 @@ global $model;
 $navigations = $model->getNavigations(array("levels" => 0));
 
 ?>
-<div class="scene defaultList navigationsList">
+<div class="scene i:scene defaultList navigationsList">
 	<h1>Navigations</h1>
 
 	<ul class="actions">

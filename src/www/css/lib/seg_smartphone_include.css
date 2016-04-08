@@ -9,7 +9,7 @@
 @import url(/janitor/admin/css/lib/smartphone/s-form.css);
 @import url(/janitor/admin/css/lib/desktop/s-notifications.css);
 
-@import url(/janitor/admin/css/lib/desktop/s-tags.css);
+@import url(/janitor/admin/css/lib/smartphone/s-tags.css);
 @import url(/janitor/admin/css/lib/desktop/s-shop.css);
 @import url(/janitor/admin/css/lib/desktop/s-user.css);
 @import url(/janitor/admin/css/lib/desktop/s-logs.css);
@@ -17,7 +17,7 @@
 
 @import url(/janitor/admin/css/lib/desktop/s-front.css);
 
-@import url(/janitor/admin/css/lib/desktop/s-default_list.css);
+@import url(/janitor/admin/css/lib/smartphone/s-default_list.css);
 @import url(/janitor/admin/css/lib/desktop/s-default_edit.css);
 @import url(/janitor/admin/css/lib/desktop/s-default_new.css);
 

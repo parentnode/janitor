@@ -5,7 +5,7 @@ global $LC;
 $logs = $LC->getLogs();
 arsort($logs);
 ?>
-<div class="scene defaultList logList">
+<div class="scene i:scene defaultList logList">
 	<h1>Logs</h1>
 
 	<div class="all_items i:defaultList filters">

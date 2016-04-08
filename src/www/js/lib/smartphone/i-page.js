@@ -114,12 +114,27 @@ Util.Objects["page"] = new function() {
 				// set orientation change handler
 				u.e.addEvent(window, "orientationchange", page.orientationchanged);
 
-				this.initNavigation();
+				// initialize navigation/header
+				page.initNavigation();
 
-				this.resized();
+				// adds notifier and page.notify function
+				u.notifier(page);
+
+				// adds notifier and page.notify function
+				u.navigation();
+
+				// initial resize
+				page.resized();
 			}
 		}
 
+		// TODO: dummy navigation handler - just refreshes the page
+		page.cN.navigate = function(url) {
+			
+			u.bug("page.navigated");
+			location.href = url;
+
+		}
 
 		// initialize navigation elements
 		page.initNavigation = function() {
@@ -206,11 +221,16 @@ Util.Objects["page"] = new function() {
 
 					// nested navigation structure
 					section.nodes = u.qsa("li", section);
-					if(section.nodes) {
+					if(section.nodes.length) {
 
 						// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
 						for(j = 0; node = section.nodes[j]; j++) {
 							u.ce(node, {"type":"link"});
+
+							// set selected state
+							if(u.hc(node, document.body.className)) {
+								u.ac(node, "selected");
+							}
 						}
 
 
@@ -241,7 +261,6 @@ Util.Objects["page"] = new function() {
 							}
 
 							var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
-							u.bug("state " + u.nodeId(section) + ", " + state)
 							if(!state) {
 								section.is_open = true;
 							}
@@ -252,25 +271,18 @@ Util.Objects["page"] = new function() {
 					}
 					else {
 
-
 						u.ce(section, {"type":"link"});
-						
 
+						// set selected state
+						if(u.hc(section, document.body.className)) {
+							u.ac(section, "selected");
+						}
 
 					}
 
 				}
-			}
 
-			//
-			// var i, node;
-			// // enable submenus where relevant
-			// this.hN.nodes = u.qsa("#navigation li", page.hN);
-			// for(i = 0; node = this.hN.nodes[i]; i++) {
-			//
-			// 	// build first living proof model of CEL clickableElementLink
-			// 	u.ce(node, {"type":"link"});
-			// }
+			}
 
 		}
 

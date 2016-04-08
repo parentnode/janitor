@@ -5,7 +5,7 @@ global $model;
 $user_groups = $model->getUserGroups();
 
 ?>
-<div class="scene defaultList usergroupList">
+<div class="scene i:scene defaultList usergroupList">
 	<h1>User groups</h1>
 
 	<ul class="actions">

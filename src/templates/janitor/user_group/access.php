@@ -7,7 +7,7 @@ $user_group_id = $action[2];
 $user_group = $model->getUserGroups(array("user_group_id" => $user_group_id));
 $access = $model->getAccessPoints(array("user_group_id" => $user_group_id));
 ?>
-<div class="scene defaultEdit accessEdit">
+<div class="scene i:scene defaultEdit accessEdit">
 	<h1>Access for <?= $user_group["user_group"] ?></h1>
 
 	<ul class="actions">

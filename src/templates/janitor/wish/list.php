@@ -14,7 +14,7 @@ $wishes = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DESC, 
 // reset "return to wishlist" state
 session()->reset("return_to_wishlist");
 ?>
-<div class="scene defaultList <?= $itemtype ?>List">
+<div class="scene i:scene defaultList <?= $itemtype ?>List">
 	<h1>Wishes and wishlists</h1>
 
 	<ul class="actions">
@@ -29,7 +29,7 @@ session()->reset("return_to_wishlist");
 			data-item-order="<?= $this->validPath("/janitor/admin/wishlist/updateOrder") ?>"
 		>
 	<?		if($wishlists): ?>
-			<ul class="items ">
+			<ul class="items">
 	<?			foreach($wishlists as $wishlist):
 					$tag_index = arrayKeyValue($wishlist["tags"], "context", "wishlist");
 					if($tag_index !== false) {
@@ -41,8 +41,7 @@ session()->reset("return_to_wishlist");
 						$wishlist_wishes = array();
 					}
 	 ?>
-				<li class="item draggable item_id:<?= $wishlist["id"] ?>">
-					<div class="drag"></div>
+				<li class="item item_id:<?= $wishlist["id"] ?>">
 					<h3><?= $wishlist["name"] ?> (<?= count($wishlist_wishes) ?> wishes)</h3>
 					<ul class="actions">
 						<?= $model->link("View", "/janitor/admin/wishlist/edit/".$wishlist["id"], array("class" => "button primary", "wrapper" => "li.edit")); ?>
@@ -61,17 +60,16 @@ session()->reset("return_to_wishlist");
 
 	<div class="wishes">
 		<h2>All wishes</h2>
-		<div class="all_items i:defaultList taggable filters"<?= $JML->jsData() ?>>
+		<div class="all_items i:defaultList taggable filters images width:100"<?= $JML->jsData() ?>>
 	<?		if($wishes): ?>
 			<ul class="items">
 	<?			foreach($wishes as $item): ?>
-				<li class="item image item_id:<?= $item["id"] ?> width:100<?= $JML->jsMedia($item) ?>">
+				<li class="item item_id:<?= $item["id"] ?><?= $JML->jsMedia($item) ?>">
 					<h3><?= $item["name"] ?></h3>
 					<dl>
 						<dt class="reserved">Reserved</dt>
 						<dd class="reserved"><?= $model->wish_reserved[$item["reserved"]] ?></dd>
 					</dl>
-
 
 					<?= $JML->tagList($item["tags"]) ?>
 

@@ -9,7 +9,7 @@ $IC->getItems(array("tags" => "brand:Google"));
 
 //print_r($tags);
 ?>
-<div class="scene defaultList tagList">
+<div class="scene i:scene defaultList tagList">
 	<h1>Tags</h1>
 	<p>
 		Tags are used to index the content of the website and some tags are required for

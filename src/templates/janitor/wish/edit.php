@@ -9,7 +9,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 
 $return_to_wishlist = session()->value("return_to_wishlist");
 ?>
-<div class="scene defaultEdit <?= $itemtype ?>Edit">
+<div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit wish</h1>
 	<h2><?= $item["name"] ?></h2>
 

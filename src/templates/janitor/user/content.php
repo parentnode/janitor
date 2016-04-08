@@ -20,7 +20,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 }
 
 ?>
-<div class="scene defaultList userContentList">
+<div class="scene i:scene defaultList userContentList">
 	<h1>Content for <?= $user["nickname"] ?></h1>
 
 	<ul class="actions">

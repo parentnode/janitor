@@ -18,7 +18,7 @@ foreach($raw_controllers as $i => $raw_controller) {
 	$controllers[] = $controller;
 }
 ?>
-<div class="scene defaultNew navigationNodeNew">
+<div class="scene i:scene defaultNew navigationNodeNew">
 	<h1>New navigation node</h1>
 
 	<ul class="actions">

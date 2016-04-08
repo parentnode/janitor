@@ -6,7 +6,7 @@ global $itemtype;
 
 $return_to_wishlist = session()->value("return_to_wishlist");
 ?>
-<div class="scene defaultNew">
+<div class="scene i:scene defaultNew">
 	<h1>New wish</h1>
 
 	<ul class="actions">

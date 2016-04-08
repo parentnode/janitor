@@ -21,7 +21,7 @@ else {
 
 $users = $model->getUsers(array("user_group_id" => $user_group_id));
 ?>
-<div class="scene defaultList userList">
+<div class="scene i:scene defaultList userList">
 	<h1>Users</h1>
 
 	<ul class="actions">

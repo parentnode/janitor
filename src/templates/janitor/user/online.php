@@ -52,7 +52,7 @@ if(class_exists("Memcached")) {
 
 }
 ?>
-<div class="scene defaultList userOnlineList">
+<div class="scene i:scene defaultList userOnlineList">
 	<h1>Current online users</h1>
 
 	<ul class="actions">

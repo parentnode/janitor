@@ -11,7 +11,7 @@ $return_to_todolist = session()->value("return_to_todolist");
 $todo_state_view = session()->value("todo_state_view");
 
 ?>
-<div class="scene defaultEdit <?= $itemtype ?>Edit">
+<div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit task</h1>
 	<h2><?= $item["name"] ?></h2>
 

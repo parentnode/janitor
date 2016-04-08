@@ -19,7 +19,7 @@ Util.Objects["defaultList"] = new function() {
 		// get all items from list
 		div.nodes = u.qsa("li.item", div.list);
 
-
+		// initial item preparation
 		var i, node;
 		for(i = 0; node = div.nodes[i]; i++) {
 
@@ -29,7 +29,6 @@ Util.Objects["defaultList"] = new function() {
 			// wrap content in div to make alignment easier
 			node._text = u.wc(node, "div", {"class":"text"});
 
-			
 		}
 
 
@@ -39,12 +38,15 @@ Util.Objects["defaultList"] = new function() {
 			var browser_h = u.browserH();
 			var scroll_y = u.scrollY();
 
+			// build items in visible area
 			var i, node, abs_y, initialized = 0;
 			for(i = 0; node = this.nodes[i]; i++) {
 
+				// don't check items already built
 				if(!node._ready) {
 					abs_y = u.absY(node);
 
+					// check screen position
 					if(abs_y - 200 < (scroll_y + browser_h) && (abs_y + 200) > scroll_y) {
 						this.buildNode(node);
 					}
@@ -83,11 +85,14 @@ Util.Objects["defaultList"] = new function() {
 
 						action.update_status_url = action.getAttribute("data-item-status");
 						if(action.update_status_url) {
+							// add disable form
 							form_disable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/0", "class":"disable"});
-							u.ae(form_disable, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+							u.f.addField(form_disable, {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
 							u.f.addAction(form_disable, {"value":"Disable", "class":"button status"});
+
+							// add enable form
 							form_enable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/1", "class":"enable"});
-							u.ae(form_enable, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+							u.f.addField(form_enable, {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
 							u.f.addAction(form_enable, {"value":"Enable", "class":"button status"});
 						}
 					}
@@ -99,6 +104,8 @@ Util.Objects["defaultList"] = new function() {
 
 					// init if forms are available
 					if(form_disable && form_enable) {
+
+						// initialize disable form
 						u.f.init(form_disable);
 						form_disable.submitted = function() {
 							this.response = function(response) {
@@ -111,6 +118,7 @@ Util.Objects["defaultList"] = new function() {
 							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 						}
 
+						// initialize enable form
 						u.f.init(form_enable);
 						form_enable.submitted = function() {
 							this.response = function(response) {
@@ -132,7 +140,7 @@ Util.Objects["defaultList"] = new function() {
 						action.delete_item_url = action.getAttribute("data-item-delete");
 						if(action.delete_item_url) {
 							form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
-							u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+							u.f.addField(form, {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
 							form.node = node;
 							bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
 						}
@@ -229,17 +237,19 @@ Util.Objects["defaultList"] = new function() {
 				// get image data
 				node._format = u.cv(node, "format");
 				node._variant = u.cv(node, "variant");
-
-				node._audio = u.ie(node, "div", {"class":"audioplayer"});
-
 				if(node._format) {
 
+					// inject audio player div
+					node._audio = u.ie(node, "div", {"class":"audioplayer"});
+
+					// make sure global audio player is available
 					if(!page.audioplayer) {
 						page.audioplayer = u.audioPlayer();
 					}
 					node._audio.scene = this;
 					node._audio.url = "/audios/"+node._item_id+"/" + (node._variant ? node._variant+"/" : "") + "128."+node._format;
 
+					// click toggles play
 					u.e.click(node._audio);
 					node._audio.clicked = function(event) {
 
@@ -260,6 +270,7 @@ Util.Objects["defaultList"] = new function() {
 						}
 					}
 				}
+				// not enough information available
 				else {
 					u.ac(audio, "disabled");
 				}
@@ -357,8 +368,6 @@ Util.Objects["defaultList"] = new function() {
 
 
 
-
-
 		// add filters to list
 		if(u.hc(div, "filters")) {
 
@@ -368,10 +377,8 @@ Util.Objects["defaultList"] = new function() {
 
 
 
-
-
 		// sortable list
-		if(u.hc(div, "sortable") && div.list) {
+		if(u.hc(div, "sortable")) {
 
 			u.defaultSortableList(div.list);
 

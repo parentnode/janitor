@@ -6,7 +6,7 @@ global $itemtype;
 
 $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status DESC, qna.answer ASC", "extend" => array("tags" => true)));
 ?>
-<div class="scene defaultList <?= $itemtype ?>List">
+<div class="scene i:scene defaultList <?= $itemtype ?>List">
 	<h1>Questions and Answers</h1>
 
 	<ul class="actions">

@@ -4,7 +4,7 @@ global $IC;
 global $model;
 global $itemtype;
 ?>
-<div class="scene defaultNew">
+<div class="scene i:scene defaultNew">
 	<h1>New page</h1>
 
 	<ul class="actions">

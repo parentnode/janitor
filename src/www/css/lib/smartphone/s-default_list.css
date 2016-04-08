@@ -21,25 +21,7 @@
 /* LIST */
 #content div.all_items ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede;}
 #content div.all_items ul.items > li:hover {background-color: #edf0f2;}
-#content div.all_items ul.items > li h3 {padding: 10px 250px 10px 30px;}
-
-
-/* LIST WITH IMAGE - PADDING CALCULATED BY JS */
-#content div.all_items.images ul.items > li {background-repeat: no-repeat; background-position: 0px center;}
-
-/* LIST WITH AUDIOPLAYER - PADDING CALCULATED BY JS */
-#content div.all_items.audios ul.items > li {}
-#content div.all_items.audios ul.items > li div.audioplayer {z-index: 10; position: absolute; top: 7px; left: 25px; width: 20px; height: 20px; 
-	background: transparent url(/janitor/admin/img/bg_bn_play_small.png) no-repeat 0px 0px;
-}
-#content div.all_items.audios ul.items > li.playing div.audioplayer {background-position: 0px -100px;}
-
-/* LIST WITH VIDEO - NOT IMPLEMENTED YET */
-#content div.all_items.videos ul.items > li {}
-#content div.all_items.videos ul.items > li div.videoplayer {z-index: 10; position: absolute; top: 10px; left: 20px; width: 50px; height: 50px; 
-	background: transparent url(/janitor/admin/img/bg_bn_play_medium.png) no-repeat 0px 0px;
-}
-#content div.all_items.videos ul.items > li.playing div.videoplayer {background-position: 0px -100px;}
+#content div.all_items ul.items > li h3 {padding: 10px 80px 10px 15px;}
 
 
 /* ADDITIONAL INFO */
@@ -51,10 +33,12 @@
 
 
 /* ACTIONS ALIGN RIGHT */
-#content div.all_items ul.items > li ul.actions {position: absolute; top: 0px; padding: 0; right: 30px;}
+#content div.all_items ul.items > li ul.actions {position: absolute; top: 0px; padding: 0; right: 20px;}
 #content div.all_items ul.items > li ul.actions li {padding: 5px 0 5px 5px;}
 #content div.all_items ul.items > li ul.actions li a.button {padding: 4px 12px 6px;}
 #content div.all_items ul.items > li ul.actions li input.button {height: 24px;}
+#content div.all_items ul.items > li ul.actions li.delete,
+#content div.all_items ul.items > li ul.actions li.status {display: none;}
 
 
 
@@ -65,9 +49,9 @@
 #content div.all_items div.filter ul.tags li.selected,
 #content div.all_items div.filter ul.tags li:hover {background-color: #313942;}
 #content div.all_items div.filter.filtering {background: red;}
-#content div.all_items div.filter form {position: absolute; right: 30px; top: 9px;}
+#content div.all_items div.filter form {/*position: absolute; right: 15px; top: 9px;*/}
 #content div.all_items div.filter .field {padding: 0 0 6px;}
-#content div.all_items div.filter .field input {width: 100px; height: 16px; font-size: 12px;}
+#content div.all_items div.filter .field input {/*width: 100px; height: 16px; font-size: 14px;*/}
 
 
 

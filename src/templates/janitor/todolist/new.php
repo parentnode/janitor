@@ -6,7 +6,7 @@ global $itemtype;
 
 $todo_state_view = session()->value("todo_state_view");
 ?>
-<div class="scene defaultNew">
+<div class="scene i:scene defaultNew">
 	<h1>New TODO list</h1>
 
 	<ul class="actions">

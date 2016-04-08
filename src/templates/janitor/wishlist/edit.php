@@ -20,7 +20,7 @@ $ordered_wishes = $model->getOrderedWishes($item_id);
 session()->value("return_to_wishlist", $item_id);
 
 ?>
-<div class="scene defaultEdit <?= $itemtype ?>Edit">
+<div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit wishlist</h1>
 	<h2><?= $item["name"] ?></h2>
 
@@ -57,14 +57,14 @@ session()->value("return_to_wishlist", $item_id);
 
 	<div class="wishes">
 		<h2>Wishes</h2>
-		<div class="all_items i:defaultList wishlist_id:<?= $item["id"]?> taggable filters sortable"
+		<div class="all_items i:defaultList wishlist_id:<?= $item["id"]?> taggable filters sortable images width:100"
 			data-csrf-token="<?= session()->value("csrf") ?>"
 			data-item-order="<?= $this->validPath("/janitor/admin/wishlist/updateWishOrder/".$item["id"]) ?>"
 			>
 	<?		if($ordered_wishes): ?>
 			<ul class="items">
 				<? foreach($ordered_wishes as $item): ?>
-				<li class="item draggable image item_id:<?= $item["id"] ?> width:100<?= $JML->jsMedia($item) ?>">
+				<li class="item item_id:<?= $item["id"] ?><?= $JML->jsMedia($item) ?>">
 					<div class="drag"></div>
 					<h3><?= $item["name"] ?></h3>
 					<dl>

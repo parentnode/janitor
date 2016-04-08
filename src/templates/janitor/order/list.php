@@ -4,7 +4,7 @@ global $model;
 
 $orders = $model->getOrders();
 ?>
-<div class="scene defaultList orderList">
+<div class="scene i:scene defaultList orderList">
 	<h1>Orders</h1>
 
 	<ul class="actions">

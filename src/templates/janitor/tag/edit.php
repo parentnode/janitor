@@ -6,7 +6,7 @@ $IC = new Items();
 
 $tag = $IC->getTags(array("tag_id" => $action[1]));
 ?>
-<div class="scene defaultEdit tagEdit">
+<div class="scene i:scene defaultEdit tagEdit">
 	<h1>Edit tag</h1>
 
 	<ul class="actions">

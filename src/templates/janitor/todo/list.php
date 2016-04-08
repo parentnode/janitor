@@ -34,7 +34,7 @@ else {
 // reset "return to todolist" state
 session()->reset("return_to_todolist");
 ?>
-<div class="scene defaultList <?= $itemtype ?>List">
+<div class="scene i:scene defaultList <?= $itemtype ?>List">
 	<h1>TODOs</h1>
 
 	<ul class="actions">

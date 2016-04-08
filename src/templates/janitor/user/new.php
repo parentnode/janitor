@@ -4,7 +4,7 @@ global $model;
 
 $user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_group");
 ?>
-<div class="scene defaultNew">
+<div class="scene i:scene defaultNew">
 	<h1>New user</h1>
 
 	<ul class="actions">

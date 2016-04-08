@@ -47,7 +47,7 @@ Util.Objects["page"] = new function() {
 
 		// global scroll handler 
 		page.scrolled = function() {
-			u.bug("page scrolled")
+//			u.bug("page scrolled")
 
 			page.scroll_y = u.scrollY();
 
@@ -156,7 +156,6 @@ Util.Objects["page"] = new function() {
 						}
 
 
-
 						section.header = u.qs("h3", section);
 						if(section.header) {
 							section.header.section = section;
@@ -204,6 +203,7 @@ Util.Objects["page"] = new function() {
 					}
 
 				}
+
 			}
 
 

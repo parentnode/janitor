@@ -7,7 +7,7 @@ global $itemtype;
 $return_to_todolist = session()->value("return_to_todolist");
 $todo_state_view = session()->value("todo_state_view");
 ?>
-<div class="scene defaultNew">
+<div class="scene i:scene defaultNew">
 	<h1>New Task</h1>
 
 	<ul class="actions">
