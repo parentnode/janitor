@@ -229,7 +229,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* HELP - HINT AND ERROR MESSAGES */
-#content .field div.help {position: absolute; left: 455px; top: 0; width: 200px;}
+#content .field div.help {position: absolute; left: 455px; top: 0; width: 200px; line-height: 1.2em;}
 #content .field.files div.help {left: 422px;}
 
 #content .field div.error,

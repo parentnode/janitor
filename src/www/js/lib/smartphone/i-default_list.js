@@ -294,78 +294,78 @@ Util.Objects["defaultList"] = new function() {
 
 		// images, videos or audios in list
 		// actual media injection will happen on buildNode
-		if(u.hc(div, "images") || u.hc(div, "videos") || u.hc(div, "audios")) {
-
-			// declare markers
-			div._images = u.hc(div, "images");
-			div._videos = u.hc(div, "videos");
-			div._audios = u.hc(div, "audios");
-
-			// store image width (default 100px)
-			div._media_width = u.cv(div, "width") ? u.cv(div, "width") : (div._audios ? 40 : 100);
-
-			// calculate left padding for node._text
-			div._node_padding_left = ((Number(div._media_width) - 15) + ((u.hc(div, "sortable") && div.list) ? 25 : 0));
-		}
-
-
-
-		// taggable list
-		if(u.hc(div, "taggable")) {
-//			u.bug("init taggable")
-
-
-			div.add_tag_url = div.getAttribute("data-tag-add");
-			div.delete_tag_url = div.getAttribute("data-tag-delete");
-			div.get_tags_url = div.getAttribute("data-tag-get");
-
-
-			// do we have required info 
-			if(div.csrf_token && div.get_tags_url && div.delete_tag_url && div.add_tag_url) {
-			
-				// tags received
-				div.tagsResponse = function(response) {
-
-					// valid tags response
-					if(response.cms_status == "success" && response.cms_object) {
-						this.all_tags = response.cms_object;
-
-					}
-					// error getting tags (could be no tags exists in system)
-					else {
-						page.notify(response);
-						this.all_tags = [];
-					}
-
-					// minimum work in first run
-					// only inject add-button in first run
-					var i, node;
-					for(i = 0; node = this.nodes[i]; i++) {
-
-						// map a data-div reference to share tag-functionality between edit and list pages
-						node.data_div = this;
-
-						// ensure tag-list existence
-						node._tags = u.qs("ul.tags", node);
-						if(!node._tags) {
-							node._tags = u.ae(node, "ul", {"class":"tags"});
-						}
-						node._tags.div = this;
-
-						// inject add button
-						node._bn_add = u.ae(node._tags, "li", {"class":"add","html":"+"});
-						node._bn_add.node = node;
-
-						// enable tagging
-						u.enableTagging(node);
-
-					}
-				}
-				// get all tags from server
-				u.request(div, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
-			}
-		}
-
+// 		if(u.hc(div, "images") || u.hc(div, "videos") || u.hc(div, "audios")) {
+// 			u.bug("images init")
+// 			// declare markers
+// 			div._images = u.hc(div, "images");
+// 			div._videos = u.hc(div, "videos");
+// 			div._audios = u.hc(div, "audios");
+//
+// 			// store image width (default 100px)
+// 			div._media_width = u.cv(div, "width") ? u.cv(div, "width") : (div._audios ? 40 : 100);
+//
+// 			// calculate left padding for node._text
+// 			div._node_padding_left = ((Number(div._media_width) - 15) + ((u.hc(div, "sortable") && div.list) ? 25 : 0));
+// 		}
+//
+//
+//
+// 		// taggable list
+// 		if(u.hc(div, "taggable")) {
+// //			u.bug("init taggable")
+//
+//
+// 			div.add_tag_url = div.getAttribute("data-tag-add");
+// 			div.delete_tag_url = div.getAttribute("data-tag-delete");
+// 			div.get_tags_url = div.getAttribute("data-tag-get");
+//
+//
+// 			// do we have required info
+// 			if(div.csrf_token && div.get_tags_url && div.delete_tag_url && div.add_tag_url) {
+//
+// 				// tags received
+// 				div.tagsResponse = function(response) {
+//
+// 					// valid tags response
+// 					if(response.cms_status == "success" && response.cms_object) {
+// 						this.all_tags = response.cms_object;
+//
+// 					}
+// 					// error getting tags (could be no tags exists in system)
+// 					else {
+// 						page.notify(response);
+// 						this.all_tags = [];
+// 					}
+//
+// 					// minimum work in first run
+// 					// only inject add-button in first run
+// 					var i, node;
+// 					for(i = 0; node = this.nodes[i]; i++) {
+//
+// 						// map a data-div reference to share tag-functionality between edit and list pages
+// 						node.data_div = this;
+//
+// 						// ensure tag-list existence
+// 						node._tags = u.qs("ul.tags", node);
+// 						if(!node._tags) {
+// 							node._tags = u.ae(node, "ul", {"class":"tags"});
+// 						}
+// 						node._tags.div = this;
+//
+// 						// inject add button
+// 						node._bn_add = u.ae(node._tags, "li", {"class":"add","html":"+"});
+// 						node._bn_add.node = node;
+//
+// 						// enable tagging
+// 						u.enableTagging(node);
+//
+// 					}
+// 				}
+// 				// get all tags from server
+// 				u.request(div, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
+// 			}
+// 		}
+//
 
 
 		// add filters to list

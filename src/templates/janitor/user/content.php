@@ -21,7 +21,8 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 ?>
 <div class="scene i:scene defaultList userContentList">
-	<h1>Content for <?= $user["nickname"] ?></h1>
+	<h1>Content</h1>
+	<h2><?= $user["nickname"] ?></h2>
 
 	<ul class="actions">
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
@@ -29,7 +30,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	</ul>
 
 
-	<ul class="views">
+	<ul class="tabs">
 		<?= $HTML->link("Profile", "/janitor/admin/user/edit/".$user["id"], array("wrapper" => "li.profile")) ?>
 <?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
 		<?= $HTML->link("Content and orders", "/janitor/admin/user/content/".$user["id"], array("wrapper" => "li.content.selected")) ?>
@@ -39,9 +40,9 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	</ul>
 
 
-	<h2>Orders</h2>
 	<div class="all_items orders i:defaultList filters">
 <?		if($orders): ?>
+		<h2>Orders</h2>
 		<ul class="items">
 <?			foreach($orders as $order): ?>
 			<li class="item">
@@ -59,10 +60,10 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	</div>
 
 
-	<h2>Items</h2>
 	<div class="all_items content i:defaultList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
+		<h2>Items</h2>
 <? 		if($items): ?>
 		<ul class="items">
 <? 			foreach($items as $item):
@@ -96,10 +97,10 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	</div>
 
 
-	<h2>Comments</h2>
 	<div class="all_items comments i:defaultList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
+		<h2>Comments</h2>
 <? 		if($comments): ?>
 		<ul class="items">
 <? 			foreach($comments as $comment): 
@@ -117,7 +118,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 					$path = false;
 				}
 ?>
-			<li class="item comment_id:<?= $comment["item_id"] ?>">
+			<li class="item comment comment_id:<?= $comment["item_id"] ?>">
 				<h3>Comment for: <?= $comment["item"]["name"] ?></h3>
 				<ul class="info">
 					<li class="created_at"><?= date("Y-m-d, H:i", strtotime($comment["created_at"])) ?></li>

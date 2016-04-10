@@ -1,9 +1,9 @@
 /* BASIC TAGS */
 #content ul.tags {padding: 0 15px 4px;}
-#content ul.tags li {display: inline-block; vertical-align: top; margin: 0 6px 6px 0; border-radius: 22px; background-color: #313942; padding: 8px 12px 10px; color: #ffffff; font-size: 0;}
-#content ul.tags li.add {padding: 8px 4px 10px; cursor: pointer; width: 23px; text-align: center;}
+#content ul.tags li {display: inline-block; vertical-align: top; margin: 0 6px 6px 0; border-radius: 22px; background-color: #313942; padding: 7px 12px 10px; color: #ffffff; font-size: 0;}
+#content ul.tags li.add {padding: 7px 4px 10px; cursor: pointer; width: 23px; text-align: center;}
 #content ul.tags li.add:hover {background-color: #64ad8e;}
-#content ul.tags li span {font-size: 13px; line-height: 1em; color: #ffffff !important;}
+#content ul.tags li span {font-size: 15px; line-height: 1em; color: #ffffff !important;}
 #content ul.tags li span.context {text-transform: uppercase;}
 #content ul.tags li span.context:after {content: ":";}
 #content ul.tags li span.value {}
@@ -42,7 +42,7 @@
 #content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 1px;}
 #content div.sortable div.tagoptions .field {padding-left: 48px;}
 
-
+#content div.all_items ul.items > li ul.tags {display: none;}
 
 
 

@@ -1,31 +1,31 @@
-// quick toggle header with simplified memory (cross item memory)
-u.toggleHeader = function(div, header) {
-
-	header = header ? header : "h2";
-
-	// add collapsable header
-	div._toggle_header = u.qs(header, div);
-	div._toggle_header_id = div.className.replace(/item_id:[0-9]+/, "").trim();
-
-	div._toggle_header.div = div;
-	u.e.click(div._toggle_header);
-	div._toggle_header.clicked = function() {
-		if(this.div._toggle_is_closed) {
-			u.as(this.div, "height", "auto");
-			this.div._toggle_is_closed = false;
-			u.saveCookie(this.div._toggle_header_id+"_open", 1);
-		}
-		else {
-			u.as(this.div, "height", this.offsetHeight+"px");
-			this.div._toggle_is_closed = true;
-			u.saveCookie(this.div._toggle_header_id+"_open", 0);
-		}
-	}
-	var state = u.getCookie(div._toggle_header_id+"_open");
-	if(state == "0") {
-		div._toggle_header.clicked();
-	}
-}
+// // quick toggle header with simplified memory (cross item memory)
+// u.toggleHeader = function(div, header) {
+//
+// 	header = header ? header : "h2";
+//
+// 	// add collapsable header
+// 	div._toggle_header = u.qs(header, div);
+// 	div._toggle_header_id = div.className.replace(/item_id:[0-9]+/, "").trim();
+//
+// 	div._toggle_header.div = div;
+// 	u.e.click(div._toggle_header);
+// 	div._toggle_header.clicked = function() {
+// 		if(this.div._toggle_is_closed) {
+// 			u.as(this.div, "height", "auto");
+// 			this.div._toggle_is_closed = false;
+// 			u.saveCookie(this.div._toggle_header_id+"_open", 1);
+// 		}
+// 		else {
+// 			u.as(this.div, "height", this.offsetHeight+"px");
+// 			this.div._toggle_is_closed = true;
+// 			u.saveCookie(this.div._toggle_header_id+"_open", 0);
+// 		}
+// 	}
+// 	var state = u.getCookie(div._toggle_header_id+"_open");
+// 	if(state == "0") {
+// 		div._toggle_header.clicked();
+// 	}
+// }
 
 
 Util.Objects["collapseHeader"] = new function() {
@@ -66,16 +66,6 @@ Util.Objects["collapseHeader"] = new function() {
 
 }
 
-u.insertAfter = function(after_node, insert_node) {
-	var next_node = u.ns(after_node);
-	if(next_node) {
-		after_node.parentNode.insertBefore(next_node, insert_node);
-	}
-	else {
-		after_node.parentNode.appendChild(insert_node);
-	}
-}
-
 
 
 // global function to add expand arrow
@@ -87,29 +77,30 @@ u.addExpandArrow = function(node) {
 		node.collapsearrow = false;
 	}
 
-	node.expandarrow = u.svg({
-		"name":"expandarrow",
-		"node":node,
-		"class":"arrow",
-		"width":17,
-		"height":17,
-		"shapes":[
-			{
-				"type": "line",
-				"x1": 2,
-				"y1": 2,
-				"x2": 7,
-				"y2": 9
-			},
-			{
-				"type": "line",
-				"x1": 6,
-				"y1": 9,
-				"x2": 11,
-				"y2": 2
-			}
-		]
-	});
+	node.expandarrow = u.svgIcons("expandarrow", node);
+	// u.svg({
+	// 	"name":"expandarrow",
+	// 	"node":node,
+	// 	"class":"arrow",
+	// 	"width":17,
+	// 	"height":17,
+	// 	"shapes":[
+	// 		{
+	// 			"type": "line",
+	// 			"x1": 2,
+	// 			"y1": 2,
+	// 			"x2": 7,
+	// 			"y2": 9
+	// 		},
+	// 		{
+	// 			"type": "line",
+	// 			"x1": 6,
+	// 			"y1": 9,
+	// 			"x2": 11,
+	// 			"y2": 2
+	// 		}
+	// 	]
+	// });
 }
 
 // global function to add collapse arrow
@@ -121,34 +112,13 @@ u.addCollapseArrow = function(node) {
 		node.expandarrow = false;
 	}
 
-	node.collapsearrow = u.svg({
-		"name":"collapsearrow",
-		"node":node,
-		"class":"arrow",
-		"width":17,
-		"height":17,
-		"shapes":[
-			{
-				"type": "line",
-				"x1": 2,
-				"y1": 9,
-				"x2": 7,
-				"y2": 2
-			},
-			{
-				"type": "line",
-				"x1": 6,
-				"y1": 2,
-				"x2": 11,
-				"y2": 9
-			}
-		]
-	});
+	node.collapsearrow = u.svgIcons("collapsearrow", node);
 }
 
 
 
 // FILTERS
+
 u.defaultFilters = function(div) {
 
 	div._filter = u.ie(div, "div", {"class":"filter"});
@@ -161,8 +131,13 @@ u.defaultFilters = function(div) {
 	// index list, to speed up filtering process
 	// list should be indexed initially to avoid indexing extended content (like tag-options)
 	for(i = 0; node = div.nodes[i]; i++) {
-		node._c = u.text(node).toLowerCase().replace(/\n|\t|\r/g, " ").replace(/  /g, "");
-//		u.bug("c:" + node._c)
+		node._c = "";
+
+		var text_nodes = u.qsa("h2,h3,h4,h5,p,ul.info,dl,li.tag", node);
+		for(j = 0; text_node = text_nodes[j]; j++) {
+			node._c += u.text(text_node).toLowerCase() + ";"; //.replace(/\n|\t|\r/g, " ").replace(/[ ]+/g, ",");
+		}
+		u.bug("c:" + node._c)
 	}
 
 
@@ -217,7 +192,7 @@ u.defaultFilters = function(div) {
 
 	// insert tags filter
 	div._filter.form = u.f.addForm(div._filter, {"name":"filter", "class":"labelstyle:inject"});
-	u.f.addField(div._filter.form, {"name":"filter", "label":"Type to search"});
+	u.f.addField(div._filter.form, {"name":"filter", "label":"Type to filter"});
 
 	u.f.init(div._filter.form);
 	div._filter.form.div = div;
@@ -237,8 +212,9 @@ u.defaultFilters = function(div) {
 
 		if(this.selected_tags.length) {
 
-			var regex = new RegExp(this.selected_tags.join("|"), "g");
+			var regex = new RegExp("("+this.selected_tags.join(";|")+";)", "g");
 			var match = node._c.match(regex);
+			u.bug("match:" + match + ", " + "("+this.selected_tags.join(";|")+";)")
 			if(!match || match.length != this.selected_tags.length) {
 				return false;
 			}
@@ -587,6 +563,87 @@ u.activateTag = function(tag_node) {
 
 		}
 
+	}
+
+}
+
+
+// create icon svg
+u.svgIcons = function(icon, node) {
+
+	// save icon to be cloned to avoid recreating icons again and again for lists
+	// test if it becomes to heavy
+
+	switch(icon) {
+		case "expandarrow" : return u.svg({
+			"name":"expandarrow",
+			"node":node,
+			"class":"arrow",
+			"width":17,
+			"height":17,
+			"shapes":[
+				{
+					"type": "line",
+					"x1": 2,
+					"y1": 2,
+					"x2": 7,
+					"y2": 9
+				},
+				{
+					"type": "line",
+					"x1": 6,
+					"y1": 9,
+					"x2": 11,
+					"y2": 2
+				}
+			]
+		});
+		case "collapsearrow" : return u.svg({
+			"name":"collapsearrow",
+			"node":node,
+			"class":"arrow",
+			"width":17,
+			"height":17,
+			"shapes":[
+				{
+					"type": "line",
+					"x1": 2,
+					"y1": 9,
+					"x2": 7,
+					"y2": 2
+				},
+				{
+					"type": "line",
+					"x1": 6,
+					"y1": 2,
+					"x2": 11,
+					"y2": 9
+				}
+			]
+		});
+		case "totoparrow" : return u.svg({
+			"name":"totoparrow",
+			"node":node,
+			"class":"arrow",
+			"width":30,
+			"height":30,
+			"shapes":[
+				{
+					"type": "line",
+					"x1": 2,
+					"y1": 21,
+					"x2": 16,
+					"y2": 2
+				},
+				{
+					"type": "line",
+					"x1": 14,
+					"y1": 2,
+					"x2": 28,
+					"y2": 21
+				}
+			]
+		});
 	}
 
 }

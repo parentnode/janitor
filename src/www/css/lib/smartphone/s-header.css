@@ -11,47 +11,36 @@
 #header .title h2 {font-size: 13px; line-height: 0; padding-top: 10px;}
 
 
-#header .servicenavigation {position: absolute; top: 0; left: 0; z-index: 9; width: 100%; height: 60px; background: #ffffff;}
-#header .servicenavigation li.front {position: absolute; left: 0; top: 0; width: 30px; height: 39px; padding: 21px 20px 0;}
-#header .servicenavigation li.front div {border-radius: 1px; height: 3px; margin: 0 0 5px; background: #888888;}
-#header .servicenavigation li.front.open div {background: #cccccc;}
-#header .servicenavigation li.front a {display: none;}
-
-#header .servicenavigation li.user,
-#header .servicenavigation li.admin {display: none;}
+#header .servicenavigation {display: none;}
+#header div.nav {position: absolute; left: 0; top: 0; width: 30px; height: 39px; padding: 21px 15px 0;}
+#header div.nav div {border-radius: 1px; height: 3px; margin: 0 0 5px; background: #888888;}
+#header div.nav a {display: none;}
 
 
 
 /* NAViGATION */
-#navigation {position: absolute; width: 100%; overflow: hidden; min-height: 100%; background: #313942; top: 0px; margin-right: -1px; display: none; border-right: 1px solid #dedede;}
+#navigation {position: fixed; width: 100%; overflow: hidden; min-height: 100%; background: #313942; top: 0px; display: none;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
 #navigation {opacity: 0;}
 
 #navigation ul {}
-
 #navigation ul li {color: #8c9399; display: block; text-transform: uppercase;}
-#navigation ul li:hover {color: #ffffff;}
-#navigation ul li a {display: block; padding: 14px 20px 15px;}
-
+#navigation ul li:active {color: #ffffff;}
+#navigation ul li a {display: block; padding: 19px 20px 20px; font-size: 15px;}
 #navigation > ul.navigation {padding: 20px 0;}
 #navigation > ul.navigation > li {overflow: hidden; border-bottom: 1px solid #404a56;}
-#navigation > ul.navigation h3 {color: #cccccc; padding: 14px 20px 15px; font-size: 10px; position: relative; /*border-bottom: 1px solid #404a56;*/}
+#navigation > ul.navigation h3 {color: #cccccc; padding: 19px 20px 20px; font-size: 17px; position: relative;}
 #navigation > ul.navigation h3 svg {position: absolute; top: 11px; right: 20px; stroke: #8c9399; stroke-width: 2px;}
-
-#navigation > ul.navigation h3:hover {color: #ffffff;}
+#navigation > ul.navigation h3:active {color: #ffffff;}
 #navigation > ul.navigation ul {}
 #navigation > ul.navigation ul li {padding-left: 20px; border-top: 1px solid #404a56;}
 
+/* SEPERATE SERVICE LINKS */
+#navigation > ul.navigation li.front {border-bottom: 1px solid #777777;}
+#navigation > ul.navigation li.web {border-top: 1px solid #777777;}
 
-
-/*body.page #navigation .page a,
-body.post #navigation .post a,
-body.photocollection #navigation .photocollection a,
-body.todo #navigation .todo a,
-body.todolist #navigation .todolist a,
-
-body.navigation #navigation .navigation a,
-body.shop #navigation .shop a,
-body.tags #navigation .tags a,
-body.logs #navigation .logs a,
-body.user #navigation .user a,
-*/#navigation .selected a {padding-left: 35px; color: #ffffff;}
+/* SELECTED STATE SET BY JS */
+#navigation .selected {color: #8c9399; background: #f5f7f8;}

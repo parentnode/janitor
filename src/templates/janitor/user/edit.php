@@ -50,7 +50,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		</ul>
 	</div>
 
-	<ul class="views">
+	<ul class="tabs">
 		<?= $HTML->link("Profile", "/janitor/admin/user/edit/".$user_id, array("wrapper" => "li.profile.selected")) ?>
 <?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
 		<?= $HTML->link("Content and orders", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content")) ?>
@@ -78,7 +78,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 	</div>
 
 
-	<div class="usernames i:usernames">
+	<div class="usernames i:usernames i:collapseHeader">
 		<h2>Email and Mobile number</h2>
 		<p>Your email and mobile number are your unique usernames and can be used for login.</p> 
 
@@ -87,7 +87,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 				<?= $model->input("email", array("value" => stringOr($email))) ?>
 			</fieldset>
 			<ul class="actions">
-				<?= $model->submit("Update email", array("class" => "primary", "wrapper" => "li.save")) ?>
+				<?= $model->submit("Save", array("name" => "save", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
 
@@ -96,18 +96,18 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 				<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
 			</fieldset>
 			<ul class="actions">
-				<?= $model->submit("Update mobile", array("class" => "primary", "wrapper" => "li.save")) ?>
+				<?= $model->submit("Save", array("name" => "save", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
 
 	</div>
 
 
-	<div class="password i:password">
+	<div class="password i:password i:collapseHeader">
 		<h2>Password</h2>
 		<div class="password_state <?= $has_password ? "set" : "" ?> ">
-			<p class="password_set">Your password is encrypted and cannot be shown here. <a>Change password</a></p>
-			<p class="password_missing">Your password has not been created yet. <a>Create password</a></p>
+			<p class="password_set">Your password is encrypted and cannot be shown here. <a>Change password</a>.</p>
+			<p class="password_missing">Your password has not been created yet. <a>Create password</a>.</p>
 		</div>
 		<div class="new_password">
 			<p>Type your new password to set or update your password</p>
@@ -124,7 +124,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		</div>
 	</div>
 
-	<div class="apitoken i:apitoken">
+	<div class="apitoken i:apitoken i:collapseHeader">
 		<h2>API Token</h2>
 		<p class="token"><?= stringOr($apitoken, "N/A") ?></p>
 
@@ -140,7 +140,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		<?= $model->formEnd() ?>
 	</div>
 
-	<div class="addresses">
+	<div class="addresses i:collapseHeader">
 		<h2>Addresses</h2>
 <?		if($addresses): ?>
 		<ul class="addresses">
@@ -173,7 +173,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		</ul>
 	</div>
 
-	<div class="newsletters i:newsletters">
+	<div class="newsletters i:newsletters i:collapseHeader">
 		<h2>Newsletters</h2>
 <?		if($all_newsletters): ?>
 		<ul class="newsletters">

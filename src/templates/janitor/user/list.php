@@ -31,7 +31,7 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 	</ul>
 
 <?	if($user_groups): ?>
-	<ul class="userGroups">
+	<ul class="tabs">
 <?		foreach($user_groups as $user_group): ?>
 		<?= $HTML->link($user_group["user_group"], "/janitor/admin/user/list/".$user_group["id"], array("wrapper" => "li.".($user_group["id"] == $user_group_id ? "selected" : ""))) ?>
 <?		endforeach; ?>

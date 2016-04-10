@@ -1,12 +1,12 @@
 /* BASE FORM ELEMENTS */
-#content form {}
+#content form {max-width: 600px;}
 #content fieldset {border: none; display: block;}
-#content .field {padding: 0 18px 10px; position: relative; font-size: 0; z-index: 1;}
+#content .field {padding: 0 13px 10px; position: relative; font-size: 0; z-index: 1;}
 
 
 /* INLINE LABELS */
 #content label {/*display: none;*/
-	font-size: 12px; display: block; padding: 0 3px;
+	font-size: 12px; line-height: 1em; display: block; padding: 0 3px;
 }
 
 
@@ -18,12 +18,12 @@
 	display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 1;}
 
 #content .field input {width: calc(100% - 18px); height: 24px; padding: 2px 6px;}
-#content .field select {width: 381px; height: 33px; color: #333333; padding: 5px 3px 2px 2px;}
+#content .field select {width: calc(100% - 4px); height: 30px; color: #333333; padding: 5px 3px 2px 2px;}
 #content .field select option {padding: 5px 3px 2px 6px;}
 /* SET BACKGROUND IMAGE FOR WEBKIT SELECTS */
 @media all and (-webkit-min-device-pixel-ratio:0) {
-	#content .field select {width: 380px; height: 31px; padding: 2px 3px 2px 7px;
-		background: #ffffff url(/janitor/admin/img/bg_icons.png) no-repeat 360px -976px;
+	#content .field select {padding: 2px 3px 2px 7px;
+		background: #ffffff url(/janitor/admin/img/bg_icons.png) no-repeat calc(100% + 17px) -977px;
 		-webkit-appearance: none;
 	}
 }
@@ -32,7 +32,7 @@
 #content .field textarea.autoexpand {width: 366px; padding: 6px 6px 2px; overflow: hidden;}
 
 /* PSEUDO LABEL - FAKE PLACEHOLDER FOR INTERGER AND NUMBER INPUTS */
-#content .field .pseudolabel {position: absolute; font-size: 1.077rem; display: inline-block; padding: 5px 6px; z-index: 2;}
+#content .field .pseudolabel {position: absolute; font-size: 14px; display: inline-block; vertical-align: top; line-height: 1em; padding: 8px 6px; z-index: 2;}
 
 
 /* BOOLEAN + CHECKBOX */
@@ -130,11 +130,11 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* VALIDATION */
-#content .field .indicator {position: absolute; top: 18px; left: 1px; width: 18px; height: 18px;}
+#content .field .indicator {/*position: absolute; top: 18px; left: 1px;*/ display: inline-block; vertical-align: top; width: 20px; height: 18px;}
 #content .field.required .indicator {
-	background: transparent url(/janitor/admin/img/bg_icons.png) no-repeat 4px -292px;
+	background: transparent url(/janitor/admin/img/bg_icons.png) no-repeat 5px -299px;
 }
-#content .field.text.required .indicator {background-position: 4px -296px;}
+#content .field.text.required .indicator {background-position: 5px -299px;}
 
 /* RADIOBUTTONS + CHECKBOX */
 #content .field.radiobuttons .indicator,
@@ -146,8 +146,8 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* CORRECT */
-#content .field.correct .indicator {background-position: 2px -320px;}
-#content .field.text.correct .indicator {background-position: 2px -321px;}
+#content .field.correct .indicator {background-position: 5px -328px;}
+#content .field.text.correct .indicator {background-position: 5px -328px;}
 
 
 /* ERROR */
@@ -177,30 +177,36 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* BUTTONS */
-#content ul.actions {padding: 0 20px;}
-#content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px; vertical-align: top;}
-
-#content ul.actions input.button {width: auto; height: 36px; padding: 8px 12px;}
-@media all and (-webkit-min-device-pixel-ratio:0) {
-	#content ul.actions input.button {padding-bottom: 4px;}
+#content ul.actions {padding: 0 15px;}
+#content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px 0; vertical-align: top;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
 }
-#content ul.actions a.button {display: block; text-decoration: none; height: 14px; padding: 8px 12px 10px;}
+
+#content ul.actions input.button {width: auto; height: 32px; padding: 8px 7px;
+	-webkit-appearance: none;
+}
+#content ul.actions a.button {display: block; text-decoration: none; height: 14px; padding: 9px 10px;}
+@media all and (-webkit-min-device-pixel-ratio:0) {
+	#content ul.actions input.button {padding-bottom: 9px;}
+}
 
 
 /* DEFAULT BUTTON */
 #content ul.actions input.button,
-#content ul.actions a.button {font-size: 1rem; line-height: 1.2em; background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px;}
+#content ul.actions a.button {font-size: 14px; line-height: 1em; background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px;}
 
-#content ul.actions input.button:hover,
-#content ul.actions a.button:hover {background-color: #313942;}
+#content ul.actions input.button:active,
+#content ul.actions a.button:active {background-color: #313942;}
 
 
 /* PRIMARY BUTTON */
 #content ul.actions input.button.primary,
 #content ul.actions a.button.primary {background-color: #64ad8e;}
 
-#content ul.actions input.button.primary:hover,
-#content ul.actions a.button.primary:hover {background-color: #313942;}
+#content ul.actions input.button.primary:active,
+#content ul.actions a.button.primary:active {background-color: #313942;}
 
 
 /* SECONDARY BUTTON */
@@ -211,12 +217,21 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* CUSTOM STATUS BUTTON */
-#content ul.actions li.status input.button {font-size: 0; height: 26px; width: 26px;}
-#content ul.actions li.status form.disable input.button {background-color: #f4f5f5; border-left: 3px solid #64ad8e; border-top: 3px solid #64ad8e; border-right: 30px solid #64ad8e; border-bottom: 3px solid #64ad8e;}
-#content ul.actions li.status form.enable input.button {background-color: #f4f5f5; border-right: 3px solid #8c9399; border-top: 3px solid #8c9399; border-left: 30px solid #8c9399; border-bottom: 3px solid #8c9399;}
+#content ul.actions li.status input.button {font-size: 0; height: 26px; width: 26px; padding: 3px 12px;}
+#content ul.actions li.status form.disable input.button {background-color: #f4f5f5; border-left: 3px solid #8c9399; border-top: 3px solid #8c9399; border-right: 27px solid #8c9399; border-bottom: 3px solid #8c9399;}
+#content ul.actions li.status form.enable input.button {background-color: #f4f5f5; border-right: 3px solid orange; border-top: 3px solid orange; border-left: 27px solid orange; border-bottom: 3px solid orange;}
+#content ul.actions li.status form.disable:after {content: "ON"; font-size: 10px; font-weight: 700; color: #8c9399; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 6px;}
+#content ul.actions li.status form.enable:after {content: "OFF"; font-size: 10px; font-weight: 700; color: orange; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 29px;}
 #content ul.actions li.status.enabled form.enable {display: none;}
 #content ul.actions li.status.disabled form.disable {display: none;}
 
+
+/*#content ul.actions li.status input.button {font-size: 0; height: 26px; width: 26px;}
+#content ul.actions li.status form.disable input.button {background-color: #f4f5f5; border-left: 3px solid #64ad8e; border-top: 3px solid #64ad8e; border-right: 27px solid #64ad8e; border-bottom: 3px solid #64ad8e;}
+#content ul.actions li.status form.enable input.button {background-color: #f4f5f5; border-right: 3px solid #8c9399; border-top: 3px solid #8c9399; border-left: 27px solid #8c9399; border-bottom: 3px solid #8c9399;}
+#content ul.actions li.status.enabled form.enable {display: none;}
+#content ul.actions li.status.disabled form.disable {display: none;}
+*/
 /* CUSTOM DELETE BUTTON */
 #content form input.button.delete.confirm {color: #ffffff; background-color: #df0000;}
 #content form input.button.delete.confirm:hover {}
@@ -228,7 +243,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* HELP - HINT AND ERROR MESSAGES */
-#content .field div.help {width: 100%;}
+#content .field div.help {width: 100%; line-height: 1.2em;}
 #content .field.files div.help {left: 422px;}
 
 #content .field div.error,

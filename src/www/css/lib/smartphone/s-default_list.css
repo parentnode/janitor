@@ -1,11 +1,11 @@
 /* LIST WRAPPERS */
 #content div.all_items > h2,
 #content div.enabled_items > h2,
-#content div.disabled_items > h2 {padding: 10px 30px 11px;}
+#content div.disabled_items > h2 {padding: 10px 15px 11px;}
 
 #content div.all_items > p,
 #content div.enabled_items > p,
-#content div.disabled_items > p {padding: 10px 30px 11px;}
+#content div.disabled_items > p {padding: 10px 15px 11px;}
 
 #content div.enabled_items,
 #content div.disabled_items {border-bottom: 1px solid #dedede; margin-bottom: 20px;}
@@ -21,21 +21,21 @@
 /* LIST */
 #content div.all_items ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede;}
 #content div.all_items ul.items > li:hover {background-color: #edf0f2;}
-#content div.all_items ul.items > li h3 {padding: 10px 80px 10px 15px;}
+#content div.all_items ul.items > li h3 {padding: 12px 80px 12px 15px;}
 
 
 /* ADDITIONAL INFO */
-#content div.all_items ul.items > li .description {padding-bottom: 10px; margin-top: -5px; font-size: 12px; line-height: 1em;}
-#content div.all_items ul.items > li dl {overflow: hidden; padding: 0 30px 6px; margin-top: -5px;}
+#content div.all_items ul.items > li .description {padding-bottom: 15px; margin-top: -10px; font-size: 12px; line-height: 1em;}
+#content div.all_items ul.items > li dl {overflow: hidden; padding: 0 15px 6px; margin-top: -10px;}
 #content div.all_items ul.items > li dt {float: left; clear: left;}
 #content div.all_items ul.items > li dt:after {content: ":\00a0";}
 #content div.all_items ul.items > li dd {float: left; clear: right; padding: 0 0 3px;}
 
 
 /* ACTIONS ALIGN RIGHT */
-#content div.all_items ul.items > li ul.actions {position: absolute; top: 0px; padding: 0; right: 20px;}
+#content div.all_items ul.items > li ul.actions {position: absolute; top: 2px; padding: 0; right: 15px;}
 #content div.all_items ul.items > li ul.actions li {padding: 5px 0 5px 5px;}
-#content div.all_items ul.items > li ul.actions li a.button {padding: 4px 12px 6px;}
+#content div.all_items ul.items > li ul.actions li a.button {padding: 5px 12px 7px;}
 #content div.all_items ul.items > li ul.actions li input.button {height: 24px;}
 #content div.all_items ul.items > li ul.actions li.delete,
 #content div.all_items ul.items > li ul.actions li.status {display: none;}
@@ -44,42 +44,19 @@
 
 /* FILTERS */
 #content div.all_items div.filter {padding: 10px 0 4px; min-height: 28px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative; overflow: hidden;}
-#content div.all_items div.filter ul.tags {padding-bottom: 0; padding-right: 150px;}
-#content div.all_items div.filter ul.tags li {font-size: 12px; background-color: #dedede; cursor: pointer;}
+#content div.all_items div.filter ul.tags {padding-right: 15px;}
+#content div.all_items div.filter ul.tags li {font-size: 15px; background-color: #dedede; color: #313942; cursor: pointer;}
 #content div.all_items div.filter ul.tags li.selected,
-#content div.all_items div.filter ul.tags li:hover {background-color: #313942;}
+#content div.all_items div.filter ul.tags li:active {background-color: #313942; color: #ffffff;}
 #content div.all_items div.filter.filtering {background: red;}
-#content div.all_items div.filter form {/*position: absolute; right: 15px; top: 9px;*/}
-#content div.all_items div.filter .field {padding: 0 0 6px;}
-#content div.all_items div.filter .field input {/*width: 100px; height: 16px; font-size: 14px;*/}
+#content div.all_items div.filter form {}
+#content div.all_items div.filter .field {padding: 0 13px 6px;}
+#content div.all_items div.filter .field label {display: none;}
+#content div.all_items div.filter .field input {}
 
 
 
 /* SORTABLE */
-#content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 0px; left: 15px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
-#content div.all_items.sortable ul.items > li.item h3,
-#content div.all_items.sortable ul.items > li.item p,
-#content div.all_items.sortable ul.items > li.item ul.tags,
-#content div.all_items.sortable ul.items > li.item dl {padding-left: 50px;}
+#content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 4px; left: 7px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
+#content div.all_items.sortable ul.items > li.item .text {padding: 0 0 0 25px;}
 
-#content div.all_items.sortable.images ul.items > li.item h3,
-#content div.all_items.sortable.images ul.items > li.item p,
-#content div.all_items.sortable.images ul.items > li.item ul.tags,
-#content div.all_items.sortable.images ul.items > li.item dl {padding-left: 55px;}
-
-#content div.all_items.sortable.audios ul.items > li.item h3,
-#content div.all_items.sortable.audios ul.items > li.item p,
-#content div.all_items.sortable.audios ul.items > li.item ul.tags,
-#content div.all_items.sortable.audios ul.items > li.item dl {padding-left: 35px;}
-
-#content div.all_items.sortable.videos ul.items > li.item h3,
-#content div.all_items.sortable.videos ul.items > li.item p,
-#content div.all_items.sortable.videos ul.items > li.item ul.tags,
-#content div.all_items.sortable.videos ul.items > li.item dl {padding-left: 55px;}
-
-
-
-/* SORTABLE LIST WITH IMAGE, AUDIO OR VIDEO */
-#content div.all_items.sortable.images ul.items > li {background-position: 50px center;}
-#content div.all_items.sortable.audios ul.items > li div.audioplayer {left: 55px;}
-#content div.all_items.sortable.videos ul.items > li div.videoplayer {left: 45px;}

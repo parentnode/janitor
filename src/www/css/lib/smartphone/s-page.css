@@ -1,5 +1,7 @@
 * {font-family: "OpenSans", Arial, Verdana, sans-serif; font-size: 14px;
-	-webkit-text-size-adjust: none;
+	-webkit-text-size-adjust: 100%;
+	-moz-text-size-adjust: none;
+	-ms-text-size-adjust: 100%;
 	-webkit-font-smoothing: antialiased;
 }
 
@@ -29,14 +31,14 @@ input, textarea {outline: none;}
 a, span {font-size: inherit; font-family: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; color: inherit; text-transform: inherit;}
 
 
-h1 {padding: 20px 20px; text-transform: uppercase; font-size: 26px;}
-h2 {padding: 0 20px 10px; font-size: 17px;}
-h3 {padding: 0 20px 10px; font-size: 14px;}
-h4 {padding: 0 20px;}
-h5 {padding: 0 20px;}
-h6 {padding: 0 20px;}
+h1 {padding: 20px 15px; text-transform: uppercase; font-size: 26px;}
+h2 {padding: 0 15px 10px; font-size: 17px;}
+h3 {padding: 0 15px 10px; font-size: 16px;}
+h4 {padding: 0 15px;}
+h5 {padding: 0 15px;}
+h6 {padding: 0 15px;}
 
-p {padding: 0 20px 25px; color: #7d848c; line-height: 1.38em;} 
+p {padding: 0 15px 25px; color: #7d848c; line-height: 1.38em;} 
 
 ul {font-size: 0;}
 li {display: inline-block; vertical-align: top; color: #7d848c; font-size: 12px;}

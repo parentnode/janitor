@@ -31,11 +31,6 @@
 
 
 
-
-/*#content .scene h2 {padding: 10px 30px 11px;}
-*/
-
-
 /* PRIMITIVE LISTS */
 #content ul.list {padding: 21px 30px;}
 #content ul.list li {display: block;}
@@ -51,6 +46,21 @@
 /* ACTIONS */
 #content .scene > ul.actions {padding-bottom: 20px; padding-top: 20px; text-align: left;}
 #content .scene > ul.actions li {padding: 0 10px 10px 0;}
+
+
+/* TABS */
+#content .scene ul.tabs {background-color: #dedede; border-top: 1px solid #bbbbbb;}
+#content .scene > ul.tabs {border: none;}
+#content .scene ul.tabs li {padding: 15px 30px; border-right: 1px solid #dedede;}
+#content .scene ul.tabs li a {text-decoration: none;}
+#content .scene ul.tabs li.selected {background-color: #f5f7f8; color: #313942;}
+
+
+/* COMMENT */
+#content .scene li.comment ul.info {padding: 0 30px;}
+#content .scene li.comment ul.info li {display: inline-block; vertical-align: top;}
+#content .scene li.comment ul.info li.user:after {content: ",\00a0";}
+#content .scene li.comment p.comment {color: #313942; padding-bottom: 10px;}
 
 
 /* COMMON SECTION DEVIDERS */

@@ -8,10 +8,14 @@ $address_id = $action[2];
 $address = $model->getAddresses(array("address_id" => $address_id));
 
 $country_options = $model->toOptions($this->countries(), "id", "name");
+
+$item = $model->getUsers(array("user_id" => $user_id));
+
 ?>
 
 <div class="scene i:scene defaultEdit userEdit">
 	<h1>Edit Address</h1>
+	<h2><?= $item["nickname"] ?></h2>
 
 	<ul class="actions i:defaultEditActions item_id:<?= $address_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
@@ -22,7 +26,7 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 
 	<div class="addresses">
 		<h2>Address</h2>
-		<?= $model->formStart("/janitor/admin/user/updateAddress/".$address_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/user/updateAddress/".$address_id, array("class" => "i:editAddress labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("address_label", array("value" => $address["address_label"] )) ?>
 				<?= $model->input("address_name", array("value" => $address["address_name"] )) ?>

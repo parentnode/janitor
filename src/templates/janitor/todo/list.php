@@ -83,7 +83,7 @@ session()->reset("return_to_todolist");
 		<h2>Todo overview</h2>
 
 		<? if($todo_states): ?>
-		<ul class="states">
+		<ul class="tabs">
 			<? foreach($todo_states as $todo_state_id => $todo_state): ?>
 				<?= $HTML->link($todo_state, "/janitor/admin/todo/list/state/".$todo_state_id, array("wrapper" => "li.".strtolower($todo_state) . ($todo_state_id === $todo_state_view ? ".selected" : ""))) ?>
 			<? endforeach; ?>

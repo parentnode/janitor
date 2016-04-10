@@ -8,6 +8,9 @@ Util.Objects["usernames"] = new function() {
 		form = u.qs("form.email", div);
 		u.f.init(form);
 
+		form.updated = function() {
+			u.ac(this.actions["save"], "primary");
+		}
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
@@ -16,6 +19,9 @@ Util.Objects["usernames"] = new function() {
 				if(response.cms_status == "error") {
 					u.f.fieldError(this.fields["email"]);
 				}
+				else {
+					u.rc(this.actions["save"], "primary");
+				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 		}
@@ -23,6 +29,9 @@ Util.Objects["usernames"] = new function() {
 		form = u.qs("form.mobile", div);
 		u.f.init(form);
 
+		form.updated = function() {
+			u.ac(this.actions["save"], "primary");
+		}
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
@@ -30,6 +39,9 @@ Util.Objects["usernames"] = new function() {
 
 				if(response.cms_status == "error") {
 					u.f.fieldError(this.fields["mobile"]);
+				}
+				else {
+					u.rc(this.actions["save"], "primary");
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
@@ -155,6 +167,32 @@ Util.Objects["apitoken"] = new function() {
 	}
 }
 
+// Update address
+Util.Objects["editAddress"] = new function() {
+	this.init = function(form) {
+
+		u.f.init(form);
+
+		form.actions["cancel"].clicked = function(event) {
+			location.href = this.url;
+		}
+
+		form.submitted = function(iN) {
+
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					location.href = this.actions["cancel"].url;
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+
+		}
+	}
+}
+
 // userNewsletters subscribe+unsubscribe form
 Util.Objects["newsletters"] = new function() {
 	this.init = function(div) {
@@ -239,6 +277,31 @@ Util.Objects["newsletters"] = new function() {
 	}
 }
 
+// Update address
+Util.Objects["addNewsletter"] = new function() {
+	this.init = function(form) {
+
+		u.f.init(form);
+
+		form.actions["cancel"].clicked = function(event) {
+			location.href = this.url;
+		}
+
+		form.submitted = function(iN) {
+
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					location.href = this.actions["cancel"].url;
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+
+		}
+	}
+}
 
 Util.Objects["accessEdit"] = new function() {
 	this.init = function(div) {

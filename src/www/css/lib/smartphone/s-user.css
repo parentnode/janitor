@@ -1,0 +1,6 @@
+#content .scene.userEdit > div.addresses ul.addresses {padding: 0 0 20px; border-top: 1px solid #dedede;}
+#content .scene.userEdit > div.addresses ul.addresses > li {height: auto; width: auto; display: block; margin: 0; padding: 15px 15px 20px;}
+#content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; top: 15px; right: 15px; left: auto; bottom: auto; padding: 0;}
+
+#content .scene.userEdit > div.newsletters ul.newsletters {padding: 0 15px 10px;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li h3 {padding-top: 8px;}

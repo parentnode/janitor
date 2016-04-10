@@ -1,4 +1,4 @@
-#content {position: relative; padding-top: 60px;}
+#content {position: relative; padding-top: 60px; padding-bottom: 30px;}
 #content .link {cursor: pointer;}
 #content a {color: #888888;}
 #content a:active {text-decoration: underline;}
@@ -6,32 +6,18 @@
 
 /* DEFAULT TOP */
 #content .scene {position: relative;}
-
-
 #content .scene > h1,
 #content .scene > h1 + h2 {display: none;}
 
-/*#content .scene h2,
-#content .scene h3,
-#content .scene h4,
-#content .scene h5,
-#content .scene h6,
-#content .scene p {}
-#content .scene hr {border: none; border-top: 1px solid #888888; margin: 15px 0 30px; padding: 0;}
-#content .scene p.note {font-style: italic;}
-*/
+/* DELETE BUTTON */
+#content .scene > ul.actions li.delete {float: right; padding-right: 0;}
 
-/* DEFAULT TOP ACTIONS */
-/*#content .scene h1 + h2 + ul.actions {border-bottom: 1px solid #bbbbbb; padding: 15px 15px 0; height: 40px; margin: 0;}
-#content .scene h1 + ul.actions li {padding-bottom: 0;}
-#content .scene h2 {padding: 10px 15px 11px;}
-*/
 
 /* PRIMITIVE LISTS */
-#content ul.list {padding: 21px 20px;}
+#content ul.list {padding: 21px 15px;}
 #content ul.list li {display: block;}
 
-#content dl.list {padding: 21px 20px; width: 600px;}
+#content dl.list {padding: 21px 15px; width: 600px;}
 #content dl.list dt,
 #content dl.list dd {padding: 5px 0; border-bottom: 1px solid #dbdfe5; height: 14px;}
 #content dl.list dt {width: 100px;}
@@ -41,7 +27,22 @@
 
 /* ACTIONS */
 #content .scene > ul.actions {padding-bottom: 14px; padding-top: 14px; text-align: left; border-bottom: 1px solid #bbbbbb;}
-#content .scene > ul.actions li {padding: 0 10px 0 0;}
+#content .scene > ul.actions li {padding: 0 5px 0 0;}
+
+
+/* TABS */
+#content .scene ul.tabs {background-color: #dedede; border-top: 1px solid #bbbbbb;}
+#content .scene > ul.tabs {border: none;}
+#content .scene ul.tabs li {padding: 15px 12px; border-right: 1px solid #dedede;}
+#content .scene ul.tabs li a {text-decoration: none; font-size: 13px;}
+#content .scene ul.tabs li.selected {background-color: #f5f7f8; color: #313942;}
+
+
+/* COMMENT */
+#content .scene li.comment ul.info {padding: 0 15px;}
+#content .scene li.comment ul.info li {display: inline-block; vertical-align: top;}
+#content .scene li.comment ul.info li.user:after {content: ",\00a0";}
+#content .scene li.comment p.comment {color: #313942; padding-bottom: 10px;}
 
 
 /* COMMON SECTION DEVIDERS */

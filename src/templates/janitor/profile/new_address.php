@@ -2,9 +2,13 @@
 global $action;
 global $model;
 
+// get current user
+$item = $model->getUser();
+
 ?>
 <div class="scene i:scene defaultNew userAddress">
 	<h1>New address</h1>
+	<h2><?= $item["nickname"] ?></h2>
 
 	<ul class="actions">
 		<?= $HTML->link("Back to user", "/janitor/admin/profile", array("class" => "button", "wrapper" => "li.cancel")) ?>

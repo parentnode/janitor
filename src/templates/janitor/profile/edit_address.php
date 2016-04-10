@@ -6,10 +6,14 @@ $address_id = $action[1];
 
 $address = $model->getAddresses(array("address_id" => $address_id));
 $country_options = $model->toOptions($this->countries(), "id", "name");
+
+// get current user
+$item = $model->getUser();
 ?>
 
 <div class="scene i:scene defaultEdit userEdit">
 	<h1>Edit Address</h1>
+	<h2><?= $item["nickname"] ?></h2>
 
 	<ul class="actions i:defaultEditActions item_id:<?= $address_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"

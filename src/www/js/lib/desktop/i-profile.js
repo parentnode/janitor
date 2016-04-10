@@ -41,6 +41,10 @@ Util.Objects["usernamesProfile"] = new function() {
 		form = u.qs("form.email", div);
 		u.f.init(form);
 
+		form.updated = function() {
+			u.ac(this.actions["save"], "primary");
+		}
+
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
@@ -54,6 +58,8 @@ Util.Objects["usernamesProfile"] = new function() {
 					u.f.fieldError(this.fields["email"]);
 				}
 				else {
+					u.rc(this.actions["save"], "primary");
+
 					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Email updated"]});
 				}
 			}
@@ -62,6 +68,10 @@ Util.Objects["usernamesProfile"] = new function() {
 
 		form = u.qs("form.mobile", div);
 		u.f.init(form);
+
+		form.updated = function() {
+			u.ac(this.actions["save"], "primary");
+		}
 
 		form.submitted = function(iN) {
 
@@ -76,6 +86,8 @@ Util.Objects["usernamesProfile"] = new function() {
 					u.f.fieldError(this.fields["mobile"]);
 				}
 				else {
+					u.rc(this.actions["save"], "primary");
+
 					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Mobile updated"]});
 				}
 			}
@@ -171,7 +183,7 @@ Util.Objects["apitokenProfile"] = new function() {
 	}
 }
 
-// default new form
+// Update address
 Util.Objects["addressProfile"] = new function() {
 	this.init = function(form) {
 

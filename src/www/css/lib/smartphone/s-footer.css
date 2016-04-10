@@ -1,2 +1,6 @@
-#footer {text-align: center; font-size: 0; padding: 10px 20px; background-color: rgba(255,255,255,0.5); border-top: 1px solid #dedede;}
-#footer .servicenavigation {display: inline-block;}
+#footer {text-align: center; font-size: 0; border-top: 1px solid #dedede;}
+#footer .servicenavigation {display: block;}
+#footer .servicenavigation li.totop {height: 60px; display: block; background-color: #dedede;}
+#footer .servicenavigation li.totop a {display: none;}
+#footer .servicenavigation li.totop svg {margin-top: 19px; stroke: #313942; stroke-width: 3px;}
+#footer p {padding: 10px 15px;}

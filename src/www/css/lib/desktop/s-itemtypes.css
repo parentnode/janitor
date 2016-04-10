@@ -21,11 +21,6 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 #content .scene.todoList ul.items > li dd.overdue,
 #content .scene.todoList ul.items > li dd.high {color: #df0000;}
 
-/* VIEWS */
-#content div.todos .states {background-color: #dedede; border-top: 1px solid #bbbbbb;}
-#content div.todos .states li {padding: 15px 30px; border-right: 1px solid #dedede;}
-#content div.todos .states li a {text-decoration: none;}
-#content div.todos .states li.selected {background-color: #f5f7f8; color: #313942;}
 
 
 

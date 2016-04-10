@@ -12,7 +12,7 @@ $user_id = $action[1];
 		<?= $HTML->link("Back to user", "/janitor/admin/user/edit/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<?= $model->formStart("/janitor/admin/user/addNewsletter/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+	<?= $model->formStart("/janitor/admin/user/addNewsletter/".$user_id, array("class" => "i:addNewsletter labelstyle:inject")) ?>
 
 		<p>Newsletters are still free form - just type the name of the newsletter.</p>
 		<fieldset>

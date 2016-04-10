@@ -3,10 +3,12 @@ global $action;
 global $model;
 
 $user_id = $action[1];
+$item = $model->getUsers(array("user_id" => $user_id));
 
 ?>
 <div class="scene i:scene defaultNew userAddress">
 	<h1>New address</h1>
+	<h2><?= $item["nickname"] ?></h2>
 
 	<ul class="actions">
 		<?= $HTML->link("Back to user", "/janitor/admin/user/edit/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>

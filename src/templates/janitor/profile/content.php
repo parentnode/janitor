@@ -7,6 +7,9 @@ $user_id = session()->value("user_id");
 $IC = new Items();
 
 
+// get current user
+$item = $model->getUser();
+
 //$user = $model->getUsers(array("user_id" => $user_id));
 $items = $IC->getItems(array("user_id" => $user_id, "extend" => true));
 $comments = $IC->getComments(array("user_id" => $user_id));
@@ -22,8 +25,10 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 ?>
 <div class="scene i:scene defaultList userContentList profileContentList">
 	<h1>Content</h1>
+	<h2><?= $item["nickname"] ?></h2>
 
-	<ul class="views">
+
+	<ul class="tabs">
 		<?= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile")) ?>
 <?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
 		<?= $HTML->link("Content and orders", "/janitor/admin/profile/content", array("wrapper" => "li.content.selected")) ?>
@@ -33,8 +38,8 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	</ul>
 
 
-	<h2>Orders</h2>
 	<div class="all_items orders i:defaultList filters">
+		<h2>Orders</h2>
 <?		if($orders): ?>
 		<ul class="items">
 <?			foreach($orders as $order): ?>
@@ -53,10 +58,10 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	</div>
 
 
-	<h2>Items</h2>
 	<div class="all_items content i:defaultList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
+		<h2>Items</h2>
 <? 		if($items): ?>
 		<ul class="items">
 <? 			foreach($items as $item):
@@ -90,14 +95,14 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	</div>
 
 
-	<h2>Comments</h2>
 	<div class="all_items comments i:defaultList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
+		<h2>Comments</h2>
 <? 		if($comments): ?>
 		<ul class="items">
 <? 			foreach($comments as $comment): ?>
-			<li class="item comment_id:<?= $comment["item_id"] ?>">
+			<li class="item comment comment_id:<?= $comment["item_id"] ?>">
 				<h3>Comment for: <?= $comment["item"]["name"] ?></h3>
 				<ul class="info">
 					<li class="created_at"><?= date("Y-m-d, H:i", strtotime($comment["created_at"])) ?></li>
