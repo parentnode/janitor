@@ -4352,34 +4352,11 @@ if(false && document.documentMode <= 10) {
 
 
 /*u-basics.js*/
-u.toggleHeader = function(div, header) {
-	header = header ? header : "h2";
-	div._toggle_header = u.qs(header, div);
-	div._toggle_header_id = div.className.replace(/item_id:[0-9]+/, "").trim();
-	div._toggle_header.div = div;
-	u.e.click(div._toggle_header);
-	div._toggle_header.clicked = function() {
-		if(this.div._toggle_is_closed) {
-			u.as(this.div, "height", "auto");
-			this.div._toggle_is_closed = false;
-			u.saveCookie(this.div._toggle_header_id+"_open", 1);
-		}
-		else {
-			u.as(this.div, "height", this.offsetHeight+"px");
-			this.div._toggle_is_closed = true;
-			u.saveCookie(this.div._toggle_header_id+"_open", 0);
-		}
-	}
-	var state = u.getCookie(div._toggle_header_id+"_open");
-	if(state == "0") {
-		div._toggle_header.clicked();
-	}
-}
 Util.Objects["collapseHeader"] = new function() {
 	this.init = function(div) {
 		u.bug("init collapseHeader");
 		u.ac(div, "togglable");
-		div._toggle_header = u.qs("h2", div);
+		div._toggle_header = u.qs("h2,h3", div);
 		div._toggle_header.div = div;
 		u.e.click(div._toggle_header);
 		div._toggle_header.clicked = function() {
@@ -4411,29 +4388,7 @@ u.addExpandArrow = function(node) {
 		node.collapsearrow.parentNode.removeChild(node.collapsearrow);
 		node.collapsearrow = false;
 	}
-	node.expandarrow = u.svg({
-		"name":"expandarrow",
-		"node":node,
-		"class":"arrow",
-		"width":17,
-		"height":17,
-		"shapes":[
-			{
-				"type": "line",
-				"x1": 2,
-				"y1": 2,
-				"x2": 7,
-				"y2": 9
-			},
-			{
-				"type": "line",
-				"x1": 6,
-				"y1": 9,
-				"x2": 11,
-				"y2": 2
-			}
-		]
-	});
+	node.expandarrow = u.svgIcons("expandarrow", node);
 }
 u.addCollapseArrow = function(node) {
 	if(node.expandarrow) {
@@ -4441,30 +4396,328 @@ u.addCollapseArrow = function(node) {
 		node.expandarrow.parentNode.removeChild(node.expandarrow);
 		node.expandarrow = false;
 	}
-	node.collapsearrow = u.svg({
-		"name":"collapsearrow",
-		"node":node,
-		"class":"arrow",
-		"width":17,
-		"height":17,
-		"shapes":[
-			{
-				"type": "line",
-				"x1": 2,
-				"y1": 9,
-				"x2": 7,
-				"y2": 2
-			},
-			{
-				"type": "line",
-				"x1": 6,
-				"y1": 2,
-				"x2": 11,
-				"y2": 9
-			}
-		]
-	});
+	node.collapsearrow = u.svgIcons("collapsearrow", node);
 }
+u.defaultFilters = function(div) {
+	div._filter = u.ie(div, "div", {"class":"filter"});
+	div._filter.div = div;
+	var i, node;
+	for(i = 0; node = div.nodes[i]; i++) {
+		node._c = "";
+		var text_nodes = u.qsa("h2,h3,h4,h5,p,ul.info,dl,li.tag", node);
+		for(j = 0; text_node = text_nodes[j]; j++) {
+			node._c += u.text(text_node).toLowerCase() + ";"; 
+		}
+		u.bug("c:" + node._c)
+	}
+	var tags = u.qsa("li.tag", div.list);
+	if(tags) {
+		var tag, li, used_tags = [];
+		div._filter._tags = u.ie(div._filter, "ul", {"class":"tags"});
+		for(i = 0; node = tags[i]; i++) {
+			tag = u.text(node);
+			if(used_tags.indexOf(tag) == -1) {
+				used_tags.push(tag);
+			}
+		}
+		used_tags.sort();
+		for(i = 0; tag = used_tags[i]; i++) {
+			li = u.ae(div._filter._tags, "li", {"html":tag});
+			li.tag = tag.toLowerCase();
+			li._filter = div._filter;
+			u.e.click(li);
+			li.clicked = function(event) {
+				if(u.hc(this, "selected")) {
+					this._filter.selected_tags.splice(this._filter.selected_tags.indexOf(this.tag), 1);
+					u.rc(this, "selected");
+				}
+				else {
+					this._filter.selected_tags.push(this.tag);
+					u.ac(this, "selected");
+				}
+				u.bug("pre filter")
+				u.xInObject(this._filter.selected_tags);
+				this._filter.form.updated();
+			}
+		}
+		div._filter.selected_tags = [];
+	}
+	div._filter.form = u.f.addForm(div._filter, {"name":"filter", "class":"labelstyle:inject"});
+	u.f.addField(div._filter.form, {"name":"filter", "label":"Type to filter"});
+	u.f.init(div._filter.form);
+	div._filter.form.div = div;
+	div._filter._input = div._filter.form.fields["filter"];
+	div._filter.form.updated = function() {
+		u.t.resetTimer(this.t_filter);
+		this.t_filter = u.t.setTimer(this.div._filter, "filterItems", 400);
+		u.ac(this.div._filter, "filtering");
+	}
+	div._filter.checkTags = function(node) {
+		if(this.selected_tags.length) {
+			var regex = new RegExp("("+this.selected_tags.join(";|")+";)", "g");
+			var match = node._c.match(regex);
+			u.bug("match:" + match + ", " + "("+this.selected_tags.join(";|")+";)")
+			if(!match || match.length != this.selected_tags.length) {
+				return false;
+			}
+		}
+		return true;
+	}
+	div._filter.filterItems = function() {
+		var i, node;
+		var query = this._input.val().toLowerCase();
+		if(this.current_filter != query+","+this.selected_tags.join(",")) {
+			this.current_filter = query + "," + this.selected_tags.join(",");
+			for(i = 0; node = this.div.nodes[i]; i++) {
+				if(node._c.match(query) && this.checkTags(node)) {
+					u.as(node, "display", "block", false);
+				}
+				else {
+					u.as(node, "display", "none", false);
+				}
+			}
+		}
+		u.rc(this, "filtering");
+	}
+}
+u.defaultSortableList = function(list) {
+	list.div.save_order_url = list.div.getAttribute("data-item-order");
+	if(list.div.save_order_url && list.div.csrf_token) {
+		for(i = 0; node = list.div.nodes[i]; i++) {
+			u.ac(node, "draggable");
+			if(!u.qs(".drag", node)) {
+				u.ie(node, "div", {"class":"drag"});
+			}
+		}
+		u.sortable(list, {"targets":"items", "draggables":"draggable"});
+		list.picked = function() {}
+		list.dropped = function() {
+			var order = new Array();
+			this.nodes = u.qsa("li.item", this);
+			for(i = 0; node = this.nodes[i]; i++) {
+				order.push(u.cv(node, "id"));
+			}
+			this.orderResponse = function(response) {
+				page.notify(response);
+			}
+			u.request(this, this.div.save_order_url, {"callback":"orderResponse", "method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
+		}
+	}
+	else {
+		u.rc(list.div, "sortable");
+	}
+}
+u.enableTagging = function(node) {
+	u.e.click(node._bn_add);
+	node._bn_add.clicked = function() {
+		if(u.hc(this.node, "edittags")) {
+			this.innerHTML = "+";
+			u.rc(this.node, "edittags");
+			this.node._tag_options.parentNode.removeChild(this.node._tag_options);
+			delete this.node._tag_options;
+		}
+		else {
+			this.innerHTML = "-";
+			u.ac(this.node, "edittags");
+			u.activateTagging(this.node);
+		}
+	}
+}
+u.activateTagging = function(node) {
+	if(node._text) {
+		node._tag_options = u.ae(node._text, "div", {"class":"tagoptions"});
+	}
+	else {
+		node._tag_options = u.ae(node, "div", {"class":"tagoptions"});
+	}
+	node._tag_form = u.f.addForm(node._tag_options, {"action": node.data_div.add_tag_url});
+	u.f.addField(node._tag_form, {"type":"hidden", "name":"csrf-token", "value":node.data_div.csrf_token});
+	var fieldset = u.f.addFieldset(node._tag_form);
+	u.f.addField(fieldset, {"name":"tags", "value":"", "id":"tag_input_"+node._item_id, "label":"Tag", "hint_message":"Type to filter existing tags or add a new tag", "error_message":"Tag must conform to tag value: context:value", "pattern":"[^$]+\:[^$]+"});
+	u.f.addAction(node._tag_form, {"class":"button primary", "value":"Add new tag"});
+	u.f.init(node._tag_form);
+	node._tag_form.node = node;
+	node._tag_form.fields["tags"].updated = function() {
+		if(this._form.node._new_tags) {
+			var tags = u.qsa(".tag", this.form.node._new_tags);
+			var i, tag;
+			for(i = 0; tag = tags[i]; i++) {
+				if(u.text(tag).toLowerCase().match(this.val().toLowerCase())) {
+					u.as(tag, "display", "inline-block");
+				}
+				else {
+					u.as(tag, "display", "none");
+				}
+			}
+		}
+	}
+	node._tag_form.submitted = function(iN) {
+		this.response = function(response) {
+			page.notify(response);
+			if(response.cms_status == "success") {
+				this.fields["tags"].val("");
+				this.fields["tags"].updated();
+				this.fields["tags"].focus();
+				var new_tag = response.cms_object;
+				var i, tag_node;
+				var new_tags = u.qsa("li", this.node._new_tags);
+				for(i = 0; tag_node = new_tags[i]; i++) {
+					if(tag_node._id == new_tag.tag_id) {
+						u.ae(this.node._tags, tag_node);
+						return;
+					}
+				}
+				this.node.data_div.all_tags.push({
+					"id":new_tag.tag_id, 
+					"context":new_tag.context, 
+					"value":new_tag.value
+				});
+				tag_node = u.ae(this.node._tags, "li", {"class":"tag "+new_tag.context});
+				u.ae(tag_node, "span", {"class":"context", "html":new_tag.context});
+				u.ae(tag_node, document.createTextNode(":"));
+				u.ae(tag_node, "span", {"class":"value", "html":new_tag.value});
+				tag_node._context = new_tag.context;
+				tag_node._value = new_tag.value;
+				tag_node._id = new_tag.tag_id;
+				tag_node.node = this.node;
+				u.activateTag(tag_node);
+			}
+		}
+		u.request(this, this.action+"/"+this.node._item_id, {"method":"post", "params" : u.f.getParams(this)});
+	}
+	node._tag_form.fields["tags"].focus();
+	node._new_tags = u.ae(node._tag_options, "ul", {"class":"tags"});
+	var used_tags = {};
+	var item_tags = u.qsa("li:not(.add)", node._tags);
+	var i, tag_node, tag, context, value;
+	for(i = 0; tag_node = item_tags[i]; i++) {
+		tag_node._context = u.qs(".context", tag_node).innerHTML;
+		tag_node._value = u.qs(".value", tag_node).innerHTML;
+		if(!used_tags[tag_node._context]) {
+			used_tags[tag_node._context] = {}
+		}
+		if(!used_tags[tag_node._context][tag_node._value]) {
+			used_tags[tag_node._context][tag_node._value] = tag_node;
+		}
+	}
+	for(tag in node.data_div.all_tags) {
+		context = node.data_div.all_tags[tag].context;
+		value = node.data_div.all_tags[tag].value.replace(/ & /, " &amp; ");
+		if(used_tags && used_tags[context] && used_tags[context][value]) {
+			tag_node = used_tags[context][value];
+		}
+		else {
+			tag_node = u.ae(node._new_tags, "li", {"class":"tag"});
+			u.ae(tag_node, "span", {"class":"context", "html":context});
+			u.ae(tag_node, document.createTextNode(":"));
+			u.ae(tag_node, "span", {"class":"value", "html":value});
+			tag_node._context = context;
+			tag_node._value = value;
+		}
+		tag_node._id = node.data_div.all_tags[tag].id;
+		tag_node.node = node;
+		u.activateTag(tag_node);
+	}
+}
+u.activateTag = function(tag_node) {
+	u.e.click(tag_node);
+	tag_node.clicked = function() {
+		if(u.hc(this.node, "edittags")) {
+			if(this.parentNode == this.node._tags) {
+				this.response = function(response) {
+					page.notify(response);
+					if(response.cms_status == "success") {
+						u.ae(this.node._new_tags, this);
+					}
+				}
+				u.request(this, this.node.data_div.delete_tag_url+"/"+this.node._item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.node.data_div.csrf_token});
+			}
+			else {
+				this.response = function(response) {
+					page.notify(response);
+					if(response.cms_status == "success") {
+						u.ie(this.node._tags, this)
+					}
+				}
+				u.request(this, this.node.data_div.add_tag_url+"/"+this.node._item_id, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.node.data_div.csrf_token});
+			}
+		}
+	}
+}
+u.svgIcons = function(icon, node) {
+	switch(icon) {
+		case "expandarrow" : return u.svg({
+			"name":"expandarrow",
+			"node":node,
+			"class":"arrow",
+			"width":17,
+			"height":17,
+			"shapes":[
+				{
+					"type": "line",
+					"x1": 2,
+					"y1": 2,
+					"x2": 7,
+					"y2": 9
+				},
+				{
+					"type": "line",
+					"x1": 6,
+					"y1": 9,
+					"x2": 11,
+					"y2": 2
+				}
+			]
+		});
+		case "collapsearrow" : return u.svg({
+			"name":"collapsearrow",
+			"node":node,
+			"class":"arrow",
+			"width":17,
+			"height":17,
+			"shapes":[
+				{
+					"type": "line",
+					"x1": 2,
+					"y1": 9,
+					"x2": 7,
+					"y2": 2
+				},
+				{
+					"type": "line",
+					"x1": 6,
+					"y1": 2,
+					"x2": 11,
+					"y2": 9
+				}
+			]
+		});
+		case "totoparrow" : return u.svg({
+			"name":"totoparrow",
+			"node":node,
+			"class":"arrow",
+			"width":30,
+			"height":30,
+			"shapes":[
+				{
+					"type": "line",
+					"x1": 2,
+					"y1": 21,
+					"x2": 16,
+					"y2": 2
+				},
+				{
+					"type": "line",
+					"x1": 14,
+					"y1": 2,
+					"x2": 28,
+					"y2": 21
+				}
+			]
+		});
+	}
+}
+
 
 /*beta-u-notifier.js*/
 u.notifier = function(node) {
@@ -4748,6 +5001,15 @@ Util.insertElement = u.ie = function(_parent, node_type, attributes) {
 	}
 	return false;
 }
+Util.insertAfter = u.ia = function(after_node, insert_node) {
+	var next_node = u.ns(after_node);
+	if(next_node) {
+		after_node.parentNode.insertBefore(next_node, insert_node);
+	}
+	else {
+		after_node.parentNode.appendChild(insert_node);
+	}
+}
 Util.wrapElement = u.we = function(node, node_type, attributes) {
 	try {
 		var wrapper_node = node.parentNode.insertBefore(document.createElement(node_type), node);
@@ -4819,7 +5081,7 @@ Util.clickableElement = u.ce = function(node, _options) {
 		u.ac(node, "clickable");
 	}
 	if(typeof(u.e) != "undefined" && typeof(u.e.click) == "function") {
-		u.e.click(node);
+		u.e.click(node, _options);
 		if(node._click_type == "link") {
 			node.clicked = function(event) {
 				if(typeof(node.preClicked) == "function") {
@@ -4993,6 +5255,603 @@ Util.nodeWithin = u.nw = function(node, scope) {
 	return false;
 }
 
+
+/*u-form-builder.js*/
+u.f.customBuild = {};
+u.f.addForm = function(node, _options) {
+	var form_name = "js_form";
+	var form_action = "#";
+	var form_method = "post";
+	var form_class = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "name"			: form_name				= _options[_argument]; break;
+				case "action"		: form_action			= _options[_argument]; break;
+				case "method"		: form_method			= _options[_argument]; break;
+				case "class"		: form_class			= _options[_argument]; break;
+			}
+		}
+	}
+	var form = u.ae(node, "form", {"class":form_class, "name": form_name, "action":form_action, "method":form_method});
+	return form;
+}
+u.f.addFieldset = function(node, _options) {
+	var fieldset_class = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "class"			: fieldset_class			= _options[_argument]; break;
+			}
+		}
+	}
+	return u.ae(node, "fieldset", {"class":fieldset_class});
+}
+u.f.addField = function(node, _options) {
+	var field_name = "js_name";
+	var field_label = "Label";
+	var field_type = "string";
+	var field_value = "";
+	var field_options = [];
+	var field_class = "";
+	var field_id = "";
+	var field_max = false;
+	var field_min = false;
+	var field_disabled = false;
+	var field_readonly = false;
+	var field_required = false;
+	var field_pattern = false;
+	var field_error_message = "There is an error in your input";
+	var field_hint_message = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "name"					: field_name			= _options[_argument]; break;
+				case "label"				: field_label			= _options[_argument]; break;
+				case "type"					: field_type			= _options[_argument]; break;
+				case "value"				: field_value			= _options[_argument]; break;
+				case "options"				: field_options			= _options[_argument]; break;
+				case "class"				: field_class			= _options[_argument]; break;
+				case "id"					: field_id				= _options[_argument]; break;
+				case "max"					: field_max				= _options[_argument]; break;
+				case "min"					: field_min				= _options[_argument]; break;
+				case "disabled"				: field_disabled		= _options[_argument]; break;
+				case "readonly"				: field_readonly		= _options[_argument]; break;
+				case "required"				: field_required		= _options[_argument]; break;
+				case "pattern"				: field_pattern			= _options[_argument]; break;
+				case "error_message"		: field_error_message	= _options[_argument]; break;
+				case "hint_message"			: field_hint_message	= _options[_argument]; break;
+			}
+		}
+	}
+	var custom_build;
+	if(field_type in u.f.customBuild) {
+		return u.f.customBuild[field_type](node, _options);
+	}
+	field_id = field_id ? field_id : "input_"+field_type+"_"+field_name;
+	field_disabled = !field_disabled ? (field_class.match(/(^| )disabled( |$)/) ? "disabled" : false) : "disabled";
+	field_readonly = !field_readonly ? (field_class.match(/(^| )readonly( |$)/) ? "readonly" : false) : "readonly";
+	field_required = !field_required ? (field_class.match(/(^| )required( |$)/) ? true : false) : true;
+	field_class += field_disabled ? (!field_class.match(/(^| )disabled( |$)/) ? " disabled" : "") : "";
+	field_class += field_readonly ? (!field_class.match(/(^| )readonly( |$)/) ? " readonly" : "") : "";
+	field_class += field_required ? (!field_class.match(/(^| )required( |$)/) ? " required" : "") : "";
+	field_class += field_min ? (!field_class.match(/(^| )min:[0-9]+( |$)/) ? " min:"+field_min : "") : "";
+	field_class += field_max ? (!field_class.match(/(^| )max:[0-9]+( |$)/) ? " max:"+field_max : "") : "";
+	if (field_type == "hidden") {
+		return u.ae(node, "input", {"type":"hidden", "name":field_name, "value":field_value, "id":field_id});
+	}
+	var field = u.ae(node, "div", {"class":"field "+field_type+" "+field_class});
+	var attributes = {};
+	if(field_type == "string") {
+		field_max = field_max ? field_max : 255;
+		attributes = {
+			"type":"text", 
+			"id":field_id, 
+			"value":field_value, 
+			"name":field_name, 
+			"maxlength":field_max, 
+			"minlength":field_min,
+			"pattern":field_pattern,
+			"readonly":field_readonly,
+			"disabled":field_disabled
+		};
+		u.ae(field, "label", {"for":field_id, "html":field_label});
+		u.ae(field, "input", u.f.verifyAttributes(attributes));
+	}
+	else if(field_type == "email" || field_type == "tel" || field_type == "password") {
+		field_max = field_max ? field_max : 255;
+		attributes = {
+			"type":field_type, 
+			"id":field_id, 
+			"value":field_value, 
+			"name":field_name, 
+			"maxlength":field_max, 
+			"minlength":field_min,
+			"pattern":field_pattern,
+			"readonly":field_readonly,
+			"disabled":field_disabled
+		};
+		u.ae(field, "label", {"for":field_id, "html":field_label});
+		u.ae(field, "input", u.f.verifyAttributes(attributes));
+	}
+	else if(field_type == "number" || field_type == "integer" || field_type == "date" || field_type == "datetime") {
+		attributes = {
+			"type":field_type, 
+			"id":field_id, 
+			"value":field_value, 
+			"name":field_name, 
+			"max":field_max, 
+			"min":field_min,
+			"pattern":field_pattern,
+			"readonly":field_readonly,
+			"disabled":field_disabled
+		};
+		u.ae(field, "label", {"for":field_id, "html":field_label});
+		u.ae(field, "input", u.f.verifyAttributes(attributes));
+	}
+	else if(field_type == "checkbox") {
+		attributes = {
+			"type":field_type, 
+			"id":field_id, 
+			"value":field_value ? field_value : "true", 
+			"name":field_name, 
+			"disabled":field_disabled
+		};
+		u.ae(field, "input", u.f.verifyAttributes(attributes));
+		u.ae(field, "label", {"for":field_id, "html":field_label});
+	}
+	else if(field_type == "text") {
+		attributes = {
+			"id":field_id, 
+			"html":field_value, 
+			"name":field_name, 
+			"maxlength":field_max, 
+			"minlength":field_min,
+			"pattern":field_pattern,
+			"readonly":field_readonly,
+			"disabled":field_disabled
+		};
+		u.ae(field, "label", {"for":field_id, "html":field_label});
+		u.ae(field, "textarea", u.f.verifyAttributes(attributes));
+	}
+	else if(field_type == "select") {
+		attributes = {
+			"id":field_id, 
+			"name":field_name, 
+			"disabled":field_disabled
+		};
+		u.ae(field, "label", {"for":field_id, "html":field_label});
+		var select = u.ae(field, "select", u.f.verifyAttributes(attributes));
+		if(field_options) {
+			var i, option;
+			for(i = 0; option = field_options[i]; i++) {
+				if(option.value == field_value) {
+					u.ae(select, "option", {"value":option.value, "html":option.text, "selected":"selected"});
+				}
+				else {
+					u.ae(select, "option", {"value":option.value, "html":option.text});
+				}
+			}
+		}
+	}
+	else if(field_type == "radiobuttons") {
+		u.ae(field, "label", {"html":field_label});
+		if(field_options) {
+			var i, option;
+			for(i = 0; option = field_options[i]; i++) {
+				var div = u.ae(field, "div", {"class":"item"});
+				if(option.value == field_value) {
+					u.ae(div, "input", {"value":option.value, "id":field_id+"-"+i, "type":"radio", "name":field_name, "checked":"checked"});
+					u.ae(div, "label", {"for":field_id+"-"+i, "html":option.text});
+				}
+				else {
+					u.ae(div, "input", {"value":option.value, "id":field_id+"-"+i, "type":"radio", "name":field_name});
+					u.ae(div, "label", {"for":field_id+"-"+i, "html":option.text});
+				}
+			}
+		}
+	}
+	else if(field_type == "files") {
+		u.ae(field, "label", {"for":field_id, "html":field_label});
+		u.ae(field, "input", {"id":field_id, "name":field_name, "type":"file"});
+	}
+	else {
+		u.bug("input type not implemented")
+	}
+	if(field_hint_message || field_error_message) {
+		var help = u.ae(field, "div", {"class":"help"});
+		if (field_hint_message) {
+			u.ae(help, "div", { "class": "hint", "html": field_hint_message });
+		}
+		if(field_error_message) {
+			u.ae(help, "div", { "class": "error", "html": field_error_message });
+		}
+	}
+	return field;
+}
+u.f.verifyAttributes = function(attributes) {
+	for(attribute in attributes) {
+		if(attributes[attribute] === undefined || attributes[attribute] === false || attributes[attribute] === null) {
+			delete attributes[attribute];
+		}
+	}
+	return attributes;
+}
+u.f.addAction = function(node, _options) {
+	var action_type = "submit";
+	var action_name = "js_name";
+	var action_value = "";
+	var action_class = "";
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "type"			: action_type			= _options[_argument]; break;
+				case "name"			: action_name			= _options[_argument]; break;
+				case "value"		: action_value			= _options[_argument]; break;
+				case "class"		: action_class			= _options[_argument]; break;
+			}
+		}
+	}
+	var p_ul = node.nodeName.toLowerCase() == "ul" ? node : u.pn(node, {"include":"ul"});
+	if(!p_ul || !u.hc(p_ul, "actions")) {
+		if(node.nodeName.toLowerCase() == "form") {
+			p_ul = u.qs("ul.actions", node);
+		}
+		p_ul = p_ul ? p_ul : u.ae(node, "ul", {"class":"actions"});
+	}
+	var p_li = node.nodeName.toLowerCase() == "li" ? node : u.pn(node, {"include":"li"});
+	if(!p_li || p_ul != p_li.parentNode) {
+		p_li = u.ae(p_ul, "li", {"class":action_name});
+	}
+	else {
+		p_li = node;
+	}
+	var action = u.ae(p_li, "input", {"type":action_type, "class":action_class, "value":action_value, "name":action_name})
+	return action;
+}
+
+
+/*u-audio.js*/
+Util.audioPlayer = function(_options) {
+	var player = document.createElement("div");
+	u.ac(player, "audioplayer");
+	player._autoplay = false;
+	player._controls = false;
+	player._controls_playpause = false;
+	player._controls_volume = false;
+	player._controls_search = false;
+	player._ff_skip = 2;
+	player._rw_skip = 2;
+	if(typeof(_options) == "object") {
+		var _argument;
+		for(_argument in _options) {
+			switch(_argument) {
+				case "autoplay"     : player._autoplay               = _options[_argument]; break;
+				case "controls"     : player._controls               = _options[_argument]; break;
+				case "playpause"    : player._controls_playpause     = _options[_argument]; break;
+				case "volume"       : player._controls_volume        = _options[_argument]; break;
+				case "search"       : player._controls_search        = _options[_argument]; break;
+				case "ff_skip"      : player._ff_skip                = _options[_argument]; break;
+				case "rw_skip"      : player._rw_skip                = _options[_argument]; break;
+			}
+		}
+	}
+	player.audio = u.ae(player, "audio");
+	if(typeof(player.audio.play) == "function") {
+		player.load = function(src, _options) {
+			if(typeof(_options) == "object") {
+				var _argument;
+				for(_argument in _options) {
+					switch(_argument) {
+						case "autoplay"     : this._autoplay               = _options[_argument]; break;
+						case "controls"     : this._controls               = _options[_argument]; break;
+						case "playpause"    : this._controls_playpause     = _options[_argument]; break;
+						case "volume"       : this._controls_volume        = _options[_argument]; break;
+						case "search"       : this._controls_search        = _options[_argument]; break;
+						case "ff_skip"      : this._ff_skip                = _options[_argument]; break;
+						case "rw_skip"      : this._rw_skip                = _options[_argument]; break;
+					}
+				}
+			}
+			if(u.hc(this, "playing")) {
+				this.stop();
+			}
+			this.setup();
+			if(src) {
+				this.audio.src = this.correctSource(src);
+				this.audio.load();
+				this.audio.controls = player._controls;
+				this.audio.autoplay = player._autoplay;
+			}
+		}
+		player.play = function(position) {
+			if(this.audio.currentTime && position !== undefined) {
+				this.audio.currentTime = position;
+			}
+			if(this.audio.src) {
+				this.audio.play();
+			}
+		}
+		player.loadAndPlay = function(src, _options) {
+			var position = 0;
+			if(typeof(_options) == "object") {
+				var _argument;
+				for(_argument in _options) {
+					switch(_argument) {
+						case "position"		: position		= _options[_argument]; break;
+					}
+				}
+			}
+			this.load(src, _options);
+			this.play(position);
+		}
+		player.pause = function() {
+			this.audio.pause();
+		}
+		player.stop = function() {
+			this.audio.pause();
+			if(this.audio.currentTime) {
+				this.audio.currentTime = 0;
+			}
+		}
+		player.ff = function() {
+			if(this.audio.src && this.audio.currentTime && this.audioLoaded) {
+				this.audio.currentTime = (this.audio.duration - this.audio.currentTime >= this._ff_skip) ? (this.audio.currentTime + this._ff_skip) : this.audio.duration;
+				this.audio._timeupdate();
+			}
+		}
+		player.rw = function() {
+			if(this.audio.src && this.audio.currentTime && this.audioLoaded) {
+				this.audio.currentTime = (this.audio.currentTime >= this._rw_skip) ? (this.audio.currentTime - this._rw_skip) : 0;
+				this.audio._timeupdate();
+			}
+		}
+		player.togglePlay = function() {
+			if(u.hc(this, "playing")) {
+				this.pause();
+			}
+			else {
+				this.play();
+			}
+		}
+		player.setup = function() {
+			if(this.audio) {
+				var audio = this.removeChild(this.audio);
+				delete audio;
+			}
+			this.audio = u.ie(this, "audio");
+			this.audio.player = this;
+			this.setControls();
+			this.currentTime = 0;
+			this.duration = 0;
+			this.audioLoaded = false;
+			this.metaLoaded = false;
+			this.audio._loadstart = function(event) {
+				u.ac(this.player, "loading");
+				if(typeof(this.player.loading) == "function") {
+					this.player.loading(event);
+				}
+			}
+			u.e.addEvent(this.audio, "loadstart", this.audio._loadstart);
+			this.audio._canplaythrough = function(event) {
+				u.rc(this.player, "loading");
+				if(typeof(this.player.canplaythrough) == "function") {
+					this.player.canplaythrough(event);
+				}
+			}
+			u.e.addEvent(this.audio, "canplaythrough", this.audio._canplaythrough);
+			this.audio._playing = function(event) {
+				u.rc(this.player, "loading|paused");
+				u.ac(this.player, "playing");
+				if(typeof(this.player.playing) == "function") {
+					this.player.playing(event);
+				}
+			}
+			u.e.addEvent(this.audio, "playing", this.audio._playing);
+			this.audio._paused = function(event) {
+				u.rc(this.player, "playing|loading");
+				u.ac(this.player, "paused");
+				if(typeof(this.player.paused) == "function") {
+					this.player.paused(event);
+				}
+			}
+			u.e.addEvent(this.audio, "pause", this.audio._paused);
+			this.audio._stalled = function(event) {
+				u.rc(this.player, "playing|paused");
+				u.ac(this.player, "loading");
+				if(typeof(this.player.stalled) == "function") {
+					this.player.stalled(event);
+				}
+			}
+			u.e.addEvent(this.audio, "stalled", this.audio._paused);
+			this.audio._ended = function(event) {
+				u.rc(this.player, "playing|paused");
+				if(typeof(this.player.ended) == "function") {
+					this.player.ended(event);
+				}
+			}
+			u.e.addEvent(this.audio, "ended", this.audio._ended);
+			this.audio._loadedmetadata = function(event) {
+				this.player.duration = this.duration;
+				this.player.currentTime = this.currentTime;
+				this.player.metaLoaded = true;
+				if(typeof(this.player.loadedmetadata) == "function") {
+					this.player.loadedmetadata(event);
+				}
+			}
+			u.e.addEvent(this.audio, "loadedmetadata", this.audio._loadedmetadata);
+			this.audio._loadeddata = function(event) {
+				this.player.audioLoaded = true;
+				if(typeof(this.player.loadeddata) == "function") {
+					this.player.loadeddata(event);
+				}
+			}
+			u.e.addEvent(this.audio, "loadeddata", this.audio._loadeddata);
+			this.audio._timeupdate = function(event) {
+				this.player.currentTime = this.currentTime;
+				if(typeof(this.player.timeupdate) == "function") {
+					this.player.timeupdate(event);
+				}
+			}
+			u.e.addEvent(this.audio, "timeupdate", this.audio._timeupdate);
+		}
+	}
+	else if(typeof(u.audioPlayerFallback) == "function") {
+		player.removeChild(player.video);
+		player = u.audioPlayerFallback(player);
+	}
+	else {
+		player.load = function() {}
+		player.play = function() {}
+		player.loadAndPlay = function() {}
+		player.pause = function() {}
+		player.stop = function() {}
+		player.ff = function() {}
+		player.rw = function() {}
+		player.togglePlay = function() {}
+	}
+	player.correctSource = function(src) {
+		var param = src.match(/\?[^$]+/) ? src.match(/(\?[^$]+)/)[1] : "";
+		src = src.replace(/\?[^$]+/, "");
+		src = src.replace(/.mp3|.ogg|.wav/, "");
+		if(this.flash) {
+			return src+".mp3"+param;
+		}
+		if(this.audio.canPlayType("audio/mpeg")) {
+			return src+".mp3"+param;
+		}
+		else if(this.audio.canPlayType("audio/ogg")) {
+			return src+".ogg"+param;
+		}
+		else {
+			return src+".wav"+param;
+		}
+	}
+	player.setControls = function() {
+		if(this.showControls) {
+			if(u.e.event_pref == "mouse") {
+				u.e.removeEvent(this, "mousemove", this.showControls);
+				u.e.removeEvent(this.controls, "mouseenter", this._keepControls);
+				u.e.removeEvent(this.controls, "mouseleave", this._unkeepControls);
+			}
+			else {
+				u.e.removeEvent(this, "touchstart", this.showControls);
+			}
+		}
+		if(this._controls_playpause || this._controls_zoom || this._controls_volume || this._controls_search) {
+			if(!this.controls) {
+				this.controls = u.ae(this, "div", {"class":"controls"});
+				this.controls.player = this;
+				this.controls._default_display = u.gcs(this.controls, "display");
+				this.hideControls = function() {
+					if(!this._keep) {
+						this.t_controls = u.t.resetTimer(this.t_controls);
+						u.a.transition(this.controls, "all 0.3s ease-out");
+						u.a.setOpacity(this.controls, 0);
+					}
+				}
+				this.showControls = function() {
+					if(this.t_controls) {
+						this.t_controls = u.t.resetTimer(this.t_controls);
+					}
+					else {
+						u.a.transition(this.controls, "all 0.5s ease-out");
+						u.a.setOpacity(this.controls, 1);
+					}
+					this.t_controls = u.t.setTimer(this, this.hideControls, 1500);
+				}
+				this._keepControls = function() {
+					this.player._keep = true;
+				}
+				this._unkeepControls = function() {
+					this.player._keep = false;
+				}
+			}
+			else {
+				u.as(this.controls, "display", this.controls._default_display);
+			}
+			if(this._controls_playpause) {
+				if(!this.controls.playpause) {
+					this.controls.playpause = u.ae(this.controls, "a", {"class":"playpause"});
+					this.controls.playpause._default_display = u.gcs(this.controls.playpause, "display");
+					this.controls.playpause.player = this;
+					u.e.click(this.controls.playpause);
+					this.controls.playpause.clicked = function(event) {
+						this.player.togglePlay();
+					}
+				}
+				else {
+					u.as(this.controls.playpause, "display", this.controls.playpause._default_display);
+				}
+			}
+			else if(this.controls.playpause) {
+				u.as(this.controls.playpause, "display", "none");
+			}
+			if(this._controls_search) {
+				if(!this.controls.search) {
+					this.controls.search_ff = u.ae(this.controls, "a", {"class":"ff"});
+					this.controls.search_ff._default_display = u.gcs(this.controls.search_ff, "display");
+					this.controls.search_ff.player = this;
+					this.controls.search_rw = u.ae(this.controls, "a", {"class":"rw"});
+					this.controls.search_rw._default_display = u.gcs(this.controls.search_rw, "display");
+					this.controls.search_rw.player = this;
+					u.e.click(this.controls.search_ff);
+					this.controls.search_ff.ffing = function() {
+						this.t_ffing = u.t.setTimer(this, this.ffing, 100);
+						this.player.ff();
+					}
+					this.controls.search_ff.inputStarted = function(event) {
+						this.ffing();
+					}
+					this.controls.search_ff.clicked = function(event) {
+						u.t.resetTimer(this.t_ffing);
+					}
+					u.e.click(this.controls.search_rw);
+					this.controls.search_rw.rwing = function() {
+						this.t_rwing = u.t.setTimer(this, this.rwing, 100);
+						this.player.rw();
+					}
+					this.controls.search_rw.inputStarted = function(event) {
+						this.rwing();
+					}
+					this.controls.search_rw.clicked = function(event) {
+						u.t.resetTimer(this.t_rwing);
+						this.player.rw();
+					}
+					this.controls.search = true;
+				}
+				else {
+					u.as(this.controls.search_ff, "display", this.controls.search_ff._default_display);
+					u.as(this.controls.search_rw, "display", this.controls.search_rw._default_display);
+				}
+			}
+			else if(this.controls.search) {
+				u.as(this.controls.search_ff, "display", "none");
+				u.as(this.controls.search_rw, "display", "none");
+			}
+			if(this._controls_zoom && !this.controls.zoom) {}
+			else if(this.controls.zoom) {}
+			if(this._controls_volume && !this.controls.volume) {}
+			else if(this.controls.volume) {}
+			if(u.e.event_pref == "mouse") {
+				u.e.addEvent(this.controls, "mouseenter", this._keepControls);
+				u.e.addEvent(this.controls, "mouseleave", this._unkeepControls);
+				u.e.addEvent(this, "mousemove", this.showControls);
+			}
+			else {
+				u.e.addEvent(this, "touchstart", this.showControls);
+			}
+		}
+		else if(this.controls) {
+			u.as(this.controls, "display", "none");
+		}
+	}
+	return player;
+}
 
 /*u-sortable.js*/
 u.sortable = function(scope, _options) {
@@ -6744,265 +7603,17 @@ Util.Form.geoLocation = function(field) {
 }
 
 
-/*u-form-builder.js*/
-u.f.customBuild = {};
-u.f.addForm = function(node, _options) {
-	var form_name = "js_form";
-	var form_action = "#";
-	var form_method = "post";
-	var form_class = "";
-	if(typeof(_options) == "object") {
-		var _argument;
-		for(_argument in _options) {
-			switch(_argument) {
-				case "name"			: form_name				= _options[_argument]; break;
-				case "action"		: form_action			= _options[_argument]; break;
-				case "method"		: form_method			= _options[_argument]; break;
-				case "class"		: form_class			= _options[_argument]; break;
-			}
-		}
-	}
-	var form = u.ae(node, "form", {"class":form_class, "name": form_name, "action":form_action, "method":form_method});
-	return form;
-}
-u.f.addFieldset = function(node, _options) {
-	var fieldset_class = "";
-	if(typeof(_options) == "object") {
-		var _argument;
-		for(_argument in _options) {
-			switch(_argument) {
-				case "class"			: fieldset_class			= _options[_argument]; break;
-			}
-		}
-	}
-	return u.ae(node, "fieldset", {"class":fieldset_class});
-}
-u.f.addField = function(node, _options) {
-	var field_name = "js_name";
-	var field_label = "Label";
-	var field_type = "string";
-	var field_value = "";
-	var field_options = [];
-	var field_class = "";
-	var field_id = "";
-	var field_max = false;
-	var field_min = false;
-	var field_disabled = false;
-	var field_readonly = false;
-	var field_required = false;
-	var field_pattern = false;
-	var field_error_message = "There is an error in your input";
-	var field_hint_message = "";
-	if(typeof(_options) == "object") {
-		var _argument;
-		for(_argument in _options) {
-			switch(_argument) {
-				case "name"					: field_name			= _options[_argument]; break;
-				case "label"				: field_label			= _options[_argument]; break;
-				case "type"					: field_type			= _options[_argument]; break;
-				case "value"				: field_value			= _options[_argument]; break;
-				case "options"				: field_options			= _options[_argument]; break;
-				case "class"				: field_class			= _options[_argument]; break;
-				case "id"					: field_id				= _options[_argument]; break;
-				case "max"					: field_max				= _options[_argument]; break;
-				case "min"					: field_min				= _options[_argument]; break;
-				case "disabled"				: field_disabled		= _options[_argument]; break;
-				case "readonly"				: field_readonly		= _options[_argument]; break;
-				case "required"				: field_required		= _options[_argument]; break;
-				case "pattern"				: field_pattern			= _options[_argument]; break;
-				case "error_message"		: field_error_message	= _options[_argument]; break;
-				case "hint_message"			: field_hint_message	= _options[_argument]; break;
-			}
-		}
-	}
-	var custom_build;
-	if(field_type in u.f.customBuild) {
-		return u.f.customBuild[field_type](node, _options);
-	}
-	field_id = field_id ? field_id : "input_"+field_type+"_"+field_name;
-	field_disabled = !field_disabled ? (field_class.match(/(^| )disabled( |$)/) ? "disabled" : false) : "disabled";
-	field_readonly = !field_readonly ? (field_class.match(/(^| )readonly( |$)/) ? "readonly" : false) : "readonly";
-	field_required = !field_required ? (field_class.match(/(^| )required( |$)/) ? true : false) : true;
-	field_class += field_disabled ? (!field_class.match(/(^| )disabled( |$)/) ? " disabled" : "") : "";
-	field_class += field_readonly ? (!field_class.match(/(^| )readonly( |$)/) ? " readonly" : "") : "";
-	field_class += field_required ? (!field_class.match(/(^| )required( |$)/) ? " required" : "") : "";
-	field_class += field_min ? (!field_class.match(/(^| )min:[0-9]+( |$)/) ? " min:"+field_min : "") : "";
-	field_class += field_max ? (!field_class.match(/(^| )max:[0-9]+( |$)/) ? " max:"+field_max : "") : "";
-	var field = u.ae(node, "div", {"class":"field "+field_type+" "+field_class});
-	var attributes = {};
-	if(field_type == "string") {
-		field_max = field_max ? field_max : 255;
-		attributes = {
-			"type":"text", 
-			"id":field_id, 
-			"value":field_value, 
-			"name":field_name, 
-			"maxlength":field_max, 
-			"minlength":field_min,
-			"pattern":field_pattern,
-			"readonly":field_readonly,
-			"disabled":field_disabled
-		};
-		u.ae(field, "label", {"for":field_id, "html":field_label});
-		u.ae(field, "input", u.f.verifyAttributes(attributes));
-	}
-	else if(field_type == "email" || field_type == "tel" || field_type == "password") {
-		field_max = field_max ? field_max : 255;
-		attributes = {
-			"type":field_type, 
-			"id":field_id, 
-			"value":field_value, 
-			"name":field_name, 
-			"maxlength":field_max, 
-			"minlength":field_min,
-			"pattern":field_pattern,
-			"readonly":field_readonly,
-			"disabled":field_disabled
-		};
-		u.ae(field, "label", {"for":field_id, "html":field_label});
-		u.ae(field, "input", u.f.verifyAttributes(attributes));
-	}
-	else if(field_type == "number" || field_type == "integer" || field_type == "date" || field_type == "datetime") {
-		attributes = {
-			"type":field_type, 
-			"id":field_id, 
-			"value":field_value, 
-			"name":field_name, 
-			"max":field_max, 
-			"min":field_min,
-			"pattern":field_pattern,
-			"readonly":field_readonly,
-			"disabled":field_disabled
-		};
-		u.ae(field, "label", {"for":field_id, "html":field_label});
-		u.ae(field, "input", u.f.verifyAttributes(attributes));
-	}
-	else if(field_type == "checkbox") {
-		attributes = {
-			"type":field_type, 
-			"id":field_id, 
-			"value":field_value ? field_value : "true", 
-			"name":field_name, 
-			"disabled":field_disabled
-		};
-		u.ae(field, "input", u.f.verifyAttributes(attributes));
-		u.ae(field, "label", {"for":field_id, "html":field_label});
-	}
-	else if(field_type == "text") {
-		attributes = {
-			"id":field_id, 
-			"html":field_value, 
-			"name":field_name, 
-			"maxlength":field_max, 
-			"minlength":field_min,
-			"pattern":field_pattern,
-			"readonly":field_readonly,
-			"disabled":field_disabled
-		};
-		u.ae(field, "label", {"for":field_id, "html":field_label});
-		u.ae(field, "textarea", u.f.verifyAttributes(attributes));
-	}
-	else if(field_type == "select") {
-		attributes = {
-			"id":field_id, 
-			"name":field_name, 
-			"disabled":field_disabled
-		};
-		u.ae(field, "label", {"for":field_id, "html":field_label});
-		var select = u.ae(field, "select", u.f.verifyAttributes(attributes));
-		if(field_options) {
-			var i, option;
-			for(i = 0; option = field_options[i]; i++) {
-				if(option.value == field_value) {
-					u.ae(select, "option", {"value":option.value, "html":option.text, "selected":"selected"});
-				}
-				else {
-					u.ae(select, "option", {"value":option.value, "html":option.text});
-				}
-			}
-		}
-	}
-	else if(field_type == "radiobuttons") {
-		u.ae(field, "label", {"html":field_label});
-		if(field_options) {
-			var i, option;
-			for(i = 0; option = field_options[i]; i++) {
-				var div = u.ae(field, "div", {"class":"item"});
-				if(option.value == field_value) {
-					u.ae(div, "input", {"value":option.value, "id":field_id+"-"+i, "type":"radio", "name":field_name, "checked":"checked"});
-					u.ae(div, "label", {"for":field_id+"-"+i, "html":option.text});
-				}
-				else {
-					u.ae(div, "input", {"value":option.value, "id":field_id+"-"+i, "type":"radio", "name":field_name});
-					u.ae(div, "label", {"for":field_id+"-"+i, "html":option.text});
-				}
-			}
-		}
-	}
-	else if(field_type == "files") {
-		u.ae(field, "label", {"for":field_id, "html":field_label});
-		u.ae(field, "input", {"id":field_id, "name":field_name, "type":"file"});
-	}
-	else {
-		u.bug("input type not implemented")
-	}
-	if(field_hint_message || field_error_message) {
-		var help = u.ae(field, "div", {"class":"help"});
-		if(field_hint_message) {
-			u.ae(field, "div", {"class":"hint", "html":field_hint_message});
-			u.ae(field, "div", {"class":"error", "html":field_error_message});
-		}
-	}
-	return field;
-}
-u.f.verifyAttributes = function(attributes) {
-	for(attribute in attributes) {
-		if(attributes[attribute] === undefined || attributes[attribute] === false || attributes[attribute] === null) {
-			delete attributes[attribute];
-		}
-	}
-	return attributes;
-}
-u.f.addAction = function(node, _options) {
-	var action_type = "submit";
-	var action_name = "js_name";
-	var action_value = "";
-	var action_class = "";
-	if(typeof(_options) == "object") {
-		var _argument;
-		for(_argument in _options) {
-			switch(_argument) {
-				case "type"			: action_type			= _options[_argument]; break;
-				case "name"			: action_name			= _options[_argument]; break;
-				case "value"		: action_value			= _options[_argument]; break;
-				case "class"		: action_class			= _options[_argument]; break;
-			}
-		}
-	}
-	var p_ul = node.nodeName.toLowerCase() == "ul" ? node : u.pn(node, {"include":"ul"});
-	if(!p_ul || !u.hc(p_ul, "actions")) {
-		if(node.nodeName.toLowerCase() == "form") {
-			p_ul = u.qs("ul.actions", node);
-		}
-		p_ul = p_ul ? p_ul : u.ae(node, "ul", {"class":"actions"});
-	}
-	var p_li = node.nodeName.toLowerCase() == "li" ? node : u.pn(node, {"include":"li"});
-	if(!p_li || p_ul != p_li.parentNode) {
-		p_li = u.ae(p_ul, "li", {"class":action_name});
-	}
-	else {
-		p_li = node;
-	}
-	var action = u.ae(p_li, "input", {"type":action_type, "class":action_class, "value":action_value, "name":action_name})
-	return action;
-}
-
-
 /*i-page.js*/
 u.bug_console_only = true;
 Util.Objects["page"] = new function() {
 	this.init = function(page) {
 		u.bug("init page:" + page)
+		window.page = page;
+		u.bug_force = true;
+		u.bug("This is built using Manipulator, Janitor and Detector");
+		u.bug("Visit http://parentnode.dk for more information");
+		u.bug("Free lunch for new contributers ;-)");
+		u.bug_force = false;
 		var i, node;
 		page.hN = u.qs("#header", page);
 		page.cN = u.qs("#content", page);
@@ -7012,13 +7623,21 @@ Util.Objects["page"] = new function() {
 		}
 		page.fN = u.qs("#footer", page);
 		page.resized = function() {
+			page.browser_h = u.browserH();
+			page.browser_w = u.browserW();
 			if(page.cN && page.cN.scene && typeof(page.cN.scene.resized) == "function") {
 				page.cN.scene.resized();
 			}
 		}
 		page.scrolled = function() {
+			page.scroll_y = u.scrollY();
 			if(page.cN && page.cN.scene && typeof(page.cN.scene.scrolled) == "function") {
 				page.cN.scene.scrolled();
+			}
+		}
+		page.orientationchanged = function() {
+			if(page.cN && page.cN.scene && typeof(page.cN.scene.orientationchanged) == "function") {
+				page.cN.scene.orientationchanged();
 			}
 		}
 		page.ready = function() {
@@ -7026,9 +7645,11 @@ Util.Objects["page"] = new function() {
 				this.is_ready = true;
 				u.e.addEvent(window, "resize", page.resized);
 				u.e.addEvent(window, "scroll", page.scrolled);
+				u.e.addEvent(window, "orientationchange", page.orientationchanged);
 				page.initHeader();
 				u.notifier(page);
 				u.navigation();
+				page.resized();
 			}
 		}
 		page.cN.navigate = function(url) {
@@ -7057,39 +7678,48 @@ Util.Objects["page"] = new function() {
 			}
 			u.ass(janitor_text, {"opacity": 1});
 			u.ae(page, u.qs(".servicenavigation", page.hN));
-			page.nN.sections = u.qsa("ul.sections > li", page.nN);
-			if(page.nN.sections) {
-				for(i = 0; section = page.nN.sections[i]; i++) {
-					section.header = u.qs("h3", section);
-					section.header.section = section;
+			var sections = u.qsa("ul.navigation > li", page.nN);
+			if(sections) {
+				for(i = 0; section = sections[i]; i++) {
 					section.nodes = u.qsa("li", section);
-					for(j = 0; node = section.nodes[j]; j++) {
-						u.ce(node, {"type":"link"});
-						node.preClicked = function(event) {
-							page.hN.out();
+					if(section.nodes.length) {
+						for(j = 0; node = section.nodes[j]; j++) {
+							u.ce(node, {"type":"link"});
+							if(u.hc(node, document.body.className)) {
+								u.ac(node, "selected");
+							}
+						}
+						section.header = u.qs("h3", section);
+						if(section.header) {
+							section.header.section = section;
+							u.e.click(section.header);
+							section.header.clicked = function() {
+								if(this.section.is_open) {
+									this.section.is_open = false;
+									u.as(this.section, "height", this.offsetHeight+"px");
+									u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
+									u.addExpandArrow(this);
+								}
+								else {
+									this.section.is_open = true;
+									u.as(this.section, "height", "auto");
+									u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
+									u.addCollapseArrow(this);
+								}
+							}
+							var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
+							if(!state) {
+								section.is_open = true;
+							}
+							section.header.clicked();
 						}
 					}
-					u.e.click(section.header);
-					section.header.clicked = function() {
-						if(this.section.is_open) {
-							this.section.is_open = false;
-							u.as(this.section, "height", this.offsetHeight+"px");
-							u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
-							u.addExpandArrow(this);
-						}
-						else {
-							this.section.is_open = true;
-							u.as(this.section, "height", "auto");
-							u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
-							u.addCollapseArrow(this);
+					else {
+						u.ce(section, {"type":"link"});
+						if(u.hc(section, document.body.className)) {
+							u.ac(section, "selected");
 						}
 					}
-					var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
-					u.bug("state " + u.nodeId(section) + ", " + state)
-					if(!state) {
-						section.is_open = true;
-					}
-					section.header.clicked();
 				}
 			}
 			u.e.hover(page.hN);
@@ -7146,13 +7776,6 @@ Util.Objects["page"] = new function() {
 					"width":"30px"
 				});
 			}
-			page.hN.t_navigation = u.t.setTimer(page.hN, "out", 500);
-		}
-		page.svgIcon = function(icon) {
-			var path;
-			if(icon == "youtube") {
-				path = "";
-			}
 		}
 		page.ready();
 	}
@@ -7160,30 +7783,14 @@ Util.Objects["page"] = new function() {
 u.e.addDOMReadyEvent(u.init)
 
 
-/*i-form.js*/
-Util.Objects["addPrices"] = new function() {
-	this.init = function(div) {
-		var form = u.qs("form", div);
-		u.f.init(form);
-		var i, field, actions;
-		form.submitted = function(event) {
-			this.response = function(response) {
-				page.notify(response);
-			}
-			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
-		}
-	}
-}
-Util.Objects["login"] = new function() {
+/*i-scene.js*/
+Util.Objects["scene"] = new function() {
 	this.init = function(scene) {
 		scene.resized = function() {
 		}
 		scene.scrolled = function() {
 		}
 		scene.ready = function() {
-			this._form = u.qs("form", this);
-			u.f.init(this._form);
-			this._form.fields["username"].focus();
 			page.cN.scene = this;
 			page.resized();
 		}
@@ -7191,8 +7798,25 @@ Util.Objects["login"] = new function() {
 	}
 }
 
+/*i-login.js*/
+Util.Objects["login"] = new function() {
+	this.init = function(scene) {
+		scene.resized = function() {
+		}
+		scene.scrolled = function() {
+		}
+		scene.ready = function() {
+			page.cN.scene = this;
+			this._form = u.qs("form", this);
+			u.f.init(this._form);
+			this._form.fields["username"].focus();
+			page.resized();
+		}
+		scene.ready();
+	}
+}
 
-/*i-defaultlist.js*/
+/*i-default_list.js*/
 Util.Objects["defaultList"] = new function() {
 	this.init = function(div) {
 		var i, node;
@@ -7202,27 +7826,34 @@ Util.Objects["defaultList"] = new function() {
 		}
 		div.list.div = div;
 		div.csrf_token = div.getAttribute("data-csrf-token");
-		div.nodes = u.qsa("li.item", div);
+		div.nodes = u.qsa("li.item", div.list);
+		var i, node;
+		for(i = 0; node = div.nodes[i]; i++) {
+			node._item_id = u.cv(node, "item_id");
+			node.div = div;
+			node._text = u.wc(node, "div", {"class":"text"});
+		}
 		div.scrolled = function() {
-			var scroll_y = u.scrollY()
 			var browser_h = u.browserH();
-			var i, node, abs_y;
+			var scroll_y = u.scrollY();
+			var i, node, abs_y, initialized = 0;
 			for(i = 0; node = this.nodes[i]; i++) {
-				abs_y = u.absY(node);
-				if(!node._ready && abs_y - 200 < scroll_y+browser_h && abs_y + 200 > scroll_y) {
-					this.buildNode(node);
+				if(!node._ready) {
+					abs_y = u.absY(node);
+					if(abs_y - 200 < (scroll_y + browser_h) && (abs_y + 200) > scroll_y) {
+						this.buildNode(node);
+					}
+				}
+				else {
+					initialized++;
 				}
 			}
+			if(initialized == this.nodes.length) {
+				this.scroll_event_id = u.e.removeWindowEvent(this, "scroll", this.scroll_event_id);
+			}
 		}
-		div._scrollHandler = function() {
-			u.t.resetTimer(this.t_scroll);
-			this.scrolled();
-		}
-		div.scroll_event_id = u.e.addWindowScrollEvent(div, div._scrollHandler);
+		div.scroll_event_id = u.e.addWindowEvent(div, "scroll", div.scrolled);
 		div.buildNode = function(node) {
-			node._item_id = u.cv(node, "item_id");
-			node._variant = u.cv(node, "variant");
-			node.div = this;
 			node._actions = u.qsa(".actions li", node);
 			var i, action, form, bn_detele, form_disable, form_enable;
 			for(i = 0; action = node._actions[i]; i++) {
@@ -7231,10 +7862,10 @@ Util.Objects["defaultList"] = new function() {
 						action.update_status_url = action.getAttribute("data-item-status");
 						if(action.update_status_url) {
 							form_disable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/0", "class":"disable"});
-							u.ae(form_disable, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+							u.f.addField(form_disable, {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
 							u.f.addAction(form_disable, {"value":"Disable", "class":"button status"});
 							form_enable = u.f.addForm(action, {"action":action.update_status_url+"/"+node._item_id+"/1", "class":"enable"});
-							u.ae(form_enable, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+							u.f.addField(form_enable, {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
 							u.f.addAction(form_enable, {"value":"Enable", "class":"button status"});
 						}
 					}
@@ -7272,7 +7903,7 @@ Util.Objects["defaultList"] = new function() {
 						action.delete_item_url = action.getAttribute("data-item-delete");
 						if(action.delete_item_url) {
 							form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
-							u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+							u.f.addField(form, {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
 							form.node = node;
 							bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
 						}
@@ -7315,41 +7946,37 @@ Util.Objects["defaultList"] = new function() {
 					}
 				}
 			}
-			node._format = u.cv(node, "format");
-			if(u.hc(node, "image")) {
-				node._width = u.cv(node, "width");
-				node._height = u.cv(node, "height");
-				if(node._format && node._width && node._height) {
-					node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x"+node._height+"."+node._format;
-				}
-				else if(node._format && node._width) {
-					node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node._width+"x."+node._format;
-				}
-				else if(node._format && node._height) {
-					node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+"x"+node._height+"."+node._format;
+			if(div._images) {
+				u.ass(node._text, {
+					"padding-left": div._node_padding_left + "px"
+				});
+				node._format = u.cv(node, "format");
+				node._variant = u.cv(node, "variant");
+				if(node._format && node.div._media_width) {
+					node._image_src = "/images/"+node._item_id+"/"+(node._variant ? node._variant+"/" : "")+node.div._media_width+"x."+node._format;
 				}
 				else {
-					if(node._width) {
-						node._image_src = "/images/0/missing/"+node._width+"x.png";
-					}
-					else if(node._height) {
-						node._image_src = "/images/0/missing/x"+node._height+".png";
-					}
+					node._image_src = "/images/0/missing/"+node.div._media_width+"x.png";
 				}
 				if(node._image_src) {
 					u.as(node, "backgroundImage", "url("+node._image_src+")");
 				}
 			}
-			if(u.hc(node, "audio")) {
-				var audio = u.ie(node, "div", {"class":"audioplayer"});
+			else if(div._audios) {
+				u.ass(node._text, {
+					"padding-left": div._node_padding_left + "px"
+				});
+				node._format = u.cv(node, "format");
+				node._variant = u.cv(node, "variant");
 				if(node._format) {
+					node._audio = u.ie(node, "div", {"class":"audioplayer"});
 					if(!page.audioplayer) {
 						page.audioplayer = u.audioPlayer();
 					}
-					audio.scene = this;
-					audio.url = "/audios/"+node._item_id+"/"+node._variant+"/128."+node._format;
-					u.e.click(audio);
-					audio.clicked = function(event) {
+					node._audio.scene = this;
+					node._audio.url = "/audios/"+node._item_id+"/" + (node._variant ? node._variant+"/" : "") + "128."+node._format;
+					u.e.click(node._audio);
+					node._audio.clicked = function(event) {
 						if(!u.hc(this.parentNode, "playing")) {
 							var node, i;
 							for(i = 0; node = this.scene.nodes[i]; i++) {
@@ -7368,192 +7995,59 @@ Util.Objects["defaultList"] = new function() {
 					u.ac(audio, "disabled");
 				}
 			}
-			if(u.hc(node, "audio")) {
-				node._video = u.cv(node, "video");
-				if(node._video) {
-				}
+			else if(div._videos) {
 			}
 			node._ready = true;
+			node.div.scrolled();
+		}
+		if(u.hc(div, "images") || u.hc(div, "videos") || u.hc(div, "audios")) {
+			div._images = u.hc(div, "images");
+			div._videos = u.hc(div, "videos");
+			div._audios = u.hc(div, "audios");
+			div._media_width = u.cv(div, "width") ? u.cv(div, "width") : (div._audios ? 40 : 100);
+			div._node_padding_left = ((Number(div._media_width) - 15) + ((u.hc(div, "sortable") && div.list) ? 25 : 0));
 		}
 		if(u.hc(div, "taggable")) {
-			u.bug("init taggable")
 			div.add_tag_url = div.getAttribute("data-tag-add");
 			div.delete_tag_url = div.getAttribute("data-tag-delete");
 			div.get_tags_url = div.getAttribute("data-tag-get");
-			if(div.get_tags_url && div.delete_tag_url && div.add_tag_url) {
+			if(div.csrf_token && div.get_tags_url && div.delete_tag_url && div.add_tag_url) {
 				div.tagsResponse = function(response) {
 					if(response.cms_status == "success" && response.cms_object) {
 						this.all_tags = response.cms_object;
-						var i, node, tag, j, bn_add, context, value;
-						for(i = 0; node = this.nodes[i]; i++) {
-							node._tags = u.qs("ul.tags", node);
-							if(!node._tags) {
-								node._tags = u.ae(node, "ul", {"class":"tags"});
-							}
-							node._bn_add = u.ae(node._tags, "li", {"class":"add","html":"+"});
-							node._bn_add.div = this;
-							node._bn_add.node = node;
-							u.e.click(node._bn_add);
-							node._bn_add.clicked = function() {
-								this.div.taggableNode(this.node);
-							}
-						}
 					}
 					else {
 						page.notify(response);
+						this.all_tags = [];
+					}
+					var i, node;
+					for(i = 0; node = this.nodes[i]; i++) {
+						node.data_div = this;
+						node._tags = u.qs("ul.tags", node);
+						if(!node._tags) {
+							node._tags = u.ae(node, "ul", {"class":"tags"});
+						}
+						node._tags.div = this;
+						node._bn_add = u.ae(node._tags, "li", {"class":"add","html":"+"});
+						node._bn_add.node = node;
+						u.enableTagging(node);
 					}
 				}
 				u.request(div, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
-				div.taggableNode = function(node) {
-					u.ac(node, "addtags");
-					node._bn_add.innerHTML = "-";
-					node._bn_add.clicked = function() {
-						this.innerHTML = "+";
-						u.rc(this.node, "addtags");
-						this.node._tag_options.parentNode.removeChild(this.node._tag_options);
-						this.clicked = function() {
-							this.div.taggableNode(this.node);
-						}
-					}
-					node._tag_options = u.ae(node, "div", {"class":"tagoptions"});
-					node._tag_options._field = u.ae(node._tag_options, "div", {"class":"field"});
-					node._tag_options._tagfilter = u.ae(node._tag_options._field, "input", {"class":"filter ignoreinput"});
-					node._tag_options._tagfilter.focus();
-					node._tag_options._tagfilter.node = node;
-					node._tag_options._tagfilter.onkeyup = function() {
-						if(this.node._new_tags) {
-							var tags = u.qsa(".tag", this.node._new_tags);
-							var i, tag;
-							for(i = 0; tag = tags[i]; i++) {
-								if(tag.textContent.toLowerCase().match(this.value.toLowerCase())) {
-									u.as(tag, "display", "inline-block");
-								}
-								else {
-									u.as(tag, "display", "none");
-								}
-							}
-						}
-					}
-					node._new_tags = u.ae(node._tag_options, "ul", {"class":"tags"});
-					var itemTags = u.qsa("li:not(.add)", node._tags);
-					var usedTags = {};
-					for(j = 0; tag = itemTags[j]; j++) {
-						tag._context = u.qs(".context", tag).innerHTML;
-						tag._value = u.qs(".value", tag).innerHTML;
-						if(!usedTags[tag._context]) {
-							usedTags[tag._context] = {}
-						}
-						if(!usedTags[tag._context][tag._value]) {
-							usedTags[tag._context][tag._value] = tag;
-						}
-					}
-					for(tag in this.all_tags) {
-						context = this.all_tags[tag].context;
-						value = this.all_tags[tag].value.replace(/ & /, " &amp; ");
-						if(usedTags && usedTags[context] && usedTags[context][value]) {
-							tag_node = usedTags[context][value];
-						}
-						else {
-							tag_node = u.ae(node._new_tags, "li", {"class":"tag"});
-							tag_node._context = context;
-							tag_node._value = value;
-							u.ae(tag_node, "span", {"class":"context", "html":tag_node._context});
-							u.ae(tag_node, "span", {"class":"value", "html":tag_node._value});
-						}
-						tag_node.new_tags = this;
-						tag_node._id = this.all_tags[tag].id;
-						tag_node.node = node;
-						u.e.click(tag_node);
-						tag_node.clicked = function() {
-							if(u.hc(this.node, "addtags")) {
-								if(this.parentNode == this.node._tags) {
-									this.response = function(response) {
-										page.notify(response);
-										if(response.cms_status == "success") {
-											u.ae(this.node._new_tags, this);
-										}
-									}
-									u.request(this, this.node.div.delete_tag_url+"/"+this.node._item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.node.div.csrf_token});
-								}
-								else {
-									this.response = function(response) {
-										page.notify(response);
-										if(response.cms_status == "success") {
-											u.ie(this.node._tags, this);
-										}
-									}
-									u.request(this, this.node.div.add_tag_url+"/"+this.node._item_id, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.node.div.csrf_token});
-								}
-							}
-						}
-					}
-				}
-			}
-			else {
-				u.rc(div, "taggable");
 			}
 		}
 		if(u.hc(div, "filters")) {
-			div._filter = u.ie(div, "div", {"class":"filter"});
-			var i, node;
-			for(i = 0; node = div.nodes[i]; i++) {
-				node._c = node.textContent.toLowerCase();
-			}
-			div._filter._field = u.ae(div._filter, "div", {"class":"field"});
-			u.ae(div._filter._field, "label", {"html":"Filter"});
-			div._filter._input = u.ae(div._filter._field, "input", {"class":"filter ignoreinput"});
-			div._filter._input._div = div;
-			div._filter._input.onkeydown = function() {
-				u.t.resetTimer(this._div.t_filter);
-			}
-			div._filter._input.onkeyup = function() {
-				this._div.t_filter = u.t.setTimer(this._div, this._div.filter, 500);
-				u.ac(this._div._filter, "filtering");
-			}
-			div.filter = function() {
-				var i, node;
-				if(this._current_filter != this._filter._input.value.toLowerCase()) {
-					this._current_filter = this._filter._input.value.toLowerCase();
-					for(i = 0; node = this.nodes[i]; i++) {
-						if(node._c.match(this._current_filter)) {
-							u.as(node, "display", "block", false);
-						}
-						else {
-							u.as(node, "display", "none", false);
-						}
-					}
-				}
-				u.rc(this._filter, "filtering");
-				this.scrolled();
-			}
+			u.defaultFilters(div);
 		}
-		if(u.hc(div, "sortable") && div.list) {
-			div.save_order_url = div.getAttribute("data-item-order");
-			if(div.save_order_url) {
-				u.sortable(div.list, {"targets":"items", "draggables":"draggable"});
-				div.list.picked = function() {}
-				div.list.dropped = function() {
-					var order = new Array();
-					this.nodes = u.qsa("li.item", this);
-					for(i = 0; node = this.nodes[i]; i++) {
-						order.push(u.cv(node, "id"));
-					}
-					this.orderResponse = function(response) {
-						page.notify(response);
-					}
-					u.request(this, this.div.save_order_url, {"callback":"orderResponse", "method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
-				}
-			}
-			else {
-				u.rc(div, "sortable");
-			}
+		if(u.hc(div, "sortable")) {
+			u.defaultSortableList(div.list);
 		}
 		div.scrolled();
 	}
 }
 
 
-/*i-defaultedit.js*/
+/*i-default_edit.js*/
 Util.Objects["defaultEdit"] = new function() {
 	this.init = function(div) {
 		div._item_id = u.cv(div, "item_id");
@@ -7609,7 +8103,7 @@ Util.Objects["defaultEdit"] = new function() {
 	}
 }
 
-/*i-defaultnew.js*/
+/*i-default_new.js*/
 Util.Objects["defaultNew"] = new function() {
 	this.init = function(form) {
 		u.f.init(form);
@@ -7630,7 +8124,7 @@ Util.Objects["defaultNew"] = new function() {
 	}
 }
 
-/*i-defaulteditstatus.js*/
+/*i-default_edit_status.js*/
 Util.Objects["defaultEditStatus"] = new function() {
 	this.init = function(node) {
 		node._item_id = u.cv(node, "item_id");
@@ -7680,7 +8174,7 @@ Util.Objects["defaultEditStatus"] = new function() {
 	}
 }
 
-/*i-defaulteditactions.js*/
+/*i-default_edit_actions.js*/
 Util.Objects["defaultEditActions"] = new function() {
 	this.init = function(node) {
 		u.bug("defaultEditActions:" + u.nodeId(node));
@@ -7736,163 +8230,40 @@ Util.Objects["defaultEditActions"] = new function() {
 	}
 }
 
-/*i-defaulttags.js*/
+/*i-default_tags.js*/
 Util.Objects["defaultTags"] = new function() {
 	this.init = function(div) {
-		div.item_id = u.cv(div, "item_id");
-		div._tags_form = u.qs("form", div);
-		div._tags_form.div = div;
-		u.f.init(div._tags_form);
-		div.csrf_token = div._tags_form.fields["csrf-token"].value;
-		div.add_tag_url = div._tags_form.action;
+		div._item_id = u.cv(div, "item_id");
+		div.csrf_token = div.getAttribute("data-csrf-token");
+		div.add_tag_url = div.getAttribute("data-tag-add");
 		div.delete_tag_url = div.getAttribute("data-tag-delete");
 		div.get_tags_url = div.getAttribute("data-tag-get");
-		div._tags_form.fields["tags"].focused = function() {
-			this.form.div.enableTagging();
-		}
-		div._tags_form.fields["tags"].updated = function() {
-			if(this.form.div._new_tags) {
-				var tags = u.qsa(".tag", this.form.div._new_tags);
-				var i, tag;
-				for(i = 0; tag = tags[i]; i++) {
-					if(tag.textContent.toLowerCase().match(this.value.toLowerCase())) {
-						u.as(tag, "display", "inline-block");
-					}
-					else {
-						u.as(tag, "display", "none");
-					}
+		div.data_div = div;
+		if(div.csrf_token && div.get_tags_url && div.delete_tag_url && div.add_tag_url) {
+			div.tagsResponse = function(response) {
+				if(response.cms_status == "success" && response.cms_object) {
+					this.all_tags = response.cms_object;
 				}
-			}
-		}
-		div._tags_form.submitted = function(iN) {
-			this.response = function(response) {
-				page.notify(response);
-				if(response.cms_status == "success") {
-					var i, tag_node;
-					var new_tags = u.qsa("li", this.div._new_tags);
-					for(i = 0; tag_node = new_tags[i]; i++) {
-						if(tag_node._id == response.cms_object.tag_id) {
-							this.fields["tags"].val("");
-							this.fields["tags"].updated();
-							u.ae(this.div._tags, tag_node);
-							return;
-						}
-					}
-					this.div._tags._alltags.push({"id":response.cms_object.tag_id, "context":response.cms_object.context, "value":response.cms_object.value})
-					tag_node = u.ae(this.div._tags, "li", {"class":"tag"});
-					tag_node._context = response.cms_object.context;
-					tag_node._value = response.cms_object.value;
-					tag_node._id = response.cms_object.id;
-					u.ae(tag_node, "span", {"class":"context", "html":tag_node._context});
-					u.ae(tag_node, "span", {"class":"value", "html":tag_node._value});
-					tag_node.div = this.div;
-					div.activateTag(tag_node);
-					this.fields["tags"].val("");
-					this.fields["tags"].updated();
+				else {
+					page.notify(response);
+					this.all_tags = [];
 				}
-			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-		}
-		div._tags = u.qs("ul.tags", div);
-		if(!div._tags) {
-			div._tags = u.ae(div._tags, "ul", {"class":"tags"});
-		}
-		div._tags.div = div;
-		div._tags.tagsResponse = function(response) {
-			if(response.cms_status == "success" && response.cms_object) {
-				this._alltags = response.cms_object;
-				this._bn_add = u.ae(this, "li", {"class":"add","html":"+"});
-			}
-			else {
-				page.notify(response);
-				this._alltags = [];
-				this._bn_add = u.ae(this, "li", {"class":"add","html":"?"});
-			}
-			this._bn_add.div = this.div;
-			u.e.click(this._bn_add);
-			this._bn_add.clicked = function() {
-				this.div.enableTagging();
-			}
-		}
-		u.request(div._tags, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
-		div.enableTagging = function() {
-			u.bug("enable tagging")
-			if(!this._tag_options) {
-				this._tags._bn_add.innerHTML = "-";
-				this._tags._bn_add.clicked = function() {
-					this.innerHTML = "+";
-					u.rc(this.div, "addtags");
-					this.div._tag_options.parentNode.removeChild(this.div._tag_options);
-					this.div._tag_options = false;
-					this.clicked = function() {
-						this.div.enableTagging();
-					}
+				this._tags = u.qs("ul.tags", this);
+				if(!this._tags) {
+					this._tags = u.ae(this._tags, "ul", {"class":"tags"});
 				}
-				u.ac(this, "addtags");
-				this._tag_options = u.ae(this, "div", {"class":"tagoptions"});
-				this._new_tags = u.ae(this._tag_options, "ul", {"class":"tags"});
-				var usedtags = {};
-				var itemTags = u.qsa("li:not(.add)", this._tags);
-				var i, tag_node, tag, context, value;
-				for(i = 0; tag_node = itemTags[i]; i++) {
-					tag_node._context = u.qs(".context", tag_node).innerHTML;
-					tag_node._value = u.qs(".value", tag_node).innerHTML;
-					if(!usedtags[tag_node._context]) {
-						usedtags[tag_node._context] = {}
-					}
-					if(!usedtags[tag_node._context][tag_node._value]) {
-						usedtags[tag_node._context][tag_node._value] = tag_node;
-					}
-				}
-				for(tag in this._tags._alltags) {
-					context = this._tags._alltags[tag].context;
-					value = this._tags._alltags[tag].value.replace(/ & /, " &amp; ");
-					if(usedtags && usedtags[context] && usedtags[context][value]) {
-						tag_node = usedtags[context][value];
-					}
-					else {
-						tag_node = u.ae(this._new_tags, "li", {"class":"tag"});
-						tag_node._context = context;
-						tag_node._value = value;
-						u.ae(tag_node, "span", {"class":"context", "html":tag_node._context});
-						u.ae(tag_node, "span", {"class":"value", "html":tag_node._value});
-					}
-					tag_node._id = this._tags._alltags[tag].id;
-					tag_node.div = this;
-					div.activateTag(tag_node);
-				}
+				this._tags.div = this;
+				this._bn_add = u.ae(this._tags, "li", {"class":"add","html":"+"});
+				this._bn_add.node = this;
+				u.enableTagging(this);
 			}
-		}
-		div.activateTag = function(tag_node) {
-			u.e.click(tag_node);
-			tag_node.clicked = function() {
-				if(u.hc(this.div, "addtags")) {
-					if(this.parentNode == this.div._tags) {
-						this.response = function(response) {
-							page.notify(response);
-							if(response.cms_status == "success") {
-								u.ae(this.div._new_tags, this);
-							}
-						}
-						u.request(this, this.div.delete_tag_url+"/"+this.div.item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.div.csrf_token});
-					}
-					else {
-						this.response = function(response) {
-							page.notify(response);
-							if(response.cms_status == "success") {
-								u.ie(this.div._tags, this)
-							}
-						}
-						u.request(this, this.div.add_tag_url, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.div.csrf_token});
-					}
-				}
-			}
+			u.request(div, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
 		}
 	}
 }
 
 
-/*i-defaultmedia.js*/
+/*i-default_media.js*/
 Util.Objects["addMedia"] = new function() {
 	this.init = function(div) {
 		div.form = u.qs("form.upload", div);
@@ -8468,7 +8839,7 @@ Util.Objects["addMediaSingle"] = new function() {
 	}
 }
 
-/*i-defaultcomments.js*/
+/*i-default_comments.js*/
 Util.Objects["defaultComments"] = new function() {
 	this.init = function(div) {
 		div.item_id = u.cv(div, "item_id");
@@ -8573,6 +8944,22 @@ Util.Objects["defaultComments"] = new function() {
 		var i, node;
 		for(i = 0; node = div.comments[i]; i++) {
 			div.initComment(node);
+		}
+	}
+}
+
+
+/*i-default_prices.js*/
+Util.Objects["addPrices"] = new function() {
+	this.init = function(div) {
+		var form = u.qs("form", div);
+		u.f.init(form);
+		var i, field, actions;
+		form.submitted = function(event) {
+			this.response = function(response) {
+				page.notify(response);
+			}
+			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 		}
 	}
 }
@@ -8697,22 +9084,34 @@ Util.Objects["usernames"] = new function() {
 		var form;
 		form = u.qs("form.email", div);
 		u.f.init(form);
+		form.updated = function() {
+			u.ac(this.actions["save"], "primary");
+		}
 		form.submitted = function(iN) {
 			this.response = function(response) {
 				page.notify(response);
 				if(response.cms_status == "error") {
 					u.f.fieldError(this.fields["email"]);
 				}
+				else {
+					u.rc(this.actions["save"], "primary");
+				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 		}
 		form = u.qs("form.mobile", div);
 		u.f.init(form);
+		form.updated = function() {
+			u.ac(this.actions["save"], "primary");
+		}
 		form.submitted = function(iN) {
 			this.response = function(response) {
 				page.notify(response);
 				if(response.cms_status == "error") {
 					u.f.fieldError(this.fields["mobile"]);
+				}
+				else {
+					u.rc(this.actions["save"], "primary");
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
@@ -8803,6 +9202,25 @@ Util.Objects["apitoken"] = new function() {
 		}
 	}
 }
+Util.Objects["editAddress"] = new function() {
+	this.init = function(form) {
+		u.f.init(form);
+		form.actions["cancel"].clicked = function(event) {
+			location.href = this.url;
+		}
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					location.href = this.actions["cancel"].url;
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+		}
+	}
+}
 Util.Objects["newsletters"] = new function() {
 	this.init = function(div) {
 		var i, node;
@@ -8851,6 +9269,25 @@ Util.Objects["newsletters"] = new function() {
 					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 				}
 			}
+		}
+	}
+}
+Util.Objects["addNewsletter"] = new function() {
+	this.init = function(form) {
+		u.f.init(form);
+		form.actions["cancel"].clicked = function(event) {
+			location.href = this.url;
+		}
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					location.href = this.actions["cancel"].url;
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 		}
 	}
 }
@@ -8933,6 +9370,9 @@ Util.Objects["usernamesProfile"] = new function() {
 		var form;
 		form = u.qs("form.email", div);
 		u.f.init(form);
+		form.updated = function() {
+			u.ac(this.actions["save"], "primary");
+		}
 		form.submitted = function(iN) {
 			this.response = function(response) {
 				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
@@ -8944,6 +9384,7 @@ Util.Objects["usernamesProfile"] = new function() {
 					u.f.fieldError(this.fields["email"]);
 				}
 				else {
+					u.rc(this.actions["save"], "primary");
 					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Email updated"]});
 				}
 			}
@@ -8951,6 +9392,9 @@ Util.Objects["usernamesProfile"] = new function() {
 		}
 		form = u.qs("form.mobile", div);
 		u.f.init(form);
+		form.updated = function() {
+			u.ac(this.actions["save"], "primary");
+		}
 		form.submitted = function(iN) {
 			this.response = function(response) {
 				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
@@ -8962,6 +9406,7 @@ Util.Objects["usernamesProfile"] = new function() {
 					u.f.fieldError(this.fields["mobile"]);
 				}
 				else {
+					u.rc(this.actions["save"], "primary");
 					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Mobile updated"]});
 				}
 			}
@@ -9011,19 +9456,21 @@ Util.Objects["apitokenProfile"] = new function() {
 	this.init = function(div) {
 		var token = u.qs("p.token", div);
 		var form = u.qs("form", div);
-		form._token = token;
-		u.f.init(form);
-		form.submitted = function(iN) {
-			this.response = function(response) {
-				if(response.cms_status == "success") {
-					this._token.innerHTML = response.cms_object;
-					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token updated"});
+		if(form) {
+			form._token = token;
+			u.f.init(form);
+			form.submitted = function(iN) {
+				this.response = function(response) {
+					if(response.cms_status == "success") {
+						this._token.innerHTML = response.cms_object;
+						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token updated"});
+					}
+					else {
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be updated"});
+					}
 				}
-				else {
-					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be updated"});
-				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 		}
 	}
 }
@@ -9112,6 +9559,12 @@ u.bug_console_only = true;
 Util.Objects["page"] = new function() {
 	this.init = function(page) {
 		u.bug("init page:" + page)
+		window.page = page;
+		u.bug_force = true;
+		u.bug("This is built using Manipulator, Janitor and Detector");
+		u.bug("Visit http://parentnode.dk for more information");
+		u.bug("Free lunch for new contributers ;-)");
+		u.bug_force = false;
 		var i, node;
 		page.hN = u.qs("#header", page);
 		page.cN = u.qs("#content", page);
@@ -9121,13 +9574,21 @@ Util.Objects["page"] = new function() {
 		}
 		page.fN = u.qs("#footer", page);
 		page.resized = function() {
+			page.browser_h = u.browserH();
+			page.browser_w = u.browserW();
 			if(page.cN && page.cN.scene && typeof(page.cN.scene.resized) == "function") {
 				page.cN.scene.resized();
 			}
 		}
 		page.scrolled = function() {
+			page.scroll_y = u.scrollY();
 			if(page.cN && page.cN.scene && typeof(page.cN.scene.scrolled) == "function") {
 				page.cN.scene.scrolled();
+			}
+		}
+		page.orientationchanged = function() {
+			if(page.cN && page.cN.scene && typeof(page.cN.scene.orientationchanged) == "function") {
+				page.cN.scene.orientationchanged();
 			}
 		}
 		page.ready = function() {
@@ -9135,9 +9596,11 @@ Util.Objects["page"] = new function() {
 				this.is_ready = true;
 				u.e.addEvent(window, "resize", page.resized);
 				u.e.addEvent(window, "scroll", page.scrolled);
+				u.e.addEvent(window, "orientationchange", page.orientationchanged);
 				page.initHeader();
 				u.notifier(page);
 				u.navigation();
+				page.resized();
 			}
 		}
 		page.cN.navigate = function(url) {
@@ -9166,39 +9629,48 @@ Util.Objects["page"] = new function() {
 			}
 			u.ass(janitor_text, {"opacity": 1});
 			u.ae(page, u.qs(".servicenavigation", page.hN));
-			page.nN.sections = u.qsa("ul.sections > li", page.nN);
-			if(page.nN.sections) {
-				for(i = 0; section = page.nN.sections[i]; i++) {
-					section.header = u.qs("h3", section);
-					section.header.section = section;
+			var sections = u.qsa("ul.navigation > li", page.nN);
+			if(sections) {
+				for(i = 0; section = sections[i]; i++) {
 					section.nodes = u.qsa("li", section);
-					for(j = 0; node = section.nodes[j]; j++) {
-						u.ce(node, {"type":"link"});
-						node.preClicked = function(event) {
-							page.hN.out();
+					if(section.nodes.length) {
+						for(j = 0; node = section.nodes[j]; j++) {
+							u.ce(node, {"type":"link"});
+							if(u.hc(node, document.body.className)) {
+								u.ac(node, "selected");
+							}
+						}
+						section.header = u.qs("h3", section);
+						if(section.header) {
+							section.header.section = section;
+							u.e.click(section.header);
+							section.header.clicked = function() {
+								if(this.section.is_open) {
+									this.section.is_open = false;
+									u.as(this.section, "height", this.offsetHeight+"px");
+									u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
+									u.addExpandArrow(this);
+								}
+								else {
+									this.section.is_open = true;
+									u.as(this.section, "height", "auto");
+									u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
+									u.addCollapseArrow(this);
+								}
+							}
+							var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
+							if(!state) {
+								section.is_open = true;
+							}
+							section.header.clicked();
 						}
 					}
-					u.e.click(section.header);
-					section.header.clicked = function() {
-						if(this.section.is_open) {
-							this.section.is_open = false;
-							u.as(this.section, "height", this.offsetHeight+"px");
-							u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
-							u.addExpandArrow(this);
-						}
-						else {
-							this.section.is_open = true;
-							u.as(this.section, "height", "auto");
-							u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
-							u.addCollapseArrow(this);
+					else {
+						u.ce(section, {"type":"link"});
+						if(u.hc(section, document.body.className)) {
+							u.ac(section, "selected");
 						}
 					}
-					var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
-					u.bug("state " + u.nodeId(section) + ", " + state)
-					if(!state) {
-						section.is_open = true;
-					}
-					section.header.clicked();
 				}
 			}
 			u.e.hover(page.hN);
@@ -9254,13 +9726,6 @@ Util.Objects["page"] = new function() {
 				u.ass(this, {
 					"width":"30px"
 				});
-			}
-			page.hN.t_navigation = u.t.setTimer(page.hN, "out", 500);
-		}
-		page.svgIcon = function(icon) {
-			var path;
-			if(icon == "youtube") {
-				path = "";
 			}
 		}
 		page.ready();

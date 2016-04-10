@@ -19,42 +19,35 @@
 	-webkit-text-size-adjust: none;
 }
 html {height: 100%;}
-body {background: #ffffff; margin: 0; min-height: 100%; overflow-y: scroll; background-color: #f5f7f8;}
-h1, h2, h3, h4, h5, h6, p, ul, li, dl, dd, dt {color: #313942; padding: 0; margin: 0; line-height: 1em; font-weight: normal;}
+body {margin: 0; min-height: 100%; overflow-y: scroll; background-color: #f5f7f8;}
+h1, h2, h3, h4, h5, h6, p, ul, li, dl, dd, dt {color: #313942; padding: 0; margin: 0;}
+h1, h2, h3, h4, h5, h6, p, li, span, a, form, dd, dt {line-height: 1em; font-weight: normal;}
 ul {list-style: none;}
 a {text-decoration: none; cursor: pointer;}
 a:hover {}
 img {border: 0; display: block;}
 form, fieldset, label, input, select, textarea {color: #313942; padding: 0; margin: 0; font-weight: normal;}
-input, select, textarea {font-size: 1.077rem;}
 fieldset {border: none;}
+input, select, textarea {font-size: 14px;}
 input, textarea {outline: none;}
 a, span {font-size: inherit; font-family: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; color: inherit; text-transform: inherit;}
-h1 {padding: 20px 30px; text-transform: uppercase; font-size: 2rem;}
-h2 {padding: 0 30px 10px; font-size: 1.3rem;}
-h3 {padding: 0 30px 10px; font-size: 1.2rem;}
+h1 {padding: 20px 30px; text-transform: uppercase; font-size: 26px;}
+h2 {padding: 0 30px 10px; font-size: 17px;}
+h3 {padding: 0 30px 10px; font-size: 14px;}
 h4 {padding: 0 30px;}
 h5 {padding: 0 30px;}
 h6 {padding: 0 30px;}
 p {padding: 0 30px 25px; color: #7d848c; line-height: 1.38em;} 
 ul {font-size: 0;}
-li {display: inline-block; vertical-align: top; color: #7d848c; font-size: 0.923rem;}
+li {display: inline-block; vertical-align: top; color: #7d848c; font-size: 12px;}
 dl {font-size: 0;} 
 dd, 
-dt {color: #7d848c; display: inline-block; vertical-align: top; font-size: 0.923rem;}
-.c {clear: both; font-size: 0;}
-.c400, .c300, .c266, .c200, .c150, .c133, .c100, .c75, .c50 {display: inline-block; min-height: 10px; vertical-align: top;}
-.c400 {width: 100%;}
-.c300 {width: 75%;}
-.c266 {width: 66%;}
-.c200 {width: 50%;}
-.c133 {width: 34%;}
-.c100 {width: 25%;}
+dt {color: #7d848c; display: inline-block; vertical-align: top; font-size: 12px;}
 #page {position: relative; margin-left: 30px;}
 
 
 /*s-header.css*/
-#header {background-color: #313942; position: fixed; z-index: 200; top: 0; left: 0; width: 30px; height: 100%;}
+#header {background-color: #313942; position: fixed; z-index: 200; top: 0; left: 0; width: 30px; height: 100%; overflow: hidden;}
 #header .janitor {display: block; background-color: #64ad8e; height: 140px; padding: 0;}
 #header .janitor li.front {display: block; color: #ffffff; padding: 20px; text-transform: uppercase; font-size: 18px;}
 #header .janitor li.front a {white-space: nowrap; opacity: 0;}
@@ -69,33 +62,16 @@ dt {color: #7d848c; display: inline-block; vertical-align: top; font-size: 0.923
 #page > .servicenavigation li a:hover {text-decoration: underline;}
 #navigation {opacity: 0;}
 #navigation ul li {color: #8c9399; display: block; text-transform: uppercase;}
+#navigation ul li:hover {color: #ffffff;}
 #navigation ul li a {display: block; padding: 14px 20px 15px;}
-#navigation ul:not(.sections) > li {font-size: 12px; border-bottom: 1px solid #404a56;}
-#navigation ul:not(.sections) > li:hover {color: #ffffff;}
-#navigation > ul.sections {}
-#navigation > ul.sections > li {overflow: hidden;}
-#navigation > ul.sections h3 {color: #8c9399; padding: 14px 20px 15px; font-size: 13px; position: relative; border-bottom: 1px solid #404a56;}
-#navigation > ul.sections h3 svg {position: absolute; top: 15px; right: 20px; stroke: #8c9399; stroke-width: 2px;}
-#navigation > ul.sections h3:hover {color: #ffffff;}
-#navigation > ul.sections ul {}
-#navigation > ul.sections ul li {padding-left: 20px;}
-body.page #navigation .page a,
-body.post #navigation .post a,
-body.person #navigation .person a,
-body.photocollection #navigation .photocollection a,
-body.todo #navigation .todo a,
-body.qna #navigation .qna a,
-body.todolist #navigation .todo a,
-body.wish #navigation .wish a,
-body.wishlist #navigation .wish a,
-body.event #navigation .event a,
-body.profile #navigation .profile a,
-body.navigation #navigation .navigation a,
-body.shop #navigation .shop a,
-body.tags #navigation .tags a,
-body.user #navigation .user a,
-body.logs #navigation .logs a,
-body.usergroup #navigation .user a {padding-left: 35px; color: #ffffff;}
+#navigation > ul.navigation {}
+#navigation > ul.navigation > li {overflow: hidden; border-bottom: 1px solid #404a56;}
+#navigation > ul.navigation h3 {color: #cccccc; padding: 11px 20px 12px; font-size: 10px; position: relative; }
+#navigation > ul.navigation h3 svg {position: absolute; top: 11px; right: 20px; stroke: #8c9399; stroke-width: 2px;}
+#navigation > ul.navigation h3:hover {color: #ffffff;}
+#navigation > ul.navigation ul {}
+#navigation > ul.navigation ul li {padding-left: 20px; border-top: 1px solid #404a56;}
+#navigation li.selected a {padding-left: 35px; color: #ffffff;}
 
 
 /*s-content.css*/
@@ -103,13 +79,21 @@ body.usergroup #navigation .user a {padding-left: 35px; color: #ffffff;}
 #content a {text-decoration: underline;}
 #content .link {cursor: pointer;}
 #content .scene {position: relative; min-height: 200px;}
-#content .scene > h1 {height: 46px; padding-bottom: 0; background: #ffffff;}
-#content .scene > h1+h2 {height: 24px; padding-bottom: 0; background: #ffffff; font-size: 14px; margin-top: -24px;}
-#content .scene h1 + ul.actions {border-bottom: 1px solid #bbbbbb; padding: 25px 30px 0; height: 49px; background: #ffffff;}
-#content .scene h1 + h2 + ul.actions {border-bottom: 1px solid #bbbbbb; padding: 15px 30px 0; height: 49px; background: #ffffff;}
+#content .scene > h1 {height: 46px; border-bottom: 1px solid #bbbbbb; padding-bottom: 74px; background: #ffffff;}
+#content .scene > h1 + h2 {height: 24px; padding-bottom: 0; font-size: 14px; height: 90px; margin: -90px 0 0;}
+#content .scene h1 + ul.actions {padding: 0 30px; height: 49px; margin: -49px 0 0;}
+#content .scene h1 + h2 + ul.actions {padding: 0 30px; height: 49px; margin: -49px 0 0;}
 #content .scene h1 + ul.actions li,
 #content .scene h1 + h2 + ul.actions li {padding-bottom: 0;}
-#content .scene h2 {padding: 10px 30px 11px;}
+#content .scene > ul.actions li.delete {float: right; padding: 0 0 10px 10px;}
+#content .scene h1 + p,
+#content .scene h1 + h3,
+#content .scene h1 + h2 + p,
+#content .scene h1 + h2 + h3,
+#content .scene h1 + ul.actions + p,
+#content .scene h1 + ul.actions + h3,
+#content .scene h1 + h2 + ul.actions + p,
+#content .scene h1 + h2 + ul.actions + h3 {padding-top: 20px;}
 #content ul.list {padding: 21px 30px;}
 #content ul.list li {display: block;}
 #content dl.list {padding: 21px 30px; width: 600px;}
@@ -120,17 +104,25 @@ body.usergroup #navigation .user a {padding-left: 35px; color: #ffffff;}
 #content dl.list dd {width: 170px; margin: 0 30px 0 0;}
 #content .scene > ul.actions {padding-bottom: 20px; padding-top: 20px; text-align: left;}
 #content .scene > ul.actions li {padding: 0 10px 10px 0;}
+#content .scene ul.tabs {background-color: #dedede; border-top: 1px solid #bbbbbb;}
+#content .scene > ul.tabs {border: none;}
+#content .scene ul.tabs li {padding: 15px 30px; border-right: 1px solid #dedede;}
+#content .scene ul.tabs li a {text-decoration: none;}
+#content .scene ul.tabs li.selected {background-color: #f5f7f8; color: #313942;}
+#content .scene li.comment ul.info {padding: 0 30px;}
+#content .scene li.comment ul.info li {display: inline-block; vertical-align: top;}
+#content .scene li.comment ul.info li.user:after {content: ",\00a0";}
+#content .scene li.comment p.comment {color: #313942; padding-bottom: 10px;}
 #content .scene > div.prices {padding: 10px 0 20px; border-bottom: 1px solid #bbbbbb;}
 #content .todo * {color: orange !important;}
 #content .warning, #content .warning * {color: orange !important;}
 #content .system_error, #content .system_error * {color: red !important;}
-#content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
 #content .scene.login form {padding-top: 30px;}
 
 /*s-footer.css*/
 #footer {text-align: right; font-size: 0; padding: 10px 20px; position: fixed; z-index: 100; bottom: 0; right: 0; background-color: rgba(255,255,255,0.5);}
-#footer .servicenavigation {display: inline-block;}
-#footer .servicenavigation .copyright {white-space: nowrap;}
+#footer .servicenavigation {display: none;}
+#footer p {white-space: nowrap; padding: 0;}
 
 /*s-login_overlay.css*/
 #login_overlay {position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.8); z-index: 10000;}
@@ -239,7 +231,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field .pseudolabel {color: #aaaaaa;}
 #content .field .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px;}
 #content .field.required .indicator {
-	background: transparent url(/janitor/admin/img//bg_icons.png) no-repeat 0 -292px;
+	background: transparent url(/janitor/admin/img/bg_icons.png) no-repeat 0 -292px;
 }
 #content .field.text.required .indicator {background-position: 0 -296px;}
 #content .field.radiobuttons .indicator,
@@ -267,7 +259,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.files.error {border-color: #f8c9bb;}
 #content ul.actions {padding: 0 25px;}
 #content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px; vertical-align: top;}
-#content ul.actions input.button {width: auto; height: 26px; padding: 3px 12px;}
+#content ul.actions input.button {width: auto; height: 26px; padding: 3px 10px;}
 @media all and (-webkit-min-device-pixel-ratio:0) {
 	#content ul.actions input.button {padding-bottom: 4px;}
 }
@@ -284,18 +276,18 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content ul.actions a.button.secondary {background-color: #fecd60; color: #9f742c;}
 #content ul.actions input.button.secondary:hover,
 #content ul.actions a.button.secondary:hover {background-color: #fed76e;}
-#content ul.actions li.status input.button {font-size: 0; height: 26px; width: 26px;}
-#content ul.actions li.status form.disable input.button {background-color: #f4f5f5; border-left: 3px solid #8c9399; border-top: 3px solid #8c9399; border-right: 30px solid #8c9399; border-bottom: 3px solid #8c9399;}
-#content ul.actions li.status form.enable input.button {background-color: #f4f5f5; border-right: 3px solid orange; border-top: 3px solid orange; border-left: 30px solid orange; border-bottom: 3px solid orange;}
+#content ul.actions li.status input.button {font-size: 0; height: 26px; width: 26px; padding: 3px 12px;}
+#content ul.actions li.status form.disable input.button {background-color: #f4f5f5; border-left: 3px solid #8c9399; border-top: 3px solid #8c9399; border-right: 27px solid #8c9399; border-bottom: 3px solid #8c9399;}
+#content ul.actions li.status form.enable input.button {background-color: #f4f5f5; border-right: 3px solid orange; border-top: 3px solid orange; border-left: 27px solid orange; border-bottom: 3px solid orange;}
 #content ul.actions li.status form.disable:after {content: "ON"; font-size: 10px; font-weight: 700; color: #8c9399; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 6px;}
-#content ul.actions li.status form.enable:after {content: "OFF"; font-size: 10px; font-weight: 700; color: orange; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 32px;}
+#content ul.actions li.status form.enable:after {content: "OFF"; font-size: 10px; font-weight: 700; color: orange; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 29px;}
 #content ul.actions li.status.enabled form.enable {display: none;}
 #content ul.actions li.status.disabled form.disable {display: none;}
 #content form input.button.delete.confirm {color: #ffffff; background-color: #df0000;}
 #content form input.button.delete.confirm:hover {}
 #content form input.button.disabled,
 #content form input.button.disabled:hover {cursor: default !important; color: #aaaaaa !important; background-color: #eeeeee !important;}
-#content .field div.help {position: absolute; left: 455px; top: 0; width: 200px;}
+#content .field div.help {position: absolute; left: 455px; top: 0; width: 200px; line-height: 1.2em;}
 #content .field.files div.help {left: 422px;}
 #content .field div.error,
 #content .field div.hint {display: none; padding: 5px; border-radius: 3px; font-size: 12px;}
@@ -427,36 +419,34 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 
 
 /*s-tags.css*/
-#content ul.tags {padding: 10px 125px 16px 25px;}
-#content ul.tags li {display: inline-block; vertical-align: top; margin: 3px; border-radius: 13px; background-color: #313942; padding: 6px 10px 7px; color: #ffffff; font-size: 0;}
-#content ul.tags li.add {padding: 6px 7px 7px 8px; cursor: pointer; width: 10px; text-align: center;}
+#content ul.tags {padding: 0 125px 4px 30px;}
+#content ul.tags li {display: inline-block; vertical-align: top; margin: 0 6px 6px 0; border-radius: 12px; background-color: #313942; padding: 4px 7px 6px; color: #ffffff; font-size: 0;}
+#content ul.tags li.add {padding: 4px 4px 6px; cursor: pointer; width: 13px; text-align: center;}
 #content ul.tags li.add:hover {background-color: #64ad8e;}
-#content ul.tags li span {font-size: 0.923rem; line-height: 1em;}
+#content ul.tags li span {font-size: 11px; line-height: 1em; color: #ffffff !important;}
 #content ul.tags li span.context {text-transform: uppercase;}
 #content ul.tags li span.context:after {content: ":";}
 #content ul.tags li span.value {}
-#content ul.tags li.add {font-size: 0.923rem;}
+#content ul.tags li.add {font-size: 11px;}
 #content .scene > div.tags {padding: 0; border-bottom: 1px solid #aaaaaa; overflow: hidden;}
-#content .scene > div.tags ul.tags {padding: 0 125px 20px 25px;}
-#content div.tags fieldset {display: inline-block; vertical-align: top;}
-#content div.tags fieldset .field {padding-right: 12px; padding-bottom: 0;}
-#content div.tags fieldset .field input[type=text] {width: 262px;}
-#content div.tags .actions {display: inline-block; vertical-align: top; padding: 0;}
-#content div.tags .actions li {padding-left: 0;}
-#content div.tags .actions li input {margin-top: 4px;}
-#content .addtags ul.tags li {cursor: pointer;}
-#content .addtags ul.tags li:hover,
-#content .addtags ul.tags li.add:hover {background-color: #df0000;}
-#content .addtags div.tagoptions ul.tags {display: block;}
+#content .scene > div.tags ul.tags {padding: 0 125px 14px 30px;}
+#content div.tagoptions fieldset {display: inline-block; vertical-align: top;}
+#content div.tagoptions fieldset .field {padding-right: 12px;}
+#content div.tagoptions fieldset .field input[type=text] {width: 262px;}
+#content div.tagoptions ul.actions {display: inline-block; vertical-align: top; padding: 0;}
+#content div.tagoptions ul.actions li {padding-left: 0;}
+#content div.tagoptions ul.actions li input {margin-top: 4px;}
+#content .edittags ul.tags li {cursor: pointer;}
+#content .edittags ul.tags li:hover,
+#content .edittags ul.tags li.add:hover {background-color: #df0000;}
+#content .edittags div.tagoptions ul.tags {display: block;}
 #content div.tagoptions ul.tags {position: relative; z-index: 10; display: none;}
-#content div.tagoptions ul.tags li {background-color: #dedede;}
+#content div.tagoptions ul.tags li {background-color: #313942;}
 #content div.tagoptions ul.tags li:hover {background-color: #64ad8e;}
-#content div.tagoptions .field {}
-#content div.sortable div.tagoptions .field {padding-left: 56px;}
-#content div.tagoptions input {height: 16px; font-size: 12px;}
-#content .scene.tagList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
-#content .scene.tagList h1 + p {padding-top: 16px;}
-#content .scene.tagList ul.items > li h3 {padding: 16px 30px;}
+#content div.all_items div.tagoptions {padding-top: 8px;}
+#content div.all_items ul.items > li div.tagoptions ul.actions {position: static; right: auto; top: auto;}
+#content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 1px;}
+#content div.sortable div.tagoptions .field {padding-left: 48px;}
 #content .scene.tagList ul.items > li.unused {background: orange;}
 #content .scene.tagList ul.items > li > h3 > span {font-size: 12px;}
 #content .scene.tagEdit ul.tag_items {padding: 16px 30px;}
@@ -492,41 +482,37 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 
 /*s-user.css*/
 #content .defaultList.userList > .actions li.online {float: right; padding: 0 0 10px 10px;}
-#content .defaultList.userList ul.items > li h3 {padding-bottom: 16px;}
-#content .defaultList.userList .userGroups {background-color: #dedede;}
-#content .defaultList.userList .userGroups li {padding: 15px 30px; border-right: 1px solid #dedede;}
-#content .defaultList.userList .userGroups li a {text-decoration: none;}
-#content .defaultList.userList .userGroups li.selected {background-color: #f5f7f8; color: #aaaaaa;}
-#content .defaultEdit.userEdit .views {background-color: #dedede;}
-#content .defaultEdit.userEdit .views li {padding: 15px 30px; border-right: 1px solid #dedede;}
-#content .defaultEdit.userEdit .views li a {text-decoration: none;}
-#content .defaultEdit.userEdit .views li.selected {background-color: #f5f7f8; color: #313942;}
-#content .scene.userEdit > div.usernames {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
-#content .scene.userEdit > div.usernames form.email {padding-bottom: 10px; border-bottom: 1px solid #dedede;}
-#content .scene.userEdit > div.usernames form.mobile {padding-top: 20px;}
-#content .scene.userEdit > div.usernames .actions {text-align: left;}
-#content .scene.userEdit > div.usernames .actions li {padding: 0 5px 10px;}
-#content .scene.userEdit > div.password {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.usernames {border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.usernames form.email {font-size: 0;}
+#content .scene.userEdit > div.usernames form.mobile {padding-bottom: 15px; font-size: 0;}
+#content .scene.userEdit > div.usernames .actions {text-align: left; width: calc(25% - 10px); display: inline-block; vertical-align: top; padding: 21px 0 9px;}
+#content .scene.userEdit > div.usernames .actions li {padding: 0;}
+#content .scene.userEdit > div.usernames .actions li input.button {height: 28px; padding-top: 6px;}
+#content .scene.userEdit > div.usernames fieldset {display: inline-block; vertical-align: top; width: calc(75% - 10px);}
+#content .scene.userEdit > div.usernames fieldset .field {padding-right: 5px;}
+#content .scene.userEdit > div.password {border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.password div.password_state {}
+#content .scene.userEdit > div.password div.password_state a {text-decoration: underline;}
 #content .scene.userEdit > div.password div.password_state .password_missing {display: block;}
 #content .scene.userEdit > div.password div.password_state .password_set {display: none;}
 #content .scene.userEdit > div.password div.password_state.set .password_missing {display: none;}
 #content .scene.userEdit > div.password div.password_state.set .password_set {display: block;}
 #content .scene.userEdit > div.password div.new_password {display: none;}
 #content .scene.userEdit > div.password .actions {text-align: left;}
-#content .scene.userEdit > div.password .actions li {padding: 0 5px 10px;}
-#content .scene.userEdit > div.apitoken {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
-#content .scene.userEdit > div.apitoken form {display: inline-block; vertical-align: top;}
+#content .scene.userEdit > div.password .actions li {padding: 0 5px 25px 0;}
+#content .scene.userEdit > div.apitoken {border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.apitoken form {display: inline-block; vertical-align: top; padding-bottom: 15px;}
 #content .scene.userEdit > div.apitoken form.renew ul.actions {padding-right: 0;}
 #content .scene.userEdit > div.apitoken form.disable ul.actions {padding-left: 0;}
-#content .scene.userEdit > div.addresses {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.addresses {border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.addresses ul.addresses {padding: 0 30px;}
 #content .scene.userEdit > div.addresses ul.addresses > li {display: inline-block; vertical-align: top; width: 250px; margin-right: 30px; margin-bottom: 20px; height: 150px; padding: 0 0 20px; border-bottom: 1px solid #dedede; position: relative;}
 #content .scene.userEdit > div.addresses ul.addresses > li h3 {padding: 0 0 5px;}
 #content .scene.userEdit > div.addresses ul.addresses > li div {padding: 0 0 3px;}
 #content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; bottom: 0; left: 0; padding: 0;}
 #content .scene.userEdit > div.addresses ul.addresses > li .actions li {padding-left: 0;}
-#content .scene.userEdit > div.newsletters {padding: 0 0 10px 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.addresses > .actions {padding-bottom: 10px;}
+#content .scene.userEdit > div.newsletters {border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.newsletters ul.newsletters {padding: 0 30px 10px;}
 #content .scene.userEdit > div.newsletters ul.newsletters > li {display: block; padding: 0 0 10px;}
 #content .scene.userEdit > div.newsletters ul.newsletters > li h3 {padding: 4px 0 0; display: inline-block; vertical-align: top;}
@@ -540,25 +526,12 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .defaultEdit.accessEdit > div.access {padding: 20px 0;}
 #content .defaultEdit.accessEdit > div.access ul.points {padding: 0 0 20px;}
 #content .defaultEdit.accessEdit > div.access ul.points li {display: block;}
+#content .defaultEdit.accessEdit > div.access ul.points li .field {padding-bottom: 10px;}
 #content .defaultEdit.accessEdit > div.access ul.points li.action {border-top: 1px solid #dedede; padding: 10px 0 0;}
-#content .defaultList.usergroupList ul.items > li h3 {padding-bottom: 16px;}
 #content .defaultEdit.usergroupEdit > ul.actions li.access {float: right;}
-#content .defaultList.userContentList h2 {padding-top: 20px; border-bottom: 1px solid #dedede;}
 #content .defaultList.userContentList div.all_items {padding-bottom: 20px;}
-#content .defaultList.userContentList ul.items > li h3 {padding-bottom: 16px;}
 #content .defaultList.userContentList ul.items > li h3 br {display: none;}
-#content .defaultList.userContentList .views {background-color: #dedede;}
-#content .defaultList.userContentList .views li {padding: 15px 30px; border-right: 1px solid #dedede;}
-#content .defaultList.userContentList .views li a {text-decoration: none;}
-#content .defaultList.userContentList .views li.selected {background-color: #f5f7f8; color: #aaaaaa;}
 #content .defaultList.userContentList div.comments ul.items > li {}
-#content .defaultList.userContentList div.comments ul.items > li ul.info {padding: 0 30px 5px;}
-#content .defaultList.userContentList div.comments ul.items > li ul.info li {display: inline-block; vertical-align: top;}
-#content .defaultList.userContentList div.comments ul.items > li ul.info li.user:after {content: ",\00a0";}
-#content .defaultList.userContentList div.comments ul.items > li p.comment {color: #313942; padding-bottom: 15px;}
-#content .defaultList.userOnlineList div.users ul.items dl.info {padding-top: 5px; padding-bottom: 16px;}
-#content .scene.profileEdit h1,
-#content .scene.profileContentList h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
 #content .scene.profileEdit div.password label {display: block; padding-left: 3px;}
 #content .scene.profileEdit div.password .indicator {top: 20px;}
 
@@ -567,52 +540,35 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .defaultList.logList ul.items > li ul.loglines li {padding: 0 30px; display: block;}
 
 /*s-navigations.css*/
-#content .defaultList.navigationsList ul.items > li h3 {padding-bottom: 16px;}
 #content .defaultEdit.navigationNodeEdit form > fieldset,
 #content .defaultNew.navigationNodeNew form > fieldset {padding-bottom: 15px;}
 #content .defaultNew.navigationNodeNew fieldset h3,
 #content .defaultEdit.navigationNodeEdit fieldset h3 {border-top: 1px solid #aaaaaa; font-size: 0.8em; margin: 5px 0 20px; padding-bottom: 10px; padding-top: 7px; text-transform: uppercase;}
-#content .defaultEdit.navigationEdit div.nodes ul.nodes {
-	border-top: 1px solid #dedede; 
-	margin-bottom: -1px;
-}
-#content .defaultEdit.navigationEdit div.nodes > ul.nodes li ul.nodes {
-}
-#content .defaultEdit.navigationEdit div.nodes > ul.nodes > li {}
-#content .defaultEdit.navigationEdit ul.nodes > li {padding: 0; display: block; position: relative; z-index: 1; border-bottom: 1px solid #dedede;}
-#content .defaultEdit.navigationEdit ul.nodes > li div.drag {width: 30px; height: 30px; position: absolute; top: 1px; left: 20px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
-#content .defaultEdit.navigationEdit ul.nodes > li h3 {padding: 10px 20px 10px 0; display: inline-block; vertical-align: bottom; font-size: 14px;}
-#content .defaultEdit.navigationEdit ul.nodes > li h3 {margin-left: 60px;}
-#content .defaultEdit.navigationEdit ul.nodes > li li h3 {margin-left: 60px; padding-left: 30px;}
-#content .defaultEdit.navigationEdit ul.nodes > li li li h3 {margin-left: 90px;}
-#content .defaultEdit.navigationEdit ul.nodes > li li li li h3 {margin-left: 120px;}
-#content .defaultEdit.navigationEdit ul.nodes > li li li li li h3 {margin-left: 150px;}
-#content .defaultEdit.navigationEdit ul.nodes > li li li li li li h3 {margin-left: 180px;}
-#content .defaultEdit.navigationEdit ul.nodes > li li h3 {
+#content .defaultEdit.navigationEdit .sortable ul.items li ul.items { border-top: 1px solid #dedede; margin-bottom: -1px;}
+#content .defaultEdit.navigationEdit .sortable ul.items > li h3 {padding: 10px 20px 10px 0; display: inline-block; vertical-align: bottom;}
+#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item h3 {margin-left: 30px; padding-left: 40px;}
+#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item li.item h3 {margin-left: 50px;}
+#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item li.item li.item h3 {margin-left: 70px;}
+#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item li.item li.item li h3 {margin-left: 90px;}
+#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item li.item li.item li.item li.item h3 {margin-left: 110px;}
+#content .defaultEdit.navigationEdit .sortable ul.items > li li h3 {
 	background-image: url(/janitor/admin/img//bg_angle.png);
-	background-position: 11px 10px;
+	background-position: 23px 10px;
 	background-color: transparent;
 	background-repeat: no-repeat;
 }
+#content div.all_items ul.items > li.item:hover {background-color: transparent;}
 #content .defaultEdit.navigationEdit ul.nodes > li span {padding: 10px 10px 10px 0; display: inline-block; vertical-align: bottom;}
-#content .defaultEdit.navigationEdit ul.nodes > li {
-}
 #content .defaultEdit.navigationEdit ul.nodes > li.hover {background: red !important;}
 #content .defaultEdit.navigationEdit ul.nodes > li.dragged {
 	z-index: 3;
 }
 #content .defaultEdit.navigationEdit ul.nodes > li.dragged .drag {background-image: none;}
-#content .defaultEdit.navigationEdit ul.nodes li ul.actions {
-	position: absolute; top: 5px; right: 0;
-}
-#content .defaultEdit.navigationEdit ul.nodes li ul.actions a.button {font-size: 0.87em; height: 10px;}
-#content .defaultEdit.navigationEdit ul.nodes li ul.actions input.button {font-size: 0.87em; height: 22px;}
 
 
 /*s-front.css*/
-#content .scene.front h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
 #content .scene.front > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
-#content .scene.front div.todos {border-top: 1px solid #bbbbbb; padding-bottom: 10px;}
+#content .scene.front div.todos {border-bottom: 1px solid #bbbbbb; padding-bottom: 10px;}
 #content .scene.front div.todos ul.todos {}
 #content .scene.front div.todos ul.todos > li.todo {position: relative; border-bottom: 1px solid #dedede; display: block; padding: 0 0 10px; margin-bottom: 10px;}
 #content .scene.front div.todos ul.todos > li.todo:last-child {border: none;}
@@ -627,7 +583,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.front div.todos ul.todos dd.overdue,
 #content .scene.front div.todos ul.todos dd.high {color: #df0000 !important;}
 #content .scene.front div.todos ul.todos ul.tags {padding: 0; position: absolute; right: 30px; top: 0;}
-#content .scene.front div.qnas {position: relative; border-top: 1px solid #bbbbbb; padding-bottom: 15px;}
+#content .scene.front div.qnas {position: relative; border-bottom: 1px solid #bbbbbb; padding-bottom: 15px;}
 #content .scene.front div.qnas ul.qnas {}
 #content .scene.front div.qnas ul.qnas > li.qna {position: relative; border-bottom: 1px solid #dedede; display: block; padding: 0 0 10px; margin-bottom: 10px;}
 #content .scene.front div.qnas ul.qnas > li.qna:last-child {border: none;}
@@ -646,43 +602,63 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content div.disabled_items {border-bottom: 1px solid #dedede; margin-bottom: 20px;}
 #content div.enabled_items > p,
 #content div.disabled_items > p {padding-top: 20px;}
+#content div.all_items > h2 + ul.items,
+#content div.all_items > p + ul.items {border-top: 1px solid #dedede;}
 #content div.all_items ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede;}
 #content div.all_items ul.items > li:hover {background-color: #edf0f2;}
-#content div.all_items ul.items > li h3 {padding: 16px 30px 0px 30px;}
-#content div.all_items ul.items > li.image {background-repeat: no-repeat; min-height: 100px; padding-left: 160px; background-position: 0px center;}
-#content div.all_items ul.items > li.audio {padding-left: 80px;}
-#content div.all_items ul.items > li.audio div.audioplayer {position: absolute; top: 16px; left: 30px; width: 50px; height: 50px; 
+#content div.all_items ul.items > li h3 {padding: 10px 250px 10px 30px;}
+#content div.all_items.images ul.items > li {background-repeat: no-repeat; background-position: 0px center;}
+#content div.all_items.audios ul.items > li {}
+#content div.all_items.audios ul.items > li div.audioplayer {z-index: 10; position: absolute; top: 7px; left: 25px; width: 20px; height: 20px; 
+	background: transparent url(/janitor/admin/img/bg_bn_play_small.png) no-repeat 0px 0px;
+}
+#content div.all_items.audios ul.items > li.playing div.audioplayer {background-position: 0px -100px;}
+#content div.all_items.videos ul.items > li {}
+#content div.all_items.videos ul.items > li div.videoplayer {z-index: 10; position: absolute; top: 10px; left: 20px; width: 50px; height: 50px; 
 	background: transparent url(/janitor/admin/img/bg_bn_play_medium.png) no-repeat 0px 0px;
 }
-#content div.all_items ul.items > li.playing div.audioplayer {background-position: 0px -100px;}
-#content div.all_items ul.items > li.video {padding-left: 80px;}
-#content div.all_items ul.items > li.video div.videoplayer {position: absolute; top: 16px; left: 30px; width: 50px; height: 50px; 
-	background: transparent url(/janitor/admin/img/bg_bn_play_medium.png) no-repeat 0px 0px;
-}
-#content div.all_items ul.items > li.playing div.videoplayer {background-position: 0px -100px;}
-#content div.all_items ul.items > li .description {display: none;}
-#content div.all_items ul.items > li dl {overflow: hidden; padding: 3px 30px;
-}
+#content div.all_items.videos ul.items > li.playing div.videoplayer {background-position: 0px -100px;}
+#content div.all_items ul.items > li .description {padding-bottom: 10px; margin-top: -5px; font-size: 12px; line-height: 1em;}
+#content div.all_items ul.items > li dl {overflow: hidden; padding: 0 30px 6px; margin-top: -5px;}
 #content div.all_items ul.items > li dt {float: left; clear: left;}
 #content div.all_items ul.items > li dt:after {content: ":\00a0";}
-#content div.all_items ul.items > li dd {float: left;clear: right; padding: 0 0 3px;}
-#content div.all_items ul.items > li .actions {position: absolute; top: 0px; padding: 0; right: 20px;}
-#content div.all_items ul.items > li .actions li {padding: 10px 0 10px 10px;}
-#content div.all_items div.filter {text-align: right; padding: 10px 20px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content div.all_items ul.items > li dd {float: left; clear: right; padding: 0 0 3px;}
+#content div.all_items ul.items > li ul.actions {position: absolute; top: 0px; padding: 0; right: 30px;}
+#content div.all_items ul.items > li ul.actions li {padding: 5px 0 5px 5px;}
+#content div.all_items ul.items > li ul.actions li a.button {padding: 4px 12px 6px;}
+#content div.all_items ul.items > li ul.actions li input.button {height: 24px;}
+#content div.all_items div.filter {padding: 10px 0 4px; min-height: 28px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative; overflow: hidden;}
+#content div.all_items div.filter ul.tags {padding-bottom: 0; padding-right: 150px;}
+#content div.all_items div.filter ul.tags li {font-size: 12px; background-color: #dedede; cursor: pointer;}
+#content div.all_items div.filter ul.tags li.selected,
+#content div.all_items div.filter ul.tags li:hover {background-color: #313942;}
 #content div.all_items div.filter.filtering {background: red;}
-#content div.all_items div.filter .field {padding: 0;}
-#content div.all_items div.filter .field label {display: inline-block; vertical-align: top; padding: 3px 4px; color: #aaaaaa;}
+#content div.all_items div.filter form {position: absolute; right: 30px; top: 9px;}
+#content div.all_items div.filter .field {padding: 0 0 6px;}
 #content div.all_items div.filter .field input {width: 100px; height: 16px; font-size: 12px;}
+#content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 0px; left: 15px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
 #content div.all_items.sortable ul.items > li.item h3,
-#content div.all_items.sortable ul.items > li.item p {padding-left: 60px;}
-#content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 8px; left: 20px; background: transparent url(/janitor/admin/img//bg_icons2.png) no-repeat 10px -440px; cursor: move;}
-#content div.all_items.sortable ul.items > li.item ul.tags {padding-left: 55px;}
-#content div.all_items.sortable ul.items > li.item dl {padding-left: 60px;}
-#content div.all_items.sortable ul.items > li.image {padding-left: 190px; background-position: 60px center;}
+#content div.all_items.sortable ul.items > li.item p,
+#content div.all_items.sortable ul.items > li.item ul.tags,
+#content div.all_items.sortable ul.items > li.item dl {padding-left: 50px;}
+#content div.all_items.sortable.images ul.items > li.item h3,
+#content div.all_items.sortable.images ul.items > li.item p,
+#content div.all_items.sortable.images ul.items > li.item ul.tags,
+#content div.all_items.sortable.images ul.items > li.item dl {padding-left: 55px;}
+#content div.all_items.sortable.audios ul.items > li.item h3,
+#content div.all_items.sortable.audios ul.items > li.item p,
+#content div.all_items.sortable.audios ul.items > li.item ul.tags,
+#content div.all_items.sortable.audios ul.items > li.item dl {padding-left: 35px;}
+#content div.all_items.sortable.videos ul.items > li.item h3,
+#content div.all_items.sortable.videos ul.items > li.item p,
+#content div.all_items.sortable.videos ul.items > li.item ul.tags,
+#content div.all_items.sortable.videos ul.items > li.item dl {padding-left: 55px;}
+#content div.all_items.sortable.images ul.items > li {background-position: 50px center;}
+#content div.all_items.sortable.audios ul.items > li div.audioplayer {left: 55px;}
+#content div.all_items.sortable.videos ul.items > li div.videoplayer {left: 45px;}
 
 
 /*s-default_edit.css*/
-#content .defaultEdit > .actions li.delete {float: right; padding: 0 0 10px 10px;}
 #content .scene.defaultEdit > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
 #content .scene.defaultEdit > div.status {border-bottom: 1px solid #bbbbbb;}
 #content .scene.defaultEdit > div.status .actions {padding: 0;}
@@ -761,13 +737,10 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.defaultEdit > div.comments {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.comments ul.comments {border-top: 1px solid #dedede; padding-top: 15px;}
 #content .scene.defaultEdit > div.comments ul.comments > li {display: block; border-bottom: 1px solid #dedede; margin-bottom: 15px; position: relative;}
-#content .scene.defaultEdit > div.comments ul.comments > li ul.info {padding: 0 30px 5px;}
-#content .scene.defaultEdit > div.comments ul.comments > li ul.info li {display: inline-block; vertical-align: top;}
-#content .scene.defaultEdit > div.comments ul.comments > li ul.info li.user:after {content: ",\00a0";}
-#content .scene.defaultEdit > div.comments ul.comments > li p.comment {color: #313942; padding-bottom: 15px;}
 #content .scene.defaultEdit > div.comments ul.comments > li > ul.actions {position: absolute; top: 0; right: 0;}
 #content .scene.defaultEdit > div.comments ul.comments > li > ul.actions li {display: inline-block; vertical-align: top;}
-#content .scene.defaultEdit > div.comments > form {padding-bottom: 10px; padding-top: 5px;}
+#content .scene.defaultEdit > div.comments > form,
+#content .scene.defaultEdit > div.comments li.comment > form {padding-bottom: 10px; padding-top: 5px;}
 #content .scene.defaultEdit > div.todos {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.todos ul.todos {list-style: disc; list-style-position: outside; margin-left: 15px; padding: 0 0 20px 30px;}
 #content .scene.defaultEdit > div.todos ul.todos > li {display: list-item;}
@@ -782,7 +755,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.defaultEdit > div.qnas ul.qnas > li p {padding-bottom: 7px;}
 #content .scene.defaultEdit div.togglable {overflow: hidden;}
 #content .scene.defaultEdit div.togglable h2 {position: relative;}
-#content .scene.defaultEdit div.togglable h2 svg {position: absolute; top: 7px; right: 20px; stroke: #313942; stroke-width: 3px;}
+#content .scene.defaultEdit div.togglable h2 svg {position: absolute; top: 7px; right: 25px; stroke: #313942; stroke-width: 3px;}
 
 
 /*s-default_new.css*/
@@ -794,30 +767,17 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 /*s-itemtypes.css*/
 #content .scene.todoList div.item {padding: 0 0 20px; border-bottom: 1px solid #aaaaaa;}
 #content .scene.todoList > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
-#content .scene.todolistList ul.items > li h3,
-#content .scene.todolistEdit div.todos ul.items > li h3 {padding-bottom: 10px; padding-right: 250px;}
-#content .scene.todolistEdit div.todos ul.items > li p.description {padding-bottom: 6px; display: block;}
-#content .scene.todolistEdit div.todos ul.items > li dl {padding-bottom: 20px;}
 #content .scene.todolistEdit div.todos ul.items > li dt {color: #313942;}
 #content .scene.todolistEdit div.todos ul.items > li dd.overdue,
 #content .scene.todolistEdit div.todos ul.items > li dd.high {color: #df0000;}
 #content .scene.todoList div.todolists {padding: 0 0 50px; border-bottom: 1px solid #aaaaaa;}
-#content .scene.todoList ul.items > li h3 {padding-bottom: 10px; padding-right: 250px;}
-#content .scene.todoList ul.items > li p.description {padding-bottom: 6px; display: block;}
 #content .scene.todoList ul.items > li dt {color: #313942;}
 #content .scene.todoList ul.items > li dd.overdue,
 #content .scene.todoList ul.items > li dd.high {color: #df0000;}
-#content div.todos .states {background-color: #dedede; border-top: 1px solid #bbbbbb;}
-#content div.todos .states li {padding: 15px 30px; border-right: 1px solid #dedede;}
-#content div.todos .states li a {text-decoration: none;}
-#content div.todos .states li.selected {background-color: #f5f7f8; color: #313942;}
 #content .qnaList ul.items > li p {padding-bottom: 0px; padding-right: 220px;}
 #content .scene.wishList div.item {padding: 0 0 20px; border-bottom: 1px solid #aaaaaa;}
 #content .scene.wishList > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
-#content .scene.wishlistList ul.items > li h3,
-#content .scene.wishList div.wishlists ul.items > li h3 {padding-bottom: 16px;}
 #content .scene.wishList div.wishlists {padding: 0 0 50px; border-bottom: 1px solid #aaaaaa;}
-#content .scene.wishList ul.items > li dl {display: block; padding: 5px 30px;}
 #content .scene.wishList ul.items > li dl dt.reserved {display: none;}
 #content .scene.wishList ul.items > li dl dd.reserved {font-size: 14px;}
 
