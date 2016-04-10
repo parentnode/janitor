@@ -1,18 +1,19 @@
-#content .scene.start h1+h2 {border-bottom: 1px solid #dedede; padding-bottom: 64px;}
+/*#content .scene.start h1+h2 {border-bottom: 1px solid #dedede; padding-bottom: 64px;}*/
 
 #content .scene.start ul.requirements {padding: 20px 30px 20px;}
 #content .scene.start ul.requirements li {display: block; padding: 0 0 10px;}
 
 
 #content .scene.config fieldset+p {padding-top: 20px;}
-#content .scene.config h1+h2 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+#content .scene form h2 {padding-top: 15px;}
+/*#content .scene.config h1+h2 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}*/
 
-#content .scene.database h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+/*#content .scene.database h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}*/
 
-#content .scene.mail h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}
+/*#content .scene.mail h1 {border-bottom: 1px solid #dedede; padding-bottom: 74px;}*/
 
-#content .scene.finish h1+h2 {border-bottom: 1px solid #dedede; padding-bottom: 64px;}
-#content .scene.finish h1+h2+p {padding-top: 20px;}
+/*#content .scene.finish h1+h2 {border-bottom: 1px solid #dedede; padding-bottom: 64px;}*/
+/*#content .scene.finish h1+h2+p {padding-top: 20px;}*/
 
 #content .scene.finish .final_touches,
 #content .scene.finish .installing {display: none;}
@@ -34,13 +35,13 @@
 
 
 /* NAVIGATION */
-body.front #navigation .front a,
+/*body.front #navigation .front a,
 body.paths #navigation .paths a,
 body.database #navigation .database a,
 body.config #navigation .config a,
 body.mail #navigation .mail a,
 body.finish #navigation .finish a {padding-left: 35px; color: #ffffff;}
-
+*/
 #navigation li.done {
 	background: transparent url(/janitor/admin/img/bg_done.png) no-repeat 200px 12px;
 }
