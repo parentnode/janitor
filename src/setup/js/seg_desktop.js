@@ -7610,7 +7610,7 @@ Util.Objects["page"] = new function() {
 		u.bug("init page:" + page)
 		window.page = page;
 		u.bug_force = true;
-		u.bug("This is built using Manipulator, Janitor and Detector");
+		u.bug("This site is built using Manipulator, Janitor and Detector");
 		u.bug("Visit http://parentnode.dk for more information");
 		u.bug("Free lunch for new contributers ;-)");
 		u.bug_force = false;
@@ -9561,7 +9561,7 @@ Util.Objects["page"] = new function() {
 		u.bug("init page:" + page)
 		window.page = page;
 		u.bug_force = true;
-		u.bug("This is built using Manipulator, Janitor and Detector");
+		u.bug("This site is built using Manipulator, Janitor and Detector");
 		u.bug("Visit http://parentnode.dk for more information");
 		u.bug("Free lunch for new contributers ;-)");
 		u.bug_force = false;
@@ -9743,9 +9743,8 @@ Util.Objects["start"] = new function() {
 			var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
 			var i, node;
 			for(i = 0; node = steps[i]; i++) {
-				var url = u.qs("a", steps[i]).href;
-				if(url != location.href) {
-					location.href = url;
+				if(node.url != location.href) {
+					location.href = node.url;
 					break;
 				}
 			}
@@ -9763,9 +9762,8 @@ Util.Objects["config"] = new function() {
 						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
-							var url = u.qs("a", steps[i]).href;
-							if(url != location.href) {
-								location.href = url;
+							if(node.url != location.href) {
+								location.href = node.url;
 								break;
 							}
 						}
@@ -9790,9 +9788,8 @@ Util.Objects["database"] = new function() {
 						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
-							var url = u.qs("a", steps[i]).href;
-							if(url != location.href) {
-								location.href = url;
+							if(node.url != location.href) {
+								location.href = node.url;
 								break;
 							}
 						}
@@ -9817,9 +9814,8 @@ Util.Objects["mail"] = new function() {
 						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
-							var url = u.qs("a", steps[i]).href;
-							if(url != location.href) {
-								location.href = url;
+							if(node.url != location.href) {
+								location.href = node.url;
 								break;
 							}
 						}

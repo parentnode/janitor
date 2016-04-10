@@ -4,8 +4,10 @@
 
 	<div id="footer">
 		<ul class="servicenavigation">
-			<li class="copyright">Copyright 2016, parentNode.dk</li>
+			<li class="totop"><a href="#header">To top</a></li>
 		</ul>
+
+		<p class="copyright">Copyright 2016, parentNode.dk</p>
 	</div>
 
 </div>

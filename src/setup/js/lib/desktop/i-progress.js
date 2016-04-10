@@ -8,9 +8,8 @@ Util.Objects["start"] = new function() {
 
 			var i, node;
 			for(i = 0; node = steps[i]; i++) {
-				var url = u.qs("a", steps[i]).href;
-				if(url != location.href) {
-					location.href = url;
+				if(node.url != location.href) {
+					location.href = node.url;
 					break;
 				}
 			}
@@ -34,9 +33,8 @@ Util.Objects["config"] = new function() {
 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
-							var url = u.qs("a", steps[i]).href;
-							if(url != location.href) {
-								location.href = url;
+							if(node.url != location.href) {
+								location.href = node.url;
 								break;
 							}
 						}
@@ -68,9 +66,8 @@ Util.Objects["database"] = new function() {
 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
-							var url = u.qs("a", steps[i]).href;
-							if(url != location.href) {
-								location.href = url;
+							if(node.url != location.href) {
+								location.href = node.url;
 								break;
 							}
 						}
@@ -102,9 +99,8 @@ Util.Objects["mail"] = new function() {
 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
-							var url = u.qs("a", steps[i]).href;
-							if(url != location.href) {
-								location.href = url;
+							if(node.url != location.href) {
+								location.href = node.url;
 								break;
 							}
 						}
