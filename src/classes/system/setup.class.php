@@ -719,7 +719,7 @@ class Setup extends Itemtype {
 
 				define("SITE_UID", $this->site_uid);
 				define("SITE_NAME", $this->site_name);
-				define("SITE_URL", $_SERVER["SERVER_NAME"]);
+//				define("SITE_URL", $_SERVER["SERVER_NAME"]);
 				define("SITE_EMAIL", $this->site_email);
 
 				// create conf files
@@ -737,8 +737,8 @@ class Setup extends Itemtype {
 				$file_apache = preg_replace("/###LOCAL_PATH###/", $this->local_path, $file_apache);
 				$file_apache = preg_replace("/###FRAMEWORK_PATH###/", $this->framework_path, $file_apache);
 				$file_apache = preg_replace("/###PROJECT_PATH###/", $this->project_path, $file_apache);
-				$file_apache = preg_replace("/###SITE_URL###/", SITE_URL, $file_apache);
-				$file_apache = preg_replace("/###LOG_NAME###/", superNormalize($this->site_name), $file_apache);
+				$file_apache = preg_replace("/###SITE_URL###/", $_SERVER["SERVER_NAME"], $file_apache);
+				$file_apache = preg_replace("/###LOG_NAME###/", superNormalize($_SERVER["SERVER_NAME"]), $file_apache);
 				file_put_contents($this->project_path."/apache/httpd-vhosts.conf", $file_apache);
 
 				// copy segments overwriting
