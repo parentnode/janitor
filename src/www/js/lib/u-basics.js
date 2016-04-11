@@ -176,8 +176,8 @@ u.defaultFilters = function(div) {
 					u.ac(this, "selected");
 				}
 
-				u.bug("pre filter")
-				u.xInObject(this._filter.selected_tags);
+				// u.bug("pre filter")
+				// u.xInObject(this._filter.selected_tags);
 
 				// update list filtering
 				this._filter.form.updated();
@@ -214,7 +214,7 @@ u.defaultFilters = function(div) {
 
 			var regex = new RegExp("("+this.selected_tags.join(";|")+";)", "g");
 			var match = node._c.match(regex);
-			u.bug("match:" + match + ", " + "("+this.selected_tags.join(";|")+";)")
+//			u.bug("match:" + match + ", " + "("+this.selected_tags.join(";|")+";)")
 			if(!match || match.length != this.selected_tags.length) {
 				return false;
 			}
@@ -232,6 +232,7 @@ u.defaultFilters = function(div) {
 			this.current_filter = query + "," + this.selected_tags.join(",");
 			for(i = 0; node = this.div.nodes[i]; i++) {
 
+//				u.bug("match:" + node._c.match(query) + ", " + node._c + ", " + query)
 				if(node._c.match(query) && this.checkTags(node)) {
 					u.as(node, "display", "block", false);
 				}

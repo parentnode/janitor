@@ -4435,8 +4435,6 @@ u.defaultFilters = function(div) {
 					this._filter.selected_tags.push(this.tag);
 					u.ac(this, "selected");
 				}
-				u.bug("pre filter")
-				u.xInObject(this._filter.selected_tags);
 				this._filter.form.updated();
 			}
 		}
@@ -4456,7 +4454,6 @@ u.defaultFilters = function(div) {
 		if(this.selected_tags.length) {
 			var regex = new RegExp("("+this.selected_tags.join(";|")+";)", "g");
 			var match = node._c.match(regex);
-			u.bug("match:" + match + ", " + "("+this.selected_tags.join(";|")+";)")
 			if(!match || match.length != this.selected_tags.length) {
 				return false;
 			}
@@ -6184,7 +6181,7 @@ u.f.textEditor = function(field) {
 		u.ae(editor_hint_content, "p", {"html":"If you are new to using the Janitor HTML editor here are a few tips to working better with the editor."});
 		u.ae(editor_hint_content, "p", {"html":"This HTML editor has been developed to maintain a strict control of the design - therefore it looks different from other HTML editors. The features available are aligned with the design of the specific page, and the Editor might not have the same features available in every context."});
 		u.ae(editor_hint_content, "h4", {"html":"General use:"});
-		u.ae(editor_hint_content, "p", {"html":"All HTML nodes can be deleted using the Trashcan in the Right side. The Editor allways requires one node to exist and you cannot delete the last remaining node."});
+		u.ae(editor_hint_content, "p", {"html":"All HTML nodes can be deleted using the Trashcan in the Right side. The Editor always requires one node to exist and you cannot delete the last remaining node."});
 		u.ae(editor_hint_content, "p", {"html":"HTML nodes can be re-ordered by dragging the bubble in the Left side."});
 		u.ae(editor_hint_content, "p", {"html":"You can add new nodes by clicking on the + below the editor. The options availble are the ones allowed for the current content type."});
 		u.ae(editor_hint_content, "h4", {"html":"Text nodes:"});
@@ -6694,6 +6691,7 @@ u.f.textEditor = function(field) {
 			tag._input = u.ae(tag._text, "input", {"type":"file", "name":"htmleditor_file"});
 			tag._input.tag = tag;
 			tag._input.field = this;
+			tag._input._form = this._input._form;
 			tag._input.val = function(value) {return false;}
 			u.e.addEvent(tag._input, "change", this._file_updated);
 			u.e.addEvent(tag._input, "focus", this._focused_content);
@@ -6718,6 +6716,7 @@ u.f.textEditor = function(field) {
 		u.request(tag, this.file_delete_action+"/"+tag._item_id+"/"+tag._variant, {"method":"post", "params":form_data});
 	}
 	field._file_updated = function(event) {
+		u.bug("file:" + u.nodeId(this))
 		var form_data = new FormData();
 		form_data.append(this.name, this.files[0], this.value);
 		form_data.append("csrf-token", this._form.fields["csrf-token"].val());

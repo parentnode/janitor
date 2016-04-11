@@ -1,3 +1,11 @@
+#content .scene.userEdit > div.usernames fieldset {width: calc(75% - 10px);}
+#content .scene.userEdit > div.usernames fieldset .field input {width: calc(100% - 18px);}
+#content .scene.userEdit > div.usernames .actions {width: calc(25% - 10px); padding: 21px 0 9px;}
+#content .scene.userEdit > div.usernames .actions li input.button {height: 28px; padding-top: 6px;}
+
+#content .scene.userEdit > div.password .actions li {padding: 0 5px 25px 0;}
+
+
 #content .scene.userEdit > div.addresses ul.addresses {padding: 0 0 20px; border-top: 1px solid #dedede;}
 #content .scene.userEdit > div.addresses ul.addresses > li {height: auto; width: auto; display: block; margin: 0; padding: 15px 15px 20px;}
 #content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; top: 15px; right: 15px; left: auto; bottom: auto; padding: 0;}

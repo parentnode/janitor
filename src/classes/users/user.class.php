@@ -423,6 +423,7 @@ class User extends Model {
 					// success
 					// send welcome email
 					if($mail_password && $verification_code) {
+
 						// send verification email to user
 						$page->mail(array(
 							"values" => array(

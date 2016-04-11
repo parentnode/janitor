@@ -9,11 +9,14 @@
 	<meta name="keywords" content="development frontend HTML JavaScript CSS idealism web" />
 	<meta name="description" content="<?= $this->pageDescription() ?>" />
 	<meta name="viewport" content="initial-scale=1, user-scalable=no" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
 	<?= $this->sharingMetaData() ?>
 
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<link rel="apple-touch-icon" href="/touchicon.png">
+	<link rel="icon" href="/favicon.png">
+
 <? if(session()->value("dev")) { ?>
 	<link type="text/css" rel="stylesheet" media="all" href="/css/lib/seg_<?= $this->segment() ?>_include.css" />
 	<script type="text/javascript" src="/js/lib/seg_<?= $this->segment() ?>_include.js"></script>

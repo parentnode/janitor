@@ -485,11 +485,12 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.userEdit > div.usernames {border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.usernames form.email {font-size: 0;}
 #content .scene.userEdit > div.usernames form.mobile {padding-bottom: 15px; font-size: 0;}
-#content .scene.userEdit > div.usernames .actions {text-align: left; width: calc(25% - 10px); display: inline-block; vertical-align: top; padding: 21px 0 9px;}
+#content .scene.userEdit > div.usernames .actions {text-align: left; display: inline-block; vertical-align: top; padding: 4px 0;}
 #content .scene.userEdit > div.usernames .actions li {padding: 0;}
-#content .scene.userEdit > div.usernames .actions li input.button {height: 28px; padding-top: 6px;}
-#content .scene.userEdit > div.usernames fieldset {display: inline-block; vertical-align: top; width: calc(75% - 10px);}
+#content .scene.userEdit > div.usernames .actions li input.button {padding-top: 4px;}
+#content .scene.userEdit > div.usernames fieldset {display: inline-block; vertical-align: top;}
 #content .scene.userEdit > div.usernames fieldset .field {padding-right: 5px;}
+#content .scene.userEdit > div.usernames fieldset .field input {width: 250px;}
 #content .scene.userEdit > div.password {border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.password div.password_state {}
 #content .scene.userEdit > div.password div.password_state a {text-decoration: underline;}
@@ -499,7 +500,7 @@ body #selection_options ul.actions a.button:hover {background-color: #313942;}
 #content .scene.userEdit > div.password div.password_state.set .password_set {display: block;}
 #content .scene.userEdit > div.password div.new_password {display: none;}
 #content .scene.userEdit > div.password .actions {text-align: left;}
-#content .scene.userEdit > div.password .actions li {padding: 0 5px 25px 0;}
+#content .scene.userEdit > div.password .actions li {padding: 0 5px 25px;}
 #content .scene.userEdit > div.apitoken {border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.apitoken form {display: inline-block; vertical-align: top; padding-bottom: 15px;}
 #content .scene.userEdit > div.apitoken form.renew ul.actions {padding-right: 0;}
