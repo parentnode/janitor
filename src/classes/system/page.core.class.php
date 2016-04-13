@@ -72,7 +72,7 @@ class PageCore {
 			session()->value("csrf", gen_uuid());
 			session()->value("site", SITE_URL);
 			session()->value("ip", (getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR")));
-			session()->value("useragent", stripslashes($_SERVER["HTTP_USER_AGENT"]));
+			session()->value("useragent", ($_SERVER["HTTP_USER_AGENT"] ? stripslashes($_SERVER["HTTP_USER_AGENT"]) : "Unknown"));
 			session()->value("logged_in_at", date("Y-m-d H:i:s"));
 		}
 
