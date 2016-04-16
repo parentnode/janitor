@@ -137,7 +137,7 @@ u.defaultFilters = function(div) {
 		for(j = 0; text_node = text_nodes[j]; j++) {
 			node._c += u.text(text_node).toLowerCase() + ";"; //.replace(/\n|\t|\r/g, " ").replace(/[ ]+/g, ",");
 		}
-		u.bug("c:" + node._c)
+//		u.bug("c:" + node._c)
 	}
 
 
