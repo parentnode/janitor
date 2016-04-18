@@ -5,37 +5,41 @@
 
 class Cache {
 
-	function value($key, $value = false) {
+	function __construct() {
 
+		// Memcached not installed - create fake cache to make sure dependencies don't fail
 		if(class_exists("Memcached")) {
 
-			$memc = new Memcached();
-			$memc->addServer('localhost', 11211);
+			$this->memc = new Memcached();
+			$this->memc->addServer('localhost', 11211);
+		}
+		// fallback to fake cache if Memcached is not installed
+		else {
+
+			$this->memc = new FakeCache();
+		}
+
+	}
 
 
-			// set value
-			if($value) {
-				$memc->set(SITE_URL."-".$key, json_encode($value));
-			}
-			// get value
-			else {
-				return json_decode($memc->get(SITE_URL."-".$key), true);
-			}
+	// Set/Get Cached value
+	function value($key, $value = false) {
 
+		// set value
+		if($value) {
+			$this->memc->set(SITE_URL."-".$key, json_encode($value));
+		}
+		// get value
+		else {
+			return json_decode($this->memc->get(SITE_URL."-".$key), true);
 		}
 
 	}
 
 	function reset($key) {
 
-		if(class_exists("Memcached")) {
-
-			$memc = new Memcached();
-			$memc->addServer('localhost', 11211);
-
-			if($memc->get(SITE_URL."-".$key) ) {
-				$memc->delete(SITE_URL."-".$key);
-			}
+		if($this->memc->get(SITE_URL."-".$key) ) {
+			$this->memc->delete(SITE_URL."-".$key);
 		}
 
 	}
@@ -75,6 +79,25 @@ class Cache {
 
 	}
 }
+
+// Fake Caching for systems without Memcached installed
+class FakeCache {
+
+	function __construct() {
+		$this->fake_cache = array();
+	}
+	function get($key) {
+		return isset($this->fake_cache[$key]) ? $this->fake_cache[$key] : "";
+	}
+	function set($key, $value = false) {
+		$this->fake_cache[$key] = $value;
+	}
+	function delete($key) {
+		unset($this->fake_cache[$key]);
+	}
+}
+
+
 
 $ccc = new Cache();
 
