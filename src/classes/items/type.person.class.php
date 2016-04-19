@@ -56,7 +56,7 @@ class TypePerson extends Itemtype {
 			"hint_message" => "Email of Person.", 
 			"error_message" => "Email is invalid."
 		));
-		// Email
+		// Phonenumber
 		$this->addToModel("tel", array(
 			"type" => "tel",
 			"label" => "Phone",

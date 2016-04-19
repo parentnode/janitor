@@ -7,18 +7,18 @@ global $itemtype;
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true, "comments" => true)));
 ?>
-<div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
-	<h1>Edit Page</h1>
+<div class="scene defaultEdit <?= $itemtype ?>Edit">
+	<h1>Edit article</h1>
 	<h2><?= $item["name"] ?></h2>
 
 	<?= $JML->editGlobalActions($item) ?>
 
-	<?= $JML->editSingleMedia($item, array("label" => "Page image")) ?>
+	<?= $JML->editSingleMedia($item, array("label" => "Article image")) ?>
 
 
 	<div class="item i:defaultEdit">
-		<h2>Page text</h2>
-		<?= $model->formStart("update/".$item_id, array("class" => "labelstyle:inject")) ?>
+		<h2>Article content</h2>
+		<?= $model->formStart("update/".$item["id"], array("class" => "labelstyle:inject")) ?>
 
 			<fieldset>
 				<?= $model->input("published_at", array("value" => date("Y-m-d H:i", strtotime($item["published_at"])))) ?>
@@ -40,5 +40,6 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 	<?= $JML->editMedia($item) ?>
 
 	<?= $JML->editComments($item) ?>
+
 
 </div>

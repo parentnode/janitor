@@ -46,16 +46,9 @@ class TypePage extends Itemtype {
 		$this->addToModel("description", array(
 			"type" => "text",
 			"label" => "Short description",
-			"required" => true,
 			"hint_message" => "Write a short description of the page. It is used for page listings and SEO.",
 			"error_message" => "Your page needs a description"
 		));
-
-		// HTML
-		$this->addToModel("html", array(
-			"required" => true,
-		));
-
 
 		// Single media
 		$this->addToModel("single_media", array(

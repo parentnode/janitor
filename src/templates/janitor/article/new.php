@@ -4,8 +4,8 @@ global $IC;
 global $model;
 global $itemtype;
 ?>
-<div class="scene i:scene defaultNew">
-	<h1>New page</h1>
+<div class="scene defaultNew">
+	<h1>New article</h1>
 
 	<ul class="actions">
 		<?= $JML->newList(array("label" => "List")) ?>
@@ -13,10 +13,10 @@ global $itemtype;
 
 	<?= $model->formStart("save", array("class" => "i:defaultNew labelstyle:inject")) ?>
 		<fieldset>
+			<?= $model->input("published_at", array("value" => date("Y-m-d H:i", time()))) ?>
 			<?= $model->input("name") ?>
 		</fieldset>
 
 		<?= $JML->newActions() ?>
 	<?= $model->formEnd() ?>
-
 </div>
