@@ -5,8 +5,11 @@ global $model;
 $username = stringOr(getPost("username"));
 ?>
 <div class="scene login i:login">
-
 	<h1>Login</h1>
+
+<?	if(defined("SITE_SIGNUP") && SITE_SIGNUP): ?>
+	<p>Not registered yet? <a href="/nysgerrig">Create your account now</a>.</p>
+<?	endif; ?>
 
 	<?= $model->formStart("?login=true", array("class" => "labelstyle:inject")) ?>
 
@@ -30,8 +33,6 @@ $username = stringOr(getPost("username"));
 		</ul>
 	<?= $model->formEnd() ?>
 
-<?	if(defined("SITE_SIGNUP") && SITE_SIGNUP && file_exists(LOCAL_PATH."/www/signup.php")): ?>
-	<p>Not registered yet? <a href="/signup">Sign up now</a>.</p>
-<?	endif; ?>
+	<p>Did you <a href="/signup/forgot">forget your password</a>?</p>
 
 </div>

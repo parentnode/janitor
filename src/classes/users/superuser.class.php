@@ -618,10 +618,6 @@ class SuperUser extends User {
 	}
 
 
-	// TODO: reset password needs to be implemented
-	// start reset password procedure
-	function resetPassword() {}
-
 
 
 	// API TOKEN
