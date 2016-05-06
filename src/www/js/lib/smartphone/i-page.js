@@ -286,55 +286,65 @@ Util.Objects["page"] = new function() {
 				for(i = 0; section = sections[i]; i++) {
 
 					// nested navigation structure
-					section.nodes = u.qsa("li", section);
-					if(section.nodes.length) {
+					section.header = u.qs("h3", section);
+					if(section.header) {
 
-						// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
-						for(j = 0; node = section.nodes[j]; j++) {
-							u.ce(node, {"type":"link"});
+						section.nodes = u.qsa("li", section);
 
-							// set selected state
-							if(u.hc(node, document.body.className)) {
-								u.ac(node, "selected");
+						// section can be empty, if user doesn't have sufficient permissions
+						if(section.nodes.length) {
+
+							// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
+							for(j = 0; node = section.nodes[j]; j++) {
+								u.ce(node, {"type":"link"});
+
+								// set selected state
+								if(u.hc(node, document.body.className)) {
+									u.ac(node, "selected");
+								}
 							}
-						}
 
 
-						section.header = u.qs("h3", section);
-						if(section.header) {
-							section.header.section = section;
+							if(section.header) {
+								section.header.section = section;
 
 
-							u.e.click(section.header);
-							section.header.clicked = function() {
+								u.e.click(section.header);
+								section.header.clicked = function() {
 
-								if(this.section.is_open) {
-									this.section.is_open = false;
+									if(this.section.is_open) {
+										this.section.is_open = false;
 
-									u.as(this.section, "height", this.offsetHeight+"px");
-									u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
-									u.addExpandArrow(this);
+										u.as(this.section, "height", this.offsetHeight+"px");
+										u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
+										u.addExpandArrow(this);
 
-									page.nN.list.updateDragBoundaries();
-								}
-								else {
-									this.section.is_open = true;
+										page.nN.list.updateDragBoundaries();
+									}
+									else {
+										this.section.is_open = true;
 
-									u.as(this.section, "height", "auto");
-									u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
-									u.addCollapseArrow(this);
+										u.as(this.section, "height", "auto");
+										u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
+										u.addCollapseArrow(this);
 
-									page.nN.list.updateDragBoundaries();
-								}
+										page.nN.list.updateDragBoundaries();
+									}
 						
+								}
+
+								var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
+								if(!state) {
+									section.is_open = true;
+								}
+								section.header.clicked();
+
 							}
 
-							var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
-							if(!state) {
-								section.is_open = true;
-							}
-							section.header.clicked();
-
+						}
+						// empty section
+						else {
+							u.ac(section, "empty");
 						}
 
 					}

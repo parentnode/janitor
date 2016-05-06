@@ -38,9 +38,12 @@
 #navigation > ul.navigation ul {}
 #navigation > ul.navigation ul li {padding-left: 20px; border-top: 1px solid #404a56;}
 
+#navigation > ul.navigation > li.empty {display: none;}
+
 /* SEPERATE SERVICE LINKS */
 #navigation > ul.navigation li.front {border-bottom: 1px solid #777777;}
 #navigation > ul.navigation li.web {border-top: 1px solid #777777;}
 
 /* SELECTED STATE SET BY JS */
 #navigation .selected {color: #8c9399; background: #f5f7f8;}
+

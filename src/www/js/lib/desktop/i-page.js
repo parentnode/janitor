@@ -142,52 +142,63 @@ Util.Objects["page"] = new function() {
 				for(i = 0; section = sections[i]; i++) {
 
 					// nested navigation structure
-					section.nodes = u.qsa("li", section);
-					if(section.nodes.length) {
+					section.header = u.qs("h3", section);
+					if(section.header) {
 
-						// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
-						for(j = 0; node = section.nodes[j]; j++) {
-							u.ce(node, {"type":"link"});
+						section.nodes = u.qsa("li", section);
 
-							// set selected state
-							if(u.hc(node, document.body.className)) {
-								u.ac(node, "selected");
+						// section can be empty, if user doesn't have sufficient permissions
+						if(section.nodes.length) {
+
+							// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
+							for(j = 0; node = section.nodes[j]; j++) {
+								u.ce(node, {"type":"link"});
+
+								// set selected state
+								if(u.hc(node, document.body.className)) {
+									u.ac(node, "selected");
+								}
 							}
-						}
 
 
-						section.header = u.qs("h3", section);
-						if(section.header) {
-							section.header.section = section;
+							if(section.header) {
+								section.header.section = section;
 
 
-							u.e.click(section.header);
-							section.header.clicked = function() {
+								u.e.click(section.header);
+								section.header.clicked = function(event) {
+									u.e.kill(event);
 
-								if(this.section.is_open) {
-									this.section.is_open = false;
+									if(this.section.is_open) {
+										this.section.is_open = false;
 
-									u.as(this.section, "height", this.offsetHeight+"px");
-									u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
-									u.addExpandArrow(this);
-								}
-								else {
-									this.section.is_open = true;
+										u.as(this.section, "height", this.offsetHeight+"px");
+										u.saveNodeCookie(this.section, "open", 0, {"ignore_classvars":true});
+										u.addExpandArrow(this);
+									}
+									else {
+										this.section.is_open = true;
 
-									u.as(this.section, "height", "auto");
-									u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
-									u.addCollapseArrow(this);
+										u.as(this.section, "height", "auto");
+										u.saveNodeCookie(this.section, "open", 1, {"ignore_classvars":true});
+										u.addCollapseArrow(this);
 
-								}
+									}
 						
+								}
+
+								var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
+								if(!state) {
+									section.is_open = true;
+								}
+								section.header.clicked();
+
 							}
 
-							var state = u.getNodeCookie(section, "open", {"ignore_classvars":true});
-							if(!state) {
-								section.is_open = true;
-							}
-							section.header.clicked();
-
+						}
+						// empty section
+						else {
+							u.ac(section, "empty");
 						}
 
 					}
@@ -206,16 +217,57 @@ Util.Objects["page"] = new function() {
 
 			}
 
+			// avoid accidental clicking
+			u.ass(page.nN, {
+				"display":"none"
+			});
+
 
 			// enable collapsed navigation
-			u.e.hover(page.hN);
+			if(u.e.event_support == "mouse" && 0) {
+
+				u.e.hover(page.hN);
+				
+			}
+			// touch enabled devices should not use hover method
+			else {
+
+				u.e.click(page.hN);
+				page.hN.clicked = function(event) {
+
+					// open navigation if it is not already open
+					if(!this.is_open) {
+						u.e.kill(event);
+						this.over();
+					}
+
+				}
+
+				// close open navigation when clicking on window
+				page.hN.close = function(event) {
+
+					if(this.is_open) {
+						u.e.kill(event);
+						this.out();
+					}
+				}
+				u.e.addWindowEndEvent(page.hN, "close");
+
+			}
+
 			page.hN.over = function() {
+
+				this.is_open = true;
 
 				u.t.resetTimer(this.t_navigation);
 
 				u.a.transition(this, "all 0.3s ease-in-out");
 				u.ass(this, {
 					"width":"230px"
+				});
+
+				u.ass(page.nN, {
+					"display":"block"
 				});
 				u.a.transition(page.nN, "all 0.3s ease-in");
 				u.ass(page.nN, {
@@ -243,7 +295,7 @@ Util.Objects["page"] = new function() {
 
 			page.hN.out = function() {
 
-				u.rc(this, "over");
+				this.is_open = false;
 
 				var span, i;
 				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
@@ -261,6 +313,13 @@ Util.Objects["page"] = new function() {
 							"transform":"translate(-8px, -30px)"
 						});
 					}
+				}
+
+				// avoid accidental clicking
+				page.nN.transitioned = function() {
+					u.ass(this, {
+						"display":"none"
+					});
 				}
 
 				u.a.transition(page.nN, "all 0.2s ease-in");
