@@ -224,7 +224,7 @@ Util.Objects["page"] = new function() {
 
 
 			// enable collapsed navigation
-			if(u.e.event_support == "mouse" && 0) {
+			if(u.e.event_support == "mouse") {
 
 				u.e.hover(page.hN);
 				

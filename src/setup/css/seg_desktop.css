@@ -71,6 +71,7 @@ dt {color: #7d848c; display: inline-block; vertical-align: top; font-size: 12px;
 #navigation > ul.navigation h3:hover {color: #ffffff;}
 #navigation > ul.navigation ul {}
 #navigation > ul.navigation ul li {padding-left: 20px; border-top: 1px solid #404a56;}
+#navigation > ul.navigation > li.empty {display: none;}
 #navigation li.selected a {padding-left: 35px; color: #ffffff;}
 
 
@@ -258,10 +259,16 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.location.error input.error {margin: 0; border: 3px solid #f8c9bb;}
 #content .field.files.error {border-color: #f8c9bb;}
 #content ul.actions {padding: 0 25px;}
-#content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px; vertical-align: top;}
+#content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px; vertical-align: top;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+}
 #content ul.actions input.button {width: auto; height: 26px; padding: 3px 10px;}
 @media all and (-webkit-min-device-pixel-ratio:0) {
-	#content ul.actions input.button {padding-bottom: 4px;}
+	#content ul.actions input.button {padding-bottom: 4px;
+		-webkit-appearance: none;
+	}
 }
 #content ul.actions a.button {display: block; text-decoration: none; height: 14px; padding: 5px 12px 7px;}
 #content ul.actions input.button,
