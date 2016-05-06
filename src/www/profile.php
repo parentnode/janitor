@@ -2,7 +2,7 @@
 $access_item["/"] = true;
 $access_item["/renewToken"] = true;
 $access_item["/disableToken"] = "/renewToken";
-//$access_item = false;
+$access_item["/reset"] = false;
 
 if(isset($read_access) && $read_access) {
 	return;
@@ -37,6 +37,16 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/profile/content.php"
+		));
+		exit();
+	}
+
+	// RESET PASSWORD
+	else if(preg_match("/^(reset)$/", $action[0]) && count($action) == 2) {
+
+		$page->page(array(
+			"type" => "janitor",
+			"templates" => "janitor/profile/reset.php"
 		));
 		exit();
 	}

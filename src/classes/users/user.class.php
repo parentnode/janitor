@@ -52,6 +52,7 @@ class User extends Model {
 		$this->db_usernames = SITE_DB.".user_usernames";
 		$this->db_addresses = SITE_DB.".user_addresses";
 		$this->db_passwords = SITE_DB.".user_passwords";
+		$this->db_password_reset_tokens = SITE_DB.".user_password_reset_tokens";
 		$this->db_apitokens = SITE_DB.".user_apitokens";
 		$this->db_newsletters = SITE_DB.".user_newsletters";
 
@@ -801,7 +802,7 @@ class User extends Model {
 							$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 							if($query->sql($sql)) {
 
-//								message()->addMessage("Password saved");
+								message()->addMessage("Password updated");
 								return true;
 							}
 						}
@@ -812,12 +813,100 @@ class User extends Model {
 			}
 		}
 
-//		message()->addMessage("Password could not be saved", array("type" => "error"));
+		message()->addMessage("Password could not be updated", array("type" => "error"));
 		return false;
 	}
 
 
+	// start reset password procedure
+	function requestPasswordReset($action) {
 
+		// perform cleanup routine
+		$this->cleanUpResetRequests();
+
+		// get posted variables
+		$this->getPostedEntities();
+		$username = $this->getProperty("username", "value");
+
+		// correct information available
+		if(count($action) == 1 && $username) {
+
+			$query = new Query();
+
+			// make sure type tables exist
+			$query->checkDbExistance($this->db_password_reset_tokens);
+
+
+			// find the user with specified username
+			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE username = '$username'";
+			if($query->sql($sql)) {
+
+				// user_id
+				$user_id = $query->result(0, "user_id");
+
+
+				// find email for this user
+				$sql = "SELECT username FROM ".$this->db_usernames." WHERE user_id = '$user_id' AND type = 'email'";
+				if($query->sql($sql)) {
+
+					// email
+					$email = $query->result(0, "username");
+
+					// create reset token
+					$reset_token = randomKey(24);
+
+					// insert reset token
+					$sql = "INSERT INTO ".$this->db_password_reset_tokens." VALUES(DEFAULT, $user_id, '$reset_token', '".date("Y-m-d H:i:s", strtotime("+15 minutes"))."')";
+					if($query->sql($sql)) {
+
+						global $page;
+
+						// send email
+						$page->mail(array(
+							"values" => array(
+								"TOKEN" => $reset_token
+							),
+							"recipients" => $email,
+							"template" => "reset_password"
+						));
+
+						// send notification email to admin
+						// TODO: consider disabling this once it has proved itself worthy
+						$page->mail(array(
+							"subject" => "Password reset requested: " . $email,
+							"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
+							"template" => "system"
+						));
+
+						return true;
+
+					}
+
+				}
+
+			}
+
+		}
+
+		// user could not be found or reset request could not be satisfied
+		// - but this is not reflected towards to user to avoid revealing user existence
+		// - standard error message created in login-controller
+		return false;
+	}
+
+	// clean up expired reset requests
+	function cleanUpResetRequests() {
+
+		$query = new Query();
+		$query->sql("DELETE FROM ".$this->db_password_reset_tokens." WHERE created_at < NOW()");
+
+	}
+
+
+	// clean up expired reset requests
+	function checkResetToken($token) {
+		return true;
+	}
 
 	// API TOKEN
 
