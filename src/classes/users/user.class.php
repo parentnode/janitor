@@ -3,9 +3,10 @@
 * @package janitor.users
 * This file contains simple user functionality
 *
-* Simple user is supposed to be a minimal interface to User maintenance and the user tables
+* The User class is supposed to be a minimal interface to User maintenance and the user tables
 * It is vital that this class does not expose anything but the current user's information
 *
+* For extended User manipulator, see SuperUser.
 *
 * Only for NON-Admin creation of users, like
 * - signups on website
@@ -17,24 +18,11 @@
 * - update profile
 * - newsletter administration
 * - own order view (on shops)
-*
-* - comments if allowed (not decided how that is to be implemented)
-* - ratings if allowed (not decided how that is to be implemented)
 */
 
-/**
-* TODO
-* compare functionality need with User class
-* consider extending Simpleuser from User to avoid duplet functionality
-* (only if resonable overlap)
-* (requires the ability to overwrite funtions - test it)
-*
-*
-* These updates will require rewriting of Shop class and shop functionality (there is no meaningful way around it)
-*/
 
 /**
-* Simpleuser
+* User (simple user / current user)
 */
 class User extends Model {
 
@@ -864,7 +852,8 @@ class User extends Model {
 						// send email
 						$page->mail(array(
 							"values" => array(
-								"TOKEN" => $reset_token
+								"TOKEN" => $reset_token,
+								"USERNAME" => $username
 							),
 							"recipients" => $email,
 							"template" => "reset_password"
@@ -894,19 +883,86 @@ class User extends Model {
 		return false;
 	}
 
+
+	// reset password using reset-token
+	function resetPassword($action) {
+
+		// perform cleanup routine
+		$this->cleanUpResetRequests();
+
+		// get posted variables
+		$this->getPostedEntities();
+
+		$reset_token = getPost("reset-token");
+		$new_password = sha1($this->getProperty("new_password", "value"));
+
+		// correct information available
+		if(count($action) == 1 && $new_password && $this->checkResetToken($reset_token)) {
+
+			$query = new Query();
+
+			// get user_id for reset token
+			$sql = "SELECT user_id FROM ".$this->db_password_reset_tokens." WHERE token = '$reset_token'";
+			if($query->sql($sql)) {
+
+				// get user id
+				$user_id = $query->result(0, "user_id");
+
+
+				// delete token (a token can only be used once)
+				$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE token = '$reset_token'";
+				$query->sql($sql);
+
+
+				// DELETE OLD PASSWORD
+				$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = $user_id";
+				if($query->sql($sql)) {
+
+					// SAVE NEW PASSWORD
+					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
+					if($query->sql($sql)) {
+
+						message()->addMessage("Password updated");
+						return true;
+					}
+				}
+
+			}
+
+		}
+
+		return false;
+	}
+
+
 	// clean up expired reset requests
 	function cleanUpResetRequests() {
 
 		$query = new Query();
-		$query->sql("DELETE FROM ".$this->db_password_reset_tokens." WHERE created_at < NOW()");
+		$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE created_at < NOW()";
+		$query->sql($sql);
 
 	}
 
+	// Check reset token
+	function checkResetToken($reset_token) {
 
-	// clean up expired reset requests
-	function checkResetToken($token) {
-		return true;
+		// perform cleanup routine
+		$this->cleanUpResetRequests();
+
+		if($reset_token) {
+			// check if reset token is valid
+			$query = new Query();
+			$sql = "SELECT id FROM ".$this->db_password_reset_tokens." WHERE token = '$reset_token'";
+			if($query->sql($sql)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
+
+
 
 	// API TOKEN
 

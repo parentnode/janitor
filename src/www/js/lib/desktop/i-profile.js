@@ -1,5 +1,5 @@
 // PROFILE UPDATES DO NOT RETURN SERVER MESSAGES
-// AS THESE ARE THOUGHT TO BE IMPLEMENTED IN FRONTEND
+// AS THESE ARE THOUGHT TO BE IMPLEMENTED IN FRONTEND (FOR FULL LOCALIZATION)
 
 Util.Objects["editProfile"] = new function() {
 	this.init = function(div) {
@@ -296,5 +296,30 @@ Util.Objects["newslettersProfile"] = new function() {
 				}
 			}
 		}
+	}
+}
+
+// Update address
+Util.Objects["resetPassword"] = new function() {
+	this.init = function(form) {
+
+		u.f.init(form);
+
+		form.submitted = function() {
+
+			this.response = function(response) {
+
+				if(response.cms_status == "success") {
+					location.href = "/login";
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Password could not be updated"});
+				}
+
+			}
+			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+
+		}
+
 	}
 }

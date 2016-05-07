@@ -1557,16 +1557,31 @@ class PageCore {
 				if(preg_match("/^SUBJECT\:([^\n]+)\n/", $message_template, $subject_match)) {
 
 					$subject = $subject_match[1];
+
+					// Replace custom values
+					foreach($values as $key => $value) {
+						$subject = preg_replace("/{".$key."}/", $value, $subject);
+					}
+
+					// Replace constants
+					$subject = preg_replace("/{SITE_URL}/", SITE_URL, $subject);
+					$subject = preg_replace("/{SITE_NAME}/", SITE_NAME, $subject);
+					$subject = preg_replace("/{ADMIN_EMAIL}/", ADMIN_EMAIL, $subject);
+					$subject = preg_replace("/{SITE_EMAIL}/", SITE_EMAIL, $subject);
+
+					// Remove subject line from message template
 					$message_template = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $message_template);
 				}
 
 				// parse values from message_template
 				if($values && is_array($values)) {
 
+					// Replace custom values
 					foreach($values as $key => $value) {
 						$message_template = preg_replace("/{".$key."}/", $value, $message_template);
 					}
 
+					// Replace constants
 					$message_template = preg_replace("/{SITE_URL}/", SITE_URL, $message_template);
 					$message_template = preg_replace("/{SITE_NAME}/", SITE_NAME, $message_template);
 					$message_template = preg_replace("/{ADMIN_EMAIL}/", ADMIN_EMAIL, $message_template);

@@ -3,6 +3,7 @@ $access_item["/"] = true;
 $access_item["/renewToken"] = true;
 $access_item["/disableToken"] = "/renewToken";
 $access_item["/reset"] = false;
+$access_item["/resetPassword"] = "/reset";
 
 if(isset($read_access) && $read_access) {
 	return;
