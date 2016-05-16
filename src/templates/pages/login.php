@@ -8,7 +8,7 @@ $username = stringOr(getPost("username"));
 	<h1>Login</h1>
 
 <?	if(defined("SITE_SIGNUP") && SITE_SIGNUP): ?>
-	<p>Not registered yet? <a href="/signup">Create your account now</a>.</p>
+	<p>Not registered yet? <a href="<?= SITE_SIGNUP ?>">Create your account now</a>.</p>
 <?	endif; ?>
 
 	<?= $model->formStart("?login=true", array("class" => "labelstyle:inject")) ?>
