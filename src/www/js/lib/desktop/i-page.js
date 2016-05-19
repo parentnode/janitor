@@ -258,6 +258,8 @@ Util.Objects["page"] = new function() {
 			page.hN.over = function() {
 
 				this.is_open = true;
+				u.a.transition(page.nN, "none");
+				page.nN.transitioned = null;
 
 				u.t.resetTimer(this.t_navigation);
 
@@ -296,6 +298,9 @@ Util.Objects["page"] = new function() {
 			page.hN.out = function() {
 
 				this.is_open = false;
+				u.a.transition(page.nN, "none");
+				page.nN.transitioned = null;
+
 
 				var span, i;
 				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
@@ -317,6 +322,7 @@ Util.Objects["page"] = new function() {
 
 				// avoid accidental clicking
 				page.nN.transitioned = function() {
+					u.bug("hide me")
 					u.ass(this, {
 						"display":"none"
 					});

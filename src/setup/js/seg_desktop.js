@@ -7750,6 +7750,8 @@ Util.Objects["page"] = new function() {
 			}
 			page.hN.over = function() {
 				this.is_open = true;
+				u.a.transition(page.nN, "none");
+				page.nN.transitioned = null;
 				u.t.resetTimer(this.t_navigation);
 				u.a.transition(this, "all 0.3s ease-in-out");
 				u.ass(this, {
@@ -7780,6 +7782,8 @@ Util.Objects["page"] = new function() {
 			}
 			page.hN.out = function() {
 				this.is_open = false;
+				u.a.transition(page.nN, "none");
+				page.nN.transitioned = null;
 				var span, i;
 				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
 					if(i == 0) {
@@ -7797,6 +7801,7 @@ Util.Objects["page"] = new function() {
 					}
 				}
 				page.nN.transitioned = function() {
+					u.bug("hide me")
 					u.ass(this, {
 						"display":"none"
 					});
@@ -9585,7 +9590,22 @@ Util.Objects["newslettersProfile"] = new function() {
 		}
 	}
 }
-
+Util.Objects["resetPassword"] = new function() {
+	this.init = function(form) {
+		u.f.init(form);
+		form.submitted = function() {
+			this.response = function(response) {
+				if(response.cms_status == "success") {
+					location.href = "/login";
+				}
+				else {
+					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Password could not be updated"});
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+		}
+	}
+}
 
 
 /*i-page.js*/
@@ -9737,6 +9757,8 @@ Util.Objects["page"] = new function() {
 			}
 			page.hN.over = function() {
 				this.is_open = true;
+				u.a.transition(page.nN, "none");
+				page.nN.transitioned = null;
 				u.t.resetTimer(this.t_navigation);
 				u.a.transition(this, "all 0.3s ease-in-out");
 				u.ass(this, {
@@ -9767,6 +9789,8 @@ Util.Objects["page"] = new function() {
 			}
 			page.hN.out = function() {
 				this.is_open = false;
+				u.a.transition(page.nN, "none");
+				page.nN.transitioned = null;
 				var span, i;
 				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
 					if(i == 0) {
@@ -9784,6 +9808,7 @@ Util.Objects["page"] = new function() {
 					}
 				}
 				page.nN.transitioned = function() {
+					u.bug("hide me")
 					u.ass(this, {
 						"display":"none"
 					});
