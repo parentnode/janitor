@@ -45,12 +45,22 @@ Util.Objects["collapseHeader"] = new function() {
 				this.div._toggle_is_closed = false;
 				u.saveNodeCookie(this.div, "open", 1, {"ignore_classvars":true});
 				u.addCollapseArrow(this);
+
+				// callback
+				if(typeof(this.div.headerExpanded) == "function") {
+					this.div.headerExpanded();
+				}
 			}
 			else {
 				u.as(this.div, "height", this.offsetHeight+"px");
 				this.div._toggle_is_closed = true;
 				u.saveNodeCookie(this.div, "open", 0, {"ignore_classvars":true});
 				u.addExpandArrow(this);
+
+				// callback
+				if(typeof(this.div.headerCollapsed) == "function") {
+					this.div.headerCollapsed();
+				}
 			}
 		}
 
@@ -60,6 +70,11 @@ Util.Objects["collapseHeader"] = new function() {
 		}
 		else {
 			u.addCollapseArrow(div._toggle_header);
+
+			// callback
+			if(typeof(div.headerExpanded) == "function") {
+				div.headerExpanded();
+			}
 		}
 	}
 
