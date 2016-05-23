@@ -72,7 +72,7 @@ class PageCore {
 			session()->value("csrf", gen_uuid());
 			session()->value("site", SITE_URL);
 			session()->value("ip", (getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR")));
-			session()->value("useragent", ($_SERVER["HTTP_USER_AGENT"] ? stripslashes($_SERVER["HTTP_USER_AGENT"]) : "Unknown"));
+			session()->value("useragent", ((isset($_SERVER["HTTP_USER_AGENT"]) && $_SERVER["HTTP_USER_AGENT"]) ? stripslashes($_SERVER["HTTP_USER_AGENT"]) : "Unknown"));
 			session()->value("logged_in_at", date("Y-m-d H:i:s"));
 		}
 
@@ -168,11 +168,11 @@ class PageCore {
 					if(preg_match("/jpg|png/", $image["format"])) {
 
 						// Facebook size
-						if(strpos($_SERVER["HTTP_USER_AGENT"], "facebookexternalhit") !== false) {
+						if(isset($_SERVER["HTTP_USER_AGENT"]) && strpos($_SERVER["HTTP_USER_AGENT"], "facebookexternalhit") !== false) {
 							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x630.".$image["format"]);
 						}
 						// Google Plus size
-						else if(strpos($_SERVER["HTTP_USER_AGENT"], "Google") !== false) {
+						else if(isset($_SERVER["HTTP_USER_AGENT"]) && strpos($_SERVER["HTTP_USER_AGENT"], "Google") !== false) {
 
 							// Google will not accept Janitors image generation on the fly method
 							// pregenerate for google
@@ -185,7 +185,7 @@ class PageCore {
 
 						}
 						// Linkedin size
-						else if(strpos($_SERVER["HTTP_USER_AGENT"], "LinkedInBot") !== false) {
+						else if(isset($_SERVER["HTTP_USER_AGENT"]) && strpos($_SERVER["HTTP_USER_AGENT"], "LinkedInBot") !== false) {
 							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/180x110.".$image["format"]);
 						}
 						// Standard size for everyone else
@@ -727,7 +727,7 @@ class PageCore {
 
 //					print "\nno real session segment";
 
-					$segment_session["segment"] = @file_get_contents("http://detector-v3.dearapi.com/text?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"]));
+					$segment_session["segment"] = @file_get_contents("http://detector-v3.dearapi.com/text?ua=".(isset($_SERVER["HTTP_USER_AGENT"]) ? urlencode($_SERVER["HTTP_USER_AGENT"]) : "")."&site=".urlencode($_SERVER["HTTP_HOST"]));
 
 					// if the request failed, pass default segment back
 					// don't update - make attempt again on next function call
