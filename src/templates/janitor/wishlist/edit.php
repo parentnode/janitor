@@ -72,9 +72,15 @@ session()->value("return_to_wishlist", $item_id);
 						<dd class="reserved"><?= $model_wish->wish_reserved[$item["reserved"]] ?></dd>
 					</dl>
 
-					<?= $JML->tagList($item["tags"]) ?>
+					<?//= $JML->tagList($item["tags"]) ?>
 
-					<?= $JML->listActions($item) ?>
+					<ul class="actions">
+						<?= $model->link("Edit", "/janitor/admin/wish/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")); ?>
+						<?= $JML->deleteButton("Delete", "/janitor/admin/wish/delete/".$item["id"], array("js" => true)); ?>
+						<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/wish/status", $item, array("js" => true)); ?>
+					</ul>
+
+					<?//= $JML->listActions($item) ?>
 
 				 </li>
 			 	<? endforeach; ?>
