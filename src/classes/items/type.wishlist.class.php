@@ -135,7 +135,11 @@ class TypeWishlist extends Itemtype {
 		$IC = new Items();
 
 		// get all wishes (new elements could be added without being ordered yet)
-		$wishlist_wishes = $IC->getItems(array("itemtype" => "wish", "tags" => $tag, "extend" => array("tags" => true, "mediae" => true)));
+		$query_options = array("itemtype" => "wish", "tags" => $tag, "extend" => array("tags" => true, "mediae" => true));
+		if($status !== false) {
+			$query_options["status"] = $status;
+		}
+		$wishlist_wishes = $IC->getItems($query_options);
 
 //		print_r($wishlist_wishes);
 
