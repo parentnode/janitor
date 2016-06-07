@@ -87,6 +87,7 @@ class JanitorHTML {
 		global $model;
 
 		$label = "List";
+		$action = "list";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -94,13 +95,14 @@ class JanitorHTML {
 				switch($_option) {
 
 					case "label"           : $label            = $_value; break;
+					case "action"          : $action           = $_value; break;
 				}
 			}
 		}
 
 		$_ = '';
 
-		$_ .= $model->link($label, $this->path."/list", array("class" => "button primary key:esc", "wrapper" => "li.back"));
+		$_ .= $model->link($label, $this->path."/".$action, array("class" => "button primary key:esc", "wrapper" => "li.back"));
 
 		return $_;
 	}
@@ -121,6 +123,7 @@ class JanitorHTML {
 				"options" => array("class" => "primary key:s", "wrapper" => "li.save")
 			)
 		);
+
 		// extend with these settings
 		$modify = "";
 		$extend = "";
@@ -139,8 +142,14 @@ class JanitorHTML {
 		if($modify) {
 			foreach($modify as $index => $values) {
 				if(isset($standard[$index])) {
-					foreach($values as $attribute => $value) {
-						$standard[$index][$attribute] = $value;
+					// value can be set to false to disable button
+					if($values) {
+						foreach($values as $attribute => $value) {
+							$standard[$index][$attribute] = $value;
+						}
+					}
+					else {
+						$standard[$index] = $values;
 					}
 				}
 			}
@@ -152,8 +161,17 @@ class JanitorHTML {
 		$_ = '';
 
 		$_ .= '<ul class="actions">';
-		$_ .= $model->link($standard["cancel"]["label"], $standard["cancel"]["url"], $standard["cancel"]["options"]);
-		$_ .= $model->submit($standard["save"]["label"], $standard["save"]["options"]);
+
+		// Cancel button
+		if($standard["cancel"]) {
+			$_ .= $model->link($standard["cancel"]["label"], $standard["cancel"]["url"], $standard["cancel"]["options"]);
+		}
+
+		// Save button
+		if($standard["save"]) {
+			$_ .= $model->submit($standard["save"]["label"], $standard["save"]["options"]);
+		}
+
 		$_ .= '</ul>';
 
 		return $_;
@@ -168,6 +186,7 @@ class JanitorHTML {
 		global $model;
 
 		$label = "New";
+		$action = "new";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -175,13 +194,14 @@ class JanitorHTML {
 				switch($_option) {
 
 					case "label"           : $label            = $_value; break;
+					case "action"          : $action           = $_value; break;
 				}
 			}
 		}
 
 		$_ = '';
 
-		$_ .= $model->link($label, $this->path."/new", array("class" => "button primary key:n", "wrapper" => "li.new"));
+		$_ .= $model->link($label, $this->path."/".$action, array("class" => "button primary key:n", "wrapper" => "li.new"));
 
 		return $_;
 	}
@@ -207,6 +227,7 @@ class JanitorHTML {
 				"url" => $this->path."/status"
 			)
 		);
+
 		// extend with these settings
 		$modify = "";
 		$extend = "";
@@ -225,20 +246,43 @@ class JanitorHTML {
 		if($modify) {
 			foreach($modify as $index => $values) {
 				if(isset($standard[$index])) {
-					foreach($values as $attribute => $value) {
-						$standard[$index][$attribute] = $value;
+					// value can be set to false to disable button
+					if($values) {
+						foreach($values as $attribute => $value) {
+							$standard[$index][$attribute] = $value;
+						}
+					}
+					else {
+						$standard[$index] = $values;
 					}
 				}
 			}
 		}
 
+
+		// TODO: implement extend options
+
+
 		$_ = '';
 
 
 		$_ .= '<ul class="actions">';
-		$_ .= $model->link($standard["edit"]["label"], $standard["edit"]["url"], $standard["edit"]["options"]);
-		$_ .= $this->deleteButton($standard["delete"]["label"], $standard["delete"]["url"], array("js" => true));
-		$_ .= $this->statusButton($standard["status"]["label_enable"], $standard["status"]["label_disable"], $standard["status"]["url"], $item, array("js" => true));
+
+		// Edit button
+		if($standard["edit"]) {
+			$_ .= $model->link($standard["edit"]["label"], $standard["edit"]["url"], $standard["edit"]["options"]);
+		}
+
+		// Delete button
+		if($standard["delete"]) {
+			$_ .= $this->deleteButton($standard["delete"]["label"], $standard["delete"]["url"], array("js" => true));
+		}
+
+		// Status button
+		if($standard["status"]) {
+			$_ .= $this->statusButton($standard["status"]["label_enable"], $standard["status"]["label_disable"], $standard["status"]["url"], $item, array("js" => true));
+		}
+
 		// $_ .= $model->link("Edit", $this->path."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit"));
 		// $_ .= $this->deleteButton("Delete", $this->path."/delete/".$item["id"], array("js" => true));
 		// $_ .= $this->statusButton("Enable", "Disable", $this->path."/status", $item, array("js" => true));
@@ -290,8 +334,14 @@ class JanitorHTML {
 		if($modify) {
 			foreach($modify as $index => $values) {
 				if(isset($standard[$index])) {
-					foreach($values as $attribute => $value) {
-						$standard[$index][$attribute] = $value;
+					// value can be set to false to disable button
+					if($values) {
+						foreach($values as $attribute => $value) {
+							$standard[$index][$attribute] = $value;
+						}
+					}
+					else {
+						$standard[$index] = $values;
 					}
 				}
 			}
@@ -303,16 +353,22 @@ class JanitorHTML {
 
 		// BACK AND DELETE
 		$_ .= '<ul class="actions i:defaultEditActions item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'">';
-		$_ .= $model->link($standard["list"]["label"], $standard["list"]["url"], $standard["list"]["options"]);
-		$_ .= $this->deleteButton($standard["delete"]["label"], $standard["delete"]["url"], array("js" => true));
+		if($standard["list"]) {
+			$_ .= $model->link($standard["list"]["label"], $standard["list"]["url"], $standard["list"]["options"]);
+		}
+		if($standard["delete"]) {
+			$_ .= $this->deleteButton($standard["delete"]["label"], $standard["delete"]["url"], array("js" => true));
+		}
 		$_ .= '</ul>';
 
 		// STATUS
-		$_ .= '<div class="status i:defaultEditStatus item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'">';
-		$_ .= '<ul class="actions">';
-		$_ .= $this->statusButton($standard["status"]["label_enable"], $standard["status"]["label_disable"], $standard["status"]["url"], $item, array("js" => true));
-		$_ .= '</ul>';
-		$_ .= '</div>';
+		if($standard["status"]) {
+			$_ .= '<div class="status i:defaultEditStatus item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'">';
+			$_ .= '<ul class="actions">';
+			$_ .= $this->statusButton($standard["status"]["label_enable"], $standard["status"]["label_disable"], $standard["status"]["url"], $item, array("js" => true));
+			$_ .= '</ul>';
+			$_ .= '</div>';
+		}
 
 		return $_;
 	}
