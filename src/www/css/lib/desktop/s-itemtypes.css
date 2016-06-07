@@ -44,3 +44,9 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 /*#content .scene.wishList ul.items > li dl {display: block; padding: 5px 30px;}*/
 #content .scene.wishList ul.items > li dl dt.reserved {display: none;}
 #content .scene.wishList ul.items > li dl dd.reserved {font-size: 14px;}
+
+
+
+/* EVENTS */
+
+#content .scene.eventList ul.items > li.past {background: #dddddd;}

@@ -15,7 +15,13 @@ Util.Objects["defaultNew"] = new function() {
 
 					//alert("this.action:" + this.action)
 //					alert(response);
-					location.href = this.action.replace("\/save", "/edit/"+response.cms_object.item_id);
+					if(this.action.match(/\/save/)) {
+						location.href = this.action.replace("\/save", "/edit/"+response.cms_object.item_id);
+	
+					}
+					else if(this.actions["cancel"]) {
+						this.actions["cancel"].clicked();
+					}
 //					location.href = this.actions["cancel"].url.replace("\/list", "/edit/"+response.cms_object.item_id);
 				}
 				else {
