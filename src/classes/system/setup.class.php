@@ -406,12 +406,12 @@ class Setup extends Itemtype {
 				$this->db_janitor_db = $matches[1];
 			}
 
-			preg_match("/\"username\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+			preg_match("/\"username\" \=\> \"([a-zA-Z0-9\.\-\_]+)\"/", $connection_info, $matches);
 			if($matches) {
 				$this->db_janitor_user = $matches[1];
 			}
 
-			preg_match("/\"password\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+			preg_match("/\"password\" \=\> \"([a-zA-Z0-9\.\-\_]+)\"/", $connection_info, $matches);
 			if($matches) {
 				$this->db_janitor_pass = $matches[1];
 			}
