@@ -1,10 +1,10 @@
-Util.Objects["start"] = new function() {
+Util.Objects["check"] = new function() {
 	this.init = function(scene) {
 
 		var bn_start = u.qs(".actions li.start", scene);
 		u.ce(bn_start);
 		bn_start.clicked = function() {
-			var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
+			var steps = u.qsa("li.setup li:not(.done):not(.check)", page.nN); 
 
 			var i, node;
 			for(i = 0; node = steps[i]; i++) {
@@ -29,7 +29,7 @@ Util.Objects["config"] = new function() {
 				this.response = function(response) {
 			
 					if(response && response.cms_status == "success") {
-						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
+						var steps = u.qsa("li.setup li:not(.done):not(.check)", page.nN); 
 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
@@ -62,7 +62,7 @@ Util.Objects["database"] = new function() {
 				this.response = function(response) {
 			
 					if(response && response.cms_status == "success") {
-						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
+						var steps = u.qsa("li.setup li:not(.done):not(.check)", page.nN); 
 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
@@ -95,7 +95,7 @@ Util.Objects["mail"] = new function() {
 				this.response = function(response) {
 			
 					if(response && response.cms_status == "success") {
-						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
+						var steps = u.qsa("li.setup li:not(.done):not(.check)", page.nN); 
 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {

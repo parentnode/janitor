@@ -26,14 +26,25 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 ?>
 	<div id="navigation">
 		<ul class="navigation">
-			<li class="front"><a href="/setup">Start</a></li>
-<?			if(SETUP_TYPE == "setup"): ?>
-			<li class="config<?= $config_verified ? " done" : "" ?>"><a href="/setup/config">Janitor configuration</a></li>
-<?			endif; ?>
-			<li class="database<?= $database_verified ? " done" : "" ?>"><a href="/setup/database">Setup database</a></li>
-			<li class="mail<?= $mail_verified ? " done" : "" ?>"><a href="/setup/mail">Setup mail</a></li>
+			<li class="setup">
+				<h3>Setup</h3>
+				<ul class="subjects">
+					<li class="check"><a href="/setup/check">Check system</a></li>
+		<?			if(SETUP_TYPE == "setup"): ?>
+					<li class="config<?= $config_verified ? " done" : "" ?>"><a href="/setup/config">Janitor configuration</a></li>
+		<?			endif; ?>
+					<li class="database<?= $database_verified ? " done" : "" ?>"><a href="/setup/database">Setup database</a></li>
+					<li class="mail<?= $mail_verified ? " done" : "" ?>"><a href="/setup/mail">Setup mail</a></li>
 
-			<li class="finish"><a href="/setup/finish">Finish installation</a></li>
+					<li class="finish"><a href="/setup/finish">Finish installation</a></li>
+				</ul>
+			</li>
+			<li class="upgrade">
+				<h3>Upgrade</h3>
+				<ul class="subjects">
+					<li class="prices"><a href="/upgrade/add-prices-and-vatrates">Add prices and vatrates</a></li>
+				</ul>
+			</li>
 		</ul>
 	</div>
 

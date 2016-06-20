@@ -18,8 +18,8 @@ define("UT_ITEMS_MEDIAE",       SITE_DB.".items_mediae");                      /
 // COMMENTS
 define("UT_ITEMS_COMMENTS",     SITE_DB.".items_comments");                    // Items Comments
 
-// QnAs
-define("UT_ITEMS_QNA",          SITE_DB.".items_qna");                         // Items Questions and Answers
+// PRICES
+define("UT_ITEMS_PRICES",     SITE_DB.".items_prices");                    // Items Prices
 
 // READ STATE
 define("UT_ITEMS_READSTATE",    SITE_DB.".items_readstate");                   // Items Read state
@@ -34,9 +34,8 @@ define("UT_NAV",                SITE_DB.".navigation");                        /
 define("UT_NAV_NODES",          SITE_DB.".navigation_nodes");                  // Site navigation nodes
 
 
-// SHOP EXTENSIONS
-define("UT_PRICES",             SITE_DB.".prices");                            // Item prices
 
+// USERS
 define("UT_LANGUAGES",          SITE_DB.".languages");                         // Languages
 define("UT_COUNTRIES",          SITE_DB.".countries");                         // Countries
 

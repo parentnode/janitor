@@ -1,10 +1,47 @@
 <?php
 
+
+
 class Upgrade {
 
 
 	function __construct() {
 
+		// global $page;
+		// print "loading db config";
+		// $page->loadDBConfiguration();
+		//
+		//
+		//
+		// include_once("classes/items/items.core.class.php");
+		// include_once("classes/items/items.class.php");
+
+	}
+
+
+
+	// Add prices and vatrates
+	function addPricesAndVatrates() {
+		
+		$query = new Query();
+
+		$query->checkDbExistance(UT_VATRATES);
+		$query->checkDbExistance(UT_ITEMS_PRICES);
+
+		// TODO: check for country availability as well
+
+		$sql = "SELECT * FROM ".UT_VATRATES." WHERE name = 'No VAT' AND country = 'DK'";
+		if(!$query->sql($sql)) {
+			// add default vatrate
+			$sql = "INSERT INTO ".UT_VATRATES." values(DEFAULT, 'No VAT', 0, 'DK')";
+			if($query->sql($sql)) {
+				return "Prices and vatrates added successfully";
+			}
+
+			return false;
+			
+		}
+		return "Prices and vatrates already exist";
 	}
 
 

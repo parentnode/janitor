@@ -1,7 +1,7 @@
 /*#content .scene.start h1+h2 {border-bottom: 1px solid #dedede; padding-bottom: 64px;}*/
 
-#content .scene.start ul.requirements {padding: 20px 30px 20px;}
-#content .scene.start ul.requirements li {display: block; padding: 0 0 10px;}
+#content .scene.check ul.requirements {padding: 20px 30px 20px;}
+#content .scene.check ul.requirements li {display: block; padding: 0 0 10px;}
 
 
 #content .scene.config fieldset+p {padding-top: 20px;}
