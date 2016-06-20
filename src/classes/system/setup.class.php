@@ -847,6 +847,7 @@ class Setup extends Itemtype {
 			$query->checkDbExistance($this->db_janitor_db.".languages");
 			$query->checkDbExistance($this->db_janitor_db.".currencies");
 			$query->checkDbExistance($this->db_janitor_db.".countries");
+			$query->checkDbExistance($this->db_janitor_db.".vatrates");
 			$query->checkDbExistance($this->db_janitor_db.".users");
 
 			$query->checkDbExistance($this->db_janitor_db.".items");
@@ -855,6 +856,7 @@ class Setup extends Itemtype {
 
 			$query->checkDbExistance($this->db_janitor_db.".items_mediae");
 			$query->checkDbExistance($this->db_janitor_db.".items_comments");
+			$query->checkDbExistance($this->db_janitor_db.".items_prices");
 
 
 
@@ -906,6 +908,22 @@ class Setup extends Itemtype {
 			}
 			else {
 				$tasks[] = "Country: OK";
+			}
+
+			//
+			// CREATE VATRATE
+			//
+			$sql = "SELECT id FROM ".$this->db_janitor_db.".vatrates WHERE country = 'DK'";
+			if(!$query->sql($sql)) {
+
+				$tasks[] = "Installing vatrate: No VAT, DK";
+				$sql = "INSERT INTO ".$this->db_janitor_db.".vatrates set country = 'DK', name = 'No Vat', vatrate = 0";
+				// print $sql."<br>";
+				$query->sql($sql);
+
+			}
+			else {
+				$tasks[] = "Vatrate: OK";
 			}
 
 
