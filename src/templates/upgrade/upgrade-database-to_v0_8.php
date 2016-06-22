@@ -4,11 +4,11 @@ global $model;
 
 $this->bodyClass("prices");	
 
-$upgraded = $model->addPricesAndVatrates();
+$upgraded = $model->upgradeDatabaseTo_v0_8();
 	
 ?>
 <div class="scene i:scene">
-	<h1>Adding prices and vatrates</h1>
+	<h1>Upgrading database to v0.8</h1>
 
 <?	if($upgraded): ?>
 	

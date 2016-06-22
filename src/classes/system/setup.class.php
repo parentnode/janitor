@@ -871,6 +871,9 @@ class Setup extends Itemtype {
 //				print $sql."<br>";
 				$query->sql($sql);
 
+				$sql = "INSERT INTO ".$this->db_janitor_db.".languages set id = 'DA', name = 'Dansk'";
+				$query->sql($sql);
+
 			}
 			else {
 				$tasks[] = "Language: OK";

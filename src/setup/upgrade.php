@@ -19,8 +19,9 @@ $page->pageTitle("Janitor Upgrade");
 
 if(is_array($action) && count($action)) {
 
-	// LIST/EDIT/NEW ITEM
-	if(preg_match("/^([a-z\-]+)$/", $action[0])) {
+
+	// Upgrade action
+	if(preg_match("/^([a-z0-9A-Z\-\_]+)$/", $action[0])) {
 		$page->page(array(
 			"type" => "setup",
 			"templates" => "upgrade/".$action[0].".php"

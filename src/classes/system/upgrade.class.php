@@ -20,28 +20,77 @@ class Upgrade {
 
 
 
-	// Add prices and vatrates
-	function addPricesAndVatrates() {
+	// Check countries, prices and vatrates
+	function upgradeDatabaseTo_v0_8() {
 		
 		$query = new Query();
 
+
+		$query->checkDbExistance(UT_LANGUAGES);
+		$query->checkDbExistance(UT_CURRENCIES);
+		$query->checkDbExistance(UT_COUNTRIES);
 		$query->checkDbExistance(UT_VATRATES);
 		$query->checkDbExistance(UT_ITEMS_PRICES);
 
-		// TODO: check for country availability as well
+		// Languages
+		$sql = "SELECT * FROM ".UT_LANGUAGES." WHERE id = 'DA'";
+		if(!$query->sql($sql)) {
+			$sql = "INSERT INTO ".UT_LANGUAGES." values('DA', 'Dansk')";
+			if(!$query->sql($sql)) {
+				print "Could not update DB (".UT_LANGUAGES.")";
+				return false;
+			}
+		}
 
+		// Countries
+		$sql = "SELECT * FROM ".UT_CURRENCIES." WHERE id = 'DKK'";
+		if(!$query->sql($sql)) {
+			$sql = "INSERT INTO ".UT_CURRENCIES." values('DKK', 'Kroner (Denmark)', 'DKK', 'after', 2, ',', '.')";
+			if(!$query->sql($sql)) {
+				print "Could not update DB (".UT_CURRENCIES.")";
+				return false;
+			}
+		}
+
+
+		// Countries
+		$sql = "SELECT * FROM ".UT_COUNTRIES." WHERE id = 'DK'";
+		if(!$query->sql($sql)) {
+			$sql = "INSERT INTO ".UT_COUNTRIES." values('DK', 'Danmark', '45', '#### ####', 'DA', 'DKK')";
+			if(!$query->sql($sql)) {
+				print "Could not update DB (".UT_COUNTRIES.")";
+				return false;
+			}
+		}
+
+
+		// VAT rates
 		$sql = "SELECT * FROM ".UT_VATRATES." WHERE name = 'No VAT' AND country = 'DK'";
 		if(!$query->sql($sql)) {
 			// add default vatrate
 			$sql = "INSERT INTO ".UT_VATRATES." values(DEFAULT, 'No VAT', 0, 'DK')";
-			if($query->sql($sql)) {
-				return "Prices and vatrates added successfully";
+			if(!$query->sql($sql)) {
+				print "Could not update DB (".UT_VATRATES.")";
+				return false;
 			}
-
-			return false;
-			
 		}
-		return "Prices and vatrates already exist";
+
+
+		// Update users table
+		$query->sql("ALTER TABLE ".SITE_DB.".users MODIFY COLUMN `language` varchar(2) DEFAULT NULL");
+		$query->sql("UPDATE ".SITE_DB.".users SET language = NULL where language = ''");
+
+		// Check users keys and constraints
+		$query->sql("SHOW KEYS FROM ".SITE_DB.".users");
+		$results = $query->results();
+		if(!arrayKeyValue($results, "Column_name", "language")) {
+			$query->sql("ALTER TABLE ".SITE_DB.".users ADD KEY (`language`)");
+			$query->sql("ALTER TABLE ".SITE_DB.".users ADD CONSTRAINT FOREIGN KEY (`language`) REFERENCES ".SITE_DB.".languages(`id`) ON UPDATE CASCADE");
+		}
+
+
+
+		return "DB updated";
 	}
 
 

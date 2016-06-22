@@ -30,7 +30,7 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 				<h3>Setup</h3>
 				<ul class="subjects">
 					<li class="check"><a href="/setup/check">Check system</a></li>
-		<?			if(SETUP_TYPE == "setup"): ?>
+		<?			if(defined("SETUP_TYPE") && SETUP_TYPE == "setup"): ?>
 					<li class="config<?= $config_verified ? " done" : "" ?>"><a href="/setup/config">Janitor configuration</a></li>
 		<?			endif; ?>
 					<li class="database<?= $database_verified ? " done" : "" ?>"><a href="/setup/database">Setup database</a></li>
@@ -42,7 +42,7 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 			<li class="upgrade">
 				<h3>Upgrade</h3>
 				<ul class="subjects">
-					<li class="prices"><a href="/upgrade/add-prices-and-vatrates">Add prices and vatrates</a></li>
+					<li class="prices"><a href="/setup/upgrade/upgrade-database-to_v0_8">Upgrade DB (v0.8)</a></li>
 				</ul>
 			</li>
 		</ul>
