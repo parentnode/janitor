@@ -14,5 +14,7 @@ CREATE TABLE `SITE_DB`.`users` (
 
   PRIMARY KEY (`id`),
   KEY `user_group_id` (`user_group_id`),
-  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`user_group_id`) REFERENCES `SITE_DB`.`user_groups` (`id`) ON UPDATE CASCADE
+  KEY `language` (`language`),
+  CONSTRAINT `users_ibfk_1` FOREIGN KEY (`user_group_id`) REFERENCES `SITE_DB`.`user_groups` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `users_ibfk_2` FOREIGN KEY (`language`) REFERENCES `SITE_DB`.`languages` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
