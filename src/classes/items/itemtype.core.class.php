@@ -285,7 +285,6 @@ class ItemtypeCore extends Model {
 	*/
 	# /janitor/[admin/]#itemtype#/update/#item_id#
 	// TODO: implement itemtype checks
-	// TODO: this is copied to todo.class
 	function update($action) {
 
 		// Get posted values to make them available for models
