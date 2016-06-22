@@ -1280,7 +1280,6 @@ class ItemtypeCore extends Model {
 
 	// add comment to item
 	// comment is sent in $_POST
-
 	// /janitor/[admin/]#itemtype#/addComment/#item_id#
 	function addComment($action) {
 
@@ -1447,54 +1446,68 @@ class ItemtypeCore extends Model {
 
 
 
-	// NOT UPDATED TO NEW FUNCTION LAYOUT
-
 	// PRICES
 
-	// Price implementation is really old
-
 	// add price to item
- 	function addPrice($item_id, $price, $currency) {
+	// Price info sent in $_POST
+	// /janitor/[admin/]#itemtype#/addPrice/#item_id#
+ 	function addPrice($action) {
 
-		$query = new Query();
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
-		// check if price in currency exists - if it does update price
-		$sql = "SELECT id FROM ".UT_PRICES." WHERE currency = '$currency' AND item_id = $item_id";
-//		print $sql."<br>";
-		if($query->sql($sql)) {
 
-			$price_id = $query->result(0, "id");
+		if(count($action) == 2) {
 
-			$sql = "UPDATE ".UT_PRICES." SET price = $price WHERE id = $price_id";
-//			print $sql."<br>";
-			if($query->sql($sql)) {
-				message()->addMessage("Price updated");
-				return true;
+			$query = new Query();
+			$item_id = $action[1];
+
+			$query->checkDbExistance(UT_ITEMS_PRICES);
+
+			if($this->validateList(array("price", "currency", "vatrate_id"), $item_id)) {
+
+				$price = $this->getProperty("price", "value");
+				$currency = $this->getProperty("currency", "value");
+				$vatrate_id = $this->getProperty("vatrate_id", "value");
+
+				$price = preg_replace("/,/", ".", $price);
+
+				if($query->sql("INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', '$vatrate_id')")) {
+					message()->addMessage("Price added");
+
+					$price_id = $query->lastInsertId();
+					$IC = new Items();
+					$new_price = $IC->getPrices(array("price_id" => $price_id));
+					return $new_price;
+				}
+
 			}
-		}
-		// insert price
-		else {
 
-			$sql = "INSERT INTO ".UT_PRICES." VALUES(DEFAULT, $item_id, $price, '$currency')";
-//			print $sql."<br>";
-			if($query->sql($sql)) {
-				message()->addMessage("Price added");
-				return true;
-			}
 		}
 
 		message()->addMessage("Price could not be added", array("type" => "error"));
 		return false;
+
 	}
 
+
 	// delete price
- 	function deletePrice($item_id, $price_id) {
+	// /janitor/[admin/]#itemtype#/deletePrice/#item_id#/#price_id#
+	// TODO: implement itemtype checks
+ 	function deletePrice($action) {
 
-		$query = new Query();
+		if(count($action) == 3) {
 
-		if($query->sql("DELETE FROM ".UT_PRICES." WHERE item_id = $item_id AND id = $price_id")) {
-			message()->addMessage("Price deleted");
-			return true;
+			$query = new Query();
+			$item_id = $action[1];
+			$price_id = $action[2];
+
+			$sql = "DELETE FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND id = $price_id";
+			if($query->sql($sql)) {
+				message()->addMessage("Price deleted");
+				return true;
+			}
+
 		}
 
 		message()->addMessage("Price could not be deleted", array("type" => "error"));

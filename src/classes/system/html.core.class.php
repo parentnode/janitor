@@ -471,6 +471,7 @@ class HTMLCore {
 	}
 
 
+	// DEPRECATED
 	// tags
 	function inputTags($name, $_options = false) {
 
@@ -546,7 +547,8 @@ class HTMLCore {
 	}
 
 
-
+	// DEPRECATED
+	// price
 	function inputPrice($name, $_options = false) {
 
 		// form security

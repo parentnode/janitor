@@ -24,23 +24,6 @@
 #content .scene.defaultEdit > div.item .actions li {padding: 0 5px 10px;}
 
 
-/* EDIT, PRICES */
-#content .scene.defaultEdit > div.prices {padding: 20px 0;}
-#content .scene.defaultEdit > div.prices .field input[type=text] {width: 262px;}
-#content .scene.defaultEdit > div.prices fieldset {display: inline-block; vertical-align: top;}
-#content .scene.defaultEdit > div.prices fieldset .field {padding-right: 12px;}
-#content .scene.defaultEdit > div.prices .actions {display: inline-block; vertical-align: top; padding: 0;}
-#content .scene.defaultEdit > div.prices .actions li {padding-left: 0;}
-#content .scene.defaultEdit > div.prices .actions li input {margin-top: 4px;}
-
-#content .scene.defaultEdit > div.prices ul.prices {padding: 0 30px;}
-#content .scene.defaultEdit > div.prices ul.prices li {font-size: 0; display: block; padding-bottom: 3px;}
-#content .scene.defaultEdit > div.prices ul.prices li h3 {display: inline-block; vertical-align: top; padding: 0 5px 0 0; line-height: 20px;}
-#content .scene.defaultEdit > div.prices ul.prices li form {display: inline-block; vertical-align: top;}
-#content .scene.defaultEdit > div.prices ul.prices li input.delete {padding: 0; margin: 0; line-height: 20px; cursor: pointer; color: #999999; text-decoration: underline; box-shadow: none; text-shadow: none; border: none; background: none; border-radius: 0;}
-#content .scene.defaultEdit > div.prices ul.prices li input.delete:hover {color: #000000;}
-
-
 
 /* EDIT MEDIA */
 #content .scene.defaultEdit > div.media {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
@@ -130,6 +113,30 @@
 
 #content .scene.defaultEdit > div.comments > form,
 #content .scene.defaultEdit > div.comments li.comment > form {padding-bottom: 10px; padding-top: 5px;}
+
+
+
+/* PRICES */
+#content .scene.defaultEdit > div.prices {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+
+#content .scene.defaultEdit > div.prices > form {padding-bottom: 10px; padding-top: 5px;}
+
+#content .scene.defaultEdit > div.prices .field input[type=text] {width: 262px;}
+#content .scene.defaultEdit > div.prices fieldset {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.prices fieldset .field {padding-right: 12px;}
+#content .scene.defaultEdit > div.prices > form .actions {display: inline-block; vertical-align: top; padding: 0;}
+#content .scene.defaultEdit > div.prices > form .actions li {padding-left: 0;}
+#content .scene.defaultEdit > div.prices > form .actions li input {margin-top: 4px;}
+
+#content .scene.defaultEdit > div.prices ul.prices {padding: 0 0 15px;}
+#content .scene.defaultEdit > div.prices ul.prices li.pricedetails {display: block; position: relative; border-bottom: 1px solid #dedede;}
+#content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li {display: inline-block; vertical-align: top; padding: 10px 5px 10px 0; line-height: 1em;}
+#content .scene.defaultEdit > div.prices ul.prices > li > ul.actions {position: absolute; top: 3px; right: 0;}
+
+/*#content .scene.defaultEdit > div.prices ul.prices li.pricedetails form {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.prices ul.prices li.pricedetails input.delete {padding: 0; margin: 0; line-height: 20px; cursor: pointer; color: #999999; text-decoration: underline; box-shadow: none; text-shadow: none; border: none; background: none; border-radius: 0;}
+#content .scene.defaultEdit > div.prices ul.prices li.pricedetails input.delete:hover {color: #000000;}
+*/
 
 
 /* TODOS */

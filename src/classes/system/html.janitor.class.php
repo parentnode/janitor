@@ -57,23 +57,43 @@ class JanitorHTML {
 
 	// data elements for JS interaction
 	// TODO: implement a filter, to avoid printing all data attributes every time
-	function jsData() {
+	function jsData($_options = false) {
 		global $page;
 
 		$_ = '';
 
 		$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
-		$_ .= ' data-item-order="'.$page->validPath($this->path."/updateOrder").'"'; 
-		$_ .= ' data-tag-get="'.$page->validPath("/janitor/admin/items/tags").'"'; 
-		$_ .= ' data-tag-delete="'.$page->validPath($this->path."/deleteTag").'"';
-		$_ .= ' data-tag-add="'.$page->validPath($this->path."/addTag").'"';
-		$_ .= ' data-media-order="'.$page->validPath($this->path."/updateMediaOrder").'"';
-		$_ .= ' data-media-delete="'.$page->validPath($this->path."/deleteMedia").'"';
-		$_ .= ' data-media-name="'.$page->validPath($this->path."/updateMediaName").'"';
-		$_ .= ' data-comment-update="'.$page->validPath($this->path."/updateComment").'"';
-		$_ .= ' data-comment-delete="'.$page->validPath($this->path."/deleteComment").'"';
-		$_ .= ' data-qna-update="'.$page->validPath($this->path."/updateQnA").'"';
-		$_ .= ' data-qna-delete="'.$page->validPath($this->path."/deleteQnA").'"';
+
+		if(!$_options || array_search("order", $_options) !== false) {
+			$_ .= ' data-item-order="'.$page->validPath($this->path."/updateOrder").'"'; 
+		}
+
+		if(!$_options || array_search("tags", $_options) !== false) {
+			$_ .= ' data-tag-get="'.$page->validPath("/janitor/admin/items/tags").'"'; 
+			$_ .= ' data-tag-delete="'.$page->validPath($this->path."/deleteTag").'"';
+			$_ .= ' data-tag-add="'.$page->validPath($this->path."/addTag").'"';
+		}
+
+		if(!$_options || array_search("media", $_options) !== false) {
+			$_ .= ' data-media-order="'.$page->validPath($this->path."/updateMediaOrder").'"';
+			$_ .= ' data-media-delete="'.$page->validPath($this->path."/deleteMedia").'"';
+			$_ .= ' data-media-name="'.$page->validPath($this->path."/updateMediaName").'"';
+		}
+
+		if(!$_options || array_search("comments", $_options) !== false) {
+			$_ .= ' data-comment-update="'.$page->validPath($this->path."/updateComment").'"';
+			$_ .= ' data-comment-delete="'.$page->validPath($this->path."/deleteComment").'"';
+		}
+
+		if(!$_options || array_search("prices", $_options) !== false) {
+			$_ .= ' data-price-update="'.$page->validPath($this->path."/updatePrice").'"';
+			$_ .= ' data-price-delete="'.$page->validPath($this->path."/deletePrice").'"';
+		}
+
+		if(!$_options || array_search("qna", $_options) !== false) {
+			$_ .= ' data-qna-update="'.$page->validPath($this->path."/updateQnA").'"';
+			$_ .= ' data-qna-delete="'.$page->validPath($this->path."/deleteQnA").'"';
+		}
 
 		return $_;
 	}
@@ -380,7 +400,6 @@ class JanitorHTML {
 		$_ = '';
 
 		$_ .= '<ul class="actions">';
-		//$_ .= $model->link("Cancel", $this->path."/list", array("class" => "button key:esc", "wrapper" => "li.cancel"));
 		$_ .= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save"));
 		$_ .= '</ul>';
 
@@ -388,25 +407,14 @@ class JanitorHTML {
 	}
 
 	// edit tags form for edit page
-	// TODO: implement same method in item list on list page
 	function editTags($item, $_options = false) {
 		global $model;
 
 		$_ = '';
 
-		$_ .= '<div class="tags i:defaultTags i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<div class="tags i:defaultTags i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["tags"]).'>';
 		$_ .= '<h2>Tags ('.($item["tags"] ? count($item["tags"]) : 0).')</h2>';
 		$_ .= $this->tagList($item["tags"]);
-
-		// $_ .= $model->formStart($this->path."/addTag/".$item["id"], array("class" => "labelstyle:inject"));
-		// $_ .= '<fieldset>';
-		// $_ .= $model->inputTags("tags", array("id" => "tags_".$item["id"]));
-		// $_ .= '</fieldset>';
-		//
-		// $_ .= '<ul class="actions">';
-		// $_ .= $model->submit("Add new tag", array("class" => "primary", "wrapper" => "li.save"));
-		// $_ .= '</ul>';
-		// $_ .= $model->formEnd();
 		$_ .= '</div>';
 
 		return $_;
@@ -568,7 +576,7 @@ class JanitorHTML {
 
 		$_ = '';
 
-		$_ .= '<div class="comments i:defaultComments i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<div class="comments i:defaultComments i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["comments"]).'>';
 		$_ .= '<h2>Comments ('.($item["comments"] ? count($item["comments"]) : 0).')</h2>';
 
 		$_ .= $this->commentList($item["comments"]);
@@ -586,6 +594,36 @@ class JanitorHTML {
 
 		return $_;
 	}
+
+	// edit Prices form for edit page
+	function editPrices($item, $_options = false) {
+		global $model;
+
+
+		$_ = '';
+
+		$_ .= '<div class="prices i:defaultPrices i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["prices"]).'>';
+		$_ .= '<h2>Prices</h2>';
+
+		$_ .= $this->priceList($item["prices"]);
+
+		$_ .= $model->formStart($this->path."/addPrice/".$item["id"], array("class" => "labelstyle:inject"));
+		// Use default vatrate for now
+		$_ .= $model->input("currency", array("type" => "hidden", "value" => "DKK"));
+		$_ .= $model->input("vatrate_id", array("type" => "hidden", "value" => "1"));
+		$_ .= '<fieldset>';
+		$_ .= $model->input("price");
+		$_ .= '</fieldset>';
+
+		$_ .= '<ul class="actions">';
+		$_ .= $model->submit("Add new price", array("class" => "primary", "wrapper" => "li.save"));
+		$_ .= '</ul>';
+		$_ .= $model->formEnd();
+		$_ .= '</div>';
+
+		return $_;
+	}
+
 
 	// // edit Comments form for edit page
 	// function editQnA($item, $_options = false) {
@@ -644,6 +682,29 @@ class JanitorHTML {
 						$_ .= '<li class="created_at">'. date("Y-m-d, H:i", strtotime($comment["created_at"])).'</li>';
 					$_ .= '</ul>';
 					$_ .= '<p class="comment">'.$comment["comment"].'</p>';
+				$_ .= '</li>';
+			}
+		}
+		$_ .= '</ul>';
+
+		return $_;
+	}
+
+
+	// simple price list
+	function priceList($prices) {
+
+		$_ = '';
+
+		$_ .= '<ul class="prices">';
+		if($prices) {
+			foreach($prices as $price) {
+				$_ .= '<li class="pricedetails price_id:'.$price["id"].'">';
+					$_ .= '<ul class="info">';
+						$_ .= '<li class="price">'.$price["formatted_price"].'</li>';
+						$_ .= '<li class="currency">'. $price["currency"].'</li>';
+						$_ .= '<li class="vatrate">('. $price["vatrate"].'%)</li>';
+					$_ .= '</ul>';
 				$_ .= '</li>';
 			}
 		}

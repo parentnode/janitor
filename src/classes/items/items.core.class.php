@@ -1249,6 +1249,116 @@ class ItemsCore {
 
 
 
+	// PRICES
+
+
+	// get prices, 
+	// TODO: extend to be able to get items ordered by price if possible
+	// TODO: Include formatting based on selected country
+	// TODO: could/should be merged with extendPrices when currencies are finalized
+	function getPrices($_options = false) {
+
+		$price_id = false;
+		$item_id = false;
+
+		$currency = false;
+//		$country = false;
+
+//		$extend = false;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"   : $item_id    = $_value; break;
+					case "price_id"  : $price_id   = $_value; break;
+
+					case "currency"  : $currency   = $_value; break;
+//					case "country"   : $country    = $_value; break;
+
+//					case "extend"    : $extend     = $_value; break;
+
+				}
+			}
+		}
+
+		$prices = false;
+		$query = new Query();
+
+
+		// get specific price
+		if($price_id) {
+			if($query->sql("SELECT prices.id, prices.price, prices.currency, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.id = '$price_id' AND vatrates.id = prices.vatrate_id LIMIT 1")) {
+
+				$price = $query->result(0);
+
+				$price["formatted_price"] = number_format($price["price"], 2, ",", ".");
+				$price["formatted_price_with_vat"] = number_format($price["price"] * (1 + ($price["vatrate"]/100)), 2, ",", ".");
+				$price["formatted_vat_of_price"] = number_format($price["price"] * ($price["vatrate"]/100), 2, ",", ".");
+
+				return $price;
+			}
+		}
+		// get price(s) for item
+		else if($item_id) {
+
+			// get price in specified currency
+			if($currency) {
+				if($query->sql("SELECT prices.id, prices.price, prices.currency, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id AND prices.currency = '$currency' LIMIT 1")) {
+
+					$price = $query->result(0);
+
+					$price["formatted_price"] = number_format($price["price"], 2, ",", ".");
+					$price["formatted_price_with_vat"] = number_format($price["price"] * (1 + ($price["vatrate"]/100)), 2, ",", ".");
+					$price["formatted_vat_of_price"] = number_format($price["price"] * ($price["vatrate"]/100), 2, ",", ".");
+
+					return $price;
+				}				
+			}
+			// get all prices for item
+			else {
+
+				if($query->sql("SELECT prices.id, prices.price, prices.currency, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id")) {
+
+					$prices = $query->results();
+
+					foreach($prices as $i => $price) {
+						$prices[$i]["formatted_price"] = number_format($price["price"], 2, ",", ".");
+						$prices[$i]["formatted_price_with_vat"] = number_format($price["price"] * (1 + ($price["vatrate"]/100)), 2, ",", ".");
+						$prices[$i]["formatted_vat_of_price"] = number_format($price["price"] * ($price["vatrate"]/100), 2, ",", ".");
+						
+					}
+
+					return $prices;
+				}				
+				
+			}
+
+		}
+
+		// get all prices
+		else {
+
+			if($query->sql("SELECT prices.id, prices.price, prices.currency, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE vatrates.id = prices.vatrate_id")) {
+
+				$prices = $query->results();
+
+				foreach($prices as $i => $price) {
+					$prices[$i]["formatted_price"] = number_format($price["price"], 2, ",", ".");
+					$prices[$i]["formatted_price_with_vat"] = number_format($price["price"] * (1 + ($price["vatrate"]/100)), 2, ",", ".");
+					$prices[$i]["formatted_vat_of_price"] = number_format($price["price"] * ($price["vatrate"]/100), 2, ",", ".");
+					
+				}
+
+				return $prices;
+			}				
+
+		}
+
+		return false;
+	}
+
+
 
 
 	// PRICES - EARLY IMPLEMENTATIONS
@@ -1258,87 +1368,44 @@ class ItemsCore {
 	// extend price array with calulations
 	// if currency is stated, just return one price
 	//
-	function extendPrices($prices, $_options = false) {
+	// function extendPrices($prices, $_options = false) {
+	//
+	// 	$currency = false;
+	//
+	// 	if($_options !== false) {
+	// 		foreach($_options as $_option => $_value) {
+	// 			switch($_option) {
+	//
+	// 				case "currency"  : $currency   = $_value; break;
+	// 			}
+	// 		}
+	// 	}
+	//
+	// 	if($currency) {
+	//
+	// 		foreach($prices as $index => $price) {
+	// 			if($currency == $prices[$index]["currency"]) {
+	// 				$prices[$index]["price_with_vat"] = $price["price"] * (1 + ($price["vatrate"]/100));
+	// 				$prices[$index]["vat_of_price"] = $price["price"] * ($price["vatrate"]/100);
+	//
+	// 				return $prices[$index];
+	// 			}
+	// 		}
+	// 	}
+	// 	else {
+	//
+	// 		foreach($prices as $index => $price) {
+	// 			if(!$currency || $currency == $prices[$index]["currency"]) {
+	// 				$prices[$index]["price_with_vat"] = $price["price"]* (1 + ($price["vatrate"]/100));
+	// 				$prices[$index]["vat_of_price"] = $price["price"] * ($price["vatrate"]/100);
+	// 			}
+	// 		}
+	// 	}
+	//
+	// 	return $prices;
+	//
+	// }
 
-		$currency = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "currency"  : $currency   = $_value; break;
-				}
-			}
-		}
-
-		if($currency) {
-
-			foreach($prices as $index => $price) {
-				if($currency == $prices[$index]["currency"]) {
-					$prices[$index]["price_with_vat"] = $price["price"] * (1 + ($price["vatrate"]/100));
-					$prices[$index]["vat_of_price"] = $price["price"] * ($price["vatrate"]/100);
-
-					return $prices[$index];
-				}
-			}
-		}
-		else {
-
-			foreach($prices as $index => $price) {
-				if(!$currency || $currency == $prices[$index]["currency"]) {
-					$prices[$index]["price_with_vat"] = $price["price"]* (1 + ($price["vatrate"]/100));
-					$prices[$index]["vat_of_price"] = $price["price"] * ($price["vatrate"]/100);
-				}
-			}
-		}
-
-		return $prices;
-
-	}
-
-	// get prices, 
-	// TODO: extend to be able to get items ordered by price if possible
-	// TODO: could/should be merged with extendPrices when currencies are finalized
-	function getPrices($_options = false) {
-
-		$item_id = false;
-
-		$currency = false;
-		$country = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "item_id"   : $item_id    = $_value; break;
-
-					case "currency"  : $currency   = $_value; break;
-					case "country"   : $country    = $_value; break;
-				}
-			}
-		}
-
-		$prices = array();
-		$query = new Query();
-
-		if($country && !$currency) {
-			if($query->sql("SELECT currency FROM ".UT_COUNTRIES." WHERE id = '$country' LIMIT 1")) {
-				$currency = $query->result(0, "currency");
-			}
-		}
-
-		if($currency) {
-			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES.", ".UT_VATRATES." WHERE vatrate_id = ".UT_VATRATES.".id AND currency = '$currency' AND item_id = $item_id")) {
-				$prices = $query->results();
-			}
-		}
-		else {
-			if($query->sql("SELECT * FROM ".UT_PRICES.", ".UT_CURRENCIES.", ".UT_VATRATES." WHERE vatrate_id = ".UT_VATRATES.".id AND item_id = $item_id")) {
-				$prices = $query->results();
-			}
-		}
-
-		return $prices;
-	}
 
 
 

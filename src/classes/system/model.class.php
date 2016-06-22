@@ -91,6 +91,27 @@ class Model extends HTML {
 
 
 
+		$this->addToModel("price", array(
+			"type" => "string",
+			"label" => "New price",
+			"pattern" => "[0-9\,]+",
+			"hint_message" => "State the price excluding VAT, using , (comma) as decimal point.",
+			"error_message" => "Price cannot be empty."
+		));
+		$this->addToModel("currency", array(
+			"type" => "string",
+			"label" => "Currency",
+			"hint_message" => "Currency of price",
+			"error_message" => "Currency cannot be empty."
+		));
+		$this->addToModel("vatrate_id", array(
+			"type" => "integer",
+			"label" => "Vatrate",
+			"hint_message" => "VAT rate for this product.",
+			"error_message" => "VAT rate cannot be empty."
+		));
+
+
 	}
 
 
