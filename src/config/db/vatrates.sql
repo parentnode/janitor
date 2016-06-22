@@ -3,7 +3,6 @@ CREATE TABLE `SITE_DB`.`vatrates` (
   `name` varchar(255) NOT NULL,
 
   `vatrate` float NOT NULL,
-
   `country` varchar(2) NOT NULL,
 
   PRIMARY KEY  (`id`),
