@@ -5,8 +5,8 @@ global $model;
 global $itemtype;
 
 
-$items = $IC->getItems(array("itemtype" => $itemtype, "where" => "event.starting_at > NOW()", "order" => "status DESC, event.starting_at ASC", "extend" => array("tags" => true, "mediae" => true)));
-$past_items = $IC->getItems(array("itemtype" => $itemtype, "where" => "event.starting_at < NOW()", "order" => "status DESC, event.starting_at ASC", "extend" => array("tags" => true, "mediae" => true)));
+$items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.".starting_at > NOW()", "order" => "status DESC, ".$itemtype.".starting_at ASC", "extend" => array("tags" => true, "mediae" => true)));
+$past_items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.".starting_at < NOW()", "order" => "status DESC, ".$itemtype.".starting_at ASC", "extend" => array("tags" => true, "mediae" => true)));
 
 ?>
 <div class="scene i:scene defaultList <?= $itemtype ?>List">
