@@ -6,7 +6,7 @@ CREATE TABLE `SITE_DB`.`item_subscription` (
   `description` text NOT NULL,
   `html` text NOT NULL,
 
-  `interval` varchar(255) NOT NULL,
+  `renewal` varchar(255) NOT NULL,
 
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),

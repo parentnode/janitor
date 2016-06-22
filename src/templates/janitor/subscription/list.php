@@ -5,7 +5,7 @@ global $model;
 global $itemtype;
 
 
-$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DESC, ".$itemtype.".ending_at ASC", "extend" => array("tags" => true, "mediae" => true)));
+$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DESC", "extend" => array("tags" => true, "mediae" => true)));
 
 ?>
 <div class="scene i:scene defaultList <?= $itemtype ?>List">

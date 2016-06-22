@@ -45,12 +45,12 @@ class TypeSubscription extends Itemtype {
 
 
 		// Interval
-		$this->addToModel("interval", array(
+		$this->addToModel("renewal", array(
 			"type" => "string",
-			"label" => "Interval",
+			"label" => "Renewal",
 			"required" => true,
-			"hint_message" => "Use Cron syntax for interval description.", 
-			"error_message" => "Invalid interval."
+			"hint_message" => "Use Cron syntax for renewal interval description.", 
+			"error_message" => "Invalid renewal interval."
 		));
 
 
