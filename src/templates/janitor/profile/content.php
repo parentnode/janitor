@@ -14,14 +14,6 @@ $item = $model->getUser();
 $items = $IC->getItems(array("user_id" => $user_id, "extend" => true));
 $comments = $IC->getComments(array("user_id" => $user_id));
 
-$orders = false;
-
-if(defined("SITE_SHOP") && SITE_SHOP) {
-	$SC = new Shop();
-
-	$orders = $SC->getOrders(array("user_id" => $user_id));
-}
-
 ?>
 <div class="scene i:scene defaultList userContentList profileContentList">
 	<h1>Content</h1>
@@ -30,32 +22,16 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 	<ul class="tabs">
 		<?= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile")) ?>
-<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
-		<?= $HTML->link("Content and orders", "/janitor/admin/profile/content", array("wrapper" => "li.content.selected")) ?>
-<?		else: ?>
+<?		if(defined("SITE_ITEMS") && SITE_ITEMS): ?>
 		<?= $HTML->link("Content", "/janitor/admin/profile/content", array("wrapper" => "li.content.selected")) ?>
 <?		endif; ?>
-	</ul>
-
-
-	<div class="all_items orders i:defaultList filters">
-		<h2>Orders</h2>
-<?		if($orders): ?>
-		<ul class="items">
-<?			foreach($orders as $order): ?>
-			<li class="item">
-				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items" ) ?>)</h3>
-
-				<ul class="actions">
-					<?= $HTML->link("View", "/janitor/admin/shop/order/view/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
-				</ul>
-			 </li>
-<?			endforeach; ?>
-		</ul>
-<?		else: ?>
-		<p>No orders.</p>
+<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
+		<?= $HTML->link("Orders", "/janitor/admin/profile/orders", array("wrapper" => "li.orders")) ?>
 <?		endif; ?>
-	</div>
+<?		if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS): ?>
+		<?= $HTML->link("Subscriptions", "/janitor/admin/profile/subscriptions", array("wrapper" => "li.subscriptions")) ?>
+<?		endif; ?>
+	</ul>
 
 
 	<div class="all_items content i:defaultList filters"

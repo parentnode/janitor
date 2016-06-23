@@ -17,7 +17,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 	<?= $JML->editSingleMedia($item) ?>
 
 	<div class="item i:defaultEdit">
-		<h2>Subscription</h2>
+		<h2>Subscription details</h2>
 		<?= $model->formStart("update/".$item["id"], array("class" => "labelstyle:inject")) ?>
 
 			<fieldset>

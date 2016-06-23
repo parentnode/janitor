@@ -33,11 +33,11 @@ if(is_array($action) && count($action)) {
 	}
 
 	// CONTENT OVERVIEW
-	else if(preg_match("/^(content)$/", $action[0])) {
+	else if(preg_match("/^(content|orders|subscriptions)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/profile/content.php"
+			"templates" => "janitor/profile/".$action[0].".php"
 		));
 		exit();
 	}

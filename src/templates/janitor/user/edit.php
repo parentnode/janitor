@@ -52,10 +52,14 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 
 	<ul class="tabs">
 		<?= $HTML->link("Profile", "/janitor/admin/user/edit/".$user_id, array("wrapper" => "li.profile.selected")) ?>
-<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
-		<?= $HTML->link("Content and orders", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content")) ?>
-<?		else: ?>
+<?		if(defined("SITE_ITEMS") && SITE_ITEMS): ?>
 		<?= $HTML->link("Content", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content")) ?>
+<?		endif; ?>
+<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
+		<?= $HTML->link("Orders", "/janitor/admin/user/orders/".$user_id, array("wrapper" => "li.orders")) ?>
+<?		endif; ?>
+<?		if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS): ?>
+		<?= $HTML->link("Subscriptions", "/janitor/admin/user/subscriptions/".$user_id, array("wrapper" => "li.subscriptions")) ?>
 <?		endif; ?>
 	</ul>
 

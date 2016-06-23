@@ -38,7 +38,22 @@ $access_item["/deleteUserGroup"] = "/group";
 $access_item["/saveUserGroup"] = "/group";
 $access_item["/updateUserGroup"] = "/group";
 
+$access_item["/subscriber"] = true;
+$access_item["/deleteSubscription"] = "/subscriber";
+$access_item["/disableSubscription"] = "/subscriber";
+$access_item["/subscriber/enable"] = "/subscriber";
+
+$access_item["/subscriber/edit"] = true;
+$access_item["/subscriber/update"] = true;
+
+// $access_item["/saveUserGroup"] = "/group";
+// $access_item["/updateUserGroup"] = "/group";
+
+
+
 $access_item["/content"] = true;
+$access_item["/orders"] = "/content";
+$access_item["/subscriptions"] = "/content";
 $access_item["/online"] = true;
 $access_item["/flushUserSession"] = true;
 
@@ -87,6 +102,23 @@ if(is_array($action) && count($action)) {
 		}
 	}
 
+	// SUBSCRIBERS
+	else if(preg_match("/^(subscriber)$/", $action[0]) && count($action) > 1) {
+
+		// GROUP LIST
+		if(preg_match("/^(list|edit|new)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "subscriber", 
+				"page_title" => "Subscribers",
+				"templates" => "janitor/user/subscriber/".$action[1].".php"
+			));
+			exit();
+		}
+		
+	}
+
 	// ACCESS EDIT
 	else if(preg_match("/^(access)$/", $action[0]) && count($action) > 1) {
 		
@@ -103,12 +135,11 @@ if(is_array($action) && count($action)) {
 		}
 	}
 
-	// CONTENT OVERVIEW
-	else if(preg_match("/^(content)$/", $action[0]) && count($action) > 1) {
-
+	// CONTENT, ORDERS OR SUBSCRIPTIONS OVERVIEW
+	else if(preg_match("/^(content|orders|subscriptions)$/", $action[0]) && count($action) > 1) {
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/user/content.php"
+			"templates" => "janitor/user/".$action[0].".php"
 		));
 		exit();
 	}

@@ -1281,6 +1281,7 @@ class User extends Model {
 	// get state of specific newsletter for specific user
 	function getNewsletters($_options = false) {
 
+		$user_id = session()->value("user_id");
 		$newsletter = false;
 
 		if($_options !== false) {
@@ -1347,6 +1348,62 @@ class User extends Model {
 
 		return false;
 	}
+
+
+	// NEWSLETTER
+
+	// get subscription info for specific subscription 
+	// (can be used to check if user has subscription or not)
+	// get subscription for user
+	function getSubscriptions($_options = false) {
+
+		$user_id = session()->value("user_id");
+		$item_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"     : $item_id       = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+		$IC = new Items();
+
+		// check for specific subscription for current user
+		if($item_id) {
+			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id AND item_id = '$item_id' LIMIT 1";
+			if($query->sql($sql)) {
+				$subscription = $query->result(0);
+				$item = $IC->getItem(array("id" => $subscription["item_id"], "extend" => true));
+
+				return $item;
+			}
+			else {
+				return false;
+			}
+		}
+
+		// get list of all subscriptions for current user
+		else {
+			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id";
+			if($query->sql($sql)) {
+
+				$subscriptions = $query->results();
+				foreach($subscriptions as $i => $subscription) {
+					$subscriptions[$i] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => true));
+				}
+				return $subscriptions;
+			}
+			else {
+				return false;
+			}
+
+		}
+
+	}
+
 
 
 
