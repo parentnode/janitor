@@ -181,7 +181,7 @@ class Shop extends Model {
 			"error_message" => "Invalid country"
 		));
 
-		print "testHH";
+//		print "testHH";
 
 		parent::__construct();
 	}
