@@ -214,6 +214,7 @@ class ItemsCore {
 			$user = false;
 			$mediae = false;
 			$tags = false;
+			$price = false;
 			$prices = false;
 			$ratings = false;
 			$comments = false;
@@ -229,6 +230,7 @@ class ItemsCore {
 						case "user"         : $user           = $_value; break;
 						case "mediae"       : $mediae         = $_value; break;
 						case "tags"         : $tags           = $_value; break;
+						case "price"        : $price          = $_value; break;
 						case "prices"       : $prices         = $_value; break;
 						case "ratings"      : $ratings        = $_value; break;
 						case "comments"     : $comments       = $_value; break;
@@ -289,6 +291,12 @@ class ItemsCore {
 			// add prices
 			if($all || $prices) {
 				$item["prices"] = $this->getPrices(array("item_id" => $item["id"]));
+			}
+
+			// add price
+			if($all || $price) {
+				global $page;
+				$item["price"] = $this->getPrices(array("item_id" => $item["id"], "currency" => $page->currency()));
 			}
 
 
@@ -1304,7 +1312,7 @@ class ItemsCore {
 
 			// get price in specified currency
 			if($currency) {
-				if($query->sql("SELECT prices.id, prices.price, prices.currency, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id AND prices.currency = '$currency' LIMIT 1")) {
+				if($query->sql("SELECT prices.id, prices.price, prices.currency, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id AND prices.currency = '".$currency["id"]."' LIMIT 1")) {
 
 					$price = $query->result(0);
 
