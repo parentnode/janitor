@@ -421,6 +421,7 @@ class User extends Model {
 
 									$page->mail(array(
 										"values" => array(
+											"MEMBERID" => $item["item_id"],
 											"PRICE" => $item["price"]["formatted_price"],
 											"EMAIL" => $email,
 											"PASSWORD" => $mail_password
