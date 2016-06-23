@@ -5,7 +5,7 @@ global $model;
 global $itemtype;
 
 
-$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DESC", "extend" => array("tags" => true, "mediae" => true)));
+$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC, status DESC", "extend" => array("tags" => true, "mediae" => true)));
 
 ?>
 <div class="scene i:scene defaultList <?= $itemtype ?>List">
@@ -15,7 +15,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DESC", 
 		<?= $JML->listNew(array("label" => "New subscription")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList taggable filters"<?= $JML->jsData() ?>>
+	<div class="all_items i:defaultList taggable sortable filters"<?= $JML->jsData() ?>>
 <?		if($items): ?>
 		<ul class="items">
 

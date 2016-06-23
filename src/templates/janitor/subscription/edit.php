@@ -22,6 +22,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 
 			<fieldset>
 				<?= $model->input("name", array("value" => $item["name"])) ?>
+				<?= $model->input("classname", array("value" => $item["classname"])) ?>
 				<?= $model->input("description", array("class" => "autoexpand short", "value" => $item["description"])) ?>
 				<?= $model->input("renewal", array("value" => $item["renewal"])) ?>
 				<?= $model->inputHTML("html", array("value" => $item["html"])) ?>

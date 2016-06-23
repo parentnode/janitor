@@ -27,6 +27,13 @@ class TypeSubscription extends Itemtype {
 			"error_message" => "Event needs a name."
 		));
 
+		// Class
+		$this->addToModel("classname", array(
+			"type" => "string",
+			"label" => "CSS Class and mail template postfix",
+			"hint_message" => "If you don't know what this is, just leave it empty"
+		));
+
 		// Description
 		$this->addToModel("description", array(
 			"type" => "text",

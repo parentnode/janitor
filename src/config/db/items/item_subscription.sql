@@ -3,10 +3,13 @@ CREATE TABLE `SITE_DB`.`item_subscription` (
   `item_id` int(11) NOT NULL,
 
   `name` varchar(255) NOT NULL,
+  `classname` varchar(50) NULL,
   `description` text NOT NULL,
   `html` text NOT NULL,
 
   `renewal` varchar(255) NOT NULL,
+
+  `position` int(11) DEFAULT '0',
 
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),
