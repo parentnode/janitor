@@ -406,7 +406,7 @@ class User extends Model {
 
 							// membership subscription?
 							$subscription = getPost("subscription");
-							if($subscription) {
+							if($subscription && $mail_password) {
 						
 								// make sure newsletter table exist
 								$query->checkDbExistance($this->db_subscriptions);
@@ -421,7 +421,9 @@ class User extends Model {
 
 									$page->mail(array(
 										"values" => array(
-											"PRICE" => $item["price"]["formatted_price"]
+											"PRICE" => $item["price"]["formatted_price"],
+											"EMAIL" => $email,
+											"PASSWORD" => $mail_password
 										), 
 										"recipients" => $email, 
 										"template" => "subscription_".$item["classname"]
@@ -429,13 +431,13 @@ class User extends Model {
 
 									// send notification email to admin
 									$page->mail(array(
-										"subject" => "New subscription (".$item["name"].") creation: " . $email, 
+										"subject" => "New subscription (".$item["name"].") created: " . $email, 
 										"message" => "Do something", //"Check out the subscriptions page: " . SITE_URL . "/janitor/admin/user/subscriptions/" . $user_id, 
 										"template" => "system"
 									));
 
 									// add log
-									$page->addLog("user->newUser (w/ subscription): created: " . $email);
+									$page->addLog("user->newUser (".$item["name"]."): created: " . $email);
 
 								}
 								else {
@@ -483,14 +485,13 @@ class User extends Model {
 							$page->addLog("user->newUser: created: " . $email);
 
 							// success
-							// send welcome email
-							if($mail_password && $verification_code) {
+							// send activation email
+							if($verification_code) {
 
 								// send verification email to user
 								$page->mail(array(
 									"values" => array(
 										"EMAIL" => $email, 
-										"PASSWORD" => $mail_password, 
 										"VERIFICATION" => $verification_code
 									), 
 									"recipients" => $email, 
