@@ -156,6 +156,7 @@ class ItemtypeCore extends Model {
 
 	# /janitor/[admin/]#itemtype#/save
 	function save($action) {
+		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -221,6 +222,10 @@ class ItemtypeCore extends Model {
 							$this->postSave($item_id);
 						}
 
+						// add log
+						$page->addLog("ItemType->save ($item_id)");
+
+						// return selected data array
 						return $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
 
 					}
@@ -286,6 +291,7 @@ class ItemtypeCore extends Model {
 	# /janitor/[admin/]#itemtype#/update/#item_id#
 	// TODO: implement itemtype checks
 	function update($action) {
+		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -341,6 +347,10 @@ class ItemtypeCore extends Model {
 					$this->sindex($sindex, $item_id);
 
 					message()->addMessage("Item updated");
+
+					// add log
+					$page->addLog("ItemType->update ($item_id)");
+					
 					return $item;
 				}
 			}
