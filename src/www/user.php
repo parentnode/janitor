@@ -39,12 +39,12 @@ $access_item["/saveUserGroup"] = "/group";
 $access_item["/updateUserGroup"] = "/group";
 
 $access_item["/subscriber"] = true;
-$access_item["/deleteSubscription"] = "/subscriber";
-$access_item["/disableSubscription"] = "/subscriber";
-$access_item["/subscriber/enable"] = "/subscriber";
-
-$access_item["/subscriber/edit"] = true;
-$access_item["/subscriber/update"] = true;
+// $access_item["/deleteSubscription"] = "/subscriber";
+// $access_item["/disableSubscription"] = "/subscriber";
+// $access_item["/subscriber/enable"] = "/subscriber";
+//
+// $access_item["/subscriber/edit"] = true;
+// $access_item["/subscriber/update"] = true;
 
 // $access_item["/saveUserGroup"] = "/group";
 // $access_item["/updateUserGroup"] = "/group";
