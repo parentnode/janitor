@@ -1,6 +1,8 @@
 <?php
 $access_item["/"] = true;
 $access_item["/addComment"] = true;
+$access_item["/updateReadstate"] = true;
+$access_item["/deleteReadstate"] = true;
 if(isset($read_access) && $read_access) {
 	return;
 }
