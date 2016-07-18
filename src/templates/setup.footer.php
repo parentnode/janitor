@@ -42,7 +42,7 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 			<li class="upgrade">
 				<h3>Upgrade</h3>
 				<ul class="subjects">
-					<li class="prices"><a href="/setup/upgrade/upgrade-database-to_v0_8">Upgrade DB (v0.8)</a></li>
+					<li class="prices"><a href="/setup/upgrade/upgrade-database">Upgrade Database</a></li>
 				</ul>
 			</li>
 		</ul>

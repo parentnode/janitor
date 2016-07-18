@@ -139,6 +139,34 @@
 */
 
 
+
+/* SUBSCRIPTIONS */
+#content .scene.defaultEdit > div.subscription_method {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.subscription_method dl.settings {padding: 0 30px 20px;}
+#content .scene.defaultEdit > div.subscription_method dl.settings dt,
+#content .scene.defaultEdit > div.subscription_method dl.settings dd {display: block; font-size: 13px; line-height: 1.38em;}
+#content .scene.defaultEdit > div.subscription_method dl.settings dt {color: #313942;}
+#content .scene.defaultEdit > div.subscription_method ul.actions.change {padding-bottom: 10px;}
+
+
+#content .scene.defaultEdit > div.subscription_method div.change_subscription_method {display: none;}
+
+#content .scene.defaultEdit > div.subscription_method > form {padding-bottom: 10px; padding-top: 5px;}
+
+#content .scene.defaultEdit > div.subscription_method .field select {width: 275px;}
+#content .scene.defaultEdit > div.subscription_method fieldset {display: inline-block; vertical-align: top;}
+#content .scene.defaultEdit > div.subscription_method fieldset .field {padding-right: 12px;}
+#content .scene.defaultEdit > div.subscription_method form .actions {display: inline-block; vertical-align: top; padding: 0;}
+#content .scene.defaultEdit > div.subscription_method form .actions li {padding-left: 0;}
+#content .scene.defaultEdit > div.subscription_method form .actions li input {margin-top: 4px;}
+
+
+
+/* READSTATES */
+#content .scene.defaultEdit > div.readstates {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+
+
+
 /* TODOS */
 #content .scene.defaultEdit > div.todos {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.todos ul.todos {list-style: disc; list-style-position: outside; margin-left: 15px; padding: 0 0 20px 30px;}

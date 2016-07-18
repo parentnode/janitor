@@ -111,7 +111,6 @@ class Model extends HTML {
 			"error_message" => "VAT rate cannot be empty."
 		));
 
-
 	}
 
 

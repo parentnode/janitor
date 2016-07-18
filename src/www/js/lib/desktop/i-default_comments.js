@@ -3,22 +3,52 @@ Util.Objects["defaultComments"] = new function() {
 
 		div.item_id = u.cv(div, "item_id");
 
-		// add tag form
-		div._comments_form = u.qs("form", div);
-		div._comments_form.div = div;
-
-
-		u.f.init(div._comments_form);
-
-
 		// CMS interaction urls
-		div.csrf_token = div._comments_form.fields["csrf-token"].value;
-		div.add_comment_url = div._comments_form.action;
 		div.delete_comment_url = div.getAttribute("data-comment-delete");
 		div.update_comment_url = div.getAttribute("data-comment-update");
+		div.csrf_token = div.getAttribute("data-csrf-token");
+
+		// add tag form
+		div._comments_form = u.qs("form", div);
+
+		div._comments_list = u.qs("ul.comments", div);
 
 
-		div._comments_form.list = u.qs("ul.comments", div);
+		if(div._comments_form) {
+			div._comments_form.div = div;
+
+			u.f.init(div._comments_form);
+
+
+			div.add_comment_url = div._comments_form.action;
+
+
+
+			// new comment submitted
+			div._comments_form.submitted = function(iN) {
+
+				this.response = function(response) {
+					page.notify(response);
+
+					if(response.cms_status == "success" && response.cms_object) {
+
+						var comment_li = u.ae(this.div._comments_list, "li", {"class":"comment comment_id:"+response.cms_object["id"]});
+						var info = u.ae(comment_li, "ul", {"class":"info"});
+						u.ae(info, "li", {"class":"user", "html":response.cms_object["nickname"]});
+						u.ae(info, "li", {"class":"created_at", "html":response.cms_object["created_at"]});
+						u.ae(comment_li, "p", {"class":"comment", "html":response.cms_object["comment"]})
+
+						this.div.initComment(comment_li);
+
+						// reset form input
+						this.fields["comment"].val("");
+
+					}
+				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			}
+			
+		}
 
 		// add edit+delete form to comment
 		div.initComment = function(node) {
@@ -126,32 +156,9 @@ Util.Objects["defaultComments"] = new function() {
 
 		}
 
-		// new comment submitted
-		div._comments_form.submitted = function(iN) {
-
-			this.response = function(response) {
-				page.notify(response);
-
-				if(response.cms_status == "success" && response.cms_object) {
-
-					var comment_li = u.ae(this.list, "li", {"class":"comment comment_id:"+response.cms_object["id"]});
-					var info = u.ae(comment_li, "ul", {"class":"info"});
-					u.ae(info, "li", {"class":"user", "html":response.cms_object["nickname"]});
-					u.ae(info, "li", {"class":"created_at", "html":response.cms_object["created_at"]});
-					u.ae(comment_li, "p", {"class":"comment", "html":response.cms_object["comment"]})
-
-					this.div.initComment(comment_li);
-
-					// reset form input
-					this.fields["comment"].val("");
-
-				}
-			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-		}
 
 		// initalize existing comments
-		div.comments = u.qsa("li.comment", div._comments_form.list);
+		div.comments = u.qsa("li.comment", div._comments_list);
 		var i, node;
 		for(i = 0; node = div.comments[i]; i++) {
 			div.initComment(node);

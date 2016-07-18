@@ -41,4 +41,6 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 
 	<?= $JML->editComments($item) ?>
 
+	<?= $JML->editSubscriptions($item) ?>
+
 </div>

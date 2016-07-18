@@ -649,6 +649,22 @@ class PageCore {
 
 
 	/**
+	* Get array of available subscription methods
+	*/
+	function subscriptionMethods() {
+
+		if(!cache()->value("subscription_methods")) {
+
+			$query = new Query();
+			$query->sql("SELECT * FROM ".UT_SUBSCRIPTION_METHODS);
+			cache()->value("subscription_methods", $query->results());
+		}
+		return cache()->value("subscription_methods");
+	}
+
+
+
+	/**
 	* Access device API and get info about current useragent
 	*
 	* @param Array $_options Settings for segment function

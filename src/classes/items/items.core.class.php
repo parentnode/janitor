@@ -10,37 +10,43 @@
 
 // define default database name constants
 // base DB tables
-define("UT_ITEMS",              SITE_DB.".items");                             // Items
+define("UT_ITEMS",                      SITE_DB.".items");                             // Items
 
 // MEDIAE
-define("UT_ITEMS_MEDIAE",       SITE_DB.".items_mediae");                      // Items Mediae
+define("UT_ITEMS_MEDIAE",               SITE_DB.".items_mediae");                      // Items Mediae
 
 // COMMENTS
-define("UT_ITEMS_COMMENTS",     SITE_DB.".items_comments");                    // Items Comments
+define("UT_ITEMS_COMMENTS",             SITE_DB.".items_comments");                    // Items Comments
 
 // PRICES
-define("UT_ITEMS_PRICES",     SITE_DB.".items_prices");                    // Items Prices
+define("UT_ITEMS_PRICES",               SITE_DB.".items_prices");                      // Items Prices
 
-// READ STATE
-define("UT_ITEMS_READSTATE",    SITE_DB.".items_readstate");                   // Items Read state
+// SUBSCRIPTION METHOD
+define("UT_ITEMS_SUBSCRIPTION_METHOD",  SITE_DB.".items_subscription_method");         // Items Subscription method
+
+
 
 // TAGS
-define("UT_TAG",                SITE_DB.".tags");                              // Item tags
-define("UT_TAGGINGS",           SITE_DB.".taggings");                          // Item tags relations
+define("UT_TAG",                        SITE_DB.".tags");                              // Item tags
+define("UT_TAGGINGS",                   SITE_DB.".taggings");                          // Item tags relations
 
 
 // NAVIGATION EXTENSIONS
-define("UT_NAV",                SITE_DB.".navigation");                        // Site navigation
-define("UT_NAV_NODES",          SITE_DB.".navigation_nodes");                  // Site navigation nodes
+define("UT_NAV",                        SITE_DB.".navigation");                        // Site navigation
+define("UT_NAV_NODES",                  SITE_DB.".navigation_nodes");                  // Site navigation nodes
 
 
 
-// USERS
-define("UT_LANGUAGES",          SITE_DB.".languages");                         // Languages
-define("UT_COUNTRIES",          SITE_DB.".countries");                         // Countries
+// SYSTEM
+define("UT_LANGUAGES",                  SITE_DB.".system_languages");                  // Languages
+define("UT_COUNTRIES",                  SITE_DB.".system_countries");                  // Countries
 
-define("UT_CURRENCIES",         SITE_DB.".currencies");                        // Currencies
-define("UT_VATRATES",           SITE_DB.".vatrates");                          // Vatrates
+define("UT_CURRENCIES",                 SITE_DB.".system_currencies");                 // Currencies
+define("UT_VATRATES",                   SITE_DB.".system_vatrates");                   // Vatrates
+
+define("UT_PAYMENT_METHODS",            SITE_DB.".system_payment_methods");            // Payment methods
+define("UT_SUBSCRIPTION_METHODS",       SITE_DB.".system_subscription_methods");       // Subscription methods
+
 
 
 
@@ -51,6 +57,7 @@ class ItemsCore {
 	*/
 	function __construct() {
 
+		$this->UC = false;
 
 	}
 
@@ -79,6 +86,16 @@ class ItemsCore {
 		return $this->itemtypes["class"][$itemtype];
 	}
 
+
+	/**
+	* Helper funtion to get simple user class
+	*/
+	function getUserClass() {
+		if($this->UC == false) {
+			$this->UC = new User();
+		}
+		return $this->UC;
+	}
 
 	/**
 	* Global getItem
@@ -218,7 +235,10 @@ class ItemsCore {
 			$prices = false;
 			$ratings = false;
 			$comments = false;
+
 			$readstate = false;
+			$subscription = false;
+			$subscription_method = false;
 
 			// global setting for getting everything
 			$all = false;
@@ -227,16 +247,19 @@ class ItemsCore {
 				foreach($_options as $_option => $_value) {
 					switch($_option) {
 
-						case "user"         : $user           = $_value; break;
-						case "mediae"       : $mediae         = $_value; break;
-						case "tags"         : $tags           = $_value; break;
-						case "price"        : $price          = $_value; break;
-						case "prices"       : $prices         = $_value; break;
-						case "ratings"      : $ratings        = $_value; break;
-						case "comments"     : $comments       = $_value; break;
-						case "readstate"    : $readstate      = $_value; break;
+						case "user"                  : $user                    = $_value; break;
+						case "mediae"                : $mediae                  = $_value; break;
+						case "tags"                  : $tags                    = $_value; break;
+						case "price"                 : $price                   = $_value; break;
+						case "prices"                : $prices                  = $_value; break;
+						case "ratings"               : $ratings                 = $_value; break;
+						case "comments"              : $comments                = $_value; break;
+						case "subscription_method"   : $subscription_method     = $_value; break;
 
-						case "all"          : $all            = $_value; break;
+						case "readstate"             : $readstate               = $_value; break;
+						case "subscription"          : $subscription            = $_value; break;
+
+						case "all"                   : $all                     = $_value; break;
 					}
 				}
 			}
@@ -261,11 +284,6 @@ class ItemsCore {
 				$item["comments"] = $this->getComments(array("item_id" => $item["id"]));
 			}
 
-			// add readstate
-			if($all || $readstate) {
-				$item["readstate"] = $this->getReadstate(array("item_id" => $item["id"]));
-			}
-
 			// add tags
 			if($all || $tags) {
 				// custom settings for getTags (order or context)
@@ -282,7 +300,7 @@ class ItemsCore {
 
 			// add user nickname
 			if($all || $user) {
-				$UC = new User();
+				$UC = $this->getUserClass();
 				$user = $UC->getUserinfo(array("user_id" => $item["user_id"]));
 				$item["user_nickname"] = $user ? $user["nickname"] : "N/A";
 			}
@@ -293,10 +311,27 @@ class ItemsCore {
 				$item["prices"] = $this->getPrices(array("item_id" => $item["id"]));
 			}
 
-			// add price
+			// add price (only one price - in current currency)
 			if($all || $price) {
 				global $page;
 				$item["price"] = $this->getPrices(array("item_id" => $item["id"], "currency" => $page->currency()));
+			}
+
+			// add readstate (for current user)
+			if($all || $readstate) {
+				$UC = $this->getUserClass();
+				$item["readstate"] = $UC->getReadstate(array("item_id" => $item["id"]));
+			}
+
+			// add subscription (for current user)
+			if($all || $subscription) {
+				$UC = $this->getUserClass();
+				$item["subscription"] = $UC->getSubscription(array("item_id" => $item["id"]));
+			}
+
+			// add subscription method (for item)
+			if($all || $subscription_method) {
+				$item["subscription_method"] = $this->getSubscriptionMethod(array("item_id" => $item["id"]));
 			}
 
 
@@ -589,10 +624,11 @@ class ItemsCore {
 
 		// filter on readstates
 		if(isset($no_readstate) && $no_readstate) {
+			// if user id is not specified, use current user
 			if(!isset($user_id)) {
 				$user_id = session()->value("user_id");
 			}
-			$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_ITEMS_READSTATE." WHERE user_id = $user_id)";
+			$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_USER_READSTATE." WHERE user_id = $user_id)";
 		}
 
 
@@ -1219,44 +1255,6 @@ class ItemsCore {
 
 
 
-	// READSTATES
-
-
-	// get readstate, optionally based on item_id or user_id
-	// defaults to current user (never for user_id = 1 - guest)
-	function getReadstate($_options=false) {
-
-		$item_id = false;
-		$user_id = session()->value("user_id");
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "item_id"     : $item_id        = $_value; break;
-					case "user_id"     : $user_id        = $_value; break;
-
-				}
-			}
-		}
-
-		if($user_id > 1) {
-			$query = new Query();
-
-			// Get all comments for item_id
-			if($item_id) {
-
-				$sql = "SELECT read_at FROM ".UT_ITEMS_READSTATE." WHERE item_id = $item_id AND user_id = $user_id";
-				if($query->sql($sql)) {
-					return $query->result(0, "read_at");
-				}
-			}
-		}
-
-		return false;
-	}
-
-
-
 	// PRICES
 
 
@@ -1366,6 +1364,35 @@ class ItemsCore {
 		return false;
 	}
 
+
+
+	// get subscription method for item_id
+	// maintain $_options parameter despite only one option for now (could be more in the future)
+	function getSubscriptionMethod($_options=false) {
+
+		$item_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"     : $item_id        = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($item_id) {
+
+			$sql = "SELECT * FROM ".UT_SUBSCRIPTION_METHODS." as methods, ".UT_ITEMS_SUBSCRIPTION_METHOD." as method WHERE method.item_id = $item_id AND methods.id = method.subscription_method_id"; 
+			if($query->sql($sql)) {
+				return $query->result(0);
+			}
+			
+		}
+
+		return false;
+	}
 
 
 

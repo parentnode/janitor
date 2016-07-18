@@ -163,7 +163,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 				<div class="country"><?= $address["country_name"] ?></div>
 
 				<ul class="actions">
-					<?= $model->link("Edit", "/janitor/admin/user/edit_address/".$user_id."/".$address["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+					<?= $model->link("Edit", "/janitor/admin/user/address/edit/".$user_id."/".$address["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 				</ul>
 			</li>
 <?			endforeach; ?>
@@ -173,7 +173,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 <?		endif; ?>
 
 		<ul class="actions">
-			<?= $model->link("Add new address", "/janitor/admin/user/new_address/".$user_id, array("class" => "button primary", "wrapper" => "li.add")) ?>
+			<?= $model->link("Add new address", "/janitor/admin/user/address/new/".$user_id, array("class" => "button primary", "wrapper" => "li.add")) ?>
 		</ul>
 	</div>
 
@@ -201,7 +201,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 <?		endif; ?>
 
 		<ul class="actions">
-			<?= $model->link("Add newsletter subscription", "/janitor/admin/user/add_newsletter/".$user_id, array("class" => "button primary", "wrapper" => "li.newsletter")) ?>
+			<?= $model->link("Add newsletter subscription", "/janitor/admin/user/newsletter/new".$user_id, array("class" => "button primary", "wrapper" => "li.newsletter")) ?>
 		</ul>
 	</div>
 

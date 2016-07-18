@@ -25,6 +25,18 @@
 #content .scene.finish ul.building li {padding-bottom: 10px; font-size: 1.077rem; display: block;}
 #content .scene.finish ul.tasks li.error {color: red;}
 
+
+
+/* UPGRADE */
+
+body.upgrade #content .scene ul.tasks {padding: 20px 30px 20px; list-style: disc; margin-left: 20px;}
+body.upgrade #content .scene ul.tasks li {display: list-item; font-size: 14px; line-height: 1.38em;}
+body.upgrade #content .scene ul.tasks li.error {color: #df0000;}
+body.upgrade #content .scene ul.tasks li.error.fatal {padding: 20px 0 0; font-size: 20px;}
+body.upgrade #content .scene ul.tasks li.done {padding: 20px 0 0; color: #00aa00; font-size: 20px;}
+
+
+
 /* CODE AND TYPECASTING */
 #content .scene code {padding: 10px 10px; margin: 0 30px 5px; position: relative; top: -15px; background-color: #ededed; font-size: 0.923rem; display: block; overflow: auto; white-space: pre;
 	font-family: "Monaco", "Courier New", "Courier";
@@ -34,14 +46,11 @@
 }
 
 
+
+
+
+
 /* NAVIGATION */
-/*body.front #navigation .front a,
-body.paths #navigation .paths a,
-body.database #navigation .database a,
-body.config #navigation .config a,
-body.mail #navigation .mail a,
-body.finish #navigation .finish a {padding-left: 35px; color: #ffffff;}
-*/
 #navigation li.done {
 	background: transparent url(/janitor/admin/img/bg_done.png) no-repeat 200px 12px;
 }

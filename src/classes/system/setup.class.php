@@ -844,10 +844,10 @@ class Setup extends Itemtype {
 
 			$query = new Query();
 			$query->checkDbExistance($this->db_janitor_db.".user_groups");
-			$query->checkDbExistance($this->db_janitor_db.".languages");
-			$query->checkDbExistance($this->db_janitor_db.".currencies");
-			$query->checkDbExistance($this->db_janitor_db.".countries");
-			$query->checkDbExistance($this->db_janitor_db.".vatrates");
+			$query->checkDbExistance($this->db_janitor_db.".system_languages");
+			$query->checkDbExistance($this->db_janitor_db.".system_currencies");
+			$query->checkDbExistance($this->db_janitor_db.".system_countries");
+			$query->checkDbExistance($this->db_janitor_db.".system_vatrates");
 			$query->checkDbExistance($this->db_janitor_db.".users");
 
 			$query->checkDbExistance($this->db_janitor_db.".items");
@@ -863,15 +863,15 @@ class Setup extends Itemtype {
 			//
 			// CREATE LANGUAGE
 			//
-			$sql = "SELECT id FROM ".$this->db_janitor_db.".languages WHERE name = 'English'";
+			$sql = "SELECT id FROM ".$this->db_janitor_db.".system_languages WHERE name = 'English'";
 			if(!$query->sql($sql)) {
 
 				$tasks[] = "Installing language: EN";
-				$sql = "INSERT INTO ".$this->db_janitor_db.".languages set id = 'EN', name = 'English'";
+				$sql = "INSERT INTO ".$this->db_janitor_db.".system_languages set id = 'EN', name = 'English'";
 //				print $sql."<br>";
 				$query->sql($sql);
 
-				$sql = "INSERT INTO ".$this->db_janitor_db.".languages set id = 'DA', name = 'Dansk'";
+				$sql = "INSERT INTO ".$this->db_janitor_db.".system_languages set id = 'DA', name = 'Dansk'";
 				$query->sql($sql);
 
 			}
@@ -883,11 +883,11 @@ class Setup extends Itemtype {
 			//
 			// CREATE CURRENCY
 			//
-			$sql = "SELECT id FROM ".$this->db_janitor_db.".currencies WHERE id = 'DKK'";
+			$sql = "SELECT id FROM ".$this->db_janitor_db.".system_currencies WHERE id = 'DKK'";
 			if(!$query->sql($sql)) {
 
 				$tasks[] = "Installing currency: DKK";
-				$sql = "INSERT INTO ".$this->db_janitor_db.".currencies set id = 'DKK', name = 'Kroner (Denmark)', abbreviation = 'DKK', abbreviation_position = 'after', decimals = 2, decimal_separator = ',', grouping_separator = '.'";
+				$sql = "INSERT INTO ".$this->db_janitor_db.".system_currencies set id = 'DKK', name = 'Kroner (Denmark)', abbreviation = 'DKK', abbreviation_position = 'after', decimals = 2, decimal_separator = ',', grouping_separator = '.'";
 				// print $sql."<br>";
 				$query->sql($sql);
 
@@ -900,11 +900,11 @@ class Setup extends Itemtype {
 			//
 			// CREATE COUNTRY
 			//
-			$sql = "SELECT id FROM ".$this->db_janitor_db.".countries WHERE id = 'DK'";
+			$sql = "SELECT id FROM ".$this->db_janitor_db.".system_countries WHERE id = 'DK'";
 			if(!$query->sql($sql)) {
 
 				$tasks[] = "Installing country: DK";
-				$sql = "INSERT INTO ".$this->db_janitor_db.".countries set id = 'DK', name = 'Danmark', phone_countrycode = '45', phone_format = '#### ####', language = 'EN', currency = 'DKK'";
+				$sql = "INSERT INTO ".$this->db_janitor_db.".system_countries set id = 'DK', name = 'Danmark', phone_countrycode = '45', phone_format = '#### ####', language = 'EN', currency = 'DKK'";
 				// print $sql."<br>";
 				$query->sql($sql);
 
@@ -916,11 +916,11 @@ class Setup extends Itemtype {
 			//
 			// CREATE VATRATE
 			//
-			$sql = "SELECT id FROM ".$this->db_janitor_db.".vatrates WHERE country = 'DK'";
+			$sql = "SELECT id FROM ".$this->db_janitor_db.".system_vatrates WHERE country = 'DK'";
 			if(!$query->sql($sql)) {
 
 				$tasks[] = "Installing vatrate: No VAT, DK";
-				$sql = "INSERT INTO ".$this->db_janitor_db.".vatrates set country = 'DK', name = 'No Vat', vatrate = 0";
+				$sql = "INSERT INTO ".$this->db_janitor_db.".system_vatrates set country = 'DK', name = 'No Vat', vatrate = 0";
 				// print $sql."<br>";
 				$query->sql($sql);
 
@@ -933,6 +933,7 @@ class Setup extends Itemtype {
 			//
 			// CREATE DEFAULT USER GROUPS AND USERS
 			//
+			include_once("classes/users/user.core.class.php");
 			include_once("classes/users/user.class.php");
 			include_once("classes/users/superuser.class.php");
 			$UC = new SuperUser();

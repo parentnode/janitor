@@ -2,7 +2,7 @@
 global $action;
 global $model;
 
-$user_id = $action[1];
+$user_id = $action[2];
 $item = $model->getUsers(array("user_id" => $user_id));
 
 ?>

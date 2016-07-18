@@ -6,7 +6,7 @@ global $itemtype;
 
 ?>
 <div class="scene i:scene defaultNew">
-	<h1>New subscription</h1>
+	<h1>New membership type</h1>
 
 	<ul class="actions">
 		<?= $JML->newList(array("label" => "List")) ?>

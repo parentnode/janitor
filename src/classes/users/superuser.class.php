@@ -1028,6 +1028,94 @@ class SuperUser extends User {
 	}
 
 
+	// READSTATES
+	function getReadstates($_options = false) {
+	}
+
+
+	// SUBSCRIPTIONS
+	function getMembers($_options = false) {
+		$IC = new Items();
+
+		$user_id = false;
+		$item_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"     : $user_id       = $_value; break;
+					case "item_id"     : $item_id       = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($user_id) {
+
+			// check for specific subscription for specific user
+			if($item_id) {
+				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id AND item_id = '$item_id' LIMIT 1";
+				if($query->sql($sql)) {
+					$subscription = $query->result(0);
+					$item = $IC->getItem(array("id" => $subscription["item_id"], "extend" => true));
+
+					return $item;
+				}
+				else {
+					return false;
+				}
+			}
+			// get subscriptions for specific user
+			else {
+				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id";
+				if($query->sql($sql)) {
+
+					$subscriptions = $query->results();
+					foreach($subscriptions as $i => $subscription) {
+						$subscriptions[$i] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => true));
+					}
+					return $subscriptions;
+				}
+				else {
+					return false;
+				}
+			}
+
+		}
+		// get all subscribers to specific item
+		else if($item_id) {
+			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE item_id = '$item_id'";
+			if($query->sql($sql)) {
+				$subscribers = $query->results();
+				foreach($subscribers as $i => $subscriber) {
+					$subscribers[$i] = $this->getUsers(array("user_id" => $subscriber["user_id"]));
+					$subscribers[$i]["subscription_id"] = $subscriber["id"];
+				}
+				return $subscribers;
+			}
+			else {
+				return false;
+			}
+		}
+
+		// get list of all subscriptions
+		// TODO: for list all
+		else {
+			$sql = "SELECT * FROM ".$this->db_subscriptions." GROUP BY item_id";
+			if($query->sql($sql)) {
+				$subscriptions = $query->results();
+				foreach($subscriptions as $i => $subscription) {
+					$subscriptions[$i] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => true));
+				}
+				return $subscriptions;
+			}
+		}
+	}
+
+
+
+
 
 	// USER GROUPS
 

@@ -1,4 +1,4 @@
-CREATE TABLE `SITE_DB`.`languages` (
+CREATE TABLE `SITE_DB`.`system_languages` (
   `id` varchar(2) NOT NULL,
   `name` varchar(50) NOT NULL,
 

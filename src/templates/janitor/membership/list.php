@@ -9,13 +9,13 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC, 
 
 ?>
 <div class="scene i:scene defaultList <?= $itemtype ?>List">
-	<h1>Subscriptions</h1>
+	<h1>Membership types</h1>
 
 	<ul class="actions">
-		<?= $JML->listNew(array("label" => "New subscription")) ?>
+		<?= $JML->listNew(array("label" => "New membership type")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList taggable sortable filters"<?= $JML->jsData() ?>>
+	<div class="all_items i:defaultList sortable filters"<?= $JML->jsData() ?>>
 <?		if($items): ?>
 		<ul class="items">
 
@@ -29,7 +29,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC, 
 
 		</ul>
 <?		else: ?>
-		<p>No subscriptions.</p>
+		<p>No membership types.</p>
 <?		endif; ?>
 	</div>
 

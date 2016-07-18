@@ -2,8 +2,8 @@
 global $action;
 global $model;
 
-$user_id = $action[1];
-$address_id = $action[2];
+$user_id = $action[2];
+$address_id = $action[3];
 
 $address = $model->getAddresses(array("address_id" => $address_id));
 

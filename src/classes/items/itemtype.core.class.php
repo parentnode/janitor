@@ -191,6 +191,7 @@ class ItemtypeCore extends Model {
 				}
 
 				if($values) {
+
 					$sql = "INSERT INTO ".$this->db." SET id = DEFAULT,item_id = $item_id," . implode(",", $values);
 //					print $sql;
 
@@ -1301,14 +1302,12 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 			$item_id = $action[1];
 
-			$query->checkDbExistance(UT_ITEMS_COMMENTS);
-
 			if($this->validateList(array("comment"), $item_id)) {
 
 				$user_id = session()->value("user_id");
 				$comment = $this->getProperty("comment", "value");
 
-				if($query->sql("INSERT INTO ".UT_ITEMS_COMMENTS." VALUES(DEFAULT, $item_id, '$comment', $user_id, DEFAULT)")) {
+				if($query->sql("INSERT INTO ".UT_ITEMS_COMMENTS." VALUES(DEFAULT, $item_id, $user_id, '$comment', DEFAULT)")) {
 					message()->addMessage("Comment added");
 
 					$comment_id = $query->lastInsertId();
@@ -1327,6 +1326,7 @@ class ItemtypeCore extends Model {
 		return false;
 	}
 
+	// update comment
 	// /janitor/[admin/]#itemtype#/updateComment/#item_id#/#comment_id#
 	function updateComment($action) {
 
@@ -1339,8 +1339,6 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 			$item_id = $action[1];
 			$comment_id = $action[2];
-
-			$query->checkDbExistance(UT_ITEMS_COMMENTS);
 
 			if($this->validateList(array("comment"), $item_id)) {
 
@@ -1359,7 +1357,6 @@ class ItemtypeCore extends Model {
 		message()->addMessage("Comment could not be updated", array("type" => "error"));
 		return false;
 	}
-
 
 	// delete comment
 	// /janitor/[admin/]#itemtype#/deleteComment/#item_id#/#comment_id#
@@ -1384,6 +1381,140 @@ class ItemtypeCore extends Model {
 	}
 
 
+
+
+
+	// PRICES
+
+	// add price to item
+	// Price info sent in $_POST
+	// /janitor/[admin/]#itemtype#/addPrice/#item_id#
+ 	function addPrice($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$item_id = $action[1];
+
+			if($this->validateList(array("price", "currency", "vatrate_id"), $item_id)) {
+
+				$price = $this->getProperty("price", "value");
+				$currency = $this->getProperty("currency", "value");
+				$vatrate_id = $this->getProperty("vatrate_id", "value");
+
+				$price = preg_replace("/,/", ".", $price);
+
+				if($query->sql("INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', '$vatrate_id')")) {
+					message()->addMessage("Price added");
+
+					$price_id = $query->lastInsertId();
+					$IC = new Items();
+					$new_price = $IC->getPrices(array("price_id" => $price_id));
+					return $new_price;
+				}
+
+			}
+
+		}
+
+		message()->addMessage("Price could not be added", array("type" => "error"));
+		return false;
+
+	}
+
+
+	// delete price
+	// /janitor/[admin/]#itemtype#/deletePrice/#item_id#/#price_id#
+	// TODO: implement itemtype checks
+ 	function deletePrice($action) {
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$price_id = $action[2];
+
+			$sql = "DELETE FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND id = $price_id";
+			if($query->sql($sql)) {
+				message()->addMessage("Price deleted");
+				return true;
+			}
+
+		}
+
+		message()->addMessage("Price could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+
+
+	// delete price
+	// /janitor/[admin/]#itemtype#/updateSubscriptionMethod/#item_id#
+	// subscription method is sent in $_POST
+	
+	// TODO: implement itemtype checks
+ 	function updateSubscriptionMethod($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$subscription_method = getPost("subscription_method");
+
+			// insert or update
+			if($subscription_method) {
+
+				$sql = "SELECT id FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
+				if($query->sql($sql)) {
+				
+					if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE id = $comment_id AND item_id = $item_id")) {
+						message()->addMessage("Subscription method updated");
+
+						$IC = new Items();
+						$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
+						return $subscription_method;
+					}
+					
+				}
+				else {
+
+					if($query->sql("INSERT INTO ".UT_ITEMS_SUBSCRIPTION_METHOD." VALUES(DEFAULT, $item_id, $subscription_method)")) {
+						message()->addMessage("Subscription method added");
+
+						$IC = new Items();
+						$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
+						return $subscription_method;
+					}
+					
+					
+				}
+
+			}
+			// subscription_method is empty - delete
+			else {
+
+				$sql = "DELETE FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
+				if($query->sql($sql)) {
+					message()->addMessage("Subscription method deleted");
+					return true;
+				}
+
+			}
+
+		}
+
+		message()->addMessage("Subscription method could not be changed", array("type" => "error"));
+		return false;
+
+	}
 
 
 
@@ -1450,80 +1581,6 @@ class ItemtypeCore extends Model {
 		message()->addMessage("Read state could not be deleted", array("type" => "error"));
 		return false;
 	}
-
-
-
-
-
-	// PRICES
-
-	// add price to item
-	// Price info sent in $_POST
-	// /janitor/[admin/]#itemtype#/addPrice/#item_id#
- 	function addPrice($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-
-		if(count($action) == 2) {
-
-			$query = new Query();
-			$item_id = $action[1];
-
-			$query->checkDbExistance(UT_ITEMS_PRICES);
-
-			if($this->validateList(array("price", "currency", "vatrate_id"), $item_id)) {
-
-				$price = $this->getProperty("price", "value");
-				$currency = $this->getProperty("currency", "value");
-				$vatrate_id = $this->getProperty("vatrate_id", "value");
-
-				$price = preg_replace("/,/", ".", $price);
-
-				if($query->sql("INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', '$vatrate_id')")) {
-					message()->addMessage("Price added");
-
-					$price_id = $query->lastInsertId();
-					$IC = new Items();
-					$new_price = $IC->getPrices(array("price_id" => $price_id));
-					return $new_price;
-				}
-
-			}
-
-		}
-
-		message()->addMessage("Price could not be added", array("type" => "error"));
-		return false;
-
-	}
-
-
-	// delete price
-	// /janitor/[admin/]#itemtype#/deletePrice/#item_id#/#price_id#
-	// TODO: implement itemtype checks
- 	function deletePrice($action) {
-
-		if(count($action) == 3) {
-
-			$query = new Query();
-			$item_id = $action[1];
-			$price_id = $action[2];
-
-			$sql = "DELETE FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND id = $price_id";
-			if($query->sql($sql)) {
-				message()->addMessage("Price deleted");
-				return true;
-			}
-
-		}
-
-		message()->addMessage("Price could not be deleted", array("type" => "error"));
-		return false;
-	}
-
-
 
 
 

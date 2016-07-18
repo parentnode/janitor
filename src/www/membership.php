@@ -1,5 +1,8 @@
 <?php
 $access_item["/"] = true;
+$access_item["/addComment"] = true;
+$access_item["/updateSubscriptionMethod"] = true;
+
 $access_item["/new"] = true;
 $access_item["/save"] = true;
 
@@ -12,12 +15,12 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 $action = $page->actions();
 $IC = new Items();
-$itemtype = "subscription";
+$itemtype = "membership";
 $model = $IC->typeObject($itemtype);
 
 
-$page->bodyClass("subscription");
-$page->pageTitle("Subscriptions");
+$page->bodyClass("membership");
+$page->pageTitle("Memberships");
 
 
 if(is_array($action) && count($action)) {
@@ -27,7 +30,7 @@ if(is_array($action) && count($action)) {
 
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/subscription/".$action[0].".php"
+			"templates" => "janitor/membership/".$action[0].".php"
 		));
 		exit();
 	}

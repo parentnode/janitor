@@ -19,78 +19,167 @@ class Upgrade {
 	}
 
 
+	// process upgrade task
+	function process($result, $critical = false) {
 
-	// Check countries, prices and vatrates
-	function upgradeDatabaseTo_v0_8() {
+		// print message
+		print '<li'.(!$result["success"] ? ' class="error"' : '').'>'.$result["message"].'</li>';
+
+		// end process on critical error
+		if(!$result["success"] && $critical) {
+
+			print '<li class="error fatal">UPGRADE PROCESS STOPPED DUE TO CRITICAL ERRORS</li>';
+
+			throw new Exception();
+		}
+	}
+
+
+	// Check Database structure for v0_8 requirements
+	function upgradeDatabase() {
 		
 		$query = new Query();
 
 
-		$query->checkDbExistance(UT_LANGUAGES);
-		$query->checkDbExistance(UT_CURRENCIES);
-		$query->checkDbExistance(UT_COUNTRIES);
-		$query->checkDbExistance(UT_VATRATES);
-		$query->checkDbExistance(UT_ITEMS_PRICES);
 
-		// Languages
-		$sql = "SELECT * FROM ".UT_LANGUAGES." WHERE id = 'DA'";
-		if(!$query->sql($sql)) {
-			$sql = "INSERT INTO ".UT_LANGUAGES." values('DA', 'Dansk')";
-			if(!$query->sql($sql)) {
-				print "Could not update DB (".UT_LANGUAGES.")";
-				return false;
+		try {
+
+			// SYSTEM
+
+			// RENAME (LIKELY) EXISTING TABLES (TABLES MAY NOT EXIST - SO THIS IS NOT CRITICAL)
+			$this->process($this->renameTable(SITE_DB.".languages", "system_languages"));
+			$this->process($this->renameTable(SITE_DB.".countries", "system_countries"));
+			$this->process($this->renameTable(SITE_DB.".vatrates", "system_vatrates"));
+			$this->process($this->renameTable(SITE_DB.".currencies", "system_currencies"));
+			$this->process($this->renameTable(SITE_DB.".payment_methods", "system_payment_methods"));
+			$this->process($this->renameTable(SITE_DB.".subscription_methods", "system_subscription_methods"));
+
+
+			// CREATE ANY MISSING SYSTEM TABLES (CRITICAL)
+			$this->process($this->createTableIfMissing(UT_LANGUAGES), true);
+			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
+			$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
+			$this->process($this->createTableIfMissing(UT_VATRATES), true);
+			$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
+			$this->process($this->createTableIfMissing(UT_SUBSCRIPTION_METHODS), true);
+
+
+			// CHECK DEFAULT VALUES
+			$this->process($this->checkDefaultValues(UT_LANGUAGES, "'DA','Dansk'", "id = 'DA'"), true);
+			$this->process($this->checkDefaultValues(UT_CURRENCIES, "'DKK', 'Kroner (Denmark)', 'DKK', 'after', 2, ',', '.'", "id = 'DKK'"), true);
+			$this->process($this->checkDefaultValues(UT_COUNTRIES, "'DK', 'Danmark', '45', '#### ####', 'DA', 'DKK'", "id = 'DK'"), true);
+			$this->process($this->checkDefaultValues(UT_VATRATES, "DEFAULT, 'No VAT', 0, 'DK'", "country = 'DK'"), true);
+			$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "DEFAULT, 'Monthly', 'month', DEFAULT", "duration = 'month'"), true);
+
+
+
+			// USER/ITEM
+
+			// READSTATES
+			$result = $this->renameTable(SITE_DB.".items_readstate", "user_item_readstates");
+			$this->process($result);
+
+			// old readstates table exists, update structure
+			if($result["success"]) {
+
+				// move item_id column
+				$this->process($this->modifyColumn(SITE_DB.".user_item_readstates", "item_id", "int(11) NOT NULL", "user_id"), true);
+
+				// update user_id declaration and constraint
+				$this->process($this->dropConstraints(SITE_DB.".user_item_readstates", "user_id"), true);
+				$this->process($this->dropKeys(SITE_DB.".user_item_readstates", "user_id"), true);
+
+				$this->process($this->modifyColumn(SITE_DB.".user_item_readstates", "user_id", "int(11) NOT NULL"), true);
+
+				$this->process($this->addKey(SITE_DB.".user_item_readstates", "user_id"), true);
+				$this->process($this->addConstraint(SITE_DB.".user_item_readstates.user_id", SITE_DB.".users.id", "ON DELETE CASCADE ON UPDATE CASCADE"), true);
+
 			}
-		}
+			// table doesn't exist
+			else {
 
-		// Countries
-		$sql = "SELECT * FROM ".UT_CURRENCIES." WHERE id = 'DKK'";
-		if(!$query->sql($sql)) {
-			$sql = "INSERT INTO ".UT_CURRENCIES." values('DKK', 'Kroner (Denmark)', 'DKK', 'after', 2, ',', '.')";
-			if(!$query->sql($sql)) {
-				print "Could not update DB (".UT_CURRENCIES.")";
-				return false;
+				$this->process($this->createTableIfMissing(SITE_DB.".user_item_readstates"), true);
+
 			}
-		}
 
 
-		// Countries
-		$sql = "SELECT * FROM ".UT_COUNTRIES." WHERE id = 'DK'";
-		if(!$query->sql($sql)) {
-			$sql = "INSERT INTO ".UT_COUNTRIES." values('DK', 'Danmark', '45', '#### ####', 'DA', 'DKK')";
-			if(!$query->sql($sql)) {
-				print "Could not update DB (".UT_COUNTRIES.")";
-				return false;
+			// SUBSCRIPTIONS
+			$result = $this->renameTable(SITE_DB.".user_subscriptions", "user_item_subscriptions");
+			$this->process($result);
+
+			// old subscriptions table exists, update structure
+			if($result["success"]) {
+
+				$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "comment"), true);
+				$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "status"), true);
+
+				$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "renewed_at", "TIMESTAMP NULL DEFAULT NULL", "modified_at"), true);
+				$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "expires_at", "TIMESTAMP NULL DEFAULT NULL", "renewed_at"), true);
+
+				// add payment_method column
+				$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "payment_method", "int(11) DEFAULT NULL", "item_id"), true);
+				$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "payment_method"), true);
+				$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.payment_method", UT_PAYMENT_METHODS.".id", "ON UPDATE CASCADE"), true);
+
 			}
-		}
+			// table doesn't exist
+			else {
 
+				$this->process($this->createTableIfMissing(SITE_DB.".user_item_subscriptions"), true);
 
-		// VAT rates
-		$sql = "SELECT * FROM ".UT_VATRATES." WHERE name = 'No VAT' AND country = 'DK'";
-		if(!$query->sql($sql)) {
-			// add default vatrate
-			$sql = "INSERT INTO ".UT_VATRATES." values(DEFAULT, 'No VAT', 0, 'DK')";
-			if(!$query->sql($sql)) {
-				print "Could not update DB (".UT_VATRATES.")";
-				return false;
 			}
+
+
+
+			// CHECK EXTENDED ITEMS TABLES
+
+			// ITEM COMMENTS
+			$this->process($this->createTableIfMissing(UT_ITEMS_COMMENTS), true);
+
+			// update user_id declaration and constraint
+			$this->process($this->dropConstraints(UT_ITEMS_COMMENTS, "user_id"), true);
+			$this->process($this->dropKeys(UT_ITEMS_COMMENTS, "user_id"), true);
+
+			$this->process($this->modifyColumn(UT_ITEMS_COMMENTS, "user_id", "int(11) NOT NULL", "item_id"), true);
+
+			$this->process($this->addKey(UT_ITEMS_COMMENTS, "user_id"), true);
+			$this->process($this->addConstraint(UT_ITEMS_COMMENTS.".user_id", SITE_DB.".users.id", "ON UPDATE CASCADE"), true);
+
+
+			// ITEM PRICES
+			$this->process($this->createTableIfMissing(UT_ITEMS_PRICES), true);
+
+			// add price type and quantity
+			$this->process($this->addColumn(UT_ITEMS_PRICES, "type", "varchar(20) DEFAULT NULL", "vatrate_id"), true);
+			$this->process($this->addColumn(UT_ITEMS_PRICES, "quantity", "int(11) DEFAULT NULL", "type"), true);
+
+
+			// ITEM SUBSCRIPTION METHOD
+			$this->process($this->createTableIfMissing(UT_ITEMS_SUBSCRIPTION_METHOD), true);
+
+
+
+			// USERS
+
+			$this->process($this->dropConstraints(SITE_DB.".users", "language"), true);
+			$this->process($this->dropKeys(SITE_DB.".users", "language"), true);
+
+			$this->process($this->modifyColumn(SITE_DB.".users", "language", "varchar(2) DEFAULT NULL"), true);
+			$query->sql("UPDATE ".SITE_DB.".users SET language = NULL where language = ''");
+
+			$this->process($this->addKey(SITE_DB.".users", "language"), true);
+			$this->process($this->addConstraint(SITE_DB.".users.language", UT_LANGUAGES.".id", "ON UPDATE CASCADE"), true);
+
+
 		}
+		catch(Exception $exception) {}
 
 
-		// Update users table
-		$query->sql("ALTER TABLE ".SITE_DB.".users MODIFY COLUMN `language` varchar(2) DEFAULT NULL");
-		$query->sql("UPDATE ".SITE_DB.".users SET language = NULL where language = ''");
-
-		// Check users keys and constraints
-		$query->sql("SHOW KEYS FROM ".SITE_DB.".users");
-		$results = $query->results();
-		if(!arrayKeyValue($results, "Column_name", "language")) {
-			$query->sql("ALTER TABLE ".SITE_DB.".users ADD KEY (`language`)");
-			$query->sql("ALTER TABLE ".SITE_DB.".users ADD CONSTRAINT FOREIGN KEY (`language`) REFERENCES ".SITE_DB.".languages(`id`) ON UPDATE CASCADE");
-		}
+		// Upgrade complete
+		print '<li class="done">UPGRADE COMPLETE</li>';
 
 
-
-		return "DB updated";
+		return;
 	}
 
 
@@ -242,6 +331,782 @@ class Upgrade {
 
 		}
 		
+	}
+
+
+
+
+
+	// HELPER functions
+
+
+	// get table info
+	// parse create table syntax and return array of structure
+	function tableInfo($db_table) {
+		
+		$query = new Query();
+		
+		$sql = "SHOW CREATE TABLE ".$db_table;
+		if($query->sql($sql)) {
+			
+			$create_syntax = $query->result(0);
+//			print_r($create_syntax);
+
+			$table_info = array("columns" => array(), "primary_key" => false, "unique_keys" => false, "keys" => array(), "constraints" => array());
+
+			if($create_syntax["Create Table"]) {
+				$table_details = explode("\n", $create_syntax["Create Table"]);
+
+				foreach($table_details as $detail) {
+					$detail = preg_replace("/,$/", "", trim($detail));
+
+					// COLUMN
+					if(preg_match("/^`/", $detail)) {
+//						print "column:" . $detail."\n";
+						
+						preg_match("/^`(.+)` (.+)/", $detail, $column);
+						if(count($column) == 3) {
+							$table_info["columns"][$column[1]] = $column[2];
+						}
+
+					}
+
+					// PRIMARY KEY
+					else if(preg_match("/^PRIMARY KEY/", $detail)) {
+//						print "pkey:" . $detail."\n";
+
+						preg_match("/`(.+)`/", $detail, $pkey);
+						if(count($pkey) == 2) {
+							$table_info["primary_key"] = $pkey[1];
+						}
+
+					}
+
+					// UNIQUE KEY
+					else if(preg_match("/^UNIQUE KEY/", $detail)) {
+//						print "ukey:" . $detail."\n";
+
+						preg_match("/`(.+)` \(`(.+)`\)/", $detail, $ukey);
+						if(count($ukey) == 3) {
+							$table_info["unique_keys"][$ukey[2]][] = $ukey[1];
+						}
+
+					}
+
+					// KEY
+					else if(preg_match("/^KEY/", $detail)) {
+//						print "key:" . $detail."\n";
+						
+						preg_match("/`(.+)` \(`(.+)`\)/", $detail, $key);
+						if(count($key) == 3) {
+							$table_info["keys"][$key[2]][] = $key[1];
+						}
+
+					}
+
+					// CONSTRAINT
+					else if(preg_match("/^CONSTRAINT/", $detail)) {
+//						print "constraint:" . $detail."\n";
+
+						preg_match("/`(.+)` FOREIGN KEY \(`(.+)`\) REFERENCES `(.+)` \(`(.+)`\)/", $detail, $constraint);
+						if(count($constraint) == 5) {
+							$table_info["constraints"][$constraint[2]][$constraint[3].".".$constraint[4]] = $constraint[1];
+						}
+
+						
+					}
+				}
+
+				return $table_info;
+			}
+
+
+		}
+
+		return false;
+
+
+	}
+
+
+	// Create DB-table if it does not already exist
+	// This function is similar to $query->checkDbExistance but provides better feedback for upgrade process
+	function createTableIfMissing($db_table) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+
+		$message = '';
+		$message .= "CREATE TABLE $table";
+
+
+		// check if database exists
+		$sql = "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'";
+		if(!$query->sql($sql)) {
+
+			// look for SQL file
+			$db_file = false;
+
+			// look for matching db sql file
+			if(file_exists(LOCAL_PATH.'/config/db/'.$table.'.sql')) {
+				$db_file = LOCAL_PATH.'/config/db/'.$table.'.sql';
+			}
+			else if(file_exists(FRAMEWORK_PATH.'/config/db/'.$table.'.sql')) {
+				$db_file = FRAMEWORK_PATH.'/config/db/'.$table.'.sql';
+			}
+			else if(file_exists(FRAMEWORK_PATH.'/config/db/items/'.$table.'.sql')) {
+				$db_file = FRAMEWORK_PATH.'/config/db/items/'.$table.'.sql';
+			}
+
+			// found SQL file
+			if($db_file) {
+				$sql = file_get_contents($db_file);
+				$sql = str_replace("SITE_DB", SITE_DB, $sql);
+				if($query->sql($sql)) {
+					$message .= ": DONE";
+					$success = true;
+				}
+				else {
+					$message .= ": Failed creating database table: $db_file: ".$this->con->error;
+					$success = false;
+				}
+			}
+			// could not find SQL file
+			else {
+				$message .= ": Could not find sql file for $table.";
+				$success = false;
+			}
+
+		}
+		// table already exists
+		else {
+			$message .= ": ALREADY EXISTS";
+			$success = true;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
+
+
+	// Rename a table
+	function renameTable($db_table, $new_name) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+
+		$message = '';
+		$message .= "RENAME TABLE $table TO $new_name";
+
+		// DOES TABLE NAME EXIST
+		$sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = '".$db."' AND table_name = '".$table."'";
+		if($query->sql($sql)) {
+
+			// ATTEMPT RENAME
+			$sql = "RENAME TABLE `".$db."`.`".$table."` TO `".$db."`.`".$new_name."`";
+			if($query->sql($sql)) {
+				$message .= ": DONE";
+				$success = true;
+			}
+			// RENAME FAILED
+			else {
+				$message .= ": FAILED";
+				$success = false;
+			}
+
+		}
+		// DOES NEW NAME EXIST ALREADY?
+		else if($query->sql("SELECT table_name FROM information_schema.tables WHERE table_schema = '".$db."' AND table_name = '".$new_name."'")){
+			$message .= ": ALREADY RENAMED";
+			$success = true;
+		}
+		// OLD AND NEW TABLE NOT FOUND
+		else {
+			$message .= ": NOT FOUND";
+			$success = false;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
+
+
+
+	// Add column to table
+	function addColumn($db_table, $name, $declaration, $after = false) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+		$message = '';
+		$message .= "ADD COLUMN $name $declaration TO $table" . ($after ? " AFTER $after" : "");
+
+		$table_info = $this->tableInfo("$db.$table");
+		
+		// TABLE INFO AVAILABLE
+		if($table_info) {
+
+			// Column does not exist
+			if(!isset($table_info["columns"]) || !isset($table_info["columns"][$name])) {
+
+				$sql = "ALTER TABLE $db_table ADD $name $declaration" . ($after ? " AFTER $after" : "");
+				if($query->sql($sql)) {
+					$message .= ": DONE";
+					$success = true;
+				}
+				else {
+					$message .= ": FAILED";
+					$success = false;
+				}
+			}
+			// COLUMN EXISTS
+			else {
+
+				// Check that column is in the right place
+				$keys = array_keys($table_info["columns"]);
+
+				// Is after defined
+				if($after) {
+					if(array_search($name, $keys) === array_search($after, $keys)+1) {
+						$message .= ": COLUMN EXISTS";
+						$success = true;
+					}
+					else {
+						$message .= ": COLUMN EXISTS IN WRONG PLACE";
+						$success = false;
+					}
+				}
+				// should be the last column
+				else {
+					// in correct position
+					if(array_search($name, $keys) == count($keys)-1) {
+						$message .= ": COLUMN EXISTS";
+						$success = true;
+					}
+					// in wrong position
+					else {
+						$message .= ": COLUMN EXISTS IN WRONG PLACE";
+						$success = false;
+					}
+				}
+			}
+		}
+		// NO TABLE INFO
+		else {
+			$message .= ": FAILED GETTING TABLE INFO";
+			$success = false;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
+
+	// delete column
+	function dropColumn($db_table, $name) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+		$message = '';
+		$message .= "DROP COLUMN $name FROM $table";
+
+		// DOES COLUMN EXIST
+		if($query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = '$name' AND TABLE_NAME = '$table' AND TABLE_SCHEMA = '$db'")) {
+			$sql = "ALTER TABLE `$db`.`$table` DROP `$name`";
+			if($query->sql($sql)) {
+				$message .= ": DONE";
+				$success = true;
+			}
+			else {
+				$message .= ": FAILED";
+				$success = false;
+			}
+		}
+		// COLUMN DOES NOT EXIST
+		else {
+			$message .= ": COLUMN ALREADY DROPPED";
+			$success = true;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
+
+	// modify column declaration and position
+	function modifyColumn($db_table, $name, $declaration, $after = false) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+		$message = '';
+		$message .= "MODIFY COLUMN $name $declaration IN $table" . ($after ? " AFTER $after" : "");
+
+		// DOES COLUMN EXIST IN TABLE
+		if($query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = '".$name."' AND TABLE_NAME = '".$table."' AND TABLE_SCHEMA = '".$db."'")) {
+
+			// Modify column
+			if($query->sql("ALTER TABLE $db_table MODIFY $name $declaration" . ($after ? " AFTER $after" : ""))) {
+				$message .= ": DONE";
+				$success = true;
+			}
+			// Could not modify column
+			else {
+				$message .= ": FAILED";
+				$success = false;
+			}
+		}
+		// COLUMN DOES NOT EXIST
+		else {
+			$message .= ": COLUMN MISSING";
+			$success = false;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
+
+	// Rename a table column
+	function renameColumn($db_table, $column, $new_name) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+		$message = '';
+		$message .= "RENAME COLUMN $column TO $new_name ON $table";
+
+		$table_info = $this->tableInfo("$db.$table");
+
+		// TABLE INFO AVAILABLE
+		if($table_info) {
+
+			print_r($table_info);
+
+			// Column exists
+			if(isset($table_info["columns"]) && isset($table_info["columns"][$column])) {
+
+				$sql = "ALTER TABLE $db_table CHANGE COLUMN `$column` `$new_name` ".$table_info["columns"][$column];
+				if($query->sql($sql)) {
+					$message .= ": DONE";
+					$success = true;
+				}
+				else {
+					$message .= ": FAILED";
+					$success = false;
+				}
+			}
+			else if(isset($table_info["columns"]) && isset($table_info["columns"][$new_name])) {
+				$message .= ": ALREADY RENAMED";
+				$success = true;
+			}
+			// column does not exist
+			else {
+				$message .= ": COLUMN DOES NOT EXIST";
+				$success = false;
+			}
+		}
+		// NO TABLE INFO
+		else {
+			$message .= ": FAILED GETTING TABLE INFO";
+			$success = false;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
+
+
+
+	// add constraint to table
+	function addConstraint($db_table_column, $ref_db_table_column, $constraint) {
+
+		$query = new Query();
+		list($db, $table, $column) = explode(".", $db_table_column);
+		list($ref_db, $ref_table, $ref_column) = explode(".", $ref_db_table_column);
+
+		$message = '';
+		$message .= "ADD $table.$column -> $ref_table.$ref_column CONSTRAINT";		
+
+		$table_info = $this->tableInfo("$db.$table");
+		
+		// TABLE INFO AVAILABLE
+		if($table_info) {
+
+			// Constraint does not exist
+			if(!isset($table_info["constraints"]) || !isset($table_info["constraints"][$column]) || !isset($table_info["constraints"][$column]["$ref_table.$ref_column"])) {
+
+				$sql = "ALTER TABLE $db.$table ADD CONSTRAINT FOREIGN KEY (`$column`) REFERENCES $ref_db.$ref_table(`$ref_column`) $constraint";
+				if($query->sql($sql)) {
+					$message .= ": CONSTRAINT ADDED";
+					$success = true;
+				}
+				else {
+					$message .= ": FAILED";
+					$success = false;
+				}
+			}
+			// Constraint already exist
+			else {
+				$message .= ": CONSTRAINT EXISTS";
+				$success = true;
+			}			
+		}
+		// NO TABLE INFO
+		else {
+			$message .= ": FAILED GETTING TABLE INFO";
+			$success = false;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
+
+	// drop constraints/foreign keys on table
+	// optional only drop constraints for specific column
+	function dropConstraints($db_table, $column = false) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+		$message = '';
+		$message .= "DROP ".($column ? $column." " : "")."CONSTRAINTS ON $table";
+
+		$table_info = $this->tableInfo($db_table);
+
+		// TABLE INFO AVAILABLE
+		if($table_info) {
+
+			// TABLE HAS CONSTRAINTS
+			if($table_info["constraints"]) {
+
+				$total_constraints = 0;
+				$deleted_constraints = 0;
+
+				// Only drop for specific column
+				if($column) {
+
+					// constraints available for column
+					if(isset($table_info["constraints"][$column])) {
+						foreach($table_info["constraints"][$column] as $constraint) {
+							$total_constraints++;
+
+							$sql = "ALTER TABLE $db_table DROP FOREIGN KEY $constraint";
+							if($query->sql($sql)) {
+								$deleted_constraints++;
+							}
+						}
+					}
+
+				}
+				// drop all constraints
+				else {
+
+					$total_constraints = 0;
+					$deleted_constraints = 0;
+
+					foreach($table_info["constraints"] as $column_constraints) {
+						foreach($column_constraints as $constraint) {
+							$total_constraints++;
+
+							$sql = "ALTER TABLE $db_table DROP FOREIGN KEY $constraint";
+							if($query->sql($sql)) {
+								$deleted_constraints++;
+							}
+						}
+					}
+				}
+
+				// if all constraints was deleted correctly
+				if($total_constraints == $deleted_constraints) {
+					$message .= ": DONE";
+					$success = true;
+				}
+				else {
+					$message .= ": ALL CONSTRAINTS COULD NOT BE DELETED";
+					$success = false;
+				}
+
+			}
+			// NO CONSTRAINTS
+			else {
+				$message .= ": NO CONSTRAINTS EXIST";
+				$success = true;
+			}
+
+		}
+		// NO TABLE INFO
+		else {
+			$message .= ": FAILED GETTING TABLE INFO";
+			$success = false;
+		}
+		
+		return array("success" => $success, "message" => $message);
+	}
+
+	
+	// add key to table - default index key, optional unique key
+	// only add if key does not exist already
+	function addKey($db_table, $column) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+		$message = '';
+		$message .= "ADD $column KEY TO $table";
+
+		$table_info = $this->tableInfo($db_table);
+		
+		// TABLE INFO AVAILABLE
+		if($table_info) {
+			// Key does not exist
+			if(!isset($table_info["keys"]) || !isset($table_info["keys"][$column])) {
+				$sql = "ALTER TABLE $db_table ADD KEY (`$column`)";
+				// Add key
+				if($query->sql($sql)) {
+					$message .= ": KEY ADDED";
+					$success = true;
+				}
+				// Adding key failed
+				else {
+					$message .= ": FAILED";
+					$success = false;
+				}
+			}
+			// Key already exist
+			else {
+				$message .= ": KEY EXISTS";
+				$success = true;
+			}			
+		}
+		// NO TABLE INFO
+		else {
+			$message .= ": FAILED GETTING TABLE INFO";
+			$success = false;
+		}
+		
+		return array("success" => $success, "message" => $message);
+	}
+
+	// drop keys on table
+	// optional only drop keys for specific column
+	function dropKeys($db_table, $column = false) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+		$message = '';
+		$message .= "DROP ".($column ? $column." " : "")."KEYS ON $table";
+
+		$table_info = $this->tableInfo($db_table);
+
+		// TABLE INFO AVAILABLE
+		if($table_info) {
+
+			// TABLE HAS KEYS
+			if($table_info["keys"]) {
+
+				$total_keys = 0;
+				$deleted_keys = 0;
+
+				// Only drop for specific column
+				if($column) {
+
+					// keys available for column
+					if(isset($table_info["keys"][$column])) {
+						foreach($table_info["keys"][$column] as $key) {
+							$total_keys++;
+
+							$sql = "ALTER TABLE $db_table DROP KEY $key";
+							if($query->sql($sql)) {
+								$deleted_keys++;
+							}
+						}
+					}
+
+				}
+				// drop all keys
+				else {
+
+					$total_keys = 0;
+					$deleted_keys = 0;
+
+					foreach($table_info["keys"] as $column_keys) {
+						foreach($column_keys as $key) {
+							$total_keys++;
+
+							$sql = "ALTER TABLE $db_table DROP KEY $key";
+							if($query->sql($sql)) {
+								$deleted_keys++;
+							}
+						}
+					}
+				}
+
+				// if all keys was deleted correctly
+				if($total_keys == $deleted_keys) {
+					$message .= ": DONE";
+					$success = true;
+				}
+				else {
+					$message .= ": ALL KEYS COULD NOT BE DELETED";
+					$success = false;
+				}
+
+			}
+			// NO CONSTRAINTS
+			else {
+				$message .= ": NO KEYS EXIST";
+				$success = true;
+			}
+
+		}
+		// NO TABLE INFO
+		else {
+			$message .= ": FAILED GETTING TABLE INFO";
+			$success = false;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
+
+
+	// Add unique key to table
+	function addUniqueKey($db_table, $column) {
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+		$message = '';
+		$message .= "ADD UNIQUE $column KEY TO $table";
+
+		$table_info = $this->tableInfo($db_table);
+		
+		// TABLE INFO AVAILABLE
+		if($table_info) {
+			// Key does not exist
+			if(!isset($table_info["unique_keys"]) || !isset($table_info["unique_keys"][$column])) {
+				$sql = "ALTER TABLE $db_table ADD UNIQUE (`$column`)";
+				// Add key
+				if($query->sql($sql)) {
+					$message .= ": UNIQUE KEY ADDED";
+					$success = true;
+				}
+				// Adding key failed
+				else {
+					$message .= ": FAILED";
+					$success = false;
+				}
+			}
+			// Key already exist
+			else {
+				$message .= ": UNIQUE KEY EXISTS";
+				$success = true;
+			}			
+		}
+		// NO TABLE INFO
+		else {
+			$message .= ": FAILED GETTING TABLE INFO";
+			$success = false;
+		}
+		
+		return array("success" => $success, "message" => $message);
+	}
+
+	// drop unique keys on table
+	// optional only drop unique keys for specific column
+	function dropUniqueKeys($db_table, $column = false) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+		$message = '';
+		$message .= "DROP UNIQUE ".($column ? $column." " : "")."KEYS ON $table";
+
+		$table_info = $this->tableInfo($db_table);
+
+		// TABLE INFO AVAILABLE
+		if($table_info) {
+
+			// TABLE HAS KEYS
+			if($table_info["unique_keys"]) {
+
+				$total_keys = 0;
+				$deleted_keys = 0;
+
+				// Only drop for specific column
+				if($column) {
+
+					// keys available for column
+					if(isset($table_info["unique_keys"][$column])) {
+						foreach($table_info["unique_keys"][$column] as $key) {
+							$total_keys++;
+
+							$sql = "ALTER TABLE $db_table DROP INDEX $key";
+							if($query->sql($sql)) {
+								$deleted_keys++;
+							}
+						}
+					}
+
+				}
+				// drop all keys
+				else {
+
+					$total_keys = 0;
+					$deleted_keys = 0;
+
+					foreach($table_info["unique_keys"] as $column_keys) {
+						foreach($column_keys as $key) {
+							$total_keys++;
+
+							$sql = "ALTER TABLE $db_table DROP INDEX $key";
+							if($query->sql($sql)) {
+								$deleted_keys++;
+							}
+						}
+					}
+				}
+
+				// if all keys was deleted correctly
+				if($total_keys == $deleted_keys) {
+					$message .= ": DONE";
+					$success = true;
+				}
+				else {
+					$message .= ": ALL UNIQUE KEYS COULD NOT BE DELETED";
+					$success = false;
+				}
+
+			}
+			// NO CONSTRAINTS
+			else {
+				$message .= ": NO UNIQUE KEYS EXIST";
+				$success = true;
+			}
+
+		}
+		// NO TABLE INFO
+		else {
+			$message .= ": FAILED GETTING TABLE INFO";
+			$success = false;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
+
+
+
+	// check if acceptable default values exist in table
+	function checkDefaultValues($db_table, $values, $accept_row) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+
+		$message = '';
+		$message .= "CHECK DEFAULT VALUE OF $table ($accept_row)";
+
+		$sql = "SELECT * FROM $db_table WHERE $accept_row";
+		if(!$query->sql($sql)) {
+
+			$sql = "INSERT INTO $db_table values($values)";
+			if($query->sql($sql)) {
+				$message .= ": VALUES ADDED";
+				$success = true;
+			}
+			else {
+				$message .= ": VALUES COULD NOT BE ADDED";
+				$success = false;
+			}
+
+		}
+		else {
+			$message .= ": VALUES EXIST";
+			$success = true;
+		}
+
+		return array("success" => $success, "message" => $message);
 	}
 
 }

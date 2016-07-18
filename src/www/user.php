@@ -15,14 +15,14 @@ $access_item["/renewToken"] = true;
 $access_item["/disableToken"] = "/renewToken";
 
 $access_item["/address"] = true;
-$access_item["/new_address"] = "/address";
-$access_item["/edit_address"] = "/address";
+$access_item["/address/new"] = "/address";
+$access_item["/address/edit"] = "/address";
 $access_item["/addAddress"] = "/address";
 $access_item["/updateAddress"] = "/address";
 $access_item["/deleteAddress"] = "/address";
 
 $access_item["/newsletters"] = true;
-$access_item["/add_newsletter"] = "/newsletters";
+$access_item["/newsletter/new"] = "/newsletters";
 $access_item["/addNewsletter"] = "/newsletters";
 $access_item["/deleteNewsletter"] = "/newsletters";
 
@@ -39,6 +39,9 @@ $access_item["/saveUserGroup"] = "/group";
 $access_item["/updateUserGroup"] = "/group";
 
 $access_item["/subscriber"] = true;
+
+$access_item["/member"] = true;
+
 // $access_item["/deleteSubscription"] = "/subscriber";
 // $access_item["/disableSubscription"] = "/subscriber";
 // $access_item["/subscriber/enable"] = "/subscriber";
@@ -76,7 +79,7 @@ $page->pageTitle("User management");
 
 if(is_array($action) && count($action)) {
 
-	// LIST/EDIT/NEW/NEW_ADDRESS/EDIT_ADDRESS
+	// LIST/EDIT/NEW
 	if(preg_match("/^(list|edit|new|new_address|edit_address|add_newsletter)$/", $action[0])) {
 
 		$page->page(array(
@@ -86,17 +89,45 @@ if(is_array($action) && count($action)) {
 		exit();
 	}
 
+	// ADDRESS
+	else if(preg_match("/^(address)$/", $action[0]) && count($action) > 2) {
+
+		// ADDRESS EDIT/NEW
+		if(preg_match("/^(edit|new)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"templates" => "janitor/user/address/".$action[1].".php"
+			));
+			exit();
+		}
+	}
+
 	// GROUP
 	else if(preg_match("/^(group)$/", $action[0]) && count($action) > 1) {
 
-		// GROUP LIST
+		// GROUP EDIT/
 		if(preg_match("/^(list|edit|new)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"templates" => "janitor/user/group/".$action[1].".php"
+			));
+			exit();
+		}
+	}
+
+	// NEWSLETTER
+	else if(preg_match("/^(newsletter)$/", $action[0]) && count($action) > 1) {
+
+		// NEW
+		if(preg_match("/^(new)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",
 				"body_class" => "usergroup", 
 				"page_title" => "User groups / Access control management",
-				"templates" => "janitor/user_group/".$action[1].".php"
+				"templates" => "janitor/user/group/".$action[1].".php"
 			));
 			exit();
 		}
@@ -105,7 +136,7 @@ if(is_array($action) && count($action)) {
 	// SUBSCRIBERS
 	else if(preg_match("/^(subscriber)$/", $action[0]) && count($action) > 1) {
 
-		// GROUP LIST
+		// SUBSCRIBERS LIST/EDIT/NEW
 		if(preg_match("/^(list|edit|new)$/", $action[1])) {
 
 			$page->page(array(
@@ -116,19 +147,52 @@ if(is_array($action) && count($action)) {
 			));
 			exit();
 		}
-		
 	}
 
-	// ACCESS EDIT
+	// MEMBER
+	else if(preg_match("/^(member)$/", $action[0]) && count($action) > 1) {
+
+		// MEMBER LIST/EDIT/NEW
+		if(preg_match("/^(list|edit|new)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "member", 
+				"page_title" => "Members",
+				"templates" => "janitor/user/member/".$action[1].".php"
+			));
+			exit();
+		}
+	}
+
+	// ORDER
+	else if(preg_match("/^(order)$/", $action[0]) && count($action) > 1) {
+
+		// ORDER LIST
+		if(preg_match("/^(list)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "order", 
+				"page_title" => "Orders",
+				"templates" => "janitor/user/order/".$action[1].".php"
+			));
+			exit();
+		}
+	}
+
+
+	// ACCESS
 	else if(preg_match("/^(access)$/", $action[0]) && count($action) > 1) {
-		
+
+		// ACCESS EDIT
 		if($action[1] == "edit") {
 
 			$page->page(array(
 				"type" => "janitor",
 				"body_class" => "usergroup", 
 				"page_title" => "Access control management",
-				"templates" => "janitor/user_group/access.php"
+				"templates" => "janitor/user/group/access.php"
 			));
 			exit();
 

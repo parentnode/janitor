@@ -625,6 +625,57 @@ class JanitorHTML {
 	}
 
 
+	// edit Subscription method form for edit page
+	// TODO: should also list subscribers if current user has user listing permissions
+	function editSubscriptionMethod($item, $_options = false) {
+		global $model;
+		global $page;
+
+
+		$subscription_options = $model->toOptions($page->subscriptionMethods(), "id", "name", array("add" => array("" => " - ")));
+
+		$_ = '';
+
+		$_ .= '<div class="subscription_method i:defaultSubscriptionmethod i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["subscriptions"]).'>';
+		$_ .= '<h2>Subscription method</h2>';
+		$_ .= '<dl class="settings">';
+			$_ .= '<dt class="subscription_method">Subscription renewal:</dt>';
+			$_ .= '<dd class="subscription_method">'.($item["subscription_method"] ? $item["subscription_method"]["name"] : "No renewal").'</dd>';
+		$_ .= '</dl>';
+
+		
+		$_ .= '<div class="change_subscription_method">';
+			$_ .= $model->formStart($this->path."/updateSubscriptionMethod/".$item["id"], array("class" => "labelstyle:inject"));
+			$_ .= '<fieldset>';
+				$_ .= $model->input("subscription_method", array("type" => "select", "options" => $subscription_options, "value" => ""));
+			$_ .= '</fieldset>';
+
+			$_ .= '<ul class="actions">';
+				$_ .= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save"));
+			$_ .= '</ul>';
+			$_ .= $model->formEnd();
+		$_ .= '</div>';
+
+
+		// // does current user have global user privileged
+		// // then ok to list subscriber info
+		// if($page->validatePath("/janitor/admin/user/list")) {
+		//
+		// 	include_once("classes/users/superuser.class.php");
+		// 	$UC = new SuperUser();
+		// 	$subscribers = $UC->getSubscriptions(array("item_id" => $item["id"]));
+		//
+		// 	$_ .= $this->subscriberList($subscribers);
+		//
+		// }
+
+		$_ .= '</div>';
+
+		return $_;
+	}
+
+
+
 	// // edit Comments form for edit page
 	// function editQnA($item, $_options = false) {
 	// 	global $model;
@@ -712,6 +763,11 @@ class JanitorHTML {
 
 		return $_;
 	}
+
+
+
+
+
 
 
 	function listTodos($item) {

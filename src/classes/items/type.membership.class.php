@@ -4,7 +4,7 @@
 * This file contains item type functionality
 */
 
-class TypeSubscription extends Itemtype {
+class TypeMembership extends Itemtype {
 
 	/**
 	* Init, set varnames, validation rules
@@ -15,7 +15,7 @@ class TypeSubscription extends Itemtype {
 
 
 		// itemtype database
-		$this->db = SITE_DB.".item_subscription";
+		$this->db = SITE_DB.".item_membership";
 
 
 		// Name
@@ -23,8 +23,8 @@ class TypeSubscription extends Itemtype {
 			"type" => "string",
 			"label" => "Name",
 			"required" => true,
-			"hint_message" => "Event name", 
-			"error_message" => "Event needs a name."
+			"hint_message" => "Membership name", 
+			"error_message" => "Membership needs a name."
 		));
 
 		// Class
@@ -38,7 +38,7 @@ class TypeSubscription extends Itemtype {
 		$this->addToModel("description", array(
 			"type" => "text",
 			"label" => "Short description",
-			"hint_message" => "Write a short description of the subscription for SEO.",
+			"hint_message" => "Write a short description of the membership for SEO.",
 			"error_message" => "A short description without any words? How weird."
 		));
 
@@ -46,19 +46,19 @@ class TypeSubscription extends Itemtype {
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "Full description",
-			"hint_message" => "Write a full description of the subscription.",
+			"hint_message" => "Write a full description of the membership.",
 			"error_message" => "A full description without any words? How weird."
 		));
 
 
-		// Interval
-		$this->addToModel("renewal", array(
-			"type" => "string",
-			"label" => "Renewal",
-			"required" => true,
-			"hint_message" => "Use Cron syntax for renewal interval description.", 
-			"error_message" => "Invalid renewal interval."
-		));
+		// // Interval
+		// $this->addToModel("renewal", array(
+		// 	"type" => "string",
+		// 	"label" => "Renewal",
+		// 	"required" => true,
+		// 	"hint_message" => "Use Cron syntax for renewal interval description.",
+		// 	"error_message" => "Invalid renewal interval."
+		// ));
 
 
 		// // Start datetime

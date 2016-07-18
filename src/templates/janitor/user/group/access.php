@@ -8,7 +8,8 @@ $user_group = $model->getUserGroups(array("user_group_id" => $user_group_id));
 $access = $model->getAccessPoints(array("user_group_id" => $user_group_id));
 ?>
 <div class="scene i:scene defaultEdit accessEdit">
-	<h1>Access for <?= $user_group["user_group"] ?></h1>
+	<h1>Group Access</h1>
+	<h2><?= $user_group["user_group"] ?></h2>
 
 	<ul class="actions">
 		<?= $HTML->link("Groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>

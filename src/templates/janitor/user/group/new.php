@@ -14,10 +14,13 @@ global $model;
 			<?= $model->input("user_group") ?>
 		</fieldset>
 
-		<ul class="actions">
-			<?= $model->link("Back", "/janitor/admin/user/group/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
-			<?= $model->submit("Save", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
-		</ul>
+		<?= $JML->newActions(array(
+			"modify" => array(
+				"cancel" => array(
+					"url" => "/janitor/admin/user/group/list"
+				)
+			)
+		)) ?>
 	<?= $model->formEnd() ?>
 </div>
 

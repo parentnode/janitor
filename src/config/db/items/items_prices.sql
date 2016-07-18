@@ -6,6 +6,9 @@ CREATE TABLE `SITE_DB`.`items_prices` (
   `currency` varchar(3) NOT NULL,
   `vatrate_id` int(11) NOT NULL,
 
+  `type` varchar(20) NULL DEFAULT NULL,
+  `quantity` int(11) NULL DEFAULT NULL,
+
   PRIMARY KEY  (`id`),
   KEY `item_id` (`item_id`),
   KEY `currency` (`currency`),
