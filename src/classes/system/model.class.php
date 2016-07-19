@@ -56,14 +56,6 @@ class Model extends HTML {
 			"error_message" => "Tag must conform to tag format: context:value."
 		));
 
-		$this->addToModel("comment", array(
-			"type" => "text",
-			"label" => "New comment",
-			"class" => "autoexpand",
-			"hint_message" => "Leave a new comment.",
-			"error_message" => "Comment cannot be empty."
-		));
-
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "HTML",
@@ -90,25 +82,58 @@ class Model extends HTML {
 		));
 
 
+		$this->addToModel("item_comment", array(
+			"type" => "text",
+			"label" => "New comment",
+			"class" => "autoexpand",
+			"hint_message" => "Leave a new comment.",
+			"error_message" => "Comment cannot be empty."
+		));
 
-		$this->addToModel("price", array(
+
+		$this->addToModel("item_price", array(
 			"type" => "string",
 			"label" => "New price",
 			"pattern" => "[0-9\,]+",
+			"class" => "price",
 			"hint_message" => "State the price excluding VAT, using , (comma) as decimal point.",
 			"error_message" => "Price cannot be empty."
 		));
-		$this->addToModel("currency", array(
+		$this->addToModel("item_price_currency", array(
 			"type" => "string",
 			"label" => "Currency",
+			"class" => "currency",
 			"hint_message" => "Currency of price",
 			"error_message" => "Currency cannot be empty."
 		));
-		$this->addToModel("vatrate_id", array(
+		$this->addToModel("item_price_vatrate", array(
 			"type" => "integer",
 			"label" => "Vatrate",
+			"class" => "vatrate",
 			"hint_message" => "VAT rate for this product.",
 			"error_message" => "VAT rate cannot be empty."
+		));
+		$this->addToModel("item_price_type", array(
+			"type" => "string",
+			"label" => "Price type",
+			"class" => "type",
+			"hint_message" => "Standard price, Special price, Bulk price. Select the type of price.",
+			"error_message" => "Price type error."
+		));
+		$this->addToModel("item_price_quantity", array(
+			"type" => "integer",
+			"label" => "Bulk quantity",
+			"class" => "quantity",
+			"hint_message" => "Minimum quantity for bulk price.",
+			"error_message" => "Price quantity error."
+		));
+
+
+		$this->addToModel("item_subscription_method", array(
+			"type" => "integer",
+			"label" => "Subscription method",
+			"hint_message" => "Choose subscription renewal method.",
+			"error_message" => "Subscription method error."
 		));
 
 	}

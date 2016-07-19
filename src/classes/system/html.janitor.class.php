@@ -583,7 +583,7 @@ class JanitorHTML {
 
 		$_ .= $model->formStart($this->path."/addComment/".$item["id"], array("class" => "labelstyle:inject"));
 		$_ .= '<fieldset>';
-		$_ .= $model->input("comment", array("id" => "comment_".$item["id"]));
+		$_ .= $model->input("item_comment", array("id" => "comment_".$item["id"]));
 		$_ .= '</fieldset>';
 
 		$_ .= '<ul class="actions">';
@@ -598,7 +598,15 @@ class JanitorHTML {
 	// edit Prices form for edit page
 	function editPrices($item, $_options = false) {
 		global $model;
+		global $page;
 
+
+		$currency_options = $model->toOptions($page->currencies(), "id", "id");
+		$default_currency = $page->currency();
+
+		$vatrate_options = $model->toOptions($page->vatrates(), "id", "name");
+
+		$type_options = array("default" => "Standard price", "offer" => "Special offer", "bulk" => "Bulk offer");
 
 		$_ = '';
 
@@ -608,11 +616,12 @@ class JanitorHTML {
 		$_ .= $this->priceList($item["prices"]);
 
 		$_ .= $model->formStart($this->path."/addPrice/".$item["id"], array("class" => "labelstyle:inject"));
-		// Use default vatrate for now
-		$_ .= $model->input("currency", array("type" => "hidden", "value" => "DKK"));
-		$_ .= $model->input("vatrate_id", array("type" => "hidden", "value" => "1"));
 		$_ .= '<fieldset>';
-		$_ .= $model->input("price");
+		$_ .= $model->input("item_price");
+		$_ .= $model->input("item_price_currency", array("type" => "select", "options" => $currency_options, "value" => $default_currency));
+		$_ .= $model->input("item_price_vatrate", array("type" => "select", "options" => $vatrate_options));
+		$_ .= $model->input("item_price_type", array("type" => "select", "options" => $type_options));
+		$_ .= $model->input("item_price_quantity");
 		$_ .= '</fieldset>';
 
 		$_ .= '<ul class="actions">';
@@ -626,50 +635,54 @@ class JanitorHTML {
 
 
 	// edit Subscription method form for edit page
+	// Only outputs if SITE_SUBSCRIPTIONS are on
 	// TODO: should also list subscribers if current user has user listing permissions
 	function editSubscriptionMethod($item, $_options = false) {
-		global $model;
-		global $page;
-
-
-		$subscription_options = $model->toOptions($page->subscriptionMethods(), "id", "name", array("add" => array("" => " - ")));
 
 		$_ = '';
 
-		$_ .= '<div class="subscription_method i:defaultSubscriptionmethod i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["subscriptions"]).'>';
-		$_ .= '<h2>Subscription method</h2>';
-		$_ .= '<dl class="settings">';
-			$_ .= '<dt class="subscription_method">Subscription renewal:</dt>';
-			$_ .= '<dd class="subscription_method">'.($item["subscription_method"] ? $item["subscription_method"]["name"] : "No renewal").'</dd>';
-		$_ .= '</dl>';
+		if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
+			global $model;
+			global $page;
+
+			$subscription_options = $model->toOptions($page->subscriptionMethods(), "id", "name", array("add" => array("" => " - ")));
+
+
+			$_ .= '<div class="subscription_method i:defaultSubscriptionmethod i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["subscriptions"]).'>';
+			$_ .= '<h2>Subscription method</h2>';
+			$_ .= '<dl class="settings">';
+				$_ .= '<dt class="subscription_method">Subscription renewal:</dt>';
+				$_ .= '<dd class="subscription_method">'.($item["subscription_method"] ? $item["subscription_method"]["name"] : "No renewal").'</dd>';
+			$_ .= '</dl>';
 
 		
-		$_ .= '<div class="change_subscription_method">';
-			$_ .= $model->formStart($this->path."/updateSubscriptionMethod/".$item["id"], array("class" => "labelstyle:inject"));
-			$_ .= '<fieldset>';
-				$_ .= $model->input("subscription_method", array("type" => "select", "options" => $subscription_options, "value" => ""));
-			$_ .= '</fieldset>';
+			$_ .= '<div class="change_subscription_method">';
+				$_ .= $model->formStart($this->path."/updateSubscriptionMethod/".$item["id"], array("class" => "labelstyle:inject"));
+				$_ .= '<fieldset>';
+					$_ .= $model->input("item_subscription_method", array("type" => "select", "options" => $subscription_options, "value" => ($item["subscription_method"] ? $item["subscription_method"]["id"] : "")));
+				$_ .= '</fieldset>';
 
-			$_ .= '<ul class="actions">';
-				$_ .= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save"));
-			$_ .= '</ul>';
-			$_ .= $model->formEnd();
-		$_ .= '</div>';
+				$_ .= '<ul class="actions">';
+					$_ .= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save"));
+				$_ .= '</ul>';
+				$_ .= $model->formEnd();
+			$_ .= '</div>';
 
 
-		// // does current user have global user privileged
-		// // then ok to list subscriber info
-		// if($page->validatePath("/janitor/admin/user/list")) {
-		//
-		// 	include_once("classes/users/superuser.class.php");
-		// 	$UC = new SuperUser();
-		// 	$subscribers = $UC->getSubscriptions(array("item_id" => $item["id"]));
-		//
-		// 	$_ .= $this->subscriberList($subscribers);
-		//
-		// }
+			// // does current user have global user privileged
+			// // then ok to list subscriber info
+			// if($page->validatePath("/janitor/admin/user/list")) {
+			//
+			// 	include_once("classes/users/superuser.class.php");
+			// 	$UC = new SuperUser();
+			// 	$subscribers = $UC->getSubscriptions(array("item_id" => $item["id"]));
+			//
+			// 	$_ .= $this->subscriberList($subscribers);
+			//
+			// }
 
-		$_ .= '</div>';
+			$_ .= '</div>';
+		}
 
 		return $_;
 	}
