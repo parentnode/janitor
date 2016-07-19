@@ -11,7 +11,7 @@ class Query {
 
 	public $connected;
 
-	private $con;
+	private $connection;
 	private $result_object;
 	private $results;
 	private $result;
@@ -29,7 +29,7 @@ class Query {
 		global $mysqli_global;
 
 		if($mysqli_global) {
-			$this->con = $mysqli_global;
+			$this->connection = $mysqli_global;
 			$this->connected = true;
 		}
 		else {
@@ -69,7 +69,7 @@ class Query {
 //		print $query;
 
 		// get result
-		$this->result_object = $this->con->query($query);
+		$this->result_object = $this->connection->query($query);
 
 		// get number of results as a means of validating query success
 		$this->result_count = (is_object($this->result_object)) ? $this->result_object->num_rows : ($this->result_object ? $this->result_object : 0);
@@ -180,7 +180,7 @@ class Query {
 	* @return int|false Insert id
 	*/
 	function lastInsertId() {
-		return $this->con->insert_id;
+		return $this->connection->insert_id;
 	}
 
 
@@ -401,7 +401,7 @@ class Query {
 				exit();
 			}
 
-			print "failed creating database table: $db_file: ".$this->con->error."<br>\n";
+			print "failed creating database table: $db_file: ".$this->dbError()."<br>\n";
 			exit();
 		}
 	}
@@ -427,14 +427,14 @@ class Query {
 	*/
 	function dbError() {
 
-		$error_id = $this->con->errno;
+		$error_id = $this->connection->errno;
 		$_ = 'DB Error ' . $error_id . ': ';
 
 		if(array_key_exists($error_id, $this->error_messages)) {
 			$_ .= $this->error_messages[$error_id];
 		}
 		else {
-			$_ .= $this->con->error();
+			$_ .= $this->connection->error;
 		}
 		$_ = str_replace('"','&quot;',$_);
 		$_ = str_replace("'", '&quot;', $_);
