@@ -1302,10 +1302,10 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 			$item_id = $action[1];
 
-			if($this->validateList(array("comment"), $item_id)) {
+			if($this->validateList(array("item_comment"), $item_id)) {
 
 				$user_id = session()->value("user_id");
-				$comment = $this->getProperty("comment", "value");
+				$comment = $this->getProperty("item_comment", "value");
 
 				if($query->sql("INSERT INTO ".UT_ITEMS_COMMENTS." VALUES(DEFAULT, $item_id, $user_id, '$comment', DEFAULT)")) {
 					message()->addMessage("Comment added");
@@ -1340,9 +1340,9 @@ class ItemtypeCore extends Model {
 			$item_id = $action[1];
 			$comment_id = $action[2];
 
-			if($this->validateList(array("comment"), $item_id)) {
+			if($this->validateList(array("item_comment"), $item_id)) {
 
-				$comment = $this->getProperty("comment", "value");
+				$comment = $this->getProperty("item_comment", "value");
 
 				if($query->sql("UPDATE ".UT_ITEMS_COMMENTS." SET comment = '$comment' WHERE id = $comment_id AND item_id = $item_id")) {
 					message()->addMessage("Comment updated");
@@ -1405,6 +1405,9 @@ class ItemtypeCore extends Model {
 				$price = $this->getProperty("price", "value");
 				$currency = $this->getProperty("currency", "value");
 				$vatrate_id = $this->getProperty("vatrate_id", "value");
+				$type = $this->getProperty("type", "value");
+				$quantity = $this->getProperty("quantity", "value");
+
 
 				$price = preg_replace("/,/", ".", $price);
 
@@ -1467,48 +1470,51 @@ class ItemtypeCore extends Model {
 
 			$query = new Query();
 			$item_id = $action[1];
-			$subscription_method = getPost("subscription_method");
 
-			// insert or update
-			if($subscription_method) {
+			if($this->validateList(array("item_subscription_method"), $item_id)) {
 
-				$sql = "SELECT id FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
-				if($query->sql($sql)) {
+				$subscription_method = $this->getProperty("item_subscription_method", "value");
+
+				// insert or update
+				if($subscription_method) {
+
+					$sql = "SELECT id FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
+					if($query->sql($sql)) {
 				
-					if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE id = $comment_id AND item_id = $item_id")) {
-						message()->addMessage("Subscription method updated");
+						if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE id = $comment_id AND item_id = $item_id")) {
+							message()->addMessage("Subscription method updated");
 
-						$IC = new Items();
-						$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
-						return $subscription_method;
-					}
+							$IC = new Items();
+							$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
+							return $subscription_method;
+						}
 					
+					}
+					else {
+
+						if($query->sql("INSERT INTO ".UT_ITEMS_SUBSCRIPTION_METHOD." VALUES(DEFAULT, $item_id, $subscription_method)")) {
+							message()->addMessage("Subscription method added");
+
+							$IC = new Items();
+							$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
+							return $subscription_method;
+						}
+					
+					
+					}
+
 				}
+				// subscription_method is empty - delete
 				else {
 
-					if($query->sql("INSERT INTO ".UT_ITEMS_SUBSCRIPTION_METHOD." VALUES(DEFAULT, $item_id, $subscription_method)")) {
-						message()->addMessage("Subscription method added");
-
-						$IC = new Items();
-						$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
-						return $subscription_method;
+					$sql = "DELETE FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
+					if($query->sql($sql)) {
+						message()->addMessage("Subscription method deleted");
+						return true;
 					}
-					
-					
+
 				}
-
 			}
-			// subscription_method is empty - delete
-			else {
-
-				$sql = "DELETE FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
-				if($query->sql($sql)) {
-					message()->addMessage("Subscription method deleted");
-					return true;
-				}
-
-			}
-
 		}
 
 		message()->addMessage("Subscription method could not be changed", array("type" => "error"));
