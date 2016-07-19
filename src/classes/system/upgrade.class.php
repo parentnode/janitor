@@ -171,15 +171,13 @@ class Upgrade {
 			$this->process($this->addConstraint(SITE_DB.".users.language", UT_LANGUAGES.".id", "ON UPDATE CASCADE"), true);
 
 
+
+			// Upgrade complete
+			print '<li class="done">UPGRADE COMPLETE</li>';
+
 		}
 		catch(Exception $exception) {}
 
-
-		// Upgrade complete
-		print '<li class="done">UPGRADE COMPLETE</li>';
-
-
-		return;
 	}
 
 
@@ -467,7 +465,7 @@ class Upgrade {
 					$success = true;
 				}
 				else {
-					$message .= ": Failed creating database table: $db_file: ".$this->con->error;
+					$message .= ": Failed creating database table: $db_file: ".$query->dbError();
 					$success = false;
 				}
 			}
