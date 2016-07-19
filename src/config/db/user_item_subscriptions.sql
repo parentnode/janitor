@@ -17,5 +17,5 @@ CREATE TABLE `SITE_DB`.`user_item_subscriptions` (
   KEY `payment_method` (`payment_method`),
   CONSTRAINT `user_item_subscriptions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `SITE_DB`.`users` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
   CONSTRAINT `user_item_subscriptions_ibfk_2` FOREIGN KEY (`item_id`) REFERENCES `SITE_DB`.`items` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `user_item_subscriptions_ibfk_3` FOREIGN KEY (`payment_method`) REFERENCES `SITE_DB`.`system_payment_method` (`id`) ON UPDATE CASCADE
+  CONSTRAINT `user_item_subscriptions_ibfk_3` FOREIGN KEY (`payment_method`) REFERENCES `SITE_DB`.`system_payment_methods` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
