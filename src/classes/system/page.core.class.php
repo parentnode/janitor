@@ -94,19 +94,26 @@ class PageCore {
 		if(getVar("logoff") == "true") {
 			$this->logOff();
 		}
+
 		// set segment
 		if(getVar("segment")) {
 			// set real segment value
 			$this->segment(array("value" => getVar("segment"), "type" => "segment"));
 		}
+
 		// set language
 		if(getVar("language")) {
 			$this->language(getVar("language"));
 		}
 		// set country
 		if(getVar("country")) {
-			$this->language(getVar("country"));
+			$this->country(getVar("country"));
 		}
+		// set country
+		if(getVar("currency")) {
+			$this->currency(getVar("currency"));
+		}
+
 		// dev mode (dev can be 0)
 		if(getVar("dev") !== false) {
 			session()->value("dev", getVar("dev"));
@@ -551,28 +558,46 @@ class PageCore {
 
 
 	/**
-	* Get/set current language
+	* Get/set current user language
 	*
 	* Pass value to set language
+	*
+	* @return language ISO id on get
 	*/
 	function language($value = false) {
 		// set
 		if($value !== false) {
-			session()->value("language", $value);
+			$query = new Query();
+			// only allow valid language
+			// look for language in DB
+			if($query->sql("SELECT * FROM ".UT_LANGUAGES." WHERE id = '".$value."'")) {
+				session()->value("language", $value);
+			}
+			// $value is not valid country
+			else {
+				session()->value("language", defined("DEFAULT_LANGUAGE_ISO") ? DEFAULT_LANGUAGE_ISO : "EN");
+			}
 		}
 		// get
 		else {
+			// language has not been set for current user session yet
 			if(!session()->value("language")) {
-				session()->value("language", defined("DEFAULT_LANGUAGE_ISO") ? DEFAULT_LANGUAGE_ISO : "EN");
+				// set default language
+				$this->language("");
 			}
+
+			// return current user language
 			return session()->value("language");
 		}
 	}
 
 	/**
 	* Get array of available languages
+	* Optional get details for specific language
+	*
+	* @return Array of languages or array of language details
 	*/
-	function languages() {
+	function languages($id = false) {
 
 		if(!cache()->value("languages")) {
 
@@ -580,32 +605,70 @@ class PageCore {
 			$query->sql("SELECT * FROM ".UT_LANGUAGES);
 			cache()->value("languages", $query->results());
 		}
-		return cache()->value("languages");
+
+		// looking for specific language details
+		if($id !== false) {
+			$languages = cache()->value("languages");
+			$key = arrayKeyValue($languages, "id", $id);
+			if($key !== false) {
+				return $languages[$key];
+			}
+			// invalid language requested - return default language
+			else {
+				$key = arrayKeyValue($languages, "id", $this->language());
+				return $languages[$key];
+			}
+		}
+		// return complete array of languages
+		else {
+			return cache()->value("languages");
+		}
 	}
 
 	/**
-	* Get/set current country
+	* Get/set current user country
 	*
 	* Pass value to set country
+	*
+	* @return country ISO id on get
 	*/
 	function country($value = false) {
 		// set
 		if($value !== false) {
-			session()->value("country", $value);
-		}
-		// get
-		else {
-			if(!session()->value("country")) {
+
+			$query = new Query();
+			// only allow valid country
+			// look for country in DB
+			if($query->sql("SELECT * FROM ".UT_COUNTRIES." WHERE id = '".$value."'")) {
+				session()->value("country", $value);
+			}
+			// $value is not valid country
+			else {
 				session()->value("country", defined("DEFAULT_COUNTRY_ISO") ? DEFAULT_COUNTRY_ISO : "DK");
 			}
+		}
+
+		// get
+		else {
+
+			// country has not been set for current user session yet
+			if(!session()->value("country")) {
+				// set default country
+				$this->country("");
+			}
+
+			// return current user country
 			return session()->value("country");
 		}
 	}
 
 	/**
-	* Get array of available countries
+	* Get array of available countries (with details)
+	* Optional get details for specific country
+	*
+	* @return Array of countries or array of country details
 	*/
-	function countries() {
+	function countries($id = false) {
 
 		if(!cache()->value("countries")) {
 
@@ -613,45 +676,141 @@ class PageCore {
 			$query->sql("SELECT * FROM ".UT_COUNTRIES);
 			cache()->value("countries", $query->results());
 		}
-		return cache()->value("countries");
+
+		// looking for specific country details
+		if($id !== false) {
+			$countries = cache()->value("countries");
+			$key = arrayKeyValue($countries, "id", $id);
+			if($key !== false) {
+				return $countries[$key];
+			}
+			// invalid country requested - return default country
+			else {
+				$key = arrayKeyValue($countries, "id", $this->country());
+				return $countries[$key];
+			}
+		}
+		// return complete array of countries
+		else {
+			return cache()->value("countries");
+		}
+
 	}
 
 
 	/**
-	* Get/set current currency
+	* Get/set current user currency
 	*
 	* Pass value to set currency
-	* DEPRECATED - NEEDS TO BE UPDATED WHEN SHOP IS REWRITTEN
 	*
-	* @return Array containing currency info 
+	* @return currency ISO id on get
 	*/
 	function currency($value = false) {
 		// set
 		if($value !== false) {
-			session()->value("currency", $value);
+
+			$query = new Query();
+			// only allow valid currency
+			// look for currency in DB
+			if($query->sql("SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$value."'")) {
+				session()->value("currency", $value);
+			}
+			// $value is not valid currency
+			else {
+				session()->value("currency", defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DK");
+			}
 		}
+
 		// get
 		else {
+
+			// currency has not been set for current user session yet
 			if(!session()->value("currency")) {
-				$currency_id = defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK";
-
-				$query = new Query();
-				if($query->sql("SELECT * FROM ".UT_CURRENCIES." WHERE id = '".$currency_id."'")) {
-					$currency = $query->result(0);
-				}
-//				print_r($currency);
-
-				session()->value("currency", $currency);
+				// set default currency
+				$this->currency("");
 			}
+
+			// return current user currency
 			return session()->value("currency");
+		}
+	}
+
+	/**
+	* Get array of available currencies
+	* Optional get details for specific currency
+	*
+	* @return Array of currencies or array of currency details
+	*/
+	function currencies($id = false) {
+
+		if(!cache()->value("currencies")) {
+
+			$query = new Query();
+			$query->sql("SELECT * FROM ".UT_CURRENCIES);
+			cache()->value("currencies", $query->results());
+		}
+
+		// looking for specific currency details
+		if($id !== false) {
+			$currencies = cache()->value("currencies");
+			$key = arrayKeyValue($currencies, "id", $id);
+			if($key !== false) {
+				return $currencies[$key];
+			}
+			// invalid currency requested - return default currency
+			else {
+				$key = arrayKeyValue($currencies, "id", $this->currency());
+				return $currencies[$key];
+			}
+		}
+		// return complete array of currencies
+		else {
+			return cache()->value("currencies");
+		}
+	}
+
+
+	/**
+	* Get array of available vatrates
+	* Optional get details for specific vatrate
+	*
+	* @return Array of vatrates or array of vatrate details
+	*/
+	function vatrates($id = false) {
+
+		if(!cache()->value("vatrates")) {
+
+			$query = new Query();
+			$query->sql("SELECT * FROM ".UT_VATRATES);
+			cache()->value("vatrates", $query->results());
+		}
+
+		// looking for specific vatrate details
+		if($id !== false) {
+			$vatrates = cache()->value("vatrates");
+			$key = arrayKeyValue($vatrates, "id", $id);
+			if($key !== false) {
+				return $vatrates[$key];
+			}
+			// invalid vatrate requested
+			else {
+				return false;
+			}
+		}
+		// return complete array of vatrates
+		else {
+			return cache()->value("vatrates");
 		}
 	}
 
 
 	/**
 	* Get array of available subscription methods
+	* Optional get details for specific subscription method
+	*
+	* @return Array of subscription methods or array of subscription method details
 	*/
-	function subscriptionMethods() {
+	function subscriptionMethods($id = false) {
 
 		if(!cache()->value("subscription_methods")) {
 
@@ -659,7 +818,24 @@ class PageCore {
 			$query->sql("SELECT * FROM ".UT_SUBSCRIPTION_METHODS);
 			cache()->value("subscription_methods", $query->results());
 		}
-		return cache()->value("subscription_methods");
+
+		// looking for specific subscription method details
+		if($id !== false) {
+			$subscription_methods = cache()->value("subscription_methods");
+			$key = arrayKeyValue($subscription_methods, "id", $id);
+			if($key !== false) {
+				return $subscription_methods[$key];
+			}
+			// invalid subscription method requested
+			else {
+				return false;
+			}
+		}
+		// return complete array of subscription methods
+		else {
+			return cache()->value("subscription_methods");
+		}
+
 	}
 
 
