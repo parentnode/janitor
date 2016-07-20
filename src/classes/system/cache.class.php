@@ -36,6 +36,8 @@ class Cache {
 
 	}
 
+
+	// TODO: return true/false on success/error
 	function reset($key) {
 
 		if($this->memc->get(SITE_URL."-".$key) ) {
