@@ -152,6 +152,7 @@ class Upgrade {
 			// add price type and quantity
 			$this->process($this->addColumn(UT_ITEMS_PRICES, "type", "varchar(20) DEFAULT NULL", "vatrate_id"), true);
 			$this->process($this->addColumn(UT_ITEMS_PRICES, "quantity", "int(11) DEFAULT NULL", "type"), true);
+			$query->sql("UPDATE ".UT_ITEMS_PRICES." SET type = 'default' WHERE type = '' OR type IS NULL");
 
 
 			// ITEM SUBSCRIPTION METHOD
@@ -165,7 +166,7 @@ class Upgrade {
 			$this->process($this->dropKeys(SITE_DB.".users", "language"), true);
 
 			$this->process($this->modifyColumn(SITE_DB.".users", "language", "varchar(2) DEFAULT NULL"), true);
-			$query->sql("UPDATE ".SITE_DB.".users SET language = NULL where language = ''");
+			$query->sql("UPDATE ".SITE_DB.".users SET language = NULL WHERE language = ''");
 
 			$this->process($this->addKey(SITE_DB.".users", "language"), true);
 			$this->process($this->addConstraint(SITE_DB.".users.language", UT_LANGUAGES.".id", "ON UPDATE CASCADE"), true);
