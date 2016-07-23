@@ -3,78 +3,92 @@ Util.Objects["defaultPrices"] = new function() {
 
 		div.item_id = u.cv(div, "item_id");
 
+		// CMS interaction data
+		div.csrf_token = div.getAttribute("data-csrf-token");
+		div.delete_price_url = div.getAttribute("data-price-delete");
+
 		// add tag form
 		div._prices_form = u.qs("form", div);
-		div._prices_form.div = div;
+		if(div._prices_form) {
+
+			div._prices_form.div = div;
+
+			// CMS interaction data
+			div.add_price_url = div._prices_form.action;
 
 
-		u.f.init(div._prices_form);
+			u.f.init(div._prices_form);
+
+			div._prices_form.fields["item_price_type"].changed = function() {
+
+				if(this.val() == "bulk") {
+					u.ac(this._form.fields["item_price_quantity"].field, "required");
+					u.ass(this._form.fields["item_price_quantity"].field, {
+						"display":"inline-block"
+					})
+				}
+				else {
+					u.rc(this._form.fields["item_price_quantity"].field, "required");
+					u.ass(this._form.fields["item_price_quantity"].field, {
+						"display":"none"
+					})
+				}
+			}
+
+			// make sure quantity is shown if type is already bulk
+			if(div._prices_form.fields["item_price_type"].val() == "bulk") {
+				u.ass(div._prices_form.fields["item_price_quantity"].field, {
+					"display":"inline-block"
+				})
+			}
 
 
-		// CMS interaction urls
-		div.csrf_token = div._prices_form.fields["csrf-token"].value;
-		div.add_price_url = div._prices_form.action;
-		div.delete_price_url = div.getAttribute("data-price-delete");
-		div.update_price_url = div.getAttribute("data-price-update");
+			// new comment submitted
+			div._prices_form.submitted = function(iN) {
+
+				this.response = function(response) {
+					page.notify(response);
+
+					if(response.cms_status == "success" && response.cms_object) {
+
+						var price_li = u.ae(this.div._prices_list, "li", {"class":"pricedetails price_id:"+response.cms_object["id"]});
+						var info = u.ae(price_li, "ul", {"class":"info"});
+						u.ae(info, "li", {"class":"price", "html":response.cms_object["formatted_price"]});
+						u.ae(info, "li", {"class":"vatrate", "html":response.cms_object["vatrate"]+"%"});
+						if(response.cms_object["type"] == "offer") {
+							u.ae(info, "li", {"class":"offer", "html":"Special offer"});
+						}
+						else if(response.cms_object["type"] == "bulk") {
+							u.ae(info, "li", {"class":"bulk", "html":"Bulk price for "+response.cms_object["quantity"] + " items"});
+						}
+
+						this.div.initPrice(price_li);
+
+						// reset form input
+						this.reset();
+
+					}
+				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			}			
+
+		}
 
 
-		div._prices_form.list = u.qs("ul.prices", div);
+
+
+
+		div._prices_list = u.qs("ul.prices", div);
 
 		// add edit+delete form to comment
 		div.initPrice = function(node) {
 
 			node.div = this;
 
-			if(this.delete_price_url || this.update_price_url) {
+			if(this.delete_price_url) {
 
 				var actions = u.ae(node, "ul", {"class":"actions"});
 				var li;
-
-				// price editing disabled for now
-				if(this.update_price_url && 0) {
-					li = u.ae(actions, "li", {"class":"edit"});
-					bn_edit = u.ae(li, "a", {"html":"Edit", "class":"button edit"});
-					bn_edit.node = node;
-
-					u.ce(bn_edit);
-					bn_edit.clicked = function() {
-
-						var actions, bn_cancel, bn_update, form;
-
-						form = u.f.addForm(this.node, {"action":this.node.div.update_price_url+"/"+this.node.div.item_id+"/"+u.cv(this.node, "price_id"), "class":"edit"});
-						u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.node.div.csrf_token});
-						u.f.addField(form, {"type":"text", "name":"price", "value": u.qs("ul.info li.price", this.node).innerHTML});
-						form.node = node;
-
-						actions = u.ae(form, "ul", {"class":"actions"});
-
-						bn_update = u.f.addAction(actions, {"value":"Update", "class":"button primary update", "name":"update"});
-						bn_cancel = u.f.addAction(actions, {"value":"Cancel", "class":"button cancel", "type":"button", "name":"cancel"});
-
-						u.f.init(form);
-
-						form.submitted = function() {
-
-							this.response = function(response) {
-								page.notify(response);
-
-								if(response.cms_status == "success") {
-
-									u.qs("ul.info li.price", this.node).innerHTML = this.fields["price"].val();
-									this.parentNode.removeChild(this);
-								}
-							}
-							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
-							
-						}
-
-						u.ce(bn_cancel);
-						bn_cancel.clicked = function(event) {
-							u.e.kill(event);
-							this.form.parentNode.removeChild(this.form);
-						}
-					}
-				}
 
 				if(this.delete_price_url) {
 					li = u.ae(actions, "li", {"class":"delete"});
@@ -127,32 +141,9 @@ Util.Objects["defaultPrices"] = new function() {
 
 		}
 
-		// new comment submitted
-		div._prices_form.submitted = function(iN) {
-
-			this.response = function(response) {
-				page.notify(response);
-
-				if(response.cms_status == "success" && response.cms_object) {
-
-					var price_li = u.ae(this.list, "li", {"class":"pricedetails price_id:"+response.cms_object["id"]});
-					var info = u.ae(price_li, "ul", {"class":"info"});
-					u.ae(info, "li", {"class":"price", "html":response.cms_object["formatted_price"]});
-					u.ae(info, "li", {"class":"currency", "html":response.cms_object["currency"]});
-					u.ae(info, "li", {"class":"vatrate", "html":"("+response.cms_object["vatrate"]+"%)"})
-
-					this.div.initPrice(price_li);
-
-					// reset form input
-					this.fields["price"].val("");
-
-				}
-			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-		}
 
 		// initalize existing comments
-		div.prices = u.qsa("li.pricedetails", div._prices_form.list);
+		div.prices = u.qsa("li.pricedetails", div._prices_list);
 		var i, node;
 		for(i = 0; node = div.prices[i]; i++) {
 			div.initPrice(node);
