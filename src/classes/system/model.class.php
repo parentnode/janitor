@@ -96,13 +96,15 @@ class Model extends HTML {
 			"label" => "New price",
 			"pattern" => "[0-9\,]+",
 			"class" => "price",
-			"hint_message" => "State the price excluding VAT, using , (comma) as decimal point.",
+			"required" => true,
+			"hint_message" => "State the price INCLUDING VAT, using comma (,) as decimal point.",
 			"error_message" => "Price cannot be empty."
 		));
 		$this->addToModel("item_price_currency", array(
 			"type" => "string",
 			"label" => "Currency",
 			"class" => "currency",
+			"required" => true,
 			"hint_message" => "Currency of price",
 			"error_message" => "Currency cannot be empty."
 		));
@@ -110,6 +112,7 @@ class Model extends HTML {
 			"type" => "integer",
 			"label" => "Vatrate",
 			"class" => "vatrate",
+			"required" => true,
 			"hint_message" => "VAT rate for this product.",
 			"error_message" => "VAT rate cannot be empty."
 		));
@@ -117,14 +120,15 @@ class Model extends HTML {
 			"type" => "string",
 			"label" => "Price type",
 			"class" => "type",
+			"required" => true,
 			"hint_message" => "Standard price, Special price, Bulk price. Select the type of price.",
 			"error_message" => "Price type error."
 		));
 		$this->addToModel("item_price_quantity", array(
 			"type" => "integer",
-			"label" => "Bulk quantity",
+			"label" => "#",
 			"class" => "quantity",
-			"hint_message" => "Minimum quantity for bulk price.",
+			"hint_message" => "Minimum quantity qualifying for bulk price. Used for BULK PRICES ONLY.",
 			"error_message" => "Price quantity error."
 		));
 

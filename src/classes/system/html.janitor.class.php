@@ -86,7 +86,6 @@ class JanitorHTML {
 		}
 
 		if(!$_options || array_search("prices", $_options) !== false) {
-			$_ .= ' data-price-update="'.$page->validPath($this->path."/updatePrice").'"';
 			$_ .= ' data-price-delete="'.$page->validPath($this->path."/deletePrice").'"';
 		}
 
@@ -600,20 +599,19 @@ class JanitorHTML {
 		global $model;
 		global $page;
 
-
 		$currency_options = $model->toOptions($page->currencies(), "id", "id");
 		$default_currency = $page->currency();
 
 		$vatrate_options = $model->toOptions($page->vatrates(), "id", "name");
 
-		$type_options = array("default" => "Standard price", "offer" => "Special offer", "bulk" => "Bulk offer");
+		$type_options = array("default" => "Standard price", "offer" => "Special offer", "bulk" => "Bulk price");
 
 		$_ = '';
 
 		$_ .= '<div class="prices i:defaultPrices i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["prices"]).'>';
 		$_ .= '<h2>Prices</h2>';
 
-		$_ .= $this->priceList($item["prices"]);
+		$_ .= $this->priceList($item["item_id"]);
 
 		$_ .= $model->formStart($this->path."/addPrice/".$item["id"], array("class" => "labelstyle:inject"));
 		$_ .= '<fieldset>';
@@ -756,7 +754,10 @@ class JanitorHTML {
 
 
 	// simple price list
-	function priceList($prices) {
+	function priceList($item_id) {
+
+		$IC = new Items();
+		$prices = $IC->getPrices(array("item_id" => $item_id));
 
 		$_ = '';
 
@@ -765,9 +766,14 @@ class JanitorHTML {
 			foreach($prices as $price) {
 				$_ .= '<li class="pricedetails price_id:'.$price["id"].'">';
 					$_ .= '<ul class="info">';
-						$_ .= '<li class="price">'.$price["formatted_price"].'</li>';
-						$_ .= '<li class="currency">'. $price["currency"].'</li>';
-						$_ .= '<li class="vatrate">('. $price["vatrate"].'%)</li>';
+						$_ .= '<li class="price">'.formatPrice($price, array("vat" => true)).'</li>';
+//						$_ .= '<li class="currency">'. $price["currency"].'</li>';
+						$_ .= '<li class="vatrate">'.$price["vatrate"].'% VAT</li>';
+						if($price["type"] == "offer"):
+							$_ .= '<li class="offer">Special offer</li>';
+						elseif($price["type"] == "bulk"):
+							$_ .= '<li class="bulk">Bulk price for '.$price["quantity"].' items</li>';
+						endif;
 					$_ .= '</ul>';
 				$_ .= '</li>';
 			}

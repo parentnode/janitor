@@ -179,7 +179,7 @@ class ItemtypeCore extends Model {
 				$values = array();
 
 				foreach($entities as $name => $entity) {
-					if($entity["value"] !== false && !preg_match("/^(files|tags|prices)$/", $entity["type"]) && !preg_match("/^(published_at|status|htmleditor_file)$/", $name)) {
+					if($entity["value"] !== false && !preg_match("/^(files|tags)$/", $entity["type"]) && !preg_match("/^(published_at|status|htmleditor_file)$/", $name)) {
 
 						// consider reimplementing files in basic save
 						// it's a bigger question
@@ -312,7 +312,7 @@ class ItemtypeCore extends Model {
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && !preg_match("/^(files|tags|prices)$/", $entity["type"]) && !preg_match("/^(published_at|status|user_id|htmleditor_file)$/", $name)) {
+				if($entity["value"] !== false && !preg_match("/^(files|tags)$/", $entity["type"]) && !preg_match("/^(published_at|status|user_id|htmleditor_file)$/", $name)) {
 
 					// consider reimplementing files in basic save
 					// it's a bigger question
@@ -1400,23 +1400,52 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 			$item_id = $action[1];
 
-			if($this->validateList(array("price", "currency", "vatrate_id"), $item_id)) {
+			if($this->validateList(array("item_price", "item_price_currency", "item_price_vatrate", "item_price_type", "item_price_quantity"), $item_id)) {
 
-				$price = $this->getProperty("price", "value");
-				$currency = $this->getProperty("currency", "value");
-				$vatrate_id = $this->getProperty("vatrate_id", "value");
-				$type = $this->getProperty("type", "value");
-				$quantity = $this->getProperty("quantity", "value");
+				$price = $this->getProperty("item_price", "value");
+				$currency = $this->getProperty("item_price_currency", "value");
+				$vatrate = $this->getProperty("item_price_vatrate", "value");
+				$type = $this->getProperty("item_price_type", "value");
+				if($type == "bulk") {
+					$quantity = $this->getProperty("item_price_quantity", "value");
+					// check quantity value for bulk price
+					if(!is_numeric($quantity) || intval($quantity) != floatval($quantity) || intval($quantity) <= 1) {
+						message()->addMessage("Invalid quantity for bulk price", array("type" => "error"));
+						return false;
+					}
 
+					// bulk items price can only exist once for specific quantity
+					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type = '$type' AND quantity = $quantity";
+//					print $sql;
+					if($query->sql($sql)) {
+						message()->addMessage("Item already has bulk price for this type, currency and quantity", array("type" => "error"));
+						return false;
+					}
 
+				}
+				else {
+					// default and offer price can only exist once for an item
+					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type = '$type'";
+//					print $sql;
+					if($query->sql($sql)) {
+						message()->addMessage("Item already has price for this type and currency", array("type" => "error"));
+						return false;
+					}
+
+					$quantity = "DEFAULT";
+				}
+
+				// replace , with . to make valid number
 				$price = preg_replace("/,/", ".", $price);
 
-				if($query->sql("INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', '$vatrate_id')")) {
+				if($query->sql("INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', $vatrate, '$type', $quantity)")) {
 					message()->addMessage("Price added");
 
 					$price_id = $query->lastInsertId();
 					$IC = new Items();
 					$new_price = $IC->getPrices(array("price_id" => $price_id));
+					// add default formatted price to return result for ease of use
+					$new_price["formatted_price"] = formatPrice($new_price, array("vat" => true));
 					return $new_price;
 				}
 
@@ -1458,7 +1487,6 @@ class ItemtypeCore extends Model {
 	// delete price
 	// /janitor/[admin/]#itemtype#/updateSubscriptionMethod/#item_id#
 	// subscription method is sent in $_POST
-	
 	// TODO: implement itemtype checks
  	function updateSubscriptionMethod($action) {
 
