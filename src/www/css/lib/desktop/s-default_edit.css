@@ -118,12 +118,30 @@
 
 /* PRICES */
 #content .scene.defaultEdit > div.prices {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
-
 #content .scene.defaultEdit > div.prices > form {padding-bottom: 10px; padding-top: 5px;}
+#content .scene.defaultEdit > div.prices .field {display: inline-block; vertical-align: top; padding-right: 5px;}
+#content .scene.defaultEdit > div.prices .field .indicator {display: none;}
 
-#content .scene.defaultEdit > div.prices .field input[type=text] {width: 262px;}
-#content .scene.defaultEdit > div.prices fieldset {display: inline-block; vertical-align: top;}
-#content .scene.defaultEdit > div.prices fieldset .field {padding-right: 12px;}
+#content .scene.defaultEdit > div.prices .field.currency,
+#content .scene.defaultEdit > div.prices .field.vatrate,
+#content .scene.defaultEdit > div.prices .field.type,
+#content .scene.defaultEdit > div.prices .field.quantity {padding-left: 0;}
+
+#content .scene.defaultEdit > div.prices .field.quantity {display: none;}
+
+#content .scene.defaultEdit > div.prices .field.price .help {left: 610px;}
+#content .scene.defaultEdit > div.prices .field.currency .help {left: 489px;}
+#content .scene.defaultEdit > div.prices .field.vatrate .help {left: 425px;}
+#content .scene.defaultEdit > div.prices .field.type .help {left: 341px;}
+#content .scene.defaultEdit > div.prices .field.quantity .help {left: 197px;}
+
+#content .scene.defaultEdit > div.prices .field.price input[type=text] {width: 70px;}
+#content .scene.defaultEdit > div.prices .field.currency select {width: 55px;}
+#content .scene.defaultEdit > div.prices .field.vatrate select {width: 75px;}
+#content .scene.defaultEdit > div.prices .field.type select {width: 135px;}
+#content .scene.defaultEdit > div.prices .field.quantity input {width: 30px;}
+
+#content .scene.defaultEdit > div.prices fieldset {display: inline-block; vertical-align: top; font-size: 0;}
 #content .scene.defaultEdit > div.prices > form .actions {display: inline-block; vertical-align: top; padding: 0;}
 #content .scene.defaultEdit > div.prices > form .actions li {padding-left: 0;}
 #content .scene.defaultEdit > div.prices > form .actions li input {margin-top: 4px;}
@@ -131,12 +149,9 @@
 #content .scene.defaultEdit > div.prices ul.prices {padding: 0 0 15px;}
 #content .scene.defaultEdit > div.prices ul.prices li.pricedetails {display: block; position: relative; border-bottom: 1px solid #dedede;}
 #content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li {display: inline-block; vertical-align: top; padding: 10px 5px 10px 0; line-height: 1em;}
+#content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li.offer:before,
+#content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li.bulk:before {content: "- ";}
 #content .scene.defaultEdit > div.prices ul.prices > li > ul.actions {position: absolute; top: 3px; right: 0;}
-
-/*#content .scene.defaultEdit > div.prices ul.prices li.pricedetails form {display: inline-block; vertical-align: top;}
-#content .scene.defaultEdit > div.prices ul.prices li.pricedetails input.delete {padding: 0; margin: 0; line-height: 20px; cursor: pointer; color: #999999; text-decoration: underline; box-shadow: none; text-shadow: none; border: none; background: none; border-radius: 0;}
-#content .scene.defaultEdit > div.prices ul.prices li.pricedetails input.delete:hover {color: #000000;}
-*/
 
 
 
@@ -147,12 +162,8 @@
 #content .scene.defaultEdit > div.subscription_method dl.settings dd {display: block; font-size: 13px; line-height: 1.38em;}
 #content .scene.defaultEdit > div.subscription_method dl.settings dt {color: #313942;}
 #content .scene.defaultEdit > div.subscription_method ul.actions.change {padding-bottom: 10px;}
-
-
 #content .scene.defaultEdit > div.subscription_method div.change_subscription_method {display: none;}
-
-#content .scene.defaultEdit > div.subscription_method > form {padding-bottom: 10px; padding-top: 5px;}
-
+#content .scene.defaultEdit > div.subscription_method form {padding-bottom: 10px; padding-top: 5px;}
 #content .scene.defaultEdit > div.subscription_method .field select {width: 275px;}
 #content .scene.defaultEdit > div.subscription_method fieldset {display: inline-block; vertical-align: top;}
 #content .scene.defaultEdit > div.subscription_method fieldset .field {padding-right: 12px;}
