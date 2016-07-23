@@ -41,7 +41,7 @@ Util.Objects["defaultComments"] = new function() {
 						this.div.initComment(comment_li);
 
 						// reset form input
-						this.fields["comment"].val("");
+						this.fields["item_comment"].val("");
 
 					}
 				}
@@ -72,7 +72,7 @@ Util.Objects["defaultComments"] = new function() {
 
 						form = u.f.addForm(this.node, {"action":this.node.div.update_comment_url+"/"+this.node.div.item_id+"/"+u.cv(this.node, "comment_id"), "class":"edit"});
 						u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.node.div.csrf_token});
-						u.f.addField(form, {"type":"text", "name":"comment", "value": u.qs("p.comment", this.node).innerHTML});
+						u.f.addField(form, {"type":"text", "name":"item_comment", "value": u.qs("p.comment", this.node).innerHTML});
 						form.node = node;
 
 						actions = u.ae(form, "ul", {"class":"actions"});
@@ -89,7 +89,7 @@ Util.Objects["defaultComments"] = new function() {
 
 								if(response.cms_status == "success") {
 
-									u.qs("p.comment", this.node).innerHTML = this.fields["comment"].val();
+									u.qs("p.comment", this.node).innerHTML = this.fields["item_comment"].val();
 									this.parentNode.removeChild(this);
 								}
 							}
