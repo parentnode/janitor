@@ -1708,6 +1708,7 @@ class PageCore {
 	function loadDBConfiguration() {
 		// database connection
 		@include_once("config/connect_db.php");
+		@include_once("config/database.constants.php");
 	}
 
 
