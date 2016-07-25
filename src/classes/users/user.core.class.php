@@ -1143,7 +1143,7 @@ class UserCore extends Model {
 
 		// get specific address
 		if($address_id) {
-			$sql = "SELECT * FROM ".$this->db_addresses." WHERE id = $address_id && user_id = $user_id";
+			$sql = "SELECT * FROM ".$this->db_addresses." WHERE id = $address_id AND user_id = $user_id";
 //			print $sql;
 
 			if($query->sql($sql)) {
