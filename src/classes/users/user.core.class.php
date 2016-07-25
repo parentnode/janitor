@@ -210,17 +210,18 @@ class UserCore extends Model {
 
 
 		// newsletter
-		$this->addToModel("newsletter", array(
+		$this->addToModel("newsletter_id", array(
 			"type" => "string",
 			"label" => "Newsletter",
 			"required" => true,
 			"hint_message" => "Newsletter",
 			"error_message" => "Invalid newsletter"
 		));
-		// newsletter
-		$this->addToModel("subscription", array(
+		// subscriptions
+		$this->addToModel("membership_id", array(
 			"type" => "string",
-			"label" => "Subscription",
+			"label" => "Membership",
+			"required" => true,
 			"hint_message" => "Please select a membership",
 			"error_message" => "Please select a membership"
 		));
@@ -262,13 +263,7 @@ class UserCore extends Model {
 
 			$user["addresses"] = $this->getAddresses();
 
-
-			$user["newsletters"] = false;
-			$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id";
-			if($query->sql($sql)) {
-				$user["newsletters"] = $query->results();
-			}
-
+			$user["newsletters"] = $this->getNewsletters();
 
 			return $user;
 		}
@@ -405,11 +400,58 @@ class UserCore extends Model {
 
 
 
+							// VERIFICATION EMAIL
+
+							// add log
+							$page->addLog("user->newUser: created: " . $email);
+
+							// success
+							// send activation email
+							if($verification_code) {
+
+								// send verification email to user
+								$page->mail(array(
+									"values" => array(
+										"EMAIL" => $email, 
+										"VERIFICATION" => $verification_code
+									), 
+									"recipients" => $email, 
+									"template" => "signup"
+								));
+
+								// send notification email to admin
+								$page->mail(array(
+									"subject" => "New User created: " . $email, 
+									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
+									"template" => "system"
+								));
+							}
+							// error
+							else {
+								// send error email notification
+								$page->mail(array(
+									"recipients" => $email, 
+									"template" => "signup_error"
+								));
+
+								// send notification email to admin
+								$page->mail(array(
+									"subject" => "New User created ERROR: " . $email, 
+									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
+									"template" => "system"
+								));
+							}
+
+
+
+							// Signup can include Newsletter and Membership signups
+
+
 							// MEMBERSHIP
 
 							// membership?
 							$membership = getPost("membership");
-							if($subscription && $mail_password) {
+							if($membership && $mail_password) {
 						
 								// make sure newsletter table exist
 								$query->checkDbExistance($this->db_memberships);
@@ -482,48 +524,6 @@ class UserCore extends Model {
 
 							}
 
-
-							// VERIFICATION EMAIL
-
-							// add log
-							$page->addLog("user->newUser: created: " . $email);
-
-							// success
-							// send activation email
-							if($verification_code) {
-
-								// send verification email to user
-								$page->mail(array(
-									"values" => array(
-										"EMAIL" => $email, 
-										"VERIFICATION" => $verification_code
-									), 
-									"recipients" => $email, 
-									"template" => "signup"
-								));
-
-								// send notification email to admin
-								$page->mail(array(
-									"subject" => "New User created: " . $email, 
-									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
-									"template" => "system"
-								));
-							}
-							// error
-							else {
-								// send error email notification
-								$page->mail(array(
-									"recipients" => $email, 
-									"template" => "signup_error"
-								));
-
-								// send notification email to admin
-								$page->mail(array(
-									"subject" => "New User created ERROR: " . $email, 
-									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
-									"template" => "system"
-								));
-							}
 
 
 
@@ -1286,11 +1286,13 @@ class UserCore extends Model {
 
 		$user_id = session()->value("user_id");
 		$newsletter = false;
+		$newsletter_id = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "newsletter"     : $newsletter       = $_value; break;
+					case "newsletter"       : $newsletter         = $_value; break;
+					case "newsletter_id"    : $newsletter_id      = $_value; break;
 				}
 			}
 		}
@@ -1298,17 +1300,23 @@ class UserCore extends Model {
 		$query = new Query();
 
 
-		// check for specific newsletter for specific user
+		// check for specific newsletter (by nane) for current user
 		if($newsletter) {
-			$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id AND newsletter = '$newsletter'";
+			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = newsletters.id AND newsletters.newsletter = '$newsletter'";
 			if($query->sql($sql)) {
-				return true;
+				return $query->result(0);
 			}
 		}
-
-		// get list of all newsletters
+		// check for specific newsletter (by id) for current user
+		else if($newsletter_id) {
+			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = '$newsletter_id'";
+			if($query->sql($sql)) {
+				return $query->result(0);
+			}
+		}
+		// get newsletters for current user
 		else {
-			$sql = "SELECT * FROM ".$this->db_newsletters." GROUP BY newsletter";
+			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = newsletters.id";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -1318,50 +1326,50 @@ class UserCore extends Model {
 
 
 
+	// /janitor/admin/profile/addNewsletter
+	// Newsletter info i $_POST
 	function addNewsletter($action) {
-		
-	}
 
-	function deleteNewsletter($action) {
-		
-	}
-
-
-	// updateNewsletter/#newsletter#/#state#
-	function updateNewsletter($action) {
-
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 		$user_id = session()->value("user_id");
 
-		// does values validate
-		if(count($action) == 3 && $user_id) {
+		if(count($action) == 1 && $user_id && $this->validateList(array("newsletter_id"))) {
 
 			$query = new Query();
-			$newsletter = urldecode($action[1]);
-			$state = $action[2];
 
-
-			// make sure type tables exist
-			$query->checkDbExistance($this->db_newsletters);
-
-			if($state) {
-				// already signed up
-				$sql = "SELECT id FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter = '$newsletter'";
-				if(!$query->sql($sql)) {
-					$sql = "INSERT INTO $this->db_newsletters SET user_id = $user_id, newsletter = '$newsletter'";
-					$query->sql($sql);
-				}
-			}
-			else {
-				$sql = "DELETE FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter = '$newsletter'";
+			$newsletter_id = $this->getProperty("newsletter_id", "value");
+			// already signed up (to avoid faulty double entries)
+			$sql = "SELECT id FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter_id = '$newsletter_id'";
+			if(!$query->sql($sql)) {
+				$sql = "INSERT INTO ".$this->db_newsletters." SET user_id=$user_id, newsletter_id='$newsletter_id'";
 				$query->sql($sql);
 			}
-
 			return true;
 		}
 
 		return false;
+		
 	}
 
+	// /janitor/admin/profile/deleteNewsletter/#newsletter_id#
+	function deleteNewsletter($action) {
+
+		$user_id = session()->value("user_id");
+
+		if(count($action) == 2 && $user_id) {
+			$query = new Query();
+			$newsletter_id = $action[1];
+
+			$sql = "DELETE FROM $this->db_newsletters WHERE newsletter_id = $newsletter_id AND user_id = $user_id";
+			if($query->sql($sql)) {
+				return true;
+			}
+
+		}
+
+		return false;
+	}
 
 
 
@@ -1406,7 +1414,7 @@ class UserCore extends Model {
 
 	// SUBSCRIPTIONS
 
-		// get subscription info for specific subscription 
+	// get subscription info for specific subscription 
 	// (can be used to check if user has subscription or not)
 	// get subscription for user
 	function getSubscriptions($_options = false) {

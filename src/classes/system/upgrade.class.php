@@ -62,6 +62,7 @@ class Upgrade {
 			$this->process($this->createTableIfMissing(UT_VATRATES), true);
 			$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
 			$this->process($this->createTableIfMissing(UT_SUBSCRIPTION_METHODS), true);
+			$this->process($this->createTableIfMissing(UT_NEWSLETTERS), true);
 
 
 			// CHECK DEFAULT VALUES
@@ -170,6 +171,52 @@ class Upgrade {
 
 			$this->process($this->addKey(SITE_DB.".users", "language"), true);
 			$this->process($this->addConstraint(SITE_DB.".users.language", UT_LANGUAGES.".id", "ON UPDATE CASCADE"), true);
+
+
+
+			// USER NEWSLETTER SUBSCRIPTIONS
+
+			$this->process($this->createTableIfMissing(SITE_DB.".user_newsletters"), true);
+
+			// Get all existing newsletters from original newsletter table
+			$query->sql("SELECT * FROM ".SITE_DB.".user_newsletters GROUP BY newsletter");
+			$all_newsletters = $query->results();
+			// does newsletter result contain old newsletter column (otherwise is has already been updated)
+			if($all_newsletters && isset($all_newsletters[0]["newsletter"])) {
+
+				// Create newsletters in new system table
+				foreach($all_newsletters as $newsletter) {
+					$this->process($this->checkDefaultValues(UT_NEWSLETTERS, "'DEFAULT','".$newsletter["newsletter"]."'", "name = '".$newsletter["newsletter"]."'"), true);
+				}
+
+				// get all subscribers
+				$query->sql("SELECT * FROM ".SITE_DB.".user_newsletters");
+				$newsletter_subscribers = $query->results();
+				 
+				// get all the newsletters from new system table
+				$query->sql("SELECT * FROM ".UT_NEWSLETTERS);
+				$newsletters = $query->results();
+
+				// Add newsletter_id column to original table
+				$this->process($this->addColumn(SITE_DB.".user_newsletters", "newsletter_id", "int(11) NOT NULL", "user_id"), true);
+
+				// Add newsletter_id's
+				foreach($newsletter_subscribers as $subscriber) {
+					if($subscriber["newsletter"]) {
+						$newsletter_key = arrayKeyValue($newsletters, "name", $subscriber["newsletter"]);
+						if($newsletter_key !== false) {
+							$query->sql("UPDATE ".SITE_DB.".user_newsletters SET newsletter_id = ".$newsletters[$newsletter_key]["id"]." WHERE user_id = ".$subscriber["user_id"]." AND id = ".$subscriber["id"]);
+						}
+					}
+				}
+
+				// drop newsletter column from orginal table
+				$this->process($this->dropColumn(SITE_DB.".user_newsletters", "newsletter"), true);
+
+				$this->process($this->addKey(SITE_DB.".user_newsletters", "newsletter_id"), true);
+				$this->process($this->addConstraint(SITE_DB.".user_newsletters.newsletter_id", UT_NEWSLETTERS.".id", "ON UPDATE CASCADE"), true);
+
+			}
 
 
 

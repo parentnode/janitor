@@ -22,18 +22,9 @@ $page->pageTitle("User profile");
 
 if(is_array($action) && count($action)) {
 
-	// LIST/EDIT/NEW/NEW_ADDRESS/EDIT_ADDRESS
-	if(preg_match("/^(new_address|edit_address)$/", $action[0])) {
-
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/profile/".$action[0].".php"
-		));
-		exit();
-	}
 
 	// CONTENT OVERVIEW
-	else if(preg_match("/^(content|orders|subscriptions)$/", $action[0])) {
+	if(preg_match("/^(content|orders|subscriptions)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
@@ -42,6 +33,20 @@ if(is_array($action) && count($action)) {
 		exit();
 	}
 
+	// ADDRESS
+	else if(preg_match("/^(address)$/", $action[0]) && count($action) >= 2) {
+
+		// EDIT/NEW
+		if(preg_match("/^(new|edit)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"templates" => "janitor/profile/address/".$action[1].".php"
+			));
+			exit();
+		}
+
+	}
 	// RESET PASSWORD
 	else if(preg_match("/^(reset)$/", $action[0]) && count($action) == 2) {
 

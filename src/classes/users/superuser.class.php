@@ -847,12 +847,14 @@ class SuperUser extends User {
 
 		$user_id = false;
 		$newsletter = false;
+		$newsletter_id = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "user_id"        : $user_id          = $_value; break;
-					case "newsletter"     : $newsletter       = $_value; break;
+					case "user_id"           : $user_id             = $_value; break;
+					case "newsletter"        : $newsletter          = $_value; break;
+					case "newsletter_id"     : $newsletter_id       = $_value; break;
 				}
 			}
 		}
@@ -861,25 +863,32 @@ class SuperUser extends User {
 
 		if($user_id) {
 
-			// check for specific newsletter for specific user
+			// check for specific newsletter (by nane) for specific user
 			if($newsletter) {
-				$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id AND newsletter = '$newsletter'";
+				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = newsletters.id AND newsletters.newsletter = '$newsletter'";
 				if($query->sql($sql)) {
-					return true;
+					return $query->result(0);
+				}
+			}
+			// check for specific newsletter (by id) for specific user
+			else if($newsletter_id) {
+				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = '$newsletter_id'";
+				if($query->sql($sql)) {
+					return $query->result(0);
 				}
 			}
 			// get newsletters for specific user
 			else {
-				$sql = "SELECT * FROM ".$this->db_newsletters." WHERE user_id = $user_id";
+				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = newsletters.id";
 				if($query->sql($sql)) {
 					return $query->results();
 				}
 			}
 
 		}
-		// get list of all newsletters
+		// get list of all newsletter subscribers
 		else {
-			$sql = "SELECT * FROM ".$this->db_newsletters." GROUP BY newsletter";
+			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -889,30 +898,28 @@ class SuperUser extends User {
 
 
 	// /janitor/admin/user/addNewsletter/#user_id#
+	// Newsletter info i $_POST
 	function addNewsletter($action){
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
 		// does values validate
-		if(count($action) == 2 && $this->validateList(array("newsletter"))) {
+		if(count($action) == 2 && $this->validateList(array("newsletter_id"))) {
 
 			$query = new Query();
 			$user_id = $action[1];
 
-			$newsletter = $this->getProperty("newsletter", "value");
+			$newsletter_id = $this->getProperty("newsletter_id", "value");
 
-			// make sure type tables exist
-			$query->checkDbExistance($this->db_newsletters);
-
-			// already signed up
-			$sql = "SELECT id FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter = '$newsletter'";
+			// already signed up (to avoid faulty double entries)
+			$sql = "SELECT id FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter_id = '$newsletter_id'";
 			if(!$query->sql($sql)) {
-				$sql = "INSERT INTO $this->db_newsletters SET user_id = $user_id, newsletter = '$newsletter'";
+				$sql = "INSERT INTO ".$this->db_newsletters." SET user_id=$user_id, newsletter_id='$newsletter_id'";
 				$query->sql($sql);
 			}
 
-			message()->addMessage("Subscribed to newsletter: ".$newsletter);
+			message()->addMessage("Subscribed to newsletter");
 			return true;
 		}
 
@@ -928,13 +935,11 @@ class SuperUser extends User {
 
 			$query = new Query();
 			$user_id = $action[1];
-			$newsletter = urldecode($action[2]);
+			$newsletter_id = $action[2];
 
-			$sql = "DELETE FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter = '$newsletter'";
-//			print $sql."<br>\n";
+			$sql = "DELETE FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter_id = '$newsletter_id'";
 			if($query->sql($sql)) {
-
-				message()->addMessage("Unsubscribed from newsletter: $newsletter");
+				message()->addMessage("Unsubscribed from newsletter");
 				return true;
 			}
 		}

@@ -839,6 +839,41 @@ class PageCore {
 	}
 
 
+	/**
+	* Get array of available newsletters
+	* Optional get details for specific newsletter
+	*
+	* @return Array of newsletters or array of newsletter details
+	*/
+	function newsletters($id = false) {
+
+		if(!cache()->value("newsletters")) {
+
+			$query = new Query();
+			$query->sql("SELECT * FROM ".UT_NEWSLETTERS);
+			cache()->value("newsletters", $query->results());
+		}
+
+		// looking for specific newsletter details
+		if($id !== false) {
+			$newsletters = cache()->value("newsletters");
+			$key = arrayKeyValue($newsletters, "id", $id);
+			if($key !== false) {
+				return $newsletters[$key];
+			}
+			// invalid newsletter requested
+			else {
+				return false;
+			}
+		}
+		// return complete array of newsletters
+		else {
+			return cache()->value("newsletters");
+		}
+
+	}
+
+
 
 	/**
 	* Access device API and get info about current useragent

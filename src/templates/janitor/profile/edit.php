@@ -15,7 +15,7 @@ $apitoken = $model->getToken();
 $addresses = $item["addresses"];
 
 // get newsletters
-$all_newsletters = $model->getNewsletters();
+$all_newsletters = $this->newsletters();
 $user_newsletters = $item["newsletters"];
 
 ?>
@@ -131,7 +131,7 @@ $user_newsletters = $item["newsletters"];
 				<div class="country"><?= $address["country_name"] ?></div>
 
 				<ul class="actions">
-					<?= $model->link("Edit", "/janitor/admin/profile/edit_address/".$address["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+					<?= $model->link("Edit", "/janitor/admin/profile/address/edit/".$address["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 				</ul>
 			</li>
 <?			endforeach; ?>
@@ -141,26 +141,26 @@ $user_newsletters = $item["newsletters"];
 <?		endif; ?>
 
 		<ul class="actions">
-			<?= $model->link("Add new address", "/janitor/admin/profile/new_address", array("class" => "button primary", "wrapper" => "li.add")) ?>
+			<?= $model->link("Add new address", "/janitor/admin/profile/address/new", array("class" => "button primary", "wrapper" => "li.add")) ?>
 		</ul>
 	</div>
 
 	<div class="newsletters i:newslettersProfile i:collapseHeader">
 		<h2>Newsletters</h2>
-
 <?		if($all_newsletters): ?>
 		<ul class="newsletters">
 <?			foreach($all_newsletters as $newsletter): ?>
-			<li class="<?= arrayKeyValue($user_newsletters, "newsletter", $newsletter["newsletter"]) !== false ? "subscribed" : "" ?>">
+			<li class="<?= arrayKeyValue($user_newsletters, "newsletter_id", $newsletter["id"]) !== false ? "subscribed" : "" ?>">
 				<ul class="actions">
-					<?= $JML->deleteButton("Unsubscribe", "/janitor/admin/profile/updateNewsletter/".urlencode($newsletter["newsletter"])."/0") ?>
+					<?= $JML->deleteButton("Unsubscribe", "/janitor/admin/profile/deleteNewsletter/".$newsletter["id"]) ?>
 					<li class="subscribe">
-					<?= $model->formStart("/janitor/admin/profile/updateNewsletter/".urlencode($newsletter["newsletter"])."/1") ?>
+					<?= $model->formStart("/janitor/admin/profile/addNewsletter") ?>
+						<?= $model->input("newsletter_id", array("type" => "hidden", "value" => $newsletter["id"]))?>
 						<?= $model->submit("Subscribe", array("class" => "primary")) ?>
 					<?= $model->formEnd() ?>
 					</li>
 				</ul>
-				<h3><?= $newsletter["newsletter"] ?></h3>
+				<h3><?= $newsletter["name"] ?></h3>
 			</li>
 <?			endforeach; ?>
 		</ul>

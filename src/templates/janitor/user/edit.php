@@ -26,7 +26,7 @@ $apitoken = $model->getToken($user_id);
 $addresses = $model->getAddresses(array("user_id" => $user_id));
 
 // get newsletters
-$all_newsletters = $model->getNewsletters();
+$all_newsletters = $this->newsletters();
 $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 
 ?>
@@ -182,17 +182,17 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 <?		if($all_newsletters): ?>
 		<ul class="newsletters">
 <?			foreach($all_newsletters as $newsletter): ?>
-			<li class="<?= arrayKeyValue($user_newsletters, "newsletter", $newsletter["newsletter"]) !== false ? "subscribed" : "" ?>">
+			<li class="<?= arrayKeyValue($user_newsletters, "newsletter_id", $newsletter["id"]) !== false ? "subscribed" : "" ?>">
 				<ul class="actions">
-					<?= $JML->deleteButton("Unsubscribe", "/janitor/admin/user/deleteNewsletter/".$user_id."/".urlencode($newsletter["newsletter"])) ?>
+					<?= $JML->deleteButton("Unsubscribe", "/janitor/admin/user/deleteNewsletter/".$user_id."/".$newsletter["id"]) ?>
 					<li class="subscribe">
 					<?= $model->formStart("/janitor/admin/user/addNewsletter/".$user_id) ?>
-						<?= $model->input("newsletter", array("type" => "hidden", "value" => $newsletter["newsletter"]))?>
+						<?= $model->input("newsletter_id", array("type" => "hidden", "value" => $newsletter["id"]))?>
 						<?= $model->submit("Subscribe", array("class" => "primary")) ?>
 					<?= $model->formEnd() ?>
 					</li>
 				</ul>
-				<h3><?= $newsletter["newsletter"] ?></h3>
+				<h3><?= $newsletter["name"] ?></h3>
 			</li>
 <?			endforeach; ?>
 		</ul>
@@ -200,9 +200,6 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		<p>You don't have any newsletter subscriptions for your account</p>
 <?		endif; ?>
 
-		<ul class="actions">
-			<?= $model->link("Add newsletter subscription", "/janitor/admin/user/newsletter/new".$user_id, array("class" => "button primary", "wrapper" => "li.newsletter")) ?>
-		</ul>
 	</div>
 
 </div>

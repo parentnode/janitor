@@ -80,7 +80,7 @@ $page->pageTitle("User management");
 if(is_array($action) && count($action)) {
 
 	// LIST/EDIT/NEW
-	if(preg_match("/^(list|edit|new|new_address|edit_address|add_newsletter)$/", $action[0])) {
+	if(preg_match("/^(list|edit|new)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
@@ -111,22 +111,6 @@ if(is_array($action) && count($action)) {
 
 			$page->page(array(
 				"type" => "janitor",
-				"templates" => "janitor/user/group/".$action[1].".php"
-			));
-			exit();
-		}
-	}
-
-	// NEWSLETTER
-	else if(preg_match("/^(newsletter)$/", $action[0]) && count($action) > 1) {
-
-		// NEW
-		if(preg_match("/^(new)$/", $action[1])) {
-
-			$page->page(array(
-				"type" => "janitor",
-				"body_class" => "usergroup", 
-				"page_title" => "User groups / Access control management",
 				"templates" => "janitor/user/group/".$action[1].".php"
 			));
 			exit();
