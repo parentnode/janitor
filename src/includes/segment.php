@@ -18,7 +18,7 @@
 	}
 
 	// update segment session value
-	if($segment) {
+	if(isset($segment) && $segment) {
 
 		// DOES PROJECT HAVE FRAMEWORK SEGMENTS
 		if(isset($_SERVER["FRAMEWORK_PATH"]) && file_exists($_SERVER["FRAMEWORK_PATH"]."/config/segments.core.php")) {
