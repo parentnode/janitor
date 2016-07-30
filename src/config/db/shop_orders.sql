@@ -1,13 +1,13 @@
 CREATE TABLE `SITE_DB`.`shop_orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+
   `order_no` varchar(10) NOT NULL,
-  `cart_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
 
-  `country` varchar(2) NOT NULL,
-  `currency` varchar(3) NOT NULL,
+  `country` varchar(2) DEFAULT NULL,
+  `currency` varchar(3) DEFAULT NULL,
 
-  `status` int(11) NOT NULL,
+  `status` int(11) DEFAULT 0,
 
   `delivery_name` varchar(255) DEFAULT NULL,
   `delivery_att` varchar(255) DEFAULT NULL,
@@ -27,12 +27,17 @@ CREATE TABLE `SITE_DB`.`shop_orders` (
   `billing_state` varchar(255) DEFAULT NULL,
   `billing_country` varchar(255) DEFAULT NULL,
 
+  `comment` text,
+
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_at` timestamp NULL DEFAULT NULL,
 
   PRIMARY KEY (`id`),
-  KEY `cart_id` (`cart_id`),
+  UNIQUE KEY (`order_no`),
   KEY `user_id` (`user_id`),
-  CONSTRAINT `orders_cart_ibfk_1` FOREIGN KEY (`cart_id`) REFERENCES `SITE_DB`.`shop_carts` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `orders_user_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `SITE_DB`.`users` (`id`) ON UPDATE CASCADE
+  KEY `country` (`country`),
+  KEY `currency` (`currency`),
+  CONSTRAINT `shop_orders_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `SITE_DB`.`users` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `shop_orders_ibfk_2` FOREIGN KEY (`country`) REFERENCES `SITE_DB`.`system_countries` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `shop_orders_ibfk_3` FOREIGN KEY (`currency`) REFERENCES `SITE_DB`.`system_currencies` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

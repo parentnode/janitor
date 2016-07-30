@@ -48,6 +48,8 @@ class UserCore extends Model {
 		$this->db_subscriptions = SITE_DB.".user_item_subscriptions";
 		$this->db_readstates = SITE_DB.".user_item_readstates";
 
+		$this->db_members = SITE_DB.".user_members";
+
 
 
 		// BASIC INFO
@@ -217,13 +219,21 @@ class UserCore extends Model {
 			"hint_message" => "Newsletter",
 			"error_message" => "Invalid newsletter"
 		));
-		// subscriptions
+		// membership
 		$this->addToModel("membership_id", array(
 			"type" => "string",
 			"label" => "Membership",
 			"required" => true,
 			"hint_message" => "Please select a membership",
 			"error_message" => "Please select a membership"
+		));
+		// subscription item
+		$this->addToModel("payment_method", array(
+			"type" => "string",
+			"label" => "Payment method",
+			"required" => true,
+			"hint_message" => "Please select a payment method",
+			"error_message" => "Please select a payment method"
 		));
 
 
@@ -1324,8 +1334,6 @@ class UserCore extends Model {
 
 	}
 
-
-
 	// /janitor/admin/profile/addNewsletter
 	// Newsletter info i $_POST
 	function addNewsletter($action) {
@@ -1379,7 +1387,7 @@ class UserCore extends Model {
 
 	// get readstate, optionally based on item_id or user_id
 	// defaults to current user (never for user_id = 1 - guest)
-	function getReadstate($_options=false) {
+	function getReadstates($_options=false) {
 
 		$item_id = false;
 		$user_id = session()->value("user_id");
@@ -1397,18 +1405,88 @@ class UserCore extends Model {
 		if($user_id > 1) {
 			$query = new Query();
 
-			// Get all comments for item_id
+			// Get readstate for item_id
 			if($item_id) {
 
 				$sql = "SELECT read_at FROM ".$this->db_readstates." WHERE item_id = $item_id AND user_id = $user_id";
 				if($query->sql($sql)) {
 					return $query->result(0, "read_at");
 				}
+
+			}
+			// get all readstates for user
+			else {
+
+				$sql = "SELECT read_at FROM ".$this->db_readstates." WHERE user_id = $user_id";
+				if($query->sql($sql)) {
+					return $query->results();
+				}
+				
 			}
 		}
 
 		return false;
 	}
+
+
+	// READ STATES - INDICATES THAT THE USER HAS READ THE ITEM
+
+	// add readstate for user+item
+	// enables adding a button for the user to indicate wheter an item has been read
+	// disabled for user_id = 1 (guest)
+
+	// /janitor/[admin/]#itemtype#/addReadstate/#item_id#
+	function addReadstate($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$user_id = session()->value("user_id");
+
+			if($user_id > 1) {
+
+				if($query->sql("SELECT ".$this->db_readstates." WHERE user_id = $user_id AND item_id = $item_id")) {
+					$sql = "UPDATE ".$this->db_readstates." SET read_at = CURRENT_TIMESTAMP WHERE user_id = $user_id AND item_id = $item_id";
+				}
+				else {
+					$sql = "INSERT INTO ".$this->db_readstates." VALUES(DEFAULT, $user_id, $item_id, DEFAULT)";
+				}
+
+				if($query->sql($sql)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	// delete Read state
+	// /janitor/[admin/]#itemtype#/deleteReadstate/#item_id#
+	// disabled for user_id = 1 (guest)
+ 	function deleteReadstate($action) {
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$user_id = session()->value("user_id");
+
+			if($user_id > 1) {
+
+				if($query->sql("DELETE FROM ".$this->db_readstates." WHERE item_id = $item_id AND user_id = $user_id")) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+
 
 
 
@@ -1438,9 +1516,8 @@ class UserCore extends Model {
 			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id AND item_id = '$item_id' LIMIT 1";
 			if($query->sql($sql)) {
 				$subscription = $query->result(0);
-				$item = $IC->getItem(array("id" => $subscription["item_id"], "extend" => true));
-
-				return $item;
+				$subscription["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
+				return $subscription;
 			}
 			else {
 				return false;
@@ -1451,10 +1528,9 @@ class UserCore extends Model {
 		else {
 			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id";
 			if($query->sql($sql)) {
-
 				$subscriptions = $query->results();
 				foreach($subscriptions as $i => $subscription) {
-					$subscriptions[$i] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => true));
+					$subscriptions[$i]["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
 				}
 				return $subscriptions;
 			}
@@ -1471,13 +1547,21 @@ class UserCore extends Model {
 
 	function deleteSubscription($action) {}
 
+	function renewSubscription($action) {}
 
 
 	// MEMBERSHIP
 
-	function addMembership($action) {}
+	function getMember() {
+		
+	}
 
-	function getMembership() {}
+	function addMember($action) {
+		
+		
+	}
+
+	function memberStatus() {}
 
 
 

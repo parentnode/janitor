@@ -1,6 +1,8 @@
 <?php
 $access_item["/"] = true;
-$access_item["/addComment"] = true;
+$access_item["/comments"] = true;
+$access_item["/addComment"] = "/comments";
+
 $access_item["/updateSubscriptionMethod"] = true;
 
 $access_item["/new"] = true;

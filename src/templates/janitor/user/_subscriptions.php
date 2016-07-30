@@ -21,7 +21,7 @@ if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 
 	<ul class="actions">
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
+		<?= $HTML->link("New subscription", "/janitor/admin/user/subscription/new/".$user_id, array("class" => "button primary", "wrapper" => "li.new")) ?>
 	</ul>
 
 

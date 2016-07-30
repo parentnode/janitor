@@ -15,7 +15,7 @@ $orders = false;
 if(defined("SITE_SHOP") && SITE_SHOP) {
 	$SC = new Shop();
 
-	$orders = $SC->getOrders(array("user_id" => $user_id));
+	$orders = $SC->getOrders();
 }
 
 ?>

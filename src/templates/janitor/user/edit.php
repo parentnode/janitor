@@ -38,10 +38,12 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
+<? if($user_id != 1): ?>
 		<?= $JML->deleteButton("Delete", "/janitor/admin/user/delete/".$user_id) ?>
+<? endif; ?>
 	</ul>
 
+<? if($user_id != 1): ?>
 	<div class="status i:defaultEditStatus item_id:<?= $user_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
@@ -49,19 +51,11 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 			<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/user/status", $item) ?>
 		</ul>
 	</div>
+<? endif; ?>
 
-	<ul class="tabs">
-		<?= $HTML->link("Profile", "/janitor/admin/user/edit/".$user_id, array("wrapper" => "li.profile.selected")) ?>
-<?		if(defined("SITE_ITEMS") && SITE_ITEMS): ?>
-		<?= $HTML->link("Content", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
-		<?= $HTML->link("Orders", "/janitor/admin/user/orders/".$user_id, array("wrapper" => "li.orders")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS): ?>
-		<?= $HTML->link("Subscriptions", "/janitor/admin/user/subscriptions/".$user_id, array("wrapper" => "li.subscriptions")) ?>
-<?		endif; ?>
-	</ul>
+
+	<?= $JML->userTabs($user_id, "profile") ?>
+
 
 	<div class="item i:defaultEdit">
 		<h2>Name, language and user group</h2>
@@ -71,7 +65,9 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 				<?= $model->input("firstname", array("value" => $item["firstname"])) ?>
 				<?= $model->input("lastname", array("value" => $item["lastname"])) ?>
 				<?= $model->input("language", array("type" => "select", "value" => $item["language"], "options" => $language_options)) ?>
+<? if($user_id != 1): ?>
 				<?= $model->input("user_group_id", array("type" => "select", "value" => $item["user_group_id"], "options" => $user_groups_options)) ?>
+<? endif; ?>
 			</fieldset>
 
 			<ul class="actions">
@@ -82,6 +78,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 	</div>
 
 
+<? if($user_id != 1): ?>
 	<div class="usernames i:usernames i:collapseHeader">
 		<h2>Email and Mobile number</h2>
 		<p>Your email and mobile number are your unique usernames and can be used for login.</p> 
@@ -105,8 +102,10 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 		<?= $model->formEnd() ?>
 
 	</div>
+<? endif; ?>
 
 
+<? if($user_id != 1): ?>
 	<div class="password i:password i:collapseHeader">
 		<h2>Password</h2>
 		<div class="password_state <?= $has_password ? "set" : "" ?> ">
@@ -127,7 +126,10 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 			<?= $model->formEnd() ?>
 		</div>
 	</div>
+<? endif; ?>
 
+
+<? if($user_id != 1): ?>
 	<div class="apitoken i:apitoken i:collapseHeader">
 		<h2>API Token</h2>
 		<p class="token"><?= stringOr($apitoken, "N/A") ?></p>
@@ -143,7 +145,10 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 			</ul>
 		<?= $model->formEnd() ?>
 	</div>
+<? endif; ?>
 
+
+<? if($user_id != 1): ?>
 	<div class="addresses i:collapseHeader">
 		<h2>Addresses</h2>
 <?		if($addresses): ?>
@@ -176,7 +181,10 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 			<?= $model->link("Add new address", "/janitor/admin/user/address/new/".$user_id, array("class" => "button primary", "wrapper" => "li.add")) ?>
 		</ul>
 	</div>
+<? endif; ?>
 
+
+<? if($user_id != 1): ?>
 	<div class="newsletters i:newsletters i:collapseHeader">
 		<h2>Newsletters</h2>
 <?		if($all_newsletters): ?>
@@ -199,7 +207,7 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 <?		else: ?>
 		<p>You don't have any newsletter subscriptions for your account</p>
 <?		endif; ?>
-
 	</div>
+<? endif; ?>
 
 </div>

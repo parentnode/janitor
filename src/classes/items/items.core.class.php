@@ -215,17 +215,16 @@ class ItemsCore {
 
 		if(isset($item["id"]) && isset($item["itemtype"])) {
 
-			$user = false;
 			$mediae = false;
 			$tags = false;
-//			$price = false;
 			$prices = false;
 			$ratings = false;
 			$comments = false;
+			$subscription_method = false;
 
+			$user = false;
 			$readstate = false;
 			$subscription = false;
-			$subscription_method = false;
 
 			// global setting for getting everything
 			$all = false;
@@ -234,7 +233,6 @@ class ItemsCore {
 				foreach($_options as $_option => $_value) {
 					switch($_option) {
 
-						case "user"                  : $user                    = $_value; break;
 						case "mediae"                : $mediae                  = $_value; break;
 						case "tags"                  : $tags                    = $_value; break;
 						case "prices"                : $prices                  = $_value; break;
@@ -242,6 +240,7 @@ class ItemsCore {
 						case "comments"              : $comments                = $_value; break;
 						case "subscription_method"   : $subscription_method     = $_value; break;
 
+						case "user"                  : $user                    = $_value; break;
 						case "readstate"             : $readstate               = $_value; break;
 						case "subscription"          : $subscription            = $_value; break;
 
@@ -284,13 +283,6 @@ class ItemsCore {
 				$item["tags"] = $this->getTags($tags);
 			}
 
-			// add user nickname
-			if($all || $user) {
-				$UC = $this->getUserClass();
-				$user = $UC->getUserinfo(array("user_id" => $item["user_id"]));
-				$item["user_nickname"] = $user ? $user["nickname"] : "N/A";
-			}
-
 
 			// add prices (only prices in current currency)
 			if($all || $prices) {
@@ -298,21 +290,29 @@ class ItemsCore {
 				$item["prices"] = $this->getPrices(array("item_id" => $item["id"], "currency" => $page->currency()));
 			}
 
+			// add subscription method (for item)
+			if($all || $subscription_method) {
+				$item["subscription_method"] = $this->getSubscriptionMethod(array("item_id" => $item["id"]));
+			}
+
+
+			// add user nickname
+			if($all || $user) {
+				$UC = $this->getUserClass();
+				$user = $UC->getUserinfo(array("user_id" => $item["user_id"]));
+				$item["user_nickname"] = $user ? $user["nickname"] : "N/A";
+			}
+
 			// add readstate (for current user)
 			if($all || $readstate) {
 				$UC = $this->getUserClass();
-				$item["readstate"] = $UC->getReadstate(array("item_id" => $item["id"]));
+				$item["readstate"] = $UC->getReadstates(array("item_id" => $item["id"]));
 			}
 
 			// add subscription (for current user)
 			if($all || $subscription) {
 				$UC = $this->getUserClass();
 				$item["subscription"] = $UC->getSubscriptions(array("item_id" => $item["id"]));
-			}
-
-			// add subscription method (for item)
-			if($all || $subscription_method) {
-				$item["subscription_method"] = $this->getSubscriptionMethod(array("item_id" => $item["id"]));
 			}
 
 
@@ -552,6 +552,8 @@ class ItemsCore {
 					case "exclude"       : $exclude       = $_value; break;
 
 					case "extend"        : $extend        = $_value; break;
+
+					case "count"         : $count         = $_value; break;
 					
 					// TODO: implement date ranges
 
@@ -609,7 +611,7 @@ class ItemsCore {
 			if(!isset($user_id)) {
 				$user_id = session()->value("user_id");
 			}
-			$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_USER_READSTATE." WHERE user_id = $user_id)";
+			$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".SITE_DB.".user_item_readstates WHERE user_id = $user_id)";
 		}
 
 
@@ -1269,7 +1271,7 @@ class ItemsCore {
 
 		// get specific price
 		if($price_id) {
-			if($query->sql("SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.id = '$price_id' AND vatrates.id = prices.vatrate_id ORDER BY prices.currency LIMIT 1")) {
+			if($query->sql("SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.id = '$price_id' AND vatrates.id = prices.vatrate_id")) {
 
 				$price = $query->result(0);
 
@@ -1286,7 +1288,9 @@ class ItemsCore {
 
 			// if currency specified return only prices in that currency 
 			if($currency) {
-				if($query->sql("SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id AND prices.currency = '$currency'")) {
+				$sql = "SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id AND prices.currency = '$currency' ORDER BY prices.currency ASC, prices.type DESC, prices.quantity ASC";
+				// print $sql;
+				if($query->sql($sql)) {
 
 					$prices = $query->results();
 
@@ -1302,8 +1306,8 @@ class ItemsCore {
 			}
 			// get all prices for item
 			else {
-
-				if($query->sql("SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id ORDER BY prices.currency ASC, prices.type DESC, prices.quantity ASC")) {
+				$sql = "SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id ORDER BY prices.currency ASC, prices.type DESC, prices.quantity ASC";
+				if($query->sql($sql)) {
 
 					$prices = $query->results();
 

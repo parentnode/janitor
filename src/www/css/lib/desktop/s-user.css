@@ -85,6 +85,20 @@
 #content .defaultList.userContentList ul.items > li h3 br {display: none;}
 
 
+/* USER SUBSCRIPTIONS */
+#content .defaultNew.userSubscriptions .item {padding-top: 10px;}
+#content .defaultNew.userSubscriptions .item p {padding-bottom: 3px;}
+
+#content .defaultList.userSubscriptions dd.price.default {text-decoration: line-through;}
+#content .defaultList.userSubscriptions dt.price,
+#content .defaultList.userSubscriptions dd.price {padding-top: 5px;}
+#content .defaultList.userSubscriptions dd.price+dt.price,
+#content .defaultList.userSubscriptions dd.price+dt.price+dd.price {padding-top: 0;}
+
+#content .defaultList.userSubscriptions dt.membership {display: none;}
+#content .defaultList.userSubscriptions dd.membership {color: #df0000; clear: left; padding-top: 5px;}
+
+
 /* COMMENTS */
 #content .defaultList.userContentList div.comments ul.items > li {}
 

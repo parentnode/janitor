@@ -840,6 +840,41 @@ class PageCore {
 
 
 	/**
+	* Get array of available payment methods
+	* Optional get details for specific payment method
+	*
+	* @return Array of payment methods or array of payment method details
+	*/
+	function paymentMethods($id = false) {
+
+		if(!cache()->value("payment_methods")) {
+
+			$query = new Query();
+			$query->sql("SELECT * FROM ".UT_PAYMENT_METHODS);
+			cache()->value("payment_methods", $query->results());
+		}
+
+		// looking for specific payment method details
+		if($id !== false) {
+			$payment_methods = cache()->value("payment_methods");
+			$key = arrayKeyValue($payment_methods, "id", $id);
+			if($key !== false) {
+				return $payment_methods[$key];
+			}
+			// invalid payment method requested
+			else {
+				return false;
+			}
+		}
+		// return complete array of payment methods
+		else {
+			return cache()->value("payment_methods");
+		}
+
+	}
+
+
+	/**
 	* Get array of available newsletters
 	* Optional get details for specific newsletter
 	*

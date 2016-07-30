@@ -88,7 +88,6 @@ if($page->validateCsrfToken() && isset($action)) {
 
 
 
-
 	// PRICES
 	//
 	// DELETE PRICE

@@ -91,6 +91,7 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 	// Extend with cart and order
 	if(defined("SITE_SHOP") && SITE_SHOP) {
 
+		include_once("classes/shop/shop.core.class.php");
 		include_once("classes/shop/shop.class.php");
 
 	}

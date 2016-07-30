@@ -216,7 +216,20 @@ class Upgrade {
 				$this->process($this->addKey(SITE_DB.".user_newsletters", "newsletter_id"), true);
 				$this->process($this->addConstraint(SITE_DB.".user_newsletters.newsletter_id", UT_NEWSLETTERS.".id", "ON UPDATE CASCADE"), true);
 
+				
+
 			}
+
+
+			// MEMBERS
+			$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
+
+
+			// SHOP
+			$this->process($this->createTableIfMissing(SITE_DB.".shop_carts"), true);
+			$this->process($this->createTableIfMissing(SITE_DB.".shop_cart_items"), true);
+			$this->process($this->createTableIfMissing(SITE_DB.".shop_orders"), true);
+			$this->process($this->createTableIfMissing(SITE_DB.".shop_order_items"), true);
 
 
 

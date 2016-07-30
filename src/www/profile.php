@@ -1,9 +1,20 @@
 <?php
 $access_item["/"] = true;
-$access_item["/renewToken"] = true;
-$access_item["/disableToken"] = "/renewToken";
-$access_item["/reset"] = false;
-$access_item["/resetPassword"] = "/reset";
+
+// $access_item["/reset"] = false;
+// $access_item["/resetPassword"] = "/reset";
+
+$access_item["/apitoken"] = true;
+$access_item["/renewToken"] = "/apitoken";
+$access_item["/disableToken"] = "/apitoken";
+
+$access_item["/readstate"] = true;
+$access_item["/addReadstate"] = "/readstate";
+$access_item["/deleteReadstate"] = "/readstate";
+
+$access_item["/subscription"] = true;
+$access_item["/addSubscription"] = "/subscription";
+$access_item["/deleteSubscription"] = "/subscription";
 
 if(isset($read_access) && $read_access) {
 	return;
@@ -17,7 +28,7 @@ $model = new User();
 
 
 $page->bodyClass("profile");
-$page->pageTitle("User profile");
+$page->pageTitle("Profile");
 
 
 if(is_array($action) && count($action)) {

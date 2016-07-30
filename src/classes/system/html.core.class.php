@@ -878,7 +878,8 @@ class HTMLCore {
 
 
 
-	// JANITOR BACKEND
+
+	// HTML snippets
 
 
 

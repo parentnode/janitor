@@ -19,22 +19,11 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 
 	<ul class="actions">
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
 	</ul>
 
 
-	<ul class="tabs">
-		<?= $HTML->link("Profile", "/janitor/admin/user/edit/".$user_id, array("wrapper" => "li.profile")) ?>
-<?		if(defined("SITE_ITEMS") && SITE_ITEMS): ?>
-		<?= $HTML->link("Content", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content.selected")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
-		<?= $HTML->link("Orders", "/janitor/admin/user/orders/".$user_id, array("wrapper" => "li.orders")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS): ?>
-		<?= $HTML->link("Subscriptions", "/janitor/admin/user/subscriptions/".$user_id, array("wrapper" => "li.subscriptions")) ?>
-<?		endif; ?>
-	</ul>
+	<?= $JML->userTabs($user_id, "content") ?>
+
 
 	<div class="all_items content i:defaultList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"

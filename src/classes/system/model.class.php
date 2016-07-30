@@ -37,9 +37,15 @@ class Model extends HTML {
 
 		$this->addToModel("user_id", array(
 			"type" => "user_id",
-			"label" => "Assign to user",
-			"hint_message" => "Select user to assign item to", 
+			"label" => "User",
+			"hint_message" => "Select user", 
 			"error_message" => "User must exist"
+		));
+		$this->addToModel("item_id", array(
+			"type" => "item_id",
+			"label" => "Item",
+			"hint_message" => "Please select an item",
+			"error_message" => "Please select an item"
 		));
 
 		$this->addToModel("published_at", array(
@@ -517,6 +523,11 @@ class Model extends HTML {
 				return true;
 			}
 		}
+		else if($this->getProperty($name, "type") == "item_id") {
+			if($this->isItem($name)) {
+				return true;
+			}
+		}
 
 		// either type was not found or validation failed
 		$error_message = $this->getProperty($name, "error_message");
@@ -565,6 +576,26 @@ class Model extends HTML {
 
 		$UC = new User();
 		if(!$UC->getUserInfo(array("user_id" => $value))) {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+
+		$this->setProperty($name, "error", false);
+		return true;
+	}
+
+	/**
+	* Check if item_id is valid Item
+	*
+	* @param string $name Element identifier
+	* @return bool
+	*/
+	function isItem($name) {
+
+		$value = $this->getProperty($name, "value");
+
+		$IC = new Items();
+		if(!$IC->getItem(array("id" => $value))) {
 			$this->setProperty($name, "error", true);
 			return false;
 		}

@@ -1484,7 +1484,7 @@ class ItemtypeCore extends Model {
 
 
 
-	// delete price
+	// update subscription method
 	// /janitor/[admin/]#itemtype#/updateSubscriptionMethod/#item_id#
 	// subscription method is sent in $_POST
 	// TODO: implement itemtype checks
@@ -1550,71 +1550,6 @@ class ItemtypeCore extends Model {
 
 	}
 
-
-
-	// READ STATES - INDICATES THAT THE USER HAS READ THE ITEM
-
-	// update readstate for user+item
-	// enables adding a button for the user to indicate wheter an item has been read
-	// disabled for user_id = 1 (guest)
-
-	// /janitor/[admin/]#itemtype#/updateReadstate/#item_id#
-	function updateReadstate($action) {
-
-		if(count($action) == 2) {
-
-			$query = new Query();
-			$item_id = $action[1];
-			$user_id = session()->value("user_id");
-
-			if($user_id > 1) {
-
-				$query->checkDbExistance(UT_ITEMS_READSTATE);
-
-				if($query->sql("SELECT ".UT_ITEMS_READSTATE." WHERE user_id = $user_id AND item_id = $item_id")) {
-					$sql = "UPDATE ".UT_ITEMS_READSTATE." SET read_at = CURRENT_TIMESTAMP WHERE user_id = $user_id AND item_id = $item_id";
-				}
-				else {
-					$sql = "INSERT INTO ".UT_ITEMS_READSTATE." VALUES(DEFAULT, $item_id, $user_id, DEFAULT)";
-				}
-
-				if($query->sql($sql)) {
-					message()->addMessage("Read state updated");
-					return true;
-				}
-			}
-		}
-
-		message()->addMessage("Read state could not be updated", array("type" => "error"));
-		return false;
-	}
-
-
-	// delete Read state
-	// /janitor/[admin/]#itemtype#/deleteReadstate/#item_id#
-	// disabled for user_id = 1 (guest)
-	// TODO: implement itemtype checks
- 	function deleteReadstate($action) {
-
-		if(count($action) == 2) {
-
-			$query = new Query();
-			$item_id = $action[1];
-			$user_id = session()->value("user_id");
-
-			if($user_id > 1) {
-
-				if($query->sql("DELETE FROM ".UT_ITEMS_READSTATE." WHERE item_id = $item_id AND user_id = $user_id")) {
-
-					message()->addMessage("Read state deleted");
-					return true;
-				}
-			}
-		}
-
-		message()->addMessage("Read state could not be deleted", array("type" => "error"));
-		return false;
-	}
 
 
 

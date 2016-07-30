@@ -1064,6 +1064,46 @@ class JanitorHTML {
 	}
 
 
+
+	// HTML for tabs for user templates
+	function userTabs($user_id, $selected) {
+		global $HTML;
+
+		$_ = '';
+		
+		$_ .= '<ul class="tabs">';
+			$_ .= $HTML->link("Profile", "/janitor/admin/user/edit/".$user_id, array("wrapper" => "li.profile".($selected == "profile" ? ".selected" : "")));
+
+			if(defined("SITE_ITEMS") && SITE_ITEMS):
+				$_ .= $HTML->link("Content", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content".($selected == "content" ? ".selected" : "")));
+
+				// readstates not available for guest user
+				if($user_id != 1):
+					$_ .= $HTML->link("Readstates", "/janitor/admin/user/readstates/".$user_id, array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
+				endif;
+
+			endif;
+	
+			// orders not available for guest user
+			if(defined("SITE_SHOP") && SITE_SHOP && $user_id != 1):
+				$_ .= $HTML->link("Orders", "/janitor/admin/user/orders/".$user_id, array("wrapper" => "li.orders".($selected == "orders" ? ".selected" : "")));
+			endif;
+
+			// subscriptions not available for guest user
+			if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS && $user_id != 1):
+				$_ .= $HTML->link("Subscriptions", "/janitor/admin/user/subscription/list/".$user_id, array("wrapper" => "li.subscriptions".($selected == "subscriptions" ? ".selected" : "")));
+			endif;
+
+			// membership not available for guest user
+			if(defined("SITE_MEMBERS") && SITE_MEMBERS && $user_id != 1):
+				$_ .= $HTML->link("Membership", "/janitor/admin/user/membership/".$user_id, array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
+			endif;
+
+		$_ .= '</ul>';
+		
+		return $_;
+	}
+
 }
 
 // create standalone instance to make Janitor available 

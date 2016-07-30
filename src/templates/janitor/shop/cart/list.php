@@ -3,14 +3,16 @@ global $action;
 global $model;
 
 $IC = new Items();
-$carts = $model->getCarts(array("status" => 1));
+$carts = $model->getCarts();
 
 ?>
 <div class="scene i:scene defaultList cartList">
 	<h1>Carts</h1>
 
 	<ul class="actions">
+		<?= $HTML->link("New cart", "/janitor/admin/shop/cart/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("Orders", "/janitor/admin/shop/order/list", array("class" => "button", "wrapper" => "li.order")) ?>
+		<?= $HTML->link("Payments", "/janitor/admin/shop/payment/list", array("class" => "button", "wrapper" => "li.payment")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList filters">

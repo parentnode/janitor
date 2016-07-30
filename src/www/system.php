@@ -18,8 +18,8 @@ $page->pageTitle("System");
 
 if(is_array($action) && count($action)) {
 
-	// LANGUAGES/COUNTRIES/VATRATES/CURRENCIES/PAYMENT METHODS/SUBSCRIPTION METHODS
-	if(preg_match("/^(languages|countries|vatrates|currencies|payment_methods|subscription_methods)$/", $action[0])) {
+	// LANGUAGES/COUNTRIES/VATRATES/CURRENCIES/PAYMENT METHODS/SUBSCRIPTION METHODS/NEWSLETTERS
+	if(preg_match("/^(languages|countries|vatrates|currencies|payment_methods|subscription_methods|newsletters)$/", $action[0])) {
 
 		if(preg_match("/^(new|list)$/", $action[1])) {
 

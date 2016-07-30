@@ -2,6 +2,7 @@
 /**
 * @package janitor.users
 * This file contains simple user extensions
+* Meant to allow local user additions/overrides
 */
 
 /**

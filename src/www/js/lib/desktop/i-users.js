@@ -154,7 +154,7 @@ Util.Objects["apitoken"] = new function() {
 						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token disabled"});
 					}
 					else {
-						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be disables"});
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be disabled"});
 					}
 
 				}
@@ -180,11 +180,9 @@ Util.Objects["editAddress"] = new function() {
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
+				page.notify(response);
 				if(response.cms_status == "success") {
 					location.href = this.actions["cancel"].url;
-				}
-				else {
-					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
@@ -277,31 +275,32 @@ Util.Objects["newsletters"] = new function() {
 	}
 }
 
-// Update address
-Util.Objects["addNewsletter"] = new function() {
-	this.init = function(form) {
-
-		u.f.init(form);
-
-		form.actions["cancel"].clicked = function(event) {
-			location.href = this.url;
-		}
-
-		form.submitted = function(iN) {
-
-			this.response = function(response) {
-				if(response.cms_status == "success") {
-					location.href = this.actions["cancel"].url;
-				}
-				else {
-					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
-				}
-			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-
-		}
-	}
-}
+// // Update address
+// Util.Objects["addNewsletter"] = new function() {
+// 	this.init = function(form) {
+//
+// 		u.f.init(form);
+//
+// 		form.actions["cancel"].clicked = function(event) {
+// 			location.href = this.url;
+// 		}
+//
+// 		form.submitted = function(iN) {
+//
+// 			this.response = function(response) {
+// 				page.notify(response);
+// 				if(response.cms_status == "success") {
+// 					location.href = this.actions["cancel"].url;
+// 				}
+// 				else {
+// 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
+// 				}
+// 			}
+// 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+//
+// 		}
+// 	}
+// }
 
 Util.Objects["accessEdit"] = new function() {
 	this.init = function(div) {
@@ -376,5 +375,41 @@ Util.Objects["flushUserSession"] = new function() {
 			}
 		}
 
+	}
+}
+
+
+// Update subscription
+Util.Objects["newSubscription"] = new function() {
+	this.init = function(form) {
+
+		u.f.init(form);
+
+		u.bug("init")
+
+		form.fields["item_id"].changed = function() {
+
+			location.href = location.href.replace(/new\/([\d]+).+/, "new/$1") + "/" + this.val();
+			
+		}
+
+		if(form.actions["cancel"]) {
+			form.actions["cancel"].clicked = function(event) {
+				location.href = this.url;
+			}
+		}
+
+		form.submitted = function(iN) {
+
+			this.response = function(response) {
+				page.notify(response);
+
+				if(response.cms_status == "success") {
+					location.href = this.actions["cancel"].url;
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+
+		}
 	}
 }

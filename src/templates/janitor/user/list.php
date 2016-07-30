@@ -27,13 +27,14 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 	<ul class="actions">
 		<?= $HTML->link("New user", "/janitor/admin/user/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
+		<?= $HTML->link("Members", "/janitor/admin/user/member/list", array("class" => "button", "wrapper" => "li.member")) ?>
 		<?= $HTML->link("Online users", "/janitor/admin/user/online", array("class" => "button", "wrapper" => "li.online")) ?>
 	</ul>
 
 <?	if($user_groups): ?>
 	<ul class="tabs">
 <?		foreach($user_groups as $user_group): ?>
-		<?= $HTML->link($user_group["user_group"], "/janitor/admin/user/list/".$user_group["id"], array("wrapper" => "li.".($user_group["id"] == $user_group_id ? "selected" : ""))) ?>
+		<?= $HTML->link($user_group["user_group"], "/janitor/admin/user/list/".$user_group["id"], array("wrapper" => "li".($user_group["id"] == $user_group_id ? ".selected" : ""))) ?>
 <?		endforeach; ?>
 	</ul>
 <?	else: ?>
@@ -50,8 +51,11 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/janitor/admin/user/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+
+<? if($item["id"] != 1): ?>
 					<?= $JML->deleteButton("Delete", "/janitor/admin/user/delete/".$item["id"]) ?>
 					<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/user/status", $item) ?>
+<? endif; ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

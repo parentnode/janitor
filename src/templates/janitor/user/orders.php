@@ -12,9 +12,12 @@ $user = $model->getUsers(array("user_id" => $user_id));
 $orders = false;
 
 if(defined("SITE_SHOP") && SITE_SHOP) {
-	$SC = new Shop();
+	include_once("classes/shop/supershop.class.php");
+	$SC = new SuperShop();
 
 	$orders = $SC->getOrders(array("user_id" => $user_id));
+
+	$carts = $SC->getCarts(array("user_id" => $user_id));
 }
 
 ?>
@@ -24,22 +27,11 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 	<ul class="actions">
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
 	</ul>
 
 
-	<ul class="tabs">
-		<?= $HTML->link("Profile", "/janitor/admin/user/edit/".$user_id, array("wrapper" => "li.profile")) ?>
-<?		if(defined("SITE_ITEMS") && SITE_ITEMS): ?>
-		<?= $HTML->link("Content", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
-		<?= $HTML->link("Orders", "/janitor/admin/user/orders/".$user_id, array("wrapper" => "li.orders.selected")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS): ?>
-		<?= $HTML->link("Subscriptions", "/janitor/admin/user/subscriptions/".$user_id, array("wrapper" => "li.subscriptions")) ?>
-<?		endif; ?>
-	</ul>
+	<?= $JML->userTabs($user_id, "orders") ?>
+
 
 
 	<div class="all_items orders i:defaultList filters">
@@ -51,7 +43,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items" ) ?>)</h3>
 
 				<ul class="actions">
-					<?= $HTML->link("View", "/janitor/admin/shop/order/view/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
+					<?= $HTML->link("Edit", "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

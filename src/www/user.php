@@ -7,56 +7,63 @@ $access_item["/save"] = "/new";
 $access_item["/edit"] = true;
 $access_item["/update"] = "/edit";
 
+$access_item["/delete"] = true;
+$access_item["/status"] = true;
+
+
 $access_item["/updateUsernames"] = true;
 $access_item["/updateEmail"] = "/updateUsernames";
 $access_item["/updateMobile"] = "/updateUsernames";
 $access_item["/setPassword"] = true;
-$access_item["/renewToken"] = true;
-$access_item["/disableToken"] = "/renewToken";
 
+
+$access_item["/apitoken"] = true;
+$access_item["/renewToken"] = "/apitoken";
+$access_item["/disableToken"] = "/apitoken";
+
+// USER ADDRESS INTERFACE
 $access_item["/address"] = true;
-$access_item["/address/new"] = "/address";
-$access_item["/address/edit"] = "/address";
 $access_item["/addAddress"] = "/address";
 $access_item["/updateAddress"] = "/address";
 $access_item["/deleteAddress"] = "/address";
 
-$access_item["/newsletters"] = true;
-$access_item["/newsletter/new"] = "/newsletters";
-$access_item["/addNewsletter"] = "/newsletters";
-$access_item["/deleteNewsletter"] = "/newsletters";
+// USER NEWSLETTER INTERFACE
+$access_item["/newsletter"] = true;
+$access_item["/addNewsletter"] = "/newsletter";
+$access_item["/deleteNewsletter"] = "/newsletter";
+
+// USER SUBSCRIPTION INTERFACE
+$access_item["/subscription"] = true;
+$access_item["/addSubscription"] = "/subscription";
+$access_item["/updateSubscription"] = "/subscription";
+$access_item["/deleteSubscription"] = "/subscription";
 
 
-$access_item["/delete"] = true;
-$access_item["/status"] = true;
+// USER CONTENT AND READSTATES INTERFACE
+$access_item["/content"] = true;
+$access_item["/orders"] = "/content";
+$access_item["/readstates"] = "/content";
+$access_item["/membership"] = "/content";
 
+
+// MEMBERS INTERFACE
+$access_item["/members"] = true;
+$access_item["/addMember"] = "/members";
+$access_item["/deleteMember"] = "/members";
+
+
+// ACCESS INTERFACE
 $access_item["/access"] = true;
 $access_item["/updateAccess"] = "/access";
 
+// USERGROUP INTERFACE
 $access_item["/group"] = true;
 $access_item["/deleteUserGroup"] = "/group";
 $access_item["/saveUserGroup"] = "/group";
 $access_item["/updateUserGroup"] = "/group";
 
-$access_item["/subscriber"] = true;
 
-$access_item["/member"] = true;
-
-// $access_item["/deleteSubscription"] = "/subscriber";
-// $access_item["/disableSubscription"] = "/subscriber";
-// $access_item["/subscriber/enable"] = "/subscriber";
-//
-// $access_item["/subscriber/edit"] = true;
-// $access_item["/subscriber/update"] = true;
-
-// $access_item["/saveUserGroup"] = "/group";
-// $access_item["/updateUserGroup"] = "/group";
-
-
-
-$access_item["/content"] = true;
-$access_item["/orders"] = "/content";
-$access_item["/subscriptions"] = "/content";
+// ONLINE INTERFACE
 $access_item["/online"] = true;
 $access_item["/flushUserSession"] = true;
 
@@ -117,54 +124,45 @@ if(is_array($action) && count($action)) {
 		}
 	}
 
-	// SUBSCRIBERS
-	else if(preg_match("/^(subscriber)$/", $action[0]) && count($action) > 1) {
+	// SUBSCRIPTIONS
+	else if(preg_match("/^(subscription)$/", $action[0]) && count($action) > 1) {
 
-		// SUBSCRIBERS LIST/EDIT/NEW
+		// SUBSCRIPTIONS LIST/EDIT/NEW
 		if(preg_match("/^(list|edit|new)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",
-				"body_class" => "subscriber", 
-				"page_title" => "Subscribers",
-				"templates" => "janitor/user/subscriber/".$action[1].".php"
+				"page_title" => "Subscriptions",
+				"templates" => "janitor/user/subscription/".$action[1].".php"
 			));
 			exit();
 		}
 	}
 
+	// CONTENT/ORDERS/READSTATES/MEMBERSHIP OVERVIEW
+	else if(preg_match("/^(content|orders|readstates|membership)$/", $action[0]) && count($action) > 1) {
+		$page->page(array(
+			"type" => "janitor",
+			"templates" => "janitor/user/".$action[0].".php"
+		));
+		exit();
+	}
+
 	// MEMBER
-	else if(preg_match("/^(member)$/", $action[0]) && count($action) > 1) {
+	else if(preg_match("/^(members)$/", $action[0]) && count($action) > 1) {
 
 		// MEMBER LIST/EDIT/NEW
 		if(preg_match("/^(list|edit|new)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",
-				"body_class" => "member", 
+				"body_class" => "members", 
 				"page_title" => "Members",
-				"templates" => "janitor/user/member/".$action[1].".php"
+				"templates" => "janitor/user/members/".$action[1].".php"
 			));
 			exit();
 		}
 	}
-
-	// ORDER
-	else if(preg_match("/^(order)$/", $action[0]) && count($action) > 1) {
-
-		// ORDER LIST
-		if(preg_match("/^(list)$/", $action[1])) {
-
-			$page->page(array(
-				"type" => "janitor",
-				"body_class" => "order", 
-				"page_title" => "Orders",
-				"templates" => "janitor/user/order/".$action[1].".php"
-			));
-			exit();
-		}
-	}
-
 
 	// ACCESS
 	else if(preg_match("/^(access)$/", $action[0]) && count($action) > 1) {
@@ -181,15 +179,6 @@ if(is_array($action) && count($action)) {
 			exit();
 
 		}
-	}
-
-	// CONTENT, ORDERS OR SUBSCRIPTIONS OVERVIEW
-	else if(preg_match("/^(content|orders|subscriptions)$/", $action[0]) && count($action) > 1) {
-		$page->page(array(
-			"type" => "janitor",
-			"templates" => "janitor/user/".$action[0].".php"
-		));
-		exit();
 	}
 
 	// ONLINE OVERVIEW

@@ -1,5 +1,12 @@
 <?php
 $access_item["/"] = true;
+// SUPER SHOP INTERFACE
+
+// $access_item["/addPayment"] = true;
+// $access_item["/addCart"] = true;
+// $access_item["/addOrder"] = true;
+// $access_item["/addToOrder"] =
+
 if(isset($read_access) && $read_access) {
 	return;
 }
@@ -8,71 +15,97 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
-$model = new Shop();
-$output = new Output();
+
+include_once("classes/shop/supershop.class.php");
+$model = new SuperShop();
 
 
-$page->bodyClass("cart");
-$page->pageTitle("Carts");
+$page->bodyClass("shop");
+$page->pageTitle("Shop management");
 
 
 if(is_array($action) && count($action)) {
 
+	// ORDER
+	if(count($action) > 1 && preg_match("/^(order)$/", $action[0])) {
 
-	if(preg_match("/[a-zA-Z]+/", $action[0]) && $page->validateCsrfToken()) {
+		// LIST/EDIT/NEW
+		if(preg_match("/^(list|edit|new)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "orders", 
+				"page_title" => "Orders",
+				"templates" => "janitor/shop/order/".$action[1].".php"
+			));
+			exit();
+		}
+		// ITEM
+		else if(count($action) > 2 && preg_match("/^(item)$/", $action[1])) {
+
+			// LIST/EDIT
+			if(preg_match("/^(edit|new)$/", $action[2])) {
+
+				$page->page(array(
+					"type" => "janitor",
+					"body_class" => "orders", 
+					"page_title" => "Orders",
+					"templates" => "janitor/shop/order/item/".$action[2].".php"
+				));
+				exit();
+			}
+		}
+
+	}
+	// CART
+	else if(count($action) > 1 && preg_match("/^(cart)$/", $action[0])) {
+
+		// LIST/EDIT/NEW
+		if(preg_match("/^(list|edit|new)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "carts", 
+				"page_title" => "Carts",
+				"templates" => "janitor/shop/cart/".$action[1].".php"
+			));
+			exit();
+		}
+
+	}
+	// PAYMENTS
+	else if(preg_match("/^(payment)$/", $action[0])) {
+
+		// LIST/NEW
+		if(preg_match("/^(list|new)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "payments", 
+				"page_title" => "Payments",
+				"templates" => "janitor/shop/payment/".$action[1].".php"
+			));
+			exit();
+		}
+
+	}
+
+	// Class interface
+	else if($page->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {
 
 		// check if custom function exists on User class
 		if($model && method_exists($model, $action[0])) {
 
+			$output = new Output();
 			$output->screen($model->$action[0]($action));
 			exit();
 		}
 	}
 
-	// LIST CARTS
-	// Requires exactly two parameters /enable/#item_id#
-	if(count($action) == 2 && $action[0] == "cart" && $action[1] == "list") {
-
-		$page->header(array("type" => "janitor"));
-		$page->template("janitor/cart/list.php");
-		$page->footer(array("type" => "janitor"));
-		exit();
-
-	}
-	// VIEW CART
-	else if(count($action) == 3 && $action[0] == "cart" && $action[1] == "view") {
-
-		$page->header(array("type" => "janitor"));
-		$page->template("janitor/cart/view.php");
-		$page->footer(array("type" => "janitor"));
-		exit();
-
-	}
-	// LIST ORDERS
-	// Requires exactly two parameters /enable/#item_id#
-	if(count($action) == 2 && $action[0] == "order" && $action[1] == "list") {
-
-		$page->header(array("type" => "janitor", "body_class" => "order", "page_title" => "Orders"));
-		$page->template("janitor/order/list.php");
-		$page->footer(array("type" => "janitor"));
-		exit();
-
-	}
-	// VIEW ORDER
-	else if(count($action) == 3 && $action[0] == "order" && $action[1] == "view") {
-
-		$page->header(array("type" => "janitor", "body_class" => "order", "page_title" => "Orders"));
-		$page->template("janitor/order/view.php");
-		$page->footer(array("type" => "janitor"));
-		exit();
-
-	}
-
-
 }
 
-$page->header();
-$page->template("404.php");
-$page->footer();
+$page->page(array(
+	"templates" => "pages/404.php"
+));
 
 ?>
