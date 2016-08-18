@@ -1,7 +1,7 @@
 
 Util.Objects["defaultList"] = new function() {
 	this.init = function(div) {
-//		u.bug("init defaultList:" + u.nodeId(div))
+		u.bug("init defaultList:" + u.nodeId(div))
 
 		var i, node;
 
@@ -34,6 +34,7 @@ Util.Objects["defaultList"] = new function() {
 
 		// scroll handler (loads additional content on demand)
 		div.scrolled = function() {
+//			u.bug("defaultList scrolled")
 
 			var browser_h = u.browserH();
 			var scroll_y = u.scrollY();
@@ -55,19 +56,20 @@ Util.Objects["defaultList"] = new function() {
 					initialized++;
 				}
 			}
+
 			// cancel scroll handler when all nodes are built
-			if(initialized == this.nodes.length) {
-				this.scroll_event_id = u.e.removeWindowEvent(this, "scroll", this.scroll_event_id);
+			if(initialized == this.nodes.length && this.scroll_event_id) {
+				u.e.removeWindowEvent(this, "scroll", this.scroll_event_id);
+				this.scroll_event_id = false;
 			}
 
 		}
 		// set window scroll handler
 		div.scroll_event_id = u.e.addWindowEvent(div, "scroll", div.scrolled);
 
-
 		// build node, when user scrolls it into view
 		div.buildNode = function(node) {
-//			u.bug("build node")
+//			u.bug("build node:" + u.nodeId(node));
 
 
 			// action injection for predefined action types (to minimize page load and initialization time)
@@ -134,63 +136,21 @@ Util.Objects["defaultList"] = new function() {
 				}
 				else if(u.hc(action, "delete")) {
 
-					// inject standard item delete form if node is empty
-					if(!action.childNodes.length) {
+					action.node = node;
 
-						action.delete_item_url = action.getAttribute("data-item-delete");
-						if(action.delete_item_url) {
-							form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
-							u.f.addField(form, {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
-							form.node = node;
-							bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
-						}
-					}
-					// look for valid forms
-					else {
-						form = u.qs("form", action);
-						form.node = node;
-					}
+					u.o.oneButtonForm.init(action);
+					action.confirmed = function(response) {
 
-					// init if form is available
-					if(form) {
-						u.f.init(form);
-
-						form.restore = function(event) {
-							this.actions["delete"].value = "Delete";
-							u.rc(this.actions["delete"], "confirm");
-						}
-	
-						form.submitted = function() {
-
-							// first click
-							if(!u.hc(this.actions["delete"], "confirm")) {
-								u.ac(this.actions["delete"], "confirm");
-								this.actions["delete"].value = "Confirm";
-								this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+						if(response.cms_status == "success") {
+							// check for constraint error preventing row from actually being deleted
+							if(response.cms_object && response.cms_object.constraint_error) {
+								u.ac(this.form.confirm_submit_button, "disabled");
 							}
-							// confirm click
 							else {
-								u.t.resetTimer(this.t_confirm);
-
-
-								this.response = function(response) {
-									page.notify(response);
-
-									if(response.cms_status == "success") {
-										// check for constraint error preventing row from actually being deleted
-										if(response.cms_object && response.cms_object.constraint_error) {
-											this.value = "Delete";
-											u.ac(this, "disabled");
-										}
-										else {
-											this.node.parentNode.removeChild(this.node);
-											this.node.div.scrolled();
-											u.sortable(this.node.div.list, {"targets":"items", "draggables":"draggable"});
-
-										}
-									}
-								}
-								u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+								this.node.parentNode.removeChild(this.node);
+								this.node.div.scrolled();
+								// will only apply if items has draggable classes
+								u.sortable(this.node.div.list, {"targets":"items", "draggables":"draggable"});
 							}
 						}
 					}

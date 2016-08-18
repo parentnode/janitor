@@ -45,7 +45,11 @@ session()->reset("return_to_wishlist");
 					<h3><?= $wishlist["name"] ?> (<?= count($wishlist_wishes) ?> wishes)</h3>
 					<ul class="actions">
 						<?= $model->link("View", "/janitor/admin/wishlist/edit/".$wishlist["id"], array("class" => "button primary", "wrapper" => "li.edit")); ?>
-						<?= $JML->deleteButton("Delete", "/janitor/admin/wishlist/delete/".$wishlist["id"], array("js" => true)); ?>
+						<?= $JML->oneButtonForm("Delete", "/janitor/admin/wishlist/delete/".$wishlist["id"], array(
+							"js" => true,
+							"wrapper" => "li.delete",
+							"static" => true
+						)) ?>
 						<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/wishlist/status", $wishlist, array("js" => true)); ?>
 					</ul>
 				</li>

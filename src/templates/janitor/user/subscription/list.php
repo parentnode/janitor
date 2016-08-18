@@ -82,7 +82,11 @@ $subscriptions = $model->getSubscriptions(array("user_id" => $user_id));
 					<? endif; ?>
 
 					<? if(!$subscription["membership"]): ?>
-					<?= $JML->deleteButton("Delete", "/janitor/admin/user/deleteSubscription/".$user_id."/".$subscription["id"]) ?>
+					<?= $JML->oneButtonForm("Delete", "/janitor/admin/user/deleteSubscription/".$user_id."/".$subscription["id"], array(
+						"js" => true,
+						"wrapper" => "li.delete",
+						"static" => true
+					)) ?>
 					<? endif; ?>
 				</ul>
 

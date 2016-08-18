@@ -101,7 +101,6 @@ class HTMLCore {
 	* @return string Input element
 	*/
 	function input($name = false, $_options = false) {
-//		print "create input: ".$name."<br>\n";
 
 		// form security
 		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
@@ -718,7 +717,6 @@ class HTMLCore {
 	* TODO: Documentation needed
 	*/
 	function formStart($action, $_options = false) {
-
 		global $page;
 
 		// relative paths are allowed for ease of use

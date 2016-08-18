@@ -11,29 +11,43 @@ $carts = $model->getCarts();
 
 	<ul class="actions">
 		<?= $HTML->link("New cart", "/janitor/admin/shop/cart/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
-		<?= $HTML->link("Orders", "/janitor/admin/shop/order/list", array("class" => "button", "wrapper" => "li.order")) ?>
-		<?= $HTML->link("Payments", "/janitor/admin/shop/payment/list", array("class" => "button", "wrapper" => "li.payment")) ?>
+		<?= $HTML->link("Orders", "/janitor/admin/shop/order/list", array("class" => "button", "wrapper" => "li.orders")) ?>
+		<?= $HTML->link("Payments", "/janitor/admin/shop/payment/list", array("class" => "button", "wrapper" => "li.payments")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList filters">
-<?		if($carts): ?>
-		<ul class="items">
-<?			foreach($carts as $cart): ?>
-			<li class="item">
-				<h3><?= $cart["modified_at"] ?> (<?= pluralize(count($cart["items"]), "item", "items" ) ?>)</h3>
+		<? if($carts): ?>
+		<ul class="items carts">
+			<? foreach($carts as $cart): ?>
+			<li class="item cart">
+				<h3><?= $cart["cart_reference"] ?> (<?= pluralize($cart["total_items"], "item", "items" ) ?>)</h3>
 
-<?				if($cart["items"]): ?>
-				<ul class="products">
-<?					foreach($cart["items"] as $product): 
-						$product = $IC->getCompleteItem(array("id" => $product["item_id"])); ?>
-					<li class="product"><?= $product["name"] ?>, <?= $product["ean"] ?></li>
-<?					endforeach; ?>
-				</ul>
-<?				endif; ?>
+				<dl class="details">
+					<dt class="created_at">Created at</dt>
+					<dd class="created_at"><?= $cart["created_at"] ?></dd>
+
+					<dt class="price">Total price</dt>
+					<dd class="price"><?= formatPrice($model->getTotalCartPrice($cart["id"]), array("vat" => true)) ?></dd>
+
+				<? if(isset($cart["user"])): ?>
+					<dt class="nickname">Nickname</dt>
+					<dd class="nickname"><?= $cart["user"]["nickname"] ?></dd>
+
+					<? if($cart["user"]["email"]): ?>
+					<dt class="email">Email</dt>
+					<dd class="email"><?= $cart["user"]["email"] ?></dd>
+					<? endif; ?>
+
+					<? if($cart["user"]["mobile"]): ?>
+					<dt class="mobile">Mobile</dt>
+					<dd class="mobile"><?= $cart["user"]["mobile"] ?></dd>
+					<? endif; ?>
+
+				<? endif; ?>
+				</dl>
 
 				<ul class="actions">
-					<?= $HTML->link("View", "/janitor/admin/shop/cart/view/".$cart["id"], array("class" => "button", "wrapper" => "li.view")) ?>
-					<?= $HTML->deleteButton("Delete", "/janitor/admin/shop/deleteCart/".$cart["id"]) ?>
+					<?= $HTML->link("Edit", "/janitor/admin/shop/cart/edit/".$cart["id"], array("class" => "button", "wrapper" => "li.view")) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

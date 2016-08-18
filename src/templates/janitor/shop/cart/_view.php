@@ -12,7 +12,10 @@ $cart = $model->getCarts(array("cart_id" => $action[2]));
 
 	<ul class="actions">
 		<?= $HTML->link("Cart list", "/janitor/admin/shop/cart/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->deleteButton("Delete", "/janitor/admin/shop/deleteCart/".$cart["id"]) ?>
+		<?= $JML->oneButtonForm("Delete", "/janitor/admin/shop/deleteCart/".$cart["id"], array(
+			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/shop/cart/list"
+		)) ?>
 	</ul>
 
 	<h2>Cart</h2>

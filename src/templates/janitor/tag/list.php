@@ -28,7 +28,11 @@ $IC->getItems(array("tags" => "brand:Google"));
 				
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/janitor/admin/tag/edit/".$tag["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<?= $JML->deleteButton("Delete", "/janitor/admin/tag/deleteTag/".$tag["id"]) ?>
+					<?= $JML->oneButtonForm("Delete", "/janitor/admin/tag/deleteTag/".$tag["id"], array(
+						"js" => true,
+						"wrapper" => "li.delete",
+						"static" => true
+					)) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

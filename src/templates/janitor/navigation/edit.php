@@ -18,7 +18,7 @@ function recurseNodes($nodes) {
 	$IC = new Items();
 
 	$_ = "";
-	$_ .= '<ul class="nodes items">';
+	$_ .= '<ul class="items">';
 
 	foreach($nodes as $node) {
 
@@ -49,7 +49,9 @@ function recurseNodes($nodes) {
 
 		$_ .= '<ul class="actions">';
 		$_ .= $HTML->link("Edit", "/janitor/admin/navigation/edit_node/".$node["id"], array("class" => "button", "wrapper" => "li.edit"));
-		$_ .= $JML->deleteButton("Delete", "/janitor/admin/navigation/deleteNode/".$node["id"]);
+		$_ .= $JML->oneButtonForm("Delete", "/janitor/admin/navigation/deleteNode/".$node["id"], array(
+			"wrapper" => "li.delete"
+		));
 		$_ .= '</ul>';
 
 		if($node["nodes"]) {
@@ -69,11 +71,14 @@ function recurseNodes($nodes) {
 	<h1>Edit navigation</h1>
 	<h2><?= $item["name"] ?></h2>
 
-	<ul class="actions i:defaultEditActions item_id:<?= $navigation_id ?>">
+	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("Navigations list", "/janitor/admin/navigation/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->link("New node", "/janitor/admin/navigation/new_node/".$navigation_id, array("class" => "button primary", "wrapper" => "li.cancel")) ?>
 
-		<?= $JML->deleteButton("Delete", "/janitor/admin/navigation/delete/".$navigation_id) ?>
+		<?= $JML->oneButtonForm("Delete me", "/janitor/admin/navigation/delete/".$navigation_id, array(
+			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/navigation/list"
+		)) ?>
 	</ul>
 
 	<div class="item">

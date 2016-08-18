@@ -23,7 +23,11 @@ $user_groups = $model->getUserGroups();
 				<ul class="actions">
 					<?= $HTML->link("Access", "/janitor/admin/user/access/edit/".$user_group["id"], array("class" => "button", "wrapper" => "li.access")) ?>
 					<?= $HTML->link("Edit", "/janitor/admin/user/group/edit/".$user_group["id"], array("class" => "button", "wrapper" => "li.view")) ?>
-					<?= $JML->deleteButton("Delete", "/janitor/admin/user/deleteUserGroup/".$user_group["id"]) ?>
+					<?= $JML->oneButtonForm("Delete", "/janitor/admin/user/deleteUserGroup/".$user_group["id"], array(
+						"js" => true,
+						"wrapper" => "li.delete",
+						"static" => true
+					)) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

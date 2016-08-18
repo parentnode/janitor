@@ -8,6 +8,7 @@ $order = $model->getOrders(array("order_id" => $action[2]));
 include_once("classes/users/superuser.class.php");
 $UC = new SuperUser();
 
+
 // get addresses for selected user
 $addresses = $UC->getAddresses(array("user_id" => $order["user_id"]));
 if($addresses) {
@@ -18,6 +19,8 @@ else {
 	$delivery_address_options = array("" => "No addresses");
 	$billing_address_options = array("" => "No addresses");
 }
+
+$payments = $model->getPayments(array("order_id" => true));
 
 $return_to_orderstatus = session()->value("return_to_orderstatus");
 
@@ -33,9 +36,11 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("Order list", "/janitor/admin/shop/order/list/".$return_to_orderstatus, array("class" => "button", "wrapper" => "li.cancel")) ?>
 <? if($order["status"] == 0): ?>
-		<?= $JML->deleteButton("Delete", "/janitor/admin/shop/deleteOrder/".$order["id"]."/".$order["user_id"]) ?>
+		<?= $JML->oneButtonForm("Delete order", "/janitor/admin/shop/deleteOrder/".$order["id"]."/".$order["user_id"], array(
+			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/shop/order/list/".$return_to_orderstatus
+		)) ?>
 <? endif; ?>
-
 	</ul>
 
 	<div class="orderstatus">
@@ -55,9 +60,48 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 			</ul>
 		<?= $model->formEnd() ?>
 
+
+		<? if($order["payment_status"] == 0 && $order["shipping_status"] == 0): ?>
+		<?= $model->formStart("/janitor/admin/shop/orderCancelled/".$order_id."/".$order["user_id"], array("class" => "i:editOrder labelstyle:inject")) ?>
+			<ul class="actions">
+				<?= $model->submit("Cancel order", array("wrapper" => "li.cancel_order")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+
+		<? elseif($order["payment_status"] == 2 && $order["shipping_status"] == 2): ?>
+
+		<?= $model->formStart("/janitor/admin/shop/orderComplete/".$order_id."/".$order["user_id"], array("class" => "i:editOrder labelstyle:inject")) ?>
+			<ul class="actions">
+				<?= $model->submit("Complete order", array("wrapper" => "li.complete_order")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+
+		<? endif; ?>
+
+		<? if($order["shipping_status"] == 0): ?>
+		<?= $model->formStart("/janitor/admin/shop/orderShipped/".$order_id."/".$order["user_id"], array("class" => "i:editOrder labelstyle:inject")) ?>
+			<ul class="actions">
+				<?= $model->submit("Order has been shipped", array("wrapper" => "li.shipped")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+
+		<? elseif($order["shipping_status"] == 2): ?>
+
+		<?= $model->formStart("/janitor/admin/shop/orderReturned/".$order_id."/".$order["user_id"], array("class" => "i:editOrder labelstyle:inject")) ?>
+			<ul class="actions">
+				<?= $model->submit("Order has been returned", array("wrapper" => "li.returned")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+		<? endif; ?>
+
+
 		<dl class="list <?= superNormalize($model->order_statuses[$order["status"]]) ?>">
 			<dt class="status">Status</dt>
 			<dd class="status"><?= $model->order_statuses[$order["status"]] ?></dd>
+			<dt class="payment_status">Payment status</dt>
+			<dd class="payment_status"><?= $model->payment_statuses[$order["payment_status"]] ?></dd>
+			<dt class="shipping_status">Shipping status</dt>
+			<dd class="shipping_status"><?= $model->shipping_statuses[$order["shipping_status"]] ?></dd>
 		</dl>
 	</div>
 
@@ -117,12 +161,25 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</dl>
 	</div>
 
+	<div class="payments i:defaultList">
+		<h2>Order payments</h2>
+		<? if($payments): ?>
+		<ul class="payment items">
+			<? foreach($payments as $payment): ?>
+			<li class="item"><?= $payment[""] ?></li>
+			<? endforeach; ?>
+		</ul>
+		<? else: ?>
+		<p>No payments</p>
+		<? endif; ?>
+	</div>
+
 	<div class="all_items i:defaultList">
 		<h2>Order items</h2>
 		<? if($order["items"]): ?>
 		<ul class="items">
 			<? foreach($order["items"] as $order_item): ?>
-			<li class="item">
+			<li class="item <?= superNormalize($model->order_statuses[$order["status"]]) ?>">
 				<h3><?= $order_item["quantity"] ?> x <?= $order_item["name"] ?> á 					 
 					<?= formatPrice(array(
 							"price" => $order_item["unit_price"], 
@@ -142,12 +199,25 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 					</span>
 				</h3>
 
-				<? if($order["status"] == 0): ?>
-				<ul class="actions">
+				<ul class="actions i:deleteFromOrder">
+					<? if($order["status"] == 0): ?>
 					<?= $HTML->link("Edit", "/janitor/admin/shop/order/item/edit/$order_id/".$order_item["id"], array("class" => "button primary", "wrapper" => "li.users")) ?>
-					<?= $JML->deleteButton("Delete", "/janitor/admin/shop/deleteFromOrder/$order_id/".$order_item["id"]) ?>
+
+					<?= $JML->oneButtonForm("Delete me", "/janitor/admin/shop/deleteFromOrder/$order_id/".$order_item["id"], array(
+						"wrapper" => "li.delete",
+						"success-function" => "deletedFromOrder",
+						"static" => true
+					)) ?>
+					<? endif; ?>
+
+					<? if($order["status"] == 0 || $order["status"] == 1): ?>
+						<? if($order_item["shipped"]): ?>
+						<?= $HTML->link("Returned", "/janitor/admin/shop/orderItemReturned/$order_id/".$order_item["id"], array("class" => "button primary", "wrapper" => "li.shipped")) ?>
+						<? else: ?>
+						<?= $HTML->link("Shipped", "/janitor/admin/shop/orderItemShipped/$order_id/".$order_item["id"], array("class" => "button primary", "wrapper" => "li.shipped")) ?>
+						<? endif; ?>
+					<? endif; ?>
 				</ul>
-				<? endif; ?>
 			</li>
 			<? endforeach; ?>
 		</ul>

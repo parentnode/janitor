@@ -25,10 +25,13 @@ session()->value("return_to_wishlist", $item_id);
 	<h2><?= $item["name"] ?></h2>
 
 
-	<ul class="actions i:defaultEditActions item_id:<?= $item["id"] ?>" data-csrf-token="<?= session()->value("csrf") ?>">
+	<ul class="actions i:defaultEditActions">
 		<?= $model->link("Back to overview", "/janitor/admin/wish/list", array("class" => "button", "wrapper" => "li.cancel")); ?>
 		<?= $model->link("New wish", "/janitor/admin/wish/new", array("class" => "button primary", "wrapper" => "li.new")); ?>
-		<?= $JML->deleteButton("Delete", "/janitor/admin/wishlist/delete/".$item["id"], array("js" => true)); ?>
+		<?= $JML->oneButtonForm("Delete me", "/janitor/admin/wishlist/delete/".$item["id"], array(
+			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/wish/list"
+		)) ?>
 	</ul>
 
 	<div class="status i:defaultEditStatus item_id:<?= $item["id"]?>" data-csrf-token="<?= session()->value("csrf") ?>">
@@ -72,15 +75,15 @@ session()->value("return_to_wishlist", $item_id);
 						<dd class="reserved"><?= $model_wish->wish_reserved[$item["reserved"]] ?></dd>
 					</dl>
 
-					<?//= $JML->tagList($item["tags"]) ?>
-
 					<ul class="actions">
 						<?= $model->link("Edit", "/janitor/admin/wish/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")); ?>
-						<?= $JML->deleteButton("Delete", "/janitor/admin/wish/delete/".$item["id"], array("js" => true)); ?>
+						<?= $JML->oneButtonForm("Delete", "/janitor/admin/wish/delete/".$item["id"], array(
+							"js" => true,
+							"wrapper" => "li.delete",
+							"static" => true
+						)) ?>
 						<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/wish/status", $item, array("js" => true)); ?>
 					</ul>
-
-					<?//= $JML->listActions($item) ?>
 
 				 </li>
 			 	<? endforeach; ?>

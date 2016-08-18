@@ -66,7 +66,11 @@ session()->reset("return_to_todolist");
 					<h3><?= $todolist["name"] ?> (<?= count($todolist_todos) ?> todos)</h3>
 					<ul class="actions">
 						<?= $model->link("View", "/janitor/admin/todolist/edit/".$todolist["id"].($todo_state_view ? "/state/".$todo_state_view : ""), array("class" => "button primary", "wrapper" => "li.edit")); ?>
-						<?= $JML->deleteButton("Delete", "/janitor/admin/todolist/delete/".$todolist["id"], array("js" => true)); ?>
+						<?= $JML->oneButtonForm("Delete", "/janitor/admin/todolist/delete/".$todolist["id"], array(
+							"js" => true,
+							"wrapper" => "li.delete",
+							"static" => true
+						)) ?>
 						<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/todolist/status", $todolist, array("js" => true)); ?>
 					</ul>
 				</li>
@@ -102,19 +106,7 @@ session()->reset("return_to_todolist");
 
 					<?= $JML->tagList($item["tags"]) ?>
 
-					<? 
-					// if($todo_state_view):
-					// 	print $JML->listActions($item, array("modify" => array(
-					// 		"list" => [
-					// 			"label" => "Edit",
-					// 			"url" => "/janitor/admin/todo/list/".$todo_state_view
-					// 		])));
-					// else:
-						print $JML->listActions($item);
-//					endif;
-					
-					//= $JML->listActions($item) 
-					?>
+					<?= $JML->listActions($item); ?>
 				 </li>
 	<?			endforeach; ?>
 			</ul>

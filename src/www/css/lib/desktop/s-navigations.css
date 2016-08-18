@@ -21,16 +21,16 @@
 }
 #content div.all_items ul.items > li.item:hover {background-color: transparent;}
 
-#content .defaultEdit.navigationEdit ul.nodes > li span {padding: 10px 10px 10px 0; display: inline-block; vertical-align: bottom;}
+#content .defaultEdit.navigationEdit ul.items > li span {padding: 10px 10px 10px 0; display: inline-block; vertical-align: bottom;}
 
-#content .defaultEdit.navigationEdit ul.nodes > li.hover {background: red !important;}
+#content .defaultEdit.navigationEdit ul.items > li.hover {background: red !important;}
 
-#content .defaultEdit.navigationEdit ul.nodes > li.dragged {
+#content .defaultEdit.navigationEdit ul.items > li.dragged {
 	z-index: 3;
 	
 	/*border-top: 1px solid #aaaaaa; border-bottom: 1px solid #aaaaaa;*/
 }
-#content .defaultEdit.navigationEdit ul.nodes > li.dragged .drag {background-image: none;}
+#content .defaultEdit.navigationEdit ul.items > li.dragged .drag {background-image: none;}
 
 
 

@@ -63,8 +63,8 @@
 #content .scene.userEdit > div.newsletters > ul.actions {padding-top: 20px; border-top: 1px solid #dedede;}
 
 #content .scene.userEdit > div.newsletters ul.newsletters > li.subscribed li.subscribe {display: none;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li.subscribed li.delete {display: inline-block;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li li.delete {display: none;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li.subscribed li.unsubscribe {display: inline-block;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li li.unsubscribe {display: none;}
 
 
 /* ACCESS */
@@ -76,7 +76,7 @@
 
 
 /* USER GROUP */
-#content .defaultEdit.usergroupEdit > ul.actions li.access {float: right;}
+#content .defaultEdit.usergroupEdit > ul.actions li.access {float: right; padding-right: 0;}
 
 
 /* USER CONTENT */

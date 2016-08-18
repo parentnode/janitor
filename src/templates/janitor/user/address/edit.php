@@ -17,11 +17,12 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 	<h1>Edit Address</h1>
 	<h2><?= $address["address_label"] ?></h2>
 
-	<ul class="actions i:defaultEditActions item_id:<?= $address_id ?>"
-		data-csrf-token="<?= session()->value("csrf") ?>"
-		>
+	<ul class="actions i:defaultEditActions">
 		<?= $model->link("Back to user", "/janitor/admin/user/edit/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $JML->deleteButton("Delete address", "/janitor/admin/user/deleteAddress/".$address_id) ?>
+		<?= $JML->oneButtonForm("Delete address", "/janitor/admin/user/deleteAddress/".$address_id, array(
+			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/user/edit/".$user_id
+		)) ?>
 	</ul>
 
 	<div class="addresses">

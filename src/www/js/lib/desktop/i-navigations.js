@@ -1,7 +1,7 @@
 Util.Objects["navigationNodes"] = new function() {
 	this.init = function(div) {
 
-		div.list = u.qs("ul.nodes", div);
+		div.list = u.qs("ul.items", div);
 
 		if(div.list) {
 
@@ -16,54 +16,25 @@ Util.Objects["navigationNodes"] = new function() {
 				node.list = div.list;
 
 				// delete button
-				var action = u.qs("li.delete", node);
+				node.bn_delete = u.qs("li.delete", node);
+				if(node.bn_delete) {
 
-				if(action) {
+					node.bn_delete.node = node;
+					// callback from oneButtonForm
+					node.bn_delete.confirmed = function(response) {
+						this.node.parentNode.removeChild(this.node);
 
-					form = u.qs("form", action);
-					form.node = node;
-
-					// init if form is available
-					if(form) {
-						u.f.init(form);
-
-						if(u.qs("ul.nodes li.item", node)) {
-							u.ac(form.actions["delete"], "disabled");
-						}
-
-						form.restore = function(event) {
-							this.actions["delete"].value = "Delete";
-							u.rc(this.actions["delete"], "confirm");
-						}
-
-						form.submitted = function() {
-
-							// first click
-							if(!u.hc(this.actions["delete"], "confirm")) {
-								u.ac(this.actions["delete"], "confirm");
-								this.actions["delete"].value = "Confirm";
-								this.t_confirm = u.t.setTimer(this, this.restore, 3000);
-							}
-							// confirm click
-							else {
-								u.t.resetTimer(this.t_confirm);
-
-
-								this.response = function(response) {
-									page.notify(response);
-
-									if(response.cms_status == "success") {
-	//									location.href = this.cancel_url;
-										this.node.parentNode.removeChild(this.node);
-
-										// update
-										this.node.list.updateNodeStructure();
-									}
-								}
-								u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
-							}
-						}
+						// update
+						this.node.list.updateNodeStructure();
 					}
+
+					// disable delete buttons for nodes with children
+					var child_nodes = u.qs("ul.items li.item", node);
+					var bn_delete_input =  u.qs("ul.actions li.delete input[type=submit]", node);
+					if(child_nodes && bn_delete_input) {
+						u.ac(bn_delete_input, "disabled");
+					}
+
 				}
 			}
 
@@ -77,6 +48,7 @@ Util.Objects["navigationNodes"] = new function() {
 
 			// save structure and update button states
 			div.list.updateNodeStructure = function() {
+				u.bug("updateNodeStructure");
 
 				var structure = this.getStructure();
 
@@ -91,22 +63,25 @@ Util.Objects["navigationNodes"] = new function() {
 				for(i = 0; node = this.nodes[i]; i++) {
 
 					// update delete button states
-					var action = u.qs("li.delete", node);
-					if(action) {
-						form = u.qs("form", action);
-						if(form) {
-							if(u.qs("ul.nodes li.item", node)) {
-								u.ac(form.actions["delete"], "disabled");
+//					var = u.qs("li.delete", node);
+					u.bug("look for children")
+
+					if(node.bn_delete && node.form) {
+						// form = u.qs("form", action);
+						// if(form) {
+							if(u.qs("ul.items li.item", node)) {
+								u.bug("has children")
+								u.ac(form.confirm_submit_button, "disabled");
 							}
 							else {
-								u.rc(form.actions["delete"], "disabled");
+								u.rc(form.confirm_submit_button, "disabled");
 							}
-						}
+//						}
 					}
 				}
 			}
 
-			u.sortable(div.list, {"allow_nesting":true, "targets":"nodes", "draggables":"draggable"});
+			u.sortable(div.list, {"allow_nesting":true, "targets":"items", "draggables":"draggable"});
 
 		}
 

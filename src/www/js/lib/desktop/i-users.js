@@ -199,47 +199,18 @@ Util.Objects["newsletters"] = new function() {
 		div.newsletters = u.qsa("ul.newsletters > li", div);
 		for(i = 0; node = div.newsletters[i]; i++) {
 
-			node.li_delete = u.qs("li.delete", node);
+			node.li_unsubscribe = u.qs("li.unsubscribe", node);
 			node.li_subscribe = u.qs("li.subscribe", node);
 
 			// init if form is available
-			if(node.li_delete) {
+			if(node.li_unsubscribe) {
 
-				// look for form
-				node.li_delete.form = u.qs("form", node.li_delete)
+				node.li_unsubscribe.node = node;
+				// callback from oneButtonForm
+				node.li_unsubscribe.confirmed = function(response) {
 
-				u.f.init(node.li_delete.form);
-				node.li_delete.form.node = node;
-
-				node.li_delete.form.restore = function(event) {
-					this.actions["delete"].value = "Unsubscribe";
-					u.rc(this.actions["delete"], "confirm");
-				}
-
-				node.li_delete.form.submitted = function() {
-
-					// first click
-					if(!u.hc(this.actions["delete"], "confirm")) {
-						u.ac(this.actions["delete"], "confirm");
-						this.actions["delete"].value = "Confirm";
-						this.t_confirm = u.t.setTimer(this, this.restore, 3000);
-					}
-					// confirm click
-					else {
-						u.t.resetTimer(this.t_confirm);
-
-						this.response = function(response) {
-
-							// show message
-							page.notify(response);
-
-							if(response.cms_status == "success") {
-								u.rc(this.node, "subscribed");
-							}
-							this.restore();
-
-						}
-						u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+					if(response.cms_status == "success") {
+						u.rc(this.node, "subscribed");
 					}
 				}
 			}
@@ -248,26 +219,14 @@ Util.Objects["newsletters"] = new function() {
 			// init if form is available
 			if(node.li_subscribe) {
 
-				// look for form
-				node.li_subscribe.form = u.qs("form", node.li_subscribe)
 
-				u.f.init(node.li_subscribe.form);
-				node.li_subscribe.form.node = node;
+				node.li_subscribe.node = node;
+				// callback from oneButtonForm
+				node.li_subscribe.confirmed = function(response) {
 
-				node.li_subscribe.form.submitted = function() {
-
-
-					this.response = function(response) {
-
-						// show message
-						page.notify(response);
-
-						if(response.cms_status == "success") {
-							u.ac(this.node, "subscribed");
-							//this.node.parentNode.removeChild(this.node);
-						}
+					if(response.cms_status == "success") {
+						u.ac(this.node, "subscribed");
 					}
-					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 
 				}
 			}

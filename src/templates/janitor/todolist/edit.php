@@ -41,10 +41,13 @@ session()->value("return_to_todolist", $item_id);
 	<h1>Edit TODO list</h1>
 	<h2><?= $item["name"] ?></h2>
 
-	<ul class="actions i:defaultEditActions item_id:<?= $item["id"] ?>" data-csrf-token="<?= session()->value("csrf") ?>">
+	<ul class="actions i:defaultEditActions">
 		<?= $model->link("Back to overview", "/janitor/admin/todo/list" . ($todo_state_view ? "/state/".$todo_state_view : ""), array("class" => "button", "wrapper" => "li.cancel")); ?>
 		<?= $model->link("New task", "/janitor/admin/todo/new", array("class" => "button primary", "wrapper" => "li.new")); ?>
-		<?= $JML->deleteButton("Delete", "/janitor/admin/todolist/delete/".$item["id"], array("js" => true)); ?>
+		<?= $JML->oneButtonForm("Delete", "/janitor/admin/todolist/delete/".$item["id"], array(
+			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/todo/list" . ($todo_state_view ? "/state/".$todo_state_view : "")
+		)) ?>
 	</ul>
 
 	<div class="status i:defaultEditStatus item_id:<?= $item["id"]?>" data-csrf-token="<?= session()->value("csrf") ?>">
@@ -76,7 +79,7 @@ session()->value("return_to_todolist", $item_id);
 		<h2>Todos</h2>
 
 		<? if($todo_states): ?>
-		<ul class="states">
+		<ul class="tabs">
 			<? foreach($todo_states as $todo_state_id => $todo_state): ?>
 				<?= $HTML->link($todo_state, "/janitor/admin/todolist/edit/".$item["id"] . "/state/" . $todo_state_id, array("wrapper" => "li.".strtolower($todo_state) . ($todo_state_id === $todo_state_view ? ".selected" : ""))) ?>
 			<? endforeach; ?>
@@ -113,7 +116,11 @@ session()->value("return_to_todolist", $item_id);
 
 					<ul class="actions">
 						<?= $model->link("Edit", "/janitor/admin/todo/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")); ?>
-						<?= $JML->deleteButton("Delete", "/janitor/admin/todo/delete/".$item["id"], array("js" => true)); ?>
+						<?= $JML->oneButtonForm("Delete", "/janitor/admin/todo/delete/".$item["id"], array(
+							"js" => true,
+							"wrapper" => "li.delete",
+							"static" => true
+						)) ?>
 						<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/todo/status", $item, array("js" => true)); ?>
 					</ul>
 

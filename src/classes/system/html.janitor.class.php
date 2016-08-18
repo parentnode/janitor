@@ -238,7 +238,10 @@ class JanitorHTML {
 			),
 			"delete" => array(
 				"label" => "Delete",
-				"url" => $this->path."/delete/".$item["id"]
+				"wrapper" => "li.delete",
+				"static" => true,
+				"url" => $this->path."/delete/".$item["id"],
+				"success-location" => false
 			),
 			"status" => array(
 				"label_enable" => "Enable",
@@ -294,7 +297,12 @@ class JanitorHTML {
 
 		// Delete button
 		if($standard["delete"]) {
-			$_ .= $this->deleteButton($standard["delete"]["label"], $standard["delete"]["url"], array("js" => true));
+			$_ .= $this->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
+				"js" => true,
+				"wrapper" => $standard["delete"]["wrapper"],
+				"static" => $standard["delete"]["static"],
+				"success-location" => $standard["delete"]["success-location"]
+			));
 		}
 
 		// Status button
@@ -302,9 +310,6 @@ class JanitorHTML {
 			$_ .= $this->statusButton($standard["status"]["label_enable"], $standard["status"]["label_disable"], $standard["status"]["url"], $item, array("js" => true));
 		}
 
-		// $_ .= $model->link("Edit", $this->path."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit"));
-		// $_ .= $this->deleteButton("Delete", $this->path."/delete/".$item["id"], array("js" => true));
-		// $_ .= $this->statusButton("Enable", "Disable", $this->path."/status", $item, array("js" => true));
 		$_ .= '</ul>';
 
 		return $_;
@@ -327,7 +332,9 @@ class JanitorHTML {
 			),
 			"delete" => array(
 				"label" => "Delete",
-				"url" => $this->path."/delete/".$item["id"]
+				"wrapper" => "li.delete",
+				"url" => $this->path."/delete/".$item["id"],
+				"success-location" => $this->path."/list"
 			),
 			"status" => array(
 				"label_enable" => "Enable",
@@ -371,12 +378,15 @@ class JanitorHTML {
 		$_ = '';
 
 		// BACK AND DELETE
-		$_ .= '<ul class="actions i:defaultEditActions item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'">';
+		$_ .= '<ul class="actions i:defaultEditActions">';
 		if($standard["list"]) {
 			$_ .= $model->link($standard["list"]["label"], $standard["list"]["url"], $standard["list"]["options"]);
 		}
 		if($standard["delete"]) {
-			$_ .= $this->deleteButton($standard["delete"]["label"], $standard["delete"]["url"], array("js" => true));
+			$_ .= $this->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
+				"wrapper" => $standard["delete"]["wrapper"],
+				"success-location" => $standard["delete"]["success-location"]
+			));
 		}
 		$_ .= '</ul>';
 
@@ -881,10 +891,56 @@ class JanitorHTML {
 
 
 
+
+	// /**
+	// * Delete button
+	// */
+	// function deleteButton($name, $action, $_options = false) {
+	// 	global $page;
+	// 	global $HTML;
+	//
+	// 	if(!$page->validatePath($action)) {
+	// 		return "";
+	// 	}
+	//
+	// 	$js = false;
+	//
+	// 	// overwrite defaults
+	// 	if($_options !== false) {
+	// 		foreach($_options as $_option => $_value) {
+	// 			switch($_option) {
+	//
+	// 				case "js"           : $js            = $_value; break;
+	//
+	// 			}
+	// 		}
+	// 	}
+	//
+	//
+	//
+	//
+	//
+	// 	if($js) {
+	// 		$_ = '<li class="delete i:confirmAction" data-button-value="Delete" data-form-action="'.$action.'" data-csrf-token="'.session()->value("csrf").'" >';
+	// 	}
+	// 	else {
+	// 		$_ = '<li class="delete i:confirmAction">';
+	//
+	// 		$_ .= $HTML->formStart($action);
+	// 		$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
+	// 		$_ .= $HTML->formEnd();
+	// 	}
+	//
+	// 	$_ .= '</li>';
+	//
+	// 	return $_;
+	// }
+
+
 	/**
-	* Delete item
+	* Confirm button
 	*/
-	function deleteButton($name, $action, $_options = false) {
+	function oneButtonForm($value, $action, $_options = false) {
 		global $page;
 		global $HTML;
 
@@ -894,36 +950,184 @@ class JanitorHTML {
 
 		$js = false;
 
+		$class = "";
+		$name = "confirm";
+		$confirm_value = "Confirm";
+		$static = false;
+
+		$success_location = false;
+		$success_function = false;
+
+		$wrapper = "li.confirm";
+
+		$inputs = false;
+
 		// overwrite defaults
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "js"           : $js            = $_value; break;
+					case "js"                   : $js                     = $_value; break;
+
+					case "class"                : $class                  = $_value; break;
+					case "name"                 : $name                   = $_value; break;
+					case "confirm-value"        : $confirm_value          = $_value; break;
+
+					case "success-location"     : $success_location       = $_value; break;
+					case "success-function"     : $success_function       = $_value; break;
+
+					case "wrapper"              : $wrapper                = $_value; break;
+					case "static"               : $static                 = $_value; break;
+
+					case "inputs"               : $inputs                = $_value; break;
 
 				}
 			}
 		}
 
-		if($js) {
-			$_ = '<li class="delete" data-item-delete="'.$action.'">';
+
+		$_ = "";
+
+		$wrap_node = false;
+
+
+		$att_wrap_id = "";
+		$wrap_class = $static ? "" : "i:oneButtonForm";
+
+
+		// identify wrapper node/class/id
+		// with class or id
+		if(preg_match("/([a-z]+)[\.#]+/", $wrapper, $node_match)) {
+//				print_r($node_match);
+
+			$wrap_node = $node_match[1];
+
+			if(preg_match("/#([a-zA-Z0-9_]+)/", $wrapper, $id_match)) {
+//					print_r($id_match);
+				$att_wrap_id = $this->attribute("id", $id_match[1]);
+			}
+			if(preg_match_all("/\.([a-zA-Z0-9_\:]+)/", $wrapper, $class_matches)) {
+//					print_r($class_matches);
+				$wrap_class .= " ".implode(" ", $class_matches[1]);
+			}
 		}
 		else {
-			$_ = '<li class="delete">';
+			$wrap_node = $wrapper;
+		}
+
+		$att_wrap_class = $HTML->attribute("class", $wrap_class);
+
+
+
+		$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id;
+		$_ .= ' data-confirm-value="'.$confirm_value.'"';
+
+		if($success_location) {
+			$_ .= ' data-success-location="'.$success_location.'"';
+		}
+		if($success_function) {
+			$_ .= ' data-success-function="'.$success_function.'"';
+		}
+
+		// JavaScript HTML expansion details
+		if($js) {
+
+			$_ .= ' data-button-value="'.$value.'"';
+			$_ .= $class ? ' data-button-class="'.$class.'"' : '';
+			$_ .= $name ? ' data-button-name="'.$name.'"' : '';
+			$_ .= $inputs ? ' data-inputs="'.json_encode($inputs).'"' : '';
+
+			$_ .= ' data-form-action="'.$action.'"';
+			$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
+
+		}
+
+		$_ .= '>';
+
+
+		if(!$js) {
+			$att_value = $HTML->attribute("value", $value);
+			$att_type = $HTML->attribute("type", "submit");
+			$att_class = $HTML->attribute("class", "button", $class);
+			$att_name = $HTML->attribute("name", $name);
 
 			$_ .= $HTML->formStart($action);
-			$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
+			if($inputs) {
+				foreach($inputs as $name => $value) {
+					$_ .= '<input type="hidden" name="'.$name.'" value="'.$value.'" />';
+				}
+			}
+
+			$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.' />';
 			$_ .= $HTML->formEnd();
 		}
 
-		$_ .= '</li>';
+
+		$_ .= '</'.$wrap_node.'>'."\n";
+
+
+
+		//
+		// if($js) {
+		// 	$_ = '<li class="confirm i:confirmAction'.($class ? " ".$class : "").'"';
+		//
+		// }
+		// else {
+		// 	$_ = '<li class="confirm i:confirmAction'.($class ? " ".$class : "").'">';
+		//
+		// 	$_ .= $HTML->formStart($action);
+		// 	$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
+		// 	$_ .= $HTML->formEnd();
+		// }
+		//
+		// $_ .= '</li>';
 
 		return $_;
 	}
 
 
+	// /**
+	// * Confirm button
+	// */
+	// function confirmButton($name, $action, $_options = false) {
+	// 	global $page;
+	// 	global $HTML;
+	//
+	// 	if(!$page->validatePath($action)) {
+	// 		return "";
+	// 	}
+	//
+	// 	$js = false;
+	//
+	// 	// overwrite defaults
+	// 	if($_options !== false) {
+	// 		foreach($_options as $_option => $_value) {
+	// 			switch($_option) {
+	//
+	// 				case "js"           : $js            = $_value; break;
+	//
+	// 			}
+	// 		}
+	// 	}
+	//
+	// 	if($js) {
+	// 		$_ = '<li class="confirm" data-item-confirm="'.$action.'">';
+	// 	}
+	// 	else {
+	// 		$_ = '<li class="delete">';
+	//
+	// 		$_ .= $HTML->formStart($action);
+	// 		$_ .= '<input type="submit" value="'.$name.'" name="confirm" class="button confirm" />';
+	// 		$_ .= $HTML->formEnd();
+	// 	}
+	//
+	// 	$_ .= '</li>';
+	//
+	// 	return $_;
+	// }
+
 	/**
-	* Change status of item
+	* Change status button
 	*/
 	function statusButton($enable_label, $disable_label, $action, $item, $_options = false) {
 

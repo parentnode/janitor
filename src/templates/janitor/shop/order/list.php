@@ -30,19 +30,16 @@ session()->value("return_to_orderstatus", $status);
 
 	<ul class="actions">
 		<?= $HTML->link("New order", "/janitor/admin/shop/order/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
-		<?= $HTML->link("Carts", "/janitor/admin/shop/cart/list", array("class" => "button", "wrapper" => "li.cart")) ?>
-		<?= $HTML->link("Payments", "/janitor/admin/shop/payment/list", array("class" => "button", "wrapper" => "li.payment")) ?>
+		<?= $HTML->link("Carts", "/janitor/admin/shop/cart/list", array("class" => "button", "wrapper" => "li.carts")) ?>
+		<?= $HTML->link("Payments", "/janitor/admin/shop/payment/list", array("class" => "button", "wrapper" => "li.payments")) ?>
 	</ul>
 
 <? if($model->order_statuses): ?>
 	<ul class="tabs">
 		<? foreach($model->order_statuses as $order_status => $order_status_name): ?>
-		<?
-		print_r($model->getOrders(array("status" => $order_status)));
-		?>
-		<?= $HTML->link($order_status_name. "(".count($model->getOrders(array("status" => $order_status))).")", "/janitor/admin/shop/order/list/".$order_status, array("wrapper" => "li".".".superNormalize($order_status_name).(is_numeric($status) && $order_status == $status ? ".selected" : ""))) ?>
+		<?= $HTML->link($order_status_name. " (".$model->getOrderCount(array("status" => $order_status)).")", "/janitor/admin/shop/order/list/".$order_status, array("wrapper" => "li".".".superNormalize($order_status_name).(is_numeric($status) && $order_status == $status ? ".selected" : ""))) ?>
 		<? endforeach; ?>
-		<?= $HTML->link("All", "/janitor/admin/shop/order/list/all", array("wrapper" => "li".($status === "all" ? ".selected" : ""))) ?>
+		<?= $HTML->link("All (".$model->getOrderCount().")", "/janitor/admin/shop/order/list/all", array("wrapper" => "li".($status === "all" ? ".selected" : ""))) ?>
 	</ul>
 <? endif; ?>
 
@@ -57,8 +54,21 @@ session()->value("return_to_orderstatus", $status);
 				<dl class="details">
 					<dt class="created_at">Created at</dt>
 					<dd class="created_at"><?= $order["created_at"] ?></dd>
+
+				<? if($status === "all"): ?>
+					<dt class="status">Status</dt>
+					<dd class="status"><?= $model->order_statuses[$order["status"]] ?></dd>
+				<? endif; ?>
+
+				<? if($status == 1 || $status === "all"): ?>
+					<dt class="payment_status">Payment status</dt>
+					<dd class="payment_status"><?= $model->payment_statuses[$order["payment_status"]] ?></dd>
+					<dt class="shipping_status">Shipping status</dt>
+					<dd class="shipping_status"><?= $model->shipping_statuses[$order["shipping_status"]] ?></dd>
+				<? endif; ?>
+
 					<dt class="price">Total price</dt>
-					<dd class="price"><?= formatPrice($model->getTotalOrderPrice($order["id"])) ?></dd>
+					<dd class="price"><?= formatPrice($model->getTotalOrderPrice($order["id"]), array("vat" => true)) ?></dd>
 
 				<? if(isset($order["user"])): ?>
 					<dt class="nickname">Nickname</dt>
@@ -77,7 +87,7 @@ session()->value("return_to_orderstatus", $status);
 				<? endif; ?>
 				</dl>
 
-				<? if(!isset($order["user"])): ?>
+				<? if(!isset($order["user"]) || !$order["items"]): ?>
 					<p class="error">INCOMPLETE ORDER</p>
 				<? endif; ?>
 

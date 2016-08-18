@@ -152,13 +152,14 @@ $user_newsletters = $item["newsletters"];
 <?			foreach($all_newsletters as $newsletter): ?>
 			<li class="<?= arrayKeyValue($user_newsletters, "newsletter_id", $newsletter["id"]) !== false ? "subscribed" : "" ?>">
 				<ul class="actions">
-					<?= $JML->deleteButton("Unsubscribe", "/janitor/admin/profile/deleteNewsletter/".$newsletter["id"]) ?>
-					<li class="subscribe">
-					<?= $model->formStart("/janitor/admin/profile/addNewsletter") ?>
-						<?= $model->input("newsletter_id", array("type" => "hidden", "value" => $newsletter["id"]))?>
-						<?= $model->submit("Subscribe", array("class" => "primary")) ?>
-					<?= $model->formEnd() ?>
-					</li>
+					<?= $JML->oneButtonForm("Unsubscribe", "/janitor/admin/profile/deleteNewsletter/".$newsletter["id"], array(
+						"wrapper" => "li.unsubscribe"
+					)) ?>
+					<?= $JML->oneButtonForm("Subscribe", "/janitor/admin/profile/addNewsletter", array(
+						"wrapper" => "li.subscribe",
+						"class" => "primary",
+						"inputs" => array("newsletter_id" => $newsletter["id"])
+					)) ?>
 				</ul>
 				<h3><?= $newsletter["name"] ?></h3>
 			</li>

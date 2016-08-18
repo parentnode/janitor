@@ -34,12 +34,13 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 	<h1>Edit user</h1>
 	<h2><?= $item["nickname"] ?></h2>
 
-	<ul class="actions i:defaultEditActions item_id:<?= $user_id ?>"
-		data-csrf-token="<?= session()->value("csrf") ?>"
-		>
+	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
 <? if($user_id != 1): ?>
-		<?= $JML->deleteButton("Delete", "/janitor/admin/user/delete/".$user_id) ?>
+		<?= $JML->oneButtonForm("Delete", "/janitor/admin/user/delete/".$user_id, array(
+			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
+		)) ?>
 <? endif; ?>
 	</ul>
 
@@ -192,13 +193,14 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 <?			foreach($all_newsletters as $newsletter): ?>
 			<li class="<?= arrayKeyValue($user_newsletters, "newsletter_id", $newsletter["id"]) !== false ? "subscribed" : "" ?>">
 				<ul class="actions">
-					<?= $JML->deleteButton("Unsubscribe", "/janitor/admin/user/deleteNewsletter/".$user_id."/".$newsletter["id"]) ?>
-					<li class="subscribe">
-					<?= $model->formStart("/janitor/admin/user/addNewsletter/".$user_id) ?>
-						<?= $model->input("newsletter_id", array("type" => "hidden", "value" => $newsletter["id"]))?>
-						<?= $model->submit("Subscribe", array("class" => "primary")) ?>
-					<?= $model->formEnd() ?>
-					</li>
+					<?= $JML->oneButtonForm("Unsubscribe", "/janitor/admin/user/deleteNewsletter/".$user_id."/".$newsletter["id"], array(
+						"wrapper" => "li.unsubscribe"
+					)) ?>
+					<?= $JML->oneButtonForm("Subscribe", "/janitor/admin/user/addNewsletter/".$user_id, array(
+						"wrapper" => "li.subscribe",
+						"class" => "primary",
+						"inputs" => array("newsletter_id" => $newsletter["id"])
+					)) ?>
 				</ul>
 				<h3><?= $newsletter["name"] ?></h3>
 			</li>

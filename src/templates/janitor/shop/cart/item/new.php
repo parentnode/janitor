@@ -4,8 +4,8 @@ global $model;
 $IC = new Items();
 
 
-$order_id = $action[3];
-$order = $model->getOrders(array("order_id" => $order_id));
+$cart_id = $action[3];
+$cart = $model->getCarts(array("cart_id" => $cart_id));
 
 $items = $IC->getItems(array("order" => "itemtype", "extend" => array("subscription_method" => true, "prices" => true)));
 
@@ -31,18 +31,18 @@ foreach($items as $item) {
 }
 
 ?>
-<div class="scene i:scene defaultNew newOrder">
-	<h1>New order item</h1>
-	<h2><?= $order["order_no"] ?></h2>
+<div class="scene i:scene defaultNew newCart">
+	<h1>New cart item</h1>
+	<h2><?= $cart["cart_reference"] ?></h2>
 
 	<ul class="actions">
-		<?= $HTML->link("Back", "/janitor/admin/shop/order/edit/".$order_id, array("class" => "button", "wrapper" => "li.order")); ?>
+		<?= $HTML->link("Back", "/janitor/admin/shop/cart/edit/".$cart_id, array("class" => "button", "wrapper" => "li.cart")); ?>
 	</ul>
 
-	<?= $model->formStart("/janitor/admin/shop/addToOrder/".$order_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+	<?= $model->formStart("/janitor/admin/shop/addToCart/".$cart["cart_reference"], array("class" => "i:defaultNew labelstyle:inject")) ?>
 		<fieldset>
 			<?= $model->input("item_id", array(
-				"label" => "Select item to add to order",
+				"label" => "Select item to add to cart",
 				"type" => "select",
 				"options" => $item_options,
 			)) ?>
@@ -50,7 +50,7 @@ foreach($items as $item) {
 		</fieldset>
 
 		<ul class="actions">
-			<?= $model->link("Cancel", "/janitor/admin/shop/order/edit/".$order_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+			<?= $model->link("Cancel", "/janitor/admin/shop/cart/edit/".$cart_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 			<?= $model->submit("Add item", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 		</ul>
 
