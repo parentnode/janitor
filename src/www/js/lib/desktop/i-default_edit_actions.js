@@ -1,6 +1,6 @@
 Util.Objects["defaultEditActions"] = new function() {
 	this.init = function(node) {
-		u.bug("defaultEditActions:" + u.nodeId(node));
+//		u.bug("defaultEditActions:" + u.nodeId(node));
 
 		
 		// add autosave option
@@ -27,7 +27,7 @@ Util.Objects["defaultEditActions"] = new function() {
 
 Util.Objects["oneButtonForm"] = new function() {
 	this.init = function(node) {
-//		u.bug("oneButtonForm:" + u.nodeId(node));
+	u.bug("oneButtonForm:" + u.nodeId(node));
 
 		// inject standard form if action node is empty
 		// this is done to minimize HTML in list pages
@@ -69,7 +69,8 @@ Util.Objects["oneButtonForm"] = new function() {
 			u.f.init(node.form);
 
 			node.form.node = node;
-			node.form.confirm_submit_button = node.form.actions[u.stringOr(button_name, "confirm")];
+			//node.form.confirm_submit_button = node.form.actions[u.stringOr(button_name, "confirm")];
+			node.form.confirm_submit_button = u.qs("input[type=submit]", node.form);
 
 			node.form.confirm_submit_button.org_value = node.form.confirm_submit_button.value;
 			node.form.confirm_submit_button.confirm_value = node.getAttribute("data-confirm-value");
@@ -80,6 +81,8 @@ Util.Objects["oneButtonForm"] = new function() {
 //				node.form.cancel_url = bn_cancel.href;
 
 			node.form.restore = function(event) {
+				u.t.resetTimer(this.t_confirm);
+
 				this.confirm_submit_button.value = this.confirm_submit_button.org_value;
 				u.rc(this.confirm_submit_button, "confirm");
 			}
@@ -133,9 +136,11 @@ Util.Objects["oneButtonForm"] = new function() {
 
 									// remove node ?
 								}
-								this.restore();
 							}
 						}
+
+						this.restore();
+
 					}
 					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 				}

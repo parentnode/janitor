@@ -11,6 +11,7 @@ CREATE TABLE `SITE_DB`.`shop_carts` (
   `modified_at` timestamp NULL DEFAULT NULL,
 
   PRIMARY KEY  (`id`),
+  UNIQUE KEY (`cart_reference`),
   KEY `country` (`country`),
   KEY `currency` (`currency`),
 

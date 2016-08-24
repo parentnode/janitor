@@ -44,6 +44,7 @@ foreach($items as $item) {
 			<?= $model->input("item_id", array(
 				"label" => "Select item to add to cart",
 				"type" => "select",
+				"required" => true,
 				"options" => $item_options,
 			)) ?>
 			<?= $model->input("quantity", array("value" => 1)) ?>

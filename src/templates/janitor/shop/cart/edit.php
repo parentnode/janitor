@@ -9,12 +9,12 @@ include_once("classes/users/superuser.class.php");
 $UC = new SuperUser();
 
 $users = $UC->getUsers();
-$user_options = $model->toOptions($users, "id", "nickname", array("add" => array("" => "Select user")));
+$user_options = $model->toOptions($users, "id", "nickname", array("add" => array("0" => "Select user")));
 
 $IC = new Items();
 
 ?>
-<div class="scene i:scene defaultEdit cartView">
+<div class="scene i:scene defaultEdit shopView cartView">
 	<h1>Edit cart</h1>
 	<h2><?= $cart["cart_reference"] ?></h2>
 
@@ -29,7 +29,7 @@ $IC = new Items();
 	<div class="basics">
 		<h2>Cart</h2>
 
-		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editCart labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("country", array(
 					"type" => "select",
@@ -66,7 +66,7 @@ $IC = new Items();
 	<div class="contact">
 		<h2>Contact</h2>
 
-		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editCart labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("user_id", array(
 					"type" => "select",
@@ -97,7 +97,7 @@ $IC = new Items();
 		<? endif; ?>
 	</div>
 
-	<div class="all_items i:defaultList">
+	<div class="all_items i:defaultList i:cartItemsList">
 		<h2>Cart items</h2>
 		<? if($cart["items"]): ?>
 		<ul class="items">
@@ -107,7 +107,7 @@ $IC = new Items();
 			?>
 			<li class="item">
 				<h3>
-					<?= $model->formStart("/janitor/admin/shop/updateCartItemQuantity/".$cart["cart_reference"]."/".$cart_item["id"], array("class" => "i:updateCartItemQuantity labelstyle:inject")) ?>
+					<?= $model->formStart("/janitor/admin/shop/updateCartItemQuantity/".$cart["cart_reference"]."/".$cart_item["id"], array("class" => "updateCartItemQuantity labelstyle:inject")) ?>
 						<fieldset>
 							<?= $model->input("quantity", array(
 								"type" => "integer",
@@ -133,8 +133,8 @@ $IC = new Items();
 					</span>
 				</h3>
 
-				<ul class="actions i:deleteFromCart">
-					<?= $JML->oneButtonForm("Delete me", "/janitor/admin/shop/deleteFromCart/".$cart["cart_reference"]."/".$cart_item["id"], array(
+				<ul class="actions">
+					<?= $JML->oneButtonForm("Delete", "/janitor/admin/shop/deleteFromCart/".$cart["cart_reference"]."/".$cart_item["id"], array(
 						"wrapper" => "li.delete",
 						"success-function" => "deletedFromCart",
 						"static" => true
@@ -152,4 +152,20 @@ $IC = new Items();
 		</ul>
 	</div>
 
+<? if($cart["items"] && $cart["user_id"]) :?>
+	<div class="order i:newOrderFromCart">
+		<h2>Checkout</h2>
+		<p>Start checkout process by converting this cart into an order.</p>
+
+		<ul class="actions">
+			<?= $JML->oneButtonForm("Start checkout process", "/janitor/admin/shop/newOrderFromCart/".$cart["id"]."/".$cart["cart_reference"], array(
+				"inputs" => array("user_id" => $cart["user_id"], "currency" => $cart["currency"], "country" => $cart["country"], "order_comment" => "Created by admin"),
+				"confirm-value" => "Create new order from this cart?",
+				"class" => "primary",
+				"name" => "convert",
+				"wrapper" => "li.convert",
+			)) ?>
+		</ul>
+	</div>
+<? endif; ?>
 </div>

@@ -20,12 +20,14 @@ else {
 	$billing_address_options = array("" => "No addresses");
 }
 
-$payments = $model->getPayments(array("order_id" => true));
+$payments = $model->getPayments(array("order_id" => $order["id"]));
+
+$total_order_price = $model->getTotalOrderPrice($order["id"]);
 
 $return_to_orderstatus = session()->value("return_to_orderstatus");
 
 ?>
-<div class="scene i:scene defaultEdit orderView">
+<div class="scene i:scene defaultEdit shopView orderView">
 <? if($order["status"] == 0): ?>
 	<h1>Edit order</h1>
 <? else: ?>
@@ -35,65 +37,17 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 
 	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("Order list", "/janitor/admin/shop/order/list/".$return_to_orderstatus, array("class" => "button", "wrapper" => "li.cancel")) ?>
-<? if($order["status"] == 0): ?>
+
+	<? if($order["status"] == 0): ?>
 		<?= $JML->oneButtonForm("Delete order", "/janitor/admin/shop/deleteOrder/".$order["id"]."/".$order["user_id"], array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/shop/order/list/".$return_to_orderstatus
 		)) ?>
-<? endif; ?>
+	<? endif; ?>
 	</ul>
 
 	<div class="orderstatus">
 		<h2>Order status</h2>
-
-		<?= $model->formStart("/janitor/admin/shop/updateOrderStatus/".$order_id."/".$order["user_id"], array("class" => "i:editOrder labelstyle:inject")) ?>
-			<fieldset>
-				<?= $model->input("order_status", array(
-					"type" => "select",
-					"options" => $model->order_statuses,
-					"value" => $order["status"]
-				)) ?>
-			</fieldset>
-
-			<ul class="actions">
-				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
-
-
-		<? if($order["payment_status"] == 0 && $order["shipping_status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/orderCancelled/".$order_id."/".$order["user_id"], array("class" => "i:editOrder labelstyle:inject")) ?>
-			<ul class="actions">
-				<?= $model->submit("Cancel order", array("wrapper" => "li.cancel_order")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
-
-		<? elseif($order["payment_status"] == 2 && $order["shipping_status"] == 2): ?>
-
-		<?= $model->formStart("/janitor/admin/shop/orderComplete/".$order_id."/".$order["user_id"], array("class" => "i:editOrder labelstyle:inject")) ?>
-			<ul class="actions">
-				<?= $model->submit("Complete order", array("wrapper" => "li.complete_order")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
-
-		<? endif; ?>
-
-		<? if($order["shipping_status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/orderShipped/".$order_id."/".$order["user_id"], array("class" => "i:editOrder labelstyle:inject")) ?>
-			<ul class="actions">
-				<?= $model->submit("Order has been shipped", array("wrapper" => "li.shipped")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
-
-		<? elseif($order["shipping_status"] == 2): ?>
-
-		<?= $model->formStart("/janitor/admin/shop/orderReturned/".$order_id."/".$order["user_id"], array("class" => "i:editOrder labelstyle:inject")) ?>
-			<ul class="actions">
-				<?= $model->submit("Order has been returned", array("wrapper" => "li.returned")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
-		<? endif; ?>
-
 
 		<dl class="list <?= superNormalize($model->order_statuses[$order["status"]]) ?>">
 			<dt class="status">Status</dt>
@@ -109,7 +63,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<h2>Order</h2>
 
 		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editOrder labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("country", array(
 					"type" => "select",
@@ -133,7 +87,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 			<dt>Order No.</dt>
 			<dd><?= $order["order_no"] ?></dd>
 			<dt>Total price</dt>
-			<dd><?= formatPrice($model->getTotalOrderPrice($order["id"])) ?></dd>
+			<dd class="total_order_price"><?= formatPrice($total_order_price) ?></dd>
 			<dt>Created at</dt>
 			<dd><?= $order["created_at"] ?></dd>
 			<dt>Modified at</dt>
@@ -163,31 +117,81 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 
 	<div class="payments i:defaultList">
 		<h2>Order payments</h2>
-		<? if($payments): ?>
+		<? 
+		$total_payments = 0;
+		if($payments): ?>
 		<ul class="payment items">
-			<? foreach($payments as $payment): ?>
-			<li class="item"><?= $payment[""] ?></li>
+			<? foreach($payments as $payment):
+				$total_payments += $payment["payment_amount"];
+				$payment["payment_method"] = $this->paymentMethods($payment["payment_method"]); ?>
+			<li class="item">
+				<dl class="list">
+					<dt class="created_at">Created at</dt>
+					<dd class="created_at"><?= $payment["created_at"] ?></dd>
+					<dt class="price">Payment</dt>
+					<dd class="price"><?= formatPrice(array("price" => $payment["payment_amount"], "vat" => 0, "currency" => $payment["currency"], "country" => $order["country"])) ?></dd>
+					<dt class="transaction_id">Transaction id</dt>
+					<dd class="transaction_id"><?= $payment["transaction_id"] ?></dd>
+					<dt class="payment_method">Payment method</dt>
+					<dd class="payment_method"><?= $payment["payment_method"]["name"] ?></dd>
+				</dl>
+			</li>
 			<? endforeach; ?>
 		</ul>
 		<? else: ?>
 		<p>No payments</p>
 		<? endif; ?>
+
+		<? if($order["payment_status"] < 2): ?>
+
+		<div class="missing_payment">
+			<h3>Still to be paid</h3>
+			<p><?= formatPrice(array("price" => ($total_order_price["price"] - $total_payments), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"])) ?></p>
+		</div>
+
+		<ul class="actions">
+			<?= $HTML->link("Add payment", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.cancel")) ?>
+		</ul>
+		<? endif; ?>
+
 	</div>
 
-	<div class="all_items i:defaultList">
+	<div class="all_items i:defaultList i:orderItemsList">
 		<h2>Order items</h2>
 		<? if($order["items"]): ?>
 		<ul class="items">
 			<? foreach($order["items"] as $order_item): ?>
-			<li class="item <?= superNormalize($model->order_statuses[$order["status"]]) ?>">
-				<h3><?= $order_item["quantity"] ?> x <?= $order_item["name"] ?> á 					 
-					<?= formatPrice(array(
-							"price" => $order_item["unit_price"], 
-							"vat" => $order_item["unit_vat"], 
-							"currency" => $order["currency"], 
-							"country" => $order["country"]
-					)) ?>
-					<span class="price">
+			<li class="item <?= superNormalize($model->order_statuses[$order["status"]]) ?><?= ($order_item["shipped_by"] ? " shipped" : "") ?>">
+				<h3>
+
+				<? if($order["status"] == 0): ?>
+					<?= $model->formStart("/janitor/admin/shop/updateOrderItemQuantity/$order_id/".$order_item["id"], array("class" => "updateOrderItemQuantity labelstyle:inject")) ?>
+						<fieldset>
+							<?= $model->input("quantity", array(
+								"type" => "integer",
+								"value" =>  $order_item["quantity"],
+								"hint_message" => "State the quantity of this item"
+							)) ?>
+						</fieldset>
+						<ul class="actions">
+							<?= $model->submit("Update", array("name" => "update", "wrapper" => "li.save")) ?>
+						</ul>
+					<?= $model->formEnd() ?>
+				<? else: ?>
+					<span class="quantity"><?= $order_item["quantity"] ?></span>
+				<? endif; ?>
+
+					<span class="name">x <?= $order_item["name"] ?> á</span>
+
+					<span class="unit_price">
+						<?= formatPrice(array(
+								"price" => $order_item["unit_price"], 
+								"vat" => $order_item["unit_vat"], 
+								"currency" => $order["currency"], 
+								"country" => $order["country"]
+						)) ?>
+					</span>
+					<span class="total_price">
 						<?= formatPrice(array(
 								"price" => $order_item["total_price"], 
 								"vat" => $order_item["total_vat"], 
@@ -199,23 +203,29 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 					</span>
 				</h3>
 
-				<ul class="actions i:deleteFromOrder">
+				<ul class="actions">
 					<? if($order["status"] == 0): ?>
-					<?= $HTML->link("Edit", "/janitor/admin/shop/order/item/edit/$order_id/".$order_item["id"], array("class" => "button primary", "wrapper" => "li.users")) ?>
-
-					<?= $JML->oneButtonForm("Delete me", "/janitor/admin/shop/deleteFromOrder/$order_id/".$order_item["id"], array(
+					<?= $JML->oneButtonForm("Delete", "/janitor/admin/shop/deleteFromOrder/$order_id/".$order_item["id"], array(
 						"wrapper" => "li.delete",
 						"success-function" => "deletedFromOrder",
 						"static" => true
 					)) ?>
 					<? endif; ?>
 
-					<? if($order["status"] == 0 || $order["status"] == 1): ?>
-						<? if($order_item["shipped"]): ?>
-						<?= $HTML->link("Returned", "/janitor/admin/shop/orderItemReturned/$order_id/".$order_item["id"], array("class" => "button primary", "wrapper" => "li.shipped")) ?>
-						<? else: ?>
-						<?= $HTML->link("Shipped", "/janitor/admin/shop/orderItemShipped/$order_id/".$order_item["id"], array("class" => "button primary", "wrapper" => "li.shipped")) ?>
-						<? endif; ?>
+					<? if($order["status"] == 0 || $order["status"] == 1 || $order["status"] == 2): ?>
+					<?= $JML->oneButtonForm("Return this item", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
+						"inputs" => array("shipped" => 0),
+						"wrapper" => "li.shipped",
+						"static" => true,
+						"confirm-value" => "Yes, the item has been returned"
+					)) ?>
+
+					<?= $JML->oneButtonForm("Ship this item", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
+						"inputs" => array("shipped" => 1),
+						"class" => "secondary",
+						"wrapper" => "li.not_shipped",
+						"static" => true
+					)) ?>
 					<? endif; ?>
 				</ul>
 			</li>
@@ -235,7 +245,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 	<div class="comment">
 		<h2>Order comment</h2>
 		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editOrder labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("order_comment", array("value" => $order["comment"])) ?>
 			</fieldset>
@@ -257,7 +267,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<h2>Delivery</h2>
 
 		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editOrder labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("delivery_address_id", array(
 					"type" => "select",
@@ -293,7 +303,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<h2>Billing</h2>
 
 		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editOrder labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("billing_address_id", array(
 					"type" => "select",

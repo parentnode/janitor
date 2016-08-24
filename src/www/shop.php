@@ -43,14 +43,29 @@ if(is_array($action) && count($action)) {
 		// ITEM
 		else if(count($action) > 2 && preg_match("/^(item)$/", $action[1])) {
 
-			// LIST/EDIT
-			if(preg_match("/^(edit|new)$/", $action[2])) {
+			// NEW
+			if(preg_match("/^(new)$/", $action[2])) {
 
 				$page->page(array(
 					"type" => "janitor",
 					"body_class" => "orders", 
 					"page_title" => "Orders",
 					"templates" => "janitor/shop/order/item/".$action[2].".php"
+				));
+				exit();
+			}
+		}
+		// PAYMENT
+		else if(count($action) > 2 && preg_match("/^(payment)$/", $action[1])) {
+
+			// NEW
+			if(preg_match("/^(new)$/", $action[2])) {
+
+				$page->page(array(
+					"type" => "janitor",
+					"body_class" => "orders", 
+					"page_title" => "Orders",
+					"templates" => "janitor/shop/order/payment/".$action[2].".php"
 				));
 				exit();
 			}
@@ -70,6 +85,21 @@ if(is_array($action) && count($action)) {
 				"templates" => "janitor/shop/cart/".$action[1].".php"
 			));
 			exit();
+		}
+		// ITEM
+		else if(count($action) > 2 && preg_match("/^(item)$/", $action[1])) {
+
+			// LIST/EDIT
+			if(preg_match("/^(new)$/", $action[2])) {
+
+				$page->page(array(
+					"type" => "janitor",
+					"body_class" => "carts", 
+					"page_title" => "Carts",
+					"templates" => "janitor/shop/cart/item/".$action[2].".php"
+				));
+				exit();
+			}
 		}
 
 	}

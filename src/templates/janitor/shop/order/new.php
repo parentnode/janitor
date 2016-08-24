@@ -38,7 +38,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<?= $HTML->link("Back to orders", "/janitor/admin/shop/order/list/".$return_to_orderstatus, array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<?= $model->formStart("/janitor/admin/shop/addOrder", array("class" => "i:newOrder labelstyle:inject")) ?>
+	<?= $model->formStart("/janitor/admin/shop/addOrder", array("class" => "i:defaultNew labelstyle:inject")) ?>
 		<fieldset>
 			<?= $model->input("user_id", array(
 				"type" => "select",

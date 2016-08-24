@@ -24,6 +24,8 @@ class SuperShop extends Shop {
 	*/
 	function __construct() {
 
+
+
 		// order comment
 		$this->addToModel("order_status", array(
 			"type" => "text",
@@ -32,15 +34,25 @@ class SuperShop extends Shop {
 			"error_message" => "Invalid status"
 		));
 
+		// order payment_status
+		$this->addToModel("payment_status", array(
+			"type" => "text",
+			"label" => "Payment status",
+			"hint_message" => "Progress of order payment",
+			"error_message" => "Invalid status"
+		));
+
+		// order shipping status
+		$this->addToModel("shipping_status", array(
+			"type" => "text",
+			"label" => "Shipping status",
+			"hint_message" => "Progress of order shipping",
+			"error_message" => "Invalid status"
+		));
+
 
 		parent::__construct();
-
-
-
 	}
-
-
-
 
 
 
@@ -50,6 +62,9 @@ class SuperShop extends Shop {
 	// - optional carts for user_id
 	// - optional multiple carts, based on content match
 	function getCarts($_options=false) {
+
+		include_once("classes/users/superuser.class.php");
+		$UC = new SuperUser();
 
 		// get specific cart
 		$cart_id = false;
@@ -61,15 +76,6 @@ class SuperShop extends Shop {
 		// get all carts containing $item_id
 		$user_id = false;
 
-		// get carts based on timestamps
-		$before = false;
-		$after = false;
-
-		$order = "status DESC, id DESC";
-
-		// status
-		$status = "";
-
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
@@ -78,13 +84,6 @@ class SuperShop extends Shop {
 
 					case "item_id"         : $item_id           = $_value; break;
 					case "user_id"         : $user_id           = $_value; break;
-
-					case "before"          : $before            = $_value; break;
-					case "after"           : $after             = $_value; break;
-
-					case "order"           : $order             = $_value; break;
-
-					case "status"          : $status            = $_value; break;
 				}
 			}
 		}
@@ -94,8 +93,6 @@ class SuperShop extends Shop {
 
 		// get specific cart
 		if($cart_id || $cart_reference) {
-
-			$cart = false;
 
 			if($cart_id) {
 				$sql = "SELECT * FROM ".$this->db_carts." WHERE id = $cart_id LIMIT 1";
@@ -107,30 +104,39 @@ class SuperShop extends Shop {
 //			print $sql."<br>";
 			if($query->sql($sql)) {
 				$cart = $query->result(0);
-				$cart["items"] = false;
 
-				// get cart items
-				$sql = "SELECT * FROM ".$this->db_cart_items." as items WHERE items.cart_id = ".$cart["id"];
-//				print $sql."<br>";
+				$cart["items"] = array();
+				$cart["total_items"] = 0;
+
+				$sql = "SELECT * FROM ".$this->db_cart_items." WHERE cart_id = ".$cart["id"];
 				if($query->sql($sql)) {
-
 					$cart["items"] = $query->results();
 
-					// calculate total quantity
-					$sql = "SELECT SUM(quantity) as q FROM ".$this->db_cart_items." as items WHERE items.cart_id = ".$cart["id"];
+					// get total cart count
+					$sql = "SELECT SUM(quantity) as total_items FROM ".$this->db_cart_items." WHERE cart_id = ".$cart["id"];
+//					print $sql;
+
 					if($query->sql($sql)) {
-						$cart["total_quantity"] = $query->result(0, "q");
+						$cart["total_items"] = $query->result(0, "total_items");
 					}
-					else {
-						$cart["total_quantity"] = 0;
-					}
+
 				}
+
+				// is order mapped to user
+				if($cart["user_id"]) {
+					// get user info
+					$cart["user"] = $UC->getUsers(array("user_id" => $cart["user_id"]));
+					$cart["user"]["email"] = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "email"));
+					$cart["user"]["mobile"] = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "mobile"));
+				}
+
+				return $cart;
 			}
 
-			return $cart;
 		}
 
 		// get all carts with item_id in it
+		// TODO: not tested
 		else if($item_id) {
 
 			$carts = false;
@@ -143,269 +149,419 @@ class SuperShop extends Shop {
 				foreach($results as $result) {
 					$carts[] = $this->getCarts(array("cart_id" => $result["cart_id"]));
 				}
+
+				return $carts;
 			}
-			return $carts;
 		}
 
 		// get all carts for user_id
 		else if($user_id) {
 
-			$carts = false;
-
-			if($status) {
-				$sql = "SELECT * FROM ".$this->db_carts." WHERE user_id = $user_id AND status = $status ORDER BY $order";
-			}
-			else {
-				$sql = "SELECT * FROM ".$this->db_carts." WHERE user_id = $user_id ORDER BY $order";
-			}
-
+			$sql = "SELECT * FROM ".$this->db_carts." WHERE user_id = $user_id ORDER BY id DESC";
 //			print $sql."<br>";
 			if($query->sql($sql)) {
 				$carts = $query->results();
 
 				foreach($carts as $i => $cart) {
-					$carts[$i]["items"] = false;
+					$carts[$i]["items"] = array();
+					$carts[$i]["total_items"] = 0;
+
 					if($query->sql("SELECT * FROM ".$this->db_cart_items." WHERE cart_id = ".$cart["id"])) {
 						$carts[$i]["items"] = $query->results();
+
+						// get total cart count
+						$sql = "SELECT SUM(quantity) as total_items FROM ".$this->db_cart_items." WHERE cart_id = ".$cart["id"];
+//						print $sql;
+
+						if($query->sql($sql)) {
+							$carts[$i]["total_items"] = $query->result(0, "total_items");
+						}
 					}
 				}
+				return $carts;
 			}
-			return $carts;
 		}
+
+		// get all carts
 		else {
 			
-			$carts = false;
-
-			if($status) {
-				$sql = "SELECT * FROM ".$this->db_carts."  WHERE status = $status ORDER BY $order";
-			}
-			else {
-				$sql = "SELECT * FROM ".$this->db_carts." ORDER BY $order";
-			}
-
+			$sql = "SELECT * FROM ".$this->db_carts." ORDER BY id DESC";
 //			print $sql."<br>";
 			if($query->sql($sql)) {
 				$carts = $query->results();
 
 				foreach($carts as $i => $cart) {
-					$carts[$i]["items"] = false;
-					if($query->sql("SELECT * FROM ".$this->db_cart_items." WHERE cart_id = ".$cart["id"])) {
+
+					$carts[$i]["items"] = array();
+					$carts[$i]["total_items"] = 0;
+					$sql = "SELECT * FROM ".$this->db_cart_items." WHERE cart_id = ".$cart["id"];
+
+//					print $sql;
+
+					if($query->sql($sql)) {
 						$carts[$i]["items"] = $query->results();
+
+						// get total cart count
+						$sql = "SELECT SUM(quantity) as total_items FROM ".$this->db_cart_items." WHERE cart_id = ".$cart["id"];
+//						print $sql;
+
+						if($query->sql($sql)) {
+							$carts[$i]["total_items"] = $query->result(0, "total_items");
+						}
+					}
+
+					// is order mapped to user
+					if($cart["user_id"]) {
+						// get user info
+						$carts[$i]["user"] = $UC->getUsers(array("user_id" => $cart["user_id"]));
+						$carts[$i]["user"]["email"] = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "email"));
+						$carts[$i]["user"]["mobile"] = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "mobile"));
 					}
 				}
+
+				return $carts;
 			}
-			return $carts;
 		}
+
+		return false;
 	}
 
 
-	/**
-	* Create new cart
-	*
-	* @return Array of cart_id and cart_reference
-	*/
-	// TODO: add user id to cart creation when users are implemented
-	function createCart() {
-
+	// Add a new cart with optional user, currency and country
+	# /janitor/admin/shop/addCart
+	function addCart($action) {
 		global $page;
 
-		$query = new Query();
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
-		$query->checkDbExistance($this->db_carts);
-		$query->checkDbExistance($this->db_cart_items);
-		$query->checkDbExistance($this->db_orders);
-		$query->checkDbExistance($this->db_order_items);
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("user_id"))) {
 
-		$currency = $page->currency();
+			$query = new Query();
 
-		// find valid cart_reference
-		$cart_reference = randomKey(12);
-		while($query->sql("SELECT id FROM ".$this->db_carts." WHERE cart_reference = '".$cart_reference."'")) {
+			$user_id = $this->getProperty("user_id", "value");
+			$currency = $this->getProperty("currency", "value");
+			$country = $this->getProperty("country", "value");
+
+			// set user_id to default (NULL) if not passed
+			if(!$user_id) {
+				$user_id = "DEFAULT";
+			}
+
+			// set default currency if not passed
+			if(!$currency) {
+				$currency = $page->currency();
+			}
+
+			// set default country if not passed
+			if(!$country) {
+				$country = $page->country();
+			}
+
+			// find valid cart_reference
 			$cart_reference = randomKey(12);
+			while($query->sql("SELECT id FROM ".$this->db_carts." WHERE cart_reference = '".$cart_reference."'")) {
+				$cart_reference = randomKey(12);
+			}
+
+			// add cart
+			if($query->sql("INSERT INTO ".$this->db_carts." VALUES(DEFAULT, $user_id, '$cart_reference', '$country', '$currency', CURRENT_TIMESTAMP, DEFAULT)")) {
+
+				message()->addMessage("Cart added");
+				return $this->getCarts(array("cart_reference" => $cart_reference));
+
+			}
+
 		}
 
-		$query->sql("INSERT INTO ".$this->db_carts." VALUES(DEFAULT, '$cart_reference', '".$page->country()."', '".$currency["id"]."', DEFAULT, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
-		$cart_id = $query->lastInsertId();
-
-		session()->value("cart", $cart_reference);
-		// save cookie
-		setcookie("cart", $cart_reference, time()+60*60*24*60, "/");
-
-		return array($cart_id, $cart_reference);
+		message()->addMessage("Cart could not be added", array("type" => "error"));
+		return false;
 	}
 
+	// Update cart
+	# /janitor/admin/shop/updateCart/#cart_reference#
+	function updateCart($action) {
 
-	/**
-	* Check cart_reference and create new cart if validation fails
-	* Optional create to auto create new cart in case of validation failure
-	*
-	* @return Array of cart_id and cart_reference if create option is true, otherwise true|false
-	*/
-	function validateCart($cart_reference, $_options=false) {
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
-		$create = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "create"    : $create    = $_value; break;
-				}
-			}
-		}
-
-		$query = new Query();
-
-		// if cart_reference is in action, prioritize it
-		$cart_reference = stringOr($cart_reference, session()->value("cart"));
-
-		print $cart_reference."<br>";
-
-		// no cart_reference
-		// create new cart
-		if(!$cart_reference) {
-			if($create) {
-				list($cart_id, $cart_reference) = $this->createCart();
-			}
-			else {
-				return false;
-			}
-		}
-		// has cart_reference
-		else {
-
-			// cart validation
-			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
-
-			// no cart was found
-			if(!$cart) {
-				if($create) {
-					list($cart_id, $cart_reference) = $this->createCart();
-				}
-				else {
-					return false;
-				}
-			}
-			// proceed with validation
-			else {
-
-				// get cart_id for cart_reference
-				$cart_id = $cart["id"];
-
-				// check if cart is associated with order and that order has not yet been paid
-				// otherwise create new cart
-				if($query->sql("SELECT * FROM ".$this->db_orders." WHERE cart_id = $cart_id AND status != 3")) {
-					if($create) {
-						list($cart_id, $cart_reference) = $this->createCart();
-					}
-					else {
-						return false;
-					}
-				}
-				else {
-					// update cart modified_at column
-					$query->sql("UPDATE ".$this->db_carts." SET modified_at = CURRENT_TIMESTAMP WHERE cart_id = $cart_id");
-				}
-			}
-
-		}
-
-		return array($cart_id, $cart_reference);
-	}
-
-
-	// add product to cart - 2 parameters minimum
-	// addItemToCart/#item_id#/[#cart_id#]
-	function addItemToCart($action) {
-
-		if(count($action) >= 2) {
-
-			$query = new Query();
-			$IC = new Items();
-
-			$query->checkDbExistance($this->db_carts);
-			$query->checkDbExistance($this->db_cart_items);
-			$query->checkDbExistance($this->db_orders);
-			$query->checkDbExistance($this->db_order_items);
-
-
-			$item_id = $action[1];
-			list($cart_id, $cart_reference) = $this->validateCart($action[2], array("create" => true));
-
-
-			// add item or add one to existing item_id in cart
-			if($item_id && $IC->getItem(array("id" => $item_id))) {
-				// item already exists in cart, update quantity
-				if($query->sql("SELECT * FROM ".$this->db_cart_items." items WHERE items.cart_id = ".$cart_id." AND item_id = ".$item_id)) {
-					$cart_item = $query->result(0);
-
-					// INSERT current quantity+1
-					$query->sql("UPDATE ".$this->db_cart_items." SET quantity = ".($cart_item["quantity"]+1)." WHERE id = ".$cart_item["id"]);
-				}
-				// just add item to cart
-				else {
-
-					$query->sql("INSERT INTO ".$this->db_cart_items." VALUES(DEFAULT, '".$item_id."', '".$cart_id."', 1)");
-				}
-			}
-		}
-	}
-
-
-	// update cart quantity - 2 parameters minimum
-	// updateQuantity/#item_id#/[#cart_id#]
-	// quantity is posted
-	function updateQuantity($action) {
-
-		if(count($action) >= 2) {
-
-			$query = new Query();
-			$IC = new Items();
-
-			$item_id = $action[1];
-			list($cart_id, $cart_reference) = $this->validateCart($action[2], array("create" => true));
-
-			// Quantity
-			$quantity = getPost("quantity");
-
-			// update quantity if item exists in cart
-			if($query->sql("SELECT * FROM ".$this->db_cart_items." as items WHERE items.cart_id = ".$cart_id." AND item_id = ".$item_id)) {
-				$cart_item = $query->result(0);
-
-				if($quantity) {
-					// INSERT current quantity+1
-					$query->sql("UPDATE ".$this->db_cart_items." SET quantity = ".$quantity." WHERE id = ".$cart_item["id"]);
-				}
-				// no quantity value, must mean delete item from cart (quantity = 0)
-				else {
-					// DELETE
-					$query->sql("DELETE FROM ".$this->db_cart_items." WHERE id = ".$cart_item["id"]);
-				}
-			}
-		}
-	}
-
-
-	// delete cart - 2 parameters exactly
-	// /deleteCart/#cart_id#
-	function deleteCart($action) {
-
+		// does values validate
 		if(count($action) == 2) {
 
 			$query = new Query();
-			if($query->sql("DELETE FROM ".$this->db_carts." WHERE id = ".$action[1])) {
-				message()->addMessage("Cart deleted");
-				return true;
-			}
 
+
+			$cart_reference = $action[1];
+			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+
+			if($cart) {
+
+				$user_id = $this->getProperty("user_id", "value");
+				$currency = $this->getProperty("currency", "value");
+				$country = $this->getProperty("country", "value");
+
+
+				// create base data update sql
+				$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP";
+
+				// update currency
+				if($currency) {
+					$sql .= ", currency='$currency'";
+				}
+
+				// update country
+				if($country) {
+					$sql .= ", country='$country'";
+				}
+
+				// update user_id
+				if($user_id) {
+					$sql .= ", user_id='$user_id'";
+				}
+				// Remove user from cart
+				if($user_id === "0") {
+					$sql .= ", user_id=NULL";
+				}
+
+
+				// finalize sql
+				$sql .= " WHERE cart_reference='$cart_reference'";
+
+//				print $sql;
+				if($query->sql($sql)) {
+
+					message()->addMessage("Cart updated");
+					return $this->getCarts(array("cart_reference" => $cart_reference));
+				}
+
+			}
 		}
 
-		message()->addMessage("Cart could not be deleted - refresh your browser", array("type" => "error"));
+		message()->addMessage("Cart could not be updated", array("type" => "error"));
 		return false;
 
 	}
 
+	// Delete cart
+	# /janitor/admin/shop/deleteCart/#cart_id#/#cart_reference#
+	function deleteCart($action) {
+
+		// does values validate
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$cart_id = $action[1];
+			$cart_reference = $action[2];
+
+			$sql = "DELETE FROM $this->db_carts WHERE id = $cart_id AND cart_reference = '$cart_reference'";
+//			print $sql;
+			if($query->sql($sql)) {
+				message()->addMessage("Cart deleted");
+				return true;
+			}
+		}
+
+		message()->addMessage("Cart could not deleted", array("type" => "error"));
+		return false;
+	}
 
 
+	// Add item to cart
+	# /janitor/admin/shop/addToCart/#cart_reference#/
+	// Items and quantity in $_post
+	function addToCart($action) {
+
+		if(count($action) > 1) {
+
+			$cart_reference = $action[1];
+			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+
+			// Get posted values to make them available for models
+			$this->getPostedEntities();
+
+			// does values validate
+			if($cart && $this->validateList(array("quantity", "item_id"))) {
+
+				$query = new Query();
+
+				$quantity = $this->getProperty("quantity", "value");
+				$item_id = $this->getProperty("item_id", "value");
+
+
+				// check if item is already in cart?
+				if($cart["items"] && arrayKeyValue($cart["items"], "item_id", $item_id) !== false) {
+					$existing_item_index = arrayKeyValue($cart["items"], "item_id", $item_id);
+
+
+					$existing_item = $cart["items"][$existing_item_index];
+					$existing_quantity = $existing_item["quantity"];
+					$new_quantity = intval($quantity) + intval($existing_quantity);
+
+					$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
+//					print $sql;
+				}
+				// insert new cart item
+				else {
+
+					$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
+	//				print $sql;				
+				}
+
+				if($query->sql($sql)) {
+
+					// update modified at time
+					$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$cart["id"];
+					$query->sql($sql);
+
+					message()->addMessage("Item added to cart");
+					return $this->getCarts(array("cart_id" => $cart["id"]));
+
+				}
+			}
+		}
+
+		message()->addMessage("Item could not be added to cart", array("type" => "error"));
+		return false;
+	}
+
+	// Update quantity of item in cart
+	# /janitor/admin/shop/updateCartItemQuantity/#cart_reference#/#cart_item_id#
+	// new quantity in $_POST
+	function updateCartItemQuantity($action) {
+
+		if(count($action) == 3) {
+
+			$cart_reference = $action[1];
+			$cart_item_id = $action[2];
+			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+
+			// Get posted values to make them available for models
+			$this->getPostedEntities();
+
+			// does values validate
+			if($cart && $this->validateList(array("quantity"))) {
+
+				$query = new Query();
+				$IC = new Items();
+
+				$quantity = $this->getProperty("quantity", "value");
+
+
+				// find item_id in cart items?
+				if($cart["items"] && arrayKeyValue($cart["items"], "id", $cart_item_id) !== false) {
+					$existing_item_index = arrayKeyValue($cart["items"], "id", $cart_item_id);
+					$item_id = $cart["items"][$existing_item_index]["item_id"];
+
+					$sql = "UPDATE ".$this->db_cart_items." SET quantity=$quantity WHERE id = ".$cart_item_id." AND cart_id = ".$cart["id"];
+//					print $sql;
+					if($query->sql($sql)) {
+
+						// update modified at time
+						$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$cart["id"];
+						$query->sql($sql);
+
+						$item = $IC->getItem(array("id" => $item_id, "extend" => true)); 
+						$item["unit_price"] = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $cart["currency"], "country" => $cart["country"]));
+						$item["unit_price_formatted"] = formatPrice($item["unit_price"]);
+						$item["total_price"] = array(
+							"price" => $item["unit_price"]["price"]*$quantity, 
+							"vat" => $item["unit_price"]["vat"]*$quantity, 
+							"currency" => $cart["currency"], 
+							"country" => $cart["country"]
+						);
+						$item["total_price_formatted"] = formatPrice($item["total_price"], array("vat" => true));
+						$item["total_cart_price"] = $this->getTotalCartPrice($cart["id"]);
+						$item["total_cart_price_formatted"] = formatPrice($item["total_cart_price"]);
+ 
+						message()->addMessage("Item quantity updated");
+						return $item;
+
+					}
+
+				}
+
+			}
+
+		}
+
+		message()->addMessage("Quantity could not be updated", array("type" => "error"));
+		return false;
+	}
+
+	// Delete item from cart
+	# /janitor/admin/shop/deleteFromCart/#cart_reference#/#cart_item_id#
+	function deleteFromCart($action) {
+
+		if(count($action) > 2) {
+
+			$cart_reference = $action[1];
+			$cart_item_id = $action[2];
+			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+
+			if($cart) {
+
+				$query = new Query();
+				$sql = "DELETE FROM ".$this->db_cart_items." WHERE id = $cart_item_id AND cart_id = ".$cart["id"];
+				// print $sql;
+				if($query->sql($sql)) {
+					$cart = $this->getCarts(array("cart_id" => $cart["id"]));
+
+					// add total price info to enable UI update
+					$cart["total_cart_price"] = $this->getTotalCartPrice($cart["id"]);
+					$cart["total_cart_price_formatted"] = formatPrice($cart["total_cart_price"]);
+
+					message()->addMessage("Cart item deleted");
+					return $cart;
+				}
+			}
+		}
+
+		message()->addMessage("Cart item could not deleted", array("type" => "error"));
+		return false;
+	}
+
+
+
+	// Convert cart to order
+	# /janitor/admin/shop/newOrderFromCart/#card_id#/#cart_reference#
+	function newOrderFromCart($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 3) {
+
+			$query = new Query();
+
+
+			$cart_id = $action[1];
+			$cart_reference = $action[2];
+			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+
+			if($cart && $cart["user_id"] && $cart["items"]) {
+
+				$order = $this->addOrder(array("addOrder"));
+
+				foreach($cart["items"] as $cart_item) {
+					$_POST["quantity"] = $cart_item["quantity"];
+					$_POST["item_id"] = $cart_item["item_id"];
+					$this->addToOrder(array("addOrder", $order["id"]));
+				}
+
+				$this->deleteCart(array("deleteCart", $cart_id, $cart_reference));
+
+				message()->addMessage("Cart converted to order");
+				return $order;
+
+			}
+		}
+
+		message()->addMessage("Cart could not be converted to order", array("type" => "error"));
+		return false;
+
+	}
 
 
 
@@ -414,47 +570,39 @@ class SuperShop extends Shop {
 	* get orders
 	*
 	* get all orders
-	* get orders by cart_id or cart_reference
-	* get orders by order_id
+	* get order by order_id or order_no
 	* get orders for user_id
 	* get orders containing specific item_id
-	*
-	* TODO: implement timeranges
+	* get all orders
 	*/
 	function getOrders($_options=false) {
 
 		include_once("classes/users/superuser.class.php");
 		$UC = new SuperUser();
 
-		// get specific cart
-		$cart_id = false;
-		$cart_reference = false;
+		// get specific order
 		$order_id = false;
 		$order_no = false;
 
-		// get all orders for $user_id
+		// get all orders for user_id
 		$user_id = false;
 
-		// get all orders containing $item_id
+		// get all orders containing item_id
 		$item_id = false;
 
-		// get all orders width status as specified
+		// get all orders with status as specified
 		$status = false;
 
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "cart_id"           : $cart_id             = $_value; break;
-					case "cart_reference"    : $cart_reference      = $_value; break;
 					case "order_id"          : $order_id            = $_value; break;
 					case "order_no"          : $order_no            = $_value; break;
 
 					case "user_id"           : $user_id             = $_value; break;
 
 					case "item_id"           : $item_id             = $_value; break;
-
-					case "status"            : $status              = $_value; break;
 
 					case "status"            : $status              = $_value; break;
 
@@ -492,6 +640,9 @@ class SuperShop extends Shop {
 					$order["user"]["mobile"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
 				}
 
+				$order["order_status_text"] = $this->order_statuses[$order["status"]];
+				$order["shipping_status_text"] = $this->shipping_statuses[$order["shipping_status"]];
+				$order["payment_status_text"] = $this->payment_statuses[$order["payment_status"]];
 				return $order;
 			}
 
@@ -504,7 +655,7 @@ class SuperShop extends Shop {
 				$orders = $query->results();
 
 				foreach($orders as $i => $order) {
-					$orders[$i]["items"] = false;
+					$orders[$i]["items"] = array();
 					if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE order_id = ".$order["id"])) {
 						$orders[$i]["items"] = $query->results();
 					}
@@ -530,9 +681,10 @@ class SuperShop extends Shop {
 		// return all orders
 		else {
 
-			$sql = "SELECT * FROM ".$this->db_orders.($status !== false ? " WHERE status=$status" : "")." ORDER BY order_no DESC";
+			$sql = "SELECT * FROM ".$this->db_orders.($status !== false ? " WHERE status=$status" : "")." ORDER BY id DESC";
 //			print $sql;
 			if($query->sql($sql)) {
+
 				$orders = $query->results();
 
 				foreach($orders as $i => $order) {
@@ -560,46 +712,39 @@ class SuperShop extends Shop {
 		return false;
 	}
 
+	// a shorthand function to get order count for UI
+	function getOrderCount($_options=false) {
+
+		// get all count of orders with status
+		$status = false;
 
 
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "status"             : $status              = $_value; break;
+				}
+			}
+		}
 
-	// update order
-	// if order does not exist, look for user matching email or mobile
-	// 	if user is found
-	// 	- what to do if email and mobile does not match
-	// 	update user info
-	// 	create order
+		$query = new Query();
 
-	// update order
-	// update order_items
-	// check for address label match
-	// update or add address(es)
+		if($status !== false) {
+			$sql = "SELECT id, count(*) as order_count FROM ".$this->db_orders." WHERE status=$status";
+			if($query->sql($sql)) {
+				return $query->result(0, "order_count");
+			}
+		}
+		else {
+			$sql = "SELECT id, count(*) as order_count FROM ".$this->db_orders;
+			if($query->sql($sql)) {
+				return $query->result(0, "order_count");
+			}
+		}
 
-	// BIG QUESTION 
-	// - HOW TO HANDLE EXISTING USER WITHOUT LOGIN-REQUIREMENT
-	// - HOW TO AVOID ABUSE (if I type a wrong email, should I then be able to overwrite account information?)
-
-	// MAYBE SEPARATE CREATE ORDER FUNCTION TO MAKE IT LESS COMPLEX (SPLIT FORM IN TWO - BUT KEEP IN SAME PAGE)?
-
-
-
-	// ORDERS
-	
-	# /janitor/admin/shop/newOrderFromCart/#card_reference#
-	function newOrderFromCart($action) {
-
-		
-//		$this->getCarts();
-//		$this->createOrder();
-//		$this->addToOrder();
-
-
+		return 0;
 	}
 
-
-
-
-	
 
 	// add a new order for specified user
 	# /janitor/admin/shop/addOrder
@@ -703,7 +848,7 @@ class SuperShop extends Shop {
 		return false;
 	}
 
-	// add a new order for specified user
+	// Update order
 	# /janitor/admin/shop/updateOrder/#order_id#
 	function updateOrder($action) {
 
@@ -825,7 +970,7 @@ class SuperShop extends Shop {
 	}
 
 	// Delete order (only allowed if ststus is still 0)
-	# /janitor/admin/shop/addItemToOrder/#order_id#/#user_id#
+	# /janitor/admin/shop/deleteOrder/#order_id#/#user_id#
 	function deleteOrder($action) {
 
 		// does values validate
@@ -851,32 +996,7 @@ class SuperShop extends Shop {
 		return false;
 	}
 
-	// Update order status
-	# /janitor/admin/shop/updateOrderStatus/#order_id#/#user_id#
-	function updateOrderStatus($action) {
 
-		$this->getPostedEntities();
-
-		// does values validate
-		if(count($action) == 3) {
-
-			$query = new Query();
-			$order_id = $action[1];
-			$user_id = $action[2];
-
-			$status = $this->getProperty("order_status", "value");
-			if(isset($this->order_statuses[$status])) {
-				// create base data update sql
-				$sql = "UPDATE ".$this->db_orders." SET status=$status WHERE id = $order_id AND user_id = $user_id";
-				if($query->sql($sql)) {
-					message()->addMessage("Order status updated");
-					return true;
-				}
-			}
-		}
-		message()->addMessage("Order status could not be updated", array("type" => "error"));
-		return false;
-	}
 
 	// ORDER ITEMS
 
@@ -949,21 +1069,19 @@ class SuperShop extends Shop {
 					$query->sql($sql);
 
 					message()->addMessage("Item added to order");
-					return true;
+					return $this->getOrders(array("order_id" => $order_id));
 
 				}
-
-
 
 			}
 
 		}
 
-		message()->addMessage("Order could not be added", array("type" => "error"));
+		message()->addMessage("Item could not be added to order", array("type" => "error"));
 		return false;
 	}
 
-	# /janitor/admin/shop/updateOrderQuantity/#order_id#/#order_item_id#
+	# /janitor/admin/shop/updateOrderItemQuantity/#order_id#/#order_item_id#
 	// new quantity in $_POST
 	function updateOrderItemQuantity($action) {
 
@@ -999,14 +1117,26 @@ class SuperShop extends Shop {
 					$total_price = $unit_price * $quantity;
 					$total_vat = $unit_vat * $quantity;
 
-
 					$sql = "UPDATE ".$this->db_order_items." SET quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$order_item_id." AND order_id = ".$order_id;
 //					print $sql;
 					if($query->sql($sql)) {
 
-						message()->addMessage("Item quantity updated");
-						return true;
+						// return extended order item
+						$item = $order["items"][$existing_item_index];
+						$item["unit_price"] = $price;
+						$item["unit_price_formatted"] = formatPrice($item["unit_price"]);
+						$item["total_price"] = array(
+							"price" => $item["unit_price"]["price"]*$quantity, 
+							"vat" => $item["unit_price"]["vat"]*$quantity, 
+							"currency" => $order["currency"], 
+							"country" => $order["country"]
+						);
+						$item["total_price_formatted"] = formatPrice($item["total_price"], array("vat" => true));
+						$item["total_order_price"] = $this->getTotalOrderPrice($order["id"]);
+						$item["total_order_price_formatted"] = formatPrice($item["total_order_price"]);
 
+						message()->addMessage("Item quantity updated");
+						return $item;
 					}
 
 				}
@@ -1023,8 +1153,7 @@ class SuperShop extends Shop {
 		return false;
 	}
 
-	# /janitor/admin/shop/addToOrder/#order_id#/#order_item_id#
-	// Items and quantity in $_post
+	# /janitor/admin/shop/deleteFromOrder/#order_id#/#order_item_id#
 	function deleteFromOrder($action) {
 
 		if(count($action) > 2) {
@@ -1039,8 +1168,14 @@ class SuperShop extends Shop {
 				$sql = "DELETE FROM ".$this->db_order_items." WHERE id = $order_item_id AND order_id = $order_id";
 				// print $sql;
 				if($query->sql($sql)) {
+					$order = $this->getOrders(array("order_id" => $order["id"]));
+
+					// add total price info to enable UI update
+					$order["total_order_price"] = $this->getTotalOrderPrice($order["id"]);
+					$order["total_order_price_formatted"] = formatPrice($order["total_order_price"]);
+
 					message()->addMessage("Order item deleted");
-					return true;
+					return $order;
 				}
 			}
 		}
@@ -1048,6 +1183,230 @@ class SuperShop extends Shop {
 		message()->addMessage("Order item could not deleted", array("type" => "error"));
 		return false;
 	}
+
+
+
+
+
+
+
+	// update shipping status for order or item
+	# /janitor/admin/shop/updateShippingStatus/#order_id#/[#order_item_id#]
+	// should check if total order is shipped and update shipping status
+	function updateShippingStatus($action) {
+
+		if(count($action) > 1) {
+
+			$order_id = $action[1];
+			$order_item_id = false;
+			$order = $this->getOrders(array("order_id" => $order_id));
+
+			// order_item_id sent
+			if(count($action) == 3) {
+				$order_item_id = $action[2];
+			}
+
+			// Get posted values to make them available for models
+			$this->getPostedEntities();
+
+			// does values validate
+			if($order && ($order["status"] == 0 || $order["status"] == 1 || $order["status"] == 2)) {
+
+				$query = new Query();
+
+				$shipped = getPost("shipped");
+				$shipped_by = "NULL";
+				if($shipped) {
+					$shipped_by = session()->value("user_id");
+				}
+
+				if($order_item_id) {
+					$sql = "UPDATE ".$this->db_order_items." SET shipped_by=$shipped_by WHERE id = ".$order_item_id." AND order_id = ".$order_id;
+//					print $sql;
+					$query->sql($sql);
+
+				}
+				else {
+					foreach($order["items"] as $order_item) {
+						$sql = "UPDATE ".$this->db_order_items." SET shipped_by=$shipped_by WHERE id = ".$order_item["id"]." AND order_id = ".$order_id;
+						$query->sql($sql);
+					}
+				}
+
+				message()->addMessage("Order shipment updated");
+				return $this->validateOrder($order_id);
+
+			}
+		}
+
+		message()->addMessage("Shipment could not be updated", array("type" => "error"));
+		return false;
+	}
+
+
+	// Validate statuses or order
+	function validateOrder($order_id) {
+		
+		// Update order shipping status
+		$order = $this->getOrders(array("order_id" => $order_id));
+		$shipped_items = 0;
+		$shipping_status = 0;
+		foreach($order["items"] as $order_item) {
+//			print_r($order_item);
+			if($order_item["shipped_by"]) {
+				$shipped_items++;
+			}
+		}
+
+		if($shipped_items == count($order["items"])) {
+			$shipping_status = 2;
+		}
+		else if($shipped_items) {
+			$shipping_status = 1;
+		}
+		
+//		print $shipped_items ."==". count($order["items"]);
+		$query = new Query();
+		$sql = "UPDATE ".$this->db_orders." SET shipping_status = $shipping_status WHERE id = ".$order_id;
+		$query->sql($sql);
+
+		message()->addMessage($this->shipping_statuses[$shipping_status]);
+
+
+		// check payment status
+		$payments = $this->getPayments(array("order_id" => $order_id));
+		$total_order_price = $this->getTotalOrderPrice($order_id);
+		$payment_status = 0;
+		$total_payments = 0;
+		if($payments) {
+			foreach($payments as $payment) {
+				$total_payments += $payment["payment_amount"];
+			}
+		}
+		if($total_payments >= $total_order_price["price"]) {
+			$payment_status = 2;
+		}
+		else if($total_payments) {
+			$payment_status = 1;
+		}
+
+		$query = new Query();
+		$sql = "UPDATE ".$this->db_orders." SET payment_status = $payment_status WHERE id = ".$order_id;
+		$query->sql($sql);
+
+		message()->addMessage($this->payment_statuses[$payment_status]);
+
+		
+//		print($payments);
+
+		// Update order status based on payment and shipment status
+		$status = 1;
+		if($shipping_status == 2 && $payment_status == 2) {
+			$status = 2;
+		}
+
+		$sql = "UPDATE ".$this->db_orders." SET status = $status WHERE id = ".$order_id;
+		$query->sql($sql);
+
+		return $this->getOrders(array("order_id" => $order_id));
+	}
+
+
+	function getPayments($_options=false) {
+
+		$order_id = false;
+
+		// get all orders for user_id
+		$user_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "order_id"          : $order_id            = $_value; break;
+
+					case "user_id"           : $user_id             = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		// get specific order
+		if($order_id) {
+
+			$sql = "SELECT * FROM ".$this->db_payments." WHERE order_id = ".$order_id;
+
+//			print $sql."<br>";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+
+		}
+		else if($user_id) {
+
+			$sql = "SELECT * FROM ".$this->db_payments." WHERE user_id = ".$user_id;
+
+//			print $sql."<br>";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+
+		}
+		else {
+			$sql = "SELECT * FROM ".$this->db_payments . " ORDER BY id DESC";
+
+//			print $sql."<br>";
+			if($query->sql($sql)) {
+				
+				return $query->results();
+
+			}
+		
+		}
+
+		return false;
+	}
+
+
+	// should also update order state if payment is sufficient
+	# /janitor/admin/shop/addPayment
+	function addPayment($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 1 && $this->validateList(array("payment_amount", "currency", "payment_method", "order_id", "transaction_id"))) {
+
+
+			$order_id = $this->getProperty("order_id", "value");
+			$transaction_id = $this->getProperty("transaction_id", "value");
+			$currency = $this->getProperty("currency", "value");
+			$payment_amount = $this->getProperty("payment_amount", "value");
+			$payment_method = $this->getProperty("payment_method", "value");
+
+			$order = $this->getOrders(array("order_id" => $order_id));
+
+			if($order) {
+
+				$query = new Query();
+
+				// update modified at time
+				$sql = "INSERT INTO ".$this->db_payments." SET order_id=$order_id, currency='$currency', payment_amount=$payment_amount, transaction_id='$transaction_id', payment_method=$payment_method";
+				if($query->sql($sql)) {
+
+					$this->validateOrder($order["id"]);
+
+					message()->addMessage("Payment added");
+					return true;
+				
+				}
+			}
+
+		}
+		message()->addMessage("Payment could not be added", array("type" => "error"));
+		return false;
+	}
+
 
 
 }

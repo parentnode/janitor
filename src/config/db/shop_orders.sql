@@ -7,7 +7,10 @@ CREATE TABLE `SITE_DB`.`shop_orders` (
   `country` varchar(2) DEFAULT NULL,
   `currency` varchar(3) DEFAULT NULL,
 
-  `status` int(11) DEFAULT 0,
+  `status` int(11) NOT NULL DEFAULT 0,
+  `payment_status` int(11) NOT NULL DEFAULT 0,
+  `shipping_status` int(11) NOT NULL DEFAULT 0,
+
 
   `delivery_name` varchar(255) DEFAULT NULL,
   `delivery_att` varchar(255) DEFAULT NULL,

@@ -139,6 +139,7 @@ Util.Objects["defaultList"] = new function() {
 					action.node = node;
 
 					u.o.oneButtonForm.init(action);
+					// default sucessful delete action
 					action.confirmed = function(response) {
 
 						if(response.cms_status == "success") {

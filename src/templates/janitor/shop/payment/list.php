@@ -4,7 +4,7 @@ global $model;
 
 $payments = $model->getPayments();
 ?>
-<div class="scene i:scene defaultList orderList">
+<div class="scene i:scene defaultList shopList paymentList">
 	<h1>Payments</h1>
 
 	<ul class="actions">
@@ -17,7 +17,8 @@ $payments = $model->getPayments();
 		<? if($payments): ?>
 		<ul class="items payments">
 			<? foreach($payments as $payment):
-				$order = $model->getOrders(array("order_id" => $payment["order_id"])); ?>
+				$order = $model->getOrders(array("order_id" => $payment["order_id"]));
+				$payment["payment_method"] = $this->paymentMethods($payment["payment_method"]); ?>
 			<li class="item payment">
 				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)</h3>
 
@@ -25,7 +26,13 @@ $payments = $model->getPayments();
 					<dt class="created_at">Created at</dt>
 					<dd class="created_at"><?= $payment["created_at"] ?></dd>
 					<dt class="price">Payment</dt>
-					<dd class="price"><?= formatPrice(array("price" => $payment["price"], "vat" => $payment["vat"], "currency" => $payment["currency"], "country" => $payment["country"])) ?></dd>
+					<dd class="price"><?= formatPrice(array("price" => $payment["payment_amount"], "vat" => 0, "currency" => $payment["currency"], "country" => $order["country"])) ?></dd>
+					<dt class="transaction_id">Transaction id</dt>
+					<dd class="transaction_id"><?= $payment["transaction_id"] ?></dd>
+					<dt class="payment_method">Payment method</dt>
+					<dd class="payment_method"><?= $payment["payment_method"]["name"] ?></dd>
+					<dt class="currency">Currency</dt>
+					<dd class="currency"><?= $payment["currency"] ?></dd>
 
 				<? if(isset($order["user"])): ?>
 					<dt class="nickname">Nickname</dt>
@@ -45,7 +52,7 @@ $payments = $model->getPayments();
 				</dl>
 
 				<ul class="actions">
-					<?= $HTML->link("Edit", "/janitor/admin/shop/payment/edit/".$payment["id"], array("class" => "button", "wrapper" => "li.view")) ?>
+					<?= $HTML->link("View order", "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
 				</ul>
 			 </li>
 		 	<? endforeach; ?>

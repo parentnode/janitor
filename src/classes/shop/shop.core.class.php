@@ -29,13 +29,18 @@ class ShopCore extends Model {
 		$this->db_cart_items = SITE_DB.".shop_cart_items";
 		$this->db_orders = SITE_DB.".shop_orders";
 		$this->db_order_items = SITE_DB.".shop_order_items";
+		$this->db_payments = SITE_DB.".shop_payments";
 
 
 		// TODO: needs to be updated throughout class
 		// TODO: these are suggestions
 		// TODO: update to 
-		$this->order_statuses = array(0 => "Pending", 1 => "Delivered", 2 => "Paid", 3 => "Complete", 4 => "Cancelled", 5 => "Critical");
+		$this->order_statuses = array(0 => "Pending", 1 => "Waiting", 2 => "Complete", 3 => "Cancelled");
 
+
+		// payment and shipping statuses
+		$this->payment_statuses = array(0 => "Not paid", 1 => "Partially paid", 2 => "Paid");
+		$this->shipping_statuses = array(0 => "Not shipped", 1 => "Partially shipped", 2 => "Shipped");
 		
 
 //		$this->cart_statuses = array(0 => "Open", 1 => "Associated with order");
@@ -241,16 +246,43 @@ class ShopCore extends Model {
 		));
 
 
-//		print "testHH";
+		// order id
+		$this->addToModel("order_id", array(
+			"type" => "integer",
+			"label" => "Order",
+			"required" => true,
+			"hint_message" => "Select order to associate payment with",
+			"error_message" => "Invalid order"
+		));
+		// transactions id
+		$this->addToModel("transaction_id", array(
+			"type" => "string",
+			"label" => "Transasction id",
+			"hint_message" => "Unique transaction id",
+			"error_message" => "Invalid id"
+		));
+		// payment amount
+		$this->addToModel("payment_amount", array(
+			"type" => "string",
+			"label" => "Payment amount",
+			"required" => true,
+			"hint_message" => "Payment amount including tax",
+			"error_message" => "Invalid amount"
+		));
+		// payment method
+		$this->addToModel("payment_method", array(
+			"type" => "string",
+			"label" => "Payment method",
+			"required" => true,
+			"hint_message" => "Please select a payment method",
+			"error_message" => "Please select a payment method"
+		));
+
 
 		parent::__construct();
 	}
 
 
-
-	function getNewCartReference() {
-		
-	}
 
 
 
@@ -298,7 +330,7 @@ class ShopCore extends Model {
 	*
 	* Calculate total order price by adding each order item + vat
 	*
-	* @return float total price
+	* @return price object
 	*/
 	function getTotalOrderPrice($order_id) {
 		$order = $this->getOrders(array("order_id" => $order_id));
@@ -312,6 +344,30 @@ class ShopCore extends Model {
 			}
 		}
 		return array("price" => $total_price, "vat" => $total_vat, "currency" => $order["currency"], "country" => $order["country"]);
+	}
+
+
+	/**
+	* Get total price for cart
+	*
+	* @return price object
+	*/
+	function getTotalCartPrice($cart_id) {
+
+		$cart = $this->getCarts(array("cart_id" => $cart_id));
+		$total_price = 0;
+		$total_vat = 0;
+
+		if($cart["items"]) {
+			foreach($cart["items"] as $cart_item) {
+				$price = $this->getPrice($cart_item["item_id"], array("quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
+				if($price) {
+					$total_price += $price["price"] * $cart_item["quantity"];
+					$total_vat += $price["vat"] * $cart_item["quantity"];
+				}
+			}
+		}
+		return array("price" => $total_price, "vat" => $total_vat, "currency" => $cart["currency"], "country" => $cart["country"]);
 	}
 
 
@@ -392,6 +448,9 @@ class ShopCore extends Model {
 
 		return false;
 	}
+
+
+
 
 
 

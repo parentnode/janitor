@@ -1,55 +1,94 @@
-/* DELETE BUTTON */
-#content .defaultView > .actions li.delete {float: right; padding: 0 0 10px 10px;}
-
-
-/* Cart */
-#content .defaultList.cartList ul.items > li h3 {padding-bottom: 16px;}
-#content .defaultList.cartList ul.items > li ul.products {display: none;}
-
-#content .defaultView.cartView ul.products {padding: 0 30px;}
-#content .defaultView.cartView ul.products li {display: block;}
+/* SHOP LIST */
+#content .defaultList.shopList ul.items > li dl.details dt.price {display: none;}
+#content .defaultList.shopList ul.items > li dl.details dd.price {position: absolute; top: 10px; right: 100px; font-size: 14px;}
+#content .defaultList.shopList ul.items > li p.error {padding-bottom: 6px; color: #df0000;}
 
 
 
-/* ORDER */
+/* CART/ORDER */
 
-/* ORDER LIST */
-#content .defaultList.orderList ul.items > li dl.details {padding: 3px 30px 6px; display: block;}
-#content .defaultList.orderList ul.items > li dl.details dt {display: none;}
-#content .defaultList.orderList ul.items > li dl.details dd:after {content: ",\00a0";}
-#content .defaultList.orderList ul.items > li dl.details dd:last-child:after {content: "";}
-#content .defaultList.orderList ul.items > li p.error {padding-bottom: 6px; color: #df0000;}
 
-/* ORDER LIST/VIEW */
+/* CART/ORDER DETAILS LISTINGS */
+#content .defaultEdit.shopView dl.list {padding-top: 3px; padding-right: 0; padding-bottom: 40px; width: 370px;}
+#content .defaultEdit.shopView dl.list dt {width: 120px;}
+#content .defaultEdit.shopView dl.list dt:after {content: ":";}
+#content .defaultEdit.shopView dl.list dd {width: 250px; margin: 0;}
+
+/* DATA SECTIONS */
+#content .defaultEdit.shopView div.basics,
+#content .defaultEdit.shopView div.contact,
+#content .defaultEdit.shopView div.delivery,
+#content .defaultEdit.shopView div.billing {display: inline-block; vertical-align: top;}
+
+/* DATA SECTION FORMS */
+#content .defaultEdit.shopView > div > form {display: none; padding-top: 10px; padding-bottom: 10px;}
+#content .defaultEdit.shopView > div > h2 > span {color: #7d848c; cursor: pointer;}
+#content .defaultEdit.shopView > div > h2 > span:before {content: " - ";}
+
+/* CART/ORDER ITEMS */
+#content .defaultEdit.shopView div.all_items {border-top: 1px solid #bbbbbb; padding-bottom: 40px;}
+
+/* ADD ITEM */
+#content .defaultEdit.shopView div.all_items > ul.actions {padding-top: 10px;}
+#content .defaultEdit.shopView div.all_items > ul.actions li {padding-bottom: 0px;}
+
+/* CART/ORDER ROW */
+#content .defaultEdit.shopView ul.items li h3 {overflow: hidden; padding-right: 30px; padding-top: 6px; padding-bottom: 6px;}
+#content .defaultEdit.shopView ul.items li h3 span {padding: 9px 5px 5px 0; display: inline-block; vertical-align: top;}
+#content .defaultEdit.shopView ul.items li h3 span.total_price {float: right;  padding: 8px 0; display: inline-block; font-size: 16px;}
+
+/* QUANTITY FORM */
+#content .defaultEdit.shopView ul.items li h3 form {display: inline-block; vertical-align: top; position: relative;}
+#content .defaultEdit.shopView ul.items li h3 form div.field {padding: 0;}
+#content .defaultEdit.shopView ul.items li h3 form div.field .indicator {display: none;}
+#content .defaultEdit.shopView ul.items li h3 form div.field .help {left: 47px; display: none;}
+#content .defaultEdit.shopView ul.items li h3 form div.field input {height: 22px; width: 25px; text-align: right;}
+#content .defaultEdit.shopView ul.items li h3 form > ul.actions {padding: 0; right: 45px;}
+#content .defaultEdit.shopView ul.items li h3 form > ul.actions li {padding: 8px 0 0;}
+#content .defaultEdit.shopView ul.items li h3 form > ul.actions input.button {width: 16px; height: 16px; padding: 0; text-indent: -9999px; border-radius: 15px;
+	background-image: url(/janitor/admin/img/gx_refresh.png);
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+/* ROW BUTTONS */
+#content .defaultEdit.shopView ul.items li ul.actions {padding-top: 5px;}
+
+#content .defaultEdit.shopView ul.items li.item ul.actions li.shipped {display: none;}
+#content .defaultEdit.shopView ul.items li.item ul.actions li.not_shipped {}
+#content .defaultEdit.shopView ul.items li.item.shipped ul.actions li.not_shipped {display: none;}
+#content .defaultEdit.shopView ul.items li.item.shipped ul.actions li.shipped {display: inline-block;}
+
+
+
+
+
+/* CART EDIT */
+#content .defaultEdit.cartView {}
+
+#content .defaultEdit.cartView div.all_items {padding-bottom: 20px;}
+#content .defaultEdit.cartView ul.items li h3 {padding-right: 120px;}
+
+#content .defaultEdit.cartView div.order {border-top: 1px solid #bbbbbb; padding-bottom: 40px;}
+
+
+/* ORDER EDIT */
 #content .defaultEdit.orderView {}
 
 #content .defaultEdit.orderView div.orderstatus {border-bottom: 1px solid #bbbbbb;}
-#content .defaultEdit.orderView div.orderstatus dl.list {
-
-}
-
-#content .defaultEdit.orderView div.orderstatus dl.list dt.status {}
-#content .defaultEdit.orderView div.orderstatus dl.list dd.status {}
-
-#content .defaultEdit.orderView div.basics,
-#content .defaultEdit.orderView div.contact,
-#content .defaultEdit.orderView div.delivery,
-#content .defaultEdit.orderView div.billing {display: inline-block; vertical-align: top; width: 480px;}
-
 #content .defaultEdit.orderView div.comment {border-top: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;}
+#content .defaultEdit.orderView div.payments {border-top: 1px solid #bbbbbb;}
+#content .defaultEdit.orderView div.payments ul.actions {padding-bottom: 10px;}
 
-#content .defaultEdit.orderView > div > form {display: none; padding-top: 10px; padding-bottom: 10px;}
-#content .defaultEdit.orderView > div > h2 > span {color: #7d848c; cursor: pointer;}
-#content .defaultEdit.orderView > div > h2 > span:before {content: " - ";}
+/* DIFFERING NUMBER OF BUTTONS IN ROW */
+#content .defaultEdit.orderView ul.items li.pending h3 {padding-right: 240px;}
+#content .defaultEdit.orderView ul.items li.waiting h3 {padding-right: 170px;}
+#content .defaultEdit.orderView ul.items li.complete h3 {padding-right: 160px;}
 
 
-#content .defaultEdit.orderView dl.list {padding-top: 3px; padding-right: 0; padding-bottom: 40px; width: auto;}
-#content .defaultEdit.orderView dl.list dt {width: 120px;}
-#content .defaultEdit.orderView dl.list dt:after {content: ":";}
-#content .defaultEdit.orderView dl.list dd {width: 300px; margin: 0 30px 0 0;}
 
-#content .defaultEdit.orderView div.all_items {border-top: 1px solid #bbbbbb; padding-bottom: 10px;}
-#content .defaultEdit.orderView ul.items {padding-bottom: 10px;}
-#content .defaultEdit.orderView ul.items li h3 {padding-right: 170px; overflow: hidden;}
-#content .defaultEdit.orderView ul.items li h3 span {float: right; padding: 0; display: inline-block;}
+
+/* PAYMENTS */
+#content .defaultList.paymentList ul.items > li dl.details dd.price {right: 140px;}
+
+
 

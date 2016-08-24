@@ -232,8 +232,8 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content ul.actions li.status.disabled form.disable {display: none;}
 
 /* CUSTOM DELETE BUTTON */
-#content form input.button.confirm,
-#content form input.button.confirm:hover {color: #ffffff; background-color: #df0000;}
+#content ul.actions form input.button.confirm,
+#content ul.actions form input.button.confirm:hover {color: #ffffff; background-color: #df0000;}
 
 
 

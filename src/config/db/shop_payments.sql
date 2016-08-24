@@ -1,17 +1,21 @@
-CREATE TABLE `payments` (
+CREATE TABLE `SITE_DB`.`shop_payments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `checkout_id` int(11) NOT NULL,
-  `currency` varchar(255) DEFAULT NULL,
-  `amount_in_cents` int(11) DEFAULT NULL,
-  `gateway_transaction_number` varchar(255) DEFAULT NULL,
-  `gateway_status` varchar(255) DEFAULT NULL,
-  `captured_amount_in_cents` int(11) DEFAULT NULL,
-  `captured_at` datetime DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `gateway_name` varchar(255) DEFAULT NULL,
-  `gateway_order_number` varchar(255) DEFAULT NULL,
-  `card_type` varchar(255) DEFAULT NULL,
-  `card_number` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `order_id` int(11) NOT NULL,
+
+  `currency` varchar(3) DEFAULT NULL,
+  `payment_amount` float NOT NULL,
+ 
+  `transaction_id` int(11) DEFAULT NULL,
+  `payment_method` int(11) DEFAULT NULL,
+
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `modified_at` timestamp NULL DEFAULT NULL,
+
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `currency` (`currency`),
+  KEY `payment_method` (`payment_method`),
+  CONSTRAINT `shop_payments_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `SITE_DB`.`shop_orders` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `shop_payments_ibfk_2` FOREIGN KEY (`currency`) REFERENCES `SITE_DB`.`system_currencies` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `shop_payments_ibfk_3` FOREIGN KEY (`payment_method`) REFERENCES `SITE_DB`.`system_payment_methods` (`id`) ON UPDATE CASCADE  
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;

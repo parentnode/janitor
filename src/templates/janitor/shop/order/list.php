@@ -25,7 +25,7 @@ else {
 session()->value("return_to_orderstatus", $status);
 
 ?>
-<div class="scene i:scene defaultList orderList">
+<div class="scene i:scene defaultList shopList orderList">
 	<h1>Orders</h1>
 
 	<ul class="actions">
