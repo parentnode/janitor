@@ -306,7 +306,7 @@ class UserCore extends Model {
 		// get specific user
 		if($user_id) {
 
-			$sql = "SELECT nickname FROM ".$this->db." WHERE id = $user_id";
+			$sql = "SELECT status,  nickname FROM ".$this->db." WHERE id = $user_id";
 //			print $sql;
 			if($query->sql($sql)) {
 				$user = $query->result(0);
@@ -316,7 +316,6 @@ class UserCore extends Model {
 
 		return false;
 	}
-
 
 
 	// NOTE: All output should be kept in frontend logic because it might need to be served in different language
@@ -350,6 +349,9 @@ class UserCore extends Model {
 			if(count($action) == 1 && $this->validateList(array("email")) && $email) {
 
 				$query = new Query();
+				$nickname = $this->getProperty("nickname", "value");
+				$firstname = $this->getProperty("firstname", "value");
+				$lastname = $this->getProperty("lastname", "value");
 
 				// make sure type tables exist
 				$query->checkDbExistance($this->db);
@@ -367,8 +369,23 @@ class UserCore extends Model {
 				}
 
 				// if no nickname were posted, use email
-				if(array_search("nickname", $names) === false) {
-					$values[] = "nickname='".$email."'";
+				if(!$nickname) {
+					if($firstname && $lastname) {
+						$nickname = $firstname . " " . $lastname;
+					}
+					else if($firstname) {
+						$nickname = $firstname;
+					}
+					else if($lastname) {
+						$nickname = $lastname;
+					}
+					else {
+						$nickname = $email;
+					}
+
+					$values[] = "nickname='".$nickname."'";
+					$quantity = $this->getProperty("quantity", "value");
+					$item_id = $this->getProperty("item_id", "value");
 				}
 
 				// add member user group
@@ -386,6 +403,14 @@ class UserCore extends Model {
 					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code', type = 'email', user_id = $user_id";
 	//				print $sql;
 					if($query->sql($sql)) {
+
+
+						$mobile = $this->getProperty("mobile", "value");
+						if($mobile) {
+							$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 1, verification_code = '$verification_code', type = 'mobile', user_id = $user_id";
+			//				print $sql;
+							$query->sql($sql);
+						}
 
 
 						// user can send password on signup
@@ -423,7 +448,8 @@ class UserCore extends Model {
 								$page->mail(array(
 									"values" => array(
 										"EMAIL" => $email, 
-										"VERIFICATION" => $verification_code
+										"VERIFICATION" => $verification_code,
+										"PASSWORD" => $mail_password
 									), 
 									"recipients" => $email, 
 									"template" => "signup"
@@ -433,7 +459,7 @@ class UserCore extends Model {
 								$page->mail(array(
 									"subject" => "New User created: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
-									"template" => "system"
+									// "template" => "system"
 								));
 							}
 							// error
@@ -448,75 +474,9 @@ class UserCore extends Model {
 								$page->mail(array(
 									"subject" => "New User created ERROR: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
-									"template" => "system"
+									// "template" => "system"
 								));
 							}
-
-
-
-							// Signup can include Newsletter and Membership signups
-
-
-							// MEMBERSHIP
-
-							// membership?
-							$membership = getPost("membership");
-							if($membership && $mail_password) {
-						
-								// make sure newsletter table exist
-								$query->checkDbExistance($this->db_memberships);
-
-
-								// create subscription entry
-								$sql = "INSERT INTO $this->db_memberships SET user_id = $user_id, item_id = '$subscription', status = '1'";
-								if($query->sql($sql)) {
-
-									$IC = new Items();
-									$item = $IC->getItem(array("id" => $membership, "extend" => array("price" => true)));
-
-									$page->mail(array(
-										"values" => array(
-											"MEMBERID" => $item["item_id"],
-											"PRICE" => $item["price"]["formatted_price"],
-											"EMAIL" => $email,
-											"PASSWORD" => $mail_password
-										), 
-										"recipients" => $email, 
-										"template" => "membership_".$item["classname"]
-									));
-
-									// send notification email to admin
-									$page->mail(array(
-										"subject" => "New membership (".$item["name"].") created: " . $email, 
-										"message" => "Do something", //"Check out the subscriber page: " . SITE_URL . "/janitor/admin/user/subscriptions/" . $user_id, 
-										"template" => "system"
-									));
-
-									// add log
-									$page->addLog("user->newUser (".$item["name"]."): created: " . $email);
-
-								}
-								else {
-
-									// send error email notification
-									$page->mail(array(
-										"recipients" => $email, 
-										"template" => "signup_membership_error"
-									));
-
-									// send notification email to admin
-									$page->mail(array(
-										"subject" => "New membership creation ERROR: " . $email, 
-										"message" => "Do something", //"Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
-										"template" => "system"
-									));
-
-									// add log
-									$page->addLog("user->newUser (w/ membership): creation failed: " . $email);
-							
-								}
-							}
-
 
 
 							// NEWSLETTER
@@ -534,12 +494,13 @@ class UserCore extends Model {
 
 							}
 
-
-
+							// Update session values
+							session()->value("user_id", $user_id);
+							session()->value("user_nickname", $nickname);
 
 
 							// return enough information to the frontend
-							return array("user_id" => $user_id, "email" => $email);
+							return array("user_id" => $user_id, "nickname" => $nickname, "email" => $email);
 
 						}
 					}
@@ -583,6 +544,17 @@ class UserCore extends Model {
 				}
 
 				if(!$values || $query->sql($sql)) {
+
+					// update username and mobile if these were also sent
+					$email = $this->getProperty("email", "value");
+					if($email) {
+						$this->updateEmail(array("updateEmail"));
+					}
+
+					$mobile = $this->getProperty("mobile", "value");
+					if($email) {
+						$this->updateMobile(array("updateMobile"));
+					}
 
 					return true;
 				}
@@ -1213,7 +1185,7 @@ class UserCore extends Model {
 
 				if($query->sql($sql)) {
 //					message()->addMessage("Address created");
-					return array("item_id" => $user_id);
+					return array("id" => $query->lastInsertId());
 				}
 			}
 		}
@@ -1396,8 +1368,6 @@ class UserCore extends Model {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "item_id"     : $item_id        = $_value; break;
-					case "user_id"     : $user_id        = $_value; break;
-
 				}
 			}
 		}
@@ -1417,7 +1387,7 @@ class UserCore extends Model {
 			// get all readstates for user
 			else {
 
-				$sql = "SELECT read_at FROM ".$this->db_readstates." WHERE user_id = $user_id";
+				$sql = "SELECT * FROM ".$this->db_readstates." WHERE user_id = $user_id";
 				if($query->sql($sql)) {
 					return $query->results();
 				}

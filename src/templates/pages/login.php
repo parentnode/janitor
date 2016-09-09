@@ -13,15 +13,18 @@ $username = stringOr(getPost("username"));
 
 	<?= $model->formStart("?login=true", array("class" => "labelstyle:inject")) ?>
 
-<?	if(message()->hasMessages(array("type" => "error"))): ?>
-		<p class="errormessage">
-<?		$messages = message()->getMessages(array("type" => "error"));
+<? if(message()->hasMessages()): ?>
+	<div class="messages">
+	<? 
+		$all_messages = message()->getMessages();
 		message()->resetMessages();
-		foreach($messages as $message): ?>
-			<?= $message ?><br>
-<?		endforeach;?>
-		</p>
-<?	endif; ?>
+		foreach($all_messages as $type => $messages):
+			foreach($messages as $message): ?>
+				<p class="<?= $type ?>"><?= $message ?></p>
+			<? endforeach;?>
+	<? endforeach;?>
+	</div>
+<? endif; ?>
 
 		<fieldset>
 			<?= $model->input("username", array("required" => true, "value" => $username)); ?>
@@ -30,9 +33,8 @@ $username = stringOr(getPost("username"));
 
 		<ul class="actions">
 			<?= $model->submit("Log in", array("class" => "primary", "wrapper" => "li.login")) ?>
+			<li class="forgot">Did you <a href="/login/forgot">forget your password</a>?</li>
 		</ul>
 	<?= $model->formEnd() ?>
-
-	<p>Did you <a href="/login/forgot">forget your password</a>?</p>
 
 </div>

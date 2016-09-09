@@ -19,19 +19,7 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 	<h1>Content</h1>
 	<h2><?= $item["nickname"] ?></h2>
 
-
-	<ul class="tabs">
-		<?= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile")) ?>
-<?		if(defined("SITE_ITEMS") && SITE_ITEMS): ?>
-		<?= $HTML->link("Content", "/janitor/admin/profile/content", array("wrapper" => "li.content.selected")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
-		<?= $HTML->link("Orders", "/janitor/admin/profile/orders", array("wrapper" => "li.orders")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS): ?>
-		<?= $HTML->link("Subscriptions", "/janitor/admin/profile/subscriptions", array("wrapper" => "li.subscriptions")) ?>
-<?		endif; ?>
-	</ul>
+	<?= $JML->profileTabs("content") ?>
 
 
 	<div class="all_items content i:defaultList filters"

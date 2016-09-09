@@ -114,11 +114,13 @@ class Upgrade {
 				$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "comment"), true);
 				$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "status"), true);
 
+
 				$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "renewed_at", "TIMESTAMP NULL DEFAULT NULL", "modified_at"), true);
 				$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "expires_at", "TIMESTAMP NULL DEFAULT NULL", "renewed_at"), true);
 
 				// add payment_method column
-				$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "payment_method", "int(11) DEFAULT NULL", "item_id"), true);
+				$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "order_id", "int(11) DEFAULT NULL", "item_id"), true);
+				$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "payment_method", "int(11) DEFAULT NULL", "order_id"), true);
 				$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "payment_method"), true);
 				$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.payment_method", UT_PAYMENT_METHODS.".id", "ON UPDATE CASCADE"), true);
 
@@ -230,6 +232,7 @@ class Upgrade {
 			$this->process($this->createTableIfMissing(SITE_DB.".shop_cart_items"), true);
 			$this->process($this->createTableIfMissing(SITE_DB.".shop_orders"), true);
 			$this->process($this->createTableIfMissing(SITE_DB.".shop_order_items"), true);
+			$this->process($this->createTableIfMissing(SITE_DB.".shop_payments"), true);
 
 
 

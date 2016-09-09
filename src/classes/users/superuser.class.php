@@ -955,6 +955,47 @@ class SuperUser extends User {
 	// READSTATES
 	function getReadstates($_options = false) {
 
+		$item_id = false;
+		$user_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"     : $item_id        = $_value; break;
+					case "user_id"     : $user_id        = $_value; break;
+
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($user_id) {
+
+			// get all readstates for user
+			$sql = "SELECT * FROM ".$this->db_readstates." WHERE user_id = $user_id";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+		}
+		// Get readstate for item_id
+		else if($item_id) {
+
+			$sql = "SELECT * FROM ".$this->db_readstates." WHERE item_id = $item_id AND user_id = $user_id";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+
+		}
+		else {
+
+			$sql = "SELECT * FROM ".$this->db_readstates;
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+		}
+
+		return false;
 	}
 
 
@@ -1105,37 +1146,55 @@ class SuperUser extends User {
 			// get item prices and subscription method details to create subscription correctly
 			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
 
-			// item has price
-			if($item && $item["prices"]) {
+			if($item) {
 
-				// require payment method
-				if($payment_method) {
+				// item has price
+				// then we need to add an order, to process the payment
+				if($item["prices"]) {
 
-					$sql = "INSERT INTO ".$this->db_subscriptions." SET user_id = $user_id, item_id = $item_id, payment_method = $payment_method";
+					// add new order
+					// order reference should be stored somewhere
+					$this->addOrder(array("addOrder"));
 
-					// does subscription expire
-					if($item["subscription_method"]) {
-
-						// add expires_at date
-//						$sql .= ", "; 
-
-					}
-
-					// create order for payment
 
 				}
-				
-			}
-			// item does not have price
-			else {
-				$sql = "INSERT INTO ".$this->db_subscriptions." SET user_id = $user_id, item_id = $item_id";
+
+				// item has price and subscription method
+				// it requires re-occuring payment information
+				if($item["prices"] && $item["subscription_method"]) {
+
+					// require payment method
+					if($payment_method) {
+
+						$sql = "INSERT INTO ".$this->db_subscriptions." SET user_id = $user_id, item_id = $item_id, payment_method = $payment_method";
+
+							// add expires_at date
+	//						$sql .= ", "; 
+	// print $sql;
+							if($query->sql($sql)) {
+								message()->addMessage("Subscription added");
+								return ;
+							}
+
+						
+
+					}
+				}
+
+				// item does not have price or subscription method
+				// subscription is continuous and does not require payment info
+				else {
+					$sql = "INSERT INTO ".$this->db_subscriptions." SET user_id = $user_id, item_id = $item_id";
+				}
+
+				// print $sql;
+				if($sql && $query->sql($sql)) {
+					message()->addMessage("Subscription added");
+					return ;
+				}
+
 			}
 
-			// print $sql;
-			if($sql && $query->sql($sql)) {
-				message()->addMessage("Subscription added");
-				return true;
-			}
 		}
 
 		message()->addMessage("Subscription could not be added", array("type" => "error"));

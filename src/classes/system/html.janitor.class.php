@@ -1308,6 +1308,46 @@ class JanitorHTML {
 		return $_;
 	}
 
+
+
+	// HTML for tabs for profile templates
+	function profileTabs($selected) {
+		global $HTML;
+
+		$_ = '';
+		
+		$_ .= '<ul class="tabs">';
+			$_ .= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile".($selected == "profile" ? ".selected" : "")));
+
+			if(defined("SITE_ITEMS") && SITE_ITEMS):
+				$_ .= $HTML->link("Content", "/janitor/admin/profile/content", array("wrapper" => "li.content".($selected == "content" ? ".selected" : "")));
+
+				// readstates not available for guest user
+				$_ .= $HTML->link("Readstates", "/janitor/admin/profile/readstates", array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
+
+			endif;
+	
+			// orders not available for guest user
+			if(defined("SITE_SHOP") && SITE_SHOP):
+				$_ .= $HTML->link("Orders", "/janitor/admin/profile/orders", array("wrapper" => "li.orders".($selected == "orders" ? ".selected" : "")));
+			endif;
+
+			// subscriptions not available for guest user
+			if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS):
+				$_ .= $HTML->link("Subscriptions", "/janitor/admin/profile/subscription/list", array("wrapper" => "li.subscriptions".($selected == "subscriptions" ? ".selected" : "")));
+			endif;
+
+			// membership not available for guest user
+			if(defined("SITE_MEMBERS") && SITE_MEMBERS):
+				$_ .= $HTML->link("Membership", "/janitor/admin/profile/membership", array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
+			endif;
+
+		$_ .= '</ul>';
+		
+		return $_;
+	}
+
+
 }
 
 // create standalone instance to make Janitor available 

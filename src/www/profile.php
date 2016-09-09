@@ -35,7 +35,7 @@ if(is_array($action) && count($action)) {
 
 
 	// CONTENT OVERVIEW
-	if(preg_match("/^(content|orders|subscriptions)$/", $action[0])) {
+	if(preg_match("/^(content|orders|readstates|subscriptions)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",

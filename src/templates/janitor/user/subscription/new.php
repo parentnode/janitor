@@ -13,27 +13,29 @@ $selected_item = false;
 $items = $IC->getItems(array("order" => "itemtype", "extend" => array("subscription_method" => true, "prices" => true)));
 $subscriptions = $model->getSubscriptions(array("user_id" => $user_id));
 
-
 //print_r($items);
 //print_r($subscriptions);
 $item_options[""] = "Select item";
 
 foreach($items as $item) {
 	if(arrayKeyValue($subscriptions, "item_id", $item["item_id"]) === false) {
-		$item_options[$item["item_id"]] = strip_tags($item["name"])." (".$item["itemtype"].")";
-		if($item["prices"]) {
-			if(arrayKeyValue($item["prices"], "type", "offer") !== false) {
-				$item_options[$item["item_id"]] .= " – " . formatPrice($item["prices"][arrayKeyValue($item["prices"], "type", "offer")]);
-			}
-			else if(arrayKeyValue($item["prices"], "type", "default") !== false) {
-				$item_options[$item["item_id"]] .= " – " . formatPrice($item["prices"][arrayKeyValue($item["prices"], "type", "default")]);
-			}
-
-			if($item["subscription_method"]) {
-				$item_options[$item["item_id"]] .= " / ".$item["subscription_method"]["name"];
-			}
-
+		if(!$item["prices"]) {
+			$item_options[$item["item_id"]] = strip_tags($item["name"])." (".$item["itemtype"].")";
 		}
+		// if($item["prices"]) {
+		//
+		// 	if(arrayKeyValue($item["prices"], "type", "offer") !== false) {
+		// 		$item_options[$item["item_id"]] .= " – " . formatPrice($item["prices"][arrayKeyValue($item["prices"], "type", "offer")]);
+		// 	}
+		// 	else if(arrayKeyValue($item["prices"], "type", "default") !== false) {
+		// 		$item_options[$item["item_id"]] .= " – " . formatPrice($item["prices"][arrayKeyValue($item["prices"], "type", "default")]);
+		// 	}
+		//
+		// 	if($item["subscription_method"]) {
+		// 		$item_options[$item["item_id"]] .= " / ".$item["subscription_method"]["name"];
+		// 	}
+		//
+		// }
 	}
 }
 
@@ -44,8 +46,8 @@ if(count($action) > 3) {
 
 	
 	$selected_item = $IC->getItem(array("id" => $item_id, "extend" => array("prices" => true, "subscription_method" => true)));
-	$payment_methods = $this->paymentMethods();
-	$payment_method_options = $model->toOptions($payment_methods, "id", "name");
+	// $payment_methods = $this->paymentMethods();
+	// $payment_method_options = $model->toOptions($payment_methods, "id", "name");
 
 //	print_r($selected_item);
 }
@@ -69,11 +71,11 @@ if(count($action) > 3) {
 				"options" => $item_options,
 				"value" => $item_id
 			)) ?>
-		<? if($selected_item && $selected_item["prices"]): ?>
+		<? if($selected_item && $selected_item["prices"] && $selected_item["subscription_method"]): ?>
 
 			<div class="item">
-				<h3>"<?= $selected_item["name"] ?>" is a paid subscription</h3>
-				<p>Please select a payment method for the subscription:</p>
+				<h3>"<?= $selected_item["name"] ?>" is a paid reoccuring subscription</h3>
+				<p>Please select a payment method for the reoccuring payment of this subscription:</p>
 			</div>
 
 			<? if($selected_item["prices"]): ?>

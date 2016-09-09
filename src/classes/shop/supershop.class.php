@@ -244,6 +244,9 @@ class SuperShop extends Shop {
 			$currency = $this->getProperty("currency", "value");
 			$country = $this->getProperty("country", "value");
 
+			$billing_address_id = $this->getProperty("billing_address_id", "value");
+			$delivery_address_id = $this->getProperty("delivery_address_id", "value");
+
 			// set user_id to default (NULL) if not passed
 			if(!$user_id) {
 				$user_id = "DEFAULT";
@@ -259,6 +262,17 @@ class SuperShop extends Shop {
 				$country = $page->country();
 			}
 
+			// update delivery address
+			if(!$delivery_address_id) {
+				$delivery_address_id = "DEFAULT";
+			}
+
+			// update billing address
+			if(!$billing_address_id) {
+				$billing_address_id = "DEFAULT";
+			}
+
+
 			// find valid cart_reference
 			$cart_reference = randomKey(12);
 			while($query->sql("SELECT id FROM ".$this->db_carts." WHERE cart_reference = '".$cart_reference."'")) {
@@ -266,7 +280,7 @@ class SuperShop extends Shop {
 			}
 
 			// add cart
-			if($query->sql("INSERT INTO ".$this->db_carts." VALUES(DEFAULT, $user_id, '$cart_reference', '$country', '$currency', CURRENT_TIMESTAMP, DEFAULT)")) {
+			if($query->sql("INSERT INTO ".$this->db_carts." VALUES(DEFAULT, $user_id, '$cart_reference', '$country', '$currency', $delivery_address_id, $billing_address_id, CURRENT_TIMESTAMP, DEFAULT)")) {
 
 				message()->addMessage("Cart added");
 				return $this->getCarts(array("cart_reference" => $cart_reference));
@@ -302,6 +316,9 @@ class SuperShop extends Shop {
 				$country = $this->getProperty("country", "value");
 
 
+				$billing_address_id = $this->getProperty("billing_address_id", "value");
+				$delivery_address_id = $this->getProperty("delivery_address_id", "value");
+
 				// create base data update sql
 				$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP";
 
@@ -313,6 +330,22 @@ class SuperShop extends Shop {
 				// update country
 				if($country) {
 					$sql .= ", country='$country'";
+				}
+
+				// update delivery address
+				if($delivery_address_id) {
+					$sql .= ", delivery_address_id='$delivery_address_id'";
+				}
+				else if($delivery_address_id === "0") {
+					$sql .= ", delivery_address_id=DEFAULT";
+				}
+
+				// update billing address
+				if($billing_address_id) {
+					$sql .= ", billing_address_id='$billing_address_id'";
+				}
+				else if($billing_address_id === "0") {
+					$sql .= ", billing_address_id=DEFAULT";
 				}
 
 				// update user_id
@@ -405,7 +438,7 @@ class SuperShop extends Shop {
 				else {
 
 					$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
-	//				print $sql;				
+	//				print $sql;	
 				}
 
 				if($query->sql($sql)) {
@@ -542,11 +575,18 @@ class SuperShop extends Shop {
 
 			if($cart && $cart["user_id"] && $cart["items"]) {
 
+				$_POST["user_id"] = $cart["user_id"];
+				$_POST["country"] = $cart["country"];
+				$_POST["currency"] = $cart["currency"];
+				$_POST["delivery_address_id"] = $cart["delivery_address_id"];
+				$_POST["billing_address_id"] = $cart["billing_address_id"];
+
 				$order = $this->addOrder(array("addOrder"));
 
 				foreach($cart["items"] as $cart_item) {
 					$_POST["quantity"] = $cart_item["quantity"];
 					$_POST["item_id"] = $cart_item["item_id"];
+
 					$this->addToOrder(array("addOrder", $order["id"]));
 				}
 
@@ -1210,26 +1250,84 @@ class SuperShop extends Shop {
 			$this->getPostedEntities();
 
 			// does values validate
+			// pending, waiting, complete - cannot change shipment on cancelled order
 			if($order && ($order["status"] == 0 || $order["status"] == 1 || $order["status"] == 2)) {
 
 				$query = new Query();
 
 				$shipped = getPost("shipped");
+
+				// who shipped the item
 				$shipped_by = "NULL";
 				if($shipped) {
 					$shipped_by = session()->value("user_id");
 				}
 
+				// was a single order_item_id specified
+				// then only update this one item
 				if($order_item_id) {
-					$sql = "UPDATE ".$this->db_order_items." SET shipped_by=$shipped_by WHERE id = ".$order_item_id." AND order_id = ".$order_id;
-//					print $sql;
-					$query->sql($sql);
 
+					// get current shipping status for item
+					$sql = "SELECT shipped_by, item_id FROM ".$this->db_order_items." WHERE id = ".$order_item_id." AND order_id = ".$order_id;
+					print $sql;
+					if($query->sql($sql)) {
+						$current_shipping = $query->result(0, "shipped_by");
+						$item_id = $query->result(0, "item_id");
+						$order_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
+
+						print "current_shipping:" . $current_shipping;
+						// changed state to shipped and was not already in this state
+						// then invoke model->shipped if it is available (it will perform)
+						if($shipped && !$current_shipping && $order_item_index !== false) {
+							print "shipping state changed for $item_id";
+							$order_item = $order["items"][$order_item_index];
+							$IC = new Items();
+							$item = $IC->getItem(array("id" => $item_id));
+							print "item:";
+							print_r($item);
+							if($item) {
+								$model = $IC->typeObject($item["itemtype"]);
+								
+								// does model have shipped callback
+								if($model && method_exists($model, "shipped")) {
+									$model->shipped($order_item, $order);
+								}
+							}
+						}
+
+
+						$sql = "UPDATE ".$this->db_order_items." SET shipped_by=$shipped_by WHERE id = ".$order_item_id." AND order_id = ".$order_id;
+	//					print $sql;
+						$query->sql($sql);
+
+					}
 				}
 				else {
 					foreach($order["items"] as $order_item) {
-						$sql = "UPDATE ".$this->db_order_items." SET shipped_by=$shipped_by WHERE id = ".$order_item["id"]." AND order_id = ".$order_id;
-						$query->sql($sql);
+						
+						// get current shipping status for item
+						$sql = "SELECT shipped_by FROM ".$this->db_order_items." WHERE id = ".$order_item_id." AND order_id = ".$order_id;
+	//					print $sql;
+						if($query->sql($sql)) {
+							$current_shipping = $query->result(0, "shipped_by");
+
+							// changed state to shipped and was not already in this state
+							// then invoke model->shipped if it is available (it will perform)
+							if($shipped && !$current_shipping) {
+								$IC = new Items();
+								$item = $IC->getItem(array("id" => $order_item_id));
+								if($item) {
+									$model = $IC->typeObject($item["itemtype"]);
+									// does model have shipped callback
+									if($model && method_exists($model, "shipped")) {
+										$mode->shipped($order_item_id, $order);
+									}
+								}
+							}
+
+							$sql = "UPDATE ".$this->db_order_items." SET shipped_by=$shipped_by WHERE id = ".$order_item["id"]." AND order_id = ".$order_id;
+							$query->sql($sql);
+						}
 					}
 				}
 
@@ -1305,12 +1403,20 @@ class SuperShop extends Shop {
 			$status = 2;
 		}
 
+
+		// TODO: if order was not previously complete, then send the order shipped email
+
+
 		$sql = "UPDATE ".$this->db_orders." SET status = $status WHERE id = ".$order_id;
 		$query->sql($sql);
 
 		return $this->getOrders(array("order_id" => $order_id));
 	}
 
+
+
+
+	// PAYMENTS
 
 	function getPayments($_options=false) {
 

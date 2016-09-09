@@ -213,13 +213,12 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 					<? endif; ?>
 
 					<? if($order["status"] == 0 || $order["status"] == 1 || $order["status"] == 2): ?>
-					<?= $JML->oneButtonForm("Return this item", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
+					<?= $JML->oneButtonForm("Item shipped", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
 						"inputs" => array("shipped" => 0),
 						"wrapper" => "li.shipped",
 						"static" => true,
 						"confirm-value" => "Yes, the item has been returned"
 					)) ?>
-
 					<?= $JML->oneButtonForm("Ship this item", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
 						"inputs" => array("shipped" => 1),
 						"class" => "secondary",

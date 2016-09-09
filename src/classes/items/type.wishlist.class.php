@@ -180,7 +180,7 @@ class TypeWishlist extends Itemtype {
 			else {
 				unset($ordered_wishes[$wish_index]);
 				// remove from ordered list now
-				$sql = "DELETE FROM ".$this->db_wishes_order." WHERE item_id = ".$item["id"]." AND wish_id = ".$ordered_wish["wish_id"];
+				$sql = "DELETE FROM ".$this->db_wishes_order." WHERE item_id = ".$item_id." AND wish_id = ".$ordered_wish["wish_id"];
 				$query->sql($sql);
 			}
 		}

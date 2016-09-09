@@ -77,7 +77,7 @@ $subscriptions = $model->getSubscriptions(array("user_id" => $user_id));
 				</dl>
 
 				<ul class="actions">
-					<? if($subscription["item"]["prices"]): ?>
+					<? if($subscription["item"]["subscription_method"]): ?>
 					<?= $HTML->link("Edit", "/janitor/admin/user/subscription/edit/".$user_id."/".$subscription["id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
 					<? endif; ?>
 

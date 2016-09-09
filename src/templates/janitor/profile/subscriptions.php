@@ -22,6 +22,8 @@ if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 	<h1>Subscriptions</h1>
 	<h2><?= $item["nickname"] ?></h2>
 
+	<?= $JML->profileTabs("subscriptions") ?>
+
 
 	<ul class="tabs">
 		<?= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile")) ?>

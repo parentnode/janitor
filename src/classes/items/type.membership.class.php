@@ -80,6 +80,16 @@ class TypeMembership extends Itemtype {
 	}
 
 
+	// handle shipment of item
+	function shipped($item_id, $order) {
+
+		print $item_id;
+		print_r($order);
+		// should send welcome email 
+		print "oh I'm being shipped.";
+
+	}
+
 }
 
 ?>

@@ -19,7 +19,7 @@ $past_items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.
 	</ul>
 
 	<div class="all_items i:defaultList taggable filters"<?= $JML->jsData() ?>>
-<?		if($items || $past_events): ?>
+<?		if($items || $past_items): ?>
 		<ul class="items">
 
 <?			if($items): ?>

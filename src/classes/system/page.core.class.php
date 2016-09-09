@@ -822,6 +822,8 @@ class PageCore {
 		// looking for specific subscription method details
 		if($id !== false) {
 			$subscription_methods = cache()->value("subscription_methods");
+			print_r($subscription_methods);
+			print "id:".$id;
 			$key = arrayKeyValue($subscription_methods, "id", $id);
 			if($key !== false) {
 				return $subscription_methods[$key];
@@ -1556,6 +1558,7 @@ class PageCore {
 				// set new csrf token for user
 				session()->value("csrf", gen_uuid());
 
+
 				// regerate Session id
 				session_regenerate_id(true);
 				
@@ -1568,7 +1571,7 @@ class PageCore {
 				else {
 					// redirect to originally requested page
 					$login_forward = session()->value("login_forward");
-					print $login_forward . "<br>";
+//					print $login_forward . "<br>";
 					if(!$login_forward || !$this->validatePath($login_forward)) {
 						$login_forward = "/";
 					}
@@ -1579,6 +1582,18 @@ class PageCore {
 				}
 				exit();
 			}
+			
+			// is the reason that the user has not been activated yet?
+			// make login query
+			// look for user with status 0
+			$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND password='".sha1($password)."' AND username='$username'";
+//			print $sql;
+			if($query->sql($sql)) {
+				message()->addMessage("User has not been verified yet – did you forget to activate your account?", array("type" => "error"));
+				return false;
+				
+			}
+			
 		}
 
 		$this->addLog("Login error: ".$username);
@@ -1650,6 +1665,11 @@ class PageCore {
 
 		$dev = session()->value("dev");
 		$segment = session()->value("segment");
+
+
+		// Delete cart reference cookie
+		setcookie("cart_reference", "", time() - 3600, "/");
+		
 
 		session()->reset();
 

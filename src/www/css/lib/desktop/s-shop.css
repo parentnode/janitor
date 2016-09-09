@@ -65,7 +65,7 @@
 /* CART EDIT */
 #content .defaultEdit.cartView {}
 
-#content .defaultEdit.cartView div.all_items {padding-bottom: 20px;}
+#content .defaultEdit.cartView div.all_items {border-bottom: 1px solid #bbbbbb;}
 #content .defaultEdit.cartView ul.items li h3 {padding-right: 120px;}
 
 #content .defaultEdit.cartView div.order {border-top: 1px solid #bbbbbb; padding-bottom: 40px;}

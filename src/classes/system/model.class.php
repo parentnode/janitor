@@ -915,10 +915,14 @@ class Model extends HTML {
 	*/
 	function isInteger($name) {
 
+//		print "check is Int<br>";
+
 		$value = $this->getProperty($name, "value");
 		$min = $this->getProperty($name, "min");
 		$max = $this->getProperty($name, "max");
 		$pattern = $this->getProperty($name, "pattern");
+
+//		print $name.",".$value."<br>";
 
 //		print ($value || $value === "0") . ", " . (!($value%1)) . ", " . (!$min || $value >= $min) . ", ". (!$max || $value <= $max) . ", " . (!$pattern || preg_match("/".$pattern."/", $value)) . ";";
 

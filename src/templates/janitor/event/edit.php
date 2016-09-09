@@ -43,6 +43,7 @@ $host_options = $model->toOptions($model->getHosts(), "id", "host");
 		<?= $model->formEnd() ?>
 	</div>
 
+	<?= $JML->editPrices($item) ?>
 
 	<?= $JML->editTags($item) ?>
 

@@ -267,7 +267,7 @@ Util.Objects["orderItemsList"] = new function() {
 					if(response.cms_status == "success") {
 
 						if(this.node.div.order_status.innerHTML != response.cms_object["order_status_text"]) {
-							location.reload(true);
+//							location.reload(true);
 						}
 
 						this.node.div.order_status.innerHTML = response.cms_object["order_status_text"];
@@ -297,7 +297,7 @@ Util.Objects["orderItemsList"] = new function() {
 					if(response.cms_status == "success") {
 
 						if(this.node.div.order_status.innerHTML != response.cms_object["order_status_text"]) {
-							location.reload(true);
+//							location.reload(true);
 						}
 
 						this.node.div.order_status.innerHTML = response.cms_object["order_status_text"];

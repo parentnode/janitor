@@ -23,18 +23,8 @@ $user_newsletters = $item["newsletters"];
 	<h1>User profile</h1>
 	<h2><?= $item["nickname"] ?></h2>
 
-	<ul class="tabs">
-		<?= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile.selected")) ?>
-<?		if(defined("SITE_ITEMS") && SITE_ITEMS): ?>
-		<?= $HTML->link("Content", "/janitor/admin/profile/content", array("wrapper" => "li.content")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SHOP") && SITE_SHOP): ?>
-		<?= $HTML->link("Orders", "/janitor/admin/profile/orders", array("wrapper" => "li.orders")) ?>
-<?		endif; ?>
-<?		if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS): ?>
-		<?= $HTML->link("Subscriptions", "/janitor/admin/profile/subscriptions", array("wrapper" => "li.subscriptions")) ?>
-<?		endif; ?>
-	</ul>
+	<?= $JML->profileTabs("profile") ?>
+
 
 	<div class="item i:editProfile">
 		<h2>Name and default language</h2>

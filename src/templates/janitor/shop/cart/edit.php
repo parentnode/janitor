@@ -13,6 +13,24 @@ $user_options = $model->toOptions($users, "id", "nickname", array("add" => array
 
 $IC = new Items();
 
+// if user is defined for cart, allow for delivery and billing address selection
+if($cart["user_id"] > 1) {
+	// get addresses for selected user
+	$addresses = $UC->getAddresses(array("user_id" => $cart["user_id"]));
+	if($addresses) {
+		$delivery_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("0" => "Select delivery address")));
+		$billing_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("0" => "Select billing address")));
+	}
+	else {
+		$delivery_address_options = array("0" => "No addresses");
+		$billing_address_options = array("0" => "No addresses");
+	}
+
+	$delivery_address = $UC->getAddresses(array("address_id" => $cart["delivery_address_id"]));
+	$billing_address = $UC->getAddresses(array("address_id" => $cart["billing_address_id"]));
+}
+
+
 ?>
 <div class="scene i:scene defaultEdit shopView cartView">
 	<h1>Edit cart</h1>
@@ -152,6 +170,96 @@ $IC = new Items();
 		</ul>
 	</div>
 
+
+	<? if($cart["user_id"] > 1): ?>
+
+	<div class="delivery">
+		<h2>Delivery</h2>
+
+		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
+			<fieldset>
+				<?= $model->input("delivery_address_id", array(
+					"type" => "select",
+					"options" => $delivery_address_options,
+					"value" => $cart["delivery_address_id"]
+				)) ?>
+			</fieldset>
+
+			<ul class="actions">
+				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+
+
+		<? if($delivery_address): ?>
+		<dl class="list">
+			<dt>Name</dt>
+			<dd><?= $delivery_address["address_name"] ?></dd>
+			<dt>Att</dt>
+			<dd><?= $delivery_address["att"] ?></dd>
+			<dt>Address 1</dt>
+			<dd><?= $delivery_address["address1"] ?></dd>
+			<dt>Addresse 2</dt>
+			<dd><?= $delivery_address["address2"] ?></dd>
+			<dt>Postal and city</dt>
+			<dd><?= $delivery_address["postal"] ?> <?= $delivery_address["city"] ?></dd>
+			<dt>State</dt>
+			<dd><?= $delivery_address["state"] ?></dd>
+			<dt>Country</dt>
+			<dd><?= $delivery_address["country"] ?></dd>
+		</dl>
+		<? else: ?>
+
+		<p>Delivery address not specified yet.</p>
+
+		<? endif; ?>
+	</div>
+
+	<div class="billing">
+		<h2>Billing</h2>
+
+		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
+			<fieldset>
+				<?= $model->input("billing_address_id", array(
+					"type" => "select",
+					"options" => $billing_address_options,
+					"value" => $cart["billing_address_id"]
+				)) ?>
+			</fieldset>
+
+			<ul class="actions">
+				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+
+
+		<? if($billing_address): ?>
+		<dl class="list">
+			<dt>Name</dt>
+			<dd><?= $billing_address["address_name"] ?></dd>
+			<dt>Att</dt>
+			<dd><?= $billing_address["att"] ?></dd>
+			<dt>Address 1</dt>
+			<dd><?= $billing_address["address1"] ?></dd>
+			<dt>Addresse 2</dt>
+			<dd><?= $billing_address["address2"] ?></dd>
+			<dt>Postal and city</dt>
+			<dd><?= $billing_address["postal"] ?> <?= $billing_address["city"] ?></dd>
+			<dt>State</dt>
+			<dd><?= $billing_address["state"] ?></dd>
+			<dt>Country</dt>
+			<dd><?= $billing_address["country"] ?></dd>
+		</dl>
+		<? else: ?>
+
+		<p>Billing address not specified yet.</p>
+
+		<? endif; ?>
+	</div>
+	<? endif; ?>
+
+
+
 <? if($cart["items"] && $cart["user_id"]) :?>
 	<div class="order i:newOrderFromCart">
 		<h2>Checkout</h2>
@@ -159,7 +267,7 @@ $IC = new Items();
 
 		<ul class="actions">
 			<?= $JML->oneButtonForm("Start checkout process", "/janitor/admin/shop/newOrderFromCart/".$cart["id"]."/".$cart["cart_reference"], array(
-				"inputs" => array("user_id" => $cart["user_id"], "currency" => $cart["currency"], "country" => $cart["country"], "order_comment" => "Created by admin"),
+				"inputs" => array("order_comment" => "Created by admin"),
 				"confirm-value" => "Create new order from this cart?",
 				"class" => "primary",
 				"name" => "convert",
