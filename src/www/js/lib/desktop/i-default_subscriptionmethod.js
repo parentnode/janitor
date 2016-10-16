@@ -19,7 +19,7 @@ Util.Objects["defaultSubscriptionmethod"] = new function() {
 			// add change button
 			div.actions_change = u.ae(div, "ul", {"class":"actions change"});
 			var li = u.ae(div.actions_change, "li", {"class":"change"});
-			div.bn_change = u.ae(li, "a", {"class":"button primary", "html":"Change renewal"});
+			div.bn_change = u.ae(li, "a", {"class":"button primary", "html":"Change period"});
 			div.bn_change.div = div;
 
 			u.ce(div.bn_change);

@@ -1,27 +1,29 @@
 <?php
 global $action;
 global $model;
+
+
+$user_id = session()->value("user_id");
+$IC = new Items();
 $SC = new Shop();
 
+// get current user
+$item = $model->getUser();
 
-$user_id = $action[2];
+$subscriptions = false;
 
+if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 
-$user = $model->getUsers(array("user_id" => $user_id));
-$subscriptions = $model->getSubscriptions(array("user_id" => $user_id));
+	$subscriptions = $model->getSubscriptions();
+}
 
 ?>
-<div class="scene i:scene defaultList userSubscriptions">
+<div class="scene i:scene defaultList userSubscriptions profileSubscriptions">
 	<h1>Subscriptions</h1>
-	<h2><?= $user["nickname"] ?></h2>
+	<h2><?= $item["nickname"] ?></h2>
 
-	<ul class="actions">
-		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $HTML->link("New subscription", "/janitor/admin/user/subscription/new/".$user_id, array("class" => "button primary", "wrapper" => "li.new")) ?>
-	</ul>
+	<?= $JML->profileTabs("subscriptions") ?>
 
-
-	<?= $JML->userTabs($user_id, "subscriptions") ?>
 
 
 	<div class="all_items subscriptions i:defaultList filters">
@@ -86,13 +88,13 @@ $subscriptions = $model->getSubscriptions(array("user_id" => $user_id));
 					<?= $HTML->link("Edit", "/janitor/admin/user/subscription/edit/".$user_id."/".$subscription["id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
 					<? endif; ?>
 
-					<?= $JML->oneButtonForm("Delete", "/janitor/admin/user/deleteSubscription/".$user_id."/".$subscription["id"], array(
+					<?= $JML->oneButtonForm("Delete", "/janitor/admin/profile/deleteSubscription/".$subscription["id"], array(
 						"js" => true,
 						"wrapper" => "li.delete",
 						"static" => true
 					)) ?>
 				<? else: ?>
-					<?= $HTML->link("View", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
+					<?= $HTML->link("View", "/janitor/admin/profile/membership/view", array("class" => "button", "wrapper" => "li.cancel")) ?>
 
 
 				<? endif; ?>

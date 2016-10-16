@@ -655,11 +655,10 @@ class JanitorHTML {
 
 			$subscription_options = $model->toOptions($page->subscriptionMethods(), "id", "name", array("add" => array("" => " - ")));
 
-
 			$_ .= '<div class="subscription_method i:defaultSubscriptionmethod i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["subscriptions"]).'>';
-			$_ .= '<h2>Subscription method</h2>';
+			$_ .= '<h2>Subscription settings</h2>';
 			$_ .= '<dl class="settings">';
-				$_ .= '<dt class="subscription_method">Subscription renewal:</dt>';
+				$_ .= '<dt class="subscription_method">Subscription period:</dt>';
 				$_ .= '<dd class="subscription_method">'.($item["subscription_method"] ? $item["subscription_method"]["name"] : "No renewal").'</dd>';
 			$_ .= '</dl>';
 
@@ -1300,7 +1299,7 @@ class JanitorHTML {
 
 			// membership not available for guest user
 			if(defined("SITE_MEMBERS") && SITE_MEMBERS && $user_id != 1):
-				$_ .= $HTML->link("Membership", "/janitor/admin/user/membership/".$user_id, array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
+				$_ .= $HTML->link("Membership", "/janitor/admin/user/membership/view/".$user_id, array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
 			endif;
 
 		$_ .= '</ul>';
@@ -1339,7 +1338,7 @@ class JanitorHTML {
 
 			// membership not available for guest user
 			if(defined("SITE_MEMBERS") && SITE_MEMBERS):
-				$_ .= $HTML->link("Membership", "/janitor/admin/profile/membership", array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
+				$_ .= $HTML->link("Membership", "/janitor/admin/profile/membership/view", array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
 			endif;
 
 		$_ .= '</ul>';

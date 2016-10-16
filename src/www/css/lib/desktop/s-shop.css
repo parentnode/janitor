@@ -33,8 +33,8 @@
 #content .defaultEdit.shopView div.all_items > ul.actions li {padding-bottom: 0px;}
 
 /* CART/ORDER ROW */
-#content .defaultEdit.shopView ul.items li h3 {overflow: hidden; padding-right: 30px; padding-top: 6px; padding-bottom: 6px;}
-#content .defaultEdit.shopView ul.items li h3 span {padding: 9px 5px 5px 0; display: inline-block; vertical-align: top;}
+#content .defaultEdit.shopView ul.items li h3 {font-size: 0; overflow: hidden; padding-right: 30px; padding-top: 6px; padding-bottom: 6px;}
+#content .defaultEdit.shopView ul.items li h3 span {font-size: 14px; line-height: 1em; padding: 9px 5px 5px 0; display: inline-block; vertical-align: top;}
 #content .defaultEdit.shopView ul.items li h3 span.total_price {float: right;  padding: 8px 0; display: inline-block; font-size: 16px;}
 
 /* QUANTITY FORM */
@@ -80,9 +80,10 @@
 #content .defaultEdit.orderView div.payments ul.actions {padding-bottom: 10px;}
 
 /* DIFFERING NUMBER OF BUTTONS IN ROW */
-#content .defaultEdit.orderView ul.items li.pending h3 {padding-right: 240px;}
-#content .defaultEdit.orderView ul.items li.waiting h3 {padding-right: 170px;}
-#content .defaultEdit.orderView ul.items li.complete h3 {padding-right: 160px;}
+/*#content .defaultEdit.orderView ul.items li.pending h3 {padding-right: 240px;}*/
+#content .defaultEdit.orderView ul.items li.pending h3,
+#content .defaultEdit.orderView ul.items li.waiting h3,
+#content .defaultEdit.orderView ul.items li.complete h3 {padding-right: 170px;}
 
 
 

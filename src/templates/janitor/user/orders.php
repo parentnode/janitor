@@ -52,7 +52,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 				</dl>
 
 				<ul class="actions">
-					<?= $HTML->link("Edit", "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+					<?= $HTML->link("View", "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

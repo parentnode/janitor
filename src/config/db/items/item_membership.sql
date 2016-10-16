@@ -5,6 +5,7 @@ CREATE TABLE `SITE_DB`.`item_membership` (
   `name` varchar(255) NOT NULL,
   `classname` varchar(50) NULL,
   `description` text NOT NULL,
+  `introduction` text NOT NULL,
   `html` text NOT NULL,
 
   `position` int(11) DEFAULT '0',

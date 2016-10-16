@@ -37,9 +37,18 @@ class TypeMembership extends Itemtype {
 		// Description
 		$this->addToModel("description", array(
 			"type" => "text",
-			"label" => "Short description",
+			"label" => "SEO description",
 			"hint_message" => "Write a short description of the membership for SEO.",
 			"error_message" => "A short description without any words? How weird."
+		));
+
+		// HTML
+		$this->addToModel("introduction", array(
+			"type" => "html",
+			"label" => "Introduction for overview",
+			"allowed_tags" => "p,h2,h3,h4,ul",
+			"hint_message" => "Write a short introduction of the membership.",
+			"error_message" => "A short introduction without any words? How weird."
 		));
 
 		// HTML
@@ -50,43 +59,107 @@ class TypeMembership extends Itemtype {
 			"error_message" => "A full description without any words? How weird."
 		));
 
-
-		// // Interval
-		// $this->addToModel("renewal", array(
-		// 	"type" => "string",
-		// 	"label" => "Renewal",
-		// 	"required" => true,
-		// 	"hint_message" => "Use Cron syntax for renewal interval description.",
-		// 	"error_message" => "Invalid renewal interval."
-		// ));
-
-
-		// // Start datetime
-		// $this->addToModel("starting_at", array(
-		// 	"type" => "datetime",
-		// 	"label" => "Starts at",
-		// 	"requied" => true,
-		// 	"hint_message" => "When does the subscription start.",
-		// 	"error_message" => "You need to enter a valid date/time."
-		// ));
-		// // End datetime
-		// $this->addToModel("ending_at", array(
-		// 	"type" => "datetime",
-		// 	"label" => "Ends at",
-		// 	"hint_message" => "When does the subscription end.",
-		// 	"error_message" => "You need to enter a valid date/time."
-		// ));
-
 	}
 
 
-	// handle shipment of item
-	function shipped($item_id, $order) {
+	// user subscribed to an item
+	function subscribed($subscription) {
 
-		print $item_id;
-		print_r($order);
-		// should send welcome email 
-		print "oh I'm being shipped.";
+		// check for subscription error
+		if($subscription && $subscription["item_id"] && $subscription["user_id"] && $subscription["order"]) {
+
+			$item_id = $subscription["item_id"];
+			$user_id = $subscription["user_id"];
+			$order = $subscription["order"];
+			$item_key = arrayKeyValue($order["items"], "item_id", $item_id);
+			$order_item = $order["items"][$item_key];
+
+			// variables for email
+			$classname = $subscription["item"]["classname"];
+			$price = formatPrice(array("price" => $order_item["total_price"], "vat" => $order_item["total_vat"],  $order_item["total_price"], "country" => $order["country"], "currency" => $order["currency"]));
+
+
+			global $page;
+			$page->addLog("membership->subscribed: item_id:$item_id, user_id:$user_id, order_id:".$order["id"]);
+
+
+
+			$UC = new User();
+
+			// switch user id to enable user data collection
+			$current_user_id = session()->value("user_id");
+			session()->value("user_id", $user_id);
+
+			// get user, order and  info
+			$user = $UC->getUser();
+
+			// switch back to correct user
+			session()->value("user_id", $current_user_id);
+
+
+//			print "subscription:\n";
+//			print_r($subscription);
+
+			// variables for email
+			$nickname = $user["nickname"];
+			$email = $user["email"];
+			$membership = $user["membership"];
+
+			// print "nickname:" . $nickname."<br>\n";
+			// print "email:" . $email."<br>\n";
+			// print "classname:" . $classname."<br>\n";
+			// print "member no:" . $membership["id"]."<br>\n";
+			// print "membership:" . $membership["item"]["name"]."<br>\n";
+			// print "price:" . $price."\n";
+
+
+			//$nickname = false;
+			if($nickname && $email && $membership && $price && $classname) {
+
+				$page->mail(array(
+					"values" => array(
+						"MEMBERID" => $membership["id"],
+						"MEMBERSHIP" => $membership["item"]["name"],
+						"PRICE" => $price,
+						"EMAIL" => $email,
+						"NICKNAME" => $nickname
+					),
+					"recipients" => $email,
+					"template" => "subscription_".$classname
+				));
+
+				// send notification email to admin
+				$page->mail(array(
+					"recipients" => SHOP_ORDER_NOTIFIES,
+					"subject" => SITE_URL . " - New ".$subscription["item"]["name"].": " . $email,
+					"message" => "Do something"
+				));
+
+			}
+			else {
+
+				// send notification email to admin
+				$page->mail(array(
+					"subject" => "ERROR: subscription creation: " . $email, 
+					"message" => "Do something",
+					"template" => "system"
+				));
+
+			}
+
+		}
+
+	}
+
+	function unsubscribed($subscription) {
+
+		// check for subscription error
+		if($subscription) {
+
+			global $page;
+			$page->addLog("membership->unsubscribed: item_id:".$subscription["item_id"].", user_id:".$subscription["user_id"]);
+
+		}
 
 	}
 

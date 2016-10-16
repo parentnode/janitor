@@ -219,8 +219,17 @@ class UserCore extends Model {
 			"hint_message" => "Newsletter",
 			"error_message" => "Invalid newsletter"
 		));
+
+
+		// order id
+		$this->addToModel("order_id", array(
+			"type" => "integer",
+			"label" => "Order",
+			"hint_message" => "Order ID",
+			"error_message" => "Invalid order"
+		));
 		// membership
-		$this->addToModel("membership_id", array(
+		$this->addToModel("subscription_id", array(
 			"type" => "string",
 			"label" => "Membership",
 			"required" => true,
@@ -261,7 +270,6 @@ class UserCore extends Model {
 			$user["mobile"] = "";
 			$user["email"] = "";
 
-
 			$sql = "SELECT * FROM ".$this->db_usernames." WHERE user_id = $user_id";
 			if($query->sql($sql)) {
 				$usernames = $query->results();
@@ -274,6 +282,8 @@ class UserCore extends Model {
 			$user["addresses"] = $this->getAddresses();
 
 			$user["newsletters"] = $this->getNewsletters();
+
+			$user["membership"] = $this->getMembership();
 
 			return $user;
 		}
@@ -306,10 +316,22 @@ class UserCore extends Model {
 		// get specific user
 		if($user_id) {
 
-			$sql = "SELECT status,  nickname FROM ".$this->db." WHERE id = $user_id";
+			$sql = "SELECT status, nickname FROM ".$this->db." WHERE id = $user_id";
 //			print $sql;
 			if($query->sql($sql)) {
 				$user = $query->result(0);
+
+				// $user["mobile"] = "";
+				// $user["email"] = "";
+				//
+				// $sql = "SELECT * FROM ".$this->db_usernames." WHERE user_id = $user_id";
+				// if($query->sql($sql)) {
+				// 	$usernames = $query->results();
+				// 	foreach($usernames as $username) {
+				// 		$user[$username["type"]] = $username["username"];
+				// 	}
+				// }
+
 				return $user;
 			}
 		}
@@ -438,7 +460,7 @@ class UserCore extends Model {
 							// VERIFICATION EMAIL
 
 							// add log
-							$page->addLog("user->newUser: created: " . $email);
+							$page->addLog("user->newUser: created: " . $email . ", user_id:$user_id");
 
 							// success
 							// send activation email
@@ -447,6 +469,7 @@ class UserCore extends Model {
 								// send verification email to user
 								$page->mail(array(
 									"values" => array(
+										"NICKNAME" => $nickname, 
 										"EMAIL" => $email, 
 										"VERIFICATION" => $verification_code,
 										"PASSWORD" => $mail_password
@@ -457,7 +480,7 @@ class UserCore extends Model {
 
 								// send notification email to admin
 								$page->mail(array(
-									"subject" => "New User created: " . $email, 
+									"subject" => SITE_URL . " - New User: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
 									// "template" => "system"
 								));
@@ -479,24 +502,31 @@ class UserCore extends Model {
 							}
 
 
-							// NEWSLETTER
-
-							// newsletter subscription?
-							$newsletter = getPost("newsletter");
-							if($newsletter) {
-						
-								// make sure newsletter table exist
-								$query->checkDbExistance($this->db_newsletters);
-
-								// create subscription entry
-								$sql = "INSERT INTO $this->db_newsletters SET user_id = $user_id, newsletter = '$newsletter'";
-								$query->sql($sql);
-
-							}
-
-							// Update session values
+							// Update session values (to allow user to complete signup)
 							session()->value("user_id", $user_id);
 							session()->value("user_nickname", $nickname);
+
+
+
+							// NEWSLETTER
+
+							// newsletter subscription sent as string?
+							$newsletter = getPost("newsletter");
+							if($newsletter) {
+								// check if newsletter exists
+								$newsletters = $page->newsletters();
+								$newsletter_match = arrayKeyValue($newsletters, "name", $newsletter);
+								if($newsletter_match !== false) {
+									$newsletter_id = $newsletters[$newsletter_match]["id"];
+									$_POST["newsletter_id"] = $newsletter_id;
+
+									// add newsletter for current user
+									$this->addNewsletter(array("addNewsletter"));
+								}
+								
+								// ignore subscription if newsletter does not exist
+
+							}
 
 
 							// return enough information to the frontend
@@ -1155,6 +1185,7 @@ class UserCore extends Model {
 	// create a new address
 	// /janitor/admin/profile/addAddress (values in POST)
 	function addAddress($action) {
+		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -1184,8 +1215,11 @@ class UserCore extends Model {
 //				print $sql;
 
 				if($query->sql($sql)) {
-//					message()->addMessage("Address created");
-					return array("id" => $query->lastInsertId());
+
+					$address_id = $query->lastInsertId();
+					$page->addLog("user->addAddress: user added new address ($user_id, $address_id)");
+
+					return array("id" => $address_id);
 				}
 			}
 		}
@@ -1306,9 +1340,10 @@ class UserCore extends Model {
 
 	}
 
-	// /janitor/admin/profile/addNewsletter
+	// /#controller#/addNewsletter
 	// Newsletter info i $_POST
 	function addNewsletter($action) {
+		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -1320,10 +1355,12 @@ class UserCore extends Model {
 
 			$newsletter_id = $this->getProperty("newsletter_id", "value");
 			// already signed up (to avoid faulty double entries)
-			$sql = "SELECT id FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter_id = '$newsletter_id'";
+			$sql = "SELECT id FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter_id = $newsletter_id";
 			if(!$query->sql($sql)) {
-				$sql = "INSERT INTO ".$this->db_newsletters." SET user_id=$user_id, newsletter_id='$newsletter_id'";
+				$sql = "INSERT INTO ".$this->db_newsletters." SET user_id=$user_id, newsletter_id=$newsletter_id";
 				$query->sql($sql);
+
+				$page->addLog("user->addNewsletter: user subscribed to newsletter, user_id:$user_id, newsletter_id:$newsletter_id)");
 			}
 			return true;
 		}
@@ -1399,8 +1436,6 @@ class UserCore extends Model {
 	}
 
 
-	// READ STATES - INDICATES THAT THE USER HAS READ THE ITEM
-
 	// add readstate for user+item
 	// enables adding a button for the user to indicate wheter an item has been read
 	// disabled for user_id = 1 (guest)
@@ -1467,30 +1502,68 @@ class UserCore extends Model {
 	// get subscription for user
 	function getSubscriptions($_options = false) {
 
+		global $page;
+
+		// get current user
 		$user_id = session()->value("user_id");
 		$item_id = false;
+		$subscription_id = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "item_id"     : $item_id       = $_value; break;
+					case "item_id"             : $item_id               = $_value; break;
+					case "subscription_id"     : $subscription_id       = $_value; break;
 				}
 			}
 		}
 
 		$query = new Query();
 		$IC = new Items();
+		$SC = new Shop();
 
 		// check for specific subscription for current user
-		if($item_id) {
-			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id AND item_id = '$item_id' LIMIT 1";
+		if($item_id !== false) {
+			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id AND item_id = $item_id LIMIT 1";
 			if($query->sql($sql)) {
 				$subscription = $query->result(0);
 				$subscription["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
+				$subscription["membership"] = $subscription["item"]["itemtype"] == "membership" ? true : false;
+
+				// extend payment method details
+				if($subscription["payment_method"]) {
+					$payment_method = $subscription["payment_method"];
+					$subscription["payment_method"] = $page->paymentMethods($payment_method);
+				}
+
+				// payment status
+				if($subscription["order_id"]) {
+					$subscription["order"] = $SC->getOrders(array("order_id" => $subscription["order_id"]));
+				}
+
 				return $subscription;
 			}
-			else {
-				return false;
+		}
+		// get subscription by subscription id
+		else if($subscription_id !== false) {
+			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id AND id = $subscription_id LIMIT 1";
+			if($query->sql($sql)) {
+				$subscription = $query->result(0);
+				$subscription["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
+				$subscription["membership"] = $subscription["item"]["itemtype"] == "membership" ? true : false;
+
+				// extend payment method details
+				if($subscription["payment_method"]) {
+					$payment_method = $subscription["payment_method"];
+					$subscription["payment_method"] = $page->paymentMethods($payment_method);
+				}
+
+				// payment status
+				if($subscription["order_id"]) {
+					$subscription["order"] = $SC->getOrders(array("order_id" => $subscription["order_id"]));
+				}
+
+				return $subscription;
 			}
 		}
 
@@ -1501,39 +1574,574 @@ class UserCore extends Model {
 				$subscriptions = $query->results();
 				foreach($subscriptions as $i => $subscription) {
 					$subscriptions[$i]["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
+					$subscriptions[$i]["membership"] = $subscriptions[$i]["item"]["itemtype"] == "membership" ? true : false;
+
+					// extend payment method details
+					if($subscription["payment_method"]) {
+						$payment_method = $subscription["payment_method"];
+						$subscriptions[$i]["payment_method"] = $page->paymentMethods($payment_method);
+					}
+
+					// payment status
+					if($subscription["order_id"]) {
+						$subscriptions[$i]["order"] = $SC->getOrders(array("order_id" => $subscription["order_id"]));
+					}
 				}
 				return $subscriptions;
 			}
-			else {
-				return false;
+		}
+
+		return false;
+	}
+
+
+	// add a subscription
+	// will only add paid subscription if order_id is passed
+	// will not add subscription if subscription already exists, but returns existing subscription instead
+	# /#controller#/addSubscription
+	function addSubscription($action) {
+
+		// get current user
+		$user_id = session()->value("user_id");
+
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("item_id"))) {
+
+			$query = new Query();
+			$IC = new Items();
+
+			$item_id = $this->getProperty("item_id", "value");
+			$order_id = $this->getProperty("order_id", "value");
+			$payment_method = $this->getProperty("payment_method", "value");
+
+			// safety valve
+			// check if subscription already exists (somehow something went wrong)
+			$subscription = $this->getSubscriptions(array("item_id" => $item_id));
+			if($subscription) {
+				// forward request to update method
+				return $this->updateSubscription(array("updateSubscription", $subscription["id"]));
+			}
+
+
+			// get item prices and subscription method details to create subscription correctly
+			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
+			if($item) {
+
+
+				// order flag
+				$order = false;
+
+
+				// item has price
+				// then we need an order_id
+				if(SITE_SHOP && $item["prices"]) {
+
+					// no order_id? - don't do anything else
+					if(!$order_id) {
+						return false;
+					}
+
+
+					$SC = new Shop();
+					// check if order_id is valid
+					$order = $SC->getOrders(array("order_id" => $order_id));
+					if(!$order) {
+						return false;
+					}
+
+				}
+
+
+				// does subscription expire
+				$expires_at = false;
+
+				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
+					$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
+				}
+
+
+				$sql = "INSERT INTO ".$this->db_subscriptions." SET user_id = $user_id, item_id = $item_id";
+				if($order_id) {
+					$sql .= ", order_id = $order_id";
+				}
+				if($payment_method) {
+					$sql .= ", payment_method = $payment_method";
+				}
+				if($expires_at) {
+					$sql .= ", expires_at = '$expires_at'";
+				}
+
+
+//				print $sql;
+				if($query->sql($sql)) {
+
+					// get new subscription
+					$subscription = $this->getSubscriptions(array("item_id" => $item_id));
+
+					// if item is membership - update membership/subscription_id information
+					if($item["itemtype"] == "membership") {
+
+						// add subscription id to post array
+						$_POST["subscription_id"] = $subscription["id"];
+
+						// check if membership exists
+						$membership = $this->getMembership();
+
+						// safety valve
+						// create membership if it does not exist
+						if(!$membership) {
+							$membership = $this->addMembership(array("addMembership"));
+						}
+						// update existing membership
+						else {
+							$membership = $this->updateMembership(array("updateMembership"));
+						}
+
+						// clear post array
+						unset($_POST);
+
+					}
+
+
+
+					// perform special action on subscribe
+					// this must be done after membership has been updated with new subscription id
+					$model = $IC->typeObject($item["itemtype"]);
+					if(method_exists($model, "subscribed")) {
+						$model->subscribed($subscription);
+					}
+
+
+					// add to log
+					global $page;
+					$page->addLog("user->addSubscription: item_id:$item_id, user_id:$user_id");
+
+
+					return $subscription;
+				}
+
 			}
 
 		}
 
+		return false;
+	}
+
+	# /#controller#/updateSubscription/#subscription_id#
+	function updateSubscription($action) {
+
+		// get current user
+		$user_id = session()->value("user_id");
+
+
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$IC = new Items();
+
+			$subscription_id = $action[1];
+			$item_id = $this->getProperty("item_id", "value");
+			$order_id = $this->getProperty("order_id", "value");
+			$payment_method = $this->getProperty("payment_method", "value");
+
+
+
+			// get item prices and subscription method details to create subscription correctly
+			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
+			if($item) {
+
+
+				// order flag
+				$order = false;
+
+
+				// item has price
+				// then we need an order_id
+				if(SITE_SHOP && $item["prices"]) {
+
+					// no order_id? - don't do anything else
+					if(!$order_id) {
+						return false;
+					}
+
+
+					$SC = new Shop();
+					// check if order_id is valid
+					$order = $SC->getOrders(array("order_id" => $order_id));
+					if(!$order) {
+						return false;
+					}
+
+				}
+
+
+				// does subscription expire
+				$expires_at = false;
+
+				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
+					$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
+				}
+
+
+				$sql = "UPDATE ".$this->db_subscriptions." SET item_id = $item_id";
+				if($order_id) {
+					$sql .= ", order_id = $order_id";
+				}
+				if($payment_method) {
+					$sql .= ", payment_method = $payment_method";
+				}
+				if($expires_at) {
+					$sql .= ", expires_at = '$expires_at'";
+					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
+				}
+
+				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
+
+
+//				print $sql;
+				if($query->sql($sql)) {
+
+					// get new subscription
+					$subscription = $this->getSubscriptions(array("item_id" => $item_id));
+
+					// if item is membership - update membership/subscription_id information
+					if($item["itemtype"] == "membership") {
+
+						// add subscription id to post array
+						$_POST["subscription_id"] = $subscription["id"];
+
+						// check if membership exists
+						$membership = $this->getMembership();
+
+						// safety valve
+						// create membership if it does not exist
+						if(!$membership) {
+							$membership = $this->addMembership(array("addMembership"));
+						}
+						// update existing membership
+						else {
+							$membership = $this->updateMembership(array("updateMembership"));
+						}
+
+						// clear post array
+						unset($_POST);
+
+					}
+
+					// add to log
+					global $page;
+					$page->addLog("user->updateSubscription: item_id:$item_id, user_id:$user_id");
+
+
+				}
+
+				return $subscription;
+
+			}
+
+		}
+
+		return false;
 	}
 
 
-	function addSubscription($action) {}
+	// /#controller#/deleteSubscription/#subscription_id#
+	function deleteSubscription($action) {
 
-	function deleteSubscription($action) {}
 
+		// does values validate
+		if(count($action) == 2) {
+
+			$user_id = session()->value("user_id");
+			$subscription_id = $action[1];
+
+			$query = new Query();
+
+			// check membership dependency
+			$sql = "SELECT id FROM ".$this->db_members." WHERE subscription_id = $subscription_id";
+			if(!$query->sql($sql)) {
+
+				// get item id from subscription, before deleting it
+				$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+
+
+				// perform special action on unsubscribe
+				// before removing subscription (because unsubscribe uses it as information source)
+				$IC = new Items();
+				$unsubscribed_item = $IC->getItem(array("id" => $subscription["item_id"]));
+				if($unsubscribed_item) {
+					$model = $IC->typeObject($unsubscribed_item["itemtype"]);
+					if(method_exists($model, "unsubscribed")) {
+//						$model->unsubscribed($unsubscribed_item["item_id"], $user_id);
+						$model->unsubscribed($subscription);
+					}
+				}
+
+
+				$sql = "DELETE FROM ".$this->db_subscriptions." WHERE id = $subscription_id AND user_id = $user_id";
+				if($query->sql($sql)) {
+
+					global $page;
+					$page->addLog("user->deleteSubscription: $subscription_id ($user_id)");
+
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	// calculate expery date for subscription
+	// TODO: enable more flexible duration "settings"
+	function calculateSubscriptionExpiry($duration) {
+//		print "calculateSubscriptionExpiry:" . $duration;
+
+		$expires_at = false;
+
+		// annually
+		if($duration == "annually") {
+
+			$expires_at = date("Y-m-d 00:00:00", strtotime(mktime(0, 0, 0, date("n"), date("j"), date("Y")+1)));
+		}
+
+		// monthly
+		else if($duration == "monthly") {
+
+			$timestamp = time();
+			$days_of_month = date("t");
+			$expires_at = date("Y-m-d 00:00:00", $timestamp + ($days_of_month*24*60*60));
+		}
+
+		// weekly
+		else if($duration == "weekly") {
+
+			$timestamp = time();
+			$expires_at = date("Y-m-d 00:00:00", $timestamp + (7*24*60*60));
+		}
+
+		return $expires_at;
+	}
+
+
+	// TODO: needed for subscription renewal very soon
 	function renewSubscription($action) {}
+
+
+
 
 
 	// MEMBERSHIP
 
-	function getMember() {
-		
+	// get membership for current user
+	// includes membership item and order
+	function getMembership() {
+
+		// get current user
+		$user_id = session()->value("user_id");
+
+		$query = new Query();
+		$IC = new Items();
+		$SC = new Shop();
+
+
+		// membership with subscription
+		$sql = "SELECT members.id as id, subscriptions.id as subscription_id, subscriptions.item_id as item_id, subscriptions.order_id as order_id, members.user_id as user_id, members.created_at as created_at, members.modified_at as modified_at, subscriptions.renewed_at as renewed_at, subscriptions.expires_at as expires_at FROM ".$this->db_subscriptions." as subscriptions, ".$this->db_members." as members WHERE members.user_id = $user_id AND members.subscription_id = subscriptions.id LIMIT 1";
+		if($query->sql($sql)) {
+			$membership = $query->result(0);
+			$membership["item"] = $IC->getItem(array("id" => $membership["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
+			if($membership["order_id"]) {
+				$membership["order"] = $SC->getOrders(array("order_id" => $membership["order_id"]));
+			}
+			else {
+				$membership["order"] = false;
+			}
+
+			return $membership;
+		}
+		// membership without subscription
+		else {
+			$sql = "SELECT * FROM ".$this->db_members." WHERE user_id = $user_id LIMIT 1";
+			if($query->sql($sql)) {
+				$membership = $query->result(0);
+				return $membership;
+			}
+		}
+
+		return false;
 	}
 
-	function addMember($action) {
-		
-		
+
+
+	// Add membership
+	# /#controller#/addMembership
+	function addMembership($action) {
+
+		// get current user
+		$user_id = session()->value("user_id");
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1) {
+
+			$query = new Query();
+			$subscription_id = $this->getProperty("subscription_id", "value");
+
+			// safety valve
+			// does user already have membership
+			$membership = $this->getMembership();
+			if($membership) {
+				return $this->updateMembership(array("updateMembership"));
+			}
+
+			// create new membership
+			$sql = "INSERT INTO ".$this->db_members." SET user_id = $user_id";
+
+			// Add subscription id if passed
+			if($subscription_id) {
+
+				// make sure subscription is valid
+				$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+				if($subscription) {
+					$sql .= ", subscription_id = $subscription_id";
+				}
+
+			}
+
+			// creating sucess
+			if($query->sql($sql)) {
+
+				$membership = $this->getMembership();
+
+				global $page;
+				$page->addLog("user->addMembership: member_id:".$membership["id"].", user_id:$user_id");
+
+				return $membership;
+			}
+
+		}
+
+		return false;
 	}
 
-	function memberStatus() {}
+	// Add membership
+	# /#controller#/updateMembership
+	function updateMembership($action) {
+
+		// get current user
+		$user_id = session()->value("user_id");
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1) {
 
 
+			$query = new Query();
+			$subscription_id = $this->getProperty("subscription_id", "value");
+
+
+			$sql = "UPDATE ".$this->db_members." SET modified_at = CURRENT_TIMESTAMP";
+
+			// Add subscription id if passed
+			if($subscription_id) {
+
+				// make sure subscription is valid
+				$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+				if($subscription) {
+					$sql .= ", subscription_id = $subscription_id";
+				}
+
+			}
+
+			// Add condition
+			$sql .= " WHERE user_id = $user_id";
+
+
+			// creating sucess
+			if($query->sql($sql)) {
+
+				$membership = $this->getMembership();
+
+				global $page;
+				$page->addLog("user->updateMembership: member_id".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
+
+				return $membership;
+			}
+
+
+		}
+	}
+
+
+	// change membership type
+	// info i $_POST
+	// TODO: only changes item_id reference in subscription
+	// - should also calculate cost difference and create new order to pay.
+	// - this requires the ability to add custom order-lines with calculated price
+
+	# /#controller#/changeMembership
+	function changeMembership($action) {
+
+		// get current user
+		$user_id = session()->value("user_id");
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("item_id"))) {
+
+			$query = new Query();
+			$IC = new Items();
+
+			$item_id = $this->getProperty("item_id", "value");
+
+			$member = $this->getMembership();
+			if($member) {
+
+				$sql = "UPDATE ".$this->db_subscriptions. " SET item_id = $item_id WHERE id = ".$member["subscription_id"]. " AND user_id = ".$user_id;
+				// print $sql;
+				if($query->sql($sql)) {
+
+					// get new item info
+					$item = $IC->getItem(array("id" => $item_id, "extend" => true));
+					$user = $this->getUser();
+
+					global $page;
+					$page->addLog("User->changeMembership: member_id:".$member["id"].", item_id:$item_id");
+
+					// send notification email to admin
+					$page->mail(array(
+						"recipients" => SHOP_ORDER_NOTIFIES,
+						"subject" => SITE_URL . " - User changed membership: " . $user["nickname"] . " (member: #".$member["id"].")", 
+						"message" => "User has changed from: " . $member["item"]["name"]. " to " . $item["name"] .".\nOld membership was last renewed on: ".($member["renewed_at"] ? $member["renewed_at"] : $member["created_at"])."\n\nYou need to handle the price-diff-calculation manually!!!",
+						// "template" => "system"
+					));
+
+					return $this->getMembership();
+				}
+
+			}
+
+		}
+
+		return false;
+	}
 
 }
 

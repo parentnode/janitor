@@ -8,17 +8,27 @@ $access_item["/apitoken"] = true;
 $access_item["/renewToken"] = "/apitoken";
 $access_item["/disableToken"] = "/apitoken";
 
-$access_item["/readstate"] = true;
-$access_item["/addReadstate"] = "/readstate";
-$access_item["/deleteReadstate"] = "/readstate";
+$access_item["/readstates"] = true;
+$access_item["/addReadstate"] = "/readstates";
+$access_item["/deleteReadstate"] = "/readstates";
 
 $access_item["/subscription"] = true;
-$access_item["/addSubscription"] = "/subscription";
+//$access_item["/addSubscription"] = "/subscription";
 $access_item["/deleteSubscription"] = "/subscription";
+
+$access_item["/membership"] = true;
+
+$access_item["/changeMembership"] = "/membership";
+
+
+$access_item["/addMembership"] = true;
+
+
 
 if(isset($read_access) && $read_access) {
 	return;
 }
+
 
 include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
@@ -35,7 +45,7 @@ if(is_array($action) && count($action)) {
 
 
 	// CONTENT OVERVIEW
-	if(preg_match("/^(content|orders|readstates|subscriptions)$/", $action[0])) {
+	if(preg_match("/^(content|orders|readstates)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
@@ -66,6 +76,35 @@ if(is_array($action) && count($action)) {
 			"templates" => "janitor/profile/reset.php"
 		));
 		exit();
+	}
+	// SUBSCRIPTIONS
+	else if(preg_match("/^(subscription)$/", $action[0]) && count($action) > 1) {
+
+		// SUBSCRIPTIONS LIST
+		if(preg_match("/^(list)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"page_title" => "Subscriptions",
+				"templates" => "janitor/profile/subscription/".$action[1].".php"
+			));
+			exit();
+		}
+	}
+
+	// MEMBERSHIP
+	else if(preg_match("/^(membership)$/", $action[0]) && count($action) > 1) {
+
+		// MEMBER LIST/EDIT
+		if(preg_match("/^(view|edit)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"page_title" => "Membership",
+				"templates" => "janitor/profile/membership/".$action[1].".php"
+			));
+			exit();
+		}
 	}
 
 	// Class interface

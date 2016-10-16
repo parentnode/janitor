@@ -10,7 +10,15 @@ if(count($action) > 2) {
 
 $pending_orders = $model->getOrders(array("status" => 0));
 $waiting_orders = $model->getOrders(array("status" => 1));
-$orders = array_merge($pending_orders, $waiting_orders);
+if($pending_orders && $waiting_orders) {
+	$orders = array_merge($pending_orders, $waiting_orders);
+}
+else if($pending_orders) {
+	$orders = $pending_orders;
+}
+else if($waiting_orders) {
+	$orders = $waiting_orders;
+}
 
 $order_options = $model->toOptions($orders, "id", "order_no", array("add" => array("" => "Select order")));
 

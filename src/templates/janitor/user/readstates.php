@@ -26,7 +26,7 @@ $readstates = $model->getReadstates(array("user_id" => $user_id));
 	<div class="all_items readstates i:defaultList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
-		<h2>Items read</h2>
+		<h2>Items marked as read:</h2>
 <? 		if($readstates): ?>
 		<ul class="items">
 <? 			foreach($readstates as $item):

@@ -15,13 +15,13 @@ $readstates = $model->getReadstates();
 	<h2><?= $user["nickname"] ?></h2>
 
 
-	<?= $JML->profileTabs($user_id, "readstates") ?>
+	<?= $JML->profileTabs("readstates") ?>
 
 
 	<div class="all_items readstates i:defaultList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
-		<h2>Items read</h2>
+		<h2>Items you have marked as read:</h2>
 <? 		if($readstates): ?>
 		<ul class="items">
 <? 			foreach($readstates as $item):

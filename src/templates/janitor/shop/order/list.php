@@ -29,7 +29,7 @@ session()->value("return_to_orderstatus", $status);
 	<h1>Orders</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("New order", "/janitor/admin/shop/order/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
+		<?//= $HTML->link("New order", "/janitor/admin/shop/order/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("Carts", "/janitor/admin/shop/cart/list", array("class" => "button", "wrapper" => "li.carts")) ?>
 		<?= $HTML->link("Payments", "/janitor/admin/shop/payment/list", array("class" => "button", "wrapper" => "li.payments")) ?>
 	</ul>

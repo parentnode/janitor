@@ -32,6 +32,7 @@ $access_item["/newsletter"] = true;
 $access_item["/addNewsletter"] = "/newsletter";
 $access_item["/deleteNewsletter"] = "/newsletter";
 
+
 // USER SUBSCRIPTION INTERFACE
 $access_item["/subscription"] = true;
 $access_item["/addSubscription"] = "/subscription";
@@ -48,8 +49,7 @@ $access_item["/membership"] = "/content";
 
 // MEMBERS INTERFACE
 $access_item["/members"] = true;
-$access_item["/addMember"] = "/members";
-$access_item["/deleteMember"] = "/members";
+$access_item["/changeMembership"] = "/members";
 
 
 // ACCESS INTERFACE
@@ -128,7 +128,7 @@ if(is_array($action) && count($action)) {
 	else if(preg_match("/^(subscription)$/", $action[0]) && count($action) > 1) {
 
 		// SUBSCRIPTIONS LIST/EDIT/NEW
-		if(preg_match("/^(list|edit|new)$/", $action[1])) {
+		if(preg_match("/^(new|list|edit)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",
@@ -139,8 +139,23 @@ if(is_array($action) && count($action)) {
 		}
 	}
 
+	// MEMBERSHIP
+	else if(preg_match("/^(membership)$/", $action[0]) && count($action) > 1) {
+
+		// MEMBER LIST/EDIT
+		if(preg_match("/^(view|edit)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"page_title" => "Membership",
+				"templates" => "janitor/user/membership/".$action[1].".php"
+			));
+			exit();
+		}
+	}
+
 	// CONTENT/ORDERS/READSTATES/MEMBERSHIP OVERVIEW
-	else if(preg_match("/^(content|orders|readstates|membership)$/", $action[0]) && count($action) > 1) {
+	else if(preg_match("/^(content|orders|readstates)$/", $action[0]) && count($action) > 1) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/".$action[0].".php"
@@ -151,8 +166,8 @@ if(is_array($action) && count($action)) {
 	// MEMBER
 	else if(preg_match("/^(members)$/", $action[0]) && count($action) > 1) {
 
-		// MEMBER LIST/EDIT/NEW
-		if(preg_match("/^(list|edit|new)$/", $action[1])) {
+		// MEMBER LIST/EDIT
+		if(preg_match("/^(list|edit)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",

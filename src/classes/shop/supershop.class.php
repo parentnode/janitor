@@ -874,6 +874,9 @@ class SuperShop extends Shop {
 
 //				print $sql;
 				if($query->sql($sql)) {
+
+					$page->addLog("SuperShop->addOrder: user_id:".$user_id, "order_no:".$order_no);
+
 					message()->addMessage("Order added");
 					return $this->getOrders(array("order_no" => $order_no));
 				}
@@ -1038,6 +1041,73 @@ class SuperShop extends Shop {
 
 
 
+	// cancel order
+	// changes order status to cancelled
+	// cancels any subscriptions or memberships included in order
+	# /#controller#/cancelOrder/#order_id#/#user_id#
+	function cancelOrder($action) {
+
+		// does values validate
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$IC = new Items();
+
+			include_once("classes/users/superuser.class.php");
+			$UC = new SuperUser();
+
+			$order_id = $action[1];
+			$user_id = $action[2];
+
+			// check overstatus
+			$order = $this->getOrders(array("order_id" => $order_id));
+			if($order && $order["status"] == 0 || $order["status"] == 1) {
+
+				// get all subscriptions related to order
+				$sql = "SELECT * FROM ".$UC->db_subscriptions." WHERE order_id = ".$order_id;
+				if($query->sql($sql)) {
+					$subscriptions = $query->results();
+
+					// deal with subscriptions individually
+					foreach($subscriptions as $subscription) {
+
+						// is subscription related to membership
+						$sql = "SELECT * FROM ".$UC->db_members." WHERE subscription_id = ".$subscription["id"]." LIMIT 1";
+						if($query->sql($sql)) {
+							$membership = $query->result(0);
+
+							// cancel membership - also deletes related subscription
+							$UC->cancelMembership(array("cancelMembership", $membership["user_id"], $membership["id"]));
+						}
+						// regular subscription
+						else {
+
+							// delete subscription
+							$UC->deleteSubscription(array("deleteSubscription", $subscription["user_id"], $subscription["id"]));
+						}
+					}
+				}
+
+				// update order status
+				$sql = "UPDATE ".$this->db_orders." SET status = 3 WHERE id = ".$order_id." AND user_id = ".$user_id;
+				if($query->sql($sql)) {
+
+					global $page;
+					$page->addLog("SuperShop->cancelOrder: $order_id ($user_id)");
+
+					message()->addMessage("Order cancelled");
+					return true;
+				}
+			}
+		}
+
+		message()->addMessage("Order could not cancelled", array("type" => "error"));
+		return false;
+	}
+
+
+
+
 	// ORDER ITEMS
 
 	# /janitor/admin/shop/addToOrder/#order_id#/
@@ -1060,56 +1130,118 @@ class SuperShop extends Shop {
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
 
+				$IC = new Items();
+				$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
 
-				// check if item is already in order?
-				if($order["items"] && arrayKeyValue($order["items"], "item_id", $item_id) !== false) {
-					$existing_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
+				// only add item if it exists
+				if($item) {
+					
+					// check if item is already in order?
+					if($order["items"] && arrayKeyValue($order["items"], "item_id", $item_id) !== false) {
+						$existing_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
 
 
-					$existing_item = $order["items"][$existing_item_index];
-					$existing_quantity = $existing_item["quantity"];
-					$new_quantity = intval($quantity) + intval($existing_quantity);
+						$existing_item = $order["items"][$existing_item_index];
+						$existing_quantity = $existing_item["quantity"];
+						$new_quantity = intval($quantity) + intval($existing_quantity);
 
-					// get best price for item
-					$price = $this->getPrice($item_id, array("quantity" => $new_quantity, "currency" => $order["currency"], "country" => $order["country"]));
-//					print_r($price);
+						// get best price for item
+						$price = $this->getPrice($item_id, array("quantity" => $new_quantity, "currency" => $order["currency"], "country" => $order["country"]));
+	//					print_r($price);
 
-					$unit_price = $price["price"];
-					$unit_vat = $price["vat"];
-					$total_price = $unit_price * $new_quantity;
-					$total_vat = $unit_vat * $new_quantity;
+						$unit_price = $price["price"];
+						$unit_vat = $price["vat"];
+						$total_price = $unit_price * $new_quantity;
+						$total_vat = $unit_vat * $new_quantity;
 
-					$sql = "UPDATE ".$this->db_order_items." SET quantity=$new_quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$existing_item["id"]." AND order_id = ".$order_id;
-//					print $sql;
-				}
-				// insert new order item
-				else {
+						$sql = "UPDATE ".$this->db_order_items." SET quantity=$new_quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$existing_item["id"]." AND order_id = ".$order_id;
+	//					print $sql;
+					}
+					// insert new order item
+					else {
 
-					$IC = new Items();
-					$item = $IC->getItem(array("id" => $item_id, "extend" => true));
+						// get best price for item
+						$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
+		//				print_r($price);
 
-					// get best price for item
-					$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-	//				print_r($price);
+						$unit_price = $price["price"];
+						$unit_vat = $price["vat"];
+						$total_price = $unit_price * $quantity;
+						$total_vat = $unit_vat * $quantity;
 
-					$unit_price = $price["price"];
-					$unit_vat = $price["vat"];
-					$total_price = $unit_price * $quantity;
-					$total_vat = $unit_vat * $quantity;
-
-					$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".$item["name"]."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-	//				print $sql;
+						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".$item["name"]."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+		//				print $sql;
 				
-				}
+					}
 
-				if($query->sql($sql)) {
+					if($query->sql($sql)) {
 
-					// update modified at time
-					$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$order_id;
-					$query->sql($sql);
+						// update modified at time
+						$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$order_id;
+//						print $sql;
+						$query->sql($sql);
 
-					message()->addMessage("Item added to order");
-					return $this->getOrders(array("order_id" => $order_id));
+
+						include_once("classes/users/superuser.class.php");
+						$UC = new SuperUser();
+
+
+						// item is membership (membership can only be added with relation subscription)
+						if(SITE_MEMBERS && $item["itemtype"] == "membership") {
+
+							// check if user already has membership
+							$membership = $UC->getMembership();
+
+							// membership does not exist
+							if(!$membership) {
+								// set values for adding membership
+								$_POST["user_id"] = $order["user_id"];
+								// add new membership
+								$membership = $UC->addMembership(array("addMembership"));
+								unset($_POST);
+							}
+
+						}
+
+
+						// subscription method available for item
+						if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
+
+							// set values for updating/creating subscription
+							$_POST["order_id"] = $order["id"];
+							$_POST["item_id"] = $item_id;
+							$_POST["user_id"] = $order["user_id"];
+
+							// check if subscription already exists
+							$subscription = $UC->getSubscriptions(array("item_id" => $item_id, "user_id" => $order["user_id"]));
+
+							// if subscription is for itemtype=membership
+							// add/updateSubscription will also update subscription_id on membership 
+
+							// update existing subscription
+							if($subscription) {
+								$subscription = $UC->updateSubscription(array("updateSubscription", $order["user_id"], $subscription["id"]));
+							}
+							// add new subscription
+							else {
+								$subscription = $UC->addSubscription(array("addSubscription"));
+							}
+
+							// clean up POST array
+							unset($_POST);
+
+						}
+
+
+
+						global $page;
+						$page->addLog("SuperShop->addToOrder: order_id:".$order["id"].", item_id:".$item_id);
+
+
+						message()->addMessage("Item added to order");
+						return $this->getOrders(array("order_id" => $order_id));
+
+					}
 
 				}
 
@@ -1121,112 +1253,112 @@ class SuperShop extends Shop {
 		return false;
 	}
 
+
+
+	// Order item manipulation has been disabled
+
 	# /janitor/admin/shop/updateOrderItemQuantity/#order_id#/#order_item_id#
 	// new quantity in $_POST
-	function updateOrderItemQuantity($action) {
-
-		if(count($action) == 3) {
-
-			$order_id = $action[1];
-			$order_item_id = $action[2];
-			$order = $this->getOrders(array("order_id" => $order_id));
-
-			// Get posted values to make them available for models
-			$this->getPostedEntities();
-
-			// does values validate
-			if($order && $order["status"] == 0 && $this->validateList(array("quantity"))) {
-
-				$query = new Query();
-
-				$quantity = $this->getProperty("quantity", "value");
-
-
-				// find item_id in order items?
-				if($order["items"] && arrayKeyValue($order["items"], "id", $order_item_id) !== false) {
-					$existing_item_index = arrayKeyValue($order["items"], "id", $order_item_id);
-					$item_id = $order["items"][$existing_item_index]["item_id"];
-
-
-					// get best price for item
-					$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-	//					print_r($price);
-
-					$unit_price = $price["price"];
-					$unit_vat = $price["vat"];
-					$total_price = $unit_price * $quantity;
-					$total_vat = $unit_vat * $quantity;
-
-					$sql = "UPDATE ".$this->db_order_items." SET quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$order_item_id." AND order_id = ".$order_id;
-//					print $sql;
-					if($query->sql($sql)) {
-
-						// return extended order item
-						$item = $order["items"][$existing_item_index];
-						$item["unit_price"] = $price;
-						$item["unit_price_formatted"] = formatPrice($item["unit_price"]);
-						$item["total_price"] = array(
-							"price" => $item["unit_price"]["price"]*$quantity, 
-							"vat" => $item["unit_price"]["vat"]*$quantity, 
-							"currency" => $order["currency"], 
-							"country" => $order["country"]
-						);
-						$item["total_price_formatted"] = formatPrice($item["total_price"], array("vat" => true));
-						$item["total_order_price"] = $this->getTotalOrderPrice($order["id"]);
-						$item["total_order_price_formatted"] = formatPrice($item["total_order_price"]);
-
-						message()->addMessage("Item quantity updated");
-						return $item;
-					}
-
-				}
-
-				// update modified at time
-				$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$order_id;
-				$query->sql($sql);
-
-			}
-
-		}
-
-		message()->addMessage("Quantity could not be updated", array("type" => "error"));
-		return false;
-	}
-
-	# /janitor/admin/shop/deleteFromOrder/#order_id#/#order_item_id#
-	function deleteFromOrder($action) {
-
-		if(count($action) > 2) {
-
-			$order_id = $action[1];
-			$order_item_id = $action[2];
-			$order = $this->getOrders(array("order_id" => $order_id));
-
-			if($order && $order["status"] == 0) {
-
-				$query = new Query();
-				$sql = "DELETE FROM ".$this->db_order_items." WHERE id = $order_item_id AND order_id = $order_id";
-				// print $sql;
-				if($query->sql($sql)) {
-					$order = $this->getOrders(array("order_id" => $order["id"]));
-
-					// add total price info to enable UI update
-					$order["total_order_price"] = $this->getTotalOrderPrice($order["id"]);
-					$order["total_order_price_formatted"] = formatPrice($order["total_order_price"]);
-
-					message()->addMessage("Order item deleted");
-					return $order;
-				}
-			}
-		}
-
-		message()->addMessage("Order item could not deleted", array("type" => "error"));
-		return false;
-	}
-
-
-
-
+// 	function updateOrderItemQuantity($action) {
+//
+// 		if(count($action) == 3) {
+//
+// 			$order_id = $action[1];
+// 			$order_item_id = $action[2];
+// 			$order = $this->getOrders(array("order_id" => $order_id));
+//
+// 			// Get posted values to make them available for models
+// 			$this->getPostedEntities();
+//
+// 			// does values validate
+// 			if($order && $order["status"] == 0 && $this->validateList(array("quantity"))) {
+//
+// 				$query = new Query();
+//
+// 				$quantity = $this->getProperty("quantity", "value");
+//
+//
+// 				// find item_id in order items?
+// 				if($order["items"] && arrayKeyValue($order["items"], "id", $order_item_id) !== false) {
+// 					$existing_item_index = arrayKeyValue($order["items"], "id", $order_item_id);
+// 					$item_id = $order["items"][$existing_item_index]["item_id"];
+//
+//
+// 					// get best price for item
+// 					$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
+// 	//					print_r($price);
+//
+// 					$unit_price = $price["price"];
+// 					$unit_vat = $price["vat"];
+// 					$total_price = $unit_price * $quantity;
+// 					$total_vat = $unit_vat * $quantity;
+//
+// 					$sql = "UPDATE ".$this->db_order_items." SET quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$order_item_id." AND order_id = ".$order_id;
+// //					print $sql;
+// 					if($query->sql($sql)) {
+//
+// 						// return extended order item
+// 						$item = $order["items"][$existing_item_index];
+// 						$item["unit_price"] = $price;
+// 						$item["unit_price_formatted"] = formatPrice($item["unit_price"]);
+// 						$item["total_price"] = array(
+// 							"price" => $item["unit_price"]["price"]*$quantity,
+// 							"vat" => $item["unit_price"]["vat"]*$quantity,
+// 							"currency" => $order["currency"],
+// 							"country" => $order["country"]
+// 						);
+// 						$item["total_price_formatted"] = formatPrice($item["total_price"], array("vat" => true));
+// 						$item["total_order_price"] = $this->getTotalOrderPrice($order["id"]);
+// 						$item["total_order_price_formatted"] = formatPrice($item["total_order_price"]);
+//
+// 						message()->addMessage("Item quantity updated");
+// 						return $item;
+// 					}
+//
+// 				}
+//
+// 				// update modified at time
+// 				$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$order_id;
+// 				$query->sql($sql);
+//
+// 			}
+//
+// 		}
+//
+// 		message()->addMessage("Quantity could not be updated", array("type" => "error"));
+// 		return false;
+// 	}
+//
+// 	# /janitor/admin/shop/deleteFromOrder/#order_id#/#order_item_id#
+// 	function deleteFromOrder($action) {
+//
+// 		if(count($action) > 2) {
+//
+// 			$order_id = $action[1];
+// 			$order_item_id = $action[2];
+// 			$order = $this->getOrders(array("order_id" => $order_id));
+//
+// 			if($order && $order["status"] == 0) {
+//
+// 				$query = new Query();
+// 				$sql = "DELETE FROM ".$this->db_order_items." WHERE id = $order_item_id AND order_id = $order_id";
+// 				// print $sql;
+// 				if($query->sql($sql)) {
+// 					$order = $this->getOrders(array("order_id" => $order["id"]));
+//
+// 					// add total price info to enable UI update
+// 					$order["total_order_price"] = $this->getTotalOrderPrice($order["id"]);
+// 					$order["total_order_price_formatted"] = formatPrice($order["total_order_price"]);
+//
+// 					message()->addMessage("Order item deleted");
+// 					return $order;
+// 				}
+// 			}
+// 		}
+//
+// 		message()->addMessage("Order item could not deleted", array("type" => "error"));
+// 		return false;
+// 	}
 
 
 
@@ -1269,22 +1401,24 @@ class SuperShop extends Shop {
 
 					// get current shipping status for item
 					$sql = "SELECT shipped_by, item_id FROM ".$this->db_order_items." WHERE id = ".$order_item_id." AND order_id = ".$order_id;
-					print $sql;
+//					print $sql;
 					if($query->sql($sql)) {
 						$current_shipping = $query->result(0, "shipped_by");
 						$item_id = $query->result(0, "item_id");
 						$order_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
 
-						print "current_shipping:" . $current_shipping;
-						// changed state to shipped and was not already in this state
-						// then invoke model->shipped if it is available (it will perform)
+//						print "current_shipping:" . $current_shipping ." for ".$item_id;
+
+						// changed state to "shipped" and was not already in this state
+						// then invoke model->ship if it is available (it will perform digital delivery)
 						if($shipped && !$current_shipping && $order_item_index !== false) {
-							print "shipping state changed for $item_id";
+
+//							print "shipping state changed for $item_id";
 							$order_item = $order["items"][$order_item_index];
 							$IC = new Items();
-							$item = $IC->getItem(array("id" => $item_id));
-							print "item:";
-							print_r($item);
+							$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
+//							print "item:";
+//							print_r($item);
 							if($item) {
 								$model = $IC->typeObject($item["itemtype"]);
 								
@@ -1293,6 +1427,7 @@ class SuperShop extends Shop {
 									$model->shipped($order_item, $order);
 								}
 							}
+
 						}
 
 
@@ -1404,7 +1539,7 @@ class SuperShop extends Shop {
 		}
 
 
-		// TODO: if order was not previously complete, then send the order shipped email
+		// TODO: if order was not previously complete, then send the order shipped email (unless order was autoshipped?)
 
 
 		$sql = "UPDATE ".$this->db_orders." SET status = $status WHERE id = ".$order_id;
@@ -1501,6 +1636,9 @@ class SuperShop extends Shop {
 				if($query->sql($sql)) {
 
 					$this->validateOrder($order["id"]);
+
+					global $page;
+					$page->addLog("SuperShop->addPayment: order_id:$order_id, payment_method:$payment_method, payment_amount:$payment_amount");
 
 					message()->addMessage("Payment added");
 					return true;

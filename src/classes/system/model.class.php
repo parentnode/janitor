@@ -142,7 +142,7 @@ class Model extends HTML {
 		$this->addToModel("item_subscription_method", array(
 			"type" => "integer",
 			"label" => "Subscription method",
-			"hint_message" => "Choose subscription renewal method.",
+			"hint_message" => "Choose subscription renewal period.",
 			"error_message" => "Subscription method error."
 		));
 

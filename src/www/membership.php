@@ -3,10 +3,11 @@ $access_item["/"] = true;
 $access_item["/comments"] = true;
 $access_item["/addComment"] = "/comments";
 
-$access_item["/updateSubscriptionMethod"] = true;
+$access_item["/subscription"] = true;
+$access_item["/updateSubscriptionMethod"] = "/subscription";
 
 $access_item["/new"] = true;
-$access_item["/save"] = true;
+$access_item["/save"] = "/new";
 
 if(isset($read_access) && $read_access) {
 	return;

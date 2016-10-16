@@ -5,6 +5,7 @@ global $model;
 $order_id = $action[2];
 $order = $model->getOrders(array("order_id" => $action[2]));
 
+
 include_once("classes/users/superuser.class.php");
 $UC = new SuperUser();
 
@@ -28,20 +29,18 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 
 ?>
 <div class="scene i:scene defaultEdit shopView orderView">
-<? if($order["status"] == 0): ?>
-	<h1>Edit order</h1>
-<? else: ?>
 	<h1>View order</h1>
-<? endif; ?>
 	<h2><?= $order["order_no"] ?></h2>
 
 	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("Order list", "/janitor/admin/shop/order/list/".$return_to_orderstatus, array("class" => "button", "wrapper" => "li.cancel")) ?>
 
-	<? if($order["status"] == 0): ?>
-		<?= $JML->oneButtonForm("Delete order", "/janitor/admin/shop/deleteOrder/".$order["id"]."/".$order["user_id"], array(
+	<? if($order["status"] == 0 || $order["status"] == 1): ?>
+		<?= $JML->oneButtonForm("Cancel order", "/janitor/admin/shop/cancelOrder/".$order["id"]."/".$order["user_id"], array(
 			"wrapper" => "li.delete",
-			"success-location" => "/janitor/admin/shop/order/list/".$return_to_orderstatus
+			"confirm-value" => "Are you sure? This will also cancel any subscriptions or memberships related to this order!",
+			"class" => "secondary",
+			"success-location" => "/janitor/admin/shop/order/list/3"
 		)) ?>
 	<? endif; ?>
 	</ul>
@@ -164,7 +163,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 			<li class="item <?= superNormalize($model->order_statuses[$order["status"]]) ?><?= ($order_item["shipped_by"] ? " shipped" : "") ?>">
 				<h3>
 
-				<? if($order["status"] == 0): ?>
+				<? /*if($order["status"] == 0): ?>
 					<?= $model->formStart("/janitor/admin/shop/updateOrderItemQuantity/$order_id/".$order_item["id"], array("class" => "updateOrderItemQuantity labelstyle:inject")) ?>
 						<fieldset>
 							<?= $model->input("quantity", array(
@@ -177,9 +176,9 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 							<?= $model->submit("Update", array("name" => "update", "wrapper" => "li.save")) ?>
 						</ul>
 					<?= $model->formEnd() ?>
-				<? else: ?>
+				<? else: */?>
 					<span class="quantity"><?= $order_item["quantity"] ?></span>
-				<? endif; ?>
+				<? /*endif;*/ ?>
 
 					<span class="name">x <?= $order_item["name"] ?> á</span>
 
@@ -204,22 +203,22 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 				</h3>
 
 				<ul class="actions">
-					<? if($order["status"] == 0): ?>
+					<? /*if($order["status"] == 0): ?>
 					<?= $JML->oneButtonForm("Delete", "/janitor/admin/shop/deleteFromOrder/$order_id/".$order_item["id"], array(
 						"wrapper" => "li.delete",
 						"success-function" => "deletedFromOrder",
 						"static" => true
 					)) ?>
-					<? endif; ?>
+					<? endif; */?>
 
 					<? if($order["status"] == 0 || $order["status"] == 1 || $order["status"] == 2): ?>
-					<?= $JML->oneButtonForm("Item shipped", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
+					<?= $JML->oneButtonForm("Mark as returned", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
 						"inputs" => array("shipped" => 0),
 						"wrapper" => "li.shipped",
 						"static" => true,
 						"confirm-value" => "Yes, the item has been returned"
 					)) ?>
-					<?= $JML->oneButtonForm("Ship this item", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
+					<?= $JML->oneButtonForm("Mark as shipped", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
 						"inputs" => array("shipped" => 1),
 						"class" => "secondary",
 						"wrapper" => "li.not_shipped",
@@ -234,11 +233,11 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<p>No Items in order</p>
 		<? endif; ?>
 
-		<? if($order["status"] == 0): ?>
+		<? /*if($order["status"] == 0): ?>
 		<ul class="actions">
 			<?= $HTML->link("Add item", "/janitor/admin/shop/order/item/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.cancel")) ?>
 		</ul>
-		<? endif; ?>
+		<? endif; */?>
 	</div>
 
 	<div class="comment">

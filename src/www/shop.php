@@ -2,7 +2,10 @@
 $access_item["/"] = true;
 // SUPER SHOP INTERFACE
 
-// $access_item["/addPayment"] = true;
+$access_item["/addPayment"] = true;
+$access_item["/payment/new"] = "/addPayment";
+$access_item["/order/payment/new"] = "/addPayment";
+
 // $access_item["/addCart"] = true;
 // $access_item["/addOrder"] = true;
 // $access_item["/addToOrder"] =
@@ -30,7 +33,7 @@ if(is_array($action) && count($action)) {
 	if(count($action) > 1 && preg_match("/^(order)$/", $action[0])) {
 
 		// LIST/EDIT/NEW
-		if(preg_match("/^(list|edit|new)$/", $action[1])) {
+		if(preg_match("/^(list|edit)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",
@@ -40,21 +43,21 @@ if(is_array($action) && count($action)) {
 			));
 			exit();
 		}
-		// ITEM
-		else if(count($action) > 2 && preg_match("/^(item)$/", $action[1])) {
-
-			// NEW
-			if(preg_match("/^(new)$/", $action[2])) {
-
-				$page->page(array(
-					"type" => "janitor",
-					"body_class" => "orders", 
-					"page_title" => "Orders",
-					"templates" => "janitor/shop/order/item/".$action[2].".php"
-				));
-				exit();
-			}
-		}
+		// // ITEM
+		// else if(count($action) > 2 && preg_match("/^(item)$/", $action[1])) {
+		//
+		// 	// NEW
+		// 	if(preg_match("/^(new)$/", $action[2])) {
+		//
+		// 		$page->page(array(
+		// 			"type" => "janitor",
+		// 			"body_class" => "orders",
+		// 			"page_title" => "Orders",
+		// 			"templates" => "janitor/shop/order/item/".$action[2].".php"
+		// 		));
+		// 		exit();
+		// 	}
+		// }
 		// PAYMENT
 		else if(count($action) > 2 && preg_match("/^(payment)$/", $action[1])) {
 
