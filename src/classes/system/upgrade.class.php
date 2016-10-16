@@ -39,7 +39,7 @@ class Upgrade {
 	function upgradeDatabase() {
 		
 		$query = new Query();
-
+		$IC = new Items();
 
 
 		try {
@@ -253,6 +253,9 @@ class Upgrade {
 
 				// MEMBERS
 				$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
+
+
+
 			}
 
 			if(SITE_SHOP) {
@@ -265,6 +268,44 @@ class Upgrade {
 				$this->process($this->createTableIfMissing(SITE_DB.".shop_payments"), true);
 			}
 
+
+
+			// SPECIAL CASES - PRERELEASE UPGRADE
+
+
+			// transfer old subscriptions model to new membership model
+			$item_subscription = $this->tableInfo(SITE_DB.".item_subscription");
+			if($item_subscription && isset($item_subscription["columns"]["renewal"])) {
+
+				// change layout
+				$this->process($this->addColumn(SITE_DB.".item_subscription", "introduction", "text NOT NULL", "description"), true);
+				$this->process($this->dropColumn(SITE_DB.".item_subscription", "renewal"), true);
+
+				if($this->tableInfo(SITE_DB.".item_subscription_versions")) {
+
+					// change layout
+					$this->process($this->addColumn(SITE_DB.".item_subscription_versions", "introduction", "text NOT NULL", "description"), true);
+					$this->process($this->dropColumn(SITE_DB.".item_subscription_versions", "renewal"), true);
+
+				}
+
+				$query->sql("SELECT * FROM ".UT_ITEMS." WHERE itemtype = 'subscription'");
+				$items = $query->results();
+				if($items) {
+					foreach($items as $item) {
+						$query->sql("UPDATE ".UT_ITEMS." SET itemtype = 'membership' WHERE itemtype = 'subscription' AND id = ".$item["id"]);
+					}
+				}
+
+
+				// rename
+				$this->process($this->renameTable(SITE_DB.".item_subscription", "item_membership"), true);
+
+
+				// rename
+				$this->process($this->renameTable(SITE_DB.".item_subscription_versions", "item_membership_versions"), true);
+
+			}
 
 			// Upgrade complete
 			print '<li class="done">UPGRADE COMPLETE</li>';
