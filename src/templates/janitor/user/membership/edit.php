@@ -23,7 +23,7 @@ foreach($memberships as $membership) {
 	<h2><?= $user["nickname"] ?> / <?= $member["item"]["name"] ?></h2>
 
 	<ul class="actions">
-		<?= $HTML->link("Back", "/janitor/admin/user/membership/".$user_id, array("class" => "button", "wrapper" => "li.membership")); ?>
+		<?= $HTML->link("Back", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button", "wrapper" => "li.membership")); ?>
 	</ul>
 
 	<div class="item">

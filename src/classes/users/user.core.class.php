@@ -1974,6 +1974,10 @@ class UserCore extends Model {
 			$sql = "SELECT * FROM ".$this->db_members." WHERE user_id = $user_id LIMIT 1";
 			if($query->sql($sql)) {
 				$membership = $query->result(0);
+
+				$membership["item"] = false;
+				$membership["order"] = false;
+
 				return $membership;
 			}
 		}

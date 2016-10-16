@@ -1459,6 +1459,7 @@ class SuperUser extends User {
 		// get membership by member_id
 		if($member_id !== false) {
 
+			// membership with subscription
 			$sql = "SELECT members.id as id, subscriptions.id as subscription_id, subscriptions.item_id as item_id, subscriptions.order_id as order_id, members.user_id as user_id, members.created_at as created_at, members.modified_at as modified_at, subscriptions.renewed_at as renewed_at, subscriptions.expires_at as expires_at FROM ".$this->db_subscriptions." as subscriptions, ".$this->db_members." as members WHERE members.id = $member_id AND members.subscription_id = subscriptions.id LIMIT 1";
 //			print $sql;
 			if($query->sql($sql)) {
@@ -1472,12 +1473,28 @@ class SuperUser extends User {
 
 				return $member;
 			}
+			// membership without subscription
+			else {
+				$sql = "SELECT * FROM ".$this->db_members." WHERE id = $member_id LIMIT 1";
+				if($query->sql($sql)) {
+					$member = $query->result(0);
+					$member["item"] = false;
+					$member["order"] = false;
+					$member["order_id"] = false;
+					$member["item_id"] = false;
+					$member["expires_at"] = false;
+					$member["renewed_at"] = false;
+	
+					return $member;
+				}
+			}
 
 		}
 
 		// get membership by user_id
 		else if($user_id !== false) {
 
+			// membership with subscription
 			$sql = "SELECT members.id as id, subscriptions.id as subscription_id, subscriptions.item_id as item_id, subscriptions.order_id as order_id, members.user_id as user_id, members.created_at as created_at, members.modified_at as modified_at, subscriptions.renewed_at as renewed_at, subscriptions.expires_at as expires_at FROM ".$this->db_subscriptions." as subscriptions, ".$this->db_members." as members WHERE members.user_id = $user_id AND members.subscription_id = subscriptions.id LIMIT 1";
 //			print $sql;
 			if($query->sql($sql)) {
@@ -1488,6 +1505,23 @@ class SuperUser extends User {
 				// payment status
 				$member["order"] = $SC->getOrders(array("order_id" => $member["order_id"]));
 				return $member;
+			}
+			// membership without subscription
+			else {
+				$sql = "SELECT * FROM ".$this->db_members." WHERE user_id = $user_id LIMIT 1";
+				if($query->sql($sql)) {
+					$member = $query->result(0);
+					$member["item"] = false;
+					$member["order"] = false;
+					$member["order_id"] = false;
+					$member["item_id"] = false;
+					$member["expires_at"] = false;
+					$member["renewed_at"] = false;
+					
+						
+	
+					return $member;
+				}
 			}
 
 		}
