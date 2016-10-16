@@ -4365,12 +4365,18 @@ Util.Objects["collapseHeader"] = new function() {
 				this.div._toggle_is_closed = false;
 				u.saveNodeCookie(this.div, "open", 1, {"ignore_classvars":true});
 				u.addCollapseArrow(this);
+				if(typeof(this.div.headerExpanded) == "function") {
+					this.div.headerExpanded();
+				}
 			}
 			else {
 				u.as(this.div, "height", this.offsetHeight+"px");
 				this.div._toggle_is_closed = true;
 				u.saveNodeCookie(this.div, "open", 0, {"ignore_classvars":true});
 				u.addExpandArrow(this);
+				if(typeof(this.div.headerCollapsed) == "function") {
+					this.div.headerCollapsed();
+				}
 			}
 		}
 		var state = u.getNodeCookie(div, "open", {"ignore_classvars":true});
@@ -4379,6 +4385,9 @@ Util.Objects["collapseHeader"] = new function() {
 		}
 		else {
 			u.addCollapseArrow(div._toggle_header);
+			if(typeof(div.headerExpanded) == "function") {
+				div.headerExpanded();
+			}
 		}
 	}
 }
@@ -4762,6 +4771,7 @@ u.notifier = function(node) {
 		}
 		else if(typeof(response) == "object" && response.isHTML) {
 			var login = u.qs(".scene.login", response);
+			var messages = u.qsa(".scene div.messages p", response);
 			if(login && !u.qs("#login_overlay")) {
 				this.autosave_disabled = true;
 				if(page.t_autosave) {
@@ -4821,6 +4831,11 @@ u.notifier = function(node) {
 						}
 					}
 					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				}
+			}
+			else if(messages) {
+				for(i = 0; message = messages[i]; i++) {
+					output = u.ae(this.notifications, "div", {"class":message.className, "html":message.innerHTML});
 				}
 			}
 		}
@@ -5396,6 +5411,7 @@ u.f.addField = function(node, _options) {
 			"name":field_name, 
 			"disabled":field_disabled
 		};
+		u.ae(field, "input", {"name":field_name, "value":"false", "type":"hidden"});
 		u.ae(field, "input", u.f.verifyAttributes(attributes));
 		u.ae(field, "label", {"for":field_id, "html":field_label});
 	}
@@ -7601,6 +7617,84 @@ Util.Form.geoLocation = function(field) {
 }
 
 
+/*u-string.js*/
+Util.cutString = function(string, length) {
+	var matches, match, i;
+	if(string.length <= length) {
+		return string;
+	}
+	else {
+		length = length-3;
+	}
+	matches = string.match(/\&[\w\d]+\;/g);
+	if(matches) {
+		for(i = 0; match = matches[i]; i++){
+			if(string.indexOf(match) < length){
+				length += match.length-1;
+			}
+		}
+	}
+	return string.substring(0, length) + (string.length > length ? "..." : "");
+}
+Util.prefix = function(string, length, prefix) {
+	string = string.toString();
+	prefix = prefix ? prefix : "0";
+	while(string.length < length) {
+		string = prefix + string;
+	}
+	return string;
+}
+Util.randomString = function(length) {
+	var key = "", i;
+	length = length ? length : 8;
+	var pattern = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split('');
+	for(i = 0; i < length; i++) {
+		key += pattern[u.random(0,35)];
+	}
+	return key;
+}
+Util.uuid = function() {
+	var chars = '0123456789abcdef'.split('');
+	var uuid = [], rnd = Math.random, r, i;
+	uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
+	uuid[14] = '4';
+	for(i = 0; i < 36; i++) {
+		if(!uuid[i]) {
+			r = 0 | rnd()*16;
+			uuid[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r & 0xf];
+		}
+ 	}
+	return uuid.join('');
+}
+Util.stringOr = u.eitherOr = function(value, replacement) {
+	if(value !== undefined && value !== null) {
+		return value;
+	}
+	else {
+		return replacement ? replacement : "";
+	}	
+}
+Util.getMatches = function(string, regex) {
+	var match, matches = [];
+	while(match = regex.exec(string)) {
+		matches.push(match[1]);
+	}
+	return matches;
+}
+Util.upperCaseFirst = u.ucfirst = function(string) {
+	return string.replace(/^(.){1}/, function($1) {return $1.toUpperCase()});
+}
+Util.lowerCaseFirst = u.lcfirst = function(string) {
+	return string.replace(/^(.){1}/, function($1) {return $1.toLowerCase()});
+}
+Util.normalize = function(string) {
+	string = string.tolowerCase();
+	string = string.preg_replace(/[^a-z0-9\_]/, '-');
+	string = string.preg_replace(/-+/, '-');
+	string = string.preg_replace(/^-|-$/, '');
+	return string;
+}
+
 /*i-page.js*/
 u.bug_console_only = true;
 Util.Objects["page"] = new function() {
@@ -7858,6 +7952,7 @@ Util.Objects["login"] = new function() {
 /*i-default_list.js*/
 Util.Objects["defaultList"] = new function() {
 	this.init = function(div) {
+		u.bug("init defaultList:" + u.nodeId(div))
 		var i, node;
 		div.list = u.qs("ul.items", div);
 		if(!div.list) {
@@ -7887,8 +7982,9 @@ Util.Objects["defaultList"] = new function() {
 					initialized++;
 				}
 			}
-			if(initialized == this.nodes.length) {
-				this.scroll_event_id = u.e.removeWindowEvent(this, "scroll", this.scroll_event_id);
+			if(initialized == this.nodes.length && this.scroll_event_id) {
+				u.e.removeWindowEvent(this, "scroll", this.scroll_event_id);
+				this.scroll_event_id = false;
 			}
 		}
 		div.scroll_event_id = u.e.addWindowEvent(div, "scroll", div.scrolled);
@@ -7938,48 +8034,17 @@ Util.Objects["defaultList"] = new function() {
 					}
 				}
 				else if(u.hc(action, "delete")) {
-					if(!action.childNodes.length) {
-						action.delete_item_url = action.getAttribute("data-item-delete");
-						if(action.delete_item_url) {
-							form = u.f.addForm(action, {"action":action.delete_item_url, "class":"delete"});
-							u.f.addField(form, {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
-							form.node = node;
-							bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
-						}
-					}
-					else {
-						form = u.qs("form", action);
-						form.node = node;
-					}
-					if(form) {
-						u.f.init(form);
-						form.restore = function(event) {
-							this.actions["delete"].value = "Delete";
-							u.rc(this.actions["delete"], "confirm");
-						}
-						form.submitted = function() {
-							if(!u.hc(this.actions["delete"], "confirm")) {
-								u.ac(this.actions["delete"], "confirm");
-								this.actions["delete"].value = "Confirm";
-								this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+					action.node = node;
+					u.o.oneButtonForm.init(action);
+					action.confirmed = function(response) {
+						if(response.cms_status == "success") {
+							if(response.cms_object && response.cms_object.constraint_error) {
+								u.ac(this.form.confirm_submit_button, "disabled");
 							}
 							else {
-								u.t.resetTimer(this.t_confirm);
-								this.response = function(response) {
-									page.notify(response);
-									if(response.cms_status == "success") {
-										if(response.cms_object && response.cms_object.constraint_error) {
-											this.value = "Delete";
-											u.ac(this, "disabled");
-										}
-										else {
-											this.node.parentNode.removeChild(this.node);
-											this.node.div.scrolled();
-											u.sortable(this.node.div.list, {"targets":"items", "draggables":"draggable"});
-										}
-									}
-								}
-								u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+								this.node.parentNode.removeChild(this.node);
+								this.node.div.scrolled();
+								u.sortable(this.node.div.list, {"targets":"items", "draggables":"draggable"});
 							}
 						}
 					}
@@ -8146,13 +8211,23 @@ Util.Objects["defaultEdit"] = new function() {
 Util.Objects["defaultNew"] = new function() {
 	this.init = function(form) {
 		u.f.init(form);
-		form.actions["cancel"].clicked = function(event) {
-			location.href = this.url;
+		if(form.actions["cancel"]) {
+			form.actions["cancel"].clicked = function(event) {
+				location.href = this.url;
+			}
 		}
 		form.submitted = function(iN) {
 			this.response = function(response) {
 				if(response.cms_status == "success" && response.cms_object) {
-					location.href = this.action.replace("\/save", "/edit/"+response.cms_object.item_id);
+					if(this.action.match(/\/save$/)) {
+						location.href = this.action.replace(/\/save/, "/edit/")+response.cms_object.item_id;
+					}
+					else if(location.href.match(/\/new$/)) {
+						location.href = location.href.replace(/\/new/, "/edit/")+response.cms_object.id;
+					}
+					else if(this.actions["cancel"]) {
+						this.actions["cancel"].clicked();
+					}
 				}
 				else {
 					page.notify(response);
@@ -8216,53 +8291,85 @@ Util.Objects["defaultEditStatus"] = new function() {
 /*i-default_edit_actions.js*/
 Util.Objects["defaultEditActions"] = new function() {
 	this.init = function(node) {
-		u.bug("defaultEditActions:" + u.nodeId(node));
-		node._item_id = u.cv(node, "item_id");
-		node.csrf_token = node.getAttribute("data-csrf-token");
-		var bn_cancel = u.qs("li.cancel a", node);
-		var bn_delete = u.qs("li.delete", node);
-		if(bn_delete && bn_cancel && bn_cancel.href) {
-			if(!bn_delete.childNodes.length) {
-				bn_delete.delete_item_url = bn_delete.getAttribute("data-item-delete");
-				if(bn_delete.delete_item_url) {
-					form = u.f.addForm(bn_delete, {"action":bn_delete.delete_item_url, "class":"delete"});
-					u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":node.csrf_token});
-					form.node = node;
-					bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
+	}
+}
+Util.Objects["oneButtonForm"] = new function() {
+	this.init = function(node) {
+	u.bug("oneButtonForm:" + u.nodeId(node));
+		if(!node.childNodes.length) {
+			var csrf_token = node.getAttribute("data-csrf-token");
+			var form_action = node.getAttribute("data-form-action");
+			var button_value = node.getAttribute("data-button-value");
+			var button_name = node.getAttribute("data-button-name");
+			var button_class = node.getAttribute("data-button-class");
+			var inputs = node.getAttribute("data-inputs");
+			if(csrf_token && form_action && button_value) {
+				node.form = u.f.addForm(node, {"action":form_action, "class":"confirm_action_form"});
+				node.form.node = node;
+				u.ae(node.form, "input", {"type":"hidden","name":"csrf-token", "value":csrf_token});
+				if(inputs) {
+					for(input_name in inputs)
+					u.ae(node.form, "input", {"type":"hidden","name":input_name, "value":inputs[input_name]});
 				}
+				u.f.addAction(node.form, {"value":button_value, "class":"button" + (button_class ? " "+button_class : ""), "name":u.stringOr(button_name, "save")});
 			}
-			else {
-				form = u.qs("form", bn_delete);
+		}
+		else {
+			node.form = u.qs("form", node);
+		}
+		if(node.form) {
+			u.f.init(node.form);
+			node.form.node = node;
+			node.form.confirm_submit_button = u.qs("input[type=submit]", node.form);
+			node.form.confirm_submit_button.org_value = node.form.confirm_submit_button.value;
+			node.form.confirm_submit_button.confirm_value = node.getAttribute("data-confirm-value");
+			node.form.success_function = node.getAttribute("data-success-function");
+			node.form.success_location = node.getAttribute("data-success-location");
+			node.form.restore = function(event) {
+				u.t.resetTimer(this.t_confirm);
+				this.confirm_submit_button.value = this.confirm_submit_button.org_value;
+				u.rc(this.confirm_submit_button, "confirm");
 			}
-			if(form) {
-				u.f.init(form);
-				form.cancel_url = bn_cancel.href;
-				form.restore = function(event) {
-					this.actions["delete"].value = "Delete";
-					u.rc(this.actions["delete"], "confirm");
+			node.form.submitted = function() {
+				if(!u.hc(this.confirm_submit_button, "confirm")) {
+					u.ac(this.confirm_submit_button, "confirm");
+					this.confirm_submit_button.value = this.confirm_submit_button.confirm_value;
+					this.t_confirm = u.t.setTimer(this, this.restore, 3000);
 				}
-				form.submitted = function() {
-					if(!u.hc(this.actions["delete"], "confirm")) {
-						u.ac(this.actions["delete"], "confirm");
-						this.actions["delete"].value = "Confirm";
-						this.t_confirm = u.t.setTimer(this, this.restore, 3000);
-					}
-					else {
-						u.t.resetTimer(this.t_confirm);
-						this.response = function(response) {
-							page.notify(response);
-							if(response.cms_status == "success") {
-								if(response.cms_object && response.cms_object.constraint_error) {
-									this.value = "Delete";
-									u.ac(this, "disabled");
+				else {
+					u.t.resetTimer(this.t_confirm);
+					this.response = function(response) {
+						page.notify(response);
+						if(response.cms_status == "success") {
+							if(response.cms_object && response.cms_object.constraint_error) {
+								this.value = this.confirm_submit_button.org_value;
+								u.ac(this, "disabled");
+							}
+							else {
+								if(this.success_location) {
+									u.bug("location:" + this.success_location)
+									u.ass(this.confirm_submit_button, {
+										"display": "none"
+									});
+									location.href = this.success_location;
+								}
+								else if(this.success_function) {
+									u.bug("function:" + this.success_function)
+									if(typeof(this.node[this.success_function]) == "function") {
+										this.node[this.success_function](response);
+									}
+								}
+								else if(typeof(this.node.confirmed) == "function") {
+									this.node.confirmed(response);
 								}
 								else {
-									location.href = this.cancel_url;
+									u.bug("default return handling" + this.success_location)
 								}
 							}
 						}
-						u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+						this.restore();
 					}
+					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 				}
 			}
 		}
@@ -8882,14 +8989,31 @@ Util.Objects["addMediaSingle"] = new function() {
 Util.Objects["defaultComments"] = new function() {
 	this.init = function(div) {
 		div.item_id = u.cv(div, "item_id");
-		div._comments_form = u.qs("form", div);
-		div._comments_form.div = div;
-		u.f.init(div._comments_form);
-		div.csrf_token = div._comments_form.fields["csrf-token"].value;
-		div.add_comment_url = div._comments_form.action;
 		div.delete_comment_url = div.getAttribute("data-comment-delete");
 		div.update_comment_url = div.getAttribute("data-comment-update");
-		div._comments_form.list = u.qs("ul.comments", div);
+		div.csrf_token = div.getAttribute("data-csrf-token");
+		div._comments_form = u.qs("form", div);
+		div._comments_list = u.qs("ul.comments", div);
+		if(div._comments_form) {
+			div._comments_form.div = div;
+			u.f.init(div._comments_form);
+			div.add_comment_url = div._comments_form.action;
+			div._comments_form.submitted = function(iN) {
+				this.response = function(response) {
+					page.notify(response);
+					if(response.cms_status == "success" && response.cms_object) {
+						var comment_li = u.ae(this.div._comments_list, "li", {"class":"comment comment_id:"+response.cms_object["id"]});
+						var info = u.ae(comment_li, "ul", {"class":"info"});
+						u.ae(info, "li", {"class":"user", "html":response.cms_object["nickname"]});
+						u.ae(info, "li", {"class":"created_at", "html":response.cms_object["created_at"]});
+						u.ae(comment_li, "p", {"class":"comment", "html":response.cms_object["comment"]})
+						this.div.initComment(comment_li);
+						this.fields["item_comment"].val("");
+					}
+				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			}
+		}
 		div.initComment = function(node) {
 			node.div = this;
 			if(this.delete_comment_url || this.update_comment_url) {
@@ -8904,7 +9028,7 @@ Util.Objects["defaultComments"] = new function() {
 						var actions, bn_cancel, bn_update, form;
 						form = u.f.addForm(this.node, {"action":this.node.div.update_comment_url+"/"+this.node.div.item_id+"/"+u.cv(this.node, "comment_id"), "class":"edit"});
 						u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.node.div.csrf_token});
-						u.f.addField(form, {"type":"text", "name":"comment", "value": u.qs("p.comment", this.node).innerHTML});
+						u.f.addField(form, {"type":"text", "name":"item_comment", "value": u.qs("p.comment", this.node).innerHTML});
 						form.node = node;
 						actions = u.ae(form, "ul", {"class":"actions"});
 						bn_update = u.f.addAction(actions, {"value":"Update", "class":"button primary update", "name":"update"});
@@ -8914,7 +9038,7 @@ Util.Objects["defaultComments"] = new function() {
 							this.response = function(response) {
 								page.notify(response);
 								if(response.cms_status == "success") {
-									u.qs("p.comment", this.node).innerHTML = this.fields["comment"].val();
+									u.qs("p.comment", this.node).innerHTML = this.fields["item_comment"].val();
 									this.parentNode.removeChild(this);
 								}
 							}
@@ -8964,22 +9088,7 @@ Util.Objects["defaultComments"] = new function() {
 				}
 			}
 		}
-		div._comments_form.submitted = function(iN) {
-			this.response = function(response) {
-				page.notify(response);
-				if(response.cms_status == "success" && response.cms_object) {
-					var comment_li = u.ae(this.list, "li", {"class":"comment comment_id:"+response.cms_object["id"]});
-					var info = u.ae(comment_li, "ul", {"class":"info"});
-					u.ae(info, "li", {"class":"user", "html":response.cms_object["nickname"]});
-					u.ae(info, "li", {"class":"created_at", "html":response.cms_object["created_at"]});
-					u.ae(comment_li, "p", {"class":"comment", "html":response.cms_object["comment"]})
-					this.div.initComment(comment_li);
-					this.fields["comment"].val("");
-				}
-			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-		}
-		div.comments = u.qsa("li.comment", div._comments_form.list);
+		div.comments = u.qsa("li.comment", div._comments_list);
 		var i, node;
 		for(i = 0; node = div.comments[i]; i++) {
 			div.initComment(node);
@@ -8989,16 +9098,152 @@ Util.Objects["defaultComments"] = new function() {
 
 
 /*i-default_prices.js*/
-Util.Objects["addPrices"] = new function() {
+Util.Objects["defaultPrices"] = new function() {
 	this.init = function(div) {
-		var form = u.qs("form", div);
-		u.f.init(form);
-		var i, field, actions;
-		form.submitted = function(event) {
-			this.response = function(response) {
-				page.notify(response);
+		div.item_id = u.cv(div, "item_id");
+		div.csrf_token = div.getAttribute("data-csrf-token");
+		div.delete_price_url = div.getAttribute("data-price-delete");
+		div._prices_form = u.qs("form", div);
+		if(div._prices_form) {
+			div._prices_form.div = div;
+			div.add_price_url = div._prices_form.action;
+			u.f.init(div._prices_form);
+			div._prices_form.fields["item_price_type"].changed = function() {
+				if(this.val() == "bulk") {
+					u.ac(this._form.fields["item_price_quantity"].field, "required");
+					u.ass(this._form.fields["item_price_quantity"].field, {
+						"display":"inline-block"
+					})
+				}
+				else {
+					u.rc(this._form.fields["item_price_quantity"].field, "required");
+					u.ass(this._form.fields["item_price_quantity"].field, {
+						"display":"none"
+					})
+				}
 			}
-			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+			if(div._prices_form.fields["item_price_type"].val() == "bulk") {
+				u.ass(div._prices_form.fields["item_price_quantity"].field, {
+					"display":"inline-block"
+				})
+			}
+			div._prices_form.submitted = function(iN) {
+				this.response = function(response) {
+					page.notify(response);
+					if(response.cms_status == "success" && response.cms_object) {
+						var price_li = u.ae(this.div._prices_list, "li", {"class":"pricedetails price_id:"+response.cms_object["id"]});
+						var info = u.ae(price_li, "ul", {"class":"info"});
+						u.ae(info, "li", {"class":"price", "html":response.cms_object["formatted_price"]});
+						u.ae(info, "li", {"class":"vatrate", "html":response.cms_object["vatrate"]+"%"});
+						if(response.cms_object["type"] == "offer") {
+							u.ae(info, "li", {"class":"offer", "html":"Special offer"});
+						}
+						else if(response.cms_object["type"] == "bulk") {
+							u.ae(info, "li", {"class":"bulk", "html":"Bulk price for "+response.cms_object["quantity"] + " items"});
+						}
+						this.div.initPrice(price_li);
+						this.reset();
+					}
+				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			}			
+		}
+		div._prices_list = u.qs("ul.prices", div);
+		div.initPrice = function(node) {
+			node.div = this;
+			if(this.delete_price_url) {
+				var actions = u.ae(node, "ul", {"class":"actions"});
+				var li;
+				if(this.delete_price_url) {
+					li = u.ae(actions, "li", {"class":"delete"});
+					var form = u.f.addForm(li, {"action":this.delete_price_url+"/"+this.item_id+"/"+u.cv(node, "price_id"), "class":"delete"});
+					u.ae(form, "input", {"type":"hidden","name":"csrf-token", "value":this.csrf_token});
+					form.node = node;
+					bn_delete = u.f.addAction(form, {"value":"Delete", "class":"button delete", "name":"delete"});
+					u.f.init(form);
+					form.restore = function(event) {
+						this.actions["delete"].value = "Delete";
+						u.rc(this.actions["delete"], "confirm");
+					}
+					form.submitted = function() {
+						if(!u.hc(this.actions["delete"], "confirm")) {
+							u.ac(this.actions["delete"], "confirm");
+							this.actions["delete"].value = "Confirm";
+							this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+						}
+						else {
+							u.t.resetTimer(this.t_confirm);
+							this.response = function(response) {
+								page.notify(response);
+								if(response.cms_status == "success") {
+									if(response.cms_object && response.cms_object.constraint_error) {
+										this.value = "Delete";
+										u.ac(this, "disabled");
+									}
+									else {
+										this.node.parentNode.removeChild(this.node);
+									}
+								}
+							}
+							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+						}
+					}
+				}
+			}
+		}
+		div.prices = u.qsa("li.pricedetails", div._prices_list);
+		var i, node;
+		for(i = 0; node = div.prices[i]; i++) {
+			div.initPrice(node);
+		}
+	}
+}
+
+
+/*i-default_subscriptionmethod.js*/
+Util.Objects["defaultSubscriptionmethod"] = new function() {
+	this.init = function(div) {
+		div.item_id = u.cv(div, "item_id");
+		div.csrf_token = div.getAttribute("data-csrf-token");
+		div._sm_form = u.qs("form", div);
+		div._sm_change_div = u.qs("div.change_subscription_method", div);
+		div._sm_setting = u.qs("dl.settings dd.subscription_method", div);
+		if(div._sm_form) {
+			div._sm_form.div = div;
+			div.actions_change = u.ae(div, "ul", {"class":"actions change"});
+			var li = u.ae(div.actions_change, "li", {"class":"change"});
+			div.bn_change = u.ae(li, "a", {"class":"button primary", "html":"Change period"});
+			div.bn_change.div = div;
+			u.ce(div.bn_change);
+			div.bn_change.clicked = function() {
+				u.ass(this.div._sm_change_div, {
+					"display":"block"
+				});
+				u.ass(this.div.actions_change, {
+					"display":"none"
+				});
+			}
+			u.f.init(div._sm_form);
+			div._sm_form.submitted = function(iN) {
+				this.response = function(response) {
+					page.notify(response);
+					if(response.cms_status == "success" && response.cms_object) {
+						if(typeof(response.cms_object) == "object") {
+							this.div._sm_setting.innerHTML = response.cms_object["name"];
+						}
+						else {
+							this.div._sm_setting.innerHTML = "No renewal";
+						}
+						u.ass(this.div._sm_change_div, {
+							"display":"none"
+						});
+						u.ass(this.div.actions_change, {
+							"display":"block"
+						});
+					}
+				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			}
 		}
 	}
 }
@@ -9007,7 +9252,7 @@ Util.Objects["addPrices"] = new function() {
 /*i-navigations.js*/
 Util.Objects["navigationNodes"] = new function() {
 	this.init = function(div) {
-		div.list = u.qs("ul.nodes", div);
+		div.list = u.qs("ul.items", div);
 		if(div.list) {
 			div.list.update_order_url = div.getAttribute("data-item-order");
 			div.list.csrf_token = div.getAttribute("data-csrf-token");
@@ -9015,37 +9260,17 @@ Util.Objects["navigationNodes"] = new function() {
 			var i, node;
 			for(i = 0; node = div.list.nodes[i]; i++) {
 				node.list = div.list;
-				var action = u.qs("li.delete", node);
-				if(action) {
-					form = u.qs("form", action);
-					form.node = node;
-					if(form) {
-						u.f.init(form);
-						if(u.qs("ul.nodes li.item", node)) {
-							u.ac(form.actions["delete"], "disabled");
-						}
-						form.restore = function(event) {
-							this.actions["delete"].value = "Delete";
-							u.rc(this.actions["delete"], "confirm");
-						}
-						form.submitted = function() {
-							if(!u.hc(this.actions["delete"], "confirm")) {
-								u.ac(this.actions["delete"], "confirm");
-								this.actions["delete"].value = "Confirm";
-								this.t_confirm = u.t.setTimer(this, this.restore, 3000);
-							}
-							else {
-								u.t.resetTimer(this.t_confirm);
-								this.response = function(response) {
-									page.notify(response);
-									if(response.cms_status == "success") {
-										this.node.parentNode.removeChild(this.node);
-										this.node.list.updateNodeStructure();
-									}
-								}
-								u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
-							}
-						}
+				node.bn_delete = u.qs("li.delete", node);
+				if(node.bn_delete) {
+					node.bn_delete.node = node;
+					node.bn_delete.confirmed = function(response) {
+						this.node.parentNode.removeChild(this.node);
+						this.node.list.updateNodeStructure();
+					}
+					var child_nodes = u.qs("ul.items li.item", node);
+					var bn_delete_input =  u.qs("ul.actions li.delete input[type=submit]", node);
+					if(child_nodes && bn_delete_input) {
+						u.ac(bn_delete_input, "disabled");
 					}
 				}
 			}
@@ -9053,6 +9278,7 @@ Util.Objects["navigationNodes"] = new function() {
 				this.updateNodeStructure();
 			}
 			div.list.updateNodeStructure = function() {
+				u.bug("updateNodeStructure");
 				var structure = this.getStructure();
 				this.response = function(response) {
 					page.notify(response);
@@ -9061,21 +9287,19 @@ Util.Objects["navigationNodes"] = new function() {
 				var i, node;
 				this.nodes = u.qsa("li.item", this);
 				for(i = 0; node = this.nodes[i]; i++) {
-					var action = u.qs("li.delete", node);
-					if(action) {
-						form = u.qs("form", action);
-						if(form) {
-							if(u.qs("ul.nodes li.item", node)) {
-								u.ac(form.actions["delete"], "disabled");
+					u.bug("look for children")
+					if(node.bn_delete && node.form) {
+							if(u.qs("ul.items li.item", node)) {
+								u.bug("has children")
+								u.ac(form.confirm_submit_button, "disabled");
 							}
 							else {
-								u.rc(form.actions["delete"], "disabled");
+								u.rc(form.confirm_submit_button, "disabled");
 							}
-						}
 					}
 				}
 			}
-			u.sortable(div.list, {"allow_nesting":true, "targets":"nodes", "draggables":"draggable"});
+			u.sortable(div.list, {"allow_nesting":true, "targets":"items", "draggables":"draggable"});
 		}
 	}
 }
@@ -9233,7 +9457,7 @@ Util.Objects["apitoken"] = new function() {
 						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"API token disabled"});
 					}
 					else {
-						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be disables"});
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"API token could not be disabled"});
 					}
 				}
 				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
@@ -9249,11 +9473,9 @@ Util.Objects["editAddress"] = new function() {
 		}
 		form.submitted = function(iN) {
 			this.response = function(response) {
+				page.notify(response);
 				if(response.cms_status == "success") {
 					location.href = this.actions["cancel"].url;
-				}
-				else {
-					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
 				}
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
@@ -9265,68 +9487,24 @@ Util.Objects["newsletters"] = new function() {
 		var i, node;
 		div.newsletters = u.qsa("ul.newsletters > li", div);
 		for(i = 0; node = div.newsletters[i]; i++) {
-			node.li_delete = u.qs("li.delete", node);
+			node.li_unsubscribe = u.qs("li.unsubscribe", node);
 			node.li_subscribe = u.qs("li.subscribe", node);
-			if(node.li_delete) {
-				node.li_delete.form = u.qs("form", node.li_delete)
-				u.f.init(node.li_delete.form);
-				node.li_delete.form.node = node;
-				node.li_delete.form.restore = function(event) {
-					this.actions["delete"].value = "Unsubscribe";
-					u.rc(this.actions["delete"], "confirm");
-				}
-				node.li_delete.form.submitted = function() {
-					if(!u.hc(this.actions["delete"], "confirm")) {
-						u.ac(this.actions["delete"], "confirm");
-						this.actions["delete"].value = "Confirm";
-						this.t_confirm = u.t.setTimer(this, this.restore, 3000);
-					}
-					else {
-						u.t.resetTimer(this.t_confirm);
-						this.response = function(response) {
-							page.notify(response);
-							if(response.cms_status == "success") {
-								u.rc(this.node, "subscribed");
-							}
-							this.restore();
-						}
-						u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+			if(node.li_unsubscribe) {
+				node.li_unsubscribe.node = node;
+				node.li_unsubscribe.confirmed = function(response) {
+					if(response.cms_status == "success") {
+						u.rc(this.node, "subscribed");
 					}
 				}
 			}
 			if(node.li_subscribe) {
-				node.li_subscribe.form = u.qs("form", node.li_subscribe)
-				u.f.init(node.li_subscribe.form);
-				node.li_subscribe.form.node = node;
-				node.li_subscribe.form.submitted = function() {
-					this.response = function(response) {
-						page.notify(response);
-						if(response.cms_status == "success") {
-							u.ac(this.node, "subscribed");
-						}
+				node.li_subscribe.node = node;
+				node.li_subscribe.confirmed = function(response) {
+					if(response.cms_status == "success") {
+						u.ac(this.node, "subscribed");
 					}
-					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 				}
 			}
-		}
-	}
-}
-Util.Objects["addNewsletter"] = new function() {
-	this.init = function(form) {
-		u.f.init(form);
-		form.actions["cancel"].clicked = function(event) {
-			location.href = this.url;
-		}
-		form.submitted = function(iN) {
-			this.response = function(response) {
-				if(response.cms_status == "success") {
-					location.href = this.actions["cancel"].url;
-				}
-				else {
-					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
-				}
-			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 		}
 	}
 }
@@ -9377,6 +9555,232 @@ Util.Objects["flushUserSession"] = new function() {
 					page.notify(response);
 				}
 				u.request(this, this.div.flush_url+"/"+this.user_id, {"method":"post", "params" : "csrf-token="+this.div.csrf_token});
+			}
+		}
+	}
+}
+Util.Objects["newSubscription"] = new function() {
+	this.init = function(form) {
+		u.f.init(form);
+		u.bug("init")
+		form.fields["item_id"].changed = function() {
+			location.href = location.href.replace(/new\/([\d]+).+/, "new/$1") + "/" + this.val();
+		}
+		if(form.actions["cancel"]) {
+			form.actions["cancel"].clicked = function(event) {
+				location.href = this.url;
+			}
+		}
+		form.submitted = function(iN) {
+			this.response = function(response) {
+				page.notify(response);
+				if(response.cms_status == "success") {
+					location.href = this.actions["cancel"].url;
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+		}
+	}
+}
+
+
+/*i-shop.js*/
+Util.Objects["editDataSection"] = new function() {
+	this.init = function(form) {
+		var header = u.qs("h2", form.parentNode);
+		var action = u.ae(header, "span", {"html":"edit"});
+		action.change_form = form;
+		u.ce(action);
+		u.f.init(form);
+		action.clicked = function(event) {
+			if(this.change_form.is_open) {
+				this.change_form.is_open = false;
+				this.innerHTML = "Edit";
+				this.change_form.reset();
+				u.ass(this.change_form, {
+					"display":"none"
+				})
+			}
+			else {
+				this.change_form.is_open = true;
+				this.innerHTML = "Cancel";
+				u.ass(this.change_form, {
+					"display":"block"
+				})
+				u.f.init(this.change_form);
+			}
+		}
+		form.submitted = function() {
+			this.response = function(response) {
+				page.notify(response);
+				if(response && response.cms_status == "success") {
+					location.reload(true);
+				}
+			}
+			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+		}
+	}
+}
+Util.Objects["newOrderFromCart"] = new function() {
+	this.init = function(div) {
+		var bn_convert = u.qs("li.convert", div);
+		if(bn_convert) {
+			bn_convert.confirmed = function(response) {
+				u.bug("confirmed checkout")
+				if(response.cms_status == "success") {
+					location.href = location.href.replace(/\/cart\/edit\/.+/, "/order/edit/"+response.cms_object["id"]);
+				}
+			}
+		}
+	}
+}
+Util.Objects["cartItemsList"] = new function() {
+	this.init = function(div) {
+		u.bug("cartItemsList");
+		div.total_cart_price = u.qs("dd.total_cart_price");
+		var i, node;
+		for(i = 0; node = div.nodes[i]; i++) {
+			node.unit_price = u.qs("span.unit_price", node);
+			node.total_price = u.qs("span.total_price", node);
+			var quantity_form = u.qs("form.updateCartItemQuantity", node)
+			if(quantity_form) {
+				quantity_form.node = node;
+				u.f.init(quantity_form);
+				quantity_form.fields["quantity"].updated = function() {
+					u.ac(this._form.actions["update"], "primary");
+					this._form.submit();
+				}
+				quantity_form.submitted = function() {
+					this.response = function(response) {
+						page.notify(response);
+						if(response && response.cms_status == "success") {
+							this.node.unit_price.innerHTML = response.cms_object["unit_price_formatted"];
+							this.node.total_price.innerHTML = response.cms_object["total_price_formatted"];
+							this.node.div.total_cart_price.innerHTML = response.cms_object["total_cart_price_formatted"];
+				 			u.rc(this.actions["update"], "primary");
+						}
+					}
+					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+				}
+			}
+			var bn_delete = u.qs("ul.actions li.delete", node);
+			if(bn_delete) {
+				bn_delete.node = node;
+				bn_delete.deletedFromCart = function(response) {
+					if(response && response.cms_status == "success") {
+						this.node.div.total_cart_price.innerHTML = response.cms_object["total_cart_price_formatted"];
+					}
+					this.confirmed(response);
+				}
+			}
+			// 
+			// 	
+		}
+	}
+}
+Util.Objects["orderItemsList"] = new function() {
+	this.init = function(div) {
+		u.bug("orderItemsList");
+		div.total_order_price = u.qs("dd.total_order_price");
+		div.order_status = u.qs("dd.status");
+		div.payment_status = u.qs("dd.payment_status");
+		div.shipping_status = u.qs("dd.shipping_status");
+		var i, node;
+		for(i = 0; node = div.nodes[i]; i++) {
+			node.unit_price = u.qs("span.unit_price", node);
+			node.total_price = u.qs("span.total_price", node);
+			var quantity_form = u.qs("form.updateOrderItemQuantity", node)
+			if(quantity_form) {
+				quantity_form.node = node;
+				u.f.init(quantity_form);
+				quantity_form.fields["quantity"].updated = function() {
+					u.ac(this._form.actions["update"], "primary");
+					this._form.submit();
+				}
+				quantity_form.submitted = function() {
+					this.response = function(response) {
+						page.notify(response);
+						if(response && response.cms_status == "success") {
+							this.node.unit_price.innerHTML = response.cms_object["unit_price_formatted"];
+							this.node.total_price.innerHTML = response.cms_object["total_price_formatted"];
+							this.node.div.total_order_price.innerHTML = response.cms_object["total_order_price_formatted"];
+				 			u.rc(this.actions["update"], "primary");
+						}
+					}
+					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+				}
+			}
+			var bn_delete = u.qs("ul.actions li.delete", node);
+			if(bn_delete) {
+				bn_delete.node = node;
+				bn_delete.deletedFromOrder = function(response) {
+					if(response && response.cms_status == "success") {
+						this.node.div.total_order_price.innerHTML = response.cms_object["total_order_price_formatted"];
+					}
+					this.confirmed(response);
+				}
+			}
+			node.li_shipped = u.qs("ul.actions li.shipped", node);
+			u.bug("node.li_shipped:" + node.li_shipped)
+			if(node.li_shipped) {
+				node.li_shipped.node = node;
+				u.o.oneButtonForm.init(node.li_shipped);
+				node.li_shipped.confirmed = function(response) {
+					if(response.cms_status == "success") {
+						if(this.node.div.order_status.innerHTML != response.cms_object["order_status_text"]) {
+							location.reload(true);
+						}
+						this.node.div.order_status.innerHTML = response.cms_object["order_status_text"];
+						this.node.div.shipping_status.innerHTML = response.cms_object["shipping_status_text"];
+						this.node.div.payment_status.innerHTML = response.cms_object["payment_status_text"];
+						u.rc(this.node, "shipped");
+					}
+				}
+			}
+			node.not_shipped = u.qs("ul.actions li.not_shipped", node);
+			if(node.not_shipped) {
+				node.not_shipped.node = node;
+				u.o.oneButtonForm.init(node.not_shipped);
+				node.not_shipped.confirmed = function(response) {
+					if(response.cms_status == "success") {
+						if(this.node.div.order_status.innerHTML != response.cms_object["order_status_text"]) {
+							location.reload(true);
+						}
+						this.node.div.order_status.innerHTML = response.cms_object["order_status_text"];
+						this.node.div.shipping_status.innerHTML = response.cms_object["shipping_status_text"];
+						this.node.div.payment_status.innerHTML = response.cms_object["payment_status_text"];
+						u.ac(this.node, "shipped");
+					}
+				}
+			}
+		}
+	}
+}
+
+
+/*i-system.js*/
+Util.Objects["cacheList"] = new function() {
+	this.init = function(div) {
+		u.bug("div cacheList")
+		div.csrf_token = div.getAttribute("data-csrf-token");
+		div.flush_url = div.getAttribute("data-flush-url");
+		var entries = u.qsa("li.item", div);
+		var i, entry;
+		for(i = 0; entry = entries[i]; i++) {
+			var actions = u.ae(entry, "ul", {"class":"actions"});
+			var action = u.f.addAction(actions, {"type":"button", "class":"button", "value":"Flush"});
+			action.div = div;
+			action.entry = entry;
+			action.cache_key = entry.getAttribute("data-cache-key");
+			u.ce(action);
+			action.clicked = function() {
+				this.response = function(response) {
+					page.notify(response);
+					if(response.cms_status == "success") {
+						this.entry.parentNode.removeChild(this.entry);
+					}
+				}
+				u.request(this, this.div.flush_url, {"method":"post", "params" : "csrf-token="+this.div.csrf_token+"&cache-key="+this.cache_key});
 			}
 		}
 	}
@@ -9537,54 +9941,30 @@ Util.Objects["newslettersProfile"] = new function() {
 		var i, node;
 		div.newsletters = u.qsa("ul.newsletters > li", div);
 		for(i = 0; node = div.newsletters[i]; i++) {
-			node.li_delete = u.qs("li.delete", node);
+			node.li_unsubscribe = u.qs("li.unsubscribe", node);
 			node.li_subscribe = u.qs("li.subscribe", node);
-			if(node.li_delete) {
-				node.li_delete.form = u.qs("form", node.li_delete)
-				u.f.init(node.li_delete.form);
-				node.li_delete.form.node = node;
-				node.li_delete.form.restore = function(event) {
-					this.actions["delete"].value = "Unsubscribe";
-					u.rc(this.actions["delete"], "confirm");
-				}
-				node.li_delete.form.submitted = function() {
-					if(!u.hc(this.actions["delete"], "confirm")) {
-						u.ac(this.actions["delete"], "confirm");
-						this.actions["delete"].value = "Confirm";
-						this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+			if(node.li_unsubscribe) {
+				node.li_unsubscribe.node = node;
+				node.li_unsubscribe.confirmed = function(response) {
+					if(response.cms_status == "success") {
+						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Unsubscribed from newsletter"});
+						u.rc(this.node, "subscribed");
 					}
 					else {
-						u.t.resetTimer(this.t_confirm);
-						this.response = function(response) {
-							if(response.cms_status == "success") {
-								page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Unsubscribed from newsletter"});
-								u.rc(this.node, "subscribed");
-							}
-							else {
-								page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not unsubscribe"});
-							}
-							this.restore();
-						}
-						u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not unsubscribe"});
 					}
 				}
 			}
 			if(node.li_subscribe) {
-				node.li_subscribe.form = u.qs("form", node.li_subscribe)
-				u.f.init(node.li_subscribe.form);
-				node.li_subscribe.form.node = node;
-				node.li_subscribe.form.submitted = function() {
-					this.response = function(response) {
-						page.notify(response);
-						if(response.cms_status == "success") {
-							u.ac(this.node, "subscribed");
-							page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Subscribed to newsletter"});
-						}
-						else {
-							page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not subscribe to newsletter"});
-						}
+				node.li_subscribe.node = node;
+				node.li_subscribe.confirmed = function(response) {
+					if(response.cms_status == "success") {
+						u.ac(this.node, "subscribed");
+						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Subscribed to newsletter"});
 					}
-					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+					else {
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not subscribe to newsletter"});
+					}
 				}
 			}
 		}
@@ -9830,12 +10210,12 @@ u.e.addDOMReadyEvent(u.init)
 
 
 /*i-progress.js*/
-Util.Objects["start"] = new function() {
+Util.Objects["check"] = new function() {
 	this.init = function(scene) {
 		var bn_start = u.qs(".actions li.start", scene);
 		u.ce(bn_start);
 		bn_start.clicked = function() {
-			var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
+			var steps = u.qsa("li.setup li:not(.done):not(.check)", page.nN); 
 			var i, node;
 			for(i = 0; node = steps[i]; i++) {
 				if(node.url != location.href) {
@@ -9854,7 +10234,7 @@ Util.Objects["config"] = new function() {
 			form.submitted = function() {
 				this.response = function(response) {
 					if(response && response.cms_status == "success") {
-						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
+						var steps = u.qsa("li.setup li:not(.done):not(.check)", page.nN); 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
 							if(node.url != location.href) {
@@ -9880,7 +10260,7 @@ Util.Objects["database"] = new function() {
 			form.submitted = function() {
 				this.response = function(response) {
 					if(response && response.cms_status == "success") {
-						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
+						var steps = u.qsa("li.setup li:not(.done):not(.check)", page.nN); 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
 							if(node.url != location.href) {
@@ -9906,7 +10286,7 @@ Util.Objects["mail"] = new function() {
 			form.submitted = function() {
 				this.response = function(response) {
 					if(response && response.cms_status == "success") {
-						var steps = u.qsa("li:not(.done):not(.front)", page.nN); 
+						var steps = u.qsa("li.setup li:not(.done):not(.check)", page.nN); 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
 							if(node.url != location.href) {
