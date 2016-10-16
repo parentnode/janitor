@@ -60,15 +60,16 @@ class ItemtypeCore extends Model {
 	function delete($action) {
 
 		if(count($action) == 2) {
-//			$itemtype = $action[0];
+
 			$item_id = $action[1];
 
 			$query = new Query();
 			$fs = new FileSystem();
 
 			// delete item + itemtype + files
-			if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
-
+			$sql = "SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'";
+//			print $sql;
+			if($query->sql($sql)) {
 
 				// EXPERIMENTAL: include pre/post functions to all itemtype.core functions to make extendability better
 				$pre_delete_state = true;
@@ -80,7 +81,11 @@ class ItemtypeCore extends Model {
 
 				// pre delete state allows full delete
 				if($pre_delete_state) {
-					$query->sql("DELETE FROM ".UT_ITEMS." WHERE id = $item_id");
+
+					$sql = "DELETE FROM ".UT_ITEMS." WHERE id = $item_id";
+//					print $sql;
+					$query->sql($sql);
+					
 					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
 					$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
 
@@ -1438,7 +1443,9 @@ class ItemtypeCore extends Model {
 				// replace , with . to make valid number
 				$price = preg_replace("/,/", ".", $price);
 
-				if($query->sql("INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', $vatrate, '$type', $quantity)")) {
+				$sql = "INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', $vatrate, '$type', $quantity)";
+//				print $sql;
+				if($query->sql($sql)) {
 					message()->addMessage("Price added");
 
 					$price_id = $query->lastInsertId();
@@ -1488,6 +1495,7 @@ class ItemtypeCore extends Model {
 	// /janitor/[admin/]#itemtype#/updateSubscriptionMethod/#item_id#
 	// subscription method is sent in $_POST
 	// TODO: implement itemtype checks
+	// TODO: also update all existing subscriptions of selected item (if method changes, expriry date changes)
  	function updateSubscriptionMethod($action) {
 
 		// Get posted values to make them available for models
@@ -1509,7 +1517,7 @@ class ItemtypeCore extends Model {
 					$sql = "SELECT id FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
 					if($query->sql($sql)) {
 				
-						if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE id = $comment_id AND item_id = $item_id")) {
+						if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE item_id = $item_id")) {
 							message()->addMessage("Subscription method updated");
 
 							$IC = new Items();
@@ -1549,51 +1557,6 @@ class ItemtypeCore extends Model {
 		return false;
 
 	}
-
-
-
-
-
-	// HERE OR THERE, I DON'T KNOW WHERE
-	// MAYBE IN IC - BUT NEED EASY WAY TO OVERRIDE IN TYPE
-
-
-	// SHOULD REPLACE Items::getSimpleType?
-	// Custom get item with media
-	// function get($item_id) {
-	// 	$query = new Query();
-	//
-	// 	if($query->sql("SELECT * FROM ".$this->db." WHERE item_id = $item_id")) {
-	// 		$item = $query->result(0);
-	// 		unset($item["id"]);
-	//
-	// 		$item["mediae"] = false;
-	//
-	// 		// get media
-	// 		if($query->sql("SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant NOT LIKE 'HTML-%' ORDER BY position ASC, id DESC")) {
-	//
-	// 			$mediae = $query->results();
-	// 			foreach($mediae as $i => $media) {
-	// 				$variant = $media["variant"];
-	// 				$item["mediae"][$variant]["variant"] = $variant;
-	//
-	// 				$item["mediae"][$variant]["id"] = $media["id"];
-	// 				$item["mediae"][$variant]["name"] = $media["name"];
-	// 				$item["mediae"][$variant]["format"] = $media["format"];
-	// 				$item["mediae"][$variant]["width"] = $media["width"];
-	// 				$item["mediae"][$variant]["height"] = $media["height"];
-	// 				$item["mediae"][$variant]["filesize"] = $media["filesize"];
-	// 				$item["mediae"][$variant]["position"] = $media["position"];
-	// 			}
-	// 		}
-	//
-	// 		return $item;
-	// 	}
-	// 	else {
-	// 		return false;
-	// 	}
-	// }
-
 
 
 }

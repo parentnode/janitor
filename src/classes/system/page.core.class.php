@@ -822,8 +822,7 @@ class PageCore {
 		// looking for specific subscription method details
 		if($id !== false) {
 			$subscription_methods = cache()->value("subscription_methods");
-			print_r($subscription_methods);
-			print "id:".$id;
+
 			$key = arrayKeyValue($subscription_methods, "id", $id);
 			if($key !== false) {
 				return $subscription_methods[$key];
@@ -1553,7 +1552,7 @@ class PageCore {
 				session()->value("logged_in_at", date("Y-m-d H:i:s"));
 				session()->reset("user_group_permissions");
 
-				$this->addLog("Login: ".$username ." (".session()->value("user_id").")");
+				$this->addLog("Login: ".$username .", user_id:".session()->value("user_id"));
 
 				// set new csrf token for user
 				session()->value("csrf", gen_uuid());
@@ -1656,7 +1655,7 @@ class PageCore {
 	*/
 	function logOff() {
 
-		$this->addLog("Logoff: ".session()->value("user_id"));
+		$this->addLog("Logoff: user_id:".session()->value("user_id"));
 		//$this->user_id = "";
 
 		session()->reset("user_id");
