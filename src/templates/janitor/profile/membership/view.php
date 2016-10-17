@@ -31,11 +31,15 @@ $membership = $model->getMembership();
 
 
 	<div class="item">
-		<? if($membership):
+	<? if($membership): ?>
+			
+
+		<? if($membership["subscription_id"]):
 			$subscription = $model->getSubscriptions(array("subscription_id" => $membership["subscription_id"])); ?>
-
 		<h3><?= $membership["item"]["name"] ?></h3>
-
+		<? else: ?>
+		<h3>Inactive membership</h3>
+		<? endif; ?>
 		
 		<dl class="info">
 			<dt class="created_at">Created at</dt>
@@ -57,7 +61,7 @@ $membership = $model->getMembership();
 		<? endif; ?>
 
 
-		<? if($membership["item"]["prices"]):
+		<? if($membership["item"] && $membership["item"]["prices"]):
 			$offer = arrayKeyValue($membership["item"]["prices"], "type", "offer");
 			$default = arrayKeyValue($membership["item"]["prices"], "type", "default");
 			?>
@@ -83,14 +87,16 @@ $membership = $model->getMembership();
 
 		</dl>
 
+		<? if($membership["subscription_id"]): ?>
 		<ul class="actions">
 			<?= $HTML->link("Edit", "/janitor/admin/profile/membership/edit", array("class" => "button", "wrapper" => "li.edit")) ?>
 		</ul>
-
-
-		<? else: ?>
-		<p>This user does not have a membership.</p>
 		<? endif; ?>
+
+
+	<? else: ?>
+		<p>You do not have a membership.</p>
+	<? endif; ?>
 	</div>
 
 </div>
