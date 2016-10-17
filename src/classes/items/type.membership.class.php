@@ -118,6 +118,7 @@ class TypeMembership extends Itemtype {
 
 				$page->mail(array(
 					"values" => array(
+						"ORDER_NO" => $order["order_no"],
 						"MEMBERID" => $membership["id"],
 						"MEMBERSHIP" => $membership["item"]["name"],
 						"PRICE" => $price,
