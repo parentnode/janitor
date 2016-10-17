@@ -1792,7 +1792,7 @@ class UserCore extends Model {
 				}
 
 
-				$sql = "UPDATE ".$this->db_subscriptions." SET item_id = $item_id";
+				$sql = "UPDATE ".$this->db_subscriptions." SET modified_at = CURRENT_TIMESTAMP, item_id = $item_id";
 				if($order_id) {
 					$sql .= ", order_id = $order_id";
 				}
@@ -1977,6 +1977,10 @@ class UserCore extends Model {
 
 				$membership["item"] = false;
 				$membership["order"] = false;
+				$membership["order_id"] = false;
+				$membership["item_id"] = false;
+				$membership["expires_at"] = false;
+				$membership["renewed_at"] = false;
 
 				return $membership;
 			}
