@@ -1271,6 +1271,63 @@ class ShopCore extends Model {
 	}
 
 
+	function selectPaymentMethod($action) {
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("payment_method", "order_id"))) {
+
+			$query = new Query();
+			$UC = new User();
+
+
+			$user_id = session()->value("user_id");
+
+			$order_id = $this->getProperty("order_id", "value");
+			$order = $this->getOrders(array("order_id" => $order_id));
+			
+			$payment_method_id = $this->getProperty("payment_method", "value");
+			$payment_method = $page->paymentMethods($payment_method_id);
+
+			if($order && $payment_method) {
+
+				// get subscriptions related to this order
+				$sql = "SELECT * FROM ".$UC->db_subscriptions." WHERE order_id = ".$order["id"];
+//				print $sql;
+				if($query->sql($sql)) {
+
+					$subscriptions = $query->results();
+					foreach($subscriptions as $subscription) {
+
+						$sql = "UPDATE ".$UC->db_subscriptions." SET modified_at = CURRENT_TIMESTAMP, payment_method = $payment_method_id WHERE user_id = $user_id AND id = ".$subscription["id"];
+//						print $sql;
+						if($query->sql($sql)) {
+
+
+							global $page;
+							$page->addLog("Shop->selectPaymentMethod: order_id:$order_id, payment_method: $payment_method_id");
+
+						}
+
+					}
+
+					// add order no to return object - because receipt requires and order_no to display correctly
+					$payment_method["order_no"] = $order["order_no"];
+
+					return $payment_method;
+				}
+
+			}
+
+		}
+
+		return false;
+	}
+
 
 }
 
