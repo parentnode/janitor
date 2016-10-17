@@ -1515,6 +1515,7 @@ class ItemtypeCore extends Model {
 				if($subscription_method) {
 
 					$sql = "SELECT id FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
+//					print $sql;
 					if($query->sql($sql)) {
 				
 						if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE item_id = $item_id")) {
@@ -1528,7 +1529,10 @@ class ItemtypeCore extends Model {
 					}
 					else {
 
-						if($query->sql("INSERT INTO ".UT_ITEMS_SUBSCRIPTION_METHOD." VALUES(DEFAULT, $item_id, $subscription_method)")) {
+						$sql = "INSERT INTO ".UT_ITEMS_SUBSCRIPTION_METHOD." VALUES(DEFAULT, $item_id, $subscription_method)";
+//						print $sql;
+
+						if($query->sql($sql)) {
 							message()->addMessage("Subscription method added");
 
 							$IC = new Items();

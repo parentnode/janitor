@@ -1119,6 +1119,7 @@ class SuperShop extends Shop {
 			$order_id = $action[1];
 			$order = $this->getOrders(array("order_id" => $order_id));
 
+
 			// Get posted values to make them available for models
 			$this->getPostedEntities();
 
@@ -1130,12 +1131,13 @@ class SuperShop extends Shop {
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
 
+
 				$IC = new Items();
 				$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
 
 				// only add item if it exists
 				if($item) {
-					
+
 					// check if item is already in order?
 					if($order["items"] && arrayKeyValue($order["items"], "item_id", $item_id) !== false) {
 						$existing_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
@@ -1173,6 +1175,7 @@ class SuperShop extends Shop {
 		//				print $sql;
 				
 					}
+
 
 					if($query->sql($sql)) {
 

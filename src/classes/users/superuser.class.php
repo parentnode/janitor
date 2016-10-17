@@ -1339,14 +1339,11 @@ class SuperUser extends User {
 //				print $sql;
 				if($query->sql($sql)) {
 
-					// get new subscription
-					$subscription = $this->getSubscriptions(array("item_id" => $item_id));
-
 					// if item is membership - update membership/subscription_id information
 					if($item["itemtype"] == "membership") {
 
 						// add subscription id to post array
-						$_POST["subscription_id"] = $subscription["id"];
+						$_POST["subscription_id"] = $subscription_id;
 
 						// check if membership exists
 						$membership = $this->getMembership();
@@ -1370,9 +1367,13 @@ class SuperUser extends User {
 					global $page;
 					$page->addLog("SuperUser->updateSubscription: subscription_id:$subscription_id, item_id:$item_id, user_id:$user_id");
 
-				}
 
-				return $subscription;
+					// get new subscription
+					$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+
+					return $subscription;
+
+				}
 
 			}
 

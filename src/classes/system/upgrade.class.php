@@ -40,6 +40,10 @@ class Upgrade {
 		
 		$query = new Query();
 		$IC = new Items();
+		include_once("classes/shop/supershop.class.php");
+		$SC = new SuperShop();
+		include_once("classes/users/superuser.class.php");
+		$UC = new SuperUser();
 
 
 		try {
@@ -66,16 +70,27 @@ class Upgrade {
 			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
 			$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
 
-			if(SITE_SHOP) {
-				$this->process($this->createTableIfMissing(UT_VATRATES), true);
-			}
+
 			if(SITE_SHOP || SITE_SUBSCRIPTIONS) {
 				$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
 			}
+			if(SITE_SHOP) {
+				$this->process($this->createTableIfMissing(UT_VATRATES), true);
+
+				// SHOP
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_carts"), true);
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_cart_items"), true);
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_orders"), true);
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_order_items"), true);
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_payments"), true);
+			}
 			if(SITE_SUBSCRIPTIONS) {
 				$this->process($this->createTableIfMissing(UT_SUBSCRIPTION_METHODS), true);
+				// ITEM SUBSCRIPTION METHOD
+				$this->process($this->createTableIfMissing(UT_ITEMS_SUBSCRIPTION_METHOD), true);
 			}
 			$this->process($this->createTableIfMissing(UT_NEWSLETTERS), true);
+
 
 
 			// CHECK DEFAULT VALUES
@@ -90,10 +105,46 @@ class Upgrade {
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "classname", "varchar(50) DEFAULT NULL", "name"), true);
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "gateway", "varchar(50) DEFAULT NULL", "description"), true);
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "position", "int(11) DEFAULT '0'", "gateway"), true);
+
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Bank transfer', 'banktransfer', 'Regular bank transfer. Preferred option.', NULL, 1", "classname = 'banktransfer'"), true);
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Credit Card', 'disabled', 'Coming very soon.', NULL, 4", "classname = 'disabled'"), true);
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'PayPal', 'paypal', 'Pay to our paypal account.', NULL, 3", "classname = 'paypal'"), true);
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Cash', 'cash', 'Pay in cash next on your next visit.', NULL, 3", "classname = 'cash'"), true);
 			}
 			if(SITE_SUBSCRIPTIONS) {
 				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "DEFAULT, 'Month', 'monthly', DEFAULT", "duration = 'monthly'"), true);
 			}
+
+
+
+			// CHECK EXTENDED ITEMS TABLES
+
+			// ITEM COMMENTS
+			$this->process($this->createTableIfMissing(UT_ITEMS_COMMENTS), true);
+
+			// update user_id declaration and constraint
+			$this->process($this->dropConstraints(UT_ITEMS_COMMENTS, "user_id"), true);
+			$this->process($this->dropKeys(UT_ITEMS_COMMENTS, "user_id"), true);
+
+			$this->process($this->modifyColumn(UT_ITEMS_COMMENTS, "user_id", "int(11) NOT NULL", "item_id"), true);
+
+			$this->process($this->addKey(UT_ITEMS_COMMENTS, "user_id"), true);
+			$this->process($this->addConstraint(UT_ITEMS_COMMENTS.".user_id", SITE_DB.".users.id", "ON UPDATE CASCADE"), true);
+
+
+			if(SITE_SHOP) {
+
+				// ITEM PRICES
+				$this->process($this->createTableIfMissing(UT_ITEMS_PRICES), true);
+
+				// add price type and quantity
+				$this->process($this->addColumn(UT_ITEMS_PRICES, "type", "varchar(20) DEFAULT NULL", "vatrate_id"), true);
+				$this->process($this->addColumn(UT_ITEMS_PRICES, "quantity", "int(11) DEFAULT NULL", "type"), true);
+				$query->sql("UPDATE ".UT_ITEMS_PRICES." SET type = 'default' WHERE type = '' OR type IS NULL");
+
+			}
+
+
 
 
 			// USER/ITEM
@@ -128,6 +179,8 @@ class Upgrade {
 
 			if(SITE_SUBSCRIPTIONS) {
 
+				// SPECIAL CASES - PRERELEASE UPGRADE
+
 				// SUBSCRIPTIONS
 				$result = $this->renameTable(SITE_DB.".user_subscriptions", "user_item_subscriptions");
 				$this->process($result);
@@ -148,6 +201,106 @@ class Upgrade {
 					$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "payment_method"), true);
 					$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.payment_method", UT_PAYMENT_METHODS.".id", "ON UPDATE CASCADE"), true);
 
+
+
+					// transfer old subscriptions model to new membership model
+					$item_subscription = $this->tableInfo(SITE_DB.".item_subscription");
+					if($item_subscription && isset($item_subscription["columns"]["renewal"])) {
+
+						// change layout
+						$this->process($this->addColumn(SITE_DB.".item_subscription", "introduction", "text NOT NULL", "description"), true);
+						$this->process($this->dropColumn(SITE_DB.".item_subscription", "renewal"), true);
+
+						if($this->tableInfo(SITE_DB.".item_subscription_versions")) {
+
+							// change layout
+							$this->process($this->addColumn(SITE_DB.".item_subscription_versions", "introduction", "text NOT NULL", "description"), true);
+							$this->process($this->dropColumn(SITE_DB.".item_subscription_versions", "renewal"), true);
+						}
+
+						$query->sql("SELECT * FROM ".UT_ITEMS." WHERE itemtype = 'subscription'");
+						$items = $query->results();
+						if($items) {
+							foreach($items as $item) {
+								$query->sql("UPDATE ".UT_ITEMS." SET itemtype = 'membership' WHERE itemtype = 'subscription' AND id = ".$item["id"]);
+							}
+						}
+
+						// rename
+						$this->process($this->renameTable(SITE_DB.".item_subscription", "item_membership"), true);
+
+						// rename
+						$this->process($this->renameTable(SITE_DB.".item_subscription_versions", "item_membership_versions"), true);
+
+						
+						$model = $IC->typeObject("membership");
+						$items = $IC->getItems(array("itemtype" => "membership"));
+
+						foreach($items as $item) {
+
+							$_POST["item_subscription_method"] = 1;
+							$model->updateSubscriptionMethod(array("updateSubscriptionMethod", $item["id"]));
+							unset($_POST);
+							
+						}
+
+					}
+
+
+
+					if(SITE_MEMBERS) {
+						// MEMBERS
+						$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
+
+						// CONVERT USERS/SUBSCRIBERS TO MEMBERS
+						$sql = "SELECT * FROM ".$UC->db;
+						if($query->sql($sql)) {
+							$users = $query->results();
+
+							foreach($users as $user) {
+
+								// add members
+								$_POST["user_id"] = $user["id"];
+								$UC->addMembership(array("addMembership"));
+								unset($_POST);
+
+							}
+
+						}
+
+					}
+
+
+					$sql = "SELECT * FROM ".SITE_DB.".user_item_subscriptions";
+					if($query->sql($sql)) {
+						$subscriptions = $query->results();
+
+						foreach($subscriptions as $subscription) {
+
+							// add order
+							$_POST["user_id"] = $subscription["user_id"];
+							$_POST["order_comment"] = "System upgade";
+							$order = $SC->addOrder(array("addOrder"));
+							unset($_POST);
+
+
+							// add item to order
+							$_POST["item_id"] = $subscription["item_id"];
+							$_POST["quantity"] = 1;
+							$SC->addToOrder(array("addToOrder", $order["id"]));
+							unset($_POST);
+
+
+							// update subscription timestamps
+							$timestamp = strtotime($subscription["created_at"]);
+							$days_of_month = date("t", $timestamp);
+							$expires_at = date("Y-m-d 00:00:00", $timestamp + ($days_of_month*24*60*60));
+							$query->sql("UPDATE ".SITE_DB.".user_item_subscriptions SET renewed_at = NULL, expires_at = '$expires_at' WHERE id = ".$subscription["id"]);
+
+						}
+
+					}
+
 				}
 				// table doesn't exist
 				else {
@@ -158,40 +311,14 @@ class Upgrade {
 
 			}
 
+			if(SITE_MEMBERS) {
 
-			// CHECK EXTENDED ITEMS TABLES
-
-			// ITEM COMMENTS
-			$this->process($this->createTableIfMissing(UT_ITEMS_COMMENTS), true);
-
-			// update user_id declaration and constraint
-			$this->process($this->dropConstraints(UT_ITEMS_COMMENTS, "user_id"), true);
-			$this->process($this->dropKeys(UT_ITEMS_COMMENTS, "user_id"), true);
-
-			$this->process($this->modifyColumn(UT_ITEMS_COMMENTS, "user_id", "int(11) NOT NULL", "item_id"), true);
-
-			$this->process($this->addKey(UT_ITEMS_COMMENTS, "user_id"), true);
-			$this->process($this->addConstraint(UT_ITEMS_COMMENTS.".user_id", SITE_DB.".users.id", "ON UPDATE CASCADE"), true);
-
-
-			if(SITE_SHOP) {
-
-				// ITEM PRICES
-				$this->process($this->createTableIfMissing(UT_ITEMS_PRICES), true);
-
-				// add price type and quantity
-				$this->process($this->addColumn(UT_ITEMS_PRICES, "type", "varchar(20) DEFAULT NULL", "vatrate_id"), true);
-				$this->process($this->addColumn(UT_ITEMS_PRICES, "quantity", "int(11) DEFAULT NULL", "type"), true);
-				$query->sql("UPDATE ".UT_ITEMS_PRICES." SET type = 'default' WHERE type = '' OR type IS NULL");
+				// MEMBERS
+				$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
 
 			}
 
-			if(SITE_SUBSCRIPTIONS) {
 
-				// ITEM SUBSCRIPTION METHOD
-				$this->process($this->createTableIfMissing(UT_ITEMS_SUBSCRIPTION_METHOD), true);
-
-			}
 
 
 			// USERS
@@ -254,63 +381,11 @@ class Upgrade {
 
 			}
 
-			if(SITE_MEMBERS) {
-
-				// MEMBERS
-				$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
 
 
 
-			}
-
-			if(SITE_SHOP) {
-
-				// SHOP
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_carts"), true);
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_cart_items"), true);
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_orders"), true);
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_order_items"), true);
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_payments"), true);
-			}
 
 
-
-			// SPECIAL CASES - PRERELEASE UPGRADE
-
-
-			// transfer old subscriptions model to new membership model
-			$item_subscription = $this->tableInfo(SITE_DB.".item_subscription");
-			if($item_subscription && isset($item_subscription["columns"]["renewal"])) {
-
-				// change layout
-				$this->process($this->addColumn(SITE_DB.".item_subscription", "introduction", "text NOT NULL", "description"), true);
-				$this->process($this->dropColumn(SITE_DB.".item_subscription", "renewal"), true);
-
-				if($this->tableInfo(SITE_DB.".item_subscription_versions")) {
-
-					// change layout
-					$this->process($this->addColumn(SITE_DB.".item_subscription_versions", "introduction", "text NOT NULL", "description"), true);
-					$this->process($this->dropColumn(SITE_DB.".item_subscription_versions", "renewal"), true);
-
-				}
-
-				$query->sql("SELECT * FROM ".UT_ITEMS." WHERE itemtype = 'subscription'");
-				$items = $query->results();
-				if($items) {
-					foreach($items as $item) {
-						$query->sql("UPDATE ".UT_ITEMS." SET itemtype = 'membership' WHERE itemtype = 'subscription' AND id = ".$item["id"]);
-					}
-				}
-
-
-				// rename
-				$this->process($this->renameTable(SITE_DB.".item_subscription", "item_membership"), true);
-
-
-				// rename
-				$this->process($this->renameTable(SITE_DB.".item_subscription_versions", "item_membership_versions"), true);
-
-			}
 
 			// Upgrade complete
 			print '<li class="done">UPGRADE COMPLETE</li>';
