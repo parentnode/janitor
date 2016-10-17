@@ -851,7 +851,7 @@ class PageCore {
 		if(!cache()->value("payment_methods")) {
 
 			$query = new Query();
-			$query->sql("SELECT * FROM ".UT_PAYMENT_METHODS);
+			$query->sql("SELECT * FROM ".UT_PAYMENT_METHODS." ORDER BY position");
 			cache()->value("payment_methods", $query->results());
 		}
 

@@ -86,6 +86,11 @@ class Upgrade {
 			if(SITE_SHOP) {
 				$this->process($this->checkDefaultValues(UT_VATRATES, "DEFAULT, 'No VAT', 0, 'DK'", "country = 'DK'"), true);
 			}
+			if(SITE_SHOP || SITE_SUBSCRIPTIONS) {
+				$this->process($this->addColumn(UT_PAYMENT_METHODS, "classname", "varchar(50) DEFAULT NULL", "name"), true);
+				$this->process($this->addColumn(UT_PAYMENT_METHODS, "gateway", "varchar(50) DEFAULT NULL", "description"), true);
+				$this->process($this->addColumn(UT_PAYMENT_METHODS, "position", "int(11) DEFAULT '0'", "gateway"), true);
+			}
 			if(SITE_SUBSCRIPTIONS) {
 				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "DEFAULT, 'Month', 'monthly', DEFAULT", "duration = 'monthly'"), true);
 			}
