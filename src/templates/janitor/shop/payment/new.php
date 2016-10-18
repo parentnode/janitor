@@ -30,7 +30,7 @@ $order_options = $model->toOptions($orders, "id", "order_no", array("add" => arr
 		<?= $HTML->link("Back to payments", "/janitor/admin/shop/payment/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<?= $model->formStart("/janitor/admin/shop/addPayment", array("class" => "i:defaultNew labelstyle:inject")) ?>
+	<?= $model->formStart("/janitor/admin/shop/addPayment", array("class" => "i:defaultPayment labelstyle:inject")) ?>
 		<fieldset>
 			<?= $model->input("order_id", array(
 				"type" => "select",

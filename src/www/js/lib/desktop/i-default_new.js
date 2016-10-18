@@ -16,7 +16,7 @@ Util.Objects["defaultNew"] = new function() {
 			this.response = function(response) {
 				if(response.cms_status == "success" && response.cms_object) {
 
-					// u.bug("this.action:" + this.action)
+//					u.bug("this.action:" + this.action)
 					// u.bug("location.href:" + location.href)
 					if(this.action.match(/\/save$/)) {
 //						u.bug("match save")
