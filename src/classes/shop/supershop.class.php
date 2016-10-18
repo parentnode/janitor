@@ -1189,11 +1189,13 @@ class SuperShop extends Shop {
 						$UC = new SuperUser();
 
 
+						$membership = false;
+
 						// item is membership (membership can only be added with relation subscription)
 						if(SITE_MEMBERS && $item["itemtype"] == "membership") {
 
 							// check if user already has membership
-							$membership = $UC->getMembership();
+							$membership = $UC->getMembers(array("user_id" => $order["user_id"]));
 
 							// membership does not exist
 							if(!$membership) {
@@ -1215,8 +1217,20 @@ class SuperShop extends Shop {
 							$_POST["item_id"] = $item_id;
 							$_POST["user_id"] = $order["user_id"];
 
-							// check if subscription already exists
-							$subscription = $UC->getSubscriptions(array("item_id" => $item_id, "user_id" => $order["user_id"]));
+							// if membership variable is not false
+							// it means that membership exists and current type is membership
+							// avoid creating new membership subscription
+							if($membership && $membership["item"]) {
+
+								// get the current membership subscription
+								$subscription = $UC->getSubscriptions(array("item_id" => $membership["item"]["id"], "user_id" => $order["user_id"]));
+							}
+							else {
+
+								// check if subscription already exists
+								$subscription = $UC->getSubscriptions(array("item_id" => $item_id, "user_id" => $order["user_id"]));
+							}
+
 
 							// if subscription is for itemtype=membership
 							// add/updateSubscription will also update subscription_id on membership 

@@ -1803,6 +1803,10 @@ class UserCore extends Model {
 					$sql .= ", expires_at = '$expires_at'";
 					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
 				}
+				else {
+					$sql .= ", expires_at = NULL";
+				}
+
 
 				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
 

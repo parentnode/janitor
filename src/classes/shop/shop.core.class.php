@@ -1082,6 +1082,9 @@ class ShopCore extends Model {
 
 									// additional tasks
 
+
+									$membership = false;
+
 									// item is membership
 									if(SITE_MEMBERS && $item["itemtype"] == "membership") {
 
@@ -1104,8 +1107,19 @@ class ShopCore extends Model {
 										$_POST["order_id"] = $order["id"];
 										$_POST["item_id"] = $item_id;
 
-										// check if subscription already exists
-										$subscription = $UC->getSubscriptions(array("item_id" => $item_id));
+										// if membership variable is not false
+										// it means that membership exists and current type is membership
+										// avoid creating new membership subscription
+										if($membership && $membership["item"]) {
+
+											// get the current membership subscription
+											$subscription = $UC->getSubscriptions(array("item_id" => $membership["item"]["id"]));
+										}
+										else {
+
+											// check if subscription already exists
+											$subscription = $UC->getSubscriptions(array("item_id" => $item_id));
+										}
 
 										// if subscription is for itemtype=membership
 										// add/updateSubscription will also update subscription_id on membership 

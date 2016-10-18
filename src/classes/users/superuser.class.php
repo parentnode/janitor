@@ -1332,6 +1332,9 @@ class SuperUser extends User {
 					$sql .= ", expires_at = '$expires_at'";
 					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
 				}
+				else {
+					$sql .= ", expires_at = NULL";
+				}
 
 				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
 
@@ -1346,7 +1349,7 @@ class SuperUser extends User {
 						$_POST["subscription_id"] = $subscription_id;
 
 						// check if membership exists
-						$membership = $this->getMembership();
+						$membership = $this->getMembers(array("user_id" => $user_id));
 
 						// safety valve
 						// create membership if it does not exist
