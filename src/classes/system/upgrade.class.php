@@ -48,6 +48,23 @@ class Upgrade {
 
 		try {
 
+
+
+			// TODO: start think specific
+			// change emails for all users (during test)
+			if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames")) {
+				$usernames = $query->results();
+				foreach($usernames as $username) {
+					if($username["type"] == "email" && !preg_match("/@think\.dk/", $username["username"])) {
+						$query->sql("UPDATE ".SITE_DB.".user_usernames SET username = 'start@think.dk' WHERE id = ".$username["id"]);
+					}
+				}
+			}
+			// TODO: end think specific
+
+
+
+
 			// SYSTEM
 
 			// RENAME (LIKELY) EXISTING TABLES (TABLES MAY NOT EXIST - SO THIS IS NOT CRITICAL)
@@ -112,7 +129,8 @@ class Upgrade {
 				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Cash', 'cash', 'Pay in cash next on your next visit.', NULL, 3", "classname = 'cash'"), true);
 			}
 			if(SITE_SUBSCRIPTIONS) {
-				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "DEFAULT, 'Month', 'monthly', DEFAULT", "duration = 'monthly'"), true);
+				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "1, 'Month', 'monthly', DEFAULT", "id = 1"), true);
+				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "2, 'Never expires', '*', DEFAULT", "id = 2"), true);
 			}
 
 
@@ -237,11 +255,15 @@ class Upgrade {
 						$items = $IC->getItems(array("itemtype" => "membership"));
 
 						foreach($items as $item) {
-
-							$_POST["item_subscription_method"] = 1;
+							if($item["sindex"] == "curious-cat") {
+								$_POST["item_subscription_method"] = 2;
+							}
+							else {
+								$_POST["item_subscription_method"] = 1;
+							}
 							$model->updateSubscriptionMethod(array("updateSubscriptionMethod", $item["id"]));
 							unset($_POST);
-							
+
 						}
 
 					}
@@ -259,10 +281,15 @@ class Upgrade {
 
 							foreach($users as $user) {
 
-								// add members
-								$_POST["user_id"] = $user["id"];
-								$UC->addMembership(array("addMembership"));
-								unset($_POST);
+								if($user["id"] != 1) {
+									// add members
+									$_POST["user_id"] = $user["id"];
+									$UC->addMembership(array("addMembership"));
+									unset($_POST);
+
+									// update member creation date
+									$query->sql("UPDATE ".SITE_DB.".user_members SET created_at = '".$user["created_at"]."' WHERE user_id = ".$user["id"]);
+								}
 
 							}
 
@@ -275,7 +302,26 @@ class Upgrade {
 					if($query->sql($sql)) {
 						$subscriptions = $query->results();
 
+
+						// TODO: start think specific
+						$opening_timestamp = mktime(0, 0, 0, 9, 24, 2016);
+						// TODO: end think specific
+
+
 						foreach($subscriptions as $subscription) {
+
+							// TODO: start think specific
+							// update subscription timestamps before opening
+							$timestamp = strtotime($subscription["created_at"]);
+							if($timestamp < $opening_timestamp) {
+
+								// update subscription creation date
+								$subscription["created_at"] = date("Y-m-d H:i:s", $opening_timestamp);
+								$query->sql("UPDATE ".SITE_DB.".user_item_subscriptions SET created_at = '".$subscription["created_at"]."' WHERE id = ".$subscription["id"]);
+							}
+							// TODO: end think specific
+
+
 
 							// add order
 							$_POST["user_id"] = $subscription["user_id"];
@@ -380,9 +426,6 @@ class Upgrade {
 				}
 
 			}
-
-
-
 
 
 
