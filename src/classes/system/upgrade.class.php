@@ -116,7 +116,8 @@ class Upgrade {
 			$this->process($this->checkDefaultValues(UT_COUNTRIES, "'DK', 'Danmark', '45', '#### ####', 'DA', 'DKK'", "id = 'DK'"), true);
 
 			if(SITE_SHOP) {
-				$this->process($this->checkDefaultValues(UT_VATRATES, "DEFAULT, 'No VAT', 0, 'DK'", "country = 'DK'"), true);
+				$this->process($this->checkDefaultValues(UT_VATRATES, "1, 'No VAT', 0, 'DK'", "id = 1"), true);
+				$this->process($this->checkDefaultValues(UT_VATRATES, "2, '25%', 25, 'DK'", "id = 2"), true);
 			}
 			if(SITE_SHOP || SITE_SUBSCRIPTIONS) {
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "classname", "varchar(50) DEFAULT NULL", "name"), true);
@@ -263,6 +264,9 @@ class Upgrade {
 							}
 							$model->updateSubscriptionMethod(array("updateSubscriptionMethod", $item["id"]));
 							unset($_POST);
+
+							// ADD CORRECT VAT SETTING
+							$query->sql("UPDATE ".SITE_DB.".items_prices SET vatrate_id = 2 WHERE item_id = ".$item["id"]);
 
 						}
 
