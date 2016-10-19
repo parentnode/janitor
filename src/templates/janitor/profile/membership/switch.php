@@ -19,7 +19,7 @@ foreach($memberships as $membership) {
 
 ?>
 <div class="scene i:scene defaultEdit userMember">
-	<h1>Edit membership</h1>
+	<h1>Switch to a new membership</h1>
 	<h2><?= $user["nickname"] ?> / <?= $member["item"]["name"] ?></h2>
 
 	<ul class="actions">
@@ -27,7 +27,7 @@ foreach($memberships as $membership) {
 	</ul>
 
 	<div class="item">
-		<h2>Change membership</h2>
+		<h2>Switch to a new membership</h2>
 		<?= $model->formStart("/janitor/admin/profile/changeMembership", array("class" => "i:defaultNew labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("item_id", array(
@@ -38,7 +38,10 @@ foreach($memberships as $membership) {
 				)) ?>
 			</fieldset>
 
-			<p>The membership will be changed immediately. <br />We will contact you regarding refunds/additional payment.</p>
+			<p>
+				This will cancel your existing membership and add a new one, starting today. <br />
+				Your membership will be changed immediately.
+			</p>
 
 			<ul class="actions">
 				<?= $model->link("Cancel", "/janitor/admin/profile/membership/view", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
@@ -46,18 +49,5 @@ foreach($memberships as $membership) {
 			</ul>
 		<?= $model->formEnd() ?>
 	</div>
-
-	<? /*<div class="item">
-		<h2>Cancel your membership</h2>
-
-		<p>You membership will be cancelled immediately. <br />We will contact you regarding refunds/additional payment.</p>
-		<ul class="actions">
-			<?= $JML->oneButtonForm("Cancel your membership", "/janitor/admin/shop/cancelMembership/".$member["id"], array(
-				"wrapper" => "li.cancelmembership",
-				"class" => "secondary"
-			)) ?>
-		</ul>
-
-	</div> */ ?>
 
 </div>

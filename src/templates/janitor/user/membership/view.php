@@ -46,12 +46,12 @@ $membership = $model->getMembers(array("user_id" => $user_id));
 			<dd class="created_at"><?= date("d. F, Y", strtotime($membership["created_at"])) ?></dd>
 
 		<? if($membership["modified_at"]): ?>
-			<dt class="modified_at">Last modified at</dt>
+			<dt class="modified_at">Modified at</dt>
 			<dd class="modified_at"><?= date("d. F, Y", strtotime($membership["modified_at"])) ?></dd>
 		<? endif; ?>
 
 		<? if($membership["renewed_at"]): ?>
-			<dt class="renewed_at">Last renewed at</dt>
+			<dt class="renewed_at">Renewed at</dt>
 			<dd class="renewed_at"><?= date("d. F, Y", strtotime($membership["renewed_at"])) ?></dd>
 		<? endif; ?>
 

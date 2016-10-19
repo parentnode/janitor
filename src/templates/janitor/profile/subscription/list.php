@@ -39,8 +39,13 @@ if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 					<dt class="created_at">Created at</dt>
 					<dd class="created_at"><?= date("d. F, Y", strtotime($subscription["created_at"])) ?></dd>
 
+				<? if($subscription["modified_at"]): ?>
+					<dt class="modified_at">Modified at</dt>
+					<dd class="modified_at"><?= date("d. F, Y", strtotime($subscription["modified_at"])) ?></dd>
+				<? endif; ?>
+
 				<? if($subscription["renewed_at"]): ?>
-					<dt class="renewed_at">Last renewed at</dt>
+					<dt class="renewed_at">Renewed at</dt>
 					<dd class="renewed_at"><?= date("d. F, Y", strtotime($subscription["renewed_at"])) ?></dd>
 				<? endif; ?>
 

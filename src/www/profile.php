@@ -96,7 +96,7 @@ if(is_array($action) && count($action)) {
 	else if(preg_match("/^(membership)$/", $action[0]) && count($action) > 1) {
 
 		// MEMBER LIST/EDIT
-		if(preg_match("/^(view|edit)$/", $action[1])) {
+		if(preg_match("/^(view|upgrade|switch)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",

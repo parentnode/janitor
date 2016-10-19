@@ -102,13 +102,15 @@
 
 
 /* USER MEMBERSHIP */
+#content .defaultView.userMembership > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
 #content .defaultView.userMembership .item {margin-top: 20px; position: relative;}
+#content .defaultView.userMembership .item.change {border-top: 1px solid #bbbbbb;}
 #content .defaultView.userMembership .item h3 {padding-bottom: 20px; font-size: 28px;}
 
 #content .defaultView.userMembership dl {margin-top: -5px; overflow: hidden; padding: 0 30px 20px;}
 
 
-#content .defaultView.userMembership dt::after {content: ": ";}
+#content .defaultView.userMembership dt::after {content: ":\00a0";}
 #content .defaultView.userMembership dt {clear: left; float: left;}
 #content .defaultView.userMembership dd {clear: right; float: left; padding: 0 0 3px;}
 
@@ -127,7 +129,11 @@
 
 #content .defaultView.userMembership dd.payment_status.missing {color: #df0000;}
 
-#content .defaultView.userMembership ul.actions {position: absolute; top: 0; right: 0;}
+#content .defaultView.userMembership div.option {padding-bottom: 30px;}
+#content .defaultView.userMembership div.option h3 {padding-bottom: 10px; font-size: 18px;}
+#content .defaultView.userMembership div.option p {padding-bottom: 10px;}
+
+/*#content .defaultView.userMembership ul.actions {position: absolute; top: 0; right: 0;}*/
 
 
 /* MEMBERS */

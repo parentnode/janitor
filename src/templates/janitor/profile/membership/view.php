@@ -21,11 +21,6 @@ $membership = $model->getMembership();
 	<h1>Membership</h1>
 	<h2><?= $user["nickname"] ?></h2>
 
-	<ul class="actions">
-		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-	</ul>
-
-
 	<?= $JML->profileTabs("membership") ?>
 
 
@@ -46,12 +41,12 @@ $membership = $model->getMembership();
 			<dd class="created_at"><?= date("d. F, Y", strtotime($membership["created_at"])) ?></dd>
 
 		<? if($membership["modified_at"]): ?>
-			<dt class="modified_at">Last modified at</dt>
+			<dt class="modified_at">Modified at</dt>
 			<dd class="modified_at"><?= date("d. F, Y", strtotime($membership["modified_at"])) ?></dd>
 		<? endif; ?>
 
 		<? if($membership["renewed_at"]): ?>
-			<dt class="renewed_at">Last renewed at</dt>
+			<dt class="renewed_at">Renewed at</dt>
 			<dd class="renewed_at"><?= date("d. F, Y", strtotime($membership["renewed_at"])) ?></dd>
 		<? endif; ?>
 
@@ -82,15 +77,63 @@ $membership = $model->getMembership();
 
 		<? if($membership["order_id"]): ?>
 			<dt class="payment_status">Payment status</dt>
-			<dd class="payment_status<?= $membership["order"]["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$membership["order"]["payment_status"]] ?><?= $membership["order"]["payment_status"] < 2 ? ' - <a href="'.SITE_URL.'/shop/payment/'.$membership["order"]["order_no"].'">Pay now</a>' : "" ?></dd>
+			<dd class="payment_status<?= $membership["order"]["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$membership["order"]["payment_status"]] ?></dd>
 		<? endif; ?>
 
 		</dl>
 
-		<? if($membership["subscription_id"]): ?>
+	</div>
+	
+	<div class="item change">
+		<h2>Change your membership</h2>
+		<? if($membership["order"] && $membership["order"]["payment_status"] == 2): ?>
+
+		<p>
+			You currently have two ways of changing your membership.
+		</p>
+
+
+		<div class="option">
+			<h3>Upgrade your existing membership</h3>
+			<p>
+				- just pay the price difference and maintain the current renewal cyclus. Best option for membership upgrade.
+			</p>
+			<ul class="actions">
+				<?= $HTML->link("Upgrade membership", "/janitor/admin/profile/membership/upgrade", array("class" => "button", "wrapper" => "li.edit")) ?>
+			</ul>
+		</div>
+
+		<div class="option">
+			<h3>Switch to a new membership</h3>
+			<p>
+				- cancel your existing membership and add a new one, starting today. Best option for membership downgrade.
+			</p>
+			<ul class="actions">
+				<?= $HTML->link("New membership", "/janitor/admin/profile/membership/switch", array("class" => "button", "wrapper" => "li.edit")) ?>
+			</ul>
+		</div>
+
+
+		<p>
+			If you have any questions or want to cancel your account entirely, please contact 
+			us directly on <a href="mailto:<?= SITE_EMAIL ?>"><?= SITE_EMAIL ?></a>.
+		</p>
+
+		<? elseif(!$membership["subscription_id"]): ?>
+
+		<p>
+			You can add a membership through the website.<br />
+		</p>
+
+		<? else: ?>
+
+		<p>
+			You cannot change your membership until the current subscription has been paid.<br />
+		</p>
 		<ul class="actions">
-			<?= $HTML->link("Edit", "/janitor/admin/profile/membership/edit", array("class" => "button", "wrapper" => "li.edit")) ?>
+			<li class="pay"><a href="<?= SITE_URL ?>/shop/payment/<?= $membership["order"]["order_no"] ?>" class="button primary">Pay now</a></li>
 		</ul>
+
 		<? endif; ?>
 
 
