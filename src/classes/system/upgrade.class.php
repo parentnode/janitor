@@ -127,7 +127,7 @@ class Upgrade {
 				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Bank transfer', 'banktransfer', 'Regular bank transfer. Preferred option.', NULL, 1", "classname = 'banktransfer'"), true);
 				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Credit Card', 'disabled', 'Coming very soon.', NULL, 4", "classname = 'disabled'"), true);
 				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'PayPal', 'paypal', 'Pay to our paypal account.', NULL, 3", "classname = 'paypal'"), true);
-				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Cash', 'cash', 'Pay in cash next on your next visit.', NULL, 3", "classname = 'cash'"), true);
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Cash', 'cash', 'Pay in cash on your next visit.', NULL, 3", "classname = 'cash'"), true);
 			}
 			if(SITE_SUBSCRIPTIONS) {
 				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "1, 'Month', 'monthly', DEFAULT", "id = 1"), true);

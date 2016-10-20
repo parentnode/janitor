@@ -6,6 +6,7 @@ $IC = new Items();
 $order_id = $action[3];
 
 $order = $model->getOrders(array("order_id" => $order_id));
+
 ?>
 <div class="scene i:scene defaultNew newPayment">
 	<h1>New manual payment</h1>

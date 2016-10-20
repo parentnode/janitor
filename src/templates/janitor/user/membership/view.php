@@ -28,8 +28,7 @@ $membership = $model->getMembers(array("user_id" => $user_id));
 
 	<?= $JML->userTabs($user_id, "membership") ?>
 
-
-
+	
 	<div class="item">
 	<? if($membership): ?>
 
@@ -87,15 +86,59 @@ $membership = $model->getMembers(array("user_id" => $user_id));
 
 		</dl>
 
-		<? if($membership["subscription_id"]): ?>
-		<ul class="actions">
-			<? if($membership["order_id"]): ?>
-			<?= $HTML->link("View order", "/janitor/admin/shop/order/edit/".$membership["order_id"], array("class" => "button", "wrapper" => "li.order")) ?>
-			<? endif; ?>
-			<?= $HTML->link("Edit", "/janitor/admin/user/membership/edit/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
-		</ul>
-		<? endif; ?>
+	</div>
+	
+	<div class="item change">
+		<h2>Change your membership</h2>
+		<? if($membership["order"] && $membership["order"]["payment_status"] == 2): ?>
 
+		<p>
+			There are two ways of changing your membership.
+		</p>
+
+
+		<div class="option">
+			<h3>Upgrade the existing membership</h3>
+			<p>
+				- adds an order for the price difference and maintains the current renewal cyclus. Best option for membership upgrade.
+			</p>
+			<ul class="actions">
+				<?= $HTML->link("Upgrade membership", "/janitor/admin/user/membership/upgrade/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
+			</ul>
+		</div>
+
+		<div class="option">
+			<h3>Switch to a new membership</h3>
+			<p>
+				- cancel the existing membership and add a new one, starting today. Best option for membership downgrade.
+			</p>
+			<ul class="actions">
+				<?= $HTML->link("New membership", "/janitor/admin/user/membership/switch/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
+			</ul>
+		</div>
+
+
+		<p>
+			If you have any questions or want to cancel your account entirely, please contact 
+			us directly on <a href="mailto:<?= SITE_EMAIL ?>"><?= SITE_EMAIL ?></a>.
+		</p>
+
+		<? elseif(!$membership["subscription_id"]): ?>
+
+		<p>
+			You can add a membership through the website.<br />
+		</p>
+
+		<? else: ?>
+
+		<p>
+			You cannot change your membership until the current subscription has been paid.<br />
+		</p>
+		<ul class="actions">
+			<?= $HTML->link("Pay now", "/janitor/admin/shop/order/payment/new/".$membership["order"]["id"], array("class" => "button primary", "wrapper" => "li.pay")); ?>
+		</ul>
+
+		<? endif; ?>
 
 	<? else: ?>
 		<p>This user does not have a membership.</p>

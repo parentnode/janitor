@@ -21,13 +21,12 @@ $membership = $model->getMembership();
 	<h1>Membership</h1>
 	<h2><?= $user["nickname"] ?></h2>
 
-	<?= $JML->profileTabs("membership") ?>
 
+	<?= $JML->profileTabs("membership") ?>
 
 
 	<div class="item">
 	<? if($membership): ?>
-			
 
 		<? if($membership["subscription_id"]):
 			$subscription = $model->getSubscriptions(array("subscription_id" => $membership["subscription_id"])); ?>

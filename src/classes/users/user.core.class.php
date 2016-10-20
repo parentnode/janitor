@@ -2110,8 +2110,8 @@ class UserCore extends Model {
 	// - should also calculate cost difference and create new order to pay.
 	// - this requires the ability to add custom order-lines with calculated price
 
-	# /#controller#/changeMembership
-	function changeMembership($action) {
+	# /#controller#/switchMembership
+	function switchMembership($action) {
 
 		// get current user
 		$user_id = session()->value("user_id");

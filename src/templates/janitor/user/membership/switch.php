@@ -4,7 +4,9 @@ global $model;
 $IC = new Items();
 $SC = new Shop();
 
+
 $user_id = $action[2];
+
 
 $user = $model->getUsers(array("user_id" => $user_id));
 $member = $model->getMembers(array("user_id" => $user_id));
@@ -19,7 +21,7 @@ foreach($memberships as $membership) {
 
 ?>
 <div class="scene i:scene defaultEdit userMember">
-	<h1>Edit membership</h1>
+	<h1>Switch to a new membership</h1>
 	<h2><?= $user["nickname"] ?> / <?= $member["item"]["name"] ?></h2>
 
 	<ul class="actions">
@@ -27,8 +29,8 @@ foreach($memberships as $membership) {
 	</ul>
 
 	<div class="item">
-		<h2>Change membership</h2>
-		<?= $model->formStart("/janitor/admin/user/changeMembership/".$member["id"], array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<h2>Switch to a new membership</h2>
+		<?= $model->formStart("/janitor/admin/user/switchMembership/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("item_id", array(
 					"label" => "Select a new membership",
@@ -38,7 +40,10 @@ foreach($memberships as $membership) {
 				)) ?>
 			</fieldset>
 
-			<p>The membership will be changed immediately. <br />You need to handle refunds/additional payment manually.</p>
+			<p>
+				This will cancel the existing membership and add a new one, starting today. <br />
+				The membership will be changed immediately.
+			</p>
 
 			<ul class="actions">
 				<?= $model->link("Cancel", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
@@ -46,18 +51,5 @@ foreach($memberships as $membership) {
 			</ul>
 		<?= $model->formEnd() ?>
 	</div>
-
-	<? /*<div class="item">
-		<h2>Cancel your membership</h2>
-
-		<p>You membership will be cancelled immediately. <br />We will contact you regarding refunds/additional payment.</p>
-		<ul class="actions">
-			<?= $JML->oneButtonForm("Cancel your membership", "/janitor/admin/shop/cancelMembership/".$member["id"], array(
-				"wrapper" => "li.cancelmembership",
-				"class" => "secondary"
-			)) ?>
-		</ul>
-
-	</div> */ ?>
 
 </div>
