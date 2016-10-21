@@ -340,12 +340,20 @@ class Upgrade {
 							$SC->addToOrder(array("addToOrder", $order["id"]));
 							unset($_POST);
 
+							$item = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("subscription_method" => true)));
 
 							// update subscription timestamps
-							$timestamp = strtotime($subscription["created_at"]);
-							$days_of_month = date("t", $timestamp);
-							$expires_at = date("Y-m-d 00:00:00", $timestamp + ($days_of_month*24*60*60));
-							$query->sql("UPDATE ".SITE_DB.".user_item_subscriptions SET renewed_at = NULL, expires_at = '$expires_at' WHERE id = ".$subscription["id"]);
+							$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET renewed_at = NULL";
+							$expires_at = $UC->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["created_at"]);
+							if($expires_at) {
+								$sql .= ", expires_at = '$expires_at'";
+							}
+							else {
+								$sql .= ", expires_at = NULL";
+							}
+							$sql .= " WHERE id = ".$subscription["id"];
+							
+							$query->sql($sql);
 
 						}
 
