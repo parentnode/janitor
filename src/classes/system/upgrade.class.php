@@ -52,14 +52,14 @@ class Upgrade {
 
 			// TODO: start think specific
 			// change emails for all users (during test)
-			if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames")) {
-				$usernames = $query->results();
-				foreach($usernames as $username) {
-					if($username["type"] == "email" && !preg_match("/@think\.dk/", $username["username"])) {
-						$query->sql("UPDATE ".SITE_DB.".user_usernames SET username = 'start@think.dk' WHERE id = ".$username["id"]);
-					}
-				}
-			}
+			// if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames")) {
+			// 	$usernames = $query->results();
+			// 	foreach($usernames as $username) {
+			// 		if($username["type"] == "email" && !preg_match("/@think\.dk/", $username["username"])) {
+			// 			$query->sql("UPDATE ".SITE_DB.".user_usernames SET username = 'start@think.dk' WHERE id = ".$username["id"]);
+			// 		}
+			// 	}
+			// }
 			// TODO: end think specific
 
 
