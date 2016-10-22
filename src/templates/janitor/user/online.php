@@ -56,7 +56,7 @@ if(class_exists("Memcached")) {
 	<h1>Current online users</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("All users", "/janitor/admin/user/list/", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("All users", "/janitor/admin/user/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
 	</ul>
 

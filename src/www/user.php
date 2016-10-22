@@ -66,6 +66,7 @@ $access_item["/updateUserGroup"] = "/group";
 
 // ONLINE INTERFACE
 $access_item["/online"] = true;
+$access_item["/verification_missing"] = true;
 $access_item["/flushUserSession"] = true;
 
 if(isset($read_access) && $read_access) {
@@ -203,6 +204,16 @@ if(is_array($action) && count($action)) {
 		$page->page(array(
 			"type" => "janitor",
 			"templates" => "janitor/user/online.php"
+		));
+		exit();
+	}
+
+	// NOT VERIFIED USER OVERVIEW
+	else if(preg_match("/^(verification_missing)$/", $action[0]) && count($action) == 1) {
+
+		$page->page(array(
+			"type" => "janitor",
+			"templates" => "janitor/user/verification_missing.php"
 		));
 		exit();
 	}

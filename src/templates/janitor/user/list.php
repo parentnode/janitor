@@ -27,7 +27,8 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 	<ul class="actions">
 		<?= $HTML->link("New user", "/janitor/admin/user/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
-		<?= $HTML->link("Members", "/janitor/admin/user/member/list", array("class" => "button", "wrapper" => "li.member")) ?>
+		<?= $HTML->link("Members", "/janitor/admin/user/members/list", array("class" => "button", "wrapper" => "li.member")) ?>
+		<?= $HTML->link("Not verified accounts", "/janitor/admin/user/verification_missing", array("class" => "button", "wrapper" => "li.varification_missing")) ?>
 		<?= $HTML->link("Online users", "/janitor/admin/user/online", array("class" => "button", "wrapper" => "li.online")) ?>
 	</ul>
 
