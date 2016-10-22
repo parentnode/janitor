@@ -1710,61 +1710,6 @@ class SuperUser extends User {
 	}
 
 
-
-	// change membership type
-	// info i $_POST
-	// TODO: only changes item_id reference in subscription
-	// - should also calculate cost difference and create new order to pay.
-	// - this requires the ability to add custom order-lines with calculated price
-
-	# /#controller#/changeMembership/#member_id#
-	// function changeMembership($action) {
-	//
-	// 	// Get posted values to make them available for models
-	// 	$this->getPostedEntities();
-	//
-	//
-	// 	// does values validate
-	// 	if(count($action) == 2 && $this->validateList(array("item_id"))) {
-	//
-	// 		$query = new Query();
-	// 		$IC = new Items();
-	//
-	// 		$member_id = $action[1];
-	// 		$item_id = $this->getProperty("item_id", "value");
-	//
-	// 		$member = $this->getMembers(array("member_id" => $member_id));
-	// 		if($member) {
-	//
-	// 			$sql = "UPDATE ".$this->db_subscriptions. " SET item_id = $item_id WHERE id = ".$member["subscription_id"];
-	// 			// print $sql;
-	// 			if($query->sql($sql)) {
-	//
-	// 				// get new item info
-	// 				$item = $IC->getItem(array("id" => $item_id, "extend" => true));
-	//
-	// 				global $page;
-	// 				$page->addLog("SuperUser->changeMembership: member_id:".$member["id"].", item_id:$item_id");
-	//
-	// 				// send notification email to admin
-	// 				$page->mail(array(
-	// 					"recipients" => SHOP_ORDER_NOTIFIES,
-	// 					"subject" => SITE_URL . " - User changed membership: " . $member["user"]["nickname"] . " (member: #".$member["id"].")",
-	// 					"message" => "User has changed from: " . $member["item"]["name"]. " to " . $item["name"] .".\nOld membership was last renewed on: ".($member["renewed_at"] ? $member["renewed_at"] : $member["created_at"])."\n\nYou need to handle the price-diff-calculation manually!!!",
-	// 					// "template" => "system"
-	// 				));
-	//
-	// 				return $this->getMembers(array("member_id" => $member_id));
-	// 			}
-	//
-	// 		}
-	//
-	// 	}
-	//
-	// 	return false;
-	// }
-
-
 	// cancel membership
 	// removes subscription_id from membership and deletes related subscription
 	# /#controller#/cancelMembership/#user_id#/#member_id#
