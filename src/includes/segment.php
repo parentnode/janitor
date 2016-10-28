@@ -25,7 +25,7 @@
 			@include_once($_SERVER["FRAMEWORK_PATH"]."/config/segments.core.php");
 
 			// DOES PROJECT HAVE CUSTOM SEGMENTS
-			if(isset($_SERVER["LOCAL_PATH"]) && file_exists($_SERVER["LOCAL_PATH"]."/config/segments.core.php")) {
+			if(isset($_SERVER["LOCAL_PATH"]) && file_exists($_SERVER["LOCAL_PATH"]."/config/segments.php")) {
 				@include_once($_SERVER["LOCAL_PATH"]."/config/segments.php");
 			}
 		}
