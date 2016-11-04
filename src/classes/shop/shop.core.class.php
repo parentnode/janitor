@@ -1343,6 +1343,41 @@ class ShopCore extends Model {
 	}
 
 
+	function processPayment($action) {
+
+
+		$order_no = $action[1];
+		$gateway = $action[2];
+
+		if($order_no) {
+			$order = $this->getOrders(array("order_no" => $order_no));
+
+			if($order && $order["payment_status"] !== 2) {
+
+				$UC = new User();
+				$order["user"] = $UC->getUser();
+				$order["total_price"] = $this->getTotalOrderPrice($order["id"]);
+
+				if($gateway == "stripe") {
+
+					include_once("classes/shop/gateways/janitor_stripe.class.php");
+					$GC = new JanitorStripe();
+
+					return $GC->processTokenAndCapture($order);
+
+				}
+
+				// More gateways can be added here
+
+			}
+
+		}
+
+		return false;
+
+	}
+
+
 }
 
 ?>

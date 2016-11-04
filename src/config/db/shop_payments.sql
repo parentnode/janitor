@@ -5,7 +5,7 @@ CREATE TABLE `SITE_DB`.`shop_payments` (
   `currency` varchar(3) DEFAULT NULL,
   `payment_amount` float NOT NULL,
  
-  `transaction_id` int(11) DEFAULT NULL,
+  `transaction_id` varchar(50) DEFAULT NULL,
   `payment_method` int(11) DEFAULT NULL,
 
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
