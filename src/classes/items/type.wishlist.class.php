@@ -53,7 +53,7 @@ class TypeWishlist extends Itemtype {
 
 			$query = new Query();
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_wishes_order);
+			$query->checkDbExistence($this->db_wishes_order);
 
 			$order = explode(",", $order_list);
 			$sql = "DELETE FROM ".$this->db_wishes_order." WHERE item_id = ".$wishlist_id;

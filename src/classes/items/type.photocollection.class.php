@@ -105,7 +105,7 @@ class TypePhotocollection extends Itemtype {
 	// 		$IC = new Items();
 	// 		$item_id = $action[1];
 	//
-	// 		$query->checkDbExistance($this->db_mediae);
+	// 		$query->checkDbExistence($this->db_mediae);
 	//
 	// 		if($this->validateList(array("mediae"), $item_id)) {
 	// 			$uploads = $IC->upload($item_id, array("input_name" => "mediae", "auto_add_variant" => true));

@@ -843,20 +843,20 @@ class Setup extends Itemtype {
 
 
 			$query = new Query();
-			$query->checkDbExistance($this->db_janitor_db.".user_groups");
-			$query->checkDbExistance($this->db_janitor_db.".system_languages");
-			$query->checkDbExistance($this->db_janitor_db.".system_currencies");
-			$query->checkDbExistance($this->db_janitor_db.".system_countries");
-			$query->checkDbExistance($this->db_janitor_db.".system_vatrates");
-			$query->checkDbExistance($this->db_janitor_db.".users");
+			$query->checkDbExistence($this->db_janitor_db.".user_groups");
+			$query->checkDbExistence($this->db_janitor_db.".system_languages");
+			$query->checkDbExistence($this->db_janitor_db.".system_currencies");
+			$query->checkDbExistence($this->db_janitor_db.".system_countries");
+			$query->checkDbExistence($this->db_janitor_db.".system_vatrates");
+			$query->checkDbExistence($this->db_janitor_db.".users");
 
-			$query->checkDbExistance($this->db_janitor_db.".items");
-			$query->checkDbExistance($this->db_janitor_db.".tags");
-			$query->checkDbExistance($this->db_janitor_db.".taggings");
+			$query->checkDbExistence($this->db_janitor_db.".items");
+			$query->checkDbExistence($this->db_janitor_db.".tags");
+			$query->checkDbExistence($this->db_janitor_db.".taggings");
 
-			$query->checkDbExistance($this->db_janitor_db.".items_mediae");
-			$query->checkDbExistance($this->db_janitor_db.".items_comments");
-			$query->checkDbExistance($this->db_janitor_db.".items_prices");
+			$query->checkDbExistence($this->db_janitor_db.".items_mediae");
+			$query->checkDbExistence($this->db_janitor_db.".items_comments");
+			$query->checkDbExistence($this->db_janitor_db.".items_prices");
 
 
 

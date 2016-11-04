@@ -110,8 +110,8 @@ class Navigation extends Model {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db);
-			$query->checkDbExistance($this->db_nodes);
+			$query->checkDbExistence($this->db);
+			$query->checkDbExistence($this->db_nodes);
 
 			$entities = $this->data_entities;
 			$names = array();

@@ -376,7 +376,7 @@ class UserCore extends Model {
 				$lastname = $this->getProperty("lastname", "value");
 
 				// make sure type tables exist
-				$query->checkDbExistance($this->db);
+				$query->checkDbExistence($this->db);
 
 				// get entities for current value
 				$entities = $this->getModel();
@@ -700,7 +700,7 @@ class UserCore extends Model {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_usernames);
+			$query->checkDbExistence($this->db_usernames);
 
 			$email = $this->getProperty("email", "value");
 
@@ -780,7 +780,7 @@ class UserCore extends Model {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_usernames);
+			$query->checkDbExistence($this->db_usernames);
 
 			$mobile = $this->getProperty("mobile", "value");
 
@@ -868,7 +868,7 @@ class UserCore extends Model {
 				$query = new Query();
 
 				// make sure type tables exist
-				$query->checkDbExistance($this->db_passwords);
+				$query->checkDbExistence($this->db_passwords);
 
 				$old_password = sha1($this->getProperty("old_password", "value"));
 				$new_password = sha1($this->getProperty("new_password", "value"));
@@ -918,7 +918,7 @@ class UserCore extends Model {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_password_reset_tokens);
+			$query->checkDbExistence($this->db_password_reset_tokens);
 
 
 			// find the user with specified username
@@ -1069,7 +1069,7 @@ class UserCore extends Model {
 
 		$query = new Query();
 		// make sure type tables exist
-		$query->checkDbExistance($this->db_apitokens);
+		$query->checkDbExistence($this->db_apitokens);
 
 		$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
 		if($query->sql($sql)) {
@@ -1089,7 +1089,7 @@ class UserCore extends Model {
 		$query = new Query();
 
 		// make sure type tables exist
-		$query->checkDbExistance($this->db_apitokens);
+		$query->checkDbExistence($this->db_apitokens);
 
 		$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
 //		print $sql;
@@ -1117,7 +1117,7 @@ class UserCore extends Model {
 		$query = new Query();
 
 		// make sure type tables exist
-		$query->checkDbExistance($this->db_apitokens);
+		$query->checkDbExistence($this->db_apitokens);
 
 		$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = $user_id";
 //		print $sql;
@@ -1197,7 +1197,7 @@ class UserCore extends Model {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_addresses);
+			$query->checkDbExistence($this->db_addresses);
 
 			$entities = $this->getModel();
 			$names = array();

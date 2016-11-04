@@ -154,7 +154,7 @@ class TypeEvent extends Itemtype {
 		}
 
 		$query = new Query();
-		$query->checkDbExistance($this->db_hosts);
+		$query->checkDbExistence($this->db_hosts);
 
 
 		// get host by id
@@ -201,7 +201,7 @@ class TypeEvent extends Itemtype {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_hosts);
+			$query->checkDbExistence($this->db_hosts);
 
 			$entities = $this->getModel();
 			$names = array();

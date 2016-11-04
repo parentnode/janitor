@@ -461,7 +461,7 @@ class Upgrade {
 		$IC = new Items();
 		$fs = new FileSystem();
 
-		$query->checkDbExistance(UT_ITEMS_MEDIAE);
+		$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
 
 		$sql = "SELECT * FROM ".SITE_DB.".item_".$itemtype;
@@ -543,7 +543,7 @@ class Upgrade {
 		$query = new Query();
 		$IC = new Items();
 
-		$query->checkDbExistance(UT_ITEMS_MEDIAE);
+		$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
 		$sql = "SELECT * FROM ".SITE_DB.".item_".$itemtype."_mediae";
 		print $sql."<br>\n";
@@ -698,7 +698,7 @@ class Upgrade {
 
 
 	// Create DB-table if it does not already exist
-	// This function is similar to $query->checkDbExistance but provides better feedback for upgrade process
+	// This function is similar to $query->checkDbExistence but provides better feedback for upgrade process
 	function createTableIfMissing($db_table) {
 
 		$query = new Query();

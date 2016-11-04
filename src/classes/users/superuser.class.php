@@ -64,7 +64,7 @@ class SuperUser extends User {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db);
+			$query->checkDbExistence($this->db);
 
 			// get entities for current value
 			$entities = $this->getModel();
@@ -423,7 +423,7 @@ class SuperUser extends User {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_usernames);
+			$query->checkDbExistence($this->db_usernames);
 
 			$email = $this->getProperty("email", "value");
 
@@ -501,7 +501,7 @@ class SuperUser extends User {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_usernames);
+			$query->checkDbExistence($this->db_usernames);
 
 			$mobile = $this->getProperty("mobile", "value");
 
@@ -598,7 +598,7 @@ class SuperUser extends User {
 				$query = new Query();
 
 				// make sure type tables exist
-				$query->checkDbExistance($this->db_passwords);
+				$query->checkDbExistence($this->db_passwords);
 
 				$password = sha1($this->getProperty("password", "value"));
 				if($this->hasPassword($user_id)) {
@@ -628,7 +628,7 @@ class SuperUser extends User {
 
 		$query = new Query();
 		// make sure type tables exist
-		$query->checkDbExistance($this->db_apitokens);
+		$query->checkDbExistence($this->db_apitokens);
 
 		$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
 		if($query->sql($sql)) {
@@ -647,7 +647,7 @@ class SuperUser extends User {
 		$query = new Query();
 
 		// make sure type tables exist
-		$query->checkDbExistance($this->db_apitokens);
+		$query->checkDbExistence($this->db_apitokens);
 
 		$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
 		if($query->sql($sql)) {
@@ -673,7 +673,7 @@ class SuperUser extends User {
 		$query = new Query();
 
 		// make sure type tables exist
-		$query->checkDbExistance($this->db_apitokens);
+		$query->checkDbExistence($this->db_apitokens);
 
 		$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = $user_id";
 //		print $sql;
@@ -750,7 +750,7 @@ class SuperUser extends User {
 			$user_id = $action[1];
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_addresses);
+			$query->checkDbExistence($this->db_addresses);
 
 			$entities = $this->getModel();
 			$names = array();
@@ -1990,8 +1990,8 @@ class SuperUser extends User {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_user_groups);
-			$query->checkDbExistance($this->db_access);
+			$query->checkDbExistence($this->db_user_groups);
+			$query->checkDbExistence($this->db_access);
 
 			$entities = $this->getModel();
 			$names = array();
@@ -2149,7 +2149,7 @@ class SuperUser extends User {
 
 			$query = new Query();
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_access);
+			$query->checkDbExistence($this->db_access);
 
 			$sql = "SELECT * FROM ".$this->db_access." WHERE user_group_id = $user_group_id AND permission = 1";
 			if($query->sql($sql)) {
@@ -2186,7 +2186,7 @@ class SuperUser extends User {
 			cache()->reset("user_group_".$user_group_id."_permissions");
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db_access);
+			$query->checkDbExistence($this->db_access);
 
 			// remove existing grants
 			$query->sql("DELETE FROM ".$this->db_access." WHERE user_group_id = " . $user_group_id);

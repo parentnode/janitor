@@ -172,7 +172,7 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db);
+			$query->checkDbExistence($this->db);
 
 			// create root item
 			$item_id = $this->saveItem();
@@ -308,7 +308,7 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistance($this->db);
+			$query->checkDbExistence($this->db);
 
 
 			// get entities for current value
@@ -564,7 +564,7 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 			$item_id = $action[1];
 
-			$query->checkDbExistance(UT_ITEMS_MEDIAE);
+			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
 			if($this->validateList(array("mediae"), $item_id)) {
 				$uploads = $this->upload($item_id, array("input_name" => "mediae", "auto_add_variant" => true));
@@ -611,7 +611,7 @@ class ItemtypeCore extends Model {
 			$item_id = $action[1];
 			$variant = $action[2];
 
-			$query->checkDbExistance(UT_ITEMS_MEDIAE);
+			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
 			// Image main_media
 			if($this->validateList(array($variant), $item_id)) {
@@ -998,7 +998,7 @@ class ItemtypeCore extends Model {
 			$IC = new Items();
 			$item_id = $action[1];
 
-			$query->checkDbExistance(UT_ITEMS_MEDIAE);
+			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
 //			$variant = stringOr(getPost("variant"), "HTML-".randomKey(8));
 
@@ -1064,7 +1064,7 @@ class ItemtypeCore extends Model {
 			$IC = new Items();
 			$item_id = $action[1];
 
-			$query->checkDbExistance(UT_ITEMS_MEDIAE);
+			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
 //			$variant = stringOr(getPost("variant"), "HTML-".randomKey(8));
 

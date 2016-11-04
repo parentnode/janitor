@@ -349,7 +349,7 @@ class Query {
 	*
 	* @param String $table Table to check existance of
 	*/
-	function checkDbExistance($table) {
+	function checkDbExistence($table) {
 
 		list($db, $table) = explode(".", $table);
 //		$query = new Query();
