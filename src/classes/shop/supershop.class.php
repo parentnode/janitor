@@ -875,7 +875,7 @@ class SuperShop extends Shop {
 //				print $sql;
 				if($query->sql($sql)) {
 
-					$page->addLog("SuperShop->addOrder: user_id:".$user_id, "order_no:".$order_no);
+					$page->addLog("SuperShop->addOrder: user_id:".$user_id.", order_no:".$order_no);
 
 					message()->addMessage("Order added");
 					return $this->getOrders(array("order_no" => $order_no));
