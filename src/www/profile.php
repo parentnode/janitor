@@ -1,8 +1,8 @@
 <?php
 $access_item["/"] = true;
 
-// $access_item["/reset"] = false;
-// $access_item["/resetPassword"] = "/reset";
+$access_item["/reset"] = false;
+$access_item["/resetPassword"] = "/reset";
 
 $access_item["/apitoken"] = true;
 $access_item["/renewToken"] = "/apitoken";
