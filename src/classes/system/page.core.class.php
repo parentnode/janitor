@@ -1887,7 +1887,8 @@ class PageCore {
 
 		// only attmempt sending if recipient is specified
 		if($message && $recipients) {
-			require_once("includes/phpmailer/class.phpmailer.php");
+
+			require_once("includes/PHPMailer-5.2.16/PHPMailerAutoload.php");
 
 			$mail             = new PHPMailer();
 			$mail->Subject    = $subject;
