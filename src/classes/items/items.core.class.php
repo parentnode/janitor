@@ -310,7 +310,7 @@ class ItemsCore {
 			}
 
 			// add subscription (for current user)
-			if($all || $subscription) {
+			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) && ($all || $subscription)) {
 				$UC = $this->getUserClass();
 				$item["subscription"] = $UC->getSubscriptions(array("item_id" => $item["id"]));
 			}
