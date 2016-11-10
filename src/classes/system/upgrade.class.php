@@ -40,10 +40,13 @@ class Upgrade {
 		
 		$query = new Query();
 		$IC = new Items();
-		include_once("classes/shop/supershop.class.php");
-		$SC = new SuperShop();
 		include_once("classes/users/superuser.class.php");
 		$UC = new SuperUser();
+
+		if((defined("SITE_SHOP") && SITE_SHOP)) {
+			include_once("classes/shop/supershop.class.php");
+			$SC = new SuperShop();
+		}
 
 
 		try {
@@ -72,13 +75,13 @@ class Upgrade {
 			$this->process($this->renameTable(SITE_DB.".countries", "system_countries"));
 			$this->process($this->renameTable(SITE_DB.".currencies", "system_currencies"));
 
-			if(SITE_SHOP) {
+			if(defined("SITE_SHOP") && SITE_SHOP) {
 				$this->process($this->renameTable(SITE_DB.".vatrates", "system_vatrates"));
 			}
-			if(SITE_SHOP || SITE_SUBSCRIPTIONS) {
+			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->renameTable(SITE_DB.".payment_methods", "system_payment_methods"));
 			}
-			if(SITE_SUBSCRIPTIONS) {
+			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->renameTable(SITE_DB.".subscription_methods", "system_subscription_methods"));
 			}
 
@@ -88,10 +91,10 @@ class Upgrade {
 			$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
 
 
-			if(SITE_SHOP || SITE_SUBSCRIPTIONS) {
+			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
 			}
-			if(SITE_SHOP) {
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
 				$this->process($this->createTableIfMissing(UT_VATRATES), true);
 
 				// SHOP
@@ -101,7 +104,7 @@ class Upgrade {
 				$this->process($this->createTableIfMissing(SITE_DB.".shop_order_items"), true);
 				$this->process($this->createTableIfMissing(SITE_DB.".shop_payments"), true);
 			}
-			if(SITE_SUBSCRIPTIONS) {
+			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->createTableIfMissing(UT_SUBSCRIPTION_METHODS), true);
 				// ITEM SUBSCRIPTION METHOD
 				$this->process($this->createTableIfMissing(UT_ITEMS_SUBSCRIPTION_METHOD), true);
@@ -115,11 +118,11 @@ class Upgrade {
 			$this->process($this->checkDefaultValues(UT_CURRENCIES, "'DKK', 'Kroner (Denmark)', 'DKK', 'after', 2, ',', '.'", "id = 'DKK'"), true);
 			$this->process($this->checkDefaultValues(UT_COUNTRIES, "'DK', 'Danmark', '45', '#### ####', 'DA', 'DKK'", "id = 'DK'"), true);
 
-			if(SITE_SHOP) {
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
 				$this->process($this->checkDefaultValues(UT_VATRATES, "1, 'No VAT', 0, 'DK'", "id = 1"), true);
 				$this->process($this->checkDefaultValues(UT_VATRATES, "2, '25%', 25, 'DK'", "id = 2"), true);
 			}
-			if(SITE_SHOP || SITE_SUBSCRIPTIONS) {
+			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "classname", "varchar(50) DEFAULT NULL", "name"), true);
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "gateway", "varchar(50) DEFAULT NULL", "description"), true);
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "position", "int(11) DEFAULT '0'", "gateway"), true);
@@ -129,7 +132,7 @@ class Upgrade {
 				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'PayPal', 'paypal', 'Pay to our paypal account.', NULL, 3", "classname = 'paypal'"), true);
 				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Cash', 'cash', 'Pay in cash on your next visit.', NULL, 3", "classname = 'cash'"), true);
 			}
-			if(SITE_SUBSCRIPTIONS) {
+			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "1, 'Month', 'monthly', DEFAULT", "id = 1"), true);
 				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "2, 'Never expires', '*', DEFAULT", "id = 2"), true);
 			}
@@ -151,7 +154,7 @@ class Upgrade {
 			$this->process($this->addConstraint(UT_ITEMS_COMMENTS.".user_id", SITE_DB.".users.id", "ON UPDATE CASCADE"), true);
 
 
-			if(SITE_SHOP) {
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
 
 				// ITEM PRICES
 				$this->process($this->createTableIfMissing(UT_ITEMS_PRICES), true);
@@ -196,7 +199,7 @@ class Upgrade {
 			}
 
 
-			if(SITE_SUBSCRIPTIONS) {
+			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 
 				// SPECIAL CASES - PRERELEASE UPGRADE
 
@@ -274,7 +277,7 @@ class Upgrade {
 
 
 
-					if(SITE_MEMBERS) {
+					if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
 						// MEMBERS
 						$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
 
@@ -369,7 +372,7 @@ class Upgrade {
 
 			}
 
-			if(SITE_MEMBERS) {
+			if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
 
 				// MEMBERS
 				$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
@@ -391,7 +394,7 @@ class Upgrade {
 			$this->process($this->addConstraint(SITE_DB.".users.language", UT_LANGUAGES.".id", "ON UPDATE CASCADE"), true);
 
 
-			if(SITE_SIGNUP) {
+			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 
 				// USER NEWSLETTER SUBSCRIPTIONS
 

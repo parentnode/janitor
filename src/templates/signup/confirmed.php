@@ -62,9 +62,12 @@ $username = $action[2];
 		</div>
 		<? endif; ?>
 	</div>
+
 <? else:?>
+
 	<h1>Thank you!</h1>
-	<p>Your <?= $type ?>: <?= $username ?>, has been confirmed.</p>
+	<p>Your <?= $type ?> <em><?= $username ?></em> has been confirmed. Go ahead and <a href="/login">log in</a>.</p>
+
 <? endif; ?>
 
 

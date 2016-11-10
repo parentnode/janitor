@@ -283,7 +283,9 @@ class UserCore extends Model {
 
 			$user["newsletters"] = $this->getNewsletters();
 
-			$user["membership"] = $this->getMembership();
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
+				$user["membership"] = $this->getMembership();
+			}
 
 			return $user;
 		}
