@@ -21,7 +21,7 @@ $items = $model->getHosts();
 
 <?			foreach($items as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
-				<h3><?= preg_replace("/<br>|<br \/>/", "", $item["host"]) ?></h3>
+				<h3><?= strip_tags($item["host"]) ?></h3>
 
 				<?= $JML->listActions($item, array("modify" => array(
 					"status" => false,

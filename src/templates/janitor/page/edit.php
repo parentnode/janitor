@@ -9,7 +9,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit Page</h1>
-	<h2><?= $item["name"] ?></h2>
+	<h2><?= strip_tags($item["name"]) ?></h2>
 
 	<?= $JML->editGlobalActions($item) ?>
 

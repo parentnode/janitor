@@ -11,7 +11,7 @@ $return_to_wishlist = session()->value("return_to_wishlist");
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit wish</h1>
-	<h2><?= $item["name"] ?></h2>
+	<h2><?= strip_tags($item["name"]) ?></h2>
 
 	<?
 	// return to specific wishlist

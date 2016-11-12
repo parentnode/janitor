@@ -13,7 +13,7 @@ $todo_state_view = session()->value("todo_state_view");
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit task</h1>
-	<h2><?= $item["name"] ?></h2>
+	<h2><?= strip_tags($item["name"]) ?></h2>
 
 	<?
 	// different back links depending on context

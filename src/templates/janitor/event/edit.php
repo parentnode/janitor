@@ -12,7 +12,7 @@ $host_options = $model->toOptions($model->getHosts(), "id", "host");
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit event</h1>
-	<h2><?= $item["name"] ?></h2>
+	<h2><?= strip_tags($item["name"]) ?></h2>
 
 	<?= $JML->editGlobalActions($item) ?>
 

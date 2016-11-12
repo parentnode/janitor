@@ -10,7 +10,7 @@ if($page_item) {
 
 
 $email = session()->value("signup_email");
-
+session()->reset("signup_email");
 ?>
 <div class="scene signup i:scene">
 <? if($page_item && $page_item["status"]): 

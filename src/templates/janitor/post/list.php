@@ -20,7 +20,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "status DESC, p
 		<ul class="items">
 <?			foreach($items as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?><?= $JML->jsMedia($item) ?>">
-				<h3><?= preg_replace("/<br>|<br \/>/", "", $item["name"]) ?></h3>
+				<h3><?= strip_tags($item["name"]) ?></h3>
 
 				<?= $JML->tagList($item["tags"]) ?>
 

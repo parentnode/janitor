@@ -25,7 +25,7 @@ $past_items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.
 <?			if($items): ?>
 <?			foreach($items as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
-				<h3><?= preg_replace("/<br>|<br \/>/", "", $item["name"]) ?></h3>
+				<h3><?= strip_tags($item["name"]) ?></h3>
 				<dl class="info">
 					<dt>Starting</dt>
 					<dd class="starting_at"><?= date("Y-m-d @ H:i", strtotime($item["starting_at"])) ?></dd>
@@ -41,7 +41,7 @@ $past_items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.
 <?			if($past_items): ?>
 <?			foreach($past_items as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?> past">
-				<h3><?= preg_replace("/<br>|<br \/>/", "", $item["name"]) ?></h3>
+				<h3><?= strip_tags($item["name"]) ?></h3>
 				<dl class="info">
 					<dt>Ended</dt>
 					<dd class="starting_at"><?= date("Y-m-d @ H:i", strtotime($item["starting_at"])) ?></dd>

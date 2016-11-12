@@ -21,7 +21,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC, 
 
 <?			foreach($items as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
-				<h3><?= preg_replace("/<br>|<br \/>/", "", $item["name"]) ?></h3>
+				<h3><?= strip_tags($item["name"]) ?></h3>
 
 				<?= $JML->listActions($item) ?>
 			 </li>
