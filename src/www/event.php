@@ -1,5 +1,7 @@
 <?php
 $access_item["/"] = true;
+$access_item["/comments"] = true;
+$access_item["/addComment"] = "/comments";
 if(isset($read_access) && $read_access) {
 	return;
 }
