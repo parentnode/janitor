@@ -18,6 +18,7 @@
 
 /* DELETE BUTTON */
 #content .scene > ul.actions li.delete {float: right; padding: 0 0 10px 10px;}
+#content .scene > ul.actions li.duplicate {float: right; padding: 0 0 10px 10px;}
 
 
 #content .scene h1 + p,

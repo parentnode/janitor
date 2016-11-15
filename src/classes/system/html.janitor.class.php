@@ -330,6 +330,12 @@ class JanitorHTML {
 				"url" => $this->path."/list",
 				"options" => array("class" => "button", "wrapper" => "li.cancel")
 			),
+			"duplicate" => array(
+				"label" => "Duplicate",
+				"wrapper" => "li.duplicate",
+				"url" => $this->path."/duplicate/".$item["id"],
+				"success-function" => "duplicated"
+			),
 			"delete" => array(
 				"label" => "Delete",
 				"wrapper" => "li.delete",
@@ -382,12 +388,21 @@ class JanitorHTML {
 		if($standard["list"]) {
 			$_ .= $model->link($standard["list"]["label"], $standard["list"]["url"], $standard["list"]["options"]);
 		}
+
 		if($standard["delete"]) {
 			$_ .= $this->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
 				"wrapper" => $standard["delete"]["wrapper"],
 				"success-location" => $standard["delete"]["success-location"]
 			));
 		}
+
+		if($standard["duplicate"]) {
+			$_ .= $this->oneButtonForm($standard["duplicate"]["label"], $standard["duplicate"]["url"], array(
+				"wrapper" => $standard["duplicate"]["wrapper"],
+				"success-function" => $standard["duplicate"]["success-function"]
+			));
+		}
+
 		$_ .= '</ul>';
 
 		// STATUS

@@ -160,6 +160,7 @@ class ItemtypeCore extends Model {
 	// SAVE
 
 	# /janitor/[admin/]#itemtype#/save
+	# /#controller#/save
 	function save($action) {
 		global $page;
 
@@ -402,6 +403,60 @@ class ItemtypeCore extends Model {
 	}
 
 
+	// Duplicate item
+	# /#controller#/duplicate/#item_id#
+	function duplicate($action) {
+
+		$IC = new Items();
+
+
+		if(count($action) == 2) {
+			$item_id = $action[1];
+
+			$item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true)));
+
+			if($item) {
+				$query = new Query();
+
+				unset($_POST);
+				foreach($item as $property => $value) {
+					if(is_string($value) && !preg_match("/^(id|status|sindex|itemtype|user_id|item_id|published_at|created_at|modified_at|tags|mediae)$/", $property)) {
+						$_POST[$property] = $value;
+					}
+				}
+				$_POST["name"] = $_POST["name"]." (cloned)";
+
+
+				// create root item
+				$cloned_item = $this->save(["save"]);
+				unset($_POST);
+
+				if($cloned_item) {
+
+					// add tags
+					if($item["tags"]) {
+						foreach($item["tags"] as $tag) {
+
+							unset($_POST);
+							$_POST["tags"] = $tag["id"];
+							$this->addTag(array("addTags", $cloned_item["id"]));
+							unset($_POST);
+
+						}
+					}
+
+					message()->addMessage("Item duplicated");
+
+					// get and return new device (id will be used to redirect to new device page)
+					$item = $IC->getItem(array("id" => $cloned_item["id"]));
+					return $item;
+
+				}
+
+			}
+
+		}
+	}
 
 
 	// Update item order
