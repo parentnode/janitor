@@ -18,10 +18,14 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status D
 		<ul class="items">
 <?			foreach($items as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
-				<h3><?= $item["name"] ?></h3>
-<?				if(!$item["answer"]): ?>
-				<p><?= "Not answered yet" ?></p>
-<?				endif; ?>
+				<h3><?= strip_tags($item["name"]) ?> <?= (!$item["answer"] ? "<span>(Not answered)</span>" : "") ?></h3>
+				<? if($item["about_item_id"]):
+	 				$related_item = $IC->getItem(array("id" => $item["about_item_id"], "extend" => true)); ?>
+				<dl class="info">
+					<dt>Asked about</dt>
+					<dd><?= $related_item["name"] ?></dd>
+				</dl>
+				<? endif; ?>
 
 				<?= $JML->tagList($item["tags"]) ?>
 

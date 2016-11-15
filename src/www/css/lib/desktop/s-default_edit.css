@@ -179,12 +179,13 @@
 
 
 /* TODOS */
+/*
 #content .scene.defaultEdit > div.todos {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.todos ul.todos {list-style: disc; list-style-position: outside; margin-left: 15px; padding: 0 0 20px 30px;}
 #content .scene.defaultEdit > div.todos ul.todos > li {display: list-item;}
 #content .scene.defaultEdit > div.todos ul.todos > li {color: #313942 !important; padding-bottom: 7px;}
 #content .scene.defaultEdit > div.todos ul.todos > li a {color: #313942 !important;}
-
+*/
 
 #content .scene.defaultEdit > div.qnas {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.qnas ul.qnas {}

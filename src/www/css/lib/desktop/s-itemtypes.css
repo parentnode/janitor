@@ -25,11 +25,6 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 
 
 
-/* QnA list */
-#content .qnaList ul.items > li p {padding-bottom: 0px; padding-right: 220px;}
-
-
-
 /* WISHLIST */
 
 #content .scene.wishList div.item {padding: 0 0 20px; border-bottom: 1px solid #aaaaaa;}

@@ -21,6 +21,23 @@ class TypeQna extends Itemtype {
 		// Name
 		$this->addToModel("name", array(
 			"type" => "string",
+			"label" => "Question snippet",
+			"required" => true,
+			"hint_message" => "Question snippet (less then 100 chars)",
+			"error_message" => "Question snippet must be filled out."
+		));
+
+		// related to item
+		$this->addToModel("about_item_id", array(
+			"type" => "item_id",
+			"label" => "Select item to ask question about",
+			"hint_message" => "Please select an item",
+			"error_message" => "Please select an item"
+		));
+
+		// Question
+		$this->addToModel("question", array(
+			"type" => "text",
 			"label" => "Question",
 			"required" => true,
 			"hint_message" => "Be precise, brief and make it easy to understand.",
@@ -41,6 +58,16 @@ class TypeQna extends Itemtype {
 	// CMS SECTION
 	// custom loopback function
 
+	// update name based on question
+	function postSave($item_id) {
+
+		$IC = new Items();
+		$item = $IC->getItem(["id" => $item_id, "extend" => true]);
+
+		$_POST["name"] = cutString($item["question"], 45);
+		$this->update(["update", $item_id]);
+
+	}
 
 }
 
