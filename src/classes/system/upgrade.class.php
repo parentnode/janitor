@@ -52,7 +52,6 @@ class Upgrade {
 		try {
 
 
-
 			// TODO: start think specific
 			// change emails for all users (during test)
 			// if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames")) {
@@ -65,6 +64,172 @@ class Upgrade {
 			// }
 			// TODO: end think specific
 
+
+			// TODO: start stopknappen specific
+			$topic_table = $this->tableInfo(SITE_DB.".item_topic");
+			// if table exists and still has "problem"-column
+			if($topic_table && isset($topic_table["columns"]["problem"])) {
+
+//				print_r($topic_table);
+
+				if($query->sql("SELECT * FROM ".SITE_DB.".item_topic")) {
+					$topics = $query->results();
+
+					foreach($topics as $topic) {
+
+						// combine all text columns in "problem"-column
+						$problem_headline = '<h2 class="problem">'.$topic["problem_headline"].'</h2>';
+						$problem_text = $topic["problem"];
+						$solution_text = '<h2 class="solution">Løsningen</h2>'."\n".$topic["solution"];
+						$details = '<h3 class="details">Detaljer</h3>'."\n".$topic["details"];
+
+						$html = $problem_headline."\n".$problem_text."\n".$solution_text."\n".$details;
+
+						// update problem field with new text
+						$sql = "UPDATE ".SITE_DB.".item_topic SET problem = '".prepareForDB($html)."' WHERE id = ".$topic["id"];
+						$query->sql($sql);
+
+					}
+
+					// remove excess columns
+					$this->process($this->dropColumn(SITE_DB.".item_topic", "problem_headline"), true);
+					$this->process($this->dropColumn(SITE_DB.".item_topic", "solution"), true);
+					$this->process($this->dropColumn(SITE_DB.".item_topic", "details"), true);
+
+					// rename "problem" column to "html"
+					$this->process($this->renameColumn(SITE_DB.".item_topic", "problem", "html"), true);
+				}
+
+				$topic_table_versions = $this->tableInfo(SITE_DB.".item_topic_versions");
+				if($topic_table_versions && isset($topic_table_versions["columns"]["problem"])) {
+
+					if($query->sql("SELECT * FROM ".SITE_DB.".item_topic_versions")) {
+						$topics = $query->results();
+
+						foreach($topics as $topic) {
+
+							// combine all text columns in "problem"-column
+							$problem_headline = '<h2 class="problem">'.$topic["problem_headline"].'</h2>';
+							$problem_text = $topic["problem"];
+							$solution_text = '<h2 class="solution">Løsningen</h2>'."\n".$topic["solution"];
+							$details = '<h3 class="details">Detaljer</h3>'."\n".$topic["details"];
+
+							$html = $problem_headline."\n".$problem_text."\n".$solution_text."\n".$details;
+
+							// update problem field with new text
+							$sql = "UPDATE ".SITE_DB.".item_topic_versions SET problem = '".prepareForDB($html)."' WHERE id = ".$topic["id"];
+							$query->sql($sql);
+
+						}
+
+						// remove excess columns
+						$this->process($this->dropColumn(SITE_DB.".item_topic_versions", "problem_headline"), true);
+						$this->process($this->dropColumn(SITE_DB.".item_topic_versions", "solution"), true);
+						$this->process($this->dropColumn(SITE_DB.".item_topic_versions", "details"), true);
+
+						// rename "problem" column to "html"
+						$this->process($this->renameColumn(SITE_DB.".item_topic_versions", "problem", "html"), true);
+					}
+
+				}
+			}
+			$qna_table = $this->tableInfo(SITE_DB.".item_qna");
+			if($qna_table && !isset($qna_table["columns"]["question"])) {
+
+
+				// add about item id column
+				$this->process($this->addColumn(SITE_DB.".item_qna", "about_item_id", "int(11) DEFAULT NULL", "name"), true);
+				$this->process($this->addKey(SITE_DB.".item_qna", "about_item_id"), true);
+				$this->process($this->addConstraint(SITE_DB.".item_qna.about_item_id", SITE_DB.".items.id", "ON DELETE CASCADE ON UPDATE CASCADE"), true);
+
+				$this->process($this->addColumn(SITE_DB.".item_qna", "question", "text NOT NULL", "about_item_id"), true);
+				$this->process($this->modifyColumn(SITE_DB.".item_qna", "answer", "text NULL"), true);
+
+				if($query->sql("SELECT * FROM ".SITE_DB.".item_qna")) {
+					$qnas = $query->results();
+
+					foreach($qnas as $qna) {
+
+						$about_item_id = false;
+						// try to find related item based on tag
+						$tags = $IC->getTags(array("item_id" => $qna["item_id"], "tag_context" => "qna"));
+						if($tags) {
+							$related_items = $IC->getItems(array("itemtype" => "topic", "tags" => "qna:".$tags[0]["value"], "limit" => 1));
+							if($related_items) {
+								$about_item_id = $related_items[0]["id"];
+							}
+						}
+
+						// adjust values
+						$question = $qna["name"];
+						$name = cutString($question, 45);
+
+						// update name, about_item_id and question field with new values
+						$sql = "UPDATE ".SITE_DB.".item_qna SET ".($about_item_id ? "about_item_id = $about_item_id, " : "").(!$qna["answer"] ? "answer = NULL, " : "")."name = '".prepareForDB($name)."', question = '".prepareForDB($question)."' WHERE id = ".$qna["id"];
+						$query->sql($sql);
+
+					}
+
+					$this->process($this->modifyColumn(SITE_DB.".item_qna", "name", "varchar(50) NOT NULL"), true);
+					$this->process($this->modifyColumn(SITE_DB.".item_qna", "answer", "text DEFAULT NULL"), true);
+
+
+				}
+
+				$qna_table_versions = $this->tableInfo(SITE_DB.".item_qna_versions");
+				if($qna_table_versions && !isset($qna_table["columns"]["question"])) {
+
+					// add about item id column
+					$this->process($this->addColumn(SITE_DB.".item_qna_versions", "about_item_id", "int(11) DEFAULT NULL", "name"), true);
+					$this->process($this->addKey(SITE_DB.".item_qna_versions", "about_item_id"), true);
+					$this->process($this->addConstraint(SITE_DB.".item_qna_versions.about_item_id", SITE_DB.".items.id", "ON DELETE CASCADE ON UPDATE CASCADE"), true);
+
+					$this->process($this->addColumn(SITE_DB.".item_qna_versions", "question", "text NOT NULL", "name"), true);
+
+					if($query->sql("SELECT * FROM ".SITE_DB.".item_qna_versions")) {
+						$qnas = $query->results();
+
+						foreach($qnas as $qna) {
+
+							$about_item_id = false;
+							// try to find related item based on tag
+							$tags = $IC->getTags(array("item_id" => $qna["item_id"], "context" => "qna"));
+							if($tags) {
+								$related_items = $IC->getItems(array("itemtype" => "topic", "tags" => "qna:".$tags[0]["value"], "limit" => 1));
+								if($related_items) {
+									$about_item_id = $related_items[0]["id"];
+								}
+							}
+
+							// adjust values
+							$question = $qna["name"];
+							$name = cutString($question, 45);
+
+							// update name, about_item_id and question field with new values
+							$sql = "UPDATE ".SITE_DB.".item_qna_versions SET ".($about_item_id ? "about_item_id = $about_item_id, " : "").(!$qna["answer"] ? "answer = NULL, " : "")."name = '".prepareForDB($name)."', question = '".prepareForDB($question)."' WHERE id = ".$qna["id"];
+							$query->sql($sql);
+
+						}
+					}
+
+					$this->process($this->modifyColumn(SITE_DB.".item_qna_versions", "name", "varchar(50) NOT NULL"), true);
+					$this->process($this->modifyColumn(SITE_DB.".item_qna_versions", "answer", "text DEFAULT NULL"), true);
+
+				}
+
+				$tags = $IC->getTags(array("context" => "qna"));
+				if($tags) {
+
+					// delete all qna tags
+					foreach($tags as $tag) {
+						// delete QNA tag
+						$TC = new Tag();
+						$TC->deleteTag(["deleteTag", $tag["id"]]);
+					}
+				}
+			}
+			
+			// TODO: end stopknappen specific
 
 
 
@@ -443,6 +608,7 @@ class Upgrade {
 			}
 
 
+			// TODO: set filemode and file permissions as well (just to be sure)
 
 
 			// Upgrade complete
@@ -940,8 +1106,6 @@ class Upgrade {
 
 		// TABLE INFO AVAILABLE
 		if($table_info) {
-
-			print_r($table_info);
 
 			// Column exists
 			if(isset($table_info["columns"]) && isset($table_info["columns"][$column])) {
