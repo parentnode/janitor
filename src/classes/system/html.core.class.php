@@ -120,6 +120,7 @@ class HTMLCore {
 		// input state
 		$readonly = $this->getProperty($name, "readonly");
 		$disabled = $this->getProperty($name, "disabled");
+		$autocomplete = $this->getProperty($name, "autocomplete");
 
 		// frontend stuff
 		$class = $this->getProperty($name, "class");
@@ -148,6 +149,7 @@ class HTMLCore {
 
 					case "readonly"        : $readonly         = $_value; break;
 					case "disabled"        : $disabled         = $_value; break;
+					case "autocomplete"    : $autocomplete     = $_value; break;
 
 					case "class"           : $class            = $_value; break;
 					case "id"              : $id               = $_value; break;
@@ -176,6 +178,7 @@ class HTMLCore {
 		// restrictions
 		$att_disabled = $disabled ? $this->attribute("disabled", "disabled") : '';
 		$att_readonly = $readonly ? $this->attribute("readonly", "readonly") : '';
+		$att_autocomplete = ($autocomplete || $autocomplete == "on") ? $this->attribute("autocomplete", "on") : $this->attribute("autocomplete", "off");
 
 		// combine classname for field
 		$att_class = $this->attribute("class", "field", $type, $class, ($required ? "required" : ""), ($disabled ? "disabled" : ""), ($readonly ? "readonly" : ""), ($min ? "min:".$min : ""), ($max ? "max:".$max : ""));
@@ -243,7 +246,7 @@ class HTMLCore {
 					$att_max = $this->attribute("max", $max);
 					$att_min = $this->attribute("min", $min);
 
-					$_ .= '<input type="date"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="date"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// DATETIME
@@ -252,7 +255,7 @@ class HTMLCore {
 					$att_max = $this->attribute("max", $max);
 					$att_min = $this->attribute("min", $min);
 
-					$_ .= '<input type="datetime"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="datetime"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// EMAIL
@@ -261,7 +264,7 @@ class HTMLCore {
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
 
-					$_ .= '<input type="email"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="email"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// TEL
@@ -270,7 +273,7 @@ class HTMLCore {
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
 
-					$_ .= '<input type="tel"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="tel"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// PASSWORD
@@ -279,7 +282,7 @@ class HTMLCore {
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
 
-					$_ .= '<input type="password"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="password"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// STRING
@@ -288,7 +291,7 @@ class HTMLCore {
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
 
-					$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// NUMBER OR INTEGER
@@ -297,7 +300,7 @@ class HTMLCore {
 					$att_max = $this->attribute("max", $max);
 					$att_min = $this->attribute("min", $min);
 
-					$_ .= '<input type="number"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="number"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// FILES
@@ -315,7 +318,7 @@ class HTMLCore {
 					$att_max = $this->attribute("maxlength", $max);
 					$att_min = $this->attribute("minlength", $min);
 
-					$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.$att_min.'>'.$value.'</textarea>';
+					$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.'>'.$value.'</textarea>';
 				}
 
 				// SELECT
