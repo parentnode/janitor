@@ -23,59 +23,119 @@ class JanitorStripe {
 		);
 
 		\Stripe\Stripe::setApiKey($this->stripe['secret_key']);
-
+	
 	}
 
 
-	// Process payment token
-	function processTokenAndCapture($order) {
+	// Process payment
+	function processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
 
-		$token = getPost("token");
-
-		if($token && $order && $order["user"] && $order["user"]["email"]) {
+		if($order && $order["user"] && $order["user"]["email"]) {
 
 			// does customer already exist in Stripe account
 			$customer_id = $this->getCustomerId($order["user_id"]);
 
-			// Add new card to customer on stripe account
-			if($customer_id) {
-
-				if(!$this->addCard($customer_id, $token)) {
-
-					return false;
-
-				}
-
+			// create customer, if it doesn't exist
+			if(!$customer_id) {
+				$customer_id = $this->createCustomer($order);
 			}
-			// Customer does not already exist in Stripe account
-			else {
-
-				$customer_id = $this->createCustomer($order, $token);
-
-			}
-
 
 			// customer created or updated
 			if($customer_id) {
 
+				// create token for card
+				$token_id = $this->createToken($card_number, $card_exp_month, $card_exp_year, $card_cvc);
+				if($token_id) {
 
-				if($this->chargeCustomer($order, $customer_id)) {
+					// Add card to customer
+					$response = $this->addCard($customer_id, $token_id);
+					if($response) {
 
-					return true;
-
+						// Charge customer
+						if($this->chargeCustomer($order, $customer_id)) {
+							return true;
+						}
+					}
 				}
+			}
+		}
+
+		return false;
+	}
+
+	// Create customer in Stripe account
+	function createToken($card_number, $card_exp_month, $card_exp_year, $card_cvc) {
+
+		global $page;
+
+		try {
+
+			$token = \Stripe\Token::create(array(
+			  "card" => array(
+			    "number" => $card_number,
+			    "exp_month" => $card_exp_month,
+			    "exp_year" => $card_exp_year,
+			    "cvc" => $card_cvc
+			  )
+			));
+
+			if($token) {
+
+				$page->addLog("Token created: brand:".$token->Brand.", last4:".$token->last4, "stripe");
+				return $token->id;
 
 			}
 
+		}
+		// Card error
+		catch(\Stripe\Error\Card $exception) {
+
+			$this->exceptionHandler("Creating token", $exception);
+			return false;
+		}
+		// Too many requests made to the API too quickly
+		catch (\Stripe\Error\RateLimit $exception) {
+
+			$this->exceptionHandler("Creating token", $exception);
+			return false;
+		} 
+		// Invalid parameters were supplied to Stripe's API
+		catch (\Stripe\Error\InvalidRequest $exception) {
+
+			$this->exceptionHandler("Creating token", $exception);
+			return false;
+		}
+		// Authentication with Stripe's API failed
+		catch (\Stripe\Error\Authentication $exception) {
+
+			$this->exceptionHandler("Creating token", $exception);
+			return false;
+		}
+		// Network communication with Stripe failed
+		catch (\Stripe\Error\ApiConnection $exception) {
+
+			$this->exceptionHandler("Creating token", $exception);
+			return false;
+		}
+		// Display a very generic error to the user, and maybe send yourself an email
+		catch (\Stripe\Error\Base $exception) {
+
+			$this->exceptionHandler("Creating token", $exception);
+			return false;
+		}
+		// Something else happened, completely unrelated to Stripe
+		catch (Exception $exception) {
+
+			$this->exceptionHandler("Creating token", $exception);
+			return false;
 		}
 
 		return false;
 	}
 
 
-
 	// Create customer in Stripe account
-	function createCustomer($order, $token) {
+	function createCustomer($order, $token_id = false) {
 
 		global $page;
 
@@ -88,18 +148,23 @@ class JanitorStripe {
 		// API communication
 		try {
 
-			$customer = \Stripe\Customer::create(array(
+			$create_parameters = array(
 				'email'       => $order["user"]["email"],
 				'description' => $description,
-				'source'      => $token
-			));
+			);
 
-			$page->addLog("Customer created: user_id:".$order["user"]["id"].", email:".$customer->email.", customer_id:".$customer->id, "stripe");
+			if($token_id) {
+				$create_parameters['source'] = $token_id;
+			}
+
+			$customer = \Stripe\Customer::create($create_parameters);
 
 			if($customer) {
 
 				$customer_id = $customer->id;
 				$this->saveCustomerId($order["user_id"], $customer_id);
+
+				$page->addLog("Customer created: user_id:".$order["user"]["id"].", email:".$customer->email.", customer_id:".$customer->id, "stripe");
 
 				return $customer_id;
 			}
@@ -154,14 +219,14 @@ class JanitorStripe {
 
 
 	// Add new card to existing customer in Stripe account
-	function addCard($customer_id, $token) {
+	function addCard($customer_id, $token_id) {
 
 		global $page;
 
 		try {
 
 			$customer = \Stripe\Customer::retrieve($customer_id);
-			$customer->source = $token;
+			$customer->source = $token_id;
 			$response = $customer->save();
 
 			if($response && $response->email && $response->id) {

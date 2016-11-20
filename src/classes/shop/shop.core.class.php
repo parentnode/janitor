@@ -279,6 +279,47 @@ class ShopCore extends Model {
 		));
 
 
+		// cardnumber
+		$this->addToModel("card_number", array(
+			"type" => "string",
+			"label" => "Card number",
+			"class" => "card",
+			"required" => true,
+			"hint_message" => "State your payment card number",
+			"error_message" => "Invalid card number"
+		));
+
+		// cardnumber
+		$this->addToModel("card_exp_month", array(
+			"type" => "string",
+			"label" => "MM",
+			"class" => "exp_month",
+			"required" => true,
+			"hint_message" => "Expiration month for payment card",
+			"error_message" => "Invalid month"
+		));
+
+		// cardnumber
+		$this->addToModel("card_exp_year", array(
+			"type" => "string",
+			"label" => "YY",
+			"class" => "exp_year",
+			"required" => true,
+			"hint_message" => "Expiration year for payment card",
+			"error_message" => "Invalid year"
+		));
+
+		// cardnumber
+		$this->addToModel("card_cvc", array(
+			"type" => "string",
+			"label" => "CVC",
+			"class" => "cvc",
+			"required" => true,
+			"hint_message" => "CVC for payment card",
+			"error_message" => "Invalid CVC"
+		));
+
+
 		parent::__construct();
 	}
 
@@ -1309,7 +1350,11 @@ class ShopCore extends Model {
 
 			if($order && $payment_method) {
 
-				// get subscriptions related to this order
+				// add order no to return object - because receipt requires and order_no to display correctly
+				$payment_method["order_no"] = $order["order_no"];
+
+
+				// get subscriptions related to this order and update their payment method for future reference
 				$sql = "SELECT * FROM ".$UC->db_subscriptions." WHERE order_id = ".$order["id"];
 //				print $sql;
 				if($query->sql($sql)) {
@@ -1329,11 +1374,9 @@ class ShopCore extends Model {
 
 					}
 
-					// add order no to return object - because receipt requires and order_no to display correctly
-					$payment_method["order_no"] = $order["order_no"];
-
-					return $payment_method;
 				}
+
+				return $payment_method;
 
 			}
 
@@ -1343,31 +1386,50 @@ class ShopCore extends Model {
 	}
 
 
-	function processPayment($action) {
+	// Process gateway data
+	function processOrderPayment($action) {
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
 
-		$order_no = $action[1];
-		$gateway = $action[2];
+		// does values validate
+		if(count($action) == 4 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
 
-		if($order_no) {
-			$order = $this->getOrders(array("order_no" => $order_no));
+			$order_no = $action[1];
+			$gateway = $action[2];
 
-			if($order && $order["payment_status"] !== 2) {
+			$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
+			$card_exp_month = $this->getProperty("card_exp_month", "value");
+			$card_exp_year = $this->getProperty("card_exp_year", "value");
+			$card_cvc = $this->getProperty("card_cvc", "value");
 
-				$UC = new User();
-				$order["user"] = $UC->getUser();
-				$order["total_price"] = $this->getTotalOrderPrice($order["id"]);
 
-				if($gateway == "stripe") {
+			if($order_no) {
+				$order = $this->getOrders(array("order_no" => $order_no));
 
-					include_once("classes/shop/gateways/janitor_stripe.class.php");
-					$GC = new JanitorStripe();
+				if($order && $order["payment_status"] !== 2) {
 
-					return $GC->processTokenAndCapture($order);
+					$UC = new User();
+					$order["user"] = $UC->getUser();
+					$order["total_price"] = $this->getTotalOrderPrice($order["id"]);
+
+					if($gateway == "stripe") {
+
+						$page->addLog("Shop->processOrderPayment: order_id:".$order["id"].", gateway: $gateway");
+
+						include_once("classes/shop/gateways/janitor_stripe.class.php");
+						$GC = new JanitorStripe();
+
+						return $GC->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+					}
+
+
+					// More gateways can be added here
 
 				}
-
-				// More gateways can be added here
 
 			}
 
