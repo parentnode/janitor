@@ -251,7 +251,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* HELP - ERRORS */
-#content .field div.error {border: 1px solid #bbbbbb; color: #a27366; background: #f8c9bb; margin-top: -3px;}
+#content .field div.error {border: 1px solid #bbbbbb; color: #a27366; background: #f8c9bb;}
 #content .field.error div.error {display: block;}
 
 /* HELP - HINTS */
@@ -259,6 +259,10 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.focus div.hint,
 #content .field.hover div.hint {display: block;}
 
+/* SPECIAL BORDER CASES */
+#content div.field.error div.hint {border-bottom-left-radius: 0; border-bottom-right-radius: 0;}
+#content div.field.focus div.hint+div.error,
+#content div.field.hover div.hint+div.error {border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;}
 
 
 
