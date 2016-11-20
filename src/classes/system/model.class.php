@@ -58,6 +58,7 @@ class Model extends HTML {
 		$this->addToModel("tags", array(
 			"type" => "tag",
 			"label" => "Add tag or type to filter existing tags",
+			"autocomplete" => true,
 			"hint_message" => "Select existing tag or add a new tag.",
 			"error_message" => "Tag must conform to tag format: context:value."
 		));
@@ -218,6 +219,7 @@ class Model extends HTML {
 					case "class"                 : $this->setProperty($name, "class",                $_value); break;
 
 					case "required"              : $this->setProperty($name, "required",             $_value); break;
+					case "autocomplete"          : $this->setProperty($name, "autocomplete",         $_value); break;
 					case "unique"                : $this->setProperty($name, "unique",               $_value); break;
 					case "pattern"               : $this->setProperty($name, "pattern",              $_value); break;
 

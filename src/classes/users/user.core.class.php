@@ -132,6 +132,7 @@ class UserCore extends Model {
 		$this->addToModel("username", array(
 			"type" => "string",
 			"label" => "Email or mobile",
+			"autocomplete" => true,
 			"pattern" => "[\w\.\-\_]+@[\w-\.]+\.\w{2,4}|([\+0-9\-\.\s\(\)]){5,18}", 
 			"hint_message" => "Use your emailaddress or mobilenumber to log in.", 
 			"error_message" => "The entered value is neither an email or a mobilenumber."
