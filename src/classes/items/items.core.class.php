@@ -437,7 +437,7 @@ class ItemsCore {
 			// filter readstates
 			if(isset($no_readstate) && $no_readstate) {
 				$user_id = session()->value("user_id");
-				$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_ITEMS_READSTATE." WHERE user_id = $user_id)";
+				$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".SITE_DB.".user_item_readstates WHERE user_id = $user_id)";
 			}
 
 			// tag query
