@@ -68,8 +68,8 @@ Util.Objects["password"] = new function() {
 		u.ce(a_create);
 		u.ce(a_change);
 		a_create.clicked = a_change.clicked = function() {
-			u.as(this._password_state, "display", "none");
 			u.as(this._new_password, "display", "block");
+			u.as(this._password_state, "display", "none");
 		}
 
 		var form = u.qs("form", div);
@@ -94,7 +94,8 @@ Util.Objects["password"] = new function() {
 				page.notify(response);
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-			this.fields["password"].val("");
+
+			this.reset();
 
 		}
 
