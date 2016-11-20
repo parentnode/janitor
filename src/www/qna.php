@@ -1,4 +1,5 @@
 <?php
+//$access_item = false;
 $access_item["/"] = true;
 $access_item["/edit"] = true;
 $access_item["/update"] = "/edit";
