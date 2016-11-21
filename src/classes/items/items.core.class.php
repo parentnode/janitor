@@ -384,6 +384,7 @@ class ItemsCore {
 					case "tags"          : $tags          = $_value; break;
 					case "autofill"      : $autofill      = $_value; break;
 					case "no_readstate"  : $no_readstate  = $_value; break;
+					case "where"         : $where         = $_value; break;
 					case "limit"         : $limit         = $_value; break;
 
 					case "exclude"       : $exclude       = $_value; break;
@@ -422,7 +423,17 @@ class ItemsCore {
 
 		 	$FROM[] = UT_ITEMS." as items";
 
+			if(isset($where)) {
+				if(is_array($where)) {
+					$WHERE = $where;
+				}
+				else {
+					$WHERE[] = $where;
+				}
+			}
+
 			$WHERE[] = "items.status = 1";
+
 
 			// add exclude exceptions
 			foreach($exclude_array as $exclude_id) {
@@ -489,6 +500,9 @@ class ItemsCore {
 			}
 			if(isset($no_readstate) && $no_readstate) {
 				$pattern["no_readstate"] = $no_readstate;
+			}
+			if(isset($where) && $where) {
+				$pattern["where"] = $where;
 			}
 			if($exclude_array) {
 				$pattern["exclude"] = implode(";", $exclude_array);
