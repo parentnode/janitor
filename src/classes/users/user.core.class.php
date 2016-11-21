@@ -542,7 +542,7 @@ class UserCore extends Model {
 			}
 		}
 
-		$page->addLog("user->newUser failed: " . $sql);
+		$page->addLog("user->newUser failed: (missing info)");
 		return false;
 	}
 

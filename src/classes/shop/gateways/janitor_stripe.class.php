@@ -81,7 +81,7 @@ class JanitorStripe {
 
 			if($token) {
 
-				$page->addLog("Token created: brand:".$token->card->Brand.", last4:".$token->card->last4, "stripe");
+				$page->addLog("Token created: brand:".$token->card->brand.", last4:".$token->card->last4, "stripe");
 				return $token->id;
 
 			}
