@@ -10,7 +10,7 @@
 *
 * @package Config
 */
-define("SITE_DB", "### db name ###");
+define("SITE_DB", "");
 
 $page->db_connection(
 	array(
