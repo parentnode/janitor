@@ -671,6 +671,63 @@ function formatPrice($price, $_options=false) {
 
 }
 
+// Identify ffmpeg path (differs in different systems/installs)
+function ffmpegPath() {
+
+	$ffmpeg_path = cache()->value("ffmpeg_path");
+
+	if(!$ffmpeg_path) {
+
+		if(!preg_match("/(No such file or directory|command not found)/i", exec("ffmpeg 2>&1"))) {
+			$ffmpeg_path = "ffmpeg";
+		}
+		else if(!preg_match("/(No such file or directory|command not found)/i", exec("/opt/local/bin/ffmpeg 2>&1"))) {
+			$ffmpeg_path = "/opt/local/bin/ffmpeg";
+		}
+		else if(!preg_match("/(No such file or directory|command not found)/i", exec("/usr/local/bin/ffmpeg 2>&1"))) {
+			$ffmpeg_path = "/usr/local/bin/ffmpeg";
+		}
+		else if(!preg_match("/(No such file or directory|command not found)/i", exec("/usr/bin/ffmpeg 2>&1"))) {
+			$ffmpeg_path = "/usr/bin/ffmpeg";
+		}
+
+		cache()->value("ffmpeg_path", $ffmpeg_path);
+	}
+
+	return $ffmpeg_path;
+}
+
+// Identify wkhtmlto path (differs in different systems/installs)
+function wkhtmltoPath() {
+
+	$wkhtmlto_path = cache()->value("wkhtmlto_path");
+
+	if(!$wkhtmlto_path) {
+
+		if(!preg_match("/(No such file or directory|command not found)/i", exec("wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "wkhtmltopdf";
+		}
+		else if(!preg_match("/(No such file or directory|command not found)/i", exec("/opt/local/bin/wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "/opt/local/bin/wkhtmltopdf";
+		}
+		else if(!preg_match("/(No such file or directory|command not found)/i", exec("/usr/local/bin/static_wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "/usr/local/bin/static_wkhtmltopdf";
+		}
+		else if(!preg_match("/(No such file or directory|command not found)/i", exec("/usr/local/bin/wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "/usr/local/bin/wkhtmltopdf";
+		}
+		else if(!preg_match("/(No such file or directory|command not found)/i", exec("/usr/bin/static_wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "/usr/bin/static_wkhtmltopdf";
+		}
+		else if(!preg_match("/(No such file or directory|command not found)/i", exec("/usr/bin/wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "/usr/bin/wkhtmltopdf";
+		}
+
+		cache()->value("wkhtmlto_path", $wkhtmlto_path);
+
+	}
+	return $wkhtmlto_path;
+}
 
 
 /**

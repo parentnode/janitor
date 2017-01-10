@@ -39,7 +39,7 @@ class Video {
 			}
 		}
 
-		$ffmpeg_path = $this->ffmpegPath();
+		$ffmpeg_path = ffmpegPath();
 
 		$info = $this->info($input_file);
 		if(is_array($info)) {
@@ -408,7 +408,7 @@ class Video {
 	function info($file) {
 		$video_info = false;
 
-		$ffmpeg_path = $this->ffmpegPath();
+		$ffmpeg_path = ffmpegPath();
 
 		if($ffmpeg_path) {
 
@@ -495,23 +495,6 @@ class Video {
 		}
 
 		return $video_info;
-	}
-
-
-	function ffmpegPath() {
-		$ffmpeg_path = false;
-
-		if(!preg_match("/command not found/i", exec("ffmpeg 2>&1"))) {
-			$ffmpeg_path = "ffmpeg";
-		}
-		else if(!preg_match("/command not found/i", exec("/opt/local/bin/ffmpeg 2>&1"))) {
-			$ffmpeg_path = "/opt/local/bin/ffmpeg";
-		}
-		else if(!preg_match("/command not found/i", exec("/usr/local/bin/ffmpeg 2>&1"))) {
-			$ffmpeg_path = "/usr/local/bin/ffmpeg";
-		}
-
-		return $ffmpeg_path;
 	}
 
 }
