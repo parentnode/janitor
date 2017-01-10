@@ -13,12 +13,25 @@ Util.Objects["cacheList"] = new function() {
 		for(i = 0; entry = entries[i]; i++) {
 
 			var actions = u.ae(entry, "ul", {"class":"actions"});
-			var action = u.f.addAction(actions, {"type":"button", "class":"button", "value":"Flush"});
-			action.div = div;
-			action.entry = entry;
-			action.cache_key = entry.getAttribute("data-cache-key");
-			u.ce(action);
-			action.clicked = function() {
+
+			var bn_view = u.f.addAction(actions, {"type":"button", "class":"button", "value":"Details"});
+			bn_view.entry = entry;
+			u.ce(bn_view);
+			bn_view.clicked = function() {
+				if(u.hc(this.entry, "show")) {
+					u.rc(this.entry, "show");
+				}
+				else {
+					u.ac(this.entry, "show");
+				}
+			}
+
+			var bn_flush = u.f.addAction(actions, {"type":"button", "class":"button", "value":"Flush"});
+			bn_flush.div = div;
+			bn_flush.entry = entry;
+			bn_flush.cache_key = entry.getAttribute("data-cache-key");
+			u.ce(bn_flush);
+			bn_flush.clicked = function() {
 
 				this.response = function(response) {
 					page.notify(response);

@@ -40,6 +40,13 @@ if(class_exists("Memcached")) {
 			<? foreach($entries as $key => $data): ?>
 			<li class="item" data-cache-key="<?= $key ?>">
 				<h3><?= $key ?></h3>
+				<div class="details">
+					<? if(is_array($data)): ?>
+					<pre><p><? print_r($data) ?></p></pre>
+					<? else: ?>
+					<p><?= $data ?></p>
+					<? endif; ?>
+				</div>
 			</li>
 			<? endforeach; ?>
 		</ul>

@@ -45,3 +45,9 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 /* EVENTS */
 
 #content .scene.eventList ul.items > li.past {background: #dddddd;}
+
+
+
+
+#content .scene.cacheList div.details {display: none;}
+#content .scene.cacheList li.show div.details {display: block;}
