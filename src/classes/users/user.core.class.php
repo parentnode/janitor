@@ -1021,6 +1021,14 @@ class UserCore extends Model {
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 					if($query->sql($sql)) {
 
+						global $page;
+						// send notification email to admin
+						// TODO: consider disabling this once it has proved itself worthy
+						$page->mail(array(
+							"subject" => "Password was resat: " . $user_id,
+							"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id
+						));
+
 						message()->addMessage("Password updated");
 						return true;
 					}
