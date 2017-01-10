@@ -151,14 +151,7 @@ Util.Objects["page"] = new function() {
 						if(section.nodes.length) {
 
 							// make individual navigation nodes clickable and collapse navigation on click to make transition look nicer
-							for(j = 0; node = section.nodes[j]; j++) {
-								u.ce(node, {"type":"link"});
 
-								// set selected state
-								if(u.hc(node, document.body.className)) {
-									u.ac(node, "selected");
-								}
-							}
 
 
 							if(section.header) {
@@ -195,6 +188,21 @@ Util.Objects["page"] = new function() {
 
 							}
 
+							// look for selected node
+							for(j = 0; node = section.nodes[j]; j++) {
+								u.ce(node, {"type":"link"});
+
+								// set selected state
+								if(u.hc(node, document.body.className)) {
+									u.ac(node, "selected");
+
+									// make sure current section is open
+									if(!section.is_open) {
+										section.header.clicked();
+									}
+								}
+							}
+
 						}
 						// empty section
 						else {
@@ -202,6 +210,7 @@ Util.Objects["page"] = new function() {
 						}
 
 					}
+					// plain navigation item
 					else {
 
 						u.ce(section, {"type":"link"});
@@ -322,7 +331,7 @@ Util.Objects["page"] = new function() {
 
 				// avoid accidental clicking
 				page.nN.transitioned = function() {
-					u.bug("hide me")
+//					u.bug("hide me")
 					u.ass(this, {
 						"display":"none"
 					});
