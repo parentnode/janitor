@@ -30,6 +30,9 @@
 #content .scene h1 + h2 + ul.actions + p,
 #content .scene h1 + h2 + ul.actions + h3 {padding-top: 20px;}
 
+#content .scene p {width: 500px;}
+#content .scene ul.items p {width: auto;}
+#content .scene p.note {font-style: italic;}
 
 
 /* PRIMITIVE LISTS */
