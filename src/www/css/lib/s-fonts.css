@@ -1,8 +1,24 @@
 @font-face {
 	font-family: 'OpenSans';
-	src: url('/janitor/admin/fonts/opensans-regular-webfont.woff') format('woff'),
-		 url('/janitor/admin/fonts/opensans-regular-webfont.ttf') format('truetype'),
-		 url('/janitor/admin/fonts/opensans-regular-webfont.svg#OpenSansRegular') format('svg');
+	src: url('/janitor/admin/css/fonts/opensans-regular-webfont.woff') format('woff'),
+		 url('/janitor/admin/css/fonts/opensans-regular-webfont.ttf') format('truetype'),
+		 url('/janitor/admin/css/fonts/opensans-regular-webfont.svg#OpenSansRegular') format('svg');
 	font-weight: normal;
 	font-style: normal;
+}
+@font-face {
+	font-family: 'OpenSans';
+	src: url('/janitor/admin/css/fonts/opensans-bold-webfont.woff') format('woff'),
+		 url('/janitor/admin/css/fonts/opensans-bold-webfont.ttf') format('truetype'),
+		 url('/janitor/admin/css/fonts/opensans-bold-webfont.svg#open_sansbold') format('svg');
+	font-weight: bold;
+	font-style: normal;
+}
+@font-face {
+	font-family: 'OpenSans';
+	src: url('/janitor/admin/css/fonts/opensans-italic-webfont.woff') format('woff'),
+		 url('/janitor/admin/css/fonts/opensans-italic-webfont.ttf') format('truetype'),
+		 url('/janitor/admin/css/fonts/opensans-italic-webfont.svg#open_sansitalic') format('svg');
+	font-weight: normal;
+	font-style: italic;
 }
