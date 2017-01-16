@@ -36,7 +36,7 @@ Util.Objects["defaultEditActions"] = new function() {
 
 Util.Objects["oneButtonForm"] = new function() {
 	this.init = function(node) {
-	u.bug("oneButtonForm:" + u.nodeId(node));
+		// u.bug("oneButtonForm:" + u.nodeId(node));
 
 		// inject standard form if action node is empty
 		// this is done to minimize HTML in list pages
