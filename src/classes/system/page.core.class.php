@@ -1762,7 +1762,11 @@ class PageCore {
 	function loadDBConfiguration() {
 		// database connection
 		@include_once("config/connect_db.php");
-		@include_once("config/database.constants.php");
+
+		// Only load DB constants if connect_db was loaded successfully
+		if(defined("SITE_DB")) {
+			@include_once("config/database.constants.php");
+		}
 	}
 
 

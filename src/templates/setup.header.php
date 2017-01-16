@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<!-- (c) & (p) think.dk 2002-2016 -->
+	<!-- (c) & (p) think.dk 2002-2017 -->
 	<!-- For detailed copyright license, see /terms -->
 	<!-- If you want to use or contribute to this code, visit http://parentnode.dk -->
 	<title>Janitor setup</title>
@@ -13,13 +13,8 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
-<? if(session()->value("dev")) { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/setup/css/lib/seg_<?= $this->segment(array("type" => "setup")) ?>_include.css" />
-	<script type="text/javascript" src="/setup/js/lib/seg_<?= $this->segment(array("type" => "setup")) ?>_include.js"></script>
-<? } else { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/setup/css/seg_<?= $this->segment(array("type" => "setup")) ?>.css" />
-	<script type="text/javascript" src="/setup/js/seg_<?= $this->segment(array("type" => "setup")) ?>.js"></script>
-<? } ?>
+	<link type="text/css" rel="stylesheet" media="all" href="/janitor/admin/css/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.css" />
+	<script type="text/javascript" src="/janitor/admin/js/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.js"></script>
 </head>
 
 <body<?= $HTML->attribute("class", $this->bodyClass()) ?>>
@@ -28,7 +23,7 @@
 
 	<div id="header">
 		<ul class="servicenavigation">
-			<li class="keynav front"><a href="/setup">Janitor</a></li>
+			<li class="keynav front"><a href="/janitor/admin/setup">Janitor</a></li>
 		</ul>
 		
 	</div>

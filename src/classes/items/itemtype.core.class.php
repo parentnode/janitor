@@ -516,7 +516,7 @@ class ItemtypeCore extends Model {
 				$context = $matches[1];
 				$value = $matches[2];
 
-	//			print "SELECT id FROM ".UT_TAG." WHERE context = '$context' AND value = '$value'<br>";
+//				print "SELECT id FROM ".UT_TAG." WHERE context = '$context' AND value = '$value'<br>";
 				if($query->sql("SELECT id FROM ".UT_TAG." WHERE context = '$context' AND value = '$value'")) {
 					$tag_id = $query->result(0, "id");
 				}

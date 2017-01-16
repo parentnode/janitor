@@ -9,29 +9,54 @@ $all_check = $model->checkAllSettings();
 <? if(!$all_check): ?>
 
 	<h1>Can't finish until you are done</h1>
-	<p>You need to provide more information.</p>
+	<h2>- and you're not done.</h2>
+	<ul class="actions">
+		<?= $JML->oneButtonForm("Restart setup", "/janitor/admin/setup/reset", array(
+			"confirm-value" => "Are you sure you want to start over?",
+			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/setup"
+		)); ?>
+	</ul>
+
+	<p>You need to provide more information to finish the installation process.</p>
+
+	<ul class="actions">
+		<?= $model->link("Continue", "/janitor/admin/setup/check", array("wrapper" => "li.check", "class" => "button primary")) ?>
+	</ul>
 
 <? else: ?>
 
 	<h1>Janitor is almost ready!</h1>
-
-	<h2>The required information has been validated</h2>
-	<p>Click install to finish the installation.</p>
-
-	<ul class="actions">
-		<?= $model->link("Install", "/setup/finish", array("wrapper" => "li.install", "class" => "button primary")) ?>
+	<h2 class="subheader">The required information has been validated.</h2>
+	<ul class="actions reset">
+		<?= $JML->oneButtonForm("Restart setup", "/janitor/admin/setup/reset", array(
+			"confirm-value" => "Are you sure you want to start over?",
+			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/setup"
+		)); ?>
 	</ul>
 
+	<div class="ready">
+		<p>Click <em>install</em> to finish the installation.</p>
+
+		<ul class="actions">
+			<?= $JML->oneButtonForm("Install", "/janitor/admin/setup/finish/finishInstallation", array(
+				"static" => true,
+				"wrapper" => "li.install",
+				"class" => "primary"
+			)); ?>
+		</ul>
+	</div>
 
 	<div class="installing">
-		<h2>Installing</h2>
+		<h2>Installing ...</h2>
 		<ul class="tasks"></ul>
 	</div>
 
 	<div class="final_touches">
 
 		<h2>Final touches</h2>
-<?	if(SETUP_TYPE == "init"): ?>
+<?	if(SETUP_TYPE == "existing"): ?>
 		<p>
 			If you are deploying a site into production you need to set <span class="warning">file permissions</span>
 			on your project.
@@ -53,11 +78,11 @@ $all_check = $model->checkAllSettings();
 sudo chmod -R 755 <?= $model->project_path ?>
 
 
-sudo chown -R <?= $model->apache_user ?>:<?= $model->deploy_user ?> <?= $model->project_path ?>/src/library
-sudo chmod -R 770 <?= $model->project_path ?>/src/library</code>
+sudo chown -R <?= $model->apache_user ?>:<?= $model->deploy_user ?> <?= LOCAL_PATH ?>/library
+sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
 
 
-<?	if(SETUP_TYPE == "init"): ?>
+<?	if(SETUP_TYPE == "existing"): ?>
 
 		<h2>Relaunch your Janitor project</h2>
 		<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>
@@ -70,9 +95,26 @@ sudo chmod -R 770 <?= $model->project_path ?>/src/library</code>
 
 		<h3>Restart Apache</h3>
 		<p>Finally, restart your Apache:</p>
-		<code>service apache2 restart</code>
-		<p>or</p>
-		<code>sudo apachectl restart</code>
+
+		<? if($model->apachectls): ?>
+
+			<? foreach($model->apachectls as $apachectl): ?>
+				<code><?= $apachectl ?> -k graceful</code>
+			<? endforeach; ?>
+
+			<? if(count($model->apachectls) > 1): ?>
+			<p class="note">
+				Janitor is trying to guess where your apachectl is located, but it found more than one on your system. 
+				Please use the command which fits with your installation.
+			</p>
+			<? endif;?>
+
+		<? else: ?>
+			<code>sudo apachectl -k graceful</code>
+			<p class="note">Janitor is trying to guess where your apachectl is located, but could not find it.</p>
+		<? endif; ?>
+
+
 
 		<h2>Relaunch your Janitor project</h2>
 		<p>When you are done you can click the bottom below to relaunch your Janitor project.</p>

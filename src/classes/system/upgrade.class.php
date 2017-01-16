@@ -470,62 +470,62 @@ class Upgrade {
 					}
 
 
-					$sql = "SELECT * FROM ".SITE_DB.".user_item_subscriptions";
-					if($query->sql($sql)) {
-						$subscriptions = $query->results();
-
-
-						// TODO: start think specific
-						$opening_timestamp = mktime(0, 0, 0, 9, 24, 2016);
-						// TODO: end think specific
-
-
-						foreach($subscriptions as $subscription) {
-
-							// TODO: start think specific
-							// update subscription timestamps before opening
-							$timestamp = strtotime($subscription["created_at"]);
-							if($timestamp < $opening_timestamp) {
-
-								// update subscription creation date
-								$subscription["created_at"] = date("Y-m-d H:i:s", $opening_timestamp);
-								$query->sql("UPDATE ".SITE_DB.".user_item_subscriptions SET created_at = '".$subscription["created_at"]."' WHERE id = ".$subscription["id"]);
-							}
-							// TODO: end think specific
-
-
-
-							// add order
-							$_POST["user_id"] = $subscription["user_id"];
-							$_POST["order_comment"] = "System upgade";
-							$order = $SC->addOrder(array("addOrder"));
-							unset($_POST);
-
-
-							// add item to order
-							$_POST["item_id"] = $subscription["item_id"];
-							$_POST["quantity"] = 1;
-							$SC->addToOrder(array("addToOrder", $order["id"]));
-							unset($_POST);
-
-							$item = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("subscription_method" => true)));
-
-							// update subscription timestamps
-							$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET renewed_at = NULL";
-							$expires_at = $UC->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["created_at"]);
-							if($expires_at) {
-								$sql .= ", expires_at = '$expires_at'";
-							}
-							else {
-								$sql .= ", expires_at = NULL";
-							}
-							$sql .= " WHERE id = ".$subscription["id"];
-							
-							$query->sql($sql);
-
-						}
-
-					}
+					// $sql = "SELECT * FROM ".SITE_DB.".user_item_subscriptions";
+					// if($query->sql($sql)) {
+					// 	$subscriptions = $query->results();
+					//
+					//
+					// 	// TODO: start think specific
+					// 	$opening_timestamp = mktime(0, 0, 0, 9, 24, 2016);
+					// 	// TODO: end think specific
+					//
+					//
+					// 	foreach($subscriptions as $subscription) {
+					//
+					// 		// TODO: start think specific
+					// 		// update subscription timestamps before opening
+					// 		$timestamp = strtotime($subscription["created_at"]);
+					// 		if($timestamp < $opening_timestamp) {
+					//
+					// 			// update subscription creation date
+					// 			$subscription["created_at"] = date("Y-m-d H:i:s", $opening_timestamp);
+					// 			$query->sql("UPDATE ".SITE_DB.".user_item_subscriptions SET created_at = '".$subscription["created_at"]."' WHERE id = ".$subscription["id"]);
+					// 		}
+					// 		// TODO: end think specific
+					//
+					//
+					//
+					// 		// add order
+					// 		$_POST["user_id"] = $subscription["user_id"];
+					// 		$_POST["order_comment"] = "System upgade";
+					// 		$order = $SC->addOrder(array("addOrder"));
+					// 		unset($_POST);
+					//
+					//
+					// 		// add item to order
+					// 		$_POST["item_id"] = $subscription["item_id"];
+					// 		$_POST["quantity"] = 1;
+					// 		$SC->addToOrder(array("addToOrder", $order["id"]));
+					// 		unset($_POST);
+					//
+					// 		$item = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("subscription_method" => true)));
+					//
+					// 		// update subscription timestamps
+					// 		$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET renewed_at = NULL";
+					// 		$expires_at = $UC->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["created_at"]);
+					// 		if($expires_at) {
+					// 			$sql .= ", expires_at = '$expires_at'";
+					// 		}
+					// 		else {
+					// 			$sql .= ", expires_at = NULL";
+					// 		}
+					// 		$sql .= " WHERE id = ".$subscription["id"];
+					//
+					// 		$query->sql($sql);
+					//
+					// 	}
+					//
+					// }
 
 				}
 				// table doesn't exist
@@ -608,7 +608,7 @@ class Upgrade {
 			}
 
 
-			// TODO: set filemode and file permissions as well (just to be sure)
+			// TODO: set filemode and file permissions as well (just to be sure) 
 
 
 			// Upgrade complete
@@ -1149,7 +1149,7 @@ class Upgrade {
 		list($ref_db, $ref_table, $ref_column) = explode(".", $ref_db_table_column);
 
 		$message = '';
-		$message .= "ADD $table.$column -> $ref_table.$ref_column CONSTRAINT";		
+		$message .= "ADD $table.$column -> $ref_table.$ref_column CONSTRAINT";
 
 		$table_info = $this->tableInfo("$db.$table");
 		

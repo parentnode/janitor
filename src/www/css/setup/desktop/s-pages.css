@@ -1,0 +1,60 @@
+
+#content .scene form h3 {padding-top: 15px;}
+#content .scene > ul.actions {padding-top: 0;}
+#content .scene p+fieldset {margin-top: -15px;}
+#content .scene fieldset+p {padding-top: 20px;}
+
+#content .scene.setup .option {padding-bottom: 30px;}
+
+#content .scene.check ul.requirements {padding: 0px 30px 20px;}
+#content .scene.check ul.requirements li {display: block; padding: 0 0 10px;}
+#content .scene.check ul.requirements li.error {color: #df0000;}
+#content .scene.check ul.requirements li.notice {color: orange;}
+
+
+#content .scene.finish div.ready {padding: 20px 0 0;}
+
+#content .scene.finish .final_touches,
+#content .scene.finish .installing {display: none; padding: 20px 0 0;}
+
+#content .scene.finish .final_touches h2 {padding-top: 15px;}
+#content .scene.finish ul.tasks,
+#content .scene.finish ul.building {padding: 0 30px;}
+
+#content .scene.finish ul.tasks li {padding-bottom: 10px; padding-left: 20px; font-size: 1.077rem; display: block;
+	background: transparent url(/janitor/admin/img/bg_icons.png) no-repeat 0 -325px;
+}
+#content .scene.finish ul.building li {padding-bottom: 10px; font-size: 1.077rem; display: block;}
+#content .scene.finish ul.tasks li.error {color: red;
+	background: none;
+}
+
+
+
+/* UPGRADE */
+
+body.upgrade #content .scene ul.tasks {padding: 20px 30px 20px; list-style: disc; margin-left: 20px;}
+body.upgrade #content .scene ul.tasks li {display: list-item; font-size: 14px; line-height: 1.38em;}
+body.upgrade #content .scene ul.tasks li.error {color: #df0000;}
+body.upgrade #content .scene ul.tasks li.error.fatal {padding: 20px 0 0; font-size: 20px;}
+body.upgrade #content .scene ul.tasks li.done {padding: 20px 0 0; color: #00aa00; font-size: 20px;}
+
+
+
+/* CODE AND TYPECASTING */
+#content .scene code {padding: 10px 10px; margin: 0 30px 5px; position: relative; top: -15px; background-color: #ededed; font-size: 0.923rem; display: block; overflow: auto; white-space: pre;
+	font-family: "Monaco", "Courier New", "Courier";
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+}
+
+
+
+
+
+
+/* NAVIGATION */
+#navigation li.done {
+	background: transparent url(/janitor/admin/img/bg_done.png) no-repeat 200px 12px;
+}

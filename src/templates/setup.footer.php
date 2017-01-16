@@ -2,10 +2,16 @@
 <?
 # PROGRESS METER
 
+$config_verified = false;
+$software_verified = false;
+
 $paths_verified = false;
 $database_verified = false;
-$config_verified = false;
 $mail_verified = false;
+
+if(isset($_SESSION["SOFTWARE_INFO"]) && $_SESSION["SOFTWARE_INFO"]) {
+	$software_verified = true;
+}
 
 if(isset($_SESSION["CONFIG_INFO"]) && $_SESSION["CONFIG_INFO"]) {
 	$config_verified = true;
@@ -26,25 +32,25 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 ?>
 	<div id="navigation">
 		<ul class="navigation">
+			<li class="front"><a href="/janitor/admin/setup">Introduction</a></li>
 			<li class="setup">
 				<h3>Setup</h3>
 				<ul class="subjects">
-					<li class="check"><a href="/setup/check">Check system</a></li>
-		<?			if(defined("SETUP_TYPE") && SETUP_TYPE == "setup"): ?>
-					<li class="config<?= $config_verified ? " done" : "" ?>"><a href="/setup/config">Janitor configuration</a></li>
-		<?			endif; ?>
-					<li class="database<?= $database_verified ? " done" : "" ?>"><a href="/setup/database">Setup database</a></li>
-					<li class="mail<?= $mail_verified ? " done" : "" ?>"><a href="/setup/mail">Setup mail</a></li>
-
-					<li class="finish"><a href="/setup/finish">Finish installation</a></li>
+					<li class="check<?= $software_verified ? " done" : "" ?>"><a href="/janitor/admin/setup/check">Check system</a></li>
+					<li class="config<?= $config_verified ? " done" : "" ?>"><a href="/janitor/admin/setup/config">Janitor configuration</a></li>
+					<li class="database<?= $database_verified ? " done" : "" ?>"><a href="/janitor/admin/setup/database">Setup database</a></li>
+					<li class="mail<?= $mail_verified ? " done" : "" ?>"><a href="/janitor/admin/setup/mail">Setup mail</a></li>
+					<li class="finish"><a href="/janitor/admin/setup/finish">Finish installation</a></li>
 				</ul>
 			</li>
+			<? if(defined("SETUP_TYPE") && SETUP_TYPE == "existing"): ?>
 			<li class="upgrade">
 				<h3>Upgrade</h3>
 				<ul class="subjects">
-					<li class="prices"><a href="/setup/upgrade/upgrade-database">Upgrade Database</a></li>
+					<li class="prices"><a href="/janitor/admin/setup/upgrade/upgrade-database">Upgrade Database</a></li>
 				</ul>
 			</li>
+			<? endif; ?>
 		</ul>
 	</div>
 
@@ -53,7 +59,7 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 			<li class="totop"><a href="#header">To top</a></li>
 		</ul>
 
-		<p class="copyright">Copyright 2016, parentNode.dk</p>
+		<p class="copyright">Copyright 2017, parentNode.dk</p>
 	</div>
 
 </div>
