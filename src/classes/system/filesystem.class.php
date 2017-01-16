@@ -144,9 +144,10 @@ class FileSystem {
 	* @return string
 	*/
 	function removeDirRecursively($path) {
+
 		if(basename($path) != "." && basename($path) != ".." && file_exists($path)) {
 			$dir = opendir($path);
-			while($entry = readdir($dir)) {
+			while(false !== ($entry = readdir($dir))) {
 				if(is_file("$path/$entry")) {
 					unlink("$path/$entry");
 				}
@@ -194,7 +195,7 @@ class FileSystem {
 		// read directory contents
 		if(file_exists($path)) {
 			$dir = opendir($path);
-			while($entry = readdir($dir)) {
+			while(false !== ($entry = readdir($dir))) {
 
 	//			print "entry:" . $entry."\n";
 
