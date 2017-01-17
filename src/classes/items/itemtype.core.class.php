@@ -121,7 +121,7 @@ class ItemtypeCore extends Model {
 		$query = new Query();
 
 		// superNormalize $sindex suggetion
-		$sindex = superNormalize(substr($sindex, 0, 40));
+		$sindex = superNormalize(substr($sindex, 0, 60));
 
 		// check for existance
 		// update if sindex does not exist already
