@@ -47,7 +47,7 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 			<li class="upgrade">
 				<h3>Upgrade</h3>
 				<ul class="subjects">
-					<li class="prices"><a href="/janitor/admin/setup/upgrade/upgrade-database">Upgrade Database</a></li>
+					<li class="upgrade"><a href="/janitor/admin/setup/upgrade">Upgrades</a></li>
 				</ul>
 			</li>
 			<? endif; ?>

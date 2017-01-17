@@ -67,8 +67,29 @@ if(is_array($action) && count($action)) {
 	}
 	else if(preg_match("/^(upgrade)$/", $action[0])) {
 
-		// include_once("classes/system/upgrade.class.php");
-		// $model = new Upgrade();
+		if(count($action) == 1) {
+
+			$page->page(array(
+				"body_class" => $action[0],
+				"type" => "setup",
+				"templates" => "upgrade/index.php"
+			));
+			exit();
+			
+		}
+		else if(count($action) > 1) {
+
+			include_once("classes/system/upgrade.class.php");
+			$model = new Upgrade();
+
+			$page->page(array(
+				"body_class" => $action[0],
+				"type" => "setup",
+				"templates" => "upgrade/".$action[1].".php"
+			));
+			exit();
+			
+		}
 
 
 	}
