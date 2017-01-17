@@ -388,11 +388,12 @@ class Setup extends Itemtype {
 		// check ffmpeg
 		// wierd version names on windows
 		$this->ffmpeg = $this->isInstalled(array(
+			"ffmpeg -version", 
 			"/opt/local/bin/ffmpeg -version", 
 			"/usr/local/bin/ffmpeg -version",
 			"/srv/ffmpeg/bin/ffmpeg -version"
 		), array(
-			"ffmpeg version 2.[1-9]{1}",
+			"ffmpeg version (2.[1-9]{1}|3.[0-9]{1})",
 			"ffmpeg version N-67742-g3f07dd6",
 			"ffmpeg version N-67521-g48efe9e"
 		));
