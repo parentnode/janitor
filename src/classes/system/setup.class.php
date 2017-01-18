@@ -1085,7 +1085,9 @@ class Setup extends Itemtype {
 					$query = new Query();
 					if($query->sql("CREATE DATABASE $this->db_janitor_db")) {
 
-						$query->sql("GRANT ALL PRIVILEGES ON ".$this->db_janitor_db.".* TO '".$this->db_janitor_user."'@'".$this->db_host."' IDENTIFIED BY '".$this->db_janitor_pass."' WITH GRANT OPTION;");
+						$sql = "GRANT ALL PRIVILEGES ON ".$this->db_janitor_db.".* TO '".$this->db_janitor_user."'@'".$this->db_host."' IDENTIFIED BY '".$this->db_janitor_pass."' WITH GRANT OPTION;";
+						print $sql;
+						$query->sql($sql);
 
 						// Status for creating database
 						$tasks["completed"][] = "Creating database";
