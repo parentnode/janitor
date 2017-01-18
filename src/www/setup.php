@@ -41,7 +41,7 @@ if(is_array($action) && count($action)) {
 			if($model && method_exists($model, $action[1])) {
 
 				$output = new Output();
-				$output->screen($model->$action[1]($action));
+				$output->screen(($model->$action[1])($action));
 				exit();
 			}
 		}
