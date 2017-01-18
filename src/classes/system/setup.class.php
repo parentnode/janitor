@@ -987,8 +987,22 @@ class Setup extends Itemtype {
 			// don't re-write configs on reloads 
 			if(getPost("setup_type") != "reload") {
 
+				// Use existing config.php
+				if(file_exists(LOCAL_PATH."/config/config.php")) {
+
+					$file_config = file_get_contents(LOCAL_PATH."/config/config.php");
+					$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_UID\",[ ]*\".+\"\);/", "\ndefine(\"SITE_UID\", \"".$this->site_uid."\");", $file_config);
+					$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_NAME\",[ ]*\".+\"\);/", "\ndefine(\"SITE_NAME\", \"".$this->site_name."\");", $file_config);
+					$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_EMAIL\",[ ]*\".+\"\);/", "\ndefine(\"SITE_EMAIL\", \"".$this->site_email."\");", $file_config);
+					$file_config = preg_replace("/(\n)[ \t]*define\(\"DEFAULT_PAGE_DESCRIPTION\",[ ]*\".+\"\);/", "\ndefine(\"DEFAULT_PAGE_DESCRIPTION\", \"".$this->site_description."\");", $file_config);
+					file_put_contents(LOCAL_PATH."/config/config.php", $file_config);
+
+					// Status for updating config.php
+					$tasks["completed"][] = "Updating config.php";
+
+				}
 				// If template exists, use that
-				if(file_exists(FRAMEWORK_PATH."/config/config.template.php")) {
+				else if(file_exists(FRAMEWORK_PATH."/config/config.template.php")) {
 
 					// config
 					$file_config = file_get_contents(FRAMEWORK_PATH."/config/config.template.php");
@@ -1008,20 +1022,6 @@ class Setup extends Itemtype {
 					$tasks["completed"][] = "Creating config.php";
 
 				}
-				// Use existing config.php
-				else if(file_exists(LOCAL_PATH."/config/config.php")) {
-
-					$file_config = file_get_contents(LOCAL_PATH."/config/config.php");
-					$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_UID\",[ ]*\".+\"\);/", "\ndefine(\"SITE_UID\", \"".$this->site_uid."\");", $file_config);
-					$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_NAME\",[ ]*\".+\"\);/", "\ndefine(\"SITE_NAME\", \"".$this->site_name."\");", $file_config);
-					$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_EMAIL\",[ ]*\".+\"\);/", "\ndefine(\"SITE_EMAIL\", \"".$this->site_email."\");", $file_config);
-					$file_config = preg_replace("/(\n)[ \t]*define\(\"DEFAULT_PAGE_DESCRIPTION\",[ ]*\".+\"\);/", "\ndefine(\"DEFAULT_PAGE_DESCRIPTION\", \"".$this->site_description."\");", $file_config);
-					file_put_contents(LOCAL_PATH."/config/config.php", $file_config);
-
-					// Status for updating config.php
-					$tasks["completed"][] = "Updating config.php";
-
-				}
 				else {
 
 					// Status for updating config.php
@@ -1034,8 +1034,22 @@ class Setup extends Itemtype {
 				// DATABASE
 				// connect_db.php
 
+				// Use existing connect_db.php
+				if(file_exists(LOCAL_PATH."/config/connect_db.php")) {
+
+					$file_db = file_get_contents(LOCAL_PATH."/config/connect_db.php");
+					$file_db = preg_replace("/(\n)[ \t]*define\(\"SITE_DB\",[ ]*\".+\"\);/", "\ndefine(\"SITE_DB\", \"".$this->db_janitor_db."\");", $file_db);
+					$file_db = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"host\" => \"".$this->db_host."\"", $file_db);
+					$file_db = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"username\" => \"".$this->db_janitor_user."\"", $file_db);
+					$file_db = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"password\" => \"".$this->db_janitor_pass."\"", $file_db);
+					file_put_contents(LOCAL_PATH."/config/connect_db.php", $file_db);
+
+					// Status for updating connect_db.php
+					$tasks["completed"][] = "Updating connect_db.php";
+
+				}
 				// If template exists, use that
-				if(file_exists(FRAMEWORK_PATH."/config/connect_db.template.php")) {
+				else if(file_exists(FRAMEWORK_PATH."/config/connect_db.template.php")) {
 
 					// database
 					$file_db = file_get_contents(FRAMEWORK_PATH."/config/connect_db.template.php");
@@ -1053,20 +1067,6 @@ class Setup extends Itemtype {
 
 					// Status for creating connect_db.php
 					$tasks["completed"][] = "Creating connect_db.php";
-
-				}
-				// Use existing connect_db.php
-				else if(file_exists(LOCAL_PATH."/config/connect_db.php")) {
-
-					$file_db = file_get_contents(LOCAL_PATH."/config/connect_db.php");
-					$file_db = preg_replace("/(\n)[ \t]*define\(\"SITE_DB\",[ ]*\".+\"\);/", "\ndefine(\"SITE_DB\", \"".$this->db_janitor_db."\");", $file_db);
-					$file_db = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"host\" => \"".$this->db_host."\"", $file_db);
-					$file_db = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"username\" => \"".$this->db_janitor_user."\"", $file_db);
-					$file_db = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"password\" => \"".$this->db_janitor_pass."\"", $file_db);
-					file_put_contents(LOCAL_PATH."/config/connect_db.php", $file_db);
-
-					// Status for updating connect_db.php
-					$tasks["completed"][] = "Updating connect_db.php";
 
 				}
 				else {
@@ -1115,8 +1115,23 @@ class Setup extends Itemtype {
 				// MAIL
 				// connect_mail.php
 
+				// Use existing connect_mail.php
+				if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
+
+					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
+					$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->mail_admin."\");", $file_mail);
+					$file_mail = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"host\" => \"".$this->mail_host."\"", $file_mail);
+					$file_mail = preg_replace("/(\n)[ \t]*\"port\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"port\" => \"".$this->mail_port."\"", $file_mail);
+					$file_mail = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"username\" => \"".$this->mail_username."\"", $file_mail);
+					$file_mail = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"password\" => \"".$this->mail_password."\"", $file_mail);
+					file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
+
+					// Status for updating connect_mail.php
+					$tasks["completed"][] = "Updating connect_mail.php";
+
+				}
 				// If template exists, use that
-				if(file_exists(FRAMEWORK_PATH."/config/connect_mail.template.php")) {
+				else if(file_exists(FRAMEWORK_PATH."/config/connect_mail.template.php")) {
 
 					$file_mail = file_get_contents(FRAMEWORK_PATH."/config/connect_mail.template.php");
 					$file_mail = preg_replace("/###ADMIN_EMAIL###/", $this->mail_admin, $file_mail);
@@ -1135,21 +1150,6 @@ class Setup extends Itemtype {
 
 					// Status for creating connect_mail.php
 					$tasks["completed"][] = "Creating connect_mail.php";
-
-				}
-				// Use existing connect_mail.php
-				else if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
-
-					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
-					$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->mail_admin."\");", $file_mail);
-					$file_mail = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"host\" => \"".$this->mail_host."\"", $file_mail);
-					$file_mail = preg_replace("/(\n)[ \t]*\"port\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"port\" => \"".$this->mail_port."\"", $file_mail);
-					$file_mail = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"username\" => \"".$this->mail_username."\"", $file_mail);
-					$file_mail = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"password\" => \"".$this->mail_password."\"", $file_mail);
-					file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
-
-					// Status for updating connect_mail.php
-					$tasks["completed"][] = "Updating connect_mail.php";
 
 				}
 				else {
