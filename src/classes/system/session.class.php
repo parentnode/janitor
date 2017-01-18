@@ -2,6 +2,16 @@
 /**
 * Start session
 */
+class MemcachedSession extends SessionHandler {
+	public function read($session_id) {
+		return (string)parent::read($session_id);
+	}
+}
+
+$sess = new MemcachedSession();
+session_set_save_handler($sess, true);
+
+
 if(!isset($_SESSION)) {
 	session_start();
 }
