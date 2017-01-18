@@ -499,7 +499,7 @@ class Setup extends Itemtype {
 		else {
 
 			$this->project_path = stringOr($this->project_path, PROJECT_PATH);
-			$this->site_name = stringOr($this->site_name, defined("SITE_NAME") ? SITE_NAME : preg_replace("/\..*/", "", $_SERVER["SERVER_NAME"]));
+			$this->site_name = stringOr($this->site_name, defined("SITE_NAME") ? SITE_NAME : preg_replace("/\.[^\.]*$/", "", $_SERVER["SERVER_NAME"]));
 			$this->site_uid = stringOr($this->site_uid, defined("SITE_UID") ? SITE_UID : substr(strtoupper(preg_replace("/[AEIOUYaeiouy-]/", "", superNormalize($this->site_name))), 0, 8));
 			$this->site_email = stringOr($this->site_email, defined("SITE_EMAIL") ? SITE_EMAIL : "");
 			$this->site_description = stringOr($this->site_description, defined("DEFAULT_PAGE_DESCRIPTION") ? DEFAULT_PAGE_DESCRIPTION : "");
