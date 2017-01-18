@@ -1,15 +1,19 @@
 <?php
-/**
-* Start session
-*/
+
+// Extend Memcached session handler for PHP7 support
+// TODO: can be deleted when Memcached session handler returns proper value as expected by PHP7
 class MemcachedSession extends SessionHandler {
 	public function read($session_id) {
 		return (string)parent::read($session_id);
 	}
 }
-
 $sess = new MemcachedSession();
 session_set_save_handler($sess, true);
+
+
+/**
+* Start session
+*/
 
 
 if(!isset($_SESSION)) {

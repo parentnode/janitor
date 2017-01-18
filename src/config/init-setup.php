@@ -24,7 +24,14 @@ else if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 	header("Content-type: text/html; charset=UTF-8");
 	error_reporting(E_ALL);
 
-	define("SETUP_TYPE", "new");
+	// if config file already exist, this could be an uninitialized existing project
+	if(file_exists($_SERVER["LOCAL_PATH"]."/config/config.php")) {
+		define("SETUP_TYPE", "existing");
+	}
+	else {
+		define("SETUP_TYPE", "new");
+	}
+
 	define("SITE_INSTALL", true);
 	define("PROJECT_PATH", preg_replace("/\/(theme|src)/", "", $_SERVER["LOCAL_PATH"]));
 	define("SITE_URL", (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]);

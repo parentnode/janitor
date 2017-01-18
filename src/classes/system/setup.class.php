@@ -495,6 +495,35 @@ class Setup extends Itemtype {
 			$this->config_ok = true;
 			return true;
 		}
+		// config exists but was not loaded
+		else if(!defined("SITE_UID") && file_exists(LOCAL_PATH."/config/config.php")) {
+
+			$config_info = file_get_contents(LOCAL_PATH."/config/config.php");
+
+
+			$this->project_path = stringOr($this->project_path, PROJECT_PATH);
+
+			preg_match("/\n[ \t]*define\(\"SITE_UID\",[ ]*\"(.+)\"\);/", $config_info, $matches);
+			if($matches) {
+				$this->site_uid = $matches[1];
+			}
+
+			preg_match("/\n[ \t]*define\(\"SITE_NAME\",[ ]*\"(.+)\"\);/", $config_info, $matches);
+			if($matches) {
+				$this->site_name = $matches[1];
+			}
+
+			preg_match("/\n[ \t]*define\(\"SITE_EMAIL\",[ ]*\"(.+)\"\);/", $config_info, $matches);
+			if($matches) {
+				$this->site_email = $matches[1];
+			}
+
+			preg_match("/\n[ \t]*define\(\"DEFAULT_PAGE_DESCRIPTION\",[ ]*\"(.+)\"\);/", $config_info, $matches);
+			if($matches) {
+				$this->site_description = $matches[1];
+			}
+
+		}
 		// get default or existing values
 		else {
 
@@ -927,10 +956,10 @@ class Setup extends Itemtype {
 				// APACHE CONF
 
 				// Create Apache conf from template
-				if(file_exists(LOCAL_PATH."/config/httpd-vhosts.template.conf")) {
+				if(file_exists(FRAMEWORK_PATH."/config/httpd-vhosts.template.conf")) {
 
 					// apache
-					$file_apache = file_get_contents(LOCAL_PATH."/config/httpd-vhosts.template.conf");
+					$file_apache = file_get_contents(FRAMEWORK_PATH."/config/httpd-vhosts.template.conf");
 					$file_apache = preg_replace("/###LOCAL_PATH###/", $this->local_path, $file_apache);
 					$file_apache = preg_replace("/###FRAMEWORK_PATH###/", $this->framework_path, $file_apache);
 					$file_apache = preg_replace("/###PROJECT_PATH###/", $this->project_path, $file_apache);
@@ -939,7 +968,7 @@ class Setup extends Itemtype {
 					$file_apache = preg_replace("/###MODULES_PATH###/", (preg_match("/\/submodules\//", $this->framework_path) ? "submodules" : "core"), $file_apache);
 					file_put_contents(PROJECT_PATH."/apache/httpd-vhosts.conf", $file_apache);
 
-					unlink(LOCAL_PATH."/config/httpd-vhosts.template.conf");
+//					unlink(LOCAL_PATH."/config/httpd-vhosts.template.conf");
 
 					// Status for updating Apache conf
 					$tasks["completed"][] = "Updating project Apache configuration";
@@ -959,10 +988,10 @@ class Setup extends Itemtype {
 			if(getPost("setup_type") != "reload") {
 
 				// If template exists, use that
-				if(file_exists(LOCAL_PATH."/config/config.template.php")) {
+				if(file_exists(FRAMEWORK_PATH."/config/config.template.php")) {
 
 					// config
-					$file_config = file_get_contents(LOCAL_PATH."/config/config.template.php");
+					$file_config = file_get_contents(FRAMEWORK_PATH."/config/config.template.php");
 					$file_config = preg_replace("/###SITE_UID###/", $this->site_uid, $file_config);
 					$file_config = preg_replace("/###SITE_NAME###/", $this->site_name, $file_config);
 					$file_config = preg_replace("/###SITE_EMAIL###/", $this->site_email, $file_config);
@@ -973,7 +1002,7 @@ class Setup extends Itemtype {
 					chmod(LOCAL_PATH."/config/config.php", 0666);
 
 					// Remove template
-					unlink(LOCAL_PATH."/config/config.template.php");
+//					unlink(LOCAL_PATH."/config/config.template.php");
 
 					// Status for creating config.php
 					$tasks["completed"][] = "Creating config.php";
@@ -1006,10 +1035,10 @@ class Setup extends Itemtype {
 				// connect_db.php
 
 				// If template exists, use that
-				if(file_exists(LOCAL_PATH."/config/connect_db.template.php")) {
+				if(file_exists(FRAMEWORK_PATH."/config/connect_db.template.php")) {
 
 					// database
-					$file_db = file_get_contents(LOCAL_PATH."/config/connect_db.template.php");
+					$file_db = file_get_contents(FRAMEWORK_PATH."/config/connect_db.template.php");
 					$file_db = preg_replace("/###SITE_DB###/", $this->db_janitor_db, $file_db);
 					$file_db = preg_replace("/###HOST###/", $this->db_host, $file_db);
 					$file_db = preg_replace("/###USERNAME###/", $this->db_janitor_user, $file_db);
@@ -1020,7 +1049,7 @@ class Setup extends Itemtype {
 					chmod(LOCAL_PATH."/config/connect_db.php", 0666);
 
 					// Remove template
-					unlink(LOCAL_PATH."/config/connect_db.template.php");
+//					unlink(LOCAL_PATH."/config/connect_db.template.php");
 
 					// Status for creating connect_db.php
 					$tasks["completed"][] = "Creating connect_db.php";
@@ -1087,9 +1116,9 @@ class Setup extends Itemtype {
 				// connect_mail.php
 
 				// If template exists, use that
-				if(file_exists(LOCAL_PATH."/config/connect_mail.template.php")) {
+				if(file_exists(FRAMEWORK_PATH."/config/connect_mail.template.php")) {
 
-					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_mail.template.php");
+					$file_mail = file_get_contents(FRAMEWORK_PATH."/config/connect_mail.template.php");
 					$file_mail = preg_replace("/###ADMIN_EMAIL###/", $this->mail_admin, $file_mail);
 					$file_mail = preg_replace("/###HOST###/", $this->mail_host, $file_mail);
 					$file_mail = preg_replace("/###PORT###/", $this->mail_port, $file_mail);
@@ -1102,7 +1131,7 @@ class Setup extends Itemtype {
 					chmod(LOCAL_PATH."/config/connect_mail.php", 0666);
 
 					// Remove template
-					unlink(LOCAL_PATH."/config/connect_mail.template.php");
+//					unlink(LOCAL_PATH."/config/connect_mail.template.php");
 
 					// Status for creating connect_mail.php
 					$tasks["completed"][] = "Creating connect_mail.php";
