@@ -34,7 +34,7 @@ if(is_array($action) && count($action)) {
 		if($LC && method_exists($LC, $action[0])) {
 
 			$output = new Output();
-			$output->screen($LC->$action[0]($action));
+			$output->screen($LC->{$action[0]}($action));
 			exit();
 		}
 	}
