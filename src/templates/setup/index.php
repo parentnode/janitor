@@ -31,7 +31,7 @@ else: ?>
 			Choose this option to change core/database/mail configuration.
 		</p>
 		<ul class="actions">
-			<li class="check"><a href="/janitor/admin/setup/check" class="button primary">Change configuration</a></li>
+			<li class="check"><a href="/janitor/admin/setup/check" class="button primary">Edit configuration</a></li>
 		</ul>
 	</div>
 

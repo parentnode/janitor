@@ -33,6 +33,13 @@ class TypePost extends Itemtype {
 			"error_message" => "Name must be filled out."
 		));
 
+		// Class
+		$this->addToModel("classname", array(
+			"type" => "string",
+			"label" => "CSS Class",
+			"hint_message" => "If you don't know what this is, just leave it empty."
+		));
+
 		// description
 		$this->addToModel("description", array(
 			"type" => "text",

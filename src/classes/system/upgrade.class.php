@@ -36,7 +36,7 @@ class Upgrade {
 
 
 	// Check Database structure for v0_8 requirements
-	function upgradeDatabase() {
+	function fullUpgrade() {
 		
 		$query = new Query();
 		$IC = new Items();
@@ -133,6 +133,10 @@ class Upgrade {
 
 				}
 			}
+			// TODO: end stopknappen specific
+
+
+
 			$qna_table = $this->tableInfo(SITE_DB.".item_qna");
 			if($qna_table && !isset($qna_table["columns"]["question"])) {
 
@@ -177,7 +181,7 @@ class Upgrade {
 				}
 
 				$qna_table_versions = $this->tableInfo(SITE_DB.".item_qna_versions");
-				if($qna_table_versions && !isset($qna_table["columns"]["question"])) {
+				if($qna_table_versions && !isset($qna_table_versions["columns"]["question"])) {
 
 					// add about item id column
 					$this->process($this->addColumn(SITE_DB.".item_qna_versions", "about_item_id", "int(11) DEFAULT NULL", "name"), true);
@@ -228,9 +232,22 @@ class Upgrade {
 					}
 				}
 			}
-			
-			// TODO: end stopknappen specific
 
+
+			$post_table = $this->tableInfo(SITE_DB.".item_post");
+			if($post_table && !isset($post_table["columns"]["classname"])) {
+
+				// add about item id column
+				$this->process($this->addColumn(SITE_DB.".item_post", "classname", "varchar(100) DEFAULT NULL", "name"), true);
+
+				$post_table_versions = $this->tableInfo(SITE_DB.".item_post_versions");
+				if($post_table_versions && !isset($post_table_versions["columns"]["classname"])) {
+
+					// add about item id column
+					$this->process($this->addColumn(SITE_DB.".item_post_versions", "classname", "int(11) DEFAULT NULL", "name"), true);
+				}
+
+			}
 
 
 			// SYSTEM

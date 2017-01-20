@@ -12,7 +12,7 @@ global $model;
 		Select you upgrade option.
 	</p>
 	<ul class="actions">
-		<li class="check"><a href="/janitor/admin/setup/upgrade/database" class="button primary">Upgrade database</a></li>
+		<li class="check"><a href="/janitor/admin/setup/upgrade/fullUpgrade" class="button primary">Full upgrade</a></li>
 	</ul>
 
 </div>

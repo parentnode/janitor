@@ -3,6 +3,7 @@ CREATE TABLE `SITE_DB`.`item_post` (
   `item_id` int(11) NOT NULL,
 
   `name` varchar(100) NOT NULL,
+  `classname` varchar(100) DEFAULT NULL,
   `description` text NOT NULL,
   `html` text NOT NULL,
 
