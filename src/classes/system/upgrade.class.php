@@ -65,6 +65,29 @@ class Upgrade {
 			// TODO: end think specific
 
 
+
+			// TODO: Pull the latest Janitor version
+
+
+
+			// Updating controller code syntax to work with PHP7
+			$fs = new FileSystem();
+			$controllers = $fs->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
+			$file = "";
+			foreach($controllers as $controller) {
+				$file = file_get_contents($controller);
+				if(preg_match("/->\\\$action\[[0-9]+\]/", $file, $matches)) {
+					// replace with valid syntax 
+					$file = preg_replace("/->\\\$action\[([0-9]+)\]/", "->{\\\$action[$1]}", $file);
+					// save file
+					file_put_contents($controller, $file);
+				}
+			}
+			// lighten the burden
+			$file = null;
+
+
+
 			// TODO: start stopknappen specific
 			$topic_table = $this->tableInfo(SITE_DB.".item_topic");
 			// if table exists and still has "problem"-column
