@@ -23,7 +23,7 @@
 
 	<div id="header">
 		<ul class="servicenavigation">
-			<li class="keynav front"><a href="/janitor/admin/setup">Janitor</a></li>
+			<li class="keynav front"><a href="<?= SETUP_TYPE == "new" ? "/janitor/admin/setup" : "/janitor" ?>">Janitor</a></li>
 		</ul>
 		
 	</div>
