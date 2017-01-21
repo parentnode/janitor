@@ -697,6 +697,32 @@ function ffmpegPath() {
 	return $ffmpeg_path;
 }
 
+// Identify ffmpeg AAC codec (differs in different systems/installs)
+function ffmpegAACCodec() {
+
+	$ffmpeg_aac = cache()->value("ffmpeg_aac");
+
+	if(!$ffmpeg_aac) {
+
+		$ffmpeg_path = ffmpegPath();
+		if(!preg_match("/(A..... libfdk_aac)/i", exec($ffmpeg_path . " -encoders 2>&1"))) {
+			$ffmpeg_aac = "libfdk_aac";
+		}
+		else if(!preg_match("/(A..... aac)/i", exec($ffmpeg_path . " -encoders 2>&1"))) {
+			$ffmpeg_aac = "aac";
+		}
+		else if(!preg_match("/(A..... libfaac)/i", exec($ffmpeg_path . " -encoders 2>&1"))) {
+			$ffmpeg_aac = "libfaac";
+		}
+
+		cache()->value("ffmpeg_aac", $ffmpeg_aac);
+	}
+
+	return $ffmpeg_aac;
+}
+
+
+
 // Identify wkhtmlto path (differs in different systems/installs)
 function wkhtmltoPath() {
 

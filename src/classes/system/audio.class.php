@@ -45,7 +45,7 @@ class Audio {
 
 			// proper command available
 			if($command) {
-				writeToFile($command);
+//				writeToFile($command);
 				system($command);
 			}
 

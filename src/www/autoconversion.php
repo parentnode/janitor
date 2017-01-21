@@ -269,74 +269,74 @@ if($request_type == "images" && ($width || $height) && ($format == "jpg" || $for
 
 // video
 else if($request_type == "videos" && ($width || $height) && ($format == "mp4" || $format == "webm" || $format == "ogv" || $format == "mov" || $format == "3gp")) {
-		include_once("classes/system/video.class.php");
+	include_once("classes/system/video.class.php");
 
-		$Video = new Video();
+	$Video = new Video();
 
-		// check for sources
+	// check for sources
 
-		// mov, and source is available
-		if($format == "mov" && file_exists(PRIVATE_FILE_PATH."/$id$variant/mov")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/mov";
-		}
-		// mp4, and source is available
-		else if($format == "mp4" && file_exists(PRIVATE_FILE_PATH."/$id$variant/mp4")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/mp4";
-		}
-		// webm, and source is available
-		else if($format == "webm" && file_exists(PRIVATE_FILE_PATH."/$id$variant/webm")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/webm";
-		}
-		// ogv, and source is available
-		else if($format == "ogv" && file_exists(PRIVATE_FILE_PATH."/$id$variant/ogv")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/ogv";
-		}
-		// 3gp, and source is available
-		else if($format == "3gp" && file_exists(PRIVATE_FILE_PATH."/$id$variant/3gp")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/3gp";
-		}
-		// mov available
-		else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mov")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/mov";
-		}
-		// mp4 available
-		else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp4")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/mp4";
-		}
-		// webm available
-		else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/webm")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/webm";
-		}
-		// ogv available
-		else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogv")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/ogv";
-		}
-		// 3gp available
-		else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/3gp")) {
-			$input_file = PRIVATE_FILE_PATH."/$id$variant/3gp";
-		}
-		// no valid source available
-		else {
-			conversionFailed("no valid source available");
-		}
+	// mov, and source is available
+	if($format == "mov" && file_exists(PRIVATE_FILE_PATH."/$id$variant/mov")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/mov";
+	}
+	// mp4, and source is available
+	else if($format == "mp4" && file_exists(PRIVATE_FILE_PATH."/$id$variant/mp4")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp4";
+	}
+	// webm, and source is available
+	else if($format == "webm" && file_exists(PRIVATE_FILE_PATH."/$id$variant/webm")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/webm";
+	}
+	// ogv, and source is available
+	else if($format == "ogv" && file_exists(PRIVATE_FILE_PATH."/$id$variant/ogv")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogv";
+	}
+	// 3gp, and source is available
+	else if($format == "3gp" && file_exists(PRIVATE_FILE_PATH."/$id$variant/3gp")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/3gp";
+	}
+	// mov available
+	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mov")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/mov";
+	}
+	// mp4 available
+	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp4")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp4";
+	}
+	// webm available
+	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/webm")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/webm";
+	}
+	// ogv available
+	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogv")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogv";
+	}
+	// 3gp available
+	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/3gp")) {
+		$input_file = PRIVATE_FILE_PATH."/$id$variant/3gp";
+	}
+	// no valid source available
+	else {
+		conversionFailed("no valid source available");
+	}
 
-		$output_file = PUBLIC_FILE_PATH."/".$id.$variant."/".$width."x".$height.".".$format;
+	$output_file = PUBLIC_FILE_PATH."/".$id.$variant."/".$width."x".$height.".".$format;
 
 
-		// scale image (will autoconvert)
-		if($Video->convert($input_file, $output_file, array("allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
+	// scale image (will autoconvert)
+	if($Video->convert($input_file, $output_file, array("allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
 
-			// collect log autoconvertion for bundled notification
-			$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
+		// collect log autoconvertion for bundled notification
+		$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
 
-			// redirect to new image
-			header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format);
-			exit();
+		// redirect to new image
+		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format);
+		exit();
 
-		}
-		else {
-			conversionFailed("Video->convert failed");
-		}
+	}
+	else {
+		conversionFailed("Video->convert failed");
+	}
 
 }
 
