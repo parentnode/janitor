@@ -362,7 +362,7 @@ class Video {
 
 			// MP4 output
 			else if($output_format == "mp4") {
-				$command = $ffmpeg_path . " -y -i ".$input_file." ".$duration." -qmin 10 -qmax 40 -crf 30 -c:v libx264 -b:v ".$output_bitrate."k -c:a libfaac -ar 48000 -b:a 128k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file;
+				$command = $ffmpeg_path . " -y -i ".$input_file." ".$duration." -qmin 10 -qmax 40 -crf 30 -c:v libx264 -b:v ".$output_bitrate."k -c:a aac -ar 48000 -b:a 128k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file;
 			}
 
 			// WEBM output
@@ -377,7 +377,7 @@ class Video {
 
 			// 3GP output
 			else if($output_format == "3gp") {
-				$command = $ffmpeg_path . " -y -i ".$input_file." ".$duration." -c:v h263 -b:v ".$output_bitrate."k -c:a libfaac -ac 1 -ar 32000 -ab 32k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file;
+				$command = $ffmpeg_path . " -y -i ".$input_file." ".$duration." -c:v h263 -b:v ".$output_bitrate."k -c:a aac -ac 1 -ar 32000 -ab 32k ".$crop.$pad." -s ".$canvas_width."x".$canvas_height." ".$output_file;
 			}
 
 
