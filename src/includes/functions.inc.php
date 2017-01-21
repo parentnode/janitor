@@ -708,10 +708,10 @@ function ffmpegAACCodec() {
 		if(preg_match("/A\.\.\.\.\. libfdk_aac/i", shell_exec($ffmpeg_path . " -encoders 2>&1"))) {
 			$ffmpeg_aac = "libfdk_aac";
 		}
-		else if(preg_match("/A..... aac/i", shell_exec($ffmpeg_path . " -encoders 2>&1"))) {
+		else if(preg_match("/A\.\.\.\.\. aac/i", shell_exec($ffmpeg_path . " -encoders 2>&1"))) {
 			$ffmpeg_aac = "aac";
 		}
-		else if(preg_match("/A..... libfaac/i", shell_exec($ffmpeg_path . " -encoders 2>&1"))) {
+		else if(preg_match("/A\.\.\.\.\. libfaac/i", shell_exec($ffmpeg_path . " -encoders 2>&1"))) {
 			$ffmpeg_aac = "libfaac";
 		}
 
