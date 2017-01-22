@@ -8,7 +8,7 @@ if(class_exists("Memcached")) {
 	$memc = new Memcached();
 	$memc->addServer('localhost', 11211);
 
-
+	print_r($memc->getStats());
 
 	$entries = array();
 	$keys = $memc->getAllKeys();
