@@ -6,8 +6,8 @@ global $model;
 if(class_exists("Memcached")) {
 
 	$memc = new Memcached();
-	$memc->addServer('localhost', 11211);
-
+	$con = $memc->addServer('localhost', 11211);
+	print "con:".$con.";"
 	print_r($memc->getStats());
 
 	$entries = array();
