@@ -730,7 +730,12 @@ function wkhtmltoPath() {
 
 	if(!$wkhtmlto_path) {
 
-		if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/usr/bin/static_wkhtmltopdf 2>&1"))) {
+		// The most common way of installing WKHTMLTO is by using a static (precompiled) binary version
+		// If this has been installed using the parentnode stack installer, it will be called static_wkhtmltopdf
+		if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("static_wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "static_wkhtmltopdf";
+		}
+		else if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/usr/bin/static_wkhtmltopdf 2>&1"))) {
 			$wkhtmlto_path = "/usr/bin/static_wkhtmltopdf";
 		}
 		else if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/usr/local/bin/static_wkhtmltopdf 2>&1"))) {
