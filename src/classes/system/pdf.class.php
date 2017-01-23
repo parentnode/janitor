@@ -27,7 +27,7 @@ class PDF {
 
 		// Generate the image
 		$output = shell_exec($command." 2>&1");
-		// print "output:" . $output;
+		print "output:" . $output;
 
 		return $output_file;
 	}
