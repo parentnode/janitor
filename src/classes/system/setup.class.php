@@ -402,11 +402,11 @@ class Setup extends Itemtype {
 		// check ffmpeg
 		// wierd version names on windows
 		$this->wkhtmlto = $this->isInstalled(array(
-			"/opt/local/bin/wkhtmltopdf --version",
+			"/usr/bin/static_wkhtmltopdf --version"
 			"/usr/local/bin/static_wkhtmltopdf --version", 
+			"/opt/local/bin/wkhtmltopdf --version",
 			"/usr/local/bin/wkhtmltopdf --version", 
 			"/usr/bin/wkhtmltopdf --version",
-			"/usr/bin/static_wkhtmltopdf --version"
 		), array(
 			"wkhtmltopdf 0.1[0-9]{1}"
 		));
@@ -1482,7 +1482,7 @@ class Setup extends Itemtype {
 			// create git ignore
 			if(!file_exists($this->project_path."/.gitignore")) {
 				$handle = fopen($this->project_path."/.gitignore", "w+");
-				fwrite($handle, "src/library/*\n.DS_Store\nsrc/config/connect_*.php");
+				fwrite($handle, "src/library/log/*\nsrc/library/public/*\nsrc/library/private/*\n!src/library/private/0\n!src/library/private/0/*\ntheme/library/log/*\ntheme/library/public/*\ntheme/library/private/*\n!theme/library/private/0\n!theme/library/private/0/*\n\n.DS_Store\n\nsrc/config/connect_*.php\ntheme/config/connect_*.php");
 				fclose($handle);
 
 				$tasks["completed"][] = "Creating .gitignore";
