@@ -942,7 +942,7 @@ class Setup extends Itemtype {
 
 
 				// Status for installing theme
-				if(file_exists(PROJECT_PATH."/theme") && file_exists(PROJECT_PATH."/theme/www/index.php" && file_exists(PROJECT_PATH."/theme/templates/pages/front.php")) {
+				if(file_exists(PROJECT_PATH."/theme") && file_exists(PROJECT_PATH."/theme/www/index.php") && file_exists(PROJECT_PATH."/theme/templates/pages/front.php")) {
 					$tasks["completed"][] = "Installing standard theme";
 				}
 				// Task failed
