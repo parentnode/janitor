@@ -23,11 +23,11 @@ class PDF {
 
 //		$command = "$wkhtmlto_path -s $output_format $input_file $output_file";
 		$command = "$wkhtmlto_path -s $output_format --javascript-delay 5000 --no-stop-slow-scripts --enable-javascript --debug-javascript $input_file $output_file";
-		print "command:".$command."<br>\n";
+//		print "command:".$command."<br>\n";
 
 		// Generate the image
 		$output = shell_exec($command." 2>&1");
-		print "output:" . $output."<br>\n";
+//		print "output:" . $output."<br>\n";
 
 		return $output_file;
 	}
