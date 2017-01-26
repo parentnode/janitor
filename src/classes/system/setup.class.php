@@ -402,11 +402,11 @@ class Setup extends Itemtype {
 		// check ffmpeg
 		// wierd version names on windows
 		$this->wkhtmlto = $this->isInstalled(array(
-			"/usr/bin/static_wkhtmltopdf --version"
+			"/usr/bin/static_wkhtmltopdf --version",
 			"/usr/local/bin/static_wkhtmltopdf --version", 
 			"/opt/local/bin/wkhtmltopdf --version",
 			"/usr/local/bin/wkhtmltopdf --version", 
-			"/usr/bin/wkhtmltopdf --version",
+			"/usr/bin/wkhtmltopdf --version"
 		), array(
 			"wkhtmltopdf 0.1[0-9]{1}"
 		));
