@@ -179,6 +179,7 @@ class Setup extends Itemtype {
 		$this->addToModel("db_root_pass", array(
 			"type" => "password",
 			"label" => "Password",
+			"min" => 1,
 			"hint_message" => "Password of database admin user. Leave blank if you're not using a root password - and read up on why that is a bad idea.",
 			"error_message" => "Admin password must be filled out."
 		));
@@ -418,7 +419,6 @@ class Setup extends Itemtype {
 			$this->apache && 
 			$this->php && 
 			$this->mysql && 
-			$this->imagemagick && 
 			$this->session &&
 			$this->simplexml &&
 			$this->dom &&

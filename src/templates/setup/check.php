@@ -25,12 +25,12 @@ $software_ok = $model->checkSoftware();
 		<li<?= !$model->dom ? ' class="error"' : "" ?>>PHP-DOM: <?= $model->dom ? "Success" : "Failed" ?></li>
 		<li<?= !$model->simplexml ? ' class="error"' : "" ?>>PHP-SimpleXML: <?= $model->simplexml ? "Success" : "Failed" ?></li>
 		<li<?= !$model->mbstring ? ' class="error"' : "" ?>>PHP-mbstring: <?= $model->mbstring ? "Success" : "Failed" ?></li>
-		<li<?= !$model->imagemagick ? ' class="error"' : "" ?>>PHP-ImageMagick: <?= $model->imagemagick ? "Success" : "Failed" ?></li>
 		<li<?= !$model->readwrite ? ' class="error"' : "" ?>>Read/Write: <?= $model->readwrite ? "Success" : "Failed" ?></li>
 	</ul>
 
 	<h3>Optional software</h3>
 	<ul class="requirements">
+		<li<?= !$model->imagemagick ? ' class="notice"' : "" ?>>PHP-ImageMagick: <?= $model->imagemagick ? "Success" : "Failed" ?></li>
 		<li<?= !$model->zip ? ' class="notice"' : "" ?>>Zip: <?= $model->zip ? "Success" : "Failed" ?></li>
 		<li<?= !$model->memcached ? ' class="notice"' : "" ?>>Memcached: <?= $model->memcached ? "Success" : "Failed" ?></li>
 		<li<?= !$model->curl ? ' class="notice"' : "" ?>>Curl: <?= $model->curl ? "Success" : "Failed" ?></li>
