@@ -66,7 +66,7 @@ class Model extends HTML {
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "HTML",
-			"allowed_tags" => "p,h2,h3,h4,ul,ol,download,jpg,png", //,mp4,vimeo,youtube,code",
+			"allowed_tags" => "p,h2,h3,h4,ul,ol,code,download,jpg,png", //,mp4,vimeo,youtube,code",
 			"hint_message" => "Write!",
 			"error_message" => "No words? How weird."
 		));
