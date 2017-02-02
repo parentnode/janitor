@@ -1,3 +1,7 @@
+u.txt = {};
+
+
+
 // // quick toggle header with simplified memory (cross item memory)
 // u.toggleHeader = function(div, header) {
 //
