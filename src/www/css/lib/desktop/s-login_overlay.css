@@ -21,6 +21,7 @@
 
 #login_overlay ul.actions {padding: 0;}
 #login_overlay ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 0 10px; vertical-align: top;}
+#login_overlay ul.actions li.forgot {padding: 5px 0 0 10px;}
 #login_overlay ul.actions input.button {width: auto; height: 26px; padding: 3px 12px;}
 @media all and (-webkit-min-device-pixel-ratio:0) {#login_overlay ul.actions input.button {padding-bottom: 5px;}}
 

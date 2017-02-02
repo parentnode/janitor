@@ -395,8 +395,7 @@ class Setup extends Itemtype {
 			"/srv/ffmpeg/bin/ffmpeg -version"
 		), array(
 			"ffmpeg version (2.[1-9]{1}|3.[0-9]{1})",
-			"ffmpeg version N-67742-g3f07dd6",
-			"ffmpeg version N-67521-g48efe9e"
+			"ffmpeg version N-67"
 		));
 
 
