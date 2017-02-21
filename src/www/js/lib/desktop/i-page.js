@@ -233,123 +233,125 @@ Util.Objects["page"] = new function() {
 				"display":"none"
 			});
 
+			if(sections) {
+				// enable collapsed navigation
+				if(u.e.event_support == "mouse") {
 
-			// enable collapsed navigation
-			if(u.e.event_support == "mouse") {
-
-				u.e.hover(page.hN);
+					u.e.hover(page.hN);
 				
-			}
-			// touch enabled devices should not use hover method
-			else {
+				}
+				// touch enabled devices should not use hover method
+				else {
 
-				u.e.click(page.hN);
-				page.hN.clicked = function(event) {
+					u.e.click(page.hN);
+					page.hN.clicked = function(event) {
 
-					// open navigation if it is not already open
-					if(!this.is_open) {
-						u.e.kill(event);
-						this.over();
+						// open navigation if it is not already open
+						if(!this.is_open) {
+							u.e.kill(event);
+							this.over();
+						}
+
 					}
+
+					// close open navigation when clicking on window
+					page.hN.close = function(event) {
+
+						if(this.is_open) {
+							u.e.kill(event);
+							this.out();
+						}
+					}
+					u.e.addWindowEndEvent(page.hN, "close");
 
 				}
 
-				// close open navigation when clicking on window
-				page.hN.close = function(event) {
+				page.hN.over = function() {
 
-					if(this.is_open) {
-						u.e.kill(event);
-						this.out();
-					}
-				}
-				u.e.addWindowEndEvent(page.hN, "close");
+					this.is_open = true;
+					u.a.transition(page.nN, "none");
+					page.nN.transitioned = null;
 
-			}
+					u.t.resetTimer(this.t_navigation);
 
-			page.hN.over = function() {
-
-				this.is_open = true;
-				u.a.transition(page.nN, "none");
-				page.nN.transitioned = null;
-
-				u.t.resetTimer(this.t_navigation);
-
-				u.a.transition(this, "all 0.3s ease-in-out");
-				u.ass(this, {
-					"width":"230px"
-				});
-
-				u.ass(page.nN, {
-					"display":"block"
-				});
-				u.a.transition(page.nN, "all 0.3s ease-in");
-				u.ass(page.nN, {
-					"opacity":1
-				});
-
-				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
-
-					if(i == 0) {
-						u.a.transition(span, "all 0.2s ease-in " + (i*50) + "ms");
-						u.ass(span, {
-							"transform":"translate(0, 0)"
-						});
-					}
-					else {
-						u.a.transition(span, "all 0.2s ease-in " + (i*50) + "ms");
-						u.ass(span, {
-							"opacity":1,
-							"transform":"translate(0, 0)"
-						});
-					}
-				}
-
-			}
-
-			page.hN.out = function() {
-
-				this.is_open = false;
-				u.a.transition(page.nN, "none");
-				page.nN.transitioned = null;
-
-
-				var span, i;
-				for(i = 0; span = page.hN.janitor_spans[i]; i++) {
-
-					if(i == 0) {
-						u.a.transition(span, "all 0.2s ease-in " + ((page.hN.janitor_spans.length-i)*50) + "ms");
-						u.ass(span, {
-							"transform":"translate(-8px, 0)"
-						});
-					}
-					else {
-						u.a.transition(span, "all 0.2s ease-in " + ((page.hN.janitor_spans.length-i)*50) + "ms");
-						u.ass(span, {
-							"opacity":0,
-							"transform":"translate(-8px, -30px)"
-						});
-					}
-				}
-
-				// avoid accidental clicking
-				page.nN.transitioned = function() {
-//					u.bug("hide me")
+					u.a.transition(this, "all 0.3s ease-in-out");
 					u.ass(this, {
-						"display":"none"
+						"width":"230px"
 					});
+
+					u.ass(page.nN, {
+						"display":"block"
+					});
+					u.a.transition(page.nN, "all 0.3s ease-in");
+					u.ass(page.nN, {
+						"opacity":1
+					});
+
+					for(i = 0; span = page.hN.janitor_spans[i]; i++) {
+
+						if(i == 0) {
+							u.a.transition(span, "all 0.2s ease-in " + (i*50) + "ms");
+							u.ass(span, {
+								"transform":"translate(0, 0)"
+							});
+						}
+						else {
+							u.a.transition(span, "all 0.2s ease-in " + (i*50) + "ms");
+							u.ass(span, {
+								"opacity":1,
+								"transform":"translate(0, 0)"
+							});
+						}
+					}
+
 				}
 
-				u.a.transition(page.nN, "all 0.2s ease-in");
-				u.ass(page.nN, {
-					"opacity":0
-				});
+				page.hN.out = function() {
 
-				u.a.transition(this, "all 0.2s ease-in-out 300ms");
-				u.ass(this, {
-					"width":"30px"
-				});
+					this.is_open = false;
+					u.a.transition(page.nN, "none");
+					page.nN.transitioned = null;
 
+
+					var span, i;
+					for(i = 0; span = page.hN.janitor_spans[i]; i++) {
+
+						if(i == 0) {
+							u.a.transition(span, "all 0.2s ease-in " + ((page.hN.janitor_spans.length-i)*50) + "ms");
+							u.ass(span, {
+								"transform":"translate(-8px, 0)"
+							});
+						}
+						else {
+							u.a.transition(span, "all 0.2s ease-in " + ((page.hN.janitor_spans.length-i)*50) + "ms");
+							u.ass(span, {
+								"opacity":0,
+								"transform":"translate(-8px, -30px)"
+							});
+						}
+					}
+
+					// avoid accidental clicking
+					page.nN.transitioned = function() {
+	//					u.bug("hide me")
+						u.ass(this, {
+							"display":"none"
+						});
+					}
+
+					u.a.transition(page.nN, "all 0.2s ease-in");
+					u.ass(page.nN, {
+						"opacity":0
+					});
+
+					u.a.transition(this, "all 0.2s ease-in-out 300ms");
+					u.ass(this, {
+						"width":"30px"
+					});
+
+				}
 			}
+
 			
 //			page.hN.t_navigation = u.t.setTimer(page.hN, "out", 500);
 
