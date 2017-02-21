@@ -140,7 +140,7 @@ Util.Objects["page"] = new function() {
 
 
 			var sections = u.qsa("ul.navigation > li", page.nN);
-			if(sections) {
+			if(sections.length) {
 				for(i = 0; section = sections[i]; i++) {
 
 					// nested navigation structure
@@ -233,7 +233,7 @@ Util.Objects["page"] = new function() {
 				"display":"none"
 			});
 
-			if(sections) {
+			if(sections.length && janitor_text) {
 				// enable collapsed navigation
 				if(u.e.event_support == "mouse") {
 
