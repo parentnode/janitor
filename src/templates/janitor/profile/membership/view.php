@@ -114,8 +114,7 @@ $membership = $model->getMembership();
 
 
 		<p>
-			If you have any questions or want to cancel your account entirely, please contact 
-			us directly on <a href="mailto:<?= SITE_EMAIL ?>"><?= SITE_EMAIL ?></a>.
+			If you want to cancel your account entirely, goto the <em>Cancellation</em> section on the <a href="/janitor/admin/profile">profile</a> page.
 		</p>
 
 		<? elseif(!$membership["subscription_id"]): ?>

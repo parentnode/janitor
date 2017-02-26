@@ -1,5 +1,7 @@
 <?php
 $access_item["/"] = true;
+$access_item["/cancel"] = false;
+
 
 $access_item["/reset"] = false;
 $access_item["/resetPassword"] = "/reset";

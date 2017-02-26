@@ -9,6 +9,7 @@ $access_item["/update"] = "/edit";
 
 $access_item["/delete"] = true;
 $access_item["/status"] = true;
+$access_item["/cancel"] = true;
 
 
 $access_item["/updateUsernames"] = true;

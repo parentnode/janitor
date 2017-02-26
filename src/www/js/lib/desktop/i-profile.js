@@ -289,3 +289,110 @@ Util.Objects["resetPassword"] = new function() {
 
 	}
 }
+
+// Cancel account
+Util.Objects["cancellationProfile"] = new function() {
+	this.init = function(div) {
+		u.bug("init cancellationProfile")
+
+		div.password = u.qs("div.field.password", div);
+		div.form = u.qs("form.cancelaccount", div);
+		div.form.div = div;
+
+
+		u.f.init(div.form);
+
+//		div.form.confirm_submit_button = u.qs("input[type=submit]", div.form);
+//		console.log(div.form.actions["cancelaccount"]);
+
+		div.form.actions["cancelaccount"].org_value = div.form.actions["cancelaccount"].value;
+		div.form.actions["cancelaccount"].confirm_value = "Cancelling you account cannot be undone. OK?";
+		div.form.actions["cancelaccount"].submit_value = "Confirm";
+
+		div.form.fields["password"].updated = function() {
+			u.bug("typing password")
+			u.t.resetTimer(this._form.t_confirm);
+
+		}
+
+
+		div.form.restore = function(event) {
+			u.t.resetTimer(this.t_confirm);
+
+			this.actions["cancelaccount"].value = this.actions["cancelaccount"].org_value;
+			u.rc(this.actions["cancelaccount"], "confirm");
+			u.rc(this.actions["cancelaccount"], "signup");
+
+
+			u.ass(this.div.password, {
+				"display": "none"
+			})
+		}
+
+
+		div.form.actions["cancelaccount"].clicked = function() {
+
+			// first click
+			if(!u.hc(this, "confirm")) {
+				u.ac(this, "confirm");
+				this.value = this.confirm_value;
+				this._form.t_confirm = u.t.setTimer(this._form, this._form.restore, 3000);
+			}
+			// confirm click
+			else if(!u.hc(this, "signup")) {
+				u.ac(this, "signup");
+
+				u.t.resetTimer(this._form.t_confirm);
+
+				u.ass(this._form.div.password, {
+					"display": "block"
+				});
+				this.value = this.submit_value;
+
+
+
+				this._form.t_confirm = u.t.setTimer(this._form, this._form.restore, 5000);
+			}
+			// final loop - submit cancellation
+			else {
+
+				this._form.submit();
+
+			}
+
+		}
+
+		div.form.submitted = function() {
+
+
+			this.response = function(response) {
+
+				if(response.cms_status == "success" && !response.cms_object.error) {
+					// show receipt
+					page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Your account has been cancelled"});
+
+					// redirect user to frontpage after 2 sec
+					u.t.setTimer(this, function() {location.href = "/";}, 2000);
+				}
+				else {
+
+					if(response.cms_object.error == "missing_values") {
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Some information is missing."});
+					}
+					else if(response.cms_object.error == "wrong_password") {
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"The password is not correct."});
+					}
+					else {
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"An unknown error occured."});
+					}
+
+				}
+
+			}
+			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+
+
+		}
+
+	}
+}

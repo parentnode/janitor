@@ -6,20 +6,21 @@ $user_id = $action[1];
 
 $item = $model->getUsers(array("user_id" => $user_id));
 
+
 // get user_groups for select
 $user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_group");
 
 // get languages for select
 $language_options = $model->toOptions($this->languages(), "id", "name");
 
-// get usernames
+// get existing usernames
 $mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
 $email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
 
-// password state
+// get password state
 $has_password = $model->hasPassword($user_id);
 
-// api token
+// get api token
 $apitoken = $model->getToken($user_id);
 
 // get addresses
@@ -35,16 +36,29 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 	<h2><?= $item["nickname"] ?></h2>
 
 	<ul class="actions i:defaultEditActions">
-		<?= $HTML->link("All users", "/janitor/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
-<? if($user_id != 1): ?>
-		<?= $JML->oneButtonForm("Delete", "/janitor/admin/user/delete/".$user_id, array(
+		<?= $HTML->link("All users", "/janitor/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.list")) ?>
+<? 
+// do not allow to delete Anonymous user
+if($user_id != 1): ?>
+		<?= $JML->oneButtonForm("Delete account", "/janitor/admin/user/delete/".$user_id, array(
 			"wrapper" => "li.delete",
+			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
+		)) ?>
+<? endif; ?>
+<?
+// do not allow to cancel Anonymous user
+if($user_id != 1): ?>
+		<?= $JML->oneButtonForm("Cancel account", "/janitor/admin/user/cancel/".$user_id, array(
+			"wrapper" => "li.cancel",
+			"confirm-value" => "This will anonymise the account. Permanently! Irreversibly!",
 			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
 		)) ?>
 <? endif; ?>
 	</ul>
 
-<? if($user_id != 1): ?>
+<? 
+// do not allow to change status of Anonymous user
+if($user_id != 1): ?>
 	<div class="status i:defaultEditStatus item_id:<?= $user_id ?>"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
@@ -66,7 +80,9 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 				<?= $model->input("firstname", array("value" => $item["firstname"])) ?>
 				<?= $model->input("lastname", array("value" => $item["lastname"])) ?>
 				<?= $model->input("language", array("type" => "select", "value" => $item["language"], "options" => $language_options)) ?>
-<? if($user_id != 1): ?>
+<? 
+// do not allow to change user group for Anonymous user
+if($user_id != 1): ?>
 				<?= $model->input("user_group_id", array("type" => "select", "value" => $item["user_group_id"], "options" => $user_groups_options)) ?>
 <? endif; ?>
 			</fieldset>
@@ -79,7 +95,9 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 	</div>
 
 
-<? if($user_id != 1): ?>
+<? 
+// do not allow to edit usernames for Anonymous user
+if($user_id != 1): ?>
 	<div class="usernames i:usernames i:collapseHeader">
 		<h2>Email and Mobile number</h2>
 		<p>Your email and mobile number are your unique usernames and can be used for login.</p> 
@@ -106,7 +124,9 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 <? endif; ?>
 
 
-<? if($user_id != 1): ?>
+<? 
+// do not allow to change password for Anonymous user
+if($user_id != 1): ?>
 	<div class="password i:password i:collapseHeader">
 		<h2>Password</h2>
 		<div class="password_state <?= $has_password ? "set" : "" ?> ">
@@ -130,7 +150,9 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 <? endif; ?>
 
 
-<? if($user_id != 1): ?>
+<? 
+// do not allow to create api token for Anonymous user
+if($user_id != 1): ?>
 	<div class="apitoken i:apitoken i:collapseHeader">
 		<h2>API Token</h2>
 		<p class="token"><?= stringOr($apitoken, "N/A") ?></p>
@@ -149,7 +171,9 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 <? endif; ?>
 
 
-<? if($user_id != 1): ?>
+<? 
+// do not allow to edit addresses for Anonymous user
+if($user_id != 1): ?>
 	<div class="addresses i:collapseHeader">
 		<h2>Addresses</h2>
 <?		if($addresses): ?>
@@ -185,7 +209,9 @@ $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 <? endif; ?>
 
 
-<? if($user_id != 1): ?>
+<? 
+// do not allow to edit newsletters for Anonymous user
+if($user_id != 1): ?>
 	<div class="newsletters i:newsletters i:collapseHeader">
 		<h2>Newsletters</h2>
 <?		if($all_newsletters): ?>

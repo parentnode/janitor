@@ -160,4 +160,22 @@ $user_newsletters = $item["newsletters"];
 <?		endif; ?>
 	</div>
 
+	<div class="cancellation i:cancellationProfile i:collapseHeader">
+		<h2>Cancellation</h2>
+
+
+		<?= $model->formStart("cancel", array("class" => "cancelaccount")) ?>
+
+			<fieldset>
+				<?= $model->input("password", array("label" => "Please type your password to confirm cancellation", "required" => true)) ?>
+			</fieldset>
+
+			<ul class="actions">
+				<?= $model->submit("Cancel account", array("class" => "secondary", "wrapper" => "li.cancelaccount")) ?>
+			</ul>
+
+		<?= $model->formEnd() ?>
+
+	</div>
+
 </div>
