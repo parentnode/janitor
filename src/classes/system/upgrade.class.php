@@ -52,19 +52,6 @@ class Upgrade {
 		try {
 
 
-			// TODO: start think specific
-			// change emails for all users (during test)
-			// if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames")) {
-			// 	$usernames = $query->results();
-			// 	foreach($usernames as $username) {
-			// 		if($username["type"] == "email" && !preg_match("/@think\.dk/", $username["username"])) {
-			// 			$query->sql("UPDATE ".SITE_DB.".user_usernames SET username = 'start@think.dk' WHERE id = ".$username["id"]);
-			// 		}
-			// 	}
-			// }
-			// TODO: end think specific
-
-
 
 			// TODO: Pull the latest Janitor version
 
@@ -595,6 +582,8 @@ class Upgrade {
 			$this->process($this->modifyColumn(SITE_DB.".users", "language", "varchar(2) DEFAULT NULL"), true);
 			$query->sql("UPDATE ".SITE_DB.".users SET language = NULL WHERE language = ''");
 
+			$this->process($this->addColumn(SITE_DB.".users", "last_login_at", "timestamp NULL DEFAULT NULL", "modified_at"), true);
+
 			$this->process($this->addKey(SITE_DB.".users", "language"), true);
 			$this->process($this->addConstraint(SITE_DB.".users.language", UT_LANGUAGES.".id", "ON UPDATE CASCADE"), true);
 
@@ -653,6 +642,39 @@ class Upgrade {
 
 			// Upgrade complete
 			print '<li class="done">UPGRADE COMPLETE</li>';
+
+		}
+		catch(Exception $exception) {}
+
+	}
+
+
+
+	// Check Database structure for v0_8 requirements
+	function replaceEmails() {
+
+		$query = new Query();
+
+		try {
+
+			// change emails for all users (during test)
+			if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames WHERE type='email'")) {
+				$usernames = $query->results();
+				foreach($usernames as $username) {
+//					if($username["type"] == "email" && !preg_match("/@think\.dk/", $username["username"])) {
+						if($query->sql("UPDATE ".SITE_DB.".user_usernames SET username = '".ADMIN_EMAIL."' WHERE id = ".$username["id"])) {
+							$this->process(array("success" => true, "message" => "Replaced ". $username["username"] . " with " . ADMIN_EMAIL), true);
+						}
+						else {
+							$this->process(array("success" => false), true);
+						}
+//					}
+				}
+			}
+
+
+			// Upgrade complete
+			print '<li class="done">REPLACMENT COMPLETE</li>';
 
 		}
 		catch(Exception $exception) {}
