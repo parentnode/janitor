@@ -9,14 +9,7 @@ if(count($action) > 1 && $action[1]) {
 	$user_group_id = $action[1];
 }
 else {
-	// Simple users (clients/customers/guest) are always user_group 99 (but such group might not always exist)
-	if(arrayKeyValue($user_groups, "id", 99) !== false) {
-		$user_group_id = 99;
-	}
-	// Developers are always user_group 1 (and they always exist)
-	else {
-		$user_group_id = 1;
-	}
+	$user_group_id = session()->value("user_group_id");
 }
 
 $users = $model->getUsers(array("user_group_id" => $user_group_id));
