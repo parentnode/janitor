@@ -3,7 +3,7 @@
 /**
 * This file contains definitions
 *
-* @package Config Dummy file
+* @package Config
 */
 header("Content-type: text/html; charset=UTF-8");
 error_reporting(E_ALL);
