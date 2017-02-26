@@ -11,6 +11,7 @@ CREATE TABLE `SITE_DB`.`users` (
 
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_at` timestamp NULL DEFAULT NULL,
+  `last_login_at` timestamp NULL DEFAULT NULL,
 
   PRIMARY KEY (`id`),
   KEY `user_group_id` (`user_group_id`),

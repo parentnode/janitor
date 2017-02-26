@@ -73,7 +73,7 @@ class PageCore {
 			session()->value("site", SITE_URL);
 			session()->value("ip", (getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR")));
 			session()->value("useragent", ((isset($_SERVER["HTTP_USER_AGENT"]) && $_SERVER["HTTP_USER_AGENT"]) ? stripslashes($_SERVER["HTTP_USER_AGENT"]) : "Unknown"));
-			session()->value("logged_in_at", date("Y-m-d H:i:s"));
+			session()->value("last_login_at", date("Y-m-d H:i:s"));
 		}
 
 //		print session()->value("user_id").", ".session()->value("user_group_id")."<br>";
@@ -1549,8 +1549,12 @@ class PageCore {
 				session()->value("user_id", intval($query->result(0, "id")));
 				session()->value("user_group_id", intval($query->result(0, "user_group_id")));
 				session()->value("user_nickname", $query->result(0, "nickname"));
-				session()->value("logged_in_at", date("Y-m-d H:i:s"));
+				session()->value("last_login_at", date("Y-m-d H:i:s"));
 				session()->reset("user_group_permissions");
+
+				// Update login timestamp
+				$sql = "UPDATE ".SITE_DB.".users SET last_login_at=CURRENT_TIMESTAMP WHERE users.id = ".session()->value("user_id");
+				$query->sql($sql);
 
 				$this->addLog("Login: ".$username .", user_id:".session()->value("user_id"));
 
@@ -1560,7 +1564,7 @@ class PageCore {
 
 				// regerate Session id
 				session_regenerate_id(true);
-				
+
 
 				if(getPost("ajaxlogin")) {
 					$output = new Output();
