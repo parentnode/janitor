@@ -110,6 +110,9 @@ Util.Objects["oneButtonForm"] = new function() {
 
 
 					this.response = function(response) {
+
+						u.rc(this.confirm_submit_button, "loading");
+
 						page.notify(response);
 
 						if(response.cms_status == "success") {
@@ -130,7 +133,7 @@ Util.Objects["oneButtonForm"] = new function() {
 									location.href = this.success_location;
 								}
 								else if(this.success_function) {
-									u.bug("function:" + this.success_function)
+//									u.bug("function:" + this.success_function + "," + typeof(this.node[this.success_function]))
 									if(typeof(this.node[this.success_function]) == "function") {
 										this.node[this.success_function](response);
 									}
@@ -151,6 +154,8 @@ Util.Objects["oneButtonForm"] = new function() {
 						this.restore();
 
 					}
+					u.ac(this.confirm_submit_button, "loading");
+
 					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
 				}
 			}

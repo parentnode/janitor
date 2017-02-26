@@ -211,6 +211,8 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content ul.actions input.button.primary,
 #content ul.actions a.button.primary {background-color: #64ad8e;}
 
+
+
 #content ul.actions input.button.primary:hover,
 #content ul.actions a.button.primary:hover {background-color: #313942;}
 
@@ -220,6 +222,7 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content ul.actions a.button.secondary {background-color: #fecd60; color: #9f742c;}
 #content ul.actions input.button.secondary:hover,
 #content ul.actions a.button.secondary:hover {background-color: #fed76e;}
+
 
 
 /* CUSTOM STATUS BUTTON */
@@ -235,6 +238,8 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content ul.actions form input.button.confirm,
 #content ul.actions form input.button.confirm:hover {color: #ffffff; background-color: #df0000;}
 
+#content ul.actions form input.button.loading,
+#content ul.actions form input.button.loading:hover {padding-left: 35px; background-color: #8c9399; background-image: url(/janitor/admin/img/gx_loader.gif); background-position: 10px center; background-repeat: no-repeat;}
 
 
 /* DISABLED BUTTON */
