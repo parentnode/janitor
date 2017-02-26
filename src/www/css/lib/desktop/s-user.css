@@ -1,9 +1,13 @@
 /* Users and usergroups */
 
-#content .defaultList.userList > .actions li.online {float: right; padding: 0 0 10px 10px;}
 
 /* USERLIST */
+#content .defaultList.userList > ul.actions li.online {float: right; padding: 0 0 10px 10px;}
+#content .defaultList.userList > ul.actions li.unconfirmed_accounts {float: right; padding: 0 0 10px 10px;}
 
+
+/* USEREDIT */
+#content .defaultEdit.userEdit > ul.actions li.cancel {float: right; padding: 0 0 10px 10px;}
 
 
 
@@ -146,8 +150,16 @@
 
 /* ONLINE USERS */
 
+/* UNCONFIRMED ACCOUNTS */
+#content .defaultList.usersNotVerified > ul.actions li.remind {float: right; padding: 0 0 10px 10px;}
+
 
 
 /* PROFILE */
 #content .scene.profileEdit div.password label {display: block; padding-left: 3px;}
 #content .scene.profileEdit div.password .indicator {top: 20px;}
+
+/* CANCELATION */
+#content .scene.profileEdit div.cancellation div.field.password {display: none;}
+#content .scene.profileEdit div.cancellation ul.actions input.button.confirm,
+#content .scene.profileEdit div.cancellation ul.actions input.button.confirm:hover {color: #ffffff; background-color: #df0000;}

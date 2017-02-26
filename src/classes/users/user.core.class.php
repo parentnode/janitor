@@ -619,11 +619,20 @@ class UserCore extends Model {
 
 				$user_id = $query->result(0, "user_id");
 
-				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '".randomKey(8)."' WHERE type = '$type' AND username = '$username'";
+				// update verification state
+				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '' WHERE type = '$type' AND username = '$username'";
+//				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '".randomKey(8)."' WHERE type = '$type' AND username = '$username'";
 				if($query->sql($sql)) {
 
-					$query->sql("UPDATE ".$this->db." SET status = 1 WHERE id = $user_id");
+					// enable user
+					$sql = "UPDATE ".$this->db." SET status = 1 WHERE id = $user_id";
 					if($query->sql($sql)) {
+
+						// delete activation reminder logs (not needed after user has been verified)
+						$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id";
+						$query->sql($sql);
+
+
 						return true;
 					}
 				}

@@ -28,7 +28,7 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 		<?= $HTML->link("New user", "/janitor/admin/user/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
 		<?= $HTML->link("Members", "/janitor/admin/user/members/list", array("class" => "button", "wrapper" => "li.member")) ?>
-		<?= $HTML->link("Not verified accounts", "/janitor/admin/user/verification_missing", array("class" => "button", "wrapper" => "li.varification_missing")) ?>
+		<?= $HTML->link("Unconfirmed accounts", "/janitor/admin/user/unconfirmed-accounts", array("class" => "button", "wrapper" => "li.unconfirmed_accounts")) ?>
 		<?= $HTML->link("Online users", "/janitor/admin/user/online", array("class" => "button", "wrapper" => "li.online")) ?>
 	</ul>
 
@@ -49,16 +49,19 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 <?			foreach($users as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
 				<h3><?= $item["nickname"] ?><?= $item["id"] == session()->value("user_id") ? " (YOU)" : "" ?></h3>
-
+				<dl class="info">
+					<dt>Last login</dt>
+					<dd><?= $item["last_login_at"] ? $item["last_login_at"] : "Never" ?></dd>
+				</dl>
 				<ul class="actions">
 					<?= $HTML->link("Edit", "/janitor/admin/user/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 
 <? if($item["id"] != 1): ?>
-					<?= $JML->oneButtonForm("Delete", "/janitor/admin/user/delete/".$item["id"], array(
-						"js" => true,
-						"wrapper" => "li.delete",
-						"static" => true
-					)) ?>
+					<? //= $JML->oneButtonForm("Delete", "/janitor/admin/user/delete/".$item["id"], array(
+					//	"js" => true,
+					//	"wrapper" => "li.delete",
+					//	"static" => true
+					// )) ?>
 					<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/user/status", $item) ?>
 <? endif; ?>
 				</ul>

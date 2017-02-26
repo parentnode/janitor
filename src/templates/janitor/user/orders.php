@@ -26,7 +26,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	<h2><?= $user["nickname"] ?></h2>
 
 	<ul class="actions">
-		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.list")) ?>
 	</ul>
 
 

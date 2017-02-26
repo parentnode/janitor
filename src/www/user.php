@@ -66,7 +66,8 @@ $access_item["/updateUserGroup"] = "/group";
 
 // ONLINE INTERFACE
 $access_item["/online"] = true;
-$access_item["/verification_missing"] = true;
+$access_item["/unconfirmed-accounts"] = true;
+$access_item["/sendActivationReminder"] = true;
 $access_item["/flushUserSession"] = true;
 
 if(isset($read_access) && $read_access) {
@@ -209,11 +210,11 @@ if(is_array($action) && count($action)) {
 	}
 
 	// NOT VERIFIED USER OVERVIEW
-	else if(preg_match("/^(verification_missing)$/", $action[0]) && count($action) == 1) {
+	else if(preg_match("/^(unconfirmed-accounts)$/", $action[0]) && count($action) == 1) {
 
 		$page->page(array(
 			"type" => "janitor",
-			"templates" => "janitor/user/verification_missing.php"
+			"templates" => "janitor/user/unconfirmed-accounts.php"
 		));
 		exit();
 	}

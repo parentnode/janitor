@@ -269,6 +269,110 @@ class SuperUser extends User {
 	}
 
 
+	function getUnconfirmedUsers($user_id = false) {
+
+		$query = new Query();
+		$query->checkDbExistence(SITE_DB.".user_log_activation_reminders");
+
+		$SELECT = array();
+		$FROM = array();
+		$LEFTJOIN = array();
+		$WHERE = array();
+		$GROUP_BY = "";
+		$ORDER = array();
+		$HAVING = "";
+		$LIMIT = "";
+
+		$SELECT[] = "users.id as user_id";
+		$SELECT[] = "usernames.username as username";
+		$SELECT[] = "usernames.verification_code as verification_code";
+		$SELECT[] = "users.nickname as nickname";
+		$SELECT[] = "users.created_at as created_at";
+
+		$SELECT[] = "MAX(reminders.created_at) as reminded_at";
+		$SELECT[] = "COUNT(reminders.id) as total_reminders";
+
+		$FROM[] = $this->db_usernames." as usernames";
+		$FROM[] = $this->db." as users";
+
+		$WHERE[] = "users.id = usernames.user_id";
+		$WHERE[] = "users.status = 0";
+		$WHERE[] = "usernames.verified = 0";
+		$WHERE[] = "usernames.type = 'email'";
+		$WHERE[] = "users.status = 0";
+
+		// join with activation log
+		$LEFTJOIN[] = SITE_DB.".user_log_activation_reminders as reminders ON users.id = reminders.user_id";
+
+		$GROUP_BY = "users.id";
+
+		$ORDER[] = "reminded_at ASC";
+
+		if($user_id) {
+			$WHERE[] = "users.id = $user_id";
+			$LIMIT = 1;
+		}
+
+
+		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER, "LIMIT" => $LIMIT));
+
+
+		// print $sql;
+		if($query->sql($sql)) {
+			return $query->results();
+		}
+
+		return false;
+	}
+	
+	// /janitor/admin/user/sendActivationReminder/[#user_id#]
+	function sendActivationReminder($action) {
+
+		global $page;
+		$query = new Query();
+		$query->checkDbExistence(SITE_DB.".user_log_activation_reminders");
+
+
+		$users = false;
+		$user_id = false;
+
+		// user_id passed?
+		if(count($action) == 2) {
+			$user_id = $action[1];
+		}
+
+		$users = $this->getUnconfirmedUsers($user_id);
+
+
+		foreach($users as $key => $user) {
+
+//			print "send mail to:" . $user["username"] . "<br>\n";
+
+			$page->mail(array(
+				"values" => array(
+					"NICKNAME" => $user["nickname"],
+					"EMAIL" => $user["username"],
+					"VERIFICATION" => $user["verification_code"],
+				),
+				"recipients" => $user["username"],
+				"template" => "signup_reminder"
+			));
+
+			message()->addMessage("Reminder sent to ".$user["username"]);
+
+			// Add to user log
+			$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user["user_id"];
+	//		print $sql;
+			$query->sql($sql);
+
+		}
+
+		// get updated user activation data
+		$users = $this->getUnconfirmedUsers($user_id);
+
+
+		return $users;
+	}
 	
 
 

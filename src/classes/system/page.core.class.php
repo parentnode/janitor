@@ -1583,16 +1583,33 @@ class PageCore {
 			}
 			
 			// is the reason that the user has not been activated yet?
-			// make login query
-			// look for user with status 0
-			$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND password='".sha1($password)."' AND username='$username'";
+			// make login query and
+			// look for user with status 0, verified = 0
+			$sql = "SELECT users.id, users.nickname, usernames.username, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND password='".sha1($password)."' AND username='$username' AND verified = 0";
 //			print $sql;
 			if($query->sql($sql)) {
+
+				// send activation reminder email
+				$this->mail(array(
+					"values" => array(
+						"NICKNAME" => $query->result(0, "nickname"), 
+						"EMAIL" => $query->result(0, "username"), 
+						"VERIFICATION" => $query->result(0, "verification_code"),
+					), 
+					"recipients" => $query->result(0, "username"), 
+					"template" => "signup_reminder"
+				));
+
+
+				// Add to user log
+				$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$query->result(0, "id");
+	//			print $sql;
+				$query->sql($sql);
+
+
 				message()->addMessage("User has not been verified yet – did you forget to activate your account?", array("type" => "error"));
 				return false;
-				
 			}
-			
 		}
 
 		$this->addLog("Login error: ".$username);

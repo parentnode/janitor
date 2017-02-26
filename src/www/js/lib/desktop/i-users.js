@@ -373,3 +373,67 @@ Util.Objects["newSubscription"] = new function() {
 		}
 	}
 }
+
+
+
+// unconfirmedAccounts form
+Util.Objects["unconfirmedAccounts"] = new function() {
+	this.init = function(div) {
+
+
+		var i, node;
+		// nodes are already available from defaultList
+		for(i = 0; node = div.nodes[i]; i++) {
+
+			node.bn_remind = u.qs("ul.actions li.remind", node);
+			node.bn_remind.node = node;
+
+			node.bn_remind.reminded = function(response) {
+
+				if(this.parentNode) {
+					this.parentNode.removeChild(this);
+				}
+				if(response.cms_status == "success") {
+					var reminded_at = u.qs("dd.reminded_at", this.node);
+					var total_reminders = u.qs("dd.total_reminders", this.node);
+
+					reminded_at.innerHTML = response.cms_object[0]["reminded_at"] + " (just now)";
+					u.ac(reminded_at, "warning");
+					total_reminders.innerHTML = response.cms_object[0]["total_reminders"];
+					u.ac(total_reminders, "warning");
+				}
+				else {
+					page.notify({"cms_status":"error", "cms_message":{"error":["Could not send message"]}, "isJSON":true});
+				}
+
+			}
+
+		}
+
+	}
+
+}
+
+// unconfirmedAccountsAll
+Util.Objects["unconfirmedAccountsAll"] = new function() {
+	this.init = function(ul) {
+
+		var bn_remind_all = u.qs("li.remind", ul);
+		bn_remind_all.reminded = function(response) {
+
+			if(response.cms_status == "success") {
+
+				for(i = 0; obj = response.cms_object[i]; i++) {
+
+					node = u.ge("id:" + obj.user_id);
+//					console.log(node);
+					node.bn_remind.reminded({"cms_status":"success", "cms_object":[obj]});
+
+				}
+
+			}
+
+		}
+
+	}
+}

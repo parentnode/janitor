@@ -40,7 +40,7 @@ if(class_exists("Memcached")) {
 							"nickname" => isset($values["user_nickname"]) ? $values["user_nickname"] : "Anonymous",
 							"ip" => $values["ip"],
 							"useragent" => $values["useragent"],
-							"logged_in_at" => $values["logged_in_at"]
+							"last_login_at" => $values["last_login_at"]
 						);
 					}
 
@@ -69,8 +69,8 @@ if(class_exists("Memcached")) {
 			<li class="item user_id:<?= session()->value("user_id") ?> current_user">
 				<h3><?= session()->value("user_nickname") ?>, <?= $user_groups[arrayKeyValue($user_groups, "id", session()->value("user_group_id"))]["user_group"] ?></h3>
 				<dl class="info">
-					<dt class="logged_in_at">Logged in at</dt>
-					<dd class="logged_in_at"><?= session()->value("logged_in_at") ?></dd>
+					<dt class="last_login_at">Logged in at</dt>
+					<dd class="last_login_at"><?= session()->value("last_login_at") ?></dd>
 					<dt class="ip">IP</dt>
 					<dd class="ip"><?= session()->value("ip") ?></dd>
 					<dt class="useragent">UserAgent</dt>
@@ -85,8 +85,8 @@ if(class_exists("Memcached")) {
 			<li class="item user_id:<?= $user["user_id"] ?>">
 				<h3><?= $user["nickname"] ?>, <?= $user_groups[arrayKeyValue($user_groups, "id", $user["user_group_id"])]["user_group"] ?></h3>
 				<dl class="info">
-					<dt class="logged_in_at">Logged in at</dt>
-					<dd class="logged_in_at"><?= $user["logged_in_at"] ?></dd>
+					<dt class="last_login_at">Logged in at</dt>
+					<dd class="last_login_at"><?= $user["last_login_at"] ?></dd>
 					<dt class="ip">IP</dt>
 					<dd class="ip"><?= $user["ip"] ?></dd>
 					<dt class="useragent">UserAgent</dt>
