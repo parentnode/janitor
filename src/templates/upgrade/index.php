@@ -6,13 +6,35 @@ global $model;
 	<h1>Janitor maintenance room</h1>
 	<h2>Upgrade center</h2>
 
-
-	<h3>Upgrade center</h3>
 	<p>
-		Select you upgrade option.
+		Select you upgrade option:
 	</p>
-	<ul class="actions">
-		<li class="check"><a href="/janitor/admin/setup/upgrade/full" class="button primary">Full upgrade</a></li>
-	</ul>
+
+	<div class="option">
+		<h3>Full upgrade</h3>
+		<p>
+			Updates database and data structure to latest standard.
+		</p>
+		<ul class="actions">
+			<li class="check"><a href="/janitor/admin/setup/upgrade/full" class="button primary">Full upgrade</a></li>
+		</ul>
+	</div>
+
+<? if(preg_match("/\.local$/", SITE_URL)): ?>
+	<h2>Development tools</h2>
+	<div class="option">
+		<h3>Replace user emails</h3>
+		<p>
+			Changes all user emails to <em><?= ADMIN_EMAIL ?></em>. Useful for testing user updates on "real" users without risking
+			sending unintended emails.
+		</p>
+		<p class="note">
+			DON'T DO THIS IN PRODUCTION ENVIROMENTS - CHANGES CANNOT BE UNDONE.
+		</p>
+		<ul class="actions">
+			<li class="check"><a href="/janitor/admin/setup/upgrade/replace-emails" class="button primary">Replace emails</a></li>
+		</ul>
+	</div>
+<? endif; ?>
 
 </div>

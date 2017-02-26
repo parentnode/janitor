@@ -5,6 +5,8 @@
 #content .scene fieldset+p {padding-top: 20px;}
 
 #content .scene.setup .option {padding-bottom: 30px;}
+#content .scene.setup .option p+ul {margin-top: -15px;}
+
 
 #content .scene.check ul.requirements {padding: 0px 30px 20px;}
 #content .scene.check ul.requirements li {display: block; padding: 0 0 10px;}
