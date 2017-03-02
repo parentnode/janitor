@@ -24,7 +24,7 @@ Util.Objects["defaultNew"] = new function() {
 					}
 					else if(location.href.match(/\/new$/)) {
 //						u.bug("match new:" + location.href.replace(/\/new/, "/edit/")+response.cms_object.id);
-						location.href = location.href.replace(/\/new/, "/edit/")+response.cms_object.id;
+						location.href = location.href.replace(/\/new/, "/edit/")+response.cms_object.item_id;
 					}
 					else if(this.actions["cancel"]) {
 //						u.bug("match cancel")
