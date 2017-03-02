@@ -167,7 +167,7 @@ if(is_array($action) && count($action)) {
 		exit();
 	}
 
-	// MEMBER
+	// MEMBERS
 	else if(preg_match("/^(members)$/", $action[0]) && count($action) > 1) {
 
 		// MEMBER LIST/EDIT
