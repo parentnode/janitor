@@ -20,7 +20,7 @@ global $model;
 		</ul>
 	</div>
 
-<? if(preg_match("/(^http[s]\:\/\/test\.)|(\.local$)/", SITE_URL)): ?>
+<? if(preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL)): ?>
 	<h2>Development tools</h2>
 	<div class="option">
 		<h3>Replace user emails</h3>
