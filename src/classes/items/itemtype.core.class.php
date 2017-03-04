@@ -116,35 +116,120 @@ class ItemtypeCore extends Model {
 	* @param string $sindex
 	* @return String final/valid sindex
 	*/
-	function sindex($sindex, $item_id) {
+	function sindex($sindex, $item_id, $excluded = []) {
 
 		$query = new Query();
 
 		// superNormalize $sindex suggetion
 		$sindex = superNormalize(substr($sindex, 0, 60));
 
-		// check for existance
+		// check for existence
 		// update if sindex does not exist already
-		if(!$query->sql("SELECT sindex FROM ".UT_ITEMS." WHERE sindex = '$sindex' AND id != $item_id")) {
-			$query->sql("UPDATE ".UT_ITEMS." SET sindex = '$sindex' WHERE id = $item_id");
+		$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE sindex = '$sindex' AND id != $item_id";
+//		print $sql."<br>\n";
+
+		if(array_search($sindex, $excluded) === false && !$query->sql($sql)) {
+			$sql = "UPDATE ".UT_ITEMS." SET sindex = '$sindex' WHERE id = $item_id";
+//			print $sql."<br>\n";
+
+			$query->sql($sql);
 		}
 
-		// add counter to the end of sindex
+		// find best match incremental sindex
+		// lower value is considered better
 		else {
-			// does sindex have counter, then increase it
-			preg_match("/-([\d]+)$/", $sindex, $matches);
-			if($matches && is_numeric($matches[1])) {
-				$counter = ($matches[1] + 1);
-				$sindex = preg_replace("/-([\d]+)$/", "", $sindex);
+
+			// Add this sindex to excluded options (to prevent endless loops)
+			array_push($excluded, $sindex);
+			// print "We have tried these already:<br>\n";
+			// print_r($excluded);
+
+			// clean sindex in case it's coming from iteration
+			$sindex = preg_replace("/-([\d]+)$/", "", $sindex);
+
+			// find all existing incremental versions of this sindex
+			$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE sindex REGEXP '^".$sindex."[-]?[0-9]+$' ORDER BY LENGTH(sindex) DESC, sindex DESC";
+//			print $sql . "<br>\n";
+
+			$query->sql($sql);
+			$existing_sindexes = $query->results();
+
+
+			// set base values
+			$next_i = 1;
+			$last_i = 1;
+
+			// are there more increments of this sindex
+			if($existing_sindexes) {
+
+//				print_r($existing_sindexes);
+
+				// find last incremental value
+				preg_match("/-([\d]+)$/", $existing_sindexes[0]["sindex"], $matches);
+				if($matches && is_numeric($matches[1])) {
+					$last_i = $matches[1];
+				}
+//				print "last_i: $last_i". "<br>\n";
+
+
+				// amount of increments and last value matches or too many numbers in order
+
+				// it doesn't mean that the order is perfect (just that it probably is)
+				// let's just go for last+1 - if we haven't tried that already (it's the fastest option)
+				if(count($existing_sindexes) >= $last_i && array_search($sindex."-".$last_i+1, $excluded) === false) {
+					$next_i = $last_i+1;
+//					print "try last number: $next_i";
+				}
+				// some numbers seems to be missing in order
+				else {
+
+					// reverse sindexes to loop through from lowest to highest
+					$existing_sindexes = array_reverse($existing_sindexes);
+//					print_r($existing_sindexes);
+
+					foreach($existing_sindexes as $existing_sindex) {
+
+						// get incremental value
+						preg_match("/-([\d]+)$/", $existing_sindex["sindex"], $matches);
+//						print $matches[1]. " = ".$next_i."<br>\n";
+
+						// did we find matching incremental value
+						if($matches && is_numeric($matches[1])) {
+
+							// incremental value and position matches
+							if($matches && is_numeric($matches[1]) && $matches[1] == $next_i) {
+
+								$next_i++;
+
+							}
+							// last incremental was used again, skip
+							else if($matches[1] == $next_i-1) {
+
+								// allow that - do not attempt to fix double entries here
+
+							}
+							// found a number which doesn't seem to be used
+							else if($matches[1] > $next_i && array_search($sindex."-".$next_i, $excluded) === false) {
+
+//								print "found"."<br>\n";
+								break;
+
+							}
+
+						}
+
+					}
+//					print "looped:" . $next_i."<br>\n";
+
+				}
+
 			}
-			// start with 1
-			else {
-				$counter = 1;
-			}
-			$sindex = $sindex."-".$counter;
+
+			$sindex = $sindex . "-" . $next_i;
+//			print $sindex . "<br>\n";
 
 			// recurse until valid sindex has been generated
-			$sindex = $this->sindex($sindex, $item_id);
+			$sindex = $this->sindex($sindex, $item_id, $excluded);
 		}
 
 		return $sindex;
