@@ -89,10 +89,10 @@ class Setup extends Itemtype {
 		$this->addToModel("site_uid", array(
 			"type" => "string",
 			"label" => "Unique ID",
-			"pattern" => "[A-Z]+",
+			"pattern" => "[A-Z0-9]+",
 			"required" => true,
-			"hint_message" => "3-8 character ID (A-Z) used to identify your current project. Used for cross-project communication and logging.", 
-			"error_message" => "Unique ID can only contain uppercase characters from A-Z."
+			"hint_message" => "3-8 character ID (A-Z, 0-9) used to identify your current project. Used for cross-project communication and logging.", 
+			"error_message" => "Unique ID can only contain uppercase characters from A-Z or the numbers 0-9."
 		));
 		// site_name
 		$this->addToModel("site_name", array(
