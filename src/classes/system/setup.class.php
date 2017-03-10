@@ -1122,6 +1122,9 @@ class Setup extends Itemtype {
 					$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->mail_admin."\");", $file_mail);
 					$file_mail = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"host\" => \"".$this->mail_host."\"", $file_mail);
 					$file_mail = preg_replace("/(\n)[ \t]*\"port\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"port\" => \"".$this->mail_port."\"", $file_mail);
+					if($this->mail_port == "587") {
+						$file_mail = preg_replace("/(\n)[ \t]*\"secure\"[ ]*\=\>[ ]*\"ssl\"/", "\n\t\t\"secure\" => \"tls\"", $file_mail);
+					}
 					$file_mail = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"username\" => \"".$this->mail_username."\"", $file_mail);
 					$file_mail = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"password\" => \"".$this->mail_password."\"", $file_mail);
 					file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
