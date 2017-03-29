@@ -3,7 +3,7 @@
 #content ul.tags li {display: inline-block; vertical-align: top; margin: 0 6px 6px 0; border-radius: 12px; background-color: #313942; padding: 4px 7px 6px; color: #ffffff; font-size: 0;}
 #content ul.tags li.add {padding: 4px 4px 6px; cursor: pointer; width: 13px; text-align: center;}
 #content ul.tags li.add:hover {background-color: #64ad8e;}
-#content ul.tags li span {font-size: 11px; line-height: 1em; color: #ffffff !important;}
+#content ul.tags li span {font-size: 11px; line-height: 1em; color: #ffffff;}
 #content ul.tags li span.context {text-transform: uppercase;}
 #content ul.tags li span.context:after {content: ":";}
 #content ul.tags li span.value {}
@@ -28,13 +28,15 @@
 /* ADD TAGS ACTIVE */
 #content .edittags ul.tags li {cursor: pointer;}
 #content .edittags ul.tags li:hover,
-#content .edittags ul.tags li.add:hover {background-color: #df0000;}
+#content .edittags ul.tags li.add:hover {background-color: #df0000; color: #ffffff;}
 #content .edittags div.tagoptions ul.tags {display: block;}
 
 /* NEW TAGS LIST */
 #content div.tagoptions ul.tags {position: relative; z-index: 10; display: none;}
-#content div.tagoptions ul.tags li {background-color: #313942;}
+#content div.tagoptions ul.tags li {background-color: #dedede;}
+#content div.tagoptions ul.tags li span {color: #333333;}
 #content div.tagoptions ul.tags li:hover {background-color: #64ad8e;}
+#content div.tagoptions ul.tags li:hover span {color: #ffffff;}
 
 /* TAGGABLE LIST ADJUSTMENTS */
 #content div.all_items div.tagoptions {padding-top: 8px;}
