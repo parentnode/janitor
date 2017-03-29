@@ -63,7 +63,18 @@
 #content .scene.userEdit > div.newsletters ul.newsletters > li h3 {padding: 4px 0 0; display: inline-block; vertical-align: top;}
 #content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions {padding: 0 10px 0 0; display: inline-block; vertical-align: top;}
 #content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li {padding: 0;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li input {width: 100px; text-align: center;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li input {font-size: 0; height: 26px; width: 26px; padding: 3px 12px;}
+
+#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.unsubscribe input.button {background-color: #f4f5f5; border-left: 3px solid #8c9399; border-top: 3px solid #8c9399; border-right: 27px solid #8c9399; border-bottom: 3px solid #8c9399;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.subscribe input.button {background-color: #f4f5f5; border-right: 3px solid orange; border-top: 3px solid orange; border-left: 27px solid orange; border-bottom: 3px solid orange;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.unsubscribe form:after {content: "ON"; font-size: 10px; font-weight: 700; color: #8c9399; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 6px;}
+#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.subscribe form:after {content: "OFF"; font-size: 10px; font-weight: 700; color: orange; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 29px;}
+
+
+
+
+
+
 #content .scene.userEdit > div.newsletters > ul.actions {padding-top: 20px; border-top: 1px solid #dedede;}
 
 #content .scene.userEdit > div.newsletters ul.newsletters > li.subscribed li.subscribe {display: none;}

@@ -99,7 +99,7 @@ Util.Objects["oneButtonForm"] = new function() {
 			node.form.submitted = function() {
 
 				// first click
-				if(!u.hc(this.confirm_submit_button, "confirm")) {
+				if(!u.hc(this.confirm_submit_button, "confirm") && this.confirm_submit_button.confirm_value) {
 					u.ac(this.confirm_submit_button, "confirm");
 					this.confirm_submit_button.value = this.confirm_submit_button.confirm_value;
 					this.t_confirm = u.t.setTimer(this, this.restore, 3000);

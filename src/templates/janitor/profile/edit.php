@@ -138,14 +138,17 @@ $user_newsletters = $item["newsletters"];
 	<div class="newsletters i:newslettersProfile i:collapseHeader">
 		<h2>Newsletters</h2>
 <?		if($all_newsletters): ?>
+		<p>You are signed up for the following newsletters:</p>
 		<ul class="newsletters">
 <?			foreach($all_newsletters as $newsletter): ?>
 			<li class="<?= arrayKeyValue($user_newsletters, "newsletter_id", $newsletter["id"]) !== false ? "subscribed" : "" ?>">
 				<ul class="actions">
 					<?= $JML->oneButtonForm("Unsubscribe", "/janitor/admin/profile/deleteNewsletter/".$newsletter["id"], array(
+						"confirm-value" => false,
 						"wrapper" => "li.unsubscribe"
 					)) ?>
 					<?= $JML->oneButtonForm("Subscribe", "/janitor/admin/profile/addNewsletter", array(
+						"confirm-value" => false,
 						"wrapper" => "li.subscribe",
 						"class" => "primary",
 						"inputs" => array("newsletter_id" => $newsletter["id"])
@@ -162,7 +165,9 @@ $user_newsletters = $item["newsletters"];
 
 	<div class="cancellation i:cancellationProfile i:collapseHeader">
 		<h2>Cancellation</h2>
-
+		<p>
+			If you cancel your account, we'll delete your personal information and your membership and subscriptions from our system.
+		</p>
 
 		<?= $model->formStart("cancel", array("class" => "cancelaccount")) ?>
 

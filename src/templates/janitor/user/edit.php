@@ -220,9 +220,11 @@ if($user_id != 1): ?>
 			<li class="<?= arrayKeyValue($user_newsletters, "newsletter_id", $newsletter["id"]) !== false ? "subscribed" : "" ?>">
 				<ul class="actions">
 					<?= $JML->oneButtonForm("Unsubscribe", "/janitor/admin/user/deleteNewsletter/".$user_id."/".$newsletter["id"], array(
+						"confirm-value" => false,
 						"wrapper" => "li.unsubscribe"
 					)) ?>
 					<?= $JML->oneButtonForm("Subscribe", "/janitor/admin/user/addNewsletter/".$user_id, array(
+						"confirm-value" => false,
 						"wrapper" => "li.subscribe",
 						"class" => "primary",
 						"inputs" => array("newsletter_id" => $newsletter["id"])
