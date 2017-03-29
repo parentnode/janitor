@@ -253,9 +253,13 @@ u.defaultFilters = function(div) {
 
 //				u.bug("match:" + node._c.match(query) + ", " + node._c + ", " + query)
 				if(node._c.match(query) && this.checkTags(node)) {
+					node._hidden = false;
+					u.rc(node, "hidden");
 					u.as(node, "display", "block", false);
 				}
 				else {
+					node._hidden = true;
+					u.ac(node, "hidden");
 					u.as(node, "display", "none", false);
 				}
 			}
