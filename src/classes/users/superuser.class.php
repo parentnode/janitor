@@ -426,9 +426,14 @@ class SuperUser extends User {
 		foreach($users as $key => $user) {
 
 //			print "send mail to:" . $user["username"] . "<br>\n";
+			// use current user as sender for this reminder
+			$current_user = $this->getUser();
+//			print_r($)
 
 			$page->mail(array(
+				"from_current_user" => true,
 				"values" => array(
+					"FROM" => $current_user["nickname"],
 					"NICKNAME" => $user["nickname"],
 					"EMAIL" => $user["username"],
 					"VERIFICATION" => $user["verification_code"],
@@ -1027,6 +1032,7 @@ class SuperUser extends User {
 	// get all newsletters (list of available newsletters)
 	// get newsletters for user
 	// get state of specific newsletter for specific user
+	// get all subscribers to newsletter
 	function getNewsletters($_options = false) {
 
 		$user_id = false;
@@ -1069,6 +1075,14 @@ class SuperUser extends User {
 				}
 			}
 
+		}
+
+		// get users for specific newsletter_id
+		else if($newsletter_id) {
+			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.newsletter_id = '$newsletter_id' AND newsletters.id = $newsletter_id";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
 		}
 		// get list of all newsletter subscribers
 		else {

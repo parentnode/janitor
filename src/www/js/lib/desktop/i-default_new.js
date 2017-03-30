@@ -15,16 +15,24 @@ Util.Objects["defaultNew"] = new function() {
 
 			this.response = function(response) {
 				if(response.cms_status == "success" && response.cms_object) {
-
-//					u.bug("this.action:" + this.action)
+//						u.bug("this.action:" + this.action)
 					// u.bug("location.href:" + location.href)
-					if(this.action.match(/\/save$/)) {
+
+					if(response.return_to) {
+						if(response.cms_object.item_id) {
+							location.href = response.return_to + response.cms_object.item_id;
+						}
+						else {
+							location.href = response.return_to;
+						}
+					}
+					else if(this.action.match(/\/save$/)) {
 //						u.bug("match save")
 						location.href = this.action.replace(/\/save/, "/edit/")+response.cms_object.item_id;
 					}
 					else if(location.href.match(/\/new$/)) {
 //						u.bug("match new:" + location.href.replace(/\/new/, "/edit/")+response.cms_object.id);
-						location.href = location.href.replace(/\/new/, "/edit/")+response.cms_object.item_id;
+						location.href = location.href.replace(/\/new$/, "/edit/")+response.cms_object.item_id;
 					}
 					else if(this.actions["cancel"]) {
 //						u.bug("match cancel")

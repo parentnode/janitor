@@ -165,6 +165,10 @@
 #content .defaultList.usersNotVerified > ul.actions li.remind {float: right; padding: 0 0 10px 10px;}
 
 
+/* DOWNLOAD NEWSLETTER SUBSCRIBERS */
+#content .defaultList.newsletterList > ul.actions li.download {float: right; padding: 0 0 10px 10px;}
+
+
 
 /* PROFILE */
 #content .scene.profileEdit div.password label {display: block; padding-left: 3px;}

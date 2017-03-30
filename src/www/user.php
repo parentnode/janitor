@@ -54,6 +54,11 @@ $access_item["/switchMembership"] = "/members";
 $access_item["/upgradeMembership"] = "/members";
 
 
+// NEWSLETTER INTERFACE
+$access_item["/newsletters"] = true;
+
+
+
 // ACCESS INTERFACE
 $access_item["/access"] = true;
 $access_item["/updateAccess"] = "/access";
@@ -180,6 +185,74 @@ if(is_array($action) && count($action)) {
 				"templates" => "janitor/user/members/".$action[1].".php"
 			));
 			exit();
+		}
+	}
+
+	// NEWSLETTERS
+	else if(preg_match("/^(newsletters)$/", $action[0]) && count($action) > 1) {
+
+		// MEMBER LIST/EDIT
+		if(preg_match("/^(list|new)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "newsletters", 
+				"page_title" => "Newsletters",
+				"templates" => "janitor/user/newsletters/".$action[1].".php"
+			));
+			exit();
+
+		}
+		// Temp newsletter list download
+		else if(preg_match("/^(download)$/", $action[1]) && count($action) == 3) {
+
+
+			$newsletter = $page->newsletters($action[2]);
+			if($newsletter) {
+				$subscribers = $model->getNewsletters(["newsletter_id" => $action[2]]);
+				if($subscribers) {
+
+					$emails = [];
+					foreach($subscribers as $subscriber) {
+						$email = $model->getUsernames(["user_id" => $subscriber["user_id"], "type" => "email"]);
+						if($email) {
+							array_push($emails, $email);
+						}
+					}
+
+					if($emails) {
+
+						header('Content-Description: File Transfer');
+						header('Content-Type: text/text');
+						header("Content-Type: application/force-download");
+						header('Content-Disposition: attachment; filename='.date("Ymd-His_").$newsletter["name"].".csv");
+						header('Expires: 0');
+						header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+						header('Pragma: public');
+						header('Content-Length: ' . strlen(implode($emails, "\n")));
+						ob_clean();
+						flush();
+						print implode($emails, "\n");
+						exit();
+					}
+				}
+
+			}
+
+			header('Content-Description: File Transfer');
+			header('Content-Type: text/text');
+			header("Content-Type: application/force-download");
+			header('Content-Disposition: attachment; filename='.date("Ymd-His_").stringOr($newsletter["name"], "unknown").".csv");
+			header('Expires: 0');
+			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+			header('Pragma: public');
+			header('Content-Length: 0');
+
+			ob_clean();
+			flush();
+			print "";
+			exit();
+
 		}
 	}
 
