@@ -1823,6 +1823,7 @@ class PageCore {
 		$message = "";
 		$values = "";
 		$recipients = false;
+		$from_current_user = false;
 		$template = false;
 		$attachments = false;
 		$object = false;
@@ -1830,13 +1831,14 @@ class PageCore {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "recipients"     : $recipients     = $_value; break;
-					case "template"       : $template       = $_value; break;
-					case "object"         : $object         = $_value; break;
-					case "message"        : $message        = $_value; break;
-					case "values"         : $values         = $_value; break;
-					case "subject"        : $subject        = $_value; break;
-					case "attachments"    : $attachments    = $_value; break;
+					case "recipients"             : $recipients             = $_value; break;
+					case "from_current_user"   : $from_current_user   = $_value; break;
+					case "template"               : $template               = $_value; break;
+					case "object"                 : $object                 = $_value; break;
+					case "message"                : $message                = $_value; break;
+					case "values"                 : $values                 = $_value; break;
+					case "subject"                : $subject                = $_value; break;
+					case "attachments"            : $attachments            = $_value; break;
 				}
 			}
 		}
@@ -1930,11 +1932,22 @@ class PageCore {
 			$mail->Username   = $this->mail_username;
 			$mail->Password   = $this->mail_password;
 
-			$from = (defined("SITE_EMAIL") ? SITE_EMAIL : ADMIN_EMAIL);
 
-			$mail->addReplyTo($from, SITE_NAME);
+			if($from_current_user) {
+				$UC = new User();
+				$current_user = $UC->getUser();
 
-			$mail->SetFrom($from, SITE_NAME);
+				$from = $current_user["email"];
+				$mail->addReplyTo($from, $current_user["nickname"]);
+				$mail->SetFrom($from, $current_user["nickname"]);
+			}
+			else {
+				$from = (defined("SITE_EMAIL") ? SITE_EMAIL : ADMIN_EMAIL);
+				$mail->addReplyTo($from, SITE_NAME);
+				$mail->SetFrom($from, SITE_NAME);
+			}
+
+
 			// split comma separated list
 			if(!is_array($recipients) && preg_match("/,|;/", $recipients)) {
 				$recipients = preg_split("/,|;/", $recipients);
