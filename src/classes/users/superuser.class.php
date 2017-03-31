@@ -1053,7 +1053,7 @@ class SuperUser extends User {
 
 		if($user_id) {
 
-			// check for specific newsletter (by nane) for specific user
+			// check for specific newsletter (by name) for specific user
 			if($newsletter) {
 				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = newsletters.id AND newsletters.newsletter = '$newsletter'";
 				if($query->sql($sql)) {
@@ -1077,16 +1077,16 @@ class SuperUser extends User {
 
 		}
 
-		// get users for specific newsletter_id
+		// get active users for specific newsletter_id
 		else if($newsletter_id) {
-			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.newsletter_id = '$newsletter_id' AND newsletters.id = $newsletter_id";
+			$sql = "SELECT subscribers.id as id, subscribers.user_id as user_id, subscribers.newsletter_id as newsletter_id, newsletters.name as newsletter, users.nickname as nickname, usernames.username as email FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters, ".$this->db." as users, ".$this->db_usernames." as usernames WHERE subscribers.newsletter_id = '$newsletter_id' AND newsletters.id = $newsletter_id AND subscribers.user_id = users.id AND users.status > 0 AND usernames.type = 'email' AND usernames.user_id = users.id";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
 		}
-		// get list of all newsletter subscribers
+		// get list of all active newsletter subscribers
 		else {
-			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters";
+			$sql = "SELECT subscribers.id as id, subscribers.user_id as user_id, subscribers.newsletter_id as newsletter_id, newsletters.name as newsletter, users.nickname as nickname, usernames.username as email FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters, ".$this->db." as users, ".$this->db_usernames." as usernames WHERE subscribers.user_id = users.id AND users.status > 0 AND usernames.type = 'email' AND usernames.user_id = users.id AND subscribers.newsletter_id = newsletters.id";
 			if($query->sql($sql)) {
 				return $query->results();
 			}

@@ -214,10 +214,7 @@ if(is_array($action) && count($action)) {
 
 					$emails = [];
 					foreach($subscribers as $subscriber) {
-						$email = $model->getUsernames(["user_id" => $subscriber["user_id"], "type" => "email"]);
-						if($email) {
-							array_push($emails, $email);
-						}
+						array_push($emails, $subscriber["email"]);
 					}
 
 					if($emails) {
