@@ -629,6 +629,7 @@ class SuperShop extends Shop {
 
 		// get all orders containing item_id
 		$item_id = false;
+		$itemtype = false;
 
 		// get all orders with status as specified
 		$status = false;
@@ -643,6 +644,7 @@ class SuperShop extends Shop {
 					case "user_id"           : $user_id             = $_value; break;
 
 					case "item_id"           : $item_id             = $_value; break;
+					case "itemtype"          : $itemtype            = $_value; break;
 
 					case "status"            : $status              = $_value; break;
 
@@ -668,7 +670,9 @@ class SuperShop extends Shop {
 				$order["items"] = array();
 
 				// get items for order
-				if($query->sql("SELECT * FROM ".$this->db_order_items." as items WHERE items.order_id = ".$order["id"])) {
+				$sql = "SELECT * FROM ".$this->db_order_items." as items WHERE items.order_id = ".$order["id"];
+//				print $sql;
+				if($query->sql($sql)) {
 					$order["items"] = $query->results();
 				}
 
@@ -691,17 +695,40 @@ class SuperShop extends Shop {
 		// all orders for user_id
 		else if($user_id) {
 
-			if($query->sql("SELECT * FROM ".$this->db_orders." WHERE user_id=$user_id".($status !== false ? " AND status=$status" : "")." ORDER BY order_no DESC")) {
-				$orders = $query->results();
+			if($itemtype) {
 
-				foreach($orders as $i => $order) {
-					$orders[$i]["items"] = array();
-					if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE order_id = ".$order["id"])) {
-						$orders[$i]["items"] = $query->results();
+				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE orders.user_id=$user_id".($status !== false ? " AND status=$status" : "")." AND order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
+//				print $sql;
+				if($query->sql($sql)) {
+					$orders = $query->results();
+
+					foreach($orders as $i => $order) {
+						$orders[$i]["items"] = array();
+						if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE order_id = ".$order["id"])) {
+							$orders[$i]["items"] = $query->results();
+						}
 					}
+
+					return $orders;
 				}
 
-				return $orders;
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db_orders." WHERE user_id=$user_id".($status !== false ? " AND status=$status" : "")." ORDER BY id DESC";
+//				print $sql;
+				if($query->sql($sql)) {
+					$orders = $query->results();
+
+					foreach($orders as $i => $order) {
+						$orders[$i]["items"] = array();
+						if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE order_id = ".$order["id"])) {
+							$orders[$i]["items"] = $query->results();
+						}
+					}
+
+					return $orders;
+				}
+
 			}
 
 		}
