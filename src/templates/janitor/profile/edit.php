@@ -166,7 +166,11 @@ $user_newsletters = $item["newsletters"];
 	<div class="cancellation i:cancellationProfile i:collapseHeader">
 		<h2>Cancellation</h2>
 		<p>
-			If you cancel your account, we'll delete your personal information and your membership and subscriptions from our system.
+			If you cancel your account, we'll delete your personal information and your 
+			membership and subscriptions from our system.
+		</p>
+		<p>
+			To unsubscribe from newsletters, see the "newsletters" section above.
 		</p>
 
 		<?= $model->formStart("cancel", array("class" => "cancelaccount")) ?>

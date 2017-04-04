@@ -19,8 +19,9 @@ $access_item["/subscription"] = true;
 $access_item["/deleteSubscription"] = "/subscription";
 
 $access_item["/membership"] = true;
-
-$access_item["/changeMembership"] = "/membership";
+$access_item["/switchMembership"] = "/membership";
+$access_item["/upgradeMembership"] = "/membership";
+$access_item["/cancelMembership"] = "/membership";
 
 
 $access_item["/addMembership"] = true;

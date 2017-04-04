@@ -4,7 +4,7 @@ global $model;
 
 $order_id = $action[2];
 $order = $model->getOrders(array("order_id" => $action[2]));
-
+//print_r($order);
 
 include_once("classes/users/superuser.class.php");
 $UC = new SuperUser();
@@ -45,8 +45,8 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 	<? endif; ?>
 	</ul>
 
-	<div class="orderstatus">
-		<h2>Order status</h2>
+	<div class="orderstatus i:collapseHeader">
+		<h2>Order status <span class="status<?= $order["status"] ?>"><?= $model->order_statuses[$order["status"]] ?></span></h2>
 
 		<dl class="list <?= superNormalize($model->order_statuses[$order["status"]]) ?>">
 			<dt class="status">Status</dt>
@@ -112,47 +112,6 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 			<dt>Mobile</dt>
 			<dd><?= $order["user"]["mobile"] ?></dd>
 		</dl>
-	</div>
-
-	<div class="payments i:defaultList">
-		<h2>Order payments</h2>
-		<? 
-		$total_payments = 0;
-		if($payments): ?>
-		<ul class="payment items">
-			<? foreach($payments as $payment):
-				$total_payments += $payment["payment_amount"];
-				$payment["payment_method"] = $this->paymentMethods($payment["payment_method"]); ?>
-			<li class="item">
-				<dl class="list">
-					<dt class="created_at">Created at</dt>
-					<dd class="created_at"><?= $payment["created_at"] ?></dd>
-					<dt class="price">Payment</dt>
-					<dd class="price"><?= formatPrice(array("price" => $payment["payment_amount"], "vat" => 0, "currency" => $payment["currency"], "country" => $order["country"])) ?></dd>
-					<dt class="transaction_id">Transaction id</dt>
-					<dd class="transaction_id"><?= $payment["transaction_id"] ?></dd>
-					<dt class="payment_method">Payment method</dt>
-					<dd class="payment_method"><?= $payment["payment_method"]["name"] ?></dd>
-				</dl>
-			</li>
-			<? endforeach; ?>
-		</ul>
-		<? else: ?>
-		<p>No payments</p>
-		<? endif; ?>
-
-		<? if($order["payment_status"] < 2): ?>
-
-		<div class="missing_payment">
-			<h3>Still to be paid</h3>
-			<p><?= formatPrice(array("price" => ($total_order_price["price"] - $total_payments), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"])) ?></p>
-		</div>
-
-		<ul class="actions">
-			<?= $HTML->link("Add payment", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.cancel")) ?>
-		</ul>
-		<? endif; ?>
-
 	</div>
 
 	<div class="all_items i:defaultList i:orderItemsList">
@@ -240,25 +199,45 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<? endif; */?>
 	</div>
 
-	<div class="comment">
-		<h2>Order comment</h2>
-		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
-			<fieldset>
-				<?= $model->input("order_comment", array("value" => $order["comment"])) ?>
-			</fieldset>
-
-			<ul class="actions">
-				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
-		<? endif; ?>
-
-		<? if($order["comment"]): ?>
-		<p><?= nl2br($order["comment"]) ?></p>
+	<div class="payments i:defaultList">
+		<h2>Order payments</h2>
+		<? 
+		$total_payments = 0;
+		if($payments): ?>
+		<ul class="payment items">
+			<? foreach($payments as $payment):
+				$total_payments += $payment["payment_amount"];
+				$payment["payment_method"] = $this->paymentMethods($payment["payment_method"]); ?>
+			<li class="item">
+				<dl class="list">
+					<dt class="created_at">Created at</dt>
+					<dd class="created_at"><?= $payment["created_at"] ?></dd>
+					<dt class="price">Payment</dt>
+					<dd class="price"><?= formatPrice(array("price" => $payment["payment_amount"], "vat" => 0, "currency" => $payment["currency"], "country" => $order["country"])) ?></dd>
+					<dt class="transaction_id">Transaction id</dt>
+					<dd class="transaction_id"><?= $payment["transaction_id"] ?></dd>
+					<dt class="payment_method">Payment method</dt>
+					<dd class="payment_method"><?= $payment["payment_method"]["name"] ?></dd>
+				</dl>
+			</li>
+			<? endforeach; ?>
+		</ul>
 		<? else: ?>
-		<p class="note">No comment</p>
+		<p>No payments</p>
 		<? endif; ?>
+
+		<? if($order["payment_status"] < 2): ?>
+
+		<div class="missing_payment">
+			<h3>Still to be paid</h3>
+			<p><?= formatPrice(array("price" => ($total_order_price["price"] - $total_payments), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"])) ?></p>
+		</div>
+
+		<ul class="actions">
+			<?= $HTML->link("Add payment", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.cancel")) ?>
+		</ul>
+		<? endif; ?>
+
 	</div>
 
 	<div class="delivery">
@@ -331,6 +310,27 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 			<dt>Country</dt>
 			<dd><?= $order["billing_country"] ?></dd>
 		</dl>
+	</div>
+
+	<div class="comment i:collapseHeader">
+		<h2>Order comment</h2>
+		<? if($order["status"] == 0): ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
+			<fieldset>
+				<?= $model->input("order_comment", array("value" => $order["comment"])) ?>
+			</fieldset>
+
+			<ul class="actions">
+				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+		<? endif; ?>
+
+		<? if($order["comment"]): ?>
+		<p><?= nl2br($order["comment"]) ?></p>
+		<? else: ?>
+		<p class="note">No comment</p>
+		<? endif; ?>
 	</div>
 
 </div>

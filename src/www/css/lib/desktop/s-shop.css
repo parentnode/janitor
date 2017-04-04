@@ -75,8 +75,8 @@
 #content .defaultEdit.orderView {}
 
 #content .defaultEdit.orderView div.orderstatus {border-bottom: 1px solid #bbbbbb;}
-#content .defaultEdit.orderView div.comment {border-top: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;}
-#content .defaultEdit.orderView div.payments {border-top: 1px solid #bbbbbb;}
+#content .defaultEdit.orderView div.comment {border-top: 1px solid #bbbbbb;}
+#content .defaultEdit.orderView div.payments {border-top: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;}
 #content .defaultEdit.orderView div.payments ul.actions {padding-bottom: 10px;}
 
 /* DIFFERING NUMBER OF BUTTONS IN ROW */

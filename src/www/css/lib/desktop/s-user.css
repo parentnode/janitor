@@ -118,41 +118,42 @@
 
 /* USER MEMBERSHIP */
 #content .defaultView.userMembership > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
-#content .defaultView.userMembership .item {margin-top: 20px; position: relative;}
-#content .defaultView.userMembership .item.change {border-top: 1px solid #bbbbbb;}
-#content .defaultView.userMembership .item h3 {padding-bottom: 20px; font-size: 28px;}
 
-#content .defaultView.userMembership dl {margin-top: -5px; overflow: hidden; padding: 0 30px 20px;}
+#content .defaultView.userMembership div.item {position: relative; border-bottom: 1px solid #bbbbbb;}
+#content .defaultView.userMembership div.item h3 {padding-bottom: 20px; font-size: 28px;}
+
+#content .defaultView.userMembership div.item dl {margin-top: -5px; overflow: hidden; padding: 0 30px 20px;}
+#content .defaultView.userMembership div.item dt::after {content: ":\00a0";}
+#content .defaultView.userMembership div.item dt {clear: left; float: left;}
+#content .defaultView.userMembership div.item dd {clear: right; float: left; padding: 0 0 3px;}
+#content .defaultView.userMembership div.item dd.price.default {text-decoration: line-through;}
+#content .defaultView.userMembership div.item dt.price,
+#content .defaultView.userMembership div.item dd.price {padding-top: 5px;}
+#content .defaultView.userMembership div.item dd.price+dt.price,
+#content .defaultView.userMembership div.item dd.price+dt.price+dd.price {padding-top: 0;}
+#content .defaultView.userMembership div.item dt.membership {display: none;}
+#content .defaultView.userMembership div.item dd.membership {color: #df0000; clear: left; padding-top: 5px;}
+#content .defaultView.userMembership div.item dt.payment_method,
+#content .defaultView.userMembership div.item dd.payment_method {padding-top: 5px;}
+#content .defaultView.userMembership div.item dd.payment_status.missing {color: #df0000;}
+
+#content .defaultView.userMembership div.item ul.actions {padding-bottom: 15px;}
 
 
-#content .defaultView.userMembership dt::after {content: ":\00a0";}
-#content .defaultView.userMembership dt {clear: left; float: left;}
-#content .defaultView.userMembership dd {clear: right; float: left; padding: 0 0 3px;}
+#content .defaultView.userMembership div.orders {border-bottom: 1px solid #bbbbbb;}
+#content .defaultView.userMembership div.orders ul.items {padding-bottom: 25px;}
 
-
-#content .defaultView.userMembership dd.price.default {text-decoration: line-through;}
-#content .defaultView.userMembership dt.price,
-#content .defaultView.userMembership dd.price {padding-top: 5px;}
-#content .defaultView.userMembership dd.price+dt.price,
-#content .defaultView.userMembership dd.price+dt.price+dd.price {padding-top: 0;}
-
-#content .defaultView.userMembership dt.membership {display: none;}
-#content .defaultView.userMembership dd.membership {color: #df0000; clear: left; padding-top: 5px;}
-
-#content .defaultView.userMembership dt.payment_method,
-#content .defaultView.userMembership dd.payment_method {padding-top: 5px;}
-
-#content .defaultView.userMembership dd.payment_status.missing {color: #df0000;}
-
-#content .defaultView.userMembership div.option {padding-bottom: 30px;}
-#content .defaultView.userMembership div.option h3 {padding-bottom: 10px; font-size: 18px;}
-#content .defaultView.userMembership div.option p {padding-bottom: 10px;}
-
-/*#content .defaultView.userMembership ul.actions {position: absolute; top: 0; right: 0;}*/
+#content .defaultView.userMembership div.change div.option {padding-bottom: 30px;}
+#content .defaultView.userMembership div.change div.option h3 {padding-bottom: 10px; font-size: 18px;}
+#content .defaultView.userMembership div.change div.option p {padding-bottom: 10px;}
 
 
 /* MEMBERS */
 #content .defaultList.memberList dd.payment_status.missing {color: #df0000;}
+#content .defaultEdit.userMember ul.actions li.user {float: right; padding: 0 0 10px 10px;}
+#content .defaultEdit.userMember div.orders {border-bottom: 1px solid #bbbbbb;}
+
+#content .defaultEdit.userMember div.orders ul.items {padding-bottom: 25px;}
 
 
 /* COMMENTS */

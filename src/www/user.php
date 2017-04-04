@@ -50,8 +50,10 @@ $access_item["/membership"] = "/content";
 
 // MEMBERS INTERFACE
 $access_item["/members"] = true;
+$access_item["/updateMembership"] = "/members";
 $access_item["/switchMembership"] = "/members";
 $access_item["/upgradeMembership"] = "/members";
+$access_item["/cancelMembership"] = "/members";
 
 
 // NEWSLETTER INTERFACE
@@ -152,7 +154,7 @@ if(is_array($action) && count($action)) {
 	else if(preg_match("/^(membership)$/", $action[0]) && count($action) > 1) {
 
 		// MEMBER LIST/EDIT
-		if(preg_match("/^(view|upgrade|switch)$/", $action[1])) {
+		if(preg_match("/^(view|upgrade|switch|cancel)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",

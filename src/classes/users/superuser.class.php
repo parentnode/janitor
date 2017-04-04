@@ -1503,17 +1503,20 @@ class SuperUser extends User {
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
+			$subscription_upgrade = $this->getProperty("subscription_upgrade", "value");
 
 
 			// get item prices and subscription method details to create subscription correctly
 			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
 			if($item) {
 
-
+				// get new subscription
+				$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+				$org_item_id = $subscription["item_id"];
 				// does subscription expire
 				$expires_at = false;
 
-				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
+				if((!$subscription_upgrade || !$subscription["expires_at"]) && $item["subscription_method"] && $item["subscription_method"]["duration"]) {
 					$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
 				}
 
@@ -1529,7 +1532,7 @@ class SuperUser extends User {
 					$sql .= ", expires_at = '$expires_at'";
 					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
 				}
-				else {
+				else if(!$subscription_upgrade) {
 					$sql .= ", expires_at = NULL";
 				}
 
@@ -1563,13 +1566,24 @@ class SuperUser extends User {
 
 					}
 
+
 					// add to log
 					global $page;
 					$page->addLog("SuperUser->updateSubscription: subscription_id:$subscription_id, item_id:$item_id, user_id:$user_id");
 
 
+
 					// get new subscription
 					$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+
+
+					// perform special action on subscribe to new item
+					if($item_id != $org_item_id) {
+						$model = $IC->typeObject($item["itemtype"]);
+						if(method_exists($model, "subscribed")) {
+							$model->subscribed($subscription);
+						}
+					}
 
 					return $subscription;
 
@@ -1679,6 +1693,7 @@ class SuperUser extends User {
 				$sql = "SELECT * FROM ".$this->db_members." WHERE id = $member_id LIMIT 1";
 				if($query->sql($sql)) {
 					$member = $query->result(0);
+					$member["user"] = $this->getUsers(array("user_id" => $member["user_id"]));
 					$member["item"] = false;
 					$member["order"] = false;
 					$member["order_id"] = false;
@@ -1755,7 +1770,7 @@ class SuperUser extends User {
 			$members = false;
 			$cancelled_members = false;
 
-			
+
 			$sql = "SELECT members.id as id, subscriptions.id as subscription_id, subscriptions.item_id as item_id, subscriptions.order_id as order_id, members.user_id as user_id, members.created_at as created_at, members.modified_at as modified_at, subscriptions.renewed_at as renewed_at, subscriptions.expires_at as expires_at FROM ".$this->db_subscriptions." as subscriptions, ".$this->db_members." as members WHERE subscriptions.id = members.subscription_id";
 //			print $sql;
 			if($query->sql($sql)) {
@@ -1857,7 +1872,7 @@ class SuperUser extends User {
 	}
 
 
-	// Add membership
+	// update membership
 	# /#controller#/updateMembership
 	function updateMembership($action) {
 
@@ -1904,6 +1919,9 @@ class SuperUser extends User {
 
 		}
 
+		message()->addMessage("Membership could not be changed", array("type" => "error"));
+		return false;
+
 	}
 
 
@@ -1919,11 +1937,12 @@ class SuperUser extends User {
 
 			$query = new Query();
 			$member = $this->getMembers(array("member_id" => $member_id));
+//			print_r($member);
 
-			if($member) {
+			if($member && $member["user_id"] == $user_id) {
 
 				// set subscription_id to NULL - maintains member in system
-				$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL WHERE id = ".$member_id;
+				$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL, modified_at = CURRENT_TIMESTAMP WHERE id = ".$member_id;
 				if($query->sql($sql)) {
 
 					// delete subscription
@@ -1935,6 +1954,7 @@ class SuperUser extends User {
 
 					message()->addMessage("Membership cancelled");
 					return true;
+
 				}
 
 			}
@@ -1949,10 +1969,7 @@ class SuperUser extends User {
 
 
 	// change membership type
-	// info i $_POST
-	// TODO: only changes item_id reference in subscription
-	// - should also calculate cost difference and create new order to pay.
-	// - this requires the ability to add custom order-lines with calculated price
+	// info in $_POST
 
 	# /#controller#/switchMembership/#user_id#
 	function switchMembership($action) {
@@ -1976,9 +1993,9 @@ class SuperUser extends User {
 			$member = $this->getMembers(array("user_id" => $user_id));
 			if($member) {
 
-
+				$current_user = $this->getUser();
 				$_POST["user_id"] = $user_id;
-				$_POST["comment"] = "Membership changed by admin";
+				$_POST["order_comment"] = "Membership changed by ".$current_user["nickname"];
 				$order = $SC->addOrder(array("addOrder"));
 				unset($_POST);
 
@@ -1986,6 +2003,7 @@ class SuperUser extends User {
 				// add item to cart
 				$_POST["quantity"] = 1;
 				$_POST["item_id"] = $item_id;
+				// adding a membership to an order will automatically change the membership
 				$order = $SC->addToOrder(array("addToOrder", $order["id"]));
 				unset($_POST);
 
@@ -2000,10 +2018,8 @@ class SuperUser extends User {
 	}
 
 
-	// TODO: Creating new custom order based on existing order, should be done by shop class
+	// upgrade to higher level membership
 	// add new order with custom price (new_price - current_orice)
-	// get current order and copy info to new order, theu add manual order line
-
 	# /#controller#/upgradeMembership/#user_id#
 	function upgradeMembership($action) {
 
@@ -2016,15 +2032,23 @@ class SuperUser extends User {
 
 			$query = new Query();
 			$IC = new Items();
+
 			include_once("classes/shop/supershop.class.php");
 			$SC = new SuperShop();
 
 			$user_id = $action[1];
 			$item_id = $this->getProperty("item_id", "value");
 
-			$member = $this->getMembers(array("user_id" => $user_id));
-			if($member && $member["item_id"] && $member["order"] && $member["order"]["payment_status"] == 2) {
 
+			$member = $this->getMembers(array("user_id" => $user_id));
+			if($member && $member["item_id"]) {
+
+
+				$current_user = $this->getUser();
+				$_POST["user_id"] = $user_id;
+				$_POST["order_comment"] = "Membership upgraded by ".$current_user["nickname"];
+				$order = $SC->addOrder(array("addOrder"));
+				unset($_POST);
 
 				// get existing membership price
 				$current_price = $SC->getPrice($member["item_id"]);
@@ -2033,91 +2057,24 @@ class SuperUser extends User {
 				$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
 				$new_price = $SC->getPrice($item_id);
 
-				// only perform membership upgrade if it is an actual upgrade
-				if($new_price["price"] > $current_price["price"]) {
 
-					// find price difference
-					$order_price["price"] = $new_price["price"] - $current_price["price"];
-					$order_price["vat"] = $new_price["price"] * (1 - (1 / (1 + ($new_price["vatrate"]/100))));
-
-
-					// Start creating custom difference order
-
-					// get existing order to copy data for new order
-					$sql = "SELECT * FROM ".$SC->db_orders." WHERE id = ".$member["order_id"]." LIMIT 1";
-					if($query->sql($sql)) {
-						$order = $query->result(0);
-
-						// get new order number
-						$order_no = $SC->getNewOrderNumber();
-						if($order_no) {
-
-							// create base data update sql
-							$sql = "UPDATE ".$SC->db_orders." SET comment = 'Membership upgrade'";
-
-							foreach($order as $key => $value) {
-//								print $key . " = " . $value . "<br>\n";
-								// filter out order specific values
-								if(!preg_match("/(^order_no$|^id$|status$|^comment$|ed_at$)/", $key) && $value) {
-									$sql .= ", $key = '$value'";
-								}
-
-							}
-
-							$sql .= " WHERE order_no = '$order_no'";
-//							print $sql."<br>\n";
-
-							if($query->sql($sql)) {
-
-								// get the new order
-								$order = $SC->getOrders(array("order_no" => $order_no));
-
-								// add custom order line
-								$sql = "INSERT INTO ".$SC->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".$item["name"]." (Upgrade)', quantity=1, unit_price=".$order_price["price"].", unit_vat=".$order_price["vat"].", total_price=".$order_price["price"].", total_vat=".$order_price["vat"];
-//								print $sql."<br>\n";
-
-								if($query->sql($sql)) {
-
-									// update subscription data (item id, order_id, expires_at)
-
-									// get current subscription
-									$subscription = $this->getSubscriptions(array("subscription_id" => $member["subscription_id"]));
-
-									$sql = "UPDATE ".$this->db_subscriptions. " SET item_id = $item_id, order_id = ".$order["id"];
-
-									$expires_at = false;
-									if($item["subscription_method"]) {
-										$start_time = $subscription["renewed_at"] ? $subscription["renewed_at"] : $subscription["created_at"];
-										$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $start_time);
-									}
-
-									if($expires_at) {
-										$sql .= ", expires_at = '$expires_at'";
-									}
-									else {
-										$sql .= ", expires_at = NULL";
-									}
-
-									$sql .= " WHERE id = ".$member["subscription_id"];
-//									print $sql."<br>\n";
-								
-									if($query->sql($sql)) {
-
-										global $page;
-										$page->addLog("SuperUser->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
+				// add item to cart
+				$_POST["quantity"] = 1;
+				$_POST["item_id"] = $item_id;
+				$_POST["item_price"] = $new_price["price"] - $current_price["price"];
+				$_POST["item_name"] = $item["name"] . " (Upgrade)";
+				$_POST["subscription_upgrade"] = 1;
 
 
-										return true;
-									}
+				// adding a membership to an order will automatically change the membership
+				$order = $SC->addToOrder(array("addToOrder", $order["id"]));
+				unset($_POST);
 
-								}
+				if($order) {
+					global $page;
+					$page->addLog("SuperUser->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
 
-							}
-
-						}
-
-					}
-
+					return true;
 				}
 
 			}

@@ -25,14 +25,15 @@ $membership = $model->getMembership();
 	<?= $JML->profileTabs("membership") ?>
 
 
-	<div class="item">
 	<? if($membership): ?>
+	<div class="item">
+		<h2>Membership details</h2>
 
 		<? if($membership["subscription_id"]):
 			$subscription = $model->getSubscriptions(array("subscription_id" => $membership["subscription_id"])); ?>
-		<h3><?= $membership["item"]["name"] ?></h3>
+		<h3><span>#<?= $membership["id"] ?></span> - <?= $membership["item"]["name"] ?></h3>
 		<? else: ?>
-		<h3>Inactive membership</h3>
+		<h3><span>#<?= $membership["id"] ?></span> - Inactive membership</h3>
 		<? endif; ?>
 		
 		<dl class="info">
@@ -70,32 +71,46 @@ $membership = $model->getMembership();
 				<dd class="price"><?= formatPrice($membership["item"]["prices"][$default]).($membership["item"]["subscription_method"] ? " / " . $membership["item"]["subscription_method"]["name"] : "") ?></dd>
 			<? endif; ?>
 
+			<? if($default !== false && $membership["item"]["prices"][$default]["price"] !== "0"): ?>
 			<dt class="payment_method">Payment method</dt>
 			<dd class="payment_method"><?= $subscription["payment_method"] ? $subscription["payment_method"]["name"] : "N/A" ?></dd>
-		<? endif; ?>
 
-		<? if($membership["order_id"]): ?>
+				<? if($membership["order_id"]): ?>
 			<dt class="payment_status">Payment status</dt>
 			<dd class="payment_status<?= $membership["order"]["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$membership["order"]["payment_status"]] ?></dd>
+				<? endif; ?>
+			<? endif; ?>
+				
 		<? endif; ?>
 
 		</dl>
 
 	</div>
 	
-	<div class="item change">
+	<div class="change i:collapseHeader">
 		<h2>Change your membership</h2>
-		<? if($membership["order"] && $membership["order"]["payment_status"] == 2): ?>
 
 		<p>
-			You currently have two ways of changing your membership.
+			Changing your membership does not affect any
+			existing orders.
 		</p>
 
+		<div class="option">
+			<h3>Switch to a new membership</h3>
+			<p>
+				- cancel your existing membership and add a new one, starting today.	
+			</p>
+			<ul class="actions">
+				<?= $HTML->link("New membership", "/janitor/admin/profile/membership/switch", array("class" => "button", "wrapper" => "li.edit")) ?>
+			</ul>
+		</div>
+
+		<? if($membership["order"]): ?>
 
 		<div class="option">
 			<h3>Upgrade your existing membership</h3>
 			<p>
-				- just pay the price difference and maintain the current renewal cyclus. Best option for membership upgrade.
+				- just pay the price difference and maintain the current renewal cyclus.
 			</p>
 			<ul class="actions">
 				<?= $HTML->link("Upgrade membership", "/janitor/admin/profile/membership/upgrade", array("class" => "button", "wrapper" => "li.edit")) ?>
@@ -103,12 +118,17 @@ $membership = $model->getMembership();
 		</div>
 
 		<div class="option">
-			<h3>Switch to a new membership</h3>
+			<h3>Cancel the membership</h3>
 			<p>
-				- cancel your existing membership and add a new one, starting today. Best option for membership downgrade.
+				- cancel the existing subscription, and leave membership inactive.
 			</p>
 			<ul class="actions">
-				<?= $HTML->link("New membership", "/janitor/admin/profile/membership/switch", array("class" => "button", "wrapper" => "li.edit")) ?>
+				<?= $JML->oneButtonForm("Cancel membership", "/janitor/admin/profile/cancelMembership/".$membership["id"], array(
+					"confirm-value" => "Confirm cancellation",
+					"wrapper" => "li.cancel",
+					"class" => "secondary",
+					"success-location" => "/janitor/admin/user/membership/view/".$user_id
+				)) ?>
 			</ul>
 		</div>
 
@@ -117,11 +137,6 @@ $membership = $model->getMembership();
 			If you want to cancel your account entirely, goto the <em>Cancellation</em> section on the <a href="/janitor/admin/profile">profile</a> page.
 		</p>
 
-		<? elseif(!$membership["subscription_id"]): ?>
-
-		<p>
-			You can add a membership through the website.<br />
-		</p>
 
 		<? else: ?>
 

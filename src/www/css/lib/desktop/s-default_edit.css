@@ -197,6 +197,6 @@
 
 
 
-#content .scene.defaultEdit div.togglable {overflow: hidden;}
-#content .scene.defaultEdit div.togglable h2 {position: relative;}
-#content .scene.defaultEdit div.togglable h2 svg {position: absolute; top: 7px; right: 25px; stroke: #313942; stroke-width: 3px;}
+#content .scene div.togglable {overflow: hidden;}
+#content .scene div.togglable h2 {position: relative;}
+#content .scene div.togglable h2 svg {position: absolute; top: 7px; right: 25px; stroke: #313942; stroke-width: 3px;}
