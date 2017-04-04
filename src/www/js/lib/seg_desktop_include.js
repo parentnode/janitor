@@ -2,6 +2,12 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/manipulato
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-basics.js"></script>');
 
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-events.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-events-browser.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-events-movements.js"></script>');
+
+
+
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-audio.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-sortable.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-form-htmleditor.js"></script>');

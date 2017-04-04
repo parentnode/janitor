@@ -237,7 +237,7 @@ Util.Objects["page"] = new function() {
 				// enable collapsed navigation
 				if(u.e.event_support == "mouse") {
 
-					u.e.hover(page.hN);
+					u.e.hover(page.hN, {"delay_over":300});
 				
 				}
 				// touch enabled devices should not use hover method

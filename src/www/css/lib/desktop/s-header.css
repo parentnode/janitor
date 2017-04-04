@@ -17,7 +17,7 @@
 #page > .servicenavigation li a:hover {text-decoration: underline;}
 
 
-#navigation {opacity: 0; width: 230px;}
+#navigation {opacity: 0; width: 230px; overflow: auto; height: calc(100% - 140px);}
 #navigation ul li {color: #8c9399; display: block; text-transform: uppercase;}
 #navigation ul li:hover {color: #ffffff;}
 #navigation ul li a {display: block; padding: 14px 20px 15px;}
