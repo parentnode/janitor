@@ -91,6 +91,15 @@ class ShopCore extends Model {
 			"error_message" => "Quantity must be a number"
 		));
 
+		// for custom order items
+		$this->addToModel("item_name", array(
+			"type" => "string",
+			"label" => "Description",
+			"required" => true,
+			"hint_message" => "Description of this order item", 
+			"error_message" => "Description must be a string."
+		));
+
 
 
 		// Nickname
@@ -399,7 +408,7 @@ class ShopCore extends Model {
 		$total_price = 0;
 		$total_vat = 0;
 
-		if($cart["items"]) {
+		if(isset($cart["items"]) && $cart["items"]) {
 			foreach($cart["items"] as $cart_item) {
 				$price = $this->getPrice($cart_item["item_id"], array("quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
 				if($price) {

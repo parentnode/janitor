@@ -1158,6 +1158,15 @@ class SuperShop extends Shop {
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
 
+				$item_price = false;
+				$item_name = false;
+
+				if($this->validateList(array("item_price", "item_name"))) {
+					$item_price = $this->getProperty("item_price", "value");
+					$item_name = $this->getProperty("item_name", "value");
+				}
+
+
 
 				$IC = new Items();
 				$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
@@ -1165,8 +1174,24 @@ class SuperShop extends Shop {
 				// only add item if it exists
 				if($item) {
 
+					// custom order item
+					if($item_name && $item_price) {
+
+						// get best price for item
+						$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
+		//				print_r($price);
+
+						$unit_price = $item_price;
+						$unit_vat = $item_price*($price["vatrate"]/100);
+						$total_price = $unit_price * $quantity;
+						$total_vat = $unit_vat * $quantity;
+
+						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".$item_name."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+		//				print $sql;
+
+					}
 					// check if item is already in order?
-					if($order["items"] && arrayKeyValue($order["items"], "item_id", $item_id) !== false) {
+					else if($order["items"] && arrayKeyValue($order["items"], "item_id", $item_id) !== false) {
 						$existing_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
 
 
@@ -1298,111 +1323,6 @@ class SuperShop extends Shop {
 	}
 
 
-
-	// Order item manipulation has been disabled
-
-	# /janitor/admin/shop/updateOrderItemQuantity/#order_id#/#order_item_id#
-	// new quantity in $_POST
-// 	function updateOrderItemQuantity($action) {
-//
-// 		if(count($action) == 3) {
-//
-// 			$order_id = $action[1];
-// 			$order_item_id = $action[2];
-// 			$order = $this->getOrders(array("order_id" => $order_id));
-//
-// 			// Get posted values to make them available for models
-// 			$this->getPostedEntities();
-//
-// 			// does values validate
-// 			if($order && $order["status"] == 0 && $this->validateList(array("quantity"))) {
-//
-// 				$query = new Query();
-//
-// 				$quantity = $this->getProperty("quantity", "value");
-//
-//
-// 				// find item_id in order items?
-// 				if($order["items"] && arrayKeyValue($order["items"], "id", $order_item_id) !== false) {
-// 					$existing_item_index = arrayKeyValue($order["items"], "id", $order_item_id);
-// 					$item_id = $order["items"][$existing_item_index]["item_id"];
-//
-//
-// 					// get best price for item
-// 					$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-// 	//					print_r($price);
-//
-// 					$unit_price = $price["price"];
-// 					$unit_vat = $price["vat"];
-// 					$total_price = $unit_price * $quantity;
-// 					$total_vat = $unit_vat * $quantity;
-//
-// 					$sql = "UPDATE ".$this->db_order_items." SET quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$order_item_id." AND order_id = ".$order_id;
-// //					print $sql;
-// 					if($query->sql($sql)) {
-//
-// 						// return extended order item
-// 						$item = $order["items"][$existing_item_index];
-// 						$item["unit_price"] = $price;
-// 						$item["unit_price_formatted"] = formatPrice($item["unit_price"]);
-// 						$item["total_price"] = array(
-// 							"price" => $item["unit_price"]["price"]*$quantity,
-// 							"vat" => $item["unit_price"]["vat"]*$quantity,
-// 							"currency" => $order["currency"],
-// 							"country" => $order["country"]
-// 						);
-// 						$item["total_price_formatted"] = formatPrice($item["total_price"], array("vat" => true));
-// 						$item["total_order_price"] = $this->getTotalOrderPrice($order["id"]);
-// 						$item["total_order_price_formatted"] = formatPrice($item["total_order_price"]);
-//
-// 						message()->addMessage("Item quantity updated");
-// 						return $item;
-// 					}
-//
-// 				}
-//
-// 				// update modified at time
-// 				$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$order_id;
-// 				$query->sql($sql);
-//
-// 			}
-//
-// 		}
-//
-// 		message()->addMessage("Quantity could not be updated", array("type" => "error"));
-// 		return false;
-// 	}
-//
-// 	# /janitor/admin/shop/deleteFromOrder/#order_id#/#order_item_id#
-// 	function deleteFromOrder($action) {
-//
-// 		if(count($action) > 2) {
-//
-// 			$order_id = $action[1];
-// 			$order_item_id = $action[2];
-// 			$order = $this->getOrders(array("order_id" => $order_id));
-//
-// 			if($order && $order["status"] == 0) {
-//
-// 				$query = new Query();
-// 				$sql = "DELETE FROM ".$this->db_order_items." WHERE id = $order_item_id AND order_id = $order_id";
-// 				// print $sql;
-// 				if($query->sql($sql)) {
-// 					$order = $this->getOrders(array("order_id" => $order["id"]));
-//
-// 					// add total price info to enable UI update
-// 					$order["total_order_price"] = $this->getTotalOrderPrice($order["id"]);
-// 					$order["total_order_price_formatted"] = formatPrice($order["total_order_price"]);
-//
-// 					message()->addMessage("Order item deleted");
-// 					return $order;
-// 				}
-// 			}
-// 		}
-//
-// 		message()->addMessage("Order item could not deleted", array("type" => "error"));
-// 		return false;
-// 	}
 
 
 
@@ -1629,7 +1549,7 @@ class SuperShop extends Shop {
 		}
 		else if($user_id) {
 
-			$sql = "SELECT * FROM ".$this->db_payments." WHERE user_id = ".$user_id;
+			$sql = "SELECT * FROM ".$this->db_payments." WHERE user_id = ".$user_id . " ORDER BY created_at, id DESC";
 
 //			print $sql."<br>";
 			if($query->sql($sql)) {
@@ -1638,7 +1558,7 @@ class SuperShop extends Shop {
 
 		}
 		else {
-			$sql = "SELECT * FROM ".$this->db_payments . " ORDER BY id DESC";
+			$sql = "SELECT * FROM ".$this->db_payments . " ORDER BY created_at, id DESC";
 
 //			print $sql."<br>";
 			if($query->sql($sql)) {
