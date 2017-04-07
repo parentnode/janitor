@@ -1483,6 +1483,47 @@ class ShopCore extends Model {
 
 	}
 
+	// PAYMENTS
+
+	function getPayments($_options=false) {
+
+		$user_id = session()->value("user_id");
+		$order_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "order_id"          : $order_id            = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		// get specific order
+		if($order_id) {
+
+			$sql = "SELECT * FROM ".$this->db_payments.", ".$this->db_orders." as orders WHERE order_id = $order_id AND orders.id = $order_id AND orders.user_id = $user_id";
+
+//			print $sql."<br>";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+
+		}
+		else {
+
+			$sql = "SELECT * FROM ".$this->db_payments." WHERE user_id = ".$user_id . " ORDER BY created_at, id DESC";
+
+//			print $sql."<br>";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+
+		}
+
+		return false;
+	}
 
 }
 
