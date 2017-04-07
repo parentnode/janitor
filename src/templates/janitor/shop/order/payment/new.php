@@ -7,6 +7,22 @@ $order_id = $action[3];
 
 $order = $model->getOrders(array("order_id" => $order_id));
 
+if($order && $order["payment_status"] != 2) {
+
+	$total_order_price = $model->getTotalOrderPrice($order["id"]);
+
+	$payments = $model->getPayments(["order_id" => $order["id"]]);
+	$total_payments = 0;
+	if($payments) {
+		foreach($payments as $payment) {
+			$total_payments += $payment["payment_amount"];
+		}
+	}
+
+	$amount = $total_order_price["price"]-$total_payments; //formatPrice($total_order_price);
+
+}
+
 ?>
 <div class="scene i:scene defaultNew newPayment">
 	<h1>New manual payment</h1>
@@ -29,7 +45,7 @@ $order = $model->getOrders(array("order_id" => $order_id));
 				"options" => $model->toOptions($this->paymentMethods(), "id", "name"),
 			)) ?>
 
-			<?= $model->input("payment_amount", array()) ?>
+			<?= $model->input("payment_amount", array("value" => $amount)) ?>
 
 		</fieldset>
 

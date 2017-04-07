@@ -34,6 +34,10 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 
 	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("Order list", "/janitor/admin/shop/order/list/".$return_to_orderstatus, array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("User orders", "/janitor/admin/user/orders/".$order["user_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<? if($order["user_id"] == session()->value("user_id")): ?>
+			<?= $HTML->link("Your orders", "/janitor/admin/profile/orders", array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<? endif; ?>
 
 	<? if($order["status"] == 0 || $order["status"] == 1): ?>
 		<?= $JML->oneButtonForm("Cancel order", "/janitor/admin/shop/cancelOrder/".$order["id"]."/".$order["user_id"], array(
@@ -234,7 +238,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</div>
 
 		<ul class="actions">
-			<?= $HTML->link("Add payment", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.cancel")) ?>
+			<?= $HTML->link("Add manuel payment", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.cancel")) ?>
 		</ul>
 		<? endif; ?>
 

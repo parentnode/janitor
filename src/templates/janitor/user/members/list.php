@@ -33,6 +33,7 @@ $members = $model->getMembers($options);
 
 	<ul class="actions">
 		<?= $HTML->link("Users", "/janitor/admin/user/list", array("class" => "button", "wrapper" => "li.users")) ?>
+		<?= $HTML->link("Orders", "/janitor/admin/shop/order/list", array("class" => "button", "wrapper" => "li.orders")) ?>
 	</ul>
 
 <?	if($memberships): ?>
@@ -73,9 +74,7 @@ $members = $model->getMembers($options);
 				</dl>
 
 				<ul class="actions">
-				<? //if($member["order_id"]): ?>
-					<?= $HTML->link("Edit", "/janitor/admin/user/members/edit/".$member["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-					<? //endif; ?>
+					<?= $HTML->link("Edit", "/janitor/admin/user/membership/view/".$member["user_id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 				</ul>
 			 </li>
 <?			endforeach; ?>

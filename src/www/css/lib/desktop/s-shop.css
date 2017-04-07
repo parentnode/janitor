@@ -1,6 +1,6 @@
 /* SHOP LIST */
 #content .defaultList.shopList ul.items > li dl.details dt.price {display: none;}
-#content .defaultList.shopList ul.items > li dl.details dd.price {position: absolute; top: 10px; right: 100px; font-size: 14px;}
+#content .defaultList.shopList ul.items > li dl.details dd.price {position: absolute; top: 10px; right: 100px; font-size: 26px;}
 #content .defaultList.shopList ul.items > li p.error {padding-bottom: 6px; color: #df0000;}
 
 

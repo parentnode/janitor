@@ -33,12 +33,15 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 	<ul class="actions">
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
+	<? if($membership): ?>
+		<?= $HTML->link("Members", "/janitor/admin/user/members/list/".$membership["item_id"], array("class" => "button", "wrapper" => "li.members")); ?>
+	<? endif; ?>
 	</ul>
 
 
 	<?= $JML->userTabs($user_id, "membership") ?>
 
-	
+
 	<? if($membership): ?>
 	<div class="item">
 		<h2>Membership details</h2>
@@ -132,8 +135,8 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 						<dt class="total_price">Total price</dt>
 						<dd class="total_price"><?= formatPrice($total_price) ?></dd>
 
-						<dt class="order_status">Order status</dt>
-						<dd class="order_status"><?= $SC->order_statuses[$order["status"]] ?></dd>
+						<dt class="payment_status">Status</dt>
+						<dd class="payment_status"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
 					</dl>
 
 					<ul class="actions">

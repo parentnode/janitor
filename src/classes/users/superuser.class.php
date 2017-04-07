@@ -2046,7 +2046,7 @@ class SuperUser extends User {
 
 				$current_user = $this->getUser();
 				$_POST["user_id"] = $user_id;
-				$_POST["order_comment"] = "Membership upgraded by ".$current_user["nickname"];
+				$_POST["order_comment"] = "Membership upgraded by Admin (".$current_user["nickname"].")";
 				$order = $SC->addOrder(array("addOrder"));
 				unset($_POST);
 

@@ -68,7 +68,7 @@ session()->value("return_to_orderstatus", $status);
 				<? endif; ?>
 
 					<dt class="price">Total price</dt>
-					<dd class="price"><?= formatPrice($model->getTotalOrderPrice($order["id"]), array("vat" => true)) ?></dd>
+					<dd class="price"><?= formatPrice($model->getTotalOrderPrice($order["id"])) ?></dd>
 
 				<? if(isset($order["user"])): ?>
 					<dt class="nickname">Nickname</dt>

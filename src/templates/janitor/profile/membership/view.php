@@ -9,6 +9,14 @@ $user_id = session()->value("user_id");
 $user = $model->getUser();
 $membership = $model->getMembership();
 
+// Order history
+$orders = false;
+if(defined("SITE_SHOP") && SITE_SHOP) {
+	$SC = new Shop();
+
+	$orders = $SC->getOrders(array("itemtype" => "membership"));
+}
+
 
 // FOR TESTING EMAIL SENDING
 // $subscription = $model->getSubscriptions(array("subscription_id" => $membership["subscription_id"]));
@@ -86,7 +94,44 @@ $membership = $model->getMembership();
 		</dl>
 
 	</div>
-	
+
+	<div class="orders i:collapseHeader">
+		<h2>Order history</h2>
+
+		<div class="all_items filters i:defaultList">
+			<? if($orders): ?>
+			<ul class="items">
+				<? foreach($orders as $order):
+				$total_price = $SC->getTotalOrderPrice($order["id"]); ?>
+				<li class="item item_id:<?= $order["id"] ?>">
+					<h3><span>#<?= $order["order_no"] ?></span></h3>
+
+					<dl class="info">
+						<dt class="created_at">Created at</dt>
+						<dd class="created_at"><?= date("d. F, Y", strtotime($order["created_at"])) ?></dd>
+
+						<dt class="total_price">Total price</dt>
+						<dd class="total_price"><?= formatPrice($total_price) ?></dd>
+
+						<dt class="payment_status">Status</dt>
+						<dd class="payment_status"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
+					</dl>
+
+					<ul class="actions">
+						<? if($order["payment_status"] < 2 && $total_price["price"] != 0): ?>
+						<?= $HTML->link("Pay", "/shop/payment/".$order["order_no"], array("class" => "button", "wrapper" => "li.edit")) ?>
+						<? endif; ?>
+						<?= $HTML->link("View order", "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.order")) ?>
+					</ul>
+				</li>
+				<? endforeach; ?>
+			</ul>
+			<? else: ?>
+			<p>No orders.</p>
+			<? endif; ?>
+		</div>
+	</div>
+
 	<div class="change i:collapseHeader">
 		<h2>Change your membership</h2>
 

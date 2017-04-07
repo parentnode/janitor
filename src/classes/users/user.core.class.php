@@ -2352,7 +2352,7 @@ class UserCore extends Model {
 
 
 				$_POST["user_id"] = $user_id;
-				$_POST["order_comment"] = "Membership upgraded by ".$current_user["nickname"];
+				$_POST["order_comment"] = "Membership upgraded";
 				$order = $SC->addOrder(array("addOrder"));
 				unset($_POST);
 

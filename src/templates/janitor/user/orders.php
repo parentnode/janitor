@@ -47,6 +47,8 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 					<dd class="created_at"><?= $order["created_at"] ?></dd>
 					<dt class="status">Status</dt>
 					<dd class="status"><?= $SC->order_statuses[$order["status"]] ?></dd>
+					<dt class="payment_status">Payment status</dt>
+					<dd class="payment_status<?= $order["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
 					<dt class="price">Total price</dt>
 					<dd class="price"><?= formatPrice($SC->getTotalOrderPrice($order["id"])) ?></dd>
 				</dl>
