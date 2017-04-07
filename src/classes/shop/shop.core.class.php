@@ -1209,6 +1209,16 @@ class ShopCore extends Model {
 						setcookie("order_no", $order_no, time()+60*60*24*60, "/");
 
 
+						// set payment status for 0-prices orders
+						$order = $this->getOrders(array("order_no" => $order_no));
+						$total_order_price = $this->getTotalOrderPrice($order["id"]);
+						if($total_order_price["price"] === 0) {
+							// create base data update sql
+							$sql = "UPDATE ".$this->db_orders." SET status = 1, payment_status = 2 WHERE order_no='$order_no'";
+							$query->sql($sql);
+						}
+
+
 						// delete cart
 						$sql = "DELETE FROM $this->db_carts WHERE id = ".$cart["id"]." AND cart_reference = '".$cart["cart_reference"]."'";
 			//			print $sql;
