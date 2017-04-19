@@ -1052,8 +1052,9 @@ class ShopCore extends Model {
 					$country = $cart["country"];
 
 					$delivery_address_id = $cart["delivery_address_id"];
+					$delivery_address = false;
 					$billing_address_id = $cart["billing_address_id"];
-
+					$billing_address = false;
 
 					// create base data update sql
 					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency'";
@@ -1063,14 +1064,14 @@ class ShopCore extends Model {
 					if($delivery_address_id) {
 						$delivery_address = $UC->getAddresses(array("address_id" => $delivery_address_id));
 						if($delivery_address) {
-							$sql .= ", delivery_name='".$delivery_address["address_name"]."'";
-							$sql .= ", delivery_att='".$delivery_address["att"]."'";
-							$sql .= ", delivery_address1='".$delivery_address["address1"]."'";
-							$sql .= ", delivery_address2='".$delivery_address["address2"]."'";
-							$sql .= ", delivery_city='".$delivery_address["city"]."'";
-							$sql .= ", delivery_postal='".$delivery_address["postal"]."'";
-							$sql .= ", delivery_state='".$delivery_address["state"]."'";
-							$sql .= ", delivery_country='".$delivery_address["country"]."'";
+							$sql .= ", delivery_name='".prepareForDB($delivery_address["address_name"])."'";
+							$sql .= ", delivery_att='".prepareForDB($delivery_address["att"])."'";
+							$sql .= ", delivery_address1='".prepareForDB($delivery_address["address1"])."'";
+							$sql .= ", delivery_address2='".prepareForDB($delivery_address["address2"])."'";
+							$sql .= ", delivery_city='".prepareForDB($delivery_address["city"])."'";
+							$sql .= ", delivery_postal='".prepareForDB($delivery_address["postal"])."'";
+							$sql .= ", delivery_state='".prepareForDB($delivery_address["state"])."'";
+							$sql .= ", delivery_country='".prepareForDB($delivery_address["country"])."'";
 						}
 					}
 
@@ -1078,16 +1079,29 @@ class ShopCore extends Model {
 					if($billing_address_id) {
 						$billing_address = $UC->getAddresses(array("address_id" => $billing_address_id));
 						if($billing_address) {
-							$sql .= ", billing_name='".$billing_address["address_name"]."'";
-							$sql .= ", billing_att='".$billing_address["att"]."'";
-							$sql .= ", billing_address1='".$billing_address["address1"]."'";
-							$sql .= ", billing_address2='".$billing_address["address2"]."'";
-							$sql .= ", billing_city='".$billing_address["city"]."'";
-							$sql .= ", billing_postal='".$billing_address["postal"]."'";
-							$sql .= ", billing_state='".$billing_address["state"]."'";
-							$sql .= ", billing_country='".$billing_address["country"]."'";
+							$sql .= ", billing_name='".prepareForDB($billing_address["address_name"])."'";
+							$sql .= ", billing_att='".prepareForDB($billing_address["att"])."'";
+							$sql .= ", billing_address1='".prepareForDB($billing_address["address1"])."'";
+							$sql .= ", billing_address2='".prepareForDB($billing_address["address2"])."'";
+							$sql .= ", billing_city='".prepareForDB($billing_address["city"])."'";
+							$sql .= ", billing_postal='".prepareForDB($billing_address["postal"])."'";
+							$sql .= ", billing_state='".prepareForDB($billing_address["state"])."'";
+							$sql .= ", billing_country='".prepareForDB($billing_address["country"])."'";
 						}
 					}
+
+					// use account info, if no billing info is provided
+					if(!$billing_address) {
+
+						$user = $UC->getUser();
+						if($user["firstname"] && $user["lastname"]) {
+							$sql .= ", billing_name='".prepareForDB($user["firstname"])." ".prepareForDB($user["lastname"])."'";
+						}
+						else {
+							$sql .= ", billing_name='".prepareForDB($user["nickname"])."'";
+						}
+					}
+
 
 					// finalize sql
 					$sql .= " WHERE order_no='$order_no'";
@@ -1123,7 +1137,7 @@ class ShopCore extends Model {
 								$total_price = $unit_price * $quantity;
 								$total_vat = $unit_vat * $quantity;
 
-								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".$item["name"]."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
 //								print $sql;
 
 
