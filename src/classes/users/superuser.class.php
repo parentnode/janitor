@@ -175,70 +175,110 @@ class SuperUser extends User {
 	}
 
 	// cancel user
+	// accounts with unpaid orders cannot be cancelled
 	// /janitor/admin/user/cancel/#user_id#
 	function cancel($action) {
 
 		if(count($action) == 2) {
 			$query = new Query();
 			$user_id = $action[1];
+			global $page;
 
 
-			// Update name to "Anonymous" and remove all privileges
-			$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
-			if($query->sql($sql)) {
+			// check for unpaid orders
+			$unpaid_orders = false;
+			if(defined("SITE_SHOP") && SITE_SHOP) {
+				include_once("classes/shop/supershop.class.php");
+				$SC = new SuperShop();
+				$unpaid_orders = $SC->getUnpaidOrders(["user_id" => $user_id]);
 
-				// delete usernames
-				$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
-				$query->sql($sql);
+			}
 
-				// delete password
-				$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
-				$query->sql($sql);
-				// delete password reset tokens
-				$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
-				$query->sql($sql);
 
-				// delete addresses
-				$sql = "DELETE FROM ".$this->db_addresses." WHERE user_id = ".$user_id;
-				$query->sql($sql);
+			// do not allow to cancel users with unpaid orders
+			if(!$unpaid_orders) {
 
-				// delete api tokens
-				$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
-				$query->sql($sql);
+				// Update name to "Anonymous" and remove all privileges
+				$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
+				if($query->sql($sql)) {
 
-				// delete newsletters
-				$sql = "DELETE FROM ".$this->db_newsletters." WHERE user_id = ".$user_id;
-				$query->sql($sql);
 
-				// delete membership
-				if(SITE_MEMBERS) {
-					$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
+					// delete usernames
+					$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
 					$query->sql($sql);
-				}
 
-				// delete subscriptions
-				if(SITE_SUBSCRIPTIONS) {
-					$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
+					// delete activation reminders
+					$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = ".$user_id;
 					$query->sql($sql);
-				}
 
-				// delete readstates
-				$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
-				$query->sql($sql);
-
-
-				// delete carts
-				if(SITE_SHOP) {
-					$SC = new Shop();
-					$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
+					// delete password
+					$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
 					$query->sql($sql);
+					// delete password reset tokens
+					$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
+					$query->sql($sql);
+
+					// delete addresses
+					$sql = "DELETE FROM ".$this->db_addresses." WHERE user_id = ".$user_id;
+					$query->sql($sql);
+
+					// delete api tokens
+					$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
+					$query->sql($sql);
+
+					// delete newsletters
+					$sql = "DELETE FROM ".$this->db_newsletters." WHERE user_id = ".$user_id;
+					$query->sql($sql);
+
+					// delete readstates
+					$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
+					$query->sql($sql);
+
+					// delete membership
+					if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
+						$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+					}
+
+					// delete subscriptions
+					if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
+						$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+					}
+
+
+					// delete carts
+					if(defined("SITE_SHOP") && SITE_SHOP) {
+						$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+
+
+						// we should also delete user account at gateway
+						// TODO: keep updated when more gateways are added
+						include_once("classes/shop/gateways/janitor_stripe.class.php");
+						$GC = new JanitorStripe();
+						$payment_methods = $page->paymentMethods();
+
+						foreach($payment_methods as $payment_method) {
+
+							if($payment_method["gateway"] == "stripe") {
+
+								$GC->deleteCustomer($user_id);
+
+							}
+
+						}
+
+					}
+
+					// flush user session when user is deleted
+					$this->flushUserSession(array("flushUserSession", $user_id));
+
+					message()->addMessage("Account cancelled");
+					return true;
+
 				}
-
-				// flush user session when user is deleted
-				$this->flushUserSession(array("flushUserSession", $user_id));
-
-				message()->addMessage("Account cancelled");
-				return true;
 
 			}
 
@@ -254,28 +294,59 @@ class SuperUser extends User {
 	function delete($action) {
 
 		if(count($action) == 2) {
+			$IC = new Items();
 			$query = new Query();
 			$user_id = $action[1];
-			
-			$sql = "DELETE FROM $this->db WHERE id = ".$user_id;
-//			print $sql;
-			if($query->sql($sql)) {
+
+			$orders = false;
+			$payments = false;
+			if(defined("SITE_SHOP") && SITE_SHOP) {
+				include_once("classes/shop/supershop.class.php");
+				$SC = new SuperShop();
+				$orders = $SC->getOrders(["user_id" => $user_id]);
+				$payments = $SC->getpayments(["user_id" => $user_id]);
+			}
+
+			$membership = false;
+			if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
+				$membership = $this->getMembers(["user_id" => $user_id]);
+			}
+
+
+			$items = $IC->getItems(["user_id" => $user_id]);
+			$comments = $IC->getComments(["user_id" => $user_id]);
+
+
+			if(!$orders && !$payments && !$items && !$comments && !$membership) {
+
+				$sql = "DELETE FROM $this->db WHERE id = ".$user_id;
+//				print $sql;
+				if($query->sql($sql)) {
 				
-				// flush user session when user is deleted
-				$this->flushUserSession(array("flushUserSession", $user_id));
+					// flush user session when user is deleted
+					$this->flushUserSession(array("flushUserSession", $user_id));
 
-				message()->addMessage("User deleted");
-				return true;
-			}
-
-			$db_errors = $query->dbError();
-			if($db_errors) {
-				message()->addMessage("Deleting user failed (".$db_errors.")", array("type" => "error"));
-				if(strpos($db_errors, "constraint")) {
-					return array("constraint_error" => $db_errors);
+					message()->addMessage("User deleted");
+					return true;
 				}
-				return false;
+
+				$db_errors = $query->dbError();
+				if($db_errors) {
+					message()->addMessage("Deleting user failed (".$db_errors.")", array("type" => "error"));
+					if(strpos($db_errors, "constraint")) {
+						return array("constraint_error" => $db_errors);
+					}
+					return false;
+				}
+
 			}
+			else {
+
+				message()->addMessage("User membership, orders, payments, comments or items prevent it from being deleted.", array("type" => "error"));
+				return false;
+
+			}
+
 		}
 
 		message()->addMessage("Deleting user failed", array("type" => "error"));
@@ -1504,7 +1575,7 @@ class SuperUser extends User {
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
 			$subscription_upgrade = $this->getProperty("subscription_upgrade", "value");
-
+			$subscription_renewal = $this->getProperty("subscription_renewal", "value");
 
 			// get item prices and subscription method details to create subscription correctly
 			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
@@ -1516,8 +1587,19 @@ class SuperUser extends User {
 				// does subscription expire
 				$expires_at = false;
 
-				if((!$subscription_upgrade || !$subscription["expires_at"]) && $item["subscription_method"] && $item["subscription_method"]["duration"]) {
-					$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
+				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
+
+					// if renewal
+					if($subscription_renewal && $subscription["expires_at"]) {
+						$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
+					}
+					// if switch or upgrade from non-expiring membership
+					else if((!$subscription_upgrade || !$subscription["expires_at"])) {
+						$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
+					}
+
+					// upgrade does not change exsisting expires_at
+
 				}
 
 
@@ -1530,7 +1612,14 @@ class SuperUser extends User {
 				}
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
-					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
+
+					if($subscription_renewal && $subscription["expires_at"]) {
+						$sql .= ", renewed_at = '" . $subscription["expires_at"]."'";
+					}
+					else {
+						$sql .= ", renewed_at = CURRENT_TIMESTAMP";
+					}
+
 				}
 				else if(!$subscription_upgrade) {
 					$sql .= ", expires_at = NULL";
@@ -1643,6 +1732,83 @@ class SuperUser extends User {
 		return false;
 	}
 
+
+	// TODO: needed for subscription renewal very soon
+	// run by cron job - run after midnight to update subscriptions
+	// #controller#/renewSubscriptions
+	function renewSubscriptions($action) {
+
+
+		// does values validate
+		if(count($action) == 1) {
+
+			$query = new Query();
+			$IC = new Items();
+
+			include_once("classes/shop/supershop.class.php");
+			$SC = new SuperShop();
+
+			// get all user subscriptions where expires_at is now
+			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURDATE()";
+			print $sql;
+
+			if($query->sql($sql)) {
+				$expired_subscriptions = $query->results();
+
+				foreach($expired_subscriptions as $subscription) {
+					// print "<pre>";
+					// print_r($subscription);
+					// print "</pre>";
+
+
+					// get item with subscription method
+					$item = $IC->getItem(["id" => $subscription["item_id"], "extend" => ["subscription_method" => true]]);
+					$new_expiry = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
+					$price = $SC->getPrice($item["item_id"], array("quantity" => 1));
+
+					// add order
+					$_POST["user_id"] = $subscription["user_id"];
+					if($item["itemtype"] == "membership") {
+						$_POST["order_comment"] = "Membership renewed";
+					}
+					else {
+						$_POST["order_comment"] = "Subscription renewed";
+					}
+					$order = $SC->addOrder(array("addOrder"));
+					unset($_POST);
+
+
+					// add item to order
+					// adding a membership to an order will automatically change the membership
+					$_POST["quantity"] = 1;
+					$_POST["item_id"] = $item["id"];
+					$_POST["item_price"] = $price["price"];
+					$_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
+					$_POST["subscription_renewal"] = 1;
+					$order = $SC->addToOrder(array("addToOrder", $order["id"]));
+					unset($_POST);
+
+
+					if($order) {
+
+
+						// if payment method is stripe and we have the stripe customer_id, the charge the order
+
+
+
+						global $page;
+						$page->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"]);
+
+						return true;
+					}
+	
+				}
+
+			}
+
+		}
+
+	}
 
 
 
@@ -2000,7 +2166,7 @@ class SuperUser extends User {
 				unset($_POST);
 
 
-				// add item to cart
+				// add item to order
 				$_POST["quantity"] = 1;
 				$_POST["item_id"] = $item_id;
 				// adding a membership to an order will automatically change the membership
@@ -2058,7 +2224,7 @@ class SuperUser extends User {
 				$new_price = $SC->getPrice($item_id);
 
 
-				// add item to cart
+				// add item to order
 				$_POST["quantity"] = 1;
 				$_POST["item_id"] = $item_id;
 				$_POST["item_price"] = $new_price["price"] - $current_price["price"];

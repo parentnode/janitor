@@ -19,6 +19,7 @@ $user_options = $model->toOptions($users, "id", "nickname", array("add" => array
 	</ul>
 
 	<?= $model->formStart("/janitor/admin/shop/addCart", array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<?= $model->input("return_to", ["type" => "hidden", "value" => "/janitor/admin/shop/cart/edit/"])?>
 		<fieldset>
 			<?= $model->input("user_id", array(
 				"type" => "select",

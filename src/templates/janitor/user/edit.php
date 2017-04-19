@@ -4,7 +4,7 @@ global $model;
 
 $user_id = $action[1];
 
-$item = $model->getUsers(array("user_id" => $user_id));
+$item = $model->getUsers(["user_id" => $user_id]);
 
 
 // get user_groups for select
@@ -30,6 +30,16 @@ $addresses = $model->getAddresses(array("user_id" => $user_id));
 $all_newsletters = $this->newsletters();
 $user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 
+
+$unpaid_orders = false;
+if(defined("SITE_SHOP") && SITE_SHOP) {
+	include_once("classes/shop/supershop.class.php");
+	$SC = new SuperShop();
+
+	$unpaid_orders = $SC->getUnpaidOrders(["user_id" => $user_id]);
+}
+
+
 ?>
 <div class="scene i:scene defaultEdit userEdit">
 	<h1>Edit user</h1>
@@ -47,12 +57,14 @@ if($user_id != 1): ?>
 <? endif; ?>
 <?
 // do not allow to cancel Anonymous user
-if($user_id != 1): ?>
+if($user_id != 1 && !$unpaid_orders): ?>
 		<?= $JML->oneButtonForm("Cancel account", "/janitor/admin/user/cancel/".$user_id, array(
 			"wrapper" => "li.cancel",
 			"confirm-value" => "This will anonymise the account. Permanently! Irreversibly!",
 			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
 		)) ?>
+<? elseif($unpaid_orders): ?>
+		<?= $HTML->link("Unpaid orders", "/janitor/admin/user/orders/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 <? endif; ?>
 	</ul>
 

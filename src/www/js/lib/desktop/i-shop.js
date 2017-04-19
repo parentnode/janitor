@@ -63,7 +63,7 @@ Util.Objects["newOrderFromCart"] = new function() {
 			bn_convert.confirmed = function(response) {
 				u.bug("confirmed checkout")
 
-				if(response.cms_status == "success") {
+				if(response.cms_status == "success" && response.cms_object) {
 //					u.bug("location: " + location.href.replace(/\/cart\/edit\/.+/, "/order/edit/"+response.cms_object["id"]));
 
 					location.href = location.href.replace(/\/cart\/edit\/.+/, "/order/edit/"+response.cms_object["id"]);

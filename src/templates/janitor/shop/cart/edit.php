@@ -5,35 +5,41 @@ global $model;
 $cart_id = $action[2];
 $cart = $model->getCarts(array("cart_id" => $action[2]));
 
-include_once("classes/users/superuser.class.php");
-$UC = new SuperUser();
+if($cart) {
 
-$users = $UC->getUsers();
-$user_options = $model->toOptions($users, "id", "nickname", array("add" => array("0" => "Select user")));
+	include_once("classes/users/superuser.class.php");
+	$UC = new SuperUser();
 
-$IC = new Items();
+	$users = $UC->getUsers();
+	$user_options = $model->toOptions($users, "id", "nickname", array("add" => array("0" => "Select user")));
 
-// if user is defined for cart, allow for delivery and billing address selection
-if($cart["user_id"] > 1) {
-	// get addresses for selected user
-	$addresses = $UC->getAddresses(array("user_id" => $cart["user_id"]));
-	if($addresses) {
-		$delivery_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("0" => "Select delivery address")));
-		$billing_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("0" => "Select billing address")));
+	$IC = new Items();
+
+	// if user is defined for cart, allow for delivery and billing address selection
+	if($cart["user_id"] > 1) {
+		// get addresses for selected user
+		$addresses = $UC->getAddresses(array("user_id" => $cart["user_id"]));
+		if($addresses) {
+			$delivery_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("0" => "Select delivery address")));
+			$billing_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("0" => "Select billing address")));
+		}
+		else {
+			$delivery_address_options = array("0" => "No addresses");
+			$billing_address_options = array("0" => "No addresses");
+		}
+
+		$delivery_address = $UC->getAddresses(array("address_id" => $cart["delivery_address_id"]));
+		$billing_address = $UC->getAddresses(array("address_id" => $cart["billing_address_id"]));
 	}
-	else {
-		$delivery_address_options = array("0" => "No addresses");
-		$billing_address_options = array("0" => "No addresses");
-	}
-
-	$delivery_address = $UC->getAddresses(array("address_id" => $cart["delivery_address_id"]));
-	$billing_address = $UC->getAddresses(array("address_id" => $cart["billing_address_id"]));
+	
 }
 
 
 ?>
 <div class="scene i:scene defaultEdit shopView cartView">
 	<h1>Edit cart</h1>
+<? if($cart): ?>
+
 	<h2><?= $cart["cart_reference"] ?></h2>
 
 	<ul class="actions i:defaultEditActions">
@@ -260,7 +266,7 @@ if($cart["user_id"] > 1) {
 
 
 
-<? if($cart["items"] && $cart["user_id"]) :?>
+	<? if($cart["items"] && $cart["user_id"]) :?>
 	<div class="order i:newOrderFromCart">
 		<h2>Checkout</h2>
 		<p>Start checkout process by converting this cart into an order.</p>
@@ -275,5 +281,13 @@ if($cart["user_id"] > 1) {
 			)) ?>
 		</ul>
 	</div>
+	<? endif; ?>
+
+<? else: ?>
+
+	<p>Cart does not exist.</p>
+
 <? endif; ?>
+	
+
 </div>

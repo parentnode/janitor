@@ -21,7 +21,7 @@ $this->pageTitle("Forgot password?");
 <?	endif; ?>
 
 		<fieldset>
-			<?= $model->input("username", array("type" => "string", "label" => "Email", "required" => true, "pattern" => "[\w\.\-\_]+@[\w-\.]+\.\w{2,4}", "hint_message" => "Type your email.", "error_message" => "Invalid email.")); ?>
+			<?= $model->input("username", array("type" => "string", "label" => "Email", "required" => true, "pattern" => "[\w\.\-_]+@[\w\-\.]+\.\w{2,4}", "hint_message" => "Type your email.", "error_message" => "Invalid email.")); ?>
 		</fieldset>
 
 		<ul class="actions">

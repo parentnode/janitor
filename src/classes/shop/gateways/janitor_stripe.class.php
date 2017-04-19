@@ -217,6 +217,72 @@ class JanitorStripe {
 		return false;
 	}
 
+	// Delete customer (when user account is being cancelled)
+	function deleteCustomer($user_id) {
+
+		$customer_id = $this->getCustomerId($user_id);
+		if($customer_id) {
+
+			// API communication
+			try {
+
+				$customer = \Stripe\Customer::retrieve($customer_id);
+				$response = $customer->delete();
+
+				if($response && $response->deleted && $response->id) {
+
+					// delete customer id after 
+					$this->deleteCustomerId($user_id, $customer_id);
+
+					$page->addLog("Customer deleted: user_id:".$user_id.", customer_id:".$response->id, "stripe");
+					return true;
+
+				}
+
+			}
+			// Too many requests made to the API too quickly
+			catch (\Stripe\Error\RateLimit $exception) {
+
+				$this->exceptionHandler("Deleting customer", $exception);
+				return false;
+			} 
+			// Invalid parameters were supplied to Stripe's API
+			catch (\Stripe\Error\InvalidRequest $exception) {
+
+				$this->exceptionHandler("Deleting customer", $exception);
+				return false;
+			}
+			// Authentication with Stripe's API failed
+			catch (\Stripe\Error\Authentication $exception) {
+
+				$this->exceptionHandler("Deleting customer", $exception);
+				return false;
+			}
+			// Network communication with Stripe failed
+			catch (\Stripe\Error\ApiConnection $exception) {
+
+				$this->exceptionHandler("Deleting customer", $exception);
+				return false;
+			}
+			// Display a very generic error to the user, and maybe send yourself an email
+			catch (\Stripe\Error\Base $exception) {
+
+				$this->exceptionHandler("Deleting customer", $exception);
+				return false;
+			}
+			// Something else happened, completely unrelated to Stripe
+			catch (Exception $exception) {
+
+				$this->exceptionHandler("Deleting customer", $exception);
+				return false;
+			}
+
+		}
+
+		return false;
+
+	}
+
 
 	// Add new card to existing customer in Stripe account
 	function addCard($customer_id, $token_id) {
@@ -464,6 +530,20 @@ class JanitorStripe {
 		$query->checkDBExistence(SITE_DB.".user_gateway_stripe");
 
 		$sql = "INSERT INTO ".SITE_DB.".user_gateway_stripe SET user_id=$user_id, customer_id='$customer_id'";
+		if($query->sql($sql)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	// Save stripe customer id
+	function deleteCustomerId($user_id, $customer_id) {
+
+		$query = new Query();
+		$query->checkDBExistence(SITE_DB.".user_gateway_stripe");
+
+		$sql = "DELETE FROM ".SITE_DB.".user_gateway_stripe WHERE user_id=$user_id, customer_id='$customer_id'";
 		if($query->sql($sql)) {
 			return true;
 		}

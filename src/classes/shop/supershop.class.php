@@ -582,12 +582,14 @@ class SuperShop extends Shop {
 				$_POST["billing_address_id"] = $cart["billing_address_id"];
 
 				$order = $this->addOrder(array("addOrder"));
+				unset($_POST);
 
 				foreach($cart["items"] as $cart_item) {
 					$_POST["quantity"] = $cart_item["quantity"];
 					$_POST["item_id"] = $cart_item["item_id"];
 
 					$this->addToOrder(array("addOrder", $order["id"]));
+					unset($_POST);
 				}
 
 				$this->deleteCart(array("deleteCart", $cart_id, $cart_reference));
@@ -692,12 +694,17 @@ class SuperShop extends Shop {
 
 		}
 
-		// all orders for user_id
+		// orders for user_id
 		else if($user_id) {
 
+			// get all orders with certain itemtype in it
 			if($itemtype) {
 
 				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE orders.user_id=$user_id".($status !== false ? " AND status=$status" : "")." AND order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
+
+				// LEFT JOIN ALTERNATIVE
+//				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items LEFT JOIN ".UT_ITEMS." ON order_items.item_id = ".UT_ITEMS.".id WHERE orders.user_id=$user_id".($status !== false ? " AND status=$status" : "")." AND order_items.order_id = orders.id AND order_items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
+
 //				print $sql;
 				if($query->sql($sql)) {
 					$orders = $query->results();
@@ -713,7 +720,9 @@ class SuperShop extends Shop {
 				}
 
 			}
+			// get all orders for user
 			else {
+
 				$sql = "SELECT * FROM ".$this->db_orders." WHERE user_id=$user_id".($status !== false ? " AND status=$status" : "")." ORDER BY id DESC";
 //				print $sql;
 				if($query->sql($sql)) {
@@ -733,12 +742,56 @@ class SuperShop extends Shop {
 
 		}
 
-		// TODO: get all orders with item_id in it - not tested
+		// get all orders with certain itemtype in it
+		else if($itemtype) {
+
+			$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE ".($status !== false ? "status=$status AND " : "")."order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
+//			print $sql;
+			if($query->sql($sql)) {
+				$orders = $query->results();
+
+				foreach($orders as $i => $order) {
+					$orders[$i]["items"] = array();
+					if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE order_id = ".$order["id"])) {
+						$orders[$i]["items"] = $query->results();
+
+						// is order mapped to user
+						if($order["user_id"]) {
+							// get user info
+							$orders[$i]["user"] = $UC->getUsers(array("user_id" => $order["user_id"]));
+							$orders[$i]["user"]["email"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+							$orders[$i]["user"]["mobile"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+						}
+					}
+				}
+
+				return $orders;
+			}
+
+		}
+
+		// get all orders with item_id in it
 		else if($item_id) {
 
-
-			if($query->sql("SELECT order_id as id FROM ".$this->db_order_items." WHERE item_id = $item_id GROUP BY order_id")) {
+			$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as items WHERE orders.id = items.order_id AND items.item_id = $item_id GROUP BY order_id";
+			if($query->sql($sql)) {
 				$orders = $query->results();
+
+				foreach($orders as $i => $order) {
+					$orders[$i]["items"] = array();
+					if($query->sql("SELECT * FROM ".$this->db_order_items." WHERE order_id = ".$order["id"])) {
+						$orders[$i]["items"] = $query->results();
+
+						// is order mapped to user
+						if($order["user_id"]) {
+							// get user info
+							$orders[$i]["user"] = $UC->getUsers(array("user_id" => $order["user_id"]));
+							$orders[$i]["user"]["email"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+							$orders[$i]["user"]["mobile"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+						}
+					}
+				}
+
 
 				return $orders;
 			}
@@ -778,6 +831,86 @@ class SuperShop extends Shop {
 
 		return false;
 	}
+
+
+	function getUnpaidOrders($_options=false) {
+		
+		// get all unpaid orders for user_id
+		$user_id = false;
+
+		// get all unpaid orders containing item_id
+		$item_id = false;
+		$itemtype = false;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"           : $user_id             = $_value; break;
+
+					case "item_id"           : $item_id             = $_value; break;
+					case "itemtype"          : $itemtype            = $_value; break;
+				}
+			}
+		}
+
+
+		$query = new Query();
+
+
+		if($user_id) {
+
+			if($itemtype) {
+
+				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE orders.user_id=$user_id AND orders.payment_status != 2 AND orders.status != 3 AND order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
+//				print $sql;
+				$query->sql($sql);
+				return $query->results();
+
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db_orders." WHERE user_id=$user_id AND payment_status != 2 AND status != 3 ORDER BY id DESC";
+//				print $sql;
+				$query->sql($sql);
+				return $query->results();
+			}
+
+		}
+
+
+		else if($itemtype) {
+
+			$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE orders.payment_status != 2 AND orders.status != 3 AND order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
+//			print $sql;
+			$query->sql($sql);
+			return $query->results();
+
+		}
+
+		// get all unpaid orders with item_id in it
+		else if($item_id) {
+
+			$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as items WHERE orders.payment_status != 2 AND orders.status != 3 AND orders.id = items.order_id AND items.item_id = $item_id GROUP BY order_id";
+//			print $sql;
+			$query->sql($sql);
+			return $query->results();
+
+		}
+
+		// return all unpaid orders
+		else {
+
+			$sql = "SELECT * FROM ".$this->db_orders." WHERE payment_status != 2 AND status != 3 ORDER BY id DESC";
+//			print $sql;
+			$query->sql($sql);
+			return $query->results();
+
+		}
+
+		return false;
+		
+	}
+
 
 	// a shorthand function to get order count for UI
 	function getOrderCount($_options=false) {
@@ -1172,18 +1305,23 @@ class SuperShop extends Shop {
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
 
-				$item_price = false;
-				$item_name = false;
+//				$item_price = false;
+//				$item_name = false;
 
-				if($this->validateList(array("item_price", "item_name"))) {
-					$item_price = $this->getProperty("item_price", "value");
-					$item_name = $this->getProperty("item_name", "value");
-				}
+				$item_price = $this->getProperty("item_price", "value");
+				$item_name = $this->getProperty("item_name", "value");
+
+				// if($this->validate("item_price") && $this->validate("item_name")) {
+				// }
 
 
 
 				$IC = new Items();
 				$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
+
+				// print "item:<br>\n";
+				// print_r($item);
+
 
 				// only add item if it exists
 				if($item) {
@@ -1201,8 +1339,7 @@ class SuperShop extends Shop {
 						$total_vat = $unit_vat * $quantity;
 
 						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".$item_name."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-		//				print $sql;
-
+//						print $sql;
 					}
 					// check if item is already in order?
 					else if($order["items"] && arrayKeyValue($order["items"], "item_id", $item_id) !== false) {
@@ -1237,9 +1374,8 @@ class SuperShop extends Shop {
 						$total_price = $unit_price * $quantity;
 						$total_vat = $unit_vat * $quantity;
 
-						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".$item["name"]."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-		//				print $sql;
-				
+						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+//						print $sql;				
 					}
 
 
@@ -1320,6 +1456,7 @@ class SuperShop extends Shop {
 						global $page;
 						$page->addLog("SuperShop->addToOrder: order_id:".$order["id"].", item_id:".$item_id);
 
+						$this->validateOrder($order_id);
 
 						message()->addMessage("Item added to order");
 						return $this->getOrders(array("order_id" => $order_id));

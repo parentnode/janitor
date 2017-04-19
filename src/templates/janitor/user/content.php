@@ -47,7 +47,7 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 				}
 ?>
 			<li class="item item_id:<?= $item["item_id"] ?>">
-				<h3><?= $item["name"] ?> (<?= $item["itemtype"] ?>)</h3>
+				<h3><?= strip_tags($item["name"]) ?> (<?= $item["itemtype"] ?>)</h3>
 
 				<ul class="actions">
 					<?= $path ? $HTML->link("Edit", $path."/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) : "" ?>

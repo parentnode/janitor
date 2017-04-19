@@ -40,6 +40,8 @@ $access_item["/addSubscription"] = "/subscription";
 $access_item["/updateSubscription"] = "/subscription";
 $access_item["/deleteSubscription"] = "/subscription";
 
+$access_item["/renewSubscriptions"] = true;
+
 
 // USER CONTENT AND READSTATES INTERFACE
 $access_item["/content"] = true;
@@ -290,6 +292,15 @@ if(is_array($action) && count($action)) {
 			"templates" => "janitor/user/unconfirmed-accounts.php"
 		));
 		exit();
+	}
+
+	// Class interface
+	else if(preg_match("/^renewSubscriptions$/", $action[0])) {
+
+		$output = new Output();
+		$output->screen($model->renewSubscriptions($action));
+		exit();
+
 	}
 
 	// Class interface

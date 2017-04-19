@@ -17,13 +17,18 @@ Util.Objects["defaultNew"] = new function() {
 				if(response.cms_status == "success" && response.cms_object) {
 //						u.bug("this.action:" + this.action)
 					// u.bug("location.href:" + location.href)
+//					console.log(response)
+//					return;
 
 					if(response.return_to) {
 						if(response.cms_object.item_id) {
 							location.href = response.return_to + response.cms_object.item_id;
 						}
+						else if(response.cms_object.id) {
+							location.href = response.return_to + response.cms_object.id;
+						}
 						else {
-							location.href = response.return_to;
+//							location.href = response.return_to;
 						}
 					}
 					else if(this.action.match(/\/save$/)) {

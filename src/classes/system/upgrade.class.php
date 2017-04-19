@@ -23,7 +23,7 @@ class Upgrade {
 	function process($result, $critical = false) {
 
 		// print message
-		print '<li'.(!$result["success"] ? ' class="error"' : '').'>'.$result["message"].'</li>';
+		print '<li'.(!$result["success"] ? ' class="error"' : '').'>'.$result["message"].'</li>'."\n";
 
 		// end process on critical error
 		if(!$result["success"] && $critical) {
@@ -391,170 +391,278 @@ class Upgrade {
 			}
 
 
+
+			# SUBSCRIPTIONS
+
 			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 
-				// SPECIAL CASES - PRERELEASE UPGRADE
+				// subscriptions table exists
+				$subscriptions_table = $this->tableInfo(SITE_DB.".user_item_subscriptions");
+				if($subscriptions_table) {
 
-				// SUBSCRIPTIONS
-				$result = $this->renameTable(SITE_DB.".user_subscriptions", "user_item_subscriptions");
-				$this->process($result);
+					// user_id constraint
+					if(!isset($subscriptions_table["constraints"]["user_id"]) || !isset($subscriptions_table["constraints"]["user_id"]["users.id"])) {
 
-				// old subscriptions table exists, update structure
-				if($result["success"]) {
+						// remove any existing user_id constraints and keys
+						$this->process($this->dropConstraints(SITE_DB.".user_item_subscriptions", "user_id"), true);
+						$this->process($this->dropKeys(SITE_DB.".user_item_subscriptions", "user_id"), true);
 
-					$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "comment"), true);
-					$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "status"), true);
-
-
-					$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "renewed_at", "TIMESTAMP NULL DEFAULT NULL", "modified_at"), true);
-					$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "expires_at", "TIMESTAMP NULL DEFAULT NULL", "renewed_at"), true);
-
-					// add payment_method column
-					$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "order_id", "int(11) DEFAULT NULL", "item_id"), true);
-					$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "payment_method", "int(11) DEFAULT NULL", "order_id"), true);
-					$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "payment_method"), true);
-					$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.payment_method", UT_PAYMENT_METHODS.".id", "ON UPDATE CASCADE"), true);
-
-
-
-					// transfer old subscriptions model to new membership model
-					$item_subscription = $this->tableInfo(SITE_DB.".item_subscription");
-					if($item_subscription && isset($item_subscription["columns"]["renewal"])) {
-
-						// change layout
-						$this->process($this->addColumn(SITE_DB.".item_subscription", "introduction", "text NOT NULL", "description"), true);
-						$this->process($this->dropColumn(SITE_DB.".item_subscription", "renewal"), true);
-
-						if($this->tableInfo(SITE_DB.".item_subscription_versions")) {
-
-							// change layout
-							$this->process($this->addColumn(SITE_DB.".item_subscription_versions", "introduction", "text NOT NULL", "description"), true);
-							$this->process($this->dropColumn(SITE_DB.".item_subscription_versions", "renewal"), true);
-						}
-
-						$query->sql("SELECT * FROM ".UT_ITEMS." WHERE itemtype = 'subscription'");
-						$items = $query->results();
-						if($items) {
-							foreach($items as $item) {
-								$query->sql("UPDATE ".UT_ITEMS." SET itemtype = 'membership' WHERE itemtype = 'subscription' AND id = ".$item["id"]);
-							}
-						}
-
-						// rename
-						$this->process($this->renameTable(SITE_DB.".item_subscription", "item_membership"), true);
-
-						// rename
-						$this->process($this->renameTable(SITE_DB.".item_subscription_versions", "item_membership_versions"), true);
-
-						
-						$model = $IC->typeObject("membership");
-						$items = $IC->getItems(array("itemtype" => "membership"));
-
-						foreach($items as $item) {
-							if($item["sindex"] == "curious-cat") {
-								$_POST["item_subscription_method"] = 2;
-							}
-							else {
-								$_POST["item_subscription_method"] = 1;
-							}
-							$model->updateSubscriptionMethod(array("updateSubscriptionMethod", $item["id"]));
-							unset($_POST);
-
-							// ADD CORRECT VAT SETTING
-							$query->sql("UPDATE ".SITE_DB.".items_prices SET vatrate_id = 2 WHERE item_id = ".$item["id"]);
-
-						}
-
-					}
-
-
-
-					if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
-						// MEMBERS
-						$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
-
-						// CONVERT USERS/SUBSCRIBERS TO MEMBERS
-						$sql = "SELECT * FROM ".$UC->db;
+						// delete any subscriptions with invalid user_id values
+						$sql = "SELECT id FROM ".SITE_DB.".user_item_subscriptions WHERE user_id NOT IN (SELECT id FROM ".SITE_DB.".users)";
 						if($query->sql($sql)) {
-							$users = $query->results();
-
-							foreach($users as $user) {
-
-								if($user["id"] != 1) {
-									// add members
-									$_POST["user_id"] = $user["id"];
-									$UC->addMembership(array("addMembership"));
-									unset($_POST);
-
-									// update member creation date
-									$query->sql("UPDATE ".SITE_DB.".user_members SET created_at = '".$user["created_at"]."' WHERE user_id = ".$user["id"]);
-								}
-
+							$subscriptions = $query->results();
+							foreach($subscriptions as $subscription) {
+								$sql = "DELETE FROM ".SITE_DB.".user_item_subscriptions WHERE id = ".$subscription["id"];
+								$query->sql($sql);
 							}
-
 						}
+
+						// add correct user_id constraint and key
+						$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "user_id"), true);
+						$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.user_id", SITE_DB.".users.id", "ON DELETE CASCADE ON UPDATE CASCADE"), true);
 
 					}
 
+					// item_id constraint
+					if(!isset($subscriptions_table["constraints"]["item_id"]) || !isset($subscriptions_table["constraints"]["item_id"]["items.id"])) {
 
-					// $sql = "SELECT * FROM ".SITE_DB.".user_item_subscriptions";
-					// if($query->sql($sql)) {
-					// 	$subscriptions = $query->results();
-					//
-					//
-					// 	// TODO: start think specific
-					// 	$opening_timestamp = mktime(0, 0, 0, 9, 24, 2016);
-					// 	// TODO: end think specific
-					//
-					//
-					// 	foreach($subscriptions as $subscription) {
-					//
-					// 		// TODO: start think specific
-					// 		// update subscription timestamps before opening
-					// 		$timestamp = strtotime($subscription["created_at"]);
-					// 		if($timestamp < $opening_timestamp) {
-					//
-					// 			// update subscription creation date
-					// 			$subscription["created_at"] = date("Y-m-d H:i:s", $opening_timestamp);
-					// 			$query->sql("UPDATE ".SITE_DB.".user_item_subscriptions SET created_at = '".$subscription["created_at"]."' WHERE id = ".$subscription["id"]);
-					// 		}
-					// 		// TODO: end think specific
-					//
-					//
-					//
-					// 		// add order
-					// 		$_POST["user_id"] = $subscription["user_id"];
-					// 		$_POST["order_comment"] = "System upgade";
-					// 		$order = $SC->addOrder(array("addOrder"));
-					// 		unset($_POST);
-					//
-					//
-					// 		// add item to order
-					// 		$_POST["item_id"] = $subscription["item_id"];
-					// 		$_POST["quantity"] = 1;
-					// 		$SC->addToOrder(array("addToOrder", $order["id"]));
-					// 		unset($_POST);
-					//
-					// 		$item = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("subscription_method" => true)));
-					//
-					// 		// update subscription timestamps
-					// 		$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET renewed_at = NULL";
-					// 		$expires_at = $UC->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["created_at"]);
-					// 		if($expires_at) {
-					// 			$sql .= ", expires_at = '$expires_at'";
-					// 		}
-					// 		else {
-					// 			$sql .= ", expires_at = NULL";
-					// 		}
-					// 		$sql .= " WHERE id = ".$subscription["id"];
-					//
-					// 		$query->sql($sql);
-					//
-					// 	}
-					//
-					// }
+						// remove any existing item_id constraints and keys
+						$this->process($this->dropConstraints(SITE_DB.".user_item_subscriptions", "item_id"), true);
+						$this->process($this->dropKeys(SITE_DB.".user_item_subscriptions", "item_id"), true);
+
+						// delete any subscriptions with invalid item_id values
+						$sql = "SELECT id FROM ".SITE_DB.".user_item_subscriptions WHERE item_id NOT IN (SELECT id FROM ".UT_ITEMS.")";
+						if($query->sql($sql)) {
+							$subscriptions = $query->results();
+							foreach($subscriptions as $subscription) {
+								$sql = "DELETE FROM ".SITE_DB.".user_item_subscriptions WHERE id = ".$subscription["id"];
+								$query->sql($sql);
+							}
+						}
+
+						// add correct item_id constraint and key
+						$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "item_id"), true);
+						$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.item_id", SITE_DB.".items.id", "ON UPDATE CASCADE"), true);
+
+					}
+
+					// order_id constraint
+					if(!isset($subscriptions_table["constraints"]["order_id"]) || !isset($subscriptions_table["constraints"]["order_id"]["orders.id"])) {
+
+						// remove any existing order_id constraints and keys
+						$this->process($this->dropConstraints(SITE_DB.".user_item_subscriptions", "order_id"), true);
+						$this->process($this->dropKeys(SITE_DB.".user_item_subscriptions", "order_id"), true);
+
+						// correct any invalid order_id values (set to NULL)
+						$sql = "SELECT id FROM ".SITE_DB.".user_item_subscriptions WHERE order_id NOT IN (SELECT id FROM ".SITE_DB.".shop_orders)";
+						if($query->sql($sql)) {
+							$subscriptions = $query->results();
+							foreach($subscriptions as $subscription) {
+
+								$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET order_id = NULL WHERE id = ".$subscription["id"];
+								$query->sql($sql);
+
+							}
+						}
+
+						// add correct order_id constraint and key
+						$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "order_id"), true);
+						$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.order_id", SITE_DB.".shop_orders.id", "ON UPDATE CASCADE"), true);
+
+					}
+
+					// payment_method constraint
+					if(!isset($subscriptions_table["constraints"]["payment_method"]) || !isset($subscriptions_table["constraints"]["payment_method"]["system_payment_methods.id"])) {
+
+						// remove any existing payment_method constraints and keys
+						$this->process($this->dropConstraints(SITE_DB.".user_item_subscriptions", "payment_method"), true);
+						$this->process($this->dropKeys(SITE_DB.".user_item_subscriptions", "payment_method"), true);
+
+						// correct any invalid order_id values (set to NULL)
+						$sql = "SELECT id FROM ".SITE_DB.".user_item_subscriptions WHERE payment_method NOT IN (SELECT id FROM ".UT_PAYMENT_METHODS.")";
+						if($query->sql($sql)) {
+							$subscriptions = $query->results();
+							foreach($subscriptions as $subscription) {
+
+								$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET payment_method = NULL WHERE id = ".$subscription["id"];
+								$query->sql($sql);
+
+							}
+						}
+
+						// add correct order_id constraint and key
+						$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "payment_method"), true);
+						$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.payment_method", UT_PAYMENT_METHODS.".id", "ON UPDATE CASCADE"), true);
+
+					}
 
 				}
+
+				// // SPECIAL CASES - PRERELEASE UPGRADE
+				//
+				// // SUBSCRIPTIONS
+				// $result = $this->renameTable(SITE_DB.".user_subscriptions", "user_item_subscriptions");
+				// $this->process($result);
+				//
+				// // old subscriptions table exists, update structure
+				// if($result["success"]) {
+				//
+				// 	$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "comment"), true);
+				// 	$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "status"), true);
+				//
+				//
+				// 	$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "renewed_at", "TIMESTAMP NULL DEFAULT NULL", "modified_at"), true);
+				// 	$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "expires_at", "TIMESTAMP NULL DEFAULT NULL", "renewed_at"), true);
+				//
+				// 	// add payment_method column
+				// 	$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "order_id", "int(11) DEFAULT NULL", "item_id"), true);
+				// 	$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "payment_method", "int(11) DEFAULT NULL", "order_id"), true);
+				// 	$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "payment_method"), true);
+				// 	$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.payment_method", UT_PAYMENT_METHODS.".id", "ON UPDATE CASCADE"), true);
+				//
+				// 	// TODO: also add order constraint
+				//
+				//
+				//
+				// 	// transfer old subscriptions model to new membership model
+				// 	$item_subscription = $this->tableInfo(SITE_DB.".item_subscription");
+				// 	if($item_subscription && isset($item_subscription["columns"]["renewal"])) {
+				//
+				// 		// change layout
+				// 		$this->process($this->addColumn(SITE_DB.".item_subscription", "introduction", "text NOT NULL", "description"), true);
+				// 		$this->process($this->dropColumn(SITE_DB.".item_subscription", "renewal"), true);
+				//
+				// 		if($this->tableInfo(SITE_DB.".item_subscription_versions")) {
+				//
+				// 			// change layout
+				// 			$this->process($this->addColumn(SITE_DB.".item_subscription_versions", "introduction", "text NOT NULL", "description"), true);
+				// 			$this->process($this->dropColumn(SITE_DB.".item_subscription_versions", "renewal"), true);
+				// 		}
+				//
+				// 		$query->sql("SELECT * FROM ".UT_ITEMS." WHERE itemtype = 'subscription'");
+				// 		$items = $query->results();
+				// 		if($items) {
+				// 			foreach($items as $item) {
+				// 				$query->sql("UPDATE ".UT_ITEMS." SET itemtype = 'membership' WHERE itemtype = 'subscription' AND id = ".$item["id"]);
+				// 			}
+				// 		}
+				//
+				// 		// rename
+				// 		$this->process($this->renameTable(SITE_DB.".item_subscription", "item_membership"), true);
+				//
+				// 		// rename
+				// 		$this->process($this->renameTable(SITE_DB.".item_subscription_versions", "item_membership_versions"), true);
+				//
+				//
+				// 		$model = $IC->typeObject("membership");
+				// 		$items = $IC->getItems(array("itemtype" => "membership"));
+				//
+				// 		foreach($items as $item) {
+				// 			if($item["sindex"] == "curious-cat") {
+				// 				$_POST["item_subscription_method"] = 2;
+				// 			}
+				// 			else {
+				// 				$_POST["item_subscription_method"] = 1;
+				// 			}
+				// 			$model->updateSubscriptionMethod(array("updateSubscriptionMethod", $item["id"]));
+				// 			unset($_POST);
+				//
+				// 			// ADD CORRECT VAT SETTING
+				// 			$query->sql("UPDATE ".SITE_DB.".items_prices SET vatrate_id = 2 WHERE item_id = ".$item["id"]);
+				//
+				// 		}
+				//
+				// 	}
+				//
+				//
+				//
+				// 	// if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
+				// 	// 	// MEMBERS
+				// 	// 	$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
+				// 	//
+				// 	// 	// CONVERT USERS/SUBSCRIBERS TO MEMBERS
+				// 	// 	$sql = "SELECT * FROM ".$UC->db;
+				// 	// 	if($query->sql($sql)) {
+				// 	// 		$users = $query->results();
+				// 	//
+				// 	// 		foreach($users as $user) {
+				// 	//
+				// 	// 			if($user["id"] != 1) {
+				// 	// 				// add members
+				// 	// 				$_POST["user_id"] = $user["id"];
+				// 	// 				$UC->addMembership(array("addMembership"));
+				// 	// 				unset($_POST);
+				// 	//
+				// 	// 				// update member creation date
+				// 	// 				$query->sql("UPDATE ".SITE_DB.".user_members SET created_at = '".$user["created_at"]."' WHERE user_id = ".$user["id"]);
+				// 	// 			}
+				// 	//
+				// 	// 		}
+				// 	//
+				// 	// 	}
+				// 	//
+				// 	// }
+				//
+				//
+				// 	// $sql = "SELECT * FROM ".SITE_DB.".user_item_subscriptions";
+				// 	// if($query->sql($sql)) {
+				// 	// 	$subscriptions = $query->results();
+				// 	//
+				// 	//
+				// 	// 	// TODO: start think specific
+				// 	// 	$opening_timestamp = mktime(0, 0, 0, 9, 24, 2016);
+				// 	// 	// TODO: end think specific
+				// 	//
+				// 	//
+				// 	// 	foreach($subscriptions as $subscription) {
+				// 	//
+				// 	// 		// TODO: start think specific
+				// 	// 		// update subscription timestamps before opening
+				// 	// 		$timestamp = strtotime($subscription["created_at"]);
+				// 	// 		if($timestamp < $opening_timestamp) {
+				// 	//
+				// 	// 			// update subscription creation date
+				// 	// 			$subscription["created_at"] = date("Y-m-d H:i:s", $opening_timestamp);
+				// 	// 			$query->sql("UPDATE ".SITE_DB.".user_item_subscriptions SET created_at = '".$subscription["created_at"]."' WHERE id = ".$subscription["id"]);
+				// 	// 		}
+				// 	// 		// TODO: end think specific
+				// 	//
+				// 	//
+				// 	//
+				// 	// 		// add order
+				// 	// 		$_POST["user_id"] = $subscription["user_id"];
+				// 	// 		$_POST["order_comment"] = "System upgade";
+				// 	// 		$order = $SC->addOrder(array("addOrder"));
+				// 	// 		unset($_POST);
+				// 	//
+				// 	//
+				// 	// 		// add item to order
+				// 	// 		$_POST["item_id"] = $subscription["item_id"];
+				// 	// 		$_POST["quantity"] = 1;
+				// 	// 		$SC->addToOrder(array("addToOrder", $order["id"]));
+				// 	// 		unset($_POST);
+				// 	//
+				// 	// 		$item = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("subscription_method" => true)));
+				// 	//
+				// 	// 		// update subscription timestamps
+				// 	// 		$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET renewed_at = NULL";
+				// 	// 		$expires_at = $UC->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["created_at"]);
+				// 	// 		if($expires_at) {
+				// 	// 			$sql .= ", expires_at = '$expires_at'";
+				// 	// 		}
+				// 	// 		else {
+				// 	// 			$sql .= ", expires_at = NULL";
+				// 	// 		}
+				// 	// 		$sql .= " WHERE id = ".$subscription["id"];
+				// 	//
+				// 	// 		$query->sql($sql);
+				// 	//
+				// 	// 	}
+				// 	//
+				// 	// }
+				//
+				// }
+
 				// table doesn't exist
 				else {
 
@@ -564,13 +672,16 @@ class Upgrade {
 
 			}
 
+
+
+			# MEMBERS
+
 			if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
 
 				// MEMBERS
 				$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
 
 			}
-
 
 
 
@@ -587,6 +698,9 @@ class Upgrade {
 			$this->process($this->addKey(SITE_DB.".users", "language"), true);
 			$this->process($this->addConstraint(SITE_DB.".users.language", UT_LANGUAGES.".id", "ON UPDATE CASCADE"), true);
 
+
+
+			# NEWSLETTERS
 
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 
@@ -637,7 +751,45 @@ class Upgrade {
 			}
 
 
+
+			// ORDERS
+
+			// Add billing_name from user info if not already set
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
+
+				$orders = $SC->getOrders();
+				foreach($orders as $order) {
+
+					if(!$order["billing_name"]) {
+						$user = $UC->getUsers(["user_id" => $order["user_id"]]);
+
+						// create base data update sql
+						$sql = "UPDATE ".$SC->db_orders." SET ";
+
+						if($user["firstname"] && $user["lastname"]) {
+							$sql .= "billing_name='".prepareForDB($user["firstname"]) ." ". prepareForDB($user["lastname"])."'";
+						}
+						else {
+							$sql .= "billing_name='".prepareForDB($user["nickname"])."'";
+						}
+
+						$sql .= " WHERE id=".$order["id"];
+						$query->sql($sql);
+					}
+
+				}
+
+			}
+
+
+
 			// TODO: set filemode and file permissions as well (just to be sure) 
+			// TODO: if file permissions are correct you don't have permissions to change filemode
+			// Tell git to ignore file permission changes
+			// exec("cd ".LOCAL_PATH."/.. && git config core.filemode false");
+			// exec("cd ".LOCAL_PATH."/../submodules/janitor && git config core.filemode false");
+			// exec("cd ".LOCAL_PATH."/../submodules/js-merger && git config core.filemode false");
+			// exec("cd ".LOCAL_PATH."/../submodules/css-merger && git config core.filemode false");
 
 
 			// Upgrade complete

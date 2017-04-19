@@ -185,12 +185,12 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 		<? else: ?>
 
-		<p>
+		<!--p>
 			You cannot change your membership until the current subscription has been paid.<br />
 		</p>
 		<ul class="actions">
 			<li class="pay"><a href="<?= SITE_URL ?>/shop/payment/<?= $membership["order"]["order_no"] ?>" class="button primary">Pay now</a></li>
-		</ul>
+		</ul-->
 
 		<? endif; ?>
 

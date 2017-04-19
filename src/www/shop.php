@@ -58,6 +58,7 @@ if(is_array($action) && count($action)) {
 		// 		exit();
 		// 	}
 		// }
+
 		// PAYMENT
 		else if(count($action) > 2 && preg_match("/^(payment)$/", $action[1])) {
 
@@ -78,8 +79,20 @@ if(is_array($action) && count($action)) {
 	// CART
 	else if(count($action) > 1 && preg_match("/^(cart)$/", $action[0])) {
 
-		// LIST/EDIT/NEW
-		if(preg_match("/^(list|edit|new)$/", $action[1])) {
+		// EDIT
+		if(count($action) == 3 && preg_match("/^edit$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"body_class" => "carts", 
+				"page_title" => "Carts",
+				"templates" => "janitor/shop/cart/edit.php"
+			));
+			exit();
+
+		}
+		// LIST/NEW
+		else if(preg_match("/^(list|new)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",

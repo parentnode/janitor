@@ -21,7 +21,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 }
 
 ?>
-<div class="scene i:scene defaultList userContentList">
+<div class="scene i:scene defaultList userOrderList">
 	<h1>Orders</h1>
 	<h2><?= $user["nickname"] ?></h2>
 

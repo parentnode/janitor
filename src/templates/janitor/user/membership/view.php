@@ -136,7 +136,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 						<dd class="total_price"><?= formatPrice($total_price) ?></dd>
 
 						<dt class="payment_status">Status</dt>
-						<dd class="payment_status"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
+						<dd class="payment_status<?= $order["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
 					</dl>
 
 					<ul class="actions">
@@ -150,6 +150,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 			<? endif; ?>
 		</div>
 	</div>
+
 
 	<div class="change i:collapseHeader">
 		<h2>Change membership</h2>
@@ -170,7 +171,6 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		</div>
 
 		<? if($membership["order"]): ?>
-
 		<div class="option">
 			<h3>Upgrade the existing membership</h3>
 			<p>
@@ -180,24 +180,30 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 				<?= $HTML->link("Upgrade membership", "/janitor/admin/user/membership/upgrade/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
 			</ul>
 		</div>
-
-		<div class="option">
-			<h3>Cancel the membership</h3>
-			<p>
-				- cancel the existing subscription, and leave membership inactive.
-			</p>
-			<ul class="actions">
-				<?= $JML->oneButtonForm("Cancel membership", "/janitor/admin/user/cancelMembership/".$user_id."/".$membership["id"], array(
-					"confirm-value" => "Confirm cancellation",
-					"wrapper" => "li.cancel",
-					"class" => "secondary",
-					"success-location" => "/janitor/admin/user/membership/view/".$user_id
-				)) ?>
-			</ul>
-		</div>
-
 		<? endif; ?>
+
 	</div>
+
+
+	<? if($membership["order"]): ?>
+	<div class="cancel i:collapseHeader">
+		<h2>Cancel membership</h2>
+		<p>
+			Cancel the existing subscription, and leave membership inactive.
+		</p>
+
+		<ul class="actions">
+			<?= $JML->oneButtonForm("Cancel membership", "/janitor/admin/user/cancelMembership/".$user_id."/".$membership["id"], array(
+				"confirm-value" => "Confirm cancellation",
+				"wrapper" => "li.cancel",
+				"class" => "secondary",
+				"success-location" => "/janitor/admin/user/membership/view/".$user_id
+			)) ?>
+		</ul>
+
+	</div>
+	<? endif; ?>
+
 
 	<? else: ?>
 	<div class="item">

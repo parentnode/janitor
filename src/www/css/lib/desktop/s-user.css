@@ -95,9 +95,12 @@
 
 
 /* USER CONTENT */
-/*#content .defaultList.userContentList div h2 {padding-top: 20px; border-bottom: 1px solid #dedede;}*/
 #content .defaultList.userContentList div.all_items {padding-bottom: 20px;}
-#content .defaultList.userContentList ul.items > li h3 br {display: none;}
+
+
+/* USER ORDERS */
+#content .defaultList.userOrderList div.all_items {padding-bottom: 20px;}
+#content .defaultList.userOrderList div.all_items ul.items dd.payment_status.missing {color: #df0000;}
 
 
 /* USER SUBSCRIPTIONS */
@@ -111,7 +114,7 @@
 #content .defaultList.userSubscriptions dd.price+dt.price+dd.price {padding-top: 0;}
 
 #content .defaultList.userSubscriptions dt.membership {display: none;}
-#content .defaultList.userSubscriptions dd.membership {color: #df0000; clear: left; padding-top: 5px;}
+#content .defaultList.userSubscriptions dd.membership {color: green; clear: left; padding-top: 5px;}
 
 #content .defaultList.userSubscriptions dd.payment_status.missing {color: #df0000;}
 
@@ -142,10 +145,14 @@
 
 #content .defaultView.userMembership div.orders {border-bottom: 1px solid #bbbbbb;}
 #content .defaultView.userMembership div.orders ul.items {padding-bottom: 25px;}
+#content .defaultView.userMembership div.orders ul.items dd.payment_status.missing {color: #df0000;}
 
+#content .defaultView.userMembership div.change {border-bottom: 1px solid #bbbbbb;}
 #content .defaultView.userMembership div.change div.option {padding-bottom: 30px;}
 #content .defaultView.userMembership div.change div.option h3 {padding-bottom: 10px; font-size: 18px;}
 #content .defaultView.userMembership div.change div.option p {padding-bottom: 10px;}
+
+#content .defaultView.userMembership div.cancel {}
 
 
 /* MEMBERS */

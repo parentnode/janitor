@@ -133,7 +133,7 @@ class UserCore extends Model {
 			"type" => "string",
 			"label" => "Email or mobile",
 			"autocomplete" => true,
-			"pattern" => "[\w\.\-\_]+@[\w-\.]+\.\w{2,4}|([\+0-9\-\.\s\(\)]){5,18}", 
+			"pattern" => "[\w\.\-_]+@[\w\-\.]+\.\w{2,4}|[\+0-9\-\.\s\(\)]{5,18}", 
 			"hint_message" => "Use your emailaddress or mobilenumber to log in.", 
 			"error_message" => "The entered value is neither an email or a mobilenumber."
 		));
@@ -247,6 +247,11 @@ class UserCore extends Model {
 		));
 		// Upgrade subscription switch
 		$this->addToModel("subscription_upgrade", array(
+			"type" => "boolean",
+			"required" => true
+		));
+		// Renew subscription switch
+		$this->addToModel("subscription_renewal", array(
 			"type" => "boolean",
 			"required" => true
 		));
@@ -1770,7 +1775,7 @@ class UserCore extends Model {
 
 
 				// does subscription expire
-				$expires_at = false;
+				$expires_at = false; 
 
 				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
 					$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
@@ -1866,6 +1871,7 @@ class UserCore extends Model {
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
 			$subscription_upgrade = $this->getProperty("subscription_upgrade", "value");
+			$subscription_renewal = $this->getProperty("subscription_renewal", "value");
 
 
 
@@ -1904,8 +1910,19 @@ class UserCore extends Model {
 				// does subscription expire
 				$expires_at = false;
 
-				if((!$subscription_upgrade || !$subscription["expires_at"]) && $item["subscription_method"] && $item["subscription_method"]["duration"]) {
-					$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
+				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
+
+					// if renewal
+					if($subscription_renewal && $subscription["expires_at"]) {
+						$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
+					}
+					// if switch or upgrade from non-expiring membership
+					else if((!$subscription_upgrade || !$subscription["expires_at"])) {
+						$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
+					}
+
+					// upgrade does not change exsisting expires_at
+
 				}
 
 
@@ -1918,7 +1935,14 @@ class UserCore extends Model {
 				}
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
-					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
+
+					if($subscription_renewal && $subscription["expires_at"]) {
+						$sql .= ", renewed_at = " . $subscription["expires_at"];
+					}
+					else {
+						$sql .= ", renewed_at = CURRENT_TIMESTAMP";
+					}
+
 				}
 				else if(!$subscription_upgrade) {
 					$sql .= ", expires_at = NULL";
@@ -2046,17 +2070,34 @@ class UserCore extends Model {
 			$timestamp = time();
 		}
 
+
 		// annually
 		if($duration == "annually") {
 
-			$expires_at = date("Y-m-d 00:00:00", strtotime(mktime(0, 0, 0, date("n", $timestamp), date("j", $timestamp), date("Y", $timestamp)+1)));
+			$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp), date("j", $timestamp), date("Y", $timestamp)+1));
 		}
 
 		// monthly
 		else if($duration == "monthly") {
 
-			$days_of_month = date("t");
-			$expires_at = date("Y-m-d 00:00:00", $timestamp + ($days_of_month*24*60*60));
+			$days_of_month = date("t", $timestamp);
+			$date_of_month = date("j", $timestamp);
+
+			$days_of_next_month = date("t", mktime(0, 0, 0, date("n", $timestamp)+1, 1, date("Y", $timestamp)));
+			
+			// if current date doesn't exist in next month (fx. 30 or 31/01)
+			// if current date is last date in month 
+			// - choose last day of next month
+			if($date_of_month > $days_of_next_month || $date_of_month == $days_of_month) {
+
+				$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp)+1, $days_of_next_month, date("Y", $timestamp)));
+			}
+			// just use same date next month
+			else {
+
+				$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp)+1, date("j", $timestamp), date("Y", $timestamp)));
+			}
+
 		}
 
 		// weekly
@@ -2068,9 +2109,6 @@ class UserCore extends Model {
 		return $expires_at;
 	}
 
-
-	// TODO: needed for subscription renewal very soon
-	function renewSubscription($action) {}
 
 
 
