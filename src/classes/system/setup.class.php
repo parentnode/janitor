@@ -1322,9 +1322,9 @@ class Setup extends Itemtype {
 			if(!$users) {
 
 				
-				$UP->checkDefaultValues($UC->db, "1,1,'','','Anonymous',1,'EN',DEFAULT,DEFAULT", "id = 1");
+				$UP->checkDefaultValues($UC->db, "1,1,'','','Anonymous',1,'EN',DEFAULT,DEFAULT,DEFAULT", "id = 1");
 				// ADD DEVELOPER ACCOUNT
-				$UP->checkDefaultValues($UC->db, "2,3,'','','Dummy developer',1,'EN',DEFAULT,DEFAULT", "id = 2");
+				$UP->checkDefaultValues($UC->db, "2,3,'','','Dummy developer',1,'EN',DEFAULT,DEFAULT,DEFAULT", "id = 2");
 
 
 				$users = $UC->getUsers();
