@@ -72,7 +72,7 @@ session()->reset("return_to_wishlist");
 					<h3><?= $item["name"] ?></h3>
 					<dl>
 						<dt class="reserved">Reserved</dt>
-						<dd class="reserved"><?= $model->wish_reserved[$item["reserved"]] ?></dd>
+						<dd class="reserved"><?= $item["reserved"] ? ($item["reserved"] == 1 ? "Yes" : $item["reserved"]) : "No" ?></dd>
 					</dl>
 
 					<?= $JML->tagList($item["tags"]) ?>

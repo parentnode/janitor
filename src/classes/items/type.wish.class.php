@@ -17,7 +17,7 @@ class TypeWish extends Itemtype {
 		// itemtype database
 		$this->db = SITE_DB.".item_wish";
 
-		$this->wish_reserved = array(0 => "Available", 1 => "Reserved");
+//		$this->wish_reserved = array(0 => "Available", 1 => "Reserved");
 
 
 		// Name
@@ -41,10 +41,9 @@ class TypeWish extends Itemtype {
 
 		// Reserved
 		$this->addToModel("reserved", array(
-			"type" => "select",
-			"options" => $this->wish_reserved,
-			"label" => "Reserved?",
-			"hint_message" => "Is product reserved"
+			"type" => "string",
+			"label" => "Reserved by",
+			"hint_message" => "Is this item reserved by someone. Write their name here."
 		));
 
 		// Description
@@ -97,10 +96,17 @@ class TypeWish extends Itemtype {
 	// /wishlist/reserve/#item_id#
 	function reserve($action) {
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
 		if(count($action) == 2) {
 
+			$reserved = $this->getProperty("reserved", "value");
+
+			// "reserved by" was left blank
+			$reserved = $reserved ? $reserved : 1;
 			$query = new Query();
-			$sql = "UPDATE ".$this->db." SET reserved = 1 WHERE item_id = ".$action[1];
+			$sql = "UPDATE ".$this->db." SET reserved = '$reserved' WHERE item_id = ".$action[1];
 			if($query->sql($sql)) {
 				return true;
 			}
@@ -116,7 +122,7 @@ class TypeWish extends Itemtype {
 		if(count($action) == 2) {
 
 			$query = new Query();
-			$sql = "UPDATE ".$this->db." SET reserved = 0 WHERE item_id = ".$action[1];
+			$sql = "UPDATE ".$this->db." SET reserved = '' WHERE item_id = ".$action[1];
 			if($query->sql($sql)) {
 				return true;
 			}

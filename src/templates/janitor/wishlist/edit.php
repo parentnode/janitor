@@ -72,7 +72,7 @@ session()->value("return_to_wishlist", $item_id);
 					<h3><?= $item["name"] ?></h3>
 					<dl>
 						<dt class="reserved">Reserved</dt>
-						<dd class="reserved"><?= $model_wish->wish_reserved[$item["reserved"]] ?></dd>
+						<dd class="reserved"><?= $item["reserved"] ? ($item["reserved"] == 1 ? "Yes" : $item["reserved"]) : "No" ?></dd>
 					</dl>
 
 					<ul class="actions">
