@@ -18,6 +18,7 @@ global $model;
 		<ul class="actions">
 			<li class="check"><a href="/janitor/admin/setup/upgrade/full" class="button primary">Full upgrade</a></li>
 		</ul>
+
 	</div>
 
 <? if(preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL)): ?>
@@ -32,7 +33,20 @@ global $model;
 			DON'T DO THIS IN PRODUCTION ENVIROMENTS - CHANGES CANNOT BE UNDONE.
 		</p>
 		<ul class="actions">
-			<li class="check"><a href="/janitor/admin/setup/upgrade/replace-emails" class="button primary">Replace emails</a></li>
+			<li class="replace"><a href="/janitor/admin/setup/upgrade/replace-emails" class="button primary">Replace emails</a></li>
+		</ul>
+	</div>
+
+	<div class="option">
+		<h3>Bulk remove items</h3>
+		<p>
+			Bulk removal of items. Used to remove KBs from live-replicas for local testing and functional backup.
+		</p>
+		<p class="note">
+			DON'T DO THIS IN PRODUCTION ENVIROMENTS - CHANGES CANNOT BE UNDONE.
+		</p>
+		<ul class="actions">
+			<li class="bulk"><a href="/janitor/admin/setup/upgrade/bulk-item-removal" class="button primary">Bulk removal</a></li>
 		</ul>
 	</div>
 <? endif; ?>

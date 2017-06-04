@@ -2,7 +2,7 @@
 
 
 
-class Upgrade {
+class Upgrade extends Model {
 
 
 	function __construct() {
@@ -62,13 +62,28 @@ class Upgrade {
 			$controllers = $fs->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
 			$file = "";
 			foreach($controllers as $controller) {
-				$file = file_get_contents($controller);
-				if(preg_match("/->\\\$action\[[0-9]+\]/", $file, $matches)) {
-					// replace with valid syntax 
-					$file = preg_replace("/->\\\$action\[([0-9]+)\]/", "->{\\\$action[$1]}", $file);
-					// save file
-					file_put_contents($controller, $file);
-				}
+
+					$file = @file_get_contents($controller);
+					if($file) {
+
+						if(preg_match("/->\\\$action\[[0-9]+\]/", $file, $matches)) {
+							// replace with valid syntax 
+							$file = preg_replace("/->\\\$action\[([0-9]+)\]/", "->{\\\$action[$1]}", $file);
+							// save file
+							if(@file_put_contents($controller, $file)) {
+								$this->process(array("success" => true, "message" => "Controller updated to PHP7 syntax: ".basename($controller)), true);
+							}
+							else {
+								$this->process(array("success" => false, "message" => "Write permission denied in controller: ".basename($controller)), true);
+							}
+
+						}
+					}
+					else {
+						$this->process(array("success" => false, "message" => "Read permission denied in controller: ".basename($controller)), true);
+					}
+
+
 			}
 			// lighten the burden
 			$file = null;
@@ -255,6 +270,22 @@ class Upgrade {
 
 					// add about item id column
 					$this->process($this->addColumn(SITE_DB.".item_post_versions", "classname", "int(11) DEFAULT NULL", "name"), true);
+				}
+
+			}
+
+
+			$wish_table = $this->tableInfo(SITE_DB.".item_wish");
+			if($wish_table && preg_match("/int\(11\)/", $wish_table["columns"]["reserved"])) {
+
+				// add about item id column
+				$this->process($this->modifyColumn(SITE_DB.".item_wish", "reserved", "varchar(100) DEFAULT ''"), true);
+
+				$wish_table_versions = $this->tableInfo(SITE_DB.".item_wish_versions");
+				if($wish_table_versions && preg_match("/int\(11\)/", $wish_table_versions["columns"]["reserved"])) {
+
+					// add about item id column
+					$this->process($this->addColumn(SITE_DB.".item_wish_versions", "reserved", "varchar(100) DEFAULT ''"), true);
 				}
 
 			}
@@ -802,7 +833,8 @@ class Upgrade {
 
 
 
-	// Check Database structure for v0_8 requirements
+	// Replace all user-emails with ADMIN_EMAIL
+	// to create local dev version without triggering emails to real users
 	function replaceEmails() {
 
 		$query = new Query();
@@ -833,6 +865,83 @@ class Upgrade {
 
 	}
 
+	function bulkItemRemoval($action) {
+		
+		global $page;
+
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		// does values validate
+
+		$itemtype = getPost("itemtype");
+		$keep = getPost("keep");
+		$real = getPost("real");
+
+		$options = ["limit" => 5000];
+		if($itemtype) {
+			$options["itemtype"] = $itemtype;
+		}
+
+		$IC = new Items();
+		$query = new Query();
+
+
+		// $time = time();
+		$items = $IC->getItems($options);
+		// $t2 = time() - $time;
+		// print $t2."<br>\n";
+
+		$batch_items = count($items);
+
+		// get total count of items
+		$sql = "SELECT COUNT(id) as total FROM ".UT_ITEMS.($itemtype ? " WHERE itemtype='$itemtype'" : "");
+		$query->sql($sql);
+		$total_items = $query->result(0, "total");
+
+
+		// $t3 = time() - $time;
+		// print $t3."<br>\n";
+//		set_time_limit(0);
+
+//		print count($items) .  "<br>\n";
+
+		if(is_numeric($keep)) {
+			// print $total_items ."-". count($items)."<br>\n";
+			while($items && ($batch_items - count($items) < $keep)) {
+				// print $total_items ."-". count($items)."<br>\n";
+				array_splice($items, rand(0, count($items) - 1), 1);
+			}
+		}
+		// $t4 = time() - $time;
+		// print $t4."<br>\n";
+
+
+//		print count($items) .  "<br>\n";
+		if($real) {
+
+			foreach($items as $item) {
+				$model = $IC->typeObject($item["itemtype"]);
+				$model->delete(["delete", $item["id"]]);
+				unset($_POST);
+			}
+
+			// get total count of items
+			$sql = "SELECT COUNT(id) as total FROM ".UT_ITEMS.($itemtype ? " WHERE itemtype='$itemtype'" : "");
+			$query->sql($sql);
+			$total_items = $query->result(0, "total");
+
+			return array("message" => count($items) . " deleted. You now only have ".$total_items." items left.");
+		}
+		else {
+			return array("message" => count($items) . " out of " . $total_items . " items match your criterias and will be removed if you check the &quot;real&quot;. You'll then have ".($total_items - count($items))." left");
+		}
+
+//		print_r($items);
+
+	}
 
 
 	// 0.7 to v 0.9 UPGRADE HELPERS

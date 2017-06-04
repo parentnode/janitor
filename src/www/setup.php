@@ -82,12 +82,28 @@ if(is_array($action) && count($action)) {
 			include_once("classes/system/upgrade.class.php");
 			$model = new Upgrade();
 
-			$page->page(array(
-				"body_class" => $action[0],
-				"type" => "setup",
-				"templates" => "upgrade/".$action[1].".php"
-			));
-			exit();
+			// Class interface
+			if($page->validateCsrfToken() && preg_match("/^[a-zA-Z]+/", $action[1])) {
+
+				// check if custom function exists on User class
+				if($model && method_exists($model, $action[1])) {
+
+					$output = new Output();
+					$output->screen($model->{$action[1]}($action));
+					exit();
+				}
+			}
+			else {
+
+				$page->page(array(
+					"body_class" => $action[0],
+					"type" => "setup",
+					"templates" => "upgrade/".$action[1].".php"
+				));
+				exit();
+				
+			}
+
 			
 		}
 
