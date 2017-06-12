@@ -276,6 +276,8 @@ class Upgrade extends Model {
 
 
 			$wish_table = $this->tableInfo(SITE_DB.".item_wish");
+			$this->process(["message" => print_r($wish_table, true), "success" => true], true);
+
 			if($wish_table && preg_match("/int\(11\)/", $wish_table["columns"]["reserved"])) {
 
 				// add about item id column
