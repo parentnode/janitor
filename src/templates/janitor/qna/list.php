@@ -23,7 +23,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status D
 	 				$related_item = $IC->getItem(array("id" => $item["about_item_id"], "extend" => true)); ?>
 				<dl class="info">
 					<dt>Asked about</dt>
-					<dd><?= $related_item["name"] ?></dd>
+					<dd><?= $related_item["name"] ?> (<?= $related_item["itemtype"] ?>)</dd>
 				</dl>
 				<? endif; ?>
 
