@@ -4,15 +4,30 @@ global $model;
 
 $user_groups = $model->getUserGroups();
 
-// show user_group users
+$options = false;
+$user_group_id = 0;
+
+// show specific group tab?
 if(count($action) > 1 && $action[1]) {
 	$user_group_id = $action[1];
+	$options = array("user_group_id" => $user_group_id);
 }
-else {
+// no user group passed - default to current users own group
+else if(count($action) == 1) {
 	$user_group_id = session()->value("user_group_id");
+	$options = array("user_group_id" => $user_group_id);
 }
 
-$users = $model->getUsers(array("user_group_id" => $user_group_id));
+//
+// // show user_group users
+// if(count($action) > 1 && $action[1]) {
+// 	$user_group_id = $action[1];
+// }
+// else {
+// 	$user_group_id = session()->value("user_group_id");
+// }
+
+$users = $model->getUsers($options);
 ?>
 <div class="scene i:scene defaultList userList">
 	<h1>Users</h1>
@@ -30,6 +45,7 @@ $users = $model->getUsers(array("user_group_id" => $user_group_id));
 <?		foreach($user_groups as $user_group): ?>
 		<?= $HTML->link($user_group["user_group"], "/janitor/admin/user/list/".$user_group["id"], array("wrapper" => "li".($user_group["id"] == $user_group_id ? ".selected" : ""))) ?>
 <?		endforeach; ?>
+		<?= $HTML->link("All", "/janitor/admin/user/list/0", array("wrapper" => "li.".($options === false ? "selected" : ""))) ?>
 	</ul>
 <?	else: ?>
 	<p>You have no user groups. Create at least one user group before you continue.</p>
