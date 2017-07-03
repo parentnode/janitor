@@ -183,7 +183,7 @@ function prepareForDB($string) {
 
 function stripDisallowed($string) {
 	// strip tags
-	$allowed_tags = '<a><strong><em><h1><h2><h3><h4><h5><h6><p><label><br><hr><ul><ol><li><dd><dl><dt><span><img><div><table><tr><td><th><code>';
+	$allowed_tags = '<a><strong><em><sup><h1><h2><h3><h4><h5><h6><p><label><br><hr><ul><ol><li><dd><dl><dt><span><img><div><table><tr><td><th><code>';
 	$string = strip_tags($string, $allowed_tags);
 
 	// only look through attributes if any tags left
