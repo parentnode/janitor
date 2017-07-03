@@ -55,6 +55,11 @@
 #content div.all_items ul.items > li ul.actions li {padding: 5px 0 5px 5px;}
 #content div.all_items ul.items > li ul.actions li a.button {padding: 4px 12px 6px;}
 #content div.all_items ul.items > li ul.actions li input.button {height: 24px;}
+/* MORE ACTION PADDING IF ROW CONTAINS ADDITIONAL INFO */
+#content div.all_items ul.items > li dl.info+ul.actions li,
+#content div.all_items ul.items > li ul.info+ul.actions li,
+#content div.all_items ul.items > li p+ul.actions li,
+#content div.all_items ul.items > li ul.tags+ul.actions li {padding-top: 10px;}
 
 
 
