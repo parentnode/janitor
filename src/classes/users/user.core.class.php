@@ -519,6 +519,10 @@ class UserCore extends Model {
 							session()->value("user_id", $user_id);
 							session()->value("user_nickname", $nickname);
 
+							// but also reset user group
+							// - in case another user was already logged in before signup started
+							session()->value("user_group_id", 1);
+
 
 
 							// NEWSLETTER
