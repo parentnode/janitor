@@ -40,12 +40,12 @@ $users = $model->getUnconfirmedUsers();
 					<? 
 					// if last reminder is less than 5 days ago (indicate dont send yet)
 					?>
-					<dd class="reminded_at<?= strtotime($user["reminded_at"]) < time()-(60*60*24*5) ? "" : " warning" ?>"><?= $user["reminded_at"] ?><? if($user["reminded_at"]): ?> (<?= round((time() - strtotime($user["reminded_at"])) / (24 * 60 * 60)) ?> days ago) <? else: print "N/A"; endif; ?></dd>
+					<dd class="reminded_at<?= strtotime($user["reminded_at"]) < time()-(60*60*24*5) ? "" : " system_warning" ?>"><?= $user["reminded_at"] ?><? if($user["reminded_at"]): ?> (<?= round((time() - strtotime($user["reminded_at"])) / (24 * 60 * 60)) ?> days ago) <? else: print "N/A"; endif; ?></dd>
 					<? 
 					// if total_reminders is 5 or more (indicate consider deleting user)
 					?>
 					<dt class="total_reminders">Total reminders sent</dt>
-					<dd class="total_reminders<?= $user["total_reminders"] >= 5 ? " warning" : "" ?>"><?= $user["total_reminders"] ?></dd>
+					<dd class="total_reminders<?= $user["total_reminders"] >= 5 ? " system_warning" : "" ?>"><?= $user["total_reminders"] ?></dd>
 				</dl>
 
 				<ul class="actions">

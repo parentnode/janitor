@@ -1,227 +1,229 @@
 /* BASE FORM ELEMENTS */
-#content form {}
-#content fieldset {border: none; display: block;}
-#content .field {padding: 0 28px 10px; position: relative; font-size: 0; z-index: 1;}
+form {}
+fieldset {border: none; display: block;}
+div.field {padding: 0 28px 10px; position: relative; font-size: 0; z-index: 1;}
 
 
 /* INLINE LABELS */
-#content label {display: none;}
+div.field label {display: none;}
 
 
 /* BASIC FORM INPUTS */
-#content .field input,
-#content .field select,
-#content .field textarea {box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 1;}
+div.field input,
+div.field select,
+div.field textarea {box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 1;}
 
-#content .field input {width: 366px; height: 24px; padding: 2px 6px;}
-#content .field select {width: 381px; height: 30px; color: #333333; padding: 3px 3px 4px 2px;}
-#content .field select option {padding: 3px 3px 4px 6px;}
+div.field input {width: 366px; height: 24px; padding: 2px 6px;}
+div.field select {width: 381px; height: 30px; color: #333333; padding: 3px 3px 4px 2px;}
+div.field select option {padding: 3px 3px 4px 6px;}
 /* SET BACKGROUND IMAGE FOR WEBKIT SELECTS */
 @media all and (-webkit-min-device-pixel-ratio:0) {
-	#content .field select {width: 380px; height: 30px; padding: 2px 3px 2px 7px;
+	div.field select {width: 380px; height: 30px; padding: 2px 3px 2px 7px;
 		background: #ffffff url(/janitor/admin/img/bg_icons.png) no-repeat right -20px top -978px;
 		-webkit-appearance: none;
 	}
 }
-#content .field textarea {width: 372px; height: 80px; overflow: auto; padding: 6px 0 2px 6px; }
-#content .field.short textarea {height: 40px;}
-#content .field textarea.autoexpand {width: 366px; padding: 6px 6px 2px; overflow: hidden;}
+div.field textarea {width: 372px; height: 80px; overflow: auto; padding: 6px 0 2px 6px; }
+div.field.short textarea {height: 40px;}
+div.field textarea.autoexpand {width: 366px; padding: 6px 6px 2px; overflow: hidden;}
 
 /* PSEUDO LABEL - FAKE PLACEHOLDER FOR INTERGER AND NUMBER INPUTS */
-#content .field .pseudolabel {position: absolute; font-size: 1.077rem; display: inline-block; padding: 8px 6px; z-index: 2;}
+div.field .pseudolabel {position: absolute; font-size: 1.077rem; display: inline-block; padding: 8px 6px; z-index: 2;}
 
 
 /* BOOLEAN + CHECKBOX */
-#content .field.checkbox,
-#content .field.boolean {padding-bottom: 15px;}
-#content .field.checkbox input,
-#content .field.boolean input {display: inline-block; vertical-align: top; width: auto; height: auto; padding: 0; margin: 1px 10px 0 3px; border: 0;}
-#content .field.checkbox label,
-#content .field.boolean label {width: auto; display: inline-block; vertical-align: top; font-size: 1.077rem; line-height: 1em;}
+div.field.checkbox,
+div.field.boolean {padding-bottom: 15px;}
+div.field.checkbox input,
+div.field.boolean input {display: inline-block; vertical-align: top; width: auto; height: auto; padding: 0; margin: 1px 10px 0 3px; border: 0;}
+div.field.checkbox label,
+div.field.boolean label {width: auto; display: inline-block; vertical-align: top; font-size: 1.077rem; line-height: 1em;}
 
 
 /* RADIO */
-#content .field.radiobuttons {padding-bottom: 15px;}
-#content .field.radiobuttons > label {display: block; font-size: 1.077rem; line-height: 1em; padding: 0 0 0 3px;}
-#content .field.radiobuttons > label:after {content: ":";}
-#content .field.radiobuttons div.item {padding: 8px 0 0;}
-#content .field.radiobuttons div.item input {width: auto; height: auto; padding: 0; margin: 1px 10px 0 3px; border: 0;}
-#content .field.radiobuttons div.item label {font-size: 1.077rem; line-height: 1em; display: inline-block; vertical-align: top; text-align: left; width: auto;}
+div.field.radiobuttons {padding-bottom: 15px;}
+div.field.radiobuttons > label {display: block; font-size: 1.077rem; line-height: 1em; padding: 0 0 0 3px;}
+div.field.radiobuttons > label:after {content: ":";}
+div.field.radiobuttons div.item {padding: 8px 0 0;}
+div.field.radiobuttons div.item input {width: auto; height: auto; padding: 0; margin: 1px 10px 0 3px; border: 0;}
+div.field.radiobuttons div.item label {font-size: 1.077rem; line-height: 1em; display: inline-block; vertical-align: top; text-align: left; width: auto;}
 
 
 /* NUMBER TYPE - remove spinbutton */
 
-#content .field input[type="integer"],
-#content .field input[type="number"] {
+div.field input[type="integer"],
+div.field input[type="number"] {
 	-moz-appearance: textfield;
 }
 
-#content .field input[type="integer"]::-webkit-inner-spin-button,
-#content .field input[type="integer"]::-webkit-outer-spin-button,
-#content .field input[type="number"]::-webkit-inner-spin-button,
-#content .field input[type="number"]::-webkit-outer-spin-button {margin: 0;
+div.field input[type="integer"]::-webkit-inner-spin-button,
+div.field input[type="integer"]::-webkit-outer-spin-button,
+div.field input[type="number"]::-webkit-inner-spin-button,
+div.field input[type="number"]::-webkit-outer-spin-button {margin: 0;
 	-webkit-appearance: none;
 }
 
 
 /* FILES */
-#content .field.files {border: 3px dashed #dedede; width: 374px; display: inline-block; vertical-align: top; border-radius: 5px; position: relative; padding: 0; margin: 2px 30px 20px;}
-#content .field.files input[type="file"] {opacity: 0; width: 374px; border: none; height: 60px; margin: 0; padding: 0;
+div.field.files {border: 3px dashed #dedede; width: 374px; display: inline-block; vertical-align: top; border-radius: 5px; position: relative; padding: 0; margin: 2px 30px 20px;}
+div.field.files input[type="file"] {opacity: 0; width: 374px; border: none; height: 60px; margin: 0; padding: 0;
 	/* IE HACK */
 	font-size: 130px;
 }
-#content .field.files label {display: block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 20px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
-#content .field.files.loading label {display: none;}
-#content .field.files.loading {background: transparent url(/janitor/admin/img/gx_loader.gif) no-repeat center center;}
+div.field.files label {display: block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 20px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
+div.field.files.loading label {display: none;}
+div.field.files.loading {background: transparent url(/janitor/admin/img/gx_loader.gif) no-repeat center center;}
 
 
 /* LOCATION */
-#content .field.location {}
-#content .field.location div.location {padding-bottom: 2px;}
-#content .field.location div.latitude {padding-right: 2px;}
-#content .field.location div.latitude,
-#content .field.location div.longitude {display: inline-block; vertical-align: top;}
-#content .field.location div.latitude input,
-#content .field.location div.longitude input {width: 173px;}
+div.field.location {}
+div.field.location div.location {padding-bottom: 2px;}
+div.field.location div.latitude {padding-right: 2px;}
+div.field.location div.latitude,
+div.field.location div.longitude {display: inline-block; vertical-align: top;}
+div.field.location div.latitude input,
+div.field.location div.longitude input {width: 173px;}
 
 /* WITH GEOLOCATION BUTTON */
-#content .field.location.geolocation div.geolocation {width: 30px; height: 30px; display: inline-block; vertical-align: top; cursor: pointer;
+div.field.location.geolocation div.geolocation {width: 30px; height: 30px; display: inline-block; vertical-align: top; cursor: pointer;
 	background: transparent url(/janitor/admin/img/gx_geolocation.png) no-repeat 5px 8px;
 }
-#content .field.location.geolocation div.latitude input,
-#content .field.location.geolocation div.longitude input {width: 158px;}
+div.field.location.geolocation div.latitude input,
+div.field.location.geolocation div.longitude input {width: 158px;}
 iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; left: 0; z-index: 100; border: 1px solid #666666; background-color: #ffffff;}
 
 
 
 
 /* FOCUS */
-#content .field.focus input,
-#content .field.focus textarea {margin: 0;}
-#content .field.focus select {padding: 1px 3px 4px 0px;}
+div.field.focus input,
+div.field.focus textarea {margin: 0;}
+div.field.focus select {padding: 1px 3px 4px 0px;}
 @media all and (-webkit-min-device-pixel-ratio:0) {
-	#content .field.focus select {padding: 3px 3px 2px 5px;
+	div.field.focus select {padding: 3px 3px 2px 5px;
 		background-position: right -22px top -980px;
 	}
 }
-#content .field.focus input,
-#content .field.focus select,
-#content .field.focus textarea {border: 3px solid #5c5c5c;}
+div.field.focus input,
+div.field.focus select,
+div.field.focus textarea {border: 3px solid #5c5c5c;}
 
 
 /* RADIOBUTTONS + CHECKBOX */
-#content .field.radiobuttons.focus input,
-#content .field.checkbox.focus input,
-#content .field.boolean.focus input {margin: 1px 10px 0 3px; border: none;}
+div.field.radiobuttons.focus input,
+div.field.checkbox.focus input,
+div.field.boolean.focus input {margin: 1px 10px 0 3px; border: none;}
 
 /* FOCUS - LOCATION */
-#content .field.location.focus input {margin: 2px; border: 1px solid #dcdcdc;}
-#content .field.location.focus input.focus {margin: 0; border: 3px solid #5c5c5c;}
+div.field.location.focus input {margin: 2px; border: 1px solid #dcdcdc;}
+div.field.location.focus input.focus {margin: 0; border: 3px solid #5c5c5c;}
 
 /* FOCUS - FILES */
-#content .field.files.focus {border-color: #c8e183;}
-#content .field.files.focus input[type="file"] {margin: 0; border: none;}
-#content .field.files.focus label {background-color: #c8e183;}
+div.field.files.focus {border-color: #c8e183;}
+div.field.files.focus input[type="file"] {margin: 0; border: none;}
+div.field.files.focus label {background-color: #c8e183;}
 
 
 /* DEFAULT STATE - BEFORE TEXT IS MODIFIED */
-#content .field input.default,
-#content .field select.default,
-#content .field textarea.default,
-#content .field .pseudolabel {color: #aaaaaa;}
+div.field input.default,
+div.field select.default,
+div.field textarea.default,
+div.field .pseudolabel {color: #aaaaaa;}
 
 
 
 /* VALIDATION */
-#content .field .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px;}
-#content .field.required .indicator {
+div.field .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px;}
+div.field.required .indicator {
 	background: transparent url(/janitor/admin/img/bg_icons.png) no-repeat 0 -292px;
 }
-#content .field.text.required .indicator {background-position: 0 -296px;}
+div.field.text.required .indicator {background-position: 0 -296px;}
 
 /* RADIOBUTTONS + CHECKBOX */
-#content .field.radiobuttons .indicator,
-#content .field.checkbox .indicator,
-#content .field.boolean .indicator {top: -5px;}
+div.field.radiobuttons .indicator,
+div.field.checkbox .indicator,
+div.field.boolean .indicator {top: -5px;}
 
 /* FILES */
-#content .field.files .indicator {left: 387px; top: -1px;}
+div.field.files .indicator {left: 387px; top: -1px;}
 
 
 /* CORRECT */
-#content .field.correct .indicator {background-position: 0 -320px;}
-#content .field.text.correct .indicator {background-position: 0 -321px;}
+div.field.correct .indicator {background-position: 0 -320px;}
+div.field.text.correct .indicator {background-position: 0 -321px;}
 
 
 /* ERROR */
-#content .field.error input,
-#content .field.error textarea {margin: 0;}
-#content .field.error select {padding: 3px 3px 2px 0px;}
-#content .field.error input,
-#content .field.error select,
-#content .field.error textarea {border: 3px solid #f8c9bb;}
+div.field.error input,
+div.field.error textarea {margin: 0;}
+div.field.error select {padding: 3px 3px 2px 0px;}
+div.field.error input,
+div.field.error select,
+div.field.error textarea {border: 3px solid #f8c9bb;}
 @media all and (-webkit-min-device-pixel-ratio:0) {
-	#content .field.error select {padding: 3px 3px 2px 5px;
+	div.field.error select {padding: 3px 3px 2px 5px;
 		background-position: right -22px top -980px;
 	}
 }
 
-#content .field.error .pseudolabel {padding: 10px 8px;}
+div.field.error .pseudolabel {padding: 10px 8px;}
 
 /* ERROR - RADIOBUTTONS + CHECKBOX */
-#content .field.radiobuttons.error input,
-#content .field.checkbox.error input,
-#content .field.boolean.error input {margin: 1px 10px 0 3px; border: none;}
+div.field.radiobuttons.error input,
+div.field.checkbox.error input,
+div.field.boolean.error input {margin: 1px 10px 0 3px; border: none;}
 
 /* ERROR - LOCATION */
-#content .field.location.error input {margin: 2px; border: 1px solid #dcdcdc;}
-#content .field.location.error input.error {margin: 0; border: 3px solid #f8c9bb;}
+div.field.location.error input {margin: 2px; border: 1px solid #dcdcdc;}
+div.field.location.error input.error {margin: 0; border: 3px solid #f8c9bb;}
 
 /* ERROR - FILES */
-#content .field.files.error {border-color: #f8c9bb;}
+div.field.files.error {border-color: #f8c9bb;}
 
 
 
 /* BUTTONS */
-#content ul.actions {padding: 0 25px;}
-#content ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px; vertical-align: top;
+ul.actions {padding: 0 25px;}
+ul.actions li {width: auto; height: auto; display: inline-block; padding: 0 5px 10px; vertical-align: top;
 	-moz-user-select: none;
 	-webkit-user-select: none;
 	user-select: none;
 }
 
-#content ul.actions input.button {width: auto; height: 26px; padding: 3px 10px;}
+ul.actions input.button {width: auto; height: 26px; padding: 3px 10px;}
 @media all and (-webkit-min-device-pixel-ratio:0) {
-	#content ul.actions input.button {padding-bottom: 4px;
+	ul.actions input.button {padding-bottom: 4px;
 		-webkit-appearance: none;
 	}
 }
+ul.actions a.button,
 #content ul.actions a.button {display: block; text-decoration: none; height: 14px; padding: 5px 12px 7px;}
 
 
 /* DEFAULT BUTTON */
-#content ul.actions input.button,
+ul.actions input.button,
+ul.actions a.button,
 #content ul.actions a.button {font-size: 1rem; line-height: 1.2em; background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px;}
 
-#content ul.actions input.button:hover,
-#content ul.actions a.button:hover {background-color: #313942;}
+ul.actions input.button:hover,
+ul.actions a.button:hover {background-color: #313942;}
 
 
 /* PRIMARY BUTTON */
-#content ul.actions input.button.primary,
-#content ul.actions a.button.primary {background-color: #64ad8e;}
+ul.actions input.button.primary,
+ul.actions a.button.primary {background-color: #64ad8e;}
 
 
 
-#content ul.actions input.button.primary:hover,
-#content ul.actions a.button.primary:hover {background-color: #313942;}
+ul.actions input.button.primary:hover,
+ul.actions a.button.primary:hover {background-color: #313942;}
 
 
 /* SECONDARY BUTTON */
-#content ul.actions input.button.secondary,
-#content ul.actions a.button.secondary {background-color: #fecd60; color: #9f742c;}
-#content ul.actions input.button.secondary:hover,
-#content ul.actions a.button.secondary:hover {background-color: #fed76e;}
+ul.actions input.button.secondary,
+ul.actions a.button.secondary {background-color: #fecd60; color: #9f742c;}
+ul.actions input.button.secondary:hover,
+ul.actions a.button.secondary:hover {background-color: #fed76e;}
 
 
 
@@ -248,26 +250,26 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 /* HELP - HINT AND ERROR MESSAGES */
-#content .field div.help {position: absolute; left: 455px; top: 0; width: 200px; line-height: 1.2em;}
-#content .field.files div.help {left: 422px;}
+div.field div.help {position: absolute; left: 455px; top: 0; width: 200px; line-height: 1.2em;}
+div.field.files div.help {left: 422px;}
 
-#content .field div.error,
-#content .field div.hint {display: none; padding: 5px; border-radius: 3px; font-size: 12px;}
+div.field div.error,
+div.field div.hint {display: none; padding: 5px; border-radius: 3px; font-size: 12px;}
 
 
 /* HELP - ERRORS */
-#content .field div.error {border: 1px solid #bbbbbb; color: #a27366; background: #f8c9bb;}
-#content .field.error div.error {display: block;}
+div.field div.error {border: 1px solid #bbbbbb; color: #a27366; background: #f8c9bb;}
+div.field.error div.error {display: block;}
 
 /* HELP - HINTS */
-#content .field div.hint {z-index: 9; border: 1px solid #bbbbbb; color: #5d7731; background: #c8e183;}
-#content .field.focus div.hint,
-#content .field.hover div.hint {display: block;}
+div.field div.hint {z-index: 9; border: 1px solid #bbbbbb; color: #5d7731; background: #c8e183;}
+div.field.focus div.hint,
+div.field.hover div.hint {display: block;}
 
 /* SPECIAL BORDER CASES */
-#content div.field.error div.hint {border-bottom-left-radius: 0; border-bottom-right-radius: 0;}
-#content div.field.focus div.hint+div.error,
-#content div.field.hover div.hint+div.error {border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;}
+div.field.error div.hint {border-bottom-left-radius: 0; border-bottom-right-radius: 0;}
+div.field.focus div.hint+div.error,
+div.field.hover div.hint+div.error {border-top-left-radius: 0; border-top-right-radius: 0; border-top: none;}
 
 
 
@@ -352,8 +354,9 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 #content .field.html .editor div.tag div.text em,
 #content .field.html .editor div.tag div.text strong,
 #content .field.html .editor div.tag div.text a,
-#content .field.html .editor div.tag div.text span {background-color: rgba(255, 0, 0, 0.3); cursor: default; font-size: inherit;}
-
+#content .field.html .editor div.tag div.text span,
+#content .field.html .editor div.tag div.text sup {background-color: rgba(255, 0, 0, 0.3); cursor: default; font-size: inherit;}
+#content .field.html .editor div.tag div.text sup {line-height: 1em; font-size: 11px;}
 /* TAG FOCUS */
 #content .field.html .editor div.tag.focus {background-color: #5c5c5c; padding: 0 0 0 30px; border: 2px solid #5c5c5c;}
 #content .field.html .editor div.tag.focus div.text {border-color: #5c5c5c;}
@@ -419,11 +422,11 @@ body #selection_options li.link {text-decoration: underline;}
 body #selection_options li.em {font-style: italic;}
 body #selection_options li.strong {font-weight: 700;}
 
-body #selection_options .field {margin-left: -2px;}
+body #selection_options .field {margin-left: -2px; padding: 0 0 5px;}
 body #selection_options .field label {display: none;}
 body #selection_options .field input {color: #333333; box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; display: inline-block; vertical-align: top; border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 10; width: 150px; height: 24px; padding: 2px 6px;}
 body #selection_options .field.checkbox input {width: auto; height: auto; margin-top: 5px;}
-body #selection_options .field.checkbox label {display: inline-block; vertical-align: top; padding: 5px 0 0 3px;}
+body #selection_options .field.checkbox label {display: inline-block; vertical-align: top; font-size: 13px; padding: 5px 0 0 3px;}
 
 body #selection_options .field input.default {color: #cccccc;}
 body #selection_options .field input.focus {}

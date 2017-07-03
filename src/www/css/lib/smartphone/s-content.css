@@ -52,8 +52,8 @@
 
 
 /* DEV AID */
-#content .todo * {color: orange !important;}
-#content .warning, #content .warning * {color: orange !important;}
+#content .system_todo, #content .system_todo * {color: orange !important;}
+#content .system_warning, #content .system_warning * {color: orange !important;}
 #content .system_error, #content .system_error * {color: red !important;}
 
 

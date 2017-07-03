@@ -27,7 +27,7 @@ $db_check = $model->checkDatabaseSettings();
 
 <? 		if($model->db_exists): ?>
 
-	<p>Are you sure you want to use <em class="warning"><?= $model->db_janitor_db ?></em>. It already exists.</p>
+	<p>Are you sure you want to use <em class="system_warning"><?= $model->db_janitor_db ?></em>. It already exists.</p>
 	<?= $model->input("force_db", array("type" => "hidden", "value" => $model->db_janitor_db)) ?>
 
 <? 		endif; ?>

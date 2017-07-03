@@ -58,13 +58,13 @@ $all_check = $model->checkAllSettings();
 		<h2>Final touches</h2>
 <?	if(SETUP_TYPE == "existing"): ?>
 		<p>
-			If you are deploying a site into production you need to set <span class="warning">file permissions</span>
+			If you are deploying a site into production you need to set <span class="system_warning">file permissions</span>
 			on your project.
 		</p>
 <?	else: ?>
 		<p>
-			If you are deploying a site into production you need to set <span class="warning">file permissions</span>
-			on your project and <span class="warning">restart</span> Apache.
+			If you are deploying a site into production you need to set <span class="system_warning">file permissions</span>
+			on your project and <span class="system_warning">restart</span> Apache.
 		</p>
 <?	endif; ?>
 

@@ -398,9 +398,9 @@ Util.Objects["unconfirmedAccounts"] = new function() {
 					var total_reminders = u.qs("dd.total_reminders", this.node);
 
 					reminded_at.innerHTML = response.cms_object[0]["reminded_at"] + " (just now)";
-					u.ac(reminded_at, "warning");
+					u.ac(reminded_at, "system_warning");
 					total_reminders.innerHTML = response.cms_object[0]["total_reminders"];
-					u.ac(total_reminders, "warning");
+					u.ac(total_reminders, "system_warning");
 				}
 				else {
 					page.notify({"cms_status":"error", "cms_message":{"error":["Could not send message"]}, "isJSON":true});
