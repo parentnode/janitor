@@ -158,6 +158,48 @@ class Upgrade extends Model {
 
 				}
 			}
+			// TOPIC TABLE EXIST - SHOULD BE SPLIT INTO stoptopic and starttopic
+			if($topic_table) {
+				$this->process($this->renameTable(SITE_DB.".item_topic", "item_stoptopic"), true);
+
+
+				if($query->sql("SELECT * FROM ".SITE_DB.".item_stoptopic ORDER BY position")) {
+
+					$model = $IC->typeObject("starttopic");
+					$order = "";
+					$topics = $query->results();
+					foreach($topics as $topic) {
+
+						// change itemtype to stoptopic
+						$query->sql("UPDATE ".UT_ITEMS." SET itemtype = 'stoptopic' WHERE id = ".$topic["item_id"]);
+						
+						// clone to starttopics
+						foreach($topic as $key => $value) {
+							if($key != "id" && $key != "item_id") {
+								$_POST[$key] = $value;
+							}
+						}
+						
+						$item = $model->save(["starttopic", "save"]);
+						unset($_POST);
+
+						// add to order list (postiion)
+						$order .= $item["id"] . ",";
+					}
+
+					// update order
+					$_POST["order"] = preg_replace("/,$/", "", $order);
+					$model->updateOrder(["updateOrder"]);
+				}
+
+				// rename topic versions table
+				$topic_table_versions = $this->tableInfo(SITE_DB.".item_topic_versions");
+				if($topic_table_versions) {
+					$this->process($this->renameTable(SITE_DB.".item_topic_versions", "item_stoptopic_versions"), true);
+				}
+
+			}
+			
 			// TODO: end stopknappen specific
 
 
@@ -825,6 +867,9 @@ class Upgrade extends Model {
 
 			// Upgrade complete
 			print '<li class="done">UPGRADE COMPLETE</li>';
+			
+			// clear system messages
+			message()->resetMessages();
 
 		}
 		catch(Exception $exception) {}
