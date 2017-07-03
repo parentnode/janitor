@@ -117,6 +117,7 @@ if(is_array($action) && count($action)) {
 
 			$page->page(array(
 				"type" => "janitor",
+				"page_title" => "User",
 				"templates" => "janitor/user/address/".$action[1].".php"
 			));
 			exit();
@@ -171,6 +172,7 @@ if(is_array($action) && count($action)) {
 	else if(preg_match("/^(content|orders|readstates)$/", $action[0]) && count($action) > 1) {
 		$page->page(array(
 			"type" => "janitor",
+			"page_title" => "User",
 			"templates" => "janitor/user/".$action[0].".php"
 		));
 		exit();
