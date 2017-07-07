@@ -301,49 +301,6 @@ class Upgrade extends Model {
 			}
 
 
-			if($query->sql("SELECT * FROM ".SITE_DB.".item_qna")) {
-				$qnas = $query->results();
-
-				foreach($qnas as $qna) {
-
-					if(!$qna["about_item_id"]) {
-						$about_item_id = false;
-						// try to find related item based on tag
-						$tags = $IC->getTags(array("item_id" => $qna["item_id"], "tag_context" => "qna"));
-						
-						if($tags) {
-							$related_items = $IC->getItems(array("itemtype" => "stoptopic", "tags" => "qna:".$tags[0]["value"], "limit" => 1));
-							if($related_items) {
-								$about_item_id = $related_items[0]["id"];
-							}
-						}
-
-						// adjust values
-						$question = $qna["name"];
-						$name = cutString($question, 45);
-
-						// update name, about_item_id and question field with new values
-						$sql = "UPDATE ".SITE_DB.".item_qna SET ".($about_item_id ? "about_item_id = $about_item_id, " : "").(!$qna["answer"] ? "answer = NULL, " : "")."name = '".prepareForDB($name)."', question = '".prepareForDB($question)."' WHERE id = ".$qna["id"];
-						$query->sql($sql);
-					}
-
-				}
-
-			}
-
-			// $tags = $IC->getTags(array("context" => "qna"));
-			// if($tags) {
-			//
-			// 	// delete all qna tags
-			// 	foreach($tags as $tag) {
-			// 		// delete QNA tag
-			// 		$TC = new Tag();
-			// 		$TC->deleteTag(["deleteTag", $tag["id"]]);
-			// 	}
-			// }
-
-
-
 			$post_table = $this->tableInfo(SITE_DB.".item_post");
 			if($post_table && !isset($post_table["columns"]["classname"])) {
 
