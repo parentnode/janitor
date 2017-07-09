@@ -21,7 +21,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 }
 
 ?>
-<div class="scene i:scene defaultList userOrderList">
+<div class="scene i:scene defaultList shopList orderList userOrderList">
 	<h1>Orders</h1>
 	<h2><?= $user["nickname"] ?></h2>
 
@@ -42,7 +42,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 			<li class="item">
 				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items" ) ?>)</h3>
 
-				<dl class="details">
+				<dl class="info">
 					<dt class="created_at">Created at</dt>
 					<dd class="created_at"><?= $order["created_at"] ?></dd>
 					<dt class="status">Status</dt>
@@ -73,7 +73,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 			<li class="item">
 				<h3><?= $cart["cart_reference"] ?> (<?= pluralize(count($cart["items"]), "item", "items" ) ?>)</h3>
 
-				<dl class="details">
+				<dl class="info">
 					<dt class="created_at">Created at</dt>
 					<dd class="created_at"><?= $cart["created_at"] ?></dd>
 					<dt class="price">Total price</dt>

@@ -53,7 +53,7 @@
 #content .scene.userEdit > div.addresses ul.addresses > li div {padding: 0 0 3px;}
 #content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; bottom: 0; left: 0; padding: 0;}
 #content .scene.userEdit > div.addresses ul.addresses > li .actions li {padding-left: 0;}
-#content .scene.userEdit > div.addresses > .actions {padding-bottom: 10px;}
+#content .scene.userEdit > div.addresses > .actions {padding-bottom: 15px;}
 
 
 /* NEWSLETTERS */
@@ -69,11 +69,6 @@
 #content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.subscribe input.button {background-color: #f4f5f5; border-right: 3px solid orange; border-top: 3px solid orange; border-left: 27px solid orange; border-bottom: 3px solid orange;}
 #content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.unsubscribe form:after {content: "ON"; font-size: 10px; font-weight: 700; color: #8c9399; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 6px;}
 #content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.subscribe form:after {content: "OFF"; font-size: 10px; font-weight: 700; color: orange; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 29px;}
-
-
-
-
-
 
 #content .scene.userEdit > div.newsletters > ul.actions {padding-top: 20px; border-top: 1px solid #dedede;}
 
@@ -100,7 +95,6 @@
 
 /* USER ORDERS */
 #content .defaultList.userOrderList div.all_items {padding-bottom: 20px;}
-#content .defaultList.userOrderList div.all_items ul.items dd.payment_status.missing {color: #df0000;}
 
 
 /* USER SUBSCRIPTIONS */
@@ -152,7 +146,8 @@
 #content .defaultView.userMembership div.change div.option h3 {padding-bottom: 10px; font-size: 18px;}
 #content .defaultView.userMembership div.change div.option p {padding-bottom: 10px;}
 
-#content .defaultView.userMembership div.cancel {}
+#content .defaultView.userMembership div.cancel {border-bottom: 1px solid #bbbbbb;}
+#content .defaultView.userMembership div.cancel ul.actions {padding-bottom: 15px;}
 
 
 /* MEMBERS */
@@ -183,6 +178,8 @@
 #content .scene.profileEdit div.password .indicator {top: 20px;}
 
 /* CANCELATION */
+#content .scene.profileEdit div.cancellation {border-bottom: 1px solid #bbbbbb;}
 #content .scene.profileEdit div.cancellation div.field.password {display: none;}
+#content .scene.profileEdit div.cancellation ul.actions {padding-bottom: 15px;}
 #content .scene.profileEdit div.cancellation ul.actions input.button.confirm,
 #content .scene.profileEdit div.cancellation ul.actions input.button.confirm:hover {color: #ffffff; background-color: #df0000;}

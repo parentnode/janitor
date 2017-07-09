@@ -50,7 +50,7 @@ if($cart) {
 		)) ?>
 	</ul>
 
-	<div class="basics">
+	<div class="basics i:collapseHeader">
 		<h2>Cart</h2>
 
 		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
@@ -87,7 +87,7 @@ if($cart) {
 		</dl>
 	</div>
 
-	<div class="contact">
+	<div class="contact i:collapseHeader">
 		<h2>Contact</h2>
 
 		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
@@ -121,8 +121,8 @@ if($cart) {
 		<? endif; ?>
 	</div>
 
-	<div class="all_items i:defaultList i:cartItemsList">
-		<h2>Cart items</h2>
+	<div class="all_items i:defaultList i:cartItemsList i:collapseHeader">
+		<h2>Items (<?= count($cart["items"]) ?>)</h2>
 		<? if($cart["items"]): ?>
 		<ul class="items">
 			<? foreach($cart["items"] as $cart_item):
@@ -179,7 +179,7 @@ if($cart) {
 
 	<? if($cart["user_id"] > 1): ?>
 
-	<div class="delivery">
+	<div class="delivery i:collapseHeader">
 		<h2>Delivery</h2>
 
 		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
@@ -221,7 +221,7 @@ if($cart) {
 		<? endif; ?>
 	</div>
 
-	<div class="billing">
+	<div class="billing i:collapseHeader">
 		<h2>Billing</h2>
 
 		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
@@ -262,12 +262,13 @@ if($cart) {
 
 		<? endif; ?>
 	</div>
+
 	<? endif; ?>
 
 
 
 	<? if($cart["items"] && $cart["user_id"]) :?>
-	<div class="order i:newOrderFromCart">
+	<div class="order i:newOrderFromCart i:collapseHeader">
 		<h2>Checkout</h2>
 		<p>Start checkout process by converting this cart into an order.</p>
 

@@ -22,7 +22,7 @@ $payments = $model->getPayments();
 			<li class="item payment">
 				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)</h3>
 
-				<dl class="details">
+				<dl class="info">
 					<dt class="created_at">Created at</dt>
 					<dd class="created_at"><?= $payment["created_at"] ?></dd>
 					<dt class="price">Payment</dt>

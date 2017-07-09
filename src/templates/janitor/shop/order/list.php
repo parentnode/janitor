@@ -25,7 +25,7 @@ else {
 session()->value("return_to_orderstatus", $status);
 
 ?>
-<div class="scene i:scene defaultList shopList orderList">
+<div class="scene i:scene defaultList shopList orderList shopOrderList">
 	<h1>Orders</h1>
 
 	<ul class="actions">
@@ -51,7 +51,7 @@ session()->value("return_to_orderstatus", $status);
 			<li class="item order">
 				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)</h3>
 
-				<dl class="details">
+				<dl class="info">
 					<dt class="created_at">Created at</dt>
 					<dd class="created_at"><?= $order["created_at"] ?></dd>
 
@@ -62,9 +62,9 @@ session()->value("return_to_orderstatus", $status);
 
 				<? if($status == 1 || $status === "all"): ?>
 					<dt class="payment_status">Payment status</dt>
-					<dd class="payment_status"><?= $model->payment_statuses[$order["payment_status"]] ?></dd>
+					<dd class="payment_status<?= $order["payment_status"] < 2 ? " missing" : "" ?>"><?= $model->payment_statuses[$order["payment_status"]] ?></dd>
 					<dt class="shipping_status">Shipping status</dt>
-					<dd class="shipping_status"><?= $model->shipping_statuses[$order["shipping_status"]] ?></dd>
+					<dd class="shipping_status<?= $order["shipping_status"] < 2 ? " missing" : "" ?>"><?= $model->shipping_statuses[$order["shipping_status"]] ?></dd>
 				<? endif; ?>
 
 					<dt class="price">Total price</dt>
@@ -92,7 +92,7 @@ session()->value("return_to_orderstatus", $status);
 				<? endif; ?>
 
 				<ul class="actions">
-					<?= $HTML->link("Edit", "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
+					<?= $HTML->link(($status < 2 ? "Edit" : "View"), "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
 				</ul>
 			 </li>
 		 	<? endforeach; ?>

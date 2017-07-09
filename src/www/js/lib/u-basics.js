@@ -45,9 +45,12 @@ Util.Objects["collapseHeader"] = new function() {
 		div._toggle_header.clicked = function() {
 
 			if(this.div._toggle_is_closed) {
+				// add class (for detailed open settings)
+				u.ac(this.div, "open");
+
 				u.as(this.div, "height", "auto");
 				this.div._toggle_is_closed = false;
-				u.saveNodeCookie(this.div, "open", 1, {"ignore_classvars":true});
+				u.saveNodeCookie(this.div, "open", 1, {"ignore_classvars":true, "ignore_classnames":"open"});
 				u.addCollapseArrow(this);
 
 				// callback
@@ -56,9 +59,12 @@ Util.Objects["collapseHeader"] = new function() {
 				}
 			}
 			else {
+				// remove class (for detailed closed settings)
+				u.rc(this.div, "open");
+
 				u.as(this.div, "height", this.offsetHeight+"px");
 				this.div._toggle_is_closed = true;
-				u.saveNodeCookie(this.div, "open", 0, {"ignore_classvars":true});
+				u.saveNodeCookie(this.div, "open", 0, {"ignore_classvars":true, "ignore_classnames":"open"});
 				u.addExpandArrow(this);
 
 				// callback
@@ -68,12 +74,17 @@ Util.Objects["collapseHeader"] = new function() {
 			}
 		}
 
-		var state = u.getNodeCookie(div, "open", {"ignore_classvars":true});
+		var state = u.getNodeCookie(div, "open", {"ignore_classvars":true, "ignore_classnames":"open"});
+		console.log("state:" + state + ", " + typeof(state));
+		// no state value (or state value = 0), means collapsed
 		if(!state) {
 			div._toggle_header.clicked();
 		}
 		else {
 			u.addCollapseArrow(div._toggle_header);
+
+			// add class (for detailed open settings)
+			u.ac(div, "open");
 
 			// callback
 			if(typeof(div.headerExpanded) == "function") {

@@ -13,18 +13,18 @@ $username = stringOr(getPost("username"));
 
 	<?= $model->formStart("?login=true", array("class" => "labelstyle:inject")) ?>
 
-<? if(message()->hasMessages()): ?>
-	<div class="messages">
-	<? 
+		<? if(message()->hasMessages()): ?>
+		<div class="messages">
+		<?
 		$all_messages = message()->getMessages();
 		message()->resetMessages();
 		foreach($all_messages as $type => $messages):
 			foreach($messages as $message): ?>
-				<p class="<?= $type ?>"><?= $message ?></p>
+			<p class="<?= $type ?>"><?= $message ?></p>
 			<? endforeach;?>
-	<? endforeach;?>
-	</div>
-<? endif; ?>
+		<? endforeach;?>
+		</div>
+		<? endif; ?>
 
 		<fieldset>
 			<?= $model->input("username", array("required" => true, "value" => $username)); ?>

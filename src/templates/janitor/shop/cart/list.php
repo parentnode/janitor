@@ -22,7 +22,7 @@ $carts = $model->getCarts();
 			<li class="item cart">
 				<h3><?= $cart["cart_reference"] ?> (<?= pluralize($cart["total_items"], "item", "items" ) ?>)</h3>
 
-				<dl class="details">
+				<dl class="info">
 					<dt class="created_at">Created at</dt>
 					<dd class="created_at"><?= $cart["created_at"] ?></dd>
 

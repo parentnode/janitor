@@ -27,30 +27,50 @@ $total_order_price = $model->getTotalOrderPrice($order["id"]);
 
 $return_to_orderstatus = session()->value("return_to_orderstatus");
 
+
+$payment_methods = $this->paymentMethods();
 ?>
 <div class="scene i:scene defaultEdit shopView orderView">
-	<h1>View order</h1>
-	<h2><?= $order["order_no"] ?></h2>
+	<h1><?= ($order["status"] < 2 ? "Edit" : "View") ?> order</h1>
+	<h2><?= $order["order_no"] ?> (<?= $model->order_statuses[$order["status"]] ?>)</h2>
 
 	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("Order list", "/janitor/admin/shop/order/list/".$return_to_orderstatus, array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->link("User orders", "/janitor/admin/user/orders/".$order["user_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
+
 		<? if($order["user_id"] == session()->value("user_id")): ?>
 			<?= $HTML->link("Your orders", "/janitor/admin/profile/orders", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<? endif; ?>
 
-	<? if($order["status"] == 0 || $order["status"] == 1): ?>
+		<? if($order["status"] == 0 || $order["status"] == 1): ?>
 		<?= $JML->oneButtonForm("Cancel order", "/janitor/admin/shop/cancelOrder/".$order["id"]."/".$order["user_id"], array(
 			"wrapper" => "li.delete",
 			"confirm-value" => "Are you sure? This will also cancel any subscriptions or memberships related to this order!",
 			"class" => "secondary",
 			"success-location" => "/janitor/admin/shop/order/list/3"
 		)) ?>
-	<? endif; ?>
+		<? else: ?>
+		<?= $HTML->link("Invoice", "/janitor/admin/shop/orders/invoice/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice")) ?>
+		<? endif; ?>
+
+		<? if($order["status"] == 3): ?>
+		<?= $HTML->link("Credit note", "/janitor/admin/shop/orders/creditnote/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice")) ?>
+		<? endif; ?>
+
+		<? if($order["shipping_status"] < 2 && $order["status"] != 3): ?>
+		<?= $JML->oneButtonForm("Ship order", "/janitor/admin/shop/updateShippingStatus/$order_id", array(
+			"inputs" => array("shipped" => 1),
+			"class" => "primary",
+			"wrapper" => "li.ship",
+			"confirm-value" => "Mark order as shipped?",
+			"success-location" => "/janitor/admin/shop/order/edit/".$order["id"]
+		)) ?>
+		<? endif; ?>
+
 	</ul>
 
 	<div class="orderstatus i:collapseHeader">
-		<h2>Order status <span class="status<?= $order["status"] ?>"><?= $model->order_statuses[$order["status"]] ?></span></h2>
+		<h2>Status</h2>
 
 		<dl class="list <?= superNormalize($model->order_statuses[$order["status"]]) ?>">
 			<dt class="status">Status</dt>
@@ -62,8 +82,8 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</dl>
 	</div>
 
-	<div class="basics">
-		<h2>Order</h2>
+	<div class="basics i:collapseHeader">
+		<h2>Details</h2>
 
 		<? if($order["status"] == 0): ?>
 		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
@@ -84,7 +104,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
-		<? endif; ?>			
+		<? endif; ?>
 
 		<dl class="list">
 			<dt>Order No.</dt>
@@ -102,7 +122,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</dl>
 	</div>
 
-	<div class="contact">
+	<div class="contact i:collapseHeader">
 		<h2>Contact</h2>
 		<dl class="list">
 			<dt>Nickname</dt>
@@ -118,8 +138,29 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</dl>
 	</div>
 
-	<div class="all_items i:defaultList i:orderItemsList">
-		<h2>Order items</h2>
+	<div class="comment i:collapseHeader">
+		<h2>Comment</h2>
+		<? if($order["status"] == 0): ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
+			<fieldset>
+				<?= $model->input("order_comment", array("value" => $order["comment"])) ?>
+			</fieldset>
+
+			<ul class="actions">
+				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
+			</ul>
+		<?= $model->formEnd() ?>
+		<? endif; ?>
+
+		<? if($order["comment"]): ?>
+		<p><?= nl2br($order["comment"]) ?></p>
+		<? else: ?>
+		<p class="note">No comment</p>
+		<? endif; ?>
+	</div>
+
+	<div class="all_items i:defaultList i:orderItemsList i:collapseHeader">
+		<h2>Items (<?= count($order["items"]) ?>)</h2>
 		<? if($order["items"]): ?>
 		<ul class="items">
 			<? foreach($order["items"] as $order_item): ?>
@@ -174,7 +215,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 					)) ?>
 					<? endif; */?>
 
-					<? if($order["status"] == 0 || $order["status"] == 1 || $order["status"] == 2): ?>
+					<? /*if($order["status"] == 0 || $order["status"] == 1 || $order["status"] == 2): ?>
 					<?= $JML->oneButtonForm("Mark as returned", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
 						"inputs" => array("shipped" => 0),
 						"wrapper" => "li.shipped",
@@ -187,7 +228,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 						"wrapper" => "li.not_shipped",
 						"static" => true
 					)) ?>
-					<? endif; ?>
+					<? endif;*/ ?>
 				</ul>
 			</li>
 			<? endforeach; ?>
@@ -203,8 +244,8 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<? endif; */?>
 	</div>
 
-	<div class="payments i:defaultList">
-		<h2>Order payments</h2>
+	<div class="payments i:defaultList i:collapseHeader">
+		<h2>Payments</h2>
 		<? 
 		$total_payments = 0;
 		if($payments): ?>
@@ -238,13 +279,28 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</div>
 
 		<ul class="actions">
-			<?= $HTML->link("Add manuel payment", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.cancel")) ?>
+			<?= $HTML->link("Add manuel payment", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.manuel_payment")) ?>
+
+			<? foreach($payment_methods as $payment_method): ?>
+				<? if($payment_method["gateway"] && $model->canBeCharged(["user_id" => $order["user_id"], "gateway" => $payment_method["gateway"]])): ?>
+					<?= $JML->oneButtonForm("Charge ".formatPrice(array("price" => ($total_order_price["price"] - $total_payments), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"]))." from ".$payment_method["name"] . " (".$payment_method["gateway"].")", "/janitor/admin/shop/chargeRemainingOrderPayment", array(
+						"inputs" => array("order_id" => $order["id"], "payment_method" => $payment_method["id"]),
+						"confirm-value" => "Are you sure?",
+						"success-location" => "/janitor/admin/shop/order/edit/".$order_id,
+						"class" => "primary",
+						"name" => "charge",
+						"wrapper" => "li.charge.".$payment_method["classname"],
+					)) ?>
+				<? endif; ?>
+			</li>
+			<? endforeach; ?>
 		</ul>
+
 		<? endif; ?>
 
 	</div>
 
-	<div class="delivery">
+	<div class="delivery i:collapseHeader">
 		<h2>Delivery</h2>
 
 		<? if($order["status"] == 0): ?>
@@ -280,7 +336,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</dl>
 	</div>
 
-	<div class="billing">
+	<div class="billing i:collapseHeader">
 		<h2>Billing</h2>
 
 		<? if($order["status"] == 0): ?>
@@ -314,27 +370,6 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 			<dt>Country</dt>
 			<dd><?= $order["billing_country"] ?></dd>
 		</dl>
-	</div>
-
-	<div class="comment i:collapseHeader">
-		<h2>Order comment</h2>
-		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
-			<fieldset>
-				<?= $model->input("order_comment", array("value" => $order["comment"])) ?>
-			</fieldset>
-
-			<ul class="actions">
-				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
-		<? endif; ?>
-
-		<? if($order["comment"]): ?>
-		<p><?= nl2br($order["comment"]) ?></p>
-		<? else: ?>
-		<p class="note">No comment</p>
-		<? endif; ?>
 	</div>
 
 </div>

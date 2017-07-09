@@ -1,95 +1,113 @@
 /* SHOP LIST */
-#content .defaultList.shopList ul.items > li dl.details dt.price {display: none;}
-#content .defaultList.shopList ul.items > li dl.details dd.price {position: absolute; top: 10px; right: 100px; font-size: 26px;}
-#content .defaultList.shopList ul.items > li p.error {padding-bottom: 6px; color: #df0000;}
+#content .scene.shopList div.all_items ul.items dd.missing {color: #df0000;}
+#content .scene.shopList ul.items > li dl.info dt.price {display: none;}
+#content .scene.shopList ul.items > li dl.info dd.price {position: absolute; top: 10px; right: 100px; font-size: 26px;}
+#content .scene.shopList ul.items > li p.error {padding-bottom: 6px; color: #df0000;}
 
+
+
+/* SHOP VIEW HEADER ACTIONS */
+#content .scene.shopView > ul.actions li.invoice {float: right; padding: 0 0 10px 10px;}
+#content .scene.shopView > ul.actions li.ship {float: right; padding: 0 0 10px 10px;}
 
 
 /* CART/ORDER */
 
 
 /* CART/ORDER DETAILS LISTINGS */
-#content .defaultEdit.shopView dl.list {padding-top: 3px; padding-right: 0; padding-bottom: 40px; width: 370px;}
-#content .defaultEdit.shopView dl.list dt {width: 120px;}
-#content .defaultEdit.shopView dl.list dt:after {content: ":";}
-#content .defaultEdit.shopView dl.list dd {width: 250px; margin: 0;}
+#content .scene.shopView dl.list {padding-top: 3px; padding-right: 0; padding-bottom: 25px; width: 370px;}
+#content .scene.shopView dl.list dt {width: 120px;}
+#content .scene.shopView dl.list dt:after {content: ":";}
+#content .scene.shopView dl.list dd {width: 250px; margin: 0;}
 
-/* DATA SECTIONS */
-#content .defaultEdit.shopView div.basics,
-#content .defaultEdit.shopView div.contact,
-#content .defaultEdit.shopView div.delivery,
-#content .defaultEdit.shopView div.billing {display: inline-block; vertical-align: top;}
 
-/* DATA SECTION FORMS */
-#content .defaultEdit.shopView > div > form {display: none; padding-top: 10px; padding-bottom: 10px;}
-#content .defaultEdit.shopView > div > h2 > span {color: #7d848c; cursor: pointer;}
-#content .defaultEdit.shopView > div > h2 > span:before {content: " - ";}
+/* CART/ORDER DATA SECTION FORMS */
+#content .scene.shopView > div > form {display: none; padding-top: 10px; padding-bottom: 10px;}
+#content .scene.shopView > div > h2 > span {color: #7d848c; cursor: pointer;}
+#content .scene.shopView > div > h2 > span:before {content: "\00a0-\00a0";}
+
+/* CART/ORDER DATA SECTIONS */
+#content .scene.shopView div.basics,
+#content .scene.shopView div.contact,
+#content .scene.shopView div.delivery,
+#content .scene.shopView div.billing {border-bottom: 1px solid #bbbbbb;}
+
+/* CART/ORDER SPECIAL CASE FOR COLLAPSABLE SECTIONS */
+#content .scene.shopView > div.togglable > h2 > span {display: none;}
+#content .scene.shopView > div.togglable.open > h2 > span {display: inline-block;}
+
 
 /* CART/ORDER ITEMS */
-#content .defaultEdit.shopView div.all_items {border-top: 1px solid #bbbbbb; padding-bottom: 40px;}
+#content .scene.shopView div.all_items {border-bottom: 1px solid #bbbbbb;}
+#content .scene.shopView div.all_items p {padding-bottom: 25px;}
+#content .scene.shopView div.all_items > p + ul.items {display: none;}
 
-/* ADD ITEM */
-#content .defaultEdit.shopView div.all_items > ul.actions {padding-top: 10px;}
-#content .defaultEdit.shopView div.all_items > ul.actions li {padding-bottom: 0px;}
 
 /* CART/ORDER ROW */
-#content .defaultEdit.shopView ul.items li h3 {font-size: 0; overflow: hidden; padding-right: 30px; padding-top: 6px; padding-bottom: 6px;}
-#content .defaultEdit.shopView ul.items li h3 span {font-size: 14px; line-height: 1em; padding: 9px 5px 5px 0; display: inline-block; vertical-align: top;}
-#content .defaultEdit.shopView ul.items li h3 span.total_price {float: right;  padding: 8px 0; display: inline-block; font-size: 16px;}
+#content .scene.shopView ul.items li h3 {font-size: 0; overflow: hidden; padding-right: 30px; padding-top: 3px; padding-bottom: 3px;}
+#content .scene.shopView ul.items li h3 span {font-size: 14px; line-height: 1em; padding: 9px 5px 5px 0; display: inline-block; vertical-align: top;}
+#content .scene.shopView ul.items li h3 span.total_price {float: right;  padding: 8px 0; display: inline-block; font-size: 16px;}
+
 
 /* QUANTITY FORM */
-#content .defaultEdit.shopView ul.items li h3 form {display: inline-block; vertical-align: top; position: relative;}
-#content .defaultEdit.shopView ul.items li h3 form div.field {padding: 0;}
-#content .defaultEdit.shopView ul.items li h3 form div.field .indicator {display: none;}
-#content .defaultEdit.shopView ul.items li h3 form div.field .help {left: 47px; display: none;}
-#content .defaultEdit.shopView ul.items li h3 form div.field input {height: 22px; width: 25px; text-align: right;}
-#content .defaultEdit.shopView ul.items li h3 form > ul.actions {padding: 0; right: 45px;}
-#content .defaultEdit.shopView ul.items li h3 form > ul.actions li {padding: 8px 0 0;}
-#content .defaultEdit.shopView ul.items li h3 form > ul.actions input.button {width: 16px; height: 16px; padding: 0; text-indent: -9999px; border-radius: 15px;
+/* CURRENTLY ONLY IN CART */
+#content .scene.shopView ul.items li h3 form {display: inline-block; vertical-align: top; position: relative;}
+#content .scene.shopView ul.items li h3 form div.field {padding: 0;}
+#content .scene.shopView ul.items li h3 form div.field .indicator {display: none;}
+#content .scene.shopView ul.items li h3 form div.field .help {left: 47px; display: none;}
+#content .scene.shopView ul.items li h3 form div.field input {height: 22px; width: 25px; text-align: right;}
+#content .scene.shopView ul.items li h3 form > ul.actions {padding: 0; right: 45px;}
+#content .scene.shopView ul.items li h3 form > ul.actions li {padding: 8px 0 0;}
+#content .scene.shopView ul.items li h3 form > ul.actions input.button {width: 16px; height: 16px; padding: 0; text-indent: -9999px; border-radius: 15px;
 	background-image: url(/janitor/admin/img/gx_refresh.png);
 	background-position: center center;
 	background-repeat: no-repeat;
 }
+
 /* ROW BUTTONS */
-#content .defaultEdit.shopView ul.items li ul.actions {padding-top: 5px;}
-
-#content .defaultEdit.shopView ul.items li.item ul.actions li.shipped {display: none;}
-#content .defaultEdit.shopView ul.items li.item ul.actions li.not_shipped {}
-#content .defaultEdit.shopView ul.items li.item.shipped ul.actions li.not_shipped {display: none;}
-#content .defaultEdit.shopView ul.items li.item.shipped ul.actions li.shipped {display: inline-block;}
-
+/* CURRENTLY ONLY IN CART */
+#content .scene.shopView ul.items li ul.actions {padding-top: 2px;}
+/*
+#content .scene.shopView ul.items li.item ul.actions li.shipped {display: none;}
+#content .scene.shopView ul.items li.item ul.actions li.not_shipped {}
+#content .scene.shopView ul.items li.item.shipped ul.actions li.not_shipped {display: none;}
+#content .scene.shopView ul.items li.item.shipped ul.actions li.shipped {display: inline-block;}
+*/
 
 
 
 
 /* CART EDIT */
-#content .defaultEdit.cartView {}
+#content .scene.cartView {}
 
-#content .defaultEdit.cartView div.all_items {border-bottom: 1px solid #bbbbbb;}
-#content .defaultEdit.cartView ul.items li h3 {padding-right: 120px;}
+/* CART ADD ITEM */
+#content .scene.cartView div.all_items > ul.actions {padding-top: 10px; padding-bottom: 25px;}
+#content .scene.cartView div.all_items > ul.actions li {padding-bottom: 0px;}
 
-#content .defaultEdit.cartView div.order {border-top: 1px solid #bbbbbb; padding-bottom: 40px;}
+
+
+/* CART MAKE ROOM FOR DELETE BUTTON */
+#content .scene.cartView ul.items li h3 {padding-right: 110px;}
+/* CONVERT CART TO ORDER */
+#content .scene.cartView div.order {border-bottom: 1px solid #bbbbbb;}
+#content .scene.cartView div.order ul.actions {padding-bottom: 15px;}
 
 
 /* ORDER EDIT */
-#content .defaultEdit.orderView {}
+#content .scene.orderView {}
+#content .scene.orderView div.all_items > ul.items {padding-bottom: 25px;}
 
-#content .defaultEdit.orderView div.orderstatus {border-bottom: 1px solid #bbbbbb;}
-#content .defaultEdit.orderView div.comment {border-top: 1px solid #bbbbbb;}
-#content .defaultEdit.orderView div.payments {border-top: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;}
-#content .defaultEdit.orderView div.payments ul.actions {padding-bottom: 10px;}
+#content .scene.orderView div.orderstatus {border-bottom: 1px solid #bbbbbb;}
+#content .scene.orderView div.comment {border-bottom: 1px solid #bbbbbb;}
 
-/* DIFFERING NUMBER OF BUTTONS IN ROW */
-/*#content .defaultEdit.orderView ul.items li.pending h3 {padding-right: 240px;}*/
-#content .defaultEdit.orderView ul.items li.pending h3,
-#content .defaultEdit.orderView ul.items li.waiting h3,
-#content .defaultEdit.orderView ul.items li.complete h3 {padding-right: 170px;}
-
+#content .scene.orderView div.payments {border-bottom: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;}
+#content .scene.orderView div.payments ul.actions {padding-bottom: 10px; overflow: hidden;}
+#content .scene.orderView div.payments ul.actions li {float: left; clear: both;}
 
 
 
 /* PAYMENTS */
-#content .defaultList.paymentList ul.items > li dl.details dd.price {right: 140px;}
+#content .scene.paymentList ul.items > li dl.info dd.price {right: 140px;}
 
 
 
