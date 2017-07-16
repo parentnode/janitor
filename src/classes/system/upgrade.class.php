@@ -320,14 +320,14 @@ class Upgrade extends Model {
 			$wish_table = $this->tableInfo(SITE_DB.".item_wish");
 			if($wish_table && preg_match("/int\(11\)/", $wish_table["columns"]["reserved"])) {
 
-				// add about item id column
+				// update reserved column
 				$this->process($this->modifyColumn(SITE_DB.".item_wish", "reserved", "varchar(100) DEFAULT ''"), true);
 
 				$wish_table_versions = $this->tableInfo(SITE_DB.".item_wish_versions");
 				if($wish_table_versions && preg_match("/int\(11\)/", $wish_table_versions["columns"]["reserved"])) {
 
-					// add about item id column
-					$this->process($this->addColumn(SITE_DB.".item_wish_versions", "reserved", "varchar(100) DEFAULT ''"), true);
+					// update reserved column
+					$this->process($this->modifyColumn(SITE_DB.".item_wish_versions", "reserved", "varchar(100) DEFAULT ''"), true);
 				}
 
 			}
