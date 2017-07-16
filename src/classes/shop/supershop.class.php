@@ -912,8 +912,94 @@ class SuperShop extends Shop {
 	}
 
 
+	// /#controller#/sendActivationReminder/#order_id#
+	function sendPaymentReminder($action) {
+
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("order_id"))) {
+
+			global $page;
+			$query = new Query();
+			$query->checkDbExistence(SITE_DB.".user_log_payment_reminders");
+
+			// user_id passed?
+			$order_id = $this->getProperty("order_id", "value");
+			$order = $this->getOrders(["order_id" => $order_id]);
+
+//			print_r($order);
+
+			if($order && $order["payment_status"] < 2) {
+
+				include_once("classes/users/user.core.class.php");
+				$UC = new User();
+
+				// use current user as sender for this reminder
+				$current_user = $UC->getUser();
+				$total_order_price = $this->getTotalOrderPrice($order["id"]);
+
+				$page->mail(array(
+					"from_current_user" => true,
+					"values" => array(
+						"FROM" => $current_user["nickname"],
+						"NICKNAME" => $order["user"]["nickname"],
+						"ORDER_NO" => $order["order_no"],
+						"ORDER_PRICE" => formatPrice($total_order_price),
+					),
+					"recipients" => $order["user"]["email"],
+					"template" => "payment_reminder"
+				));
+
+				message()->addMessage("Reminder sent to ".$order["user"]["email"]);
+
+				// Add to user log
+				$sql = "INSERT INTO ".SITE_DB.".user_log_payment_reminders SET order_id = ".$order["id"].", user_id = ".$order["user_id"];
+		//		print $sql;
+				$query->sql($sql);
+
+				return true;
+			}
+
+		}
+
+		// get updated user activation data
+//		$users = $this->getUnconfirmedUsers($user_id);
+
+
+		return false;
+	}
+
+	function getPaymentReminders($_options = false) {
+
+		// get all count of orders with status
+		$order_id = false;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "order_id"             : $order_id              = $_value; break;
+				}
+			}
+		}
+
+		if($order_id) {
+			$query = new Query();
+			$sql = "SELECT * FROM ".SITE_DB.".user_log_payment_reminders WHERE order_id = $order_id ORDER BY created_at DESC";
+	//		print $sql;
+			$query->sql($sql);
+			return $query->results();
+
+		}
+
+		return false;
+
+	}
+
+
 	// a shorthand function to get order count for UI
-	function getOrderCount($_options=false) {
+	function getOrderCount($_options = false) {
 
 		// get all count of orders with status
 		$status = false;
@@ -1235,44 +1321,59 @@ class SuperShop extends Shop {
 
 			// check overstatus
 			$order = $this->getOrders(array("order_id" => $order_id));
-			if($order && $order["status"] == 0 || $order["status"] == 1) {
+			if($order && ($order["status"] == 0 || $order["status"] == 1)) {
 
-				// get all subscriptions related to order
-				$sql = "SELECT * FROM ".$UC->db_subscriptions." WHERE order_id = ".$order_id;
+				// create creditnote
+				$creditnote_no = $this->getNewCreditnoteNumber(["order_id" => $order_id]);
+//				print_r($creditnote_no);
+
+				// map order to new credit note no
+				$sql = "UPDATE ".$this->db_cancelled_orders." SET order_id = $order_id WHERE creditnote_no = '".$creditnote_no."'";
 				if($query->sql($sql)) {
-					$subscriptions = $query->results();
 
-					// deal with subscriptions individually
-					foreach($subscriptions as $subscription) {
+					// get all subscriptions related to order
+					$sql = "SELECT * FROM ".$UC->db_subscriptions." WHERE order_id = ".$order_id;
+					if($query->sql($sql)) {
+						$subscriptions = $query->results();
 
-						// is subscription related to membership
-						$sql = "SELECT * FROM ".$UC->db_members." WHERE subscription_id = ".$subscription["id"]." LIMIT 1";
-						if($query->sql($sql)) {
-							$membership = $query->result(0);
+						// deal with subscriptions individually
+						foreach($subscriptions as $subscription) {
 
-							// cancel membership - also deletes related subscription
-							$UC->cancelMembership(array("cancelMembership", $membership["user_id"], $membership["id"]));
-						}
-						// regular subscription
-						else {
+							// is subscription related to membership
+							$sql = "SELECT * FROM ".$UC->db_members." WHERE subscription_id = ".$subscription["id"]." LIMIT 1";
+							if($query->sql($sql)) {
+								$membership = $query->result(0);
 
-							// delete subscription
-							$UC->deleteSubscription(array("deleteSubscription", $subscription["user_id"], $subscription["id"]));
+								// cancel membership - also deletes related subscription
+								$UC->cancelMembership(array("cancelMembership", $membership["user_id"], $membership["id"]));
+							}
+							// regular subscription
+							else {
+
+								// delete subscription
+								$UC->deleteSubscription(array("deleteSubscription", $subscription["user_id"], $subscription["id"]));
+							}
 						}
 					}
-				}
 
-				// update order status
-				$sql = "UPDATE ".$this->db_orders." SET status = 3 WHERE id = ".$order_id." AND user_id = ".$user_id;
-				if($query->sql($sql)) {
+					// update order status and create credit note
+					$sql = "UPDATE ".$this->db_orders." SET status = 3 WHERE id = ".$order_id." AND user_id = ".$user_id;
+					if($query->sql($sql)) {
 
-					global $page;
-					$page->addLog("SuperShop->cancelOrder: $order_id ($user_id)");
 
-					message()->addMessage("Order cancelled");
-					return true;
+						global $page;
+						$page->addLog("SuperShop->cancelOrder: $order_id ($user_id)");
+
+						message()->addMessage("Order cancelled");
+						return true;
+
+					}
+
 				}
 			}
+
+			// clean up
+			$this->deleteCreditnoteNumber($creditnote_no);
 		}
 
 		message()->addMessage("Order could not cancelled", array("type" => "error"));
@@ -1520,6 +1621,8 @@ class SuperShop extends Shop {
 					if($query->sql($sql)) {
 						$current_shipping = $query->result(0, "shipped_by");
 						$item_id = $query->result(0, "item_id");
+
+						// check that item exists in order
 						$order_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
 
 //						print "current_shipping:" . $current_shipping ." for ".$item_id;
@@ -1552,25 +1655,32 @@ class SuperShop extends Shop {
 
 					}
 				}
+				// ship whole order
 				else {
+//					print "ship whole order";
+
+
 					foreach($order["items"] as $order_item) {
-						
+
 						// get current shipping status for item
-						$sql = "SELECT shipped_by FROM ".$this->db_order_items." WHERE id = ".$order_item_id." AND order_id = ".$order_id;
-	//					print $sql;
+						$sql = "SELECT shipped_by, item_id FROM ".$this->db_order_items." WHERE id = ".$order_item["id"]." AND order_id = ".$order_id;
+//						print $sql;
 						if($query->sql($sql)) {
 							$current_shipping = $query->result(0, "shipped_by");
+							$item_id = $query->result(0, "item_id");
 
 							// changed state to shipped and was not already in this state
 							// then invoke model->shipped if it is available (it will perform)
+//							print $shipped . "," . $current_shipping;
 							if($shipped && !$current_shipping) {
 								$IC = new Items();
-								$item = $IC->getItem(array("id" => $order_item_id));
+								$item = $IC->getItem(array("id" => $order_item["item_id"]));
+								
 								if($item) {
 									$model = $IC->typeObject($item["itemtype"]);
 									// does model have shipped callback
 									if($model && method_exists($model, "shipped")) {
-										$mode->shipped($order_item_id, $order);
+										$model->shipped($order_item["id"], $order);
 									}
 								}
 							}
@@ -1724,19 +1834,19 @@ class SuperShop extends Shop {
 	}
 
 
-	// should also update order state if payment is sufficient
-	# /janitor/admin/shop/addPayment
-	function addPayment($action) {
+	// register manual payment
+	// also updates order state
+	# /#controller#/registerPayment
+	function registerPayment($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if(count($action) == 1 && $this->validateList(array("payment_amount", "currency", "payment_method", "order_id", "transaction_id"))) {
+		if(count($action) == 1 && $this->validateList(array("payment_amount", "payment_method", "order_id", "transaction_id"))) {
 
 
 			$order_id = $this->getProperty("order_id", "value");
 			$transaction_id = $this->getProperty("transaction_id", "value");
-			$currency = $this->getProperty("currency", "value");
 			$payment_amount = $this->getProperty("payment_amount", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
 
@@ -1747,7 +1857,7 @@ class SuperShop extends Shop {
 				$query = new Query();
 
 				// update modified at time
-				$sql = "INSERT INTO ".$this->db_payments." SET order_id=$order_id, currency='$currency', payment_amount=$payment_amount, transaction_id='$transaction_id', payment_method=$payment_method";
+				$sql = "INSERT INTO ".$this->db_payments." SET order_id=$order_id, currency='".$order["currency"]."', payment_amount=$payment_amount, transaction_id='$transaction_id', payment_method=$payment_method";
 				if($query->sql($sql)) {
 
 					$this->validateOrder($order["id"]);
@@ -1766,6 +1876,115 @@ class SuperShop extends Shop {
 		return false;
 	}
 
+
+	// check if we have gateway user info (indicates we can charge)
+	function canBeCharged($_options = false) {
+
+		// get all orders for user_id
+		$user_id = false;
+		$gateway = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "gateway"           : $gateway             = $_value; break;
+					case "user_id"           : $user_id             = $_value; break;
+				}
+			}
+		}
+
+
+		if($gateway == "stripe") {
+
+			include_once("classes/shop/gateways/janitor_stripe.class.php");
+			$GC = new JanitorStripe();
+
+			$customer_id = $GC->getCustomerId($user_id);
+			if($customer_id) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	// Charge remaining order payment from gateway
+	function chargeRemainingOrderPayment($action) {
+	
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 1 && $this->validateList(array("payment_method", "order_id"))) {
+
+			global $page;
+
+			$order_id = $this->getProperty("order_id", "value");
+			$payment_method_id = $this->getProperty("payment_method", "value");
+
+			$payment_method = $page->paymentMethods($payment_method_id);
+			$order = $this->getOrders(array("order_id" => $order_id));
+
+			if($order) {
+
+				$total_order_price = $this->getTotalOrderPrice($order_id);
+				$payments = $this->getPayments(array("order_id" => $order_id));
+
+//				print_r($payments);
+
+				$total_payments = 0;
+				if($payments) {
+					foreach($payments as $payment) {
+						$total_payments += $payment["payment_amount"];
+					
+					}
+				}
+
+				$payment_amount = $total_order_price["price"]-$total_payments;
+
+
+				if($payment_method["gateway"] == "stripe") {
+
+					include_once("classes/shop/gateways/janitor_stripe.class.php");
+					$GC = new JanitorStripe();
+
+					$customer_id = $GC->getCustomerId($order["user_id"]);
+
+					if($customer_id) {
+//						print "should charge $payment_amount from ".$payment_method["gateway"];
+
+						$custom_order = $order;
+						$custom_order["total_price"]["price"] = $payment_amount;
+						
+						// if partially paid already, add custom description to charge
+						if($total_payments) {
+							$custom_order["custom_description"] = $order["order_no"] . " (partial)";
+						}
+
+						if($GC->chargeCustomer($custom_order, $customer_id)) {
+
+							message()->addMessage("Payment charged sucessfully.");
+							return true;
+
+						}
+
+					}
+					else {
+
+						message()->addMessage("User does not have Stripe account.", array("type" => "error"));
+						return false;
+
+					}
+
+				}
+	
+			}
+
+		}
+
+		message()->addMessage("Payment could not be charged", array("type" => "error"));
+		return false;
+
+	}
 
 
 }

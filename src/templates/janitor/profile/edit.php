@@ -18,6 +18,15 @@ $addresses = $item["addresses"];
 $all_newsletters = $this->newsletters();
 $user_newsletters = $item["newsletters"];
 
+// check for unpaid orders
+$unpaid_orders = false;
+if(defined("SITE_SHOP") && SITE_SHOP) {
+	include_once("classes/shop/shop.core.class.php");
+	$SC = new Shop();
+	$unpaid_orders = $SC->getUnpaidOrders();
+
+}
+
 ?>
 <div class="scene i:scene defaultEdit userEdit profileEdit">
 	<h1>User profile</h1>
@@ -173,6 +182,17 @@ $user_newsletters = $item["newsletters"];
 			To unsubscribe from newsletters, see the "newsletters" section above.
 		</p>
 
+<? if($unpaid_orders): ?>
+		<p class="note system_error">
+			You have <?= pluralize(count($unpaid_orders), "unpaid order", "unpaid orders")?>. 
+			Settle <?= pluralize(count($unpaid_orders), "it", "them") ?> befor you
+			cancel your account.
+		</p>
+
+		<ul class="actions">
+			<?= $HTML->link("Orders", "/janitor/admin/profile/orders/list", array("class" => "button primary", "wrapper" => "li.orders")) ?>
+		</ul>
+<? else: ?>
 		<?= $model->formStart("cancel", array("class" => "cancelaccount")) ?>
 
 			<fieldset>
@@ -184,6 +204,8 @@ $user_newsletters = $item["newsletters"];
 			</ul>
 
 		<?= $model->formEnd() ?>
+<? endif; ?>
+
 
 	</div>
 

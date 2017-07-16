@@ -5,37 +5,50 @@ global $model;
 $order_id = $action[2];
 $user_id = session()->value("user_id");
 //print_r($order);
+$SC = new Shop();
+$order = $SC->getOrders(array("order_id" => $order_id));
 
-$user = $model->getUser();
+if($order) {
+	$user = $model->getUser();
+
+	// Does it make sense to run any of this without the shop?
+	//if(defined("SITE_SHOP") && SITE_SHOP) {
+	//}
 
 
-if(defined("SITE_SHOP") && SITE_SHOP) {
-	$SC = new Shop();
-	$order = $SC->getOrders(array("order_id" => $order_id));
+	// get addresses for selected user
+	$addresses = $model->getAddresses();
+	if($addresses) {
+		$delivery_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("" => "Select delivery address")));
+		$billing_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("" => "Select billing address")));
+	}
+	else {
+		$delivery_address_options = array("" => "No addresses");
+		$billing_address_options = array("" => "No addresses");
+	}
+
+
+	$payments = $SC->getPayments(array("order_id" => $order_id));
+	$total_order_price = $SC->getTotalOrderPrice($order_id);
+
+	$total_payments = 0;
+	// if order is not paid, sum up all payments
+	if($order["payment_status"] < 2 && $payments) {
+		foreach($payments as $payment) {
+			$total_payments += $payment["payment_amount"];
+		}
+	}
+	// then calculate total remaining payment
+	$payable_amount = $total_order_price["price"]-$total_payments;
+	
 }
 
-
-// get addresses for selected user
-$addresses = $model->getAddresses();
-if($addresses) {
-	$delivery_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("" => "Select delivery address")));
-	$billing_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("" => "Select billing address")));
-}
-else {
-	$delivery_address_options = array("" => "No addresses");
-	$billing_address_options = array("" => "No addresses");
-}
-
-$payments = $SC->getPayments(array("order_id" => $order_id));
-
-$total_order_price = $SC->getTotalOrderPrice($order_id);
 
 $return_to_orderstatus = session()->value("return_to_orderstatus");
 
-
-$payment_methods = $this->paymentMethods();
 ?>
 <div class="scene i:scene defaultEdit shopView orderView">
+<? if($order): ?>
 	<h1>View order</h1>
 	<h2><?= $order["order_no"] ?> (<?= $SC->order_statuses[$order["status"]] ?>)</h2>
 
@@ -43,12 +56,16 @@ $payment_methods = $this->paymentMethods();
 
 		<?= $HTML->link("Your orders", "/janitor/admin/profile/orders/list", array("class" => "button", "wrapper" => "li.list")) ?>
 
+		<? if($order["payment_status"] < 2 && $order["status"] != 3): ?>
+		<?= $HTML->link("Pay now", "/shop/payment/".$order["order_no"], array("class" => "button primary", "wrapper" => "li.pay")) ?>
+		<? endif; ?>
+
 		<? if($order["status"] >= 2): ?>
-		<?= $HTML->link("Invoice", "/janitor/admin/shop/orders/invoice/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice")) ?>
+		<?= $HTML->link("Invoice", "/janitor/admin/profile/orders/invoice/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice", "target" => "blank")) ?>
 		<? endif; ?>
 
 		<? if($order["status"] == 3): ?>
-		<?= $HTML->link("Credit note", "/janitor/admin/shop/orders/creditnote/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice")) ?>
+		<?= $HTML->link("Credit note", "/janitor/admin/profile/orders/creditnote/".$order["id"], array("class" => "button primary", "wrapper" => "li.creditnote", "target" => "blank")) ?>
 		<? endif; ?>
 
 	</ul>
@@ -150,12 +167,9 @@ $payment_methods = $this->paymentMethods();
 
 	<div class="payments i:defaultList i:collapseHeader">
 		<h2>Payments</h2>
-		<? 
-		$total_payments = 0;
-		if($payments): ?>
+		<? if($payments): ?>
 		<ul class="payment items">
 			<? foreach($payments as $payment):
-				$total_payments += $payment["payment_amount"];
 				$payment["payment_method"] = $this->paymentMethods($payment["payment_method"]); ?>
 			<li class="item">
 				<dl class="list">
@@ -176,30 +190,7 @@ $payment_methods = $this->paymentMethods();
 		<? endif; ?>
 
 		<? if($order["payment_status"] < 2): ?>
-
-		<div class="missing_payment">
-			<h3>Still to be paid</h3>
-			<p><?= formatPrice(array("price" => ($total_order_price["price"] - $total_payments), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"])) ?></p>
-		</div>
-
-		<ul class="actions">
-			<?= $HTML->link("Pay now", "/shop/payment/".$order["order_no"], array("class" => "button primary", "wrapper" => "li.manuel_payment")) ?>
-
-			<? foreach($payment_methods as $payment_method): ?>
-				<? if($payment_method["gateway"] && $SC->canBeCharged(["gateway" => $payment_method["gateway"]])): ?>
-					<?= $JML->oneButtonForm("Charge ".formatPrice(array("price" => ($total_order_price["price"] - $total_payments), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"]))." from ".$payment_method["name"] . " (".$payment_method["gateway"].")", "/janitor/admin/shop/chargeRemainingOrderPayment", array(
-						"inputs" => array("order_id" => $order["id"], "payment_method" => $payment_method["id"]),
-						"confirm-value" => "Are you sure?",
-						"success-location" => "/janitor/admin/shop/order/edit/".$order_id,
-						"class" => "primary",
-						"name" => "charge",
-						"wrapper" => "li.charge.".$payment_method["classname"],
-					)) ?>
-				<? endif; ?>
-			</li>
-			<? endforeach; ?>
-		</ul>
-
+		<h3>Still to be paid: <span class="system_error"><?= formatPrice(array("price" => ($payable_amount), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"])) ?></span></h3>
 		<? endif; ?>
 
 	</div>
@@ -245,5 +236,15 @@ $payment_methods = $this->paymentMethods();
 			<dd><?= $order["billing_country"] ?></dd>
 		</dl>
 	</div>
+
+<? else: ?>
+
+	<h1>What??</h1>
+	<ul class="actions">
+		<?= $HTML->link("Your orders", "/janitor/admin/profile/orders/list", array("class" => "button", "wrapper" => "li.list")) ?>
+	</ul>
+
+	<h1>It seems you have lost your way.</h1>
+<? endif; ?>
 
 </div>

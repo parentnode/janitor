@@ -1,14 +1,30 @@
-/* SHOP LIST */
+/* SHOP */
+/* ORDER LIST */
+#content .scene.shopList ul.tabs li.waiting {color: orange;}
+#content .scene.shopList ul.tabs li.pending {color: red;}
+#content .scene.shopList ul.tabs li.complete {color: green;}
+
 #content .scene.shopList div.all_items ul.items dd.missing {color: #df0000;}
 #content .scene.shopList ul.items > li dl.info dt.price {display: none;}
 #content .scene.shopList ul.items > li dl.info dd.price {position: absolute; top: 10px; right: 100px; font-size: 26px;}
-#content .scene.shopList ul.items > li p.error {padding-bottom: 6px; color: #df0000;}
+#content .scene.shopList ul.items > li dl.info dd.waiting,
+#content .scene.shopList ul.items > li dl.info dd.partial {color: orange;}
+
+#content .scene.shopList ul.items > li dl.info dd.pending,
+#content .scene.shopList ul.items > li dl.info dd.unpaid,
+#content .scene.shopList ul.items > li dl.info dd.unshipped {color: #df0000;}
+
+#content .scene.shopList ul.items > li dl.info dd.complete,
+#content .scene.shopList ul.items > li dl.info dd.paid,
+#content .scene.shopList ul.items > li dl.info dd.shipped {color: green;}
 
 
 
 /* SHOP VIEW HEADER ACTIONS */
 #content .scene.shopView > ul.actions li.invoice {float: right; padding: 0 0 10px 10px;}
+#content .scene.shopView > ul.actions li.creditnote {float: right; padding: 0 0 10px 10px;}
 #content .scene.shopView > ul.actions li.ship {float: right; padding: 0 0 10px 10px;}
+#content .scene.shopView > ul.actions li.pay {float: right; padding: 0 0 10px 10px;}
 
 
 /* CART/ORDER */
@@ -96,18 +112,64 @@
 /* ORDER EDIT */
 #content .scene.orderView {}
 #content .scene.orderView div.all_items > ul.items {padding-bottom: 25px;}
-
 #content .scene.orderView div.orderstatus {border-bottom: 1px solid #bbbbbb;}
 #content .scene.orderView div.comment {border-bottom: 1px solid #bbbbbb;}
-
 #content .scene.orderView div.payments {border-bottom: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;}
-#content .scene.orderView div.payments ul.actions {padding-bottom: 10px; overflow: hidden;}
-#content .scene.orderView div.payments ul.actions li {float: left; clear: both;}
+#content .scene.orderView div.payments h3 {padding-bottom: 15px;}
+#content .scene.orderView div.payments ul.actions {padding-bottom: 15px;}
 
 
 
 /* PAYMENTS */
 #content .scene.paymentList ul.items > li dl.info dd.price {right: 140px;}
 
+#content .scene.newPayment div.basics {border-top: 1px solid #bbbbbb;}
+#content .scene.newPayment div.basics,
+#content .scene.newPayment div.charge,
+#content .scene.newPayment div.reminder,
+#content .scene.newPayment div.register {border-bottom: 1px solid #bbbbbb;}
+
+#content .scene.newPayment > div ul.actions {padding-bottom: 15px;}
+#content .scene.newPayment > div ul.actions li {}
+
+#content .scene.newPayment > div.charge ul.actions {overflow: hidden;}
+#content .scene.newPayment > div.charge ul.actions li {float: left; clear: both;}
+
+#content .scene.newPayment div.reminder ul.info {padding: 0 30px 25px;}
+#content .scene.newPayment div.reminder ul.info li {padding: 0 0 3px; display: block;}
 
 
+
+/* INVOICE */
+body.invoice {background: #ffffff;}
+
+body.invoice #navigation,
+body.invoice #header,
+body.invoice #footer,
+body.invoice #page > ul.servicenavigation {display: none;}
+
+body.invoice #page {margin: 0;}
+
+body.invoice #content {margin: 50px 0;}
+body.invoice #content div.scene ul.info {padding: 0 30px;}
+body.invoice #content div.scene ul.info li {display: block; padding: 0 0 2px; font-size: 14px;}
+
+body.invoice #content div.scene .basics {text-align: right;}
+body.invoice #content div.scene .basics h1 {padding-bottom: 5px;}
+body.invoice #content div.scene .basics ul.info li.cvr {padding-top: 10px;}
+body.invoice #content div.scene .basics h2 {padding-top: 25px;}
+
+body.invoice #content div.scene .basics dl.info {padding: 10px 30px;}
+body.invoice #content div.scene .basics dl.info dt {font-weight: 700;}
+body.invoice #content div.scene .basics dl.info dd,
+body.invoice #content div.scene .basics dl.info dt {display: block; padding: 0 0 5px;}
+
+
+body.invoice #content div.scene .buyer ul.info {padding-bottom: 20px;}
+body.invoice #content div.scene .all_items {padding-top: 20px;}
+body.invoice #content div.scene .all_items ul.items li h3 {padding-right: 30px;}
+body.invoice #content div.scene .all_items ul.items li h3 span {font-size: 14px; line-height: 1em; padding: 9px 5px 5px 0; display: inline-block; vertical-align: top;}
+body.invoice #content div.scene .all_items ul.items li h3 span.total_price {float: right; padding: 8px 0; display: inline-block; font-size: 16px;}
+body.invoice #content div.scene .all_items ul.items li.order_total {font-size: 20px; padding: 20px 30px 5px; border-bottom: none;}
+body.invoice #content div.scene .all_items ul.items li.order_vat {font-size: 14px; padding: 0 30px 20px;}
+body.invoice #content div.scene .all_items ul.items li span.amount {float: right;}

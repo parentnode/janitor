@@ -1832,7 +1832,7 @@ class PageCore {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "recipients"             : $recipients             = $_value; break;
-					case "from_current_user"   : $from_current_user   = $_value; break;
+					case "from_current_user"      : $from_current_user      = $_value; break;
 					case "template"               : $template               = $_value; break;
 					case "object"                 : $object                 = $_value; break;
 					case "message"                : $message                = $_value; break;

@@ -15,7 +15,7 @@ class JanitorStripe {
 	function __construct() {
 
 		// include stripe connection keys
-		@include_once("config/connect_stripe.php");
+		@include("config/connect_stripe.php");
 
 		$this->stripe = array(
 		  "secret_key"      => $stripe_keys["secret"],
@@ -366,7 +366,7 @@ class JanitorStripe {
 				'amount'               => $order["total_price"]["price"]*100,
 				'currency'             => $order["currency"],
 				'description'          => $order["order_no"],
-				'statement_descriptor' => "think.dk - " . $order["order_no"],
+				'statement_descriptor' => (isset($order["custom_description"]) && $order["custom_description"] ? $order["custom_description"] : $order["order_no"]),
 				'receipt_email'        => $order["user"]["email"],
 			));
 
@@ -393,11 +393,10 @@ class JanitorStripe {
 
 					// Add variables for addPayment
 					$_POST["payment_amount"] = $order["total_price"]["price"];
-					$_POST["currency"] = $order["currency"];
 					$_POST["payment_method"] = $payment_methods[$stripe_index]["id"];
 					$_POST["order_id"] = $order["id"];
 					$_POST["transaction_id"] = $charge->id;
-					if($SC->addPayment(array("addPayment"))) {
+					if($SC->registerPayment(array("registerPayment"))) {
 
 						$page->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$charge->id.", amount:".$order["total_price"]["price"], "stripe");
 						return true;

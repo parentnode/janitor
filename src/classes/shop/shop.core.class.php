@@ -31,6 +31,8 @@ class ShopCore extends Model {
 		$this->db_order_items = SITE_DB.".shop_order_items";
 		$this->db_payments = SITE_DB.".shop_payments";
 
+		$this->db_cancelled_orders = SITE_DB.".shop_cancelled_orders";
+
 
 		// TODO: needs to be updated throughout class
 		// TODO: these are suggestions
@@ -52,16 +54,16 @@ class ShopCore extends Model {
 			"type" => "email",
 			"label" => "Your email",
 			"required" => true,
-			"hint_message" => "Write your email so we can contact you regarding your order",
-			"error_message" => "Invalid email"
+			"hint_message" => "Write your email so we can contact you regarding your order.",
+			"error_message" => "Invalid email."
 		));
 		// mobile
 		$this->addToModel("mobile", array(
 			"type" => "tel",
 			"label" => "Your mobile",
 			"required" => true,
-			"hint_message" => "Write your mobile number so we can contact you regarding your order",
-			"error_message" => "Invalid number"
+			"hint_message" => "Write your mobile number so we can contact you regarding your order.",
+			"error_message" => "Invalid mobile number."
 		));
 
 
@@ -71,24 +73,24 @@ class ShopCore extends Model {
 			"type" => "string",
 			"label" => "Country",
 			"required" => true,
-			"hint_message" => "Country for order", 
-			"error_message" => "Country for order"
+			"hint_message" => "Country for order.", 
+			"error_message" => "Country for order must be filled out."
 		));
 
 		$this->addToModel("currency", array(
 			"type" => "string",
 			"label" => "Currency",
 			"required" => true,
-			"hint_message" => "Currency for order", 
-			"error_message" => "Currency for order"
+			"hint_message" => "Currency for order.", 
+			"error_message" => "Currency for order must be filled out."
 		));
 
 		$this->addToModel("quantity", array(
 			"type" => "integer",
 			"label" => "Quantity",
 			"required" => true,
-			"hint_message" => "Quantity of items", 
-			"error_message" => "Quantity must be a number"
+			"hint_message" => "Quantity of items.", 
+			"error_message" => "Quantity must be a number."
 		));
 
 		// for custom order items
@@ -96,7 +98,7 @@ class ShopCore extends Model {
 			"type" => "string",
 			"label" => "Description",
 			"required" => true,
-			"hint_message" => "Description of this order item", 
+			"hint_message" => "Description of this order item.", 
 			"error_message" => "Description must be a string."
 		));
 
@@ -107,8 +109,8 @@ class ShopCore extends Model {
 			"type" => "string",
 			"label" => "Full name",
 			"required" => true,
-			"hint_message" => "Write your full name for the invoice", 
-			"error_message" => "Name must be filled out"
+			"hint_message" => "Write your full name for the invoice.", 
+			"error_message" => "Name must be filled out."
 		));
 
 
@@ -118,14 +120,14 @@ class ShopCore extends Model {
 		$this->addToModel("billing_address_id", array(
 			"type" => "integer",
 			"label" => "Billing address",
-			"hint_message" => "Select billing address",
-			"error_message" => "Invalid billing address"
+			"hint_message" => "Select billing address.",
+			"error_message" => "Invalid billing address."
 		));
 		// att
 		$this->addToModel("billing_att", array(
 			"type" => "string",
 			"label" => "Att",
-			"hint_message" => "Att - contact person at destination"
+			"hint_message" => "Att - contact person at destination."
 		));
 		// address 1
 		$this->addToModel("billing_address1", array(
@@ -133,45 +135,45 @@ class ShopCore extends Model {
 			"label" => "Address",
 			"required" => true,
 			"hint_message" => "Address",
-			"error_message" => "Invalid address"
+			"error_message" => "Invalid address."
 		));
 		// address 2
 		$this->addToModel("billing_address2", array(
 			"type" => "string",
 			"label" => "Additional address",
-			"hint_message" => "Additional address info",
-			"error_message" => "Invalid address"
+			"hint_message" => "Additional address info.",
+			"error_message" => "Invalid address."
 		));
 		// city
 		$this->addToModel("billing_city", array(
 			"type" => "string",
 			"label" => "City",
 			"required" => true,
-			"hint_message" => "Write your city",
-			"error_message" => "Invalid city"
+			"hint_message" => "Write your city.",
+			"error_message" => "Invalid city."
 		));
 		// postal code
 		$this->addToModel("billing_postal", array(
 			"type" => "string",
 			"label" => "Postal code",
 			"required" => true,
-			"hint_message" => "Postalcode of your city",
-			"error_message" => "Invalid postal code"
+			"hint_message" => "Postalcode of your city.",
+			"error_message" => "Invalid postal code."
 		));
 		// state
 		$this->addToModel("billing_state", array(
 			"type" => "string",
 			"label" => "State/region",
-			"hint_message" => "Write your state/region, if applicaple",
-			"error_message" => "Invalid state/region"
+			"hint_message" => "Write your state/region, if applicaple.",
+			"error_message" => "Invalid state/region."
 		));
 		// country
 		$this->addToModel("billing_country", array(
 			"type" => "string",
 			"label" => "Country",
 			"required" => true,
-			"hint_message" => "Country",
-			"error_message" => "Invalid country"
+			"hint_message" => "Country.",
+			"error_message" => "Invalid country."
 		));
 
 
@@ -260,31 +262,31 @@ class ShopCore extends Model {
 			"type" => "integer",
 			"label" => "Order",
 			"required" => true,
-			"hint_message" => "Select order to associate payment with",
-			"error_message" => "Invalid order"
+			"hint_message" => "Select order to associate payment with.",
+			"error_message" => "Invalid order."
 		));
 		// transactions id
 		$this->addToModel("transaction_id", array(
 			"type" => "string",
 			"label" => "Transasction id",
-			"hint_message" => "Unique transaction id",
-			"error_message" => "Invalid id"
+			"hint_message" => "Unique transaction id. This helps to identify the exact origin of the payment.",
+			"error_message" => "Invalid id."
 		));
 		// payment amount
 		$this->addToModel("payment_amount", array(
 			"type" => "string",
 			"label" => "Payment amount",
 			"required" => true,
-			"hint_message" => "Payment amount including tax",
-			"error_message" => "Invalid amount"
+			"hint_message" => "Payment amount including tax. Use . (point) as decimal separator.",
+			"error_message" => "Invalid amount."
 		));
 		// payment method
 		$this->addToModel("payment_method", array(
 			"type" => "string",
 			"label" => "Payment method",
 			"required" => true,
-			"hint_message" => "Please select a payment method",
-			"error_message" => "Please select a payment method"
+			"hint_message" => "Please select a payment method.",
+			"error_message" => "Invalid payment method."
 		));
 
 
@@ -367,6 +369,50 @@ class ShopCore extends Model {
 		$query = new Query();
 
 		$sql = "DELETE FROM ".$this->db_orders." WHERE order_no='$order_no' AND user_id IS NULL AND country IS NULL AND currency IS NULL";
+		if($query->sql($sql)) {
+			return true;
+		}
+
+		return false;
+	}
+
+
+	// get next available order number
+	function getNewCreditnoteNumber() {
+
+		$query = new Query();
+		$query->checkDbExistence($this->db_cancelled_orders);
+
+		$sql = "SELECT creditnote_no FROM ".$this->db_cancelled_orders." ORDER BY id DESC LIMIT 1";
+		//		print $sql."<br>\n";
+
+		if($query->sql($sql)) {
+			$last_creditnote_no = $query->result(0, "creditnote_no");
+			$creditnote_no = "WCRE".(intval(preg_replace("/WCRE/", "", $last_creditnote_no))+1);
+		}
+		else {
+			$creditnote_no = "WCRE1";
+		}
+
+		$sql = "INSERT INTO ".$this->db_cancelled_orders." SET creditnote_no='$creditnote_no'";
+//		print $sql."<br>\n";
+		if($query->sql($sql)) {
+			return $creditnote_no;
+		}
+		// insert failed - try again
+		else {
+			$creditnote_no = $this->getNewCreditnoteNumber();
+		}
+
+		return false;
+	}
+
+
+	// delete unused creditnote number (if order cancellation fails)
+	function deleteCreditnoteNumber($creditnote_no) {
+		$query = new Query();
+
+		$sql = "DELETE FROM ".$this->db_cancelled_orders." WHERE creditnote_no='$creditnote_no'";
 		if($query->sql($sql)) {
 			return true;
 		}
@@ -1384,6 +1430,85 @@ class ShopCore extends Model {
 	}
 
 
+	function getUnpaidOrders($_options=false) {
+		
+		// get all unpaid orders for user_id
+		$user_id = session()->value("user_id");
+
+		// get all unpaid orders containing item_id
+		$item_id = false;
+		$itemtype = false;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"           : $item_id             = $_value; break;
+					case "itemtype"          : $itemtype            = $_value; break;
+				}
+			}
+		}
+
+
+		$query = new Query();
+
+
+		if($user_id) {
+
+			if($itemtype) {
+
+				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE orders.user_id=$user_id AND orders.payment_status != 2 AND orders.status != 3 AND order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
+//				print $sql;
+				$query->sql($sql);
+				return $query->results();
+
+			}
+			// get all unpaid orders with item_id in it
+			else if($item_id) {
+
+				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as items WHERE orders.user_id=$user_id AND orders.payment_status != 2 AND orders.status != 3 AND orders.id = items.order_id AND items.item_id = $item_id GROUP BY order_id";
+	//			print $sql;
+				$query->sql($sql);
+				return $query->results();
+
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db_orders." WHERE user_id=$user_id AND payment_status != 2 AND status != 3 ORDER BY id DESC";
+//				print $sql;
+				$query->sql($sql);
+				return $query->results();
+			}
+
+		}
+
+		return false;
+	}
+
+	// get credit note number associated with cancelled order
+	function getCreditnoteNo($_options = false) {
+
+		$user_id = session()->value("user_id");
+		$order_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "order_id"          : $order_id            = $_value; break;
+				}
+			}
+		}
+
+		if($order_id) {
+			$query = new Query();
+			$sql = "SELECT * FROM ".$this->db_cancelled_orders." WHERE order_id = $order_id LIMIT 1";
+			$query->sql($sql);
+
+			return $query->result(0, "creditnote_no");
+		}
+
+		return false;
+	}
+
 	function selectPaymentMethod($action) {
 
 		global $page;
@@ -1497,6 +1622,8 @@ class ShopCore extends Model {
 
 	}
 
+
+
 	// PAYMENTS
 
 	function getPayments($_options=false) {
@@ -1534,6 +1661,35 @@ class ShopCore extends Model {
 				return $query->results();
 			}
 
+		}
+
+		return false;
+	}
+
+
+	// check if we have gateway user info (indicates we can charge)
+	function canBeCharged($_options = false) {
+
+		$user_id = session()->value("user_id");
+		$gateway = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "gateway"           : $gateway             = $_value; break;
+				}
+			}
+		}
+
+		if($gateway == "stripe") {
+
+			include_once("classes/shop/gateways/janitor_stripe.class.php");
+			$GC = new JanitorStripe();
+
+			$customer_id = $GC->getCustomerId($user_id);
+			if($customer_id) {
+				return true;
+			}
 		}
 
 		return false;

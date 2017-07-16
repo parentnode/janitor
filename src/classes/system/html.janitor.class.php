@@ -1313,7 +1313,7 @@ class JanitorHTML {
 	
 			// orders not available for guest user
 			if(defined("SITE_SHOP") && SITE_SHOP):
-				$_ .= $HTML->link("Orders", "/janitor/admin/profile/orders", array("wrapper" => "li.orders".($selected == "orders" ? ".selected" : "")));
+				$_ .= $HTML->link("Orders", "/janitor/admin/profile/orders/list", array("wrapper" => "li.orders".($selected == "orders" ? ".selected" : "")));
 			endif;
 
 			// subscriptions not available for guest user

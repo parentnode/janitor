@@ -2,8 +2,12 @@
 global $action;
 global $model;
 
+
 $order_id = $action[2];
 $order = $model->getOrders(array("order_id" => $action[2]));
+
+$this->pageTitle("Order ".$order["order_no"]);
+
 //print_r($order);
 
 include_once("classes/users/superuser.class.php");
@@ -21,14 +25,25 @@ else {
 	$billing_address_options = array("" => "No addresses");
 }
 
-$payments = $model->getPayments(array("order_id" => $order["id"]));
 
+$payments = $model->getPayments(array("order_id" => $order["id"]));
 $total_order_price = $model->getTotalOrderPrice($order["id"]);
+
+$total_payments = 0;
+// if order is not paid, sum up all payments
+if($order["payment_status"] < 2 && $payments) {
+	foreach($payments as $payment) {
+		$total_payments += $payment["payment_amount"];
+	}
+}
+// then calculate total remaining payment
+$payable_amount = $total_order_price["price"]-$total_payments;
+
+
+$reminders = $model->getPaymentReminders(["order_id" =>$order["id"]]);
 
 $return_to_orderstatus = session()->value("return_to_orderstatus");
 
-
-$payment_methods = $this->paymentMethods();
 ?>
 <div class="scene i:scene defaultEdit shopView orderView">
 	<h1><?= ($order["status"] < 2 ? "Edit" : "View") ?> order</h1>
@@ -38,10 +53,6 @@ $payment_methods = $this->paymentMethods();
 		<?= $HTML->link("Order list", "/janitor/admin/shop/order/list/".$return_to_orderstatus, array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->link("User orders", "/janitor/admin/user/orders/".$order["user_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
 
-		<? if($order["user_id"] == session()->value("user_id")): ?>
-			<?= $HTML->link("Your orders", "/janitor/admin/profile/orders", array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<? endif; ?>
-
 		<? if($order["status"] == 0 || $order["status"] == 1): ?>
 		<?= $JML->oneButtonForm("Cancel order", "/janitor/admin/shop/cancelOrder/".$order["id"]."/".$order["user_id"], array(
 			"wrapper" => "li.delete",
@@ -50,11 +61,15 @@ $payment_methods = $this->paymentMethods();
 			"success-location" => "/janitor/admin/shop/order/list/3"
 		)) ?>
 		<? else: ?>
-		<?= $HTML->link("Invoice", "/janitor/admin/shop/orders/invoice/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice")) ?>
+		<?= $HTML->link("Invoice", "/janitor/admin/shop/order/invoice/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice", "target" => "blank")) ?>
 		<? endif; ?>
 
 		<? if($order["status"] == 3): ?>
-		<?= $HTML->link("Credit note", "/janitor/admin/shop/orders/creditnote/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice")) ?>
+		<?= $HTML->link("Credit note", "/janitor/admin/shop/order/creditnote/".$order["id"], array("class" => "button primary", "wrapper" => "li.creditnote", "target" => "blank")) ?>
+		<? endif; ?>
+
+		<? if($order["payment_status"] < 2 && $order["status"] != 3): ?>
+		<?= $HTML->link("Pay order", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.pay")) ?>
 		<? endif; ?>
 
 		<? if($order["shipping_status"] < 2 && $order["status"] != 3): ?>
@@ -246,12 +261,9 @@ $payment_methods = $this->paymentMethods();
 
 	<div class="payments i:defaultList i:collapseHeader">
 		<h2>Payments</h2>
-		<? 
-		$total_payments = 0;
-		if($payments): ?>
+		<? if($payments): ?>
 		<ul class="payment items">
 			<? foreach($payments as $payment):
-				$total_payments += $payment["payment_amount"];
 				$payment["payment_method"] = $this->paymentMethods($payment["payment_method"]); ?>
 			<li class="item">
 				<dl class="list">
@@ -271,32 +283,16 @@ $payment_methods = $this->paymentMethods();
 		<p>No payments</p>
 		<? endif; ?>
 
-		<? if($order["payment_status"] < 2): ?>
 
-		<div class="missing_payment">
-			<h3>Still to be paid</h3>
-			<p><?= formatPrice(array("price" => ($total_order_price["price"] - $total_payments), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"])) ?></p>
-		</div>
-
+<? if($order["payment_status"] < 2): ?>
+		<h3>Still to be paid: <span class="system_error"><?= formatPrice(array("price" => ($payable_amount), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"])) ?></span></h3>
+	<? if($reminders): ?>
+		<p>Reminded <?= pluralize(count($reminders), "time", "times") ?>, Last on <?= date("Y-m-d H:i", strtotime($reminders[0]["created_at"])); ?></p>
+	<? endif; ?>
 		<ul class="actions">
-			<?= $HTML->link("Add manuel payment", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.manuel_payment")) ?>
-
-			<? foreach($payment_methods as $payment_method): ?>
-				<? if($payment_method["gateway"] && $model->canBeCharged(["user_id" => $order["user_id"], "gateway" => $payment_method["gateway"]])): ?>
-					<?= $JML->oneButtonForm("Charge ".formatPrice(array("price" => ($total_order_price["price"] - $total_payments), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"]))." from ".$payment_method["name"] . " (".$payment_method["gateway"].")", "/janitor/admin/shop/chargeRemainingOrderPayment", array(
-						"inputs" => array("order_id" => $order["id"], "payment_method" => $payment_method["id"]),
-						"confirm-value" => "Are you sure?",
-						"success-location" => "/janitor/admin/shop/order/edit/".$order_id,
-						"class" => "primary",
-						"name" => "charge",
-						"wrapper" => "li.charge.".$payment_method["classname"],
-					)) ?>
-				<? endif; ?>
-			</li>
-			<? endforeach; ?>
+			<?= $HTML->link("Pay order", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.pay")) ?>
 		</ul>
-
-		<? endif; ?>
+<? endif; ?>
 
 	</div>
 

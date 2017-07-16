@@ -61,6 +61,11 @@ class TypeMembership extends Itemtype {
 
 	}
 
+	function shipped($order_item_id, $order) {
+
+		// print "\n<br>###$order_item_id### shipped\n<br>";
+
+	}
 
 	// user subscribed to an item
 	function subscribed($subscription) {

@@ -48,7 +48,7 @@ if(is_array($action) && count($action)) {
 
 
 	// CONTENT OVERVIEW
-	if(preg_match("/^(content|orders|readstates)$/", $action[0])) {
+	if(preg_match("/^(content|readstates)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",
@@ -57,6 +57,20 @@ if(is_array($action) && count($action)) {
 		exit();
 	}
 
+	// ADDRESS
+	else if(preg_match("/^(orders)$/", $action[0]) && count($action) >= 2) {
+
+		// SUBSCRIPTIONS LIST
+		if(preg_match("/^(list|view|invoice|creditnote)$/", $action[1])) {
+
+			$page->page(array(
+				"type" => "janitor",
+				"templates" => "janitor/profile/orders/".$action[1].".php"
+			));
+			exit();
+ 		}
+
+	}
 	// ADDRESS
 	else if(preg_match("/^(address)$/", $action[0]) && count($action) >= 2) {
 

@@ -6,43 +6,49 @@ $user_id = $action[1];
 
 $item = $model->getUsers(["user_id" => $user_id]);
 
+// do not attempt to get cancelled or non-existent users
+if($item && $item["status"] >= 0) {
 
-// get user_groups for select
-$user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_group");
+	// get user_groups for select
+	$user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_group");
 
-// get languages for select
-$language_options = $model->toOptions($this->languages(), "id", "name");
+	// get languages for select
+	$language_options = $model->toOptions($this->languages(), "id", "name");
 
-// get existing usernames
-$mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
-$email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
+	// get existing usernames
+	$mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
+	$email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
 
-// get password state
-$has_password = $model->hasPassword($user_id);
+	// get password state
+	$has_password = $model->hasPassword($user_id);
 
-// get api token
-$apitoken = $model->getToken($user_id);
+	// get api token
+	$apitoken = $model->getToken($user_id);
 
-// get addresses
-$addresses = $model->getAddresses(array("user_id" => $user_id));
+	// get addresses
+	$addresses = $model->getAddresses(array("user_id" => $user_id));
 
-// get newsletters
-$all_newsletters = $this->newsletters();
-$user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
+	// get newsletters
+	$all_newsletters = $this->newsletters();
+	$user_newsletters = $model->getNewsletters(array("user_id" => $user_id));
 
 
-$unpaid_orders = false;
-if(defined("SITE_SHOP") && SITE_SHOP) {
-	include_once("classes/shop/supershop.class.php");
-	$SC = new SuperShop();
+	$unpaid_orders = false;
+	if(defined("SITE_SHOP") && SITE_SHOP) {
+		include_once("classes/shop/supershop.class.php");
+		$SC = new SuperShop();
 
-	$unpaid_orders = $SC->getUnpaidOrders(["user_id" => $user_id]);
+		$unpaid_orders = $SC->getUnpaidOrders(["user_id" => $user_id]);
+	}
+	
 }
 
 
 ?>
 <div class="scene i:scene defaultEdit userEdit">
 	<h1>Edit user</h1>
+
+<? if($item && $item["status"] >= 0): ?>
 	<h2><?= $item["nickname"] ?></h2>
 
 	<ul class="actions i:defaultEditActions">
@@ -56,15 +62,17 @@ if($user_id != 1): ?>
 		)) ?>
 <? endif; ?>
 <?
-// do not allow to cancel Anonymous user
-if($user_id != 1 && !$unpaid_orders): ?>
+// do not allow to cancel user with unpaid orders
+if($unpaid_orders): ?>
+		<?= $HTML->link("Unpaid orders", "/janitor/admin/user/orders/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
+<? 
+// or Anonymous user
+elseif($user_id != 1): ?>
 		<?= $JML->oneButtonForm("Cancel account", "/janitor/admin/user/cancel/".$user_id, array(
 			"wrapper" => "li.cancel",
 			"confirm-value" => "This will anonymise the account. Permanently! Irreversibly!",
 			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
 		)) ?>
-<? elseif($unpaid_orders): ?>
-		<?= $HTML->link("Unpaid orders", "/janitor/admin/user/orders/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 <? endif; ?>
 	</ul>
 
@@ -251,5 +259,26 @@ if($user_id != 1): ?>
 <?		endif; ?>
 	</div>
 <? endif; ?>
+
+<? else: ?>
+
+	<ul class="actions i:defaultEditActions">
+		<?= $HTML->link("All users", "/janitor/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.list")) ?>
+	</ul>
+
+	<? if($item && $item["status"] == -1): ?>
+
+
+		<p>The user account has been cancelled.</p>
+
+
+	<? else: ?>
+
+		<p>The user does not exist.</p>
+
+	<? endif; ?>
+
+<? endif; ?>
+
 
 </div>

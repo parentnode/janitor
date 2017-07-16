@@ -33,7 +33,7 @@ if(is_array($action) && count($action)) {
 	if(count($action) > 1 && preg_match("/^(order)$/", $action[0])) {
 
 		// LIST/EDIT/NEW
-		if(preg_match("/^(list|edit)$/", $action[1])) {
+		if(preg_match("/^(list|edit|invoice|creditnote)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",
@@ -68,7 +68,7 @@ if(is_array($action) && count($action)) {
 				$page->page(array(
 					"type" => "janitor",
 					"body_class" => "orders", 
-					"page_title" => "Orders",
+					"page_title" => "Payment",
 					"templates" => "janitor/shop/order/payment/".$action[2].".php"
 				));
 				exit();
@@ -123,7 +123,7 @@ if(is_array($action) && count($action)) {
 	else if(preg_match("/^(payment)$/", $action[0])) {
 
 		// LIST/NEW
-		if(preg_match("/^(list|new)$/", $action[1])) {
+		if(preg_match("/^(list)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",

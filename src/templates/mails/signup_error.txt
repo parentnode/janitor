@@ -1,3 +1,5 @@
+SUBJECT:Your signup on {SITE_NAME}
+
 Thank you for signing up, but ...
 
 Something went bonkers on our end!?

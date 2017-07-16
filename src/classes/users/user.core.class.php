@@ -674,67 +674,105 @@ class UserCore extends Model {
 			$sql = "SELECT user_id FROM ".SITE_DB.".user_passwords as passwords WHERE passwords.user_id = $user_id AND password='".sha1($password)."'";
 //			print $sql;
 
+
+
 			if($query->sql($sql)) {
 
-				// Update name to "Anonymous" and remove all privileges
-				$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
-				if($query->sql($sql)) {
 
-					// delete usernames
-					$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete password
-					$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-					// delete password reset tokens
-					$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete addresses
-					$sql = "DELETE FROM ".$this->db_addresses." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete api tokens
-					$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete newsletters
-					$sql = "DELETE FROM ".$this->db_newsletters." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete membership
-					if(SITE_MEMBERS) {
-						$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-					}
-
-					// delete subscriptions
-					if(SITE_SUBSCRIPTIONS) {
-						$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-					}
-
-					// delete readstates
-					$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-
-					// delete carts
-					if(SITE_SHOP) {
-						$SC = new Shop();
-						$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-					}
-
-					// reset user session
-					session()->reset();
-
-					return true;
+				// check for unpaid orders
+				$unpaid_orders = false;
+				if(defined("SITE_SHOP") && SITE_SHOP) {
+					include_once("classes/shop/shop.core.class.php");
+					$SC = new Shop();
+					$unpaid_orders = $SC->getUnpaidOrders();
 
 				}
 
-				return false;
+
+				// do not allow to cancel users with unpaid orders
+				if(!$unpaid_orders) {
+
+					// WHEN UPDATING - ALSO UPDATE SUPERUSER VERSION
+					// Update name to "Anonymous" and remove all privileges
+					$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
+					if($query->sql($sql)) {
+
+						// delete usernames
+						$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete activation reminders
+						$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete password
+						$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+						// delete password reset tokens
+						$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete addresses
+						$sql = "DELETE FROM ".$this->db_addresses." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete api tokens
+						$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete newsletters
+						$sql = "DELETE FROM ".$this->db_newsletters." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete readstates
+						$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete membership
+						if(SITE_MEMBERS) {
+							$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+						}
+
+						// delete subscriptions
+						if(SITE_SUBSCRIPTIONS) {
+							$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+						}
+
+						// delete carts
+						if(SITE_SHOP) {
+							$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+
+							// we should also delete user account at gateway
+							// TODO: keep updated when more gateways are added
+							include_once("classes/shop/gateways/janitor_stripe.class.php");
+							$GC = new JanitorStripe();
+							$payment_methods = $page->paymentMethods();
+
+							foreach($payment_methods as $payment_method) {
+
+								if($payment_method["gateway"] == "stripe") {
+
+									$GC->deleteCustomer($user_id);
+
+								}
+
+							}
+						}
+
+						// reset user session
+						session()->reset();
+
+						return true;
+
+					}
+
+				}
+
+				return array("error" => "unpaid_orders");;
 
 			}
 

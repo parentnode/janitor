@@ -24,11 +24,19 @@ $order_options = $model->toOptions($orders, "id", "order_no", array("add" => arr
 
 ?>
 <div class="scene i:scene defaultNew newPayment">
-	<h1>New manual payment</h1>
+	<h1>New payment</h1>
 
 	<ul class="actions">
 		<?= $HTML->link("Back to payments", "/janitor/admin/shop/payment/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
+
+	<p>
+		Please search and find the related order. (A payment must be related to an order.)
+	</p>
+	<?
+	// TODO: implement order search, which redirects to shop/order/payment/new/#order_id# (the only payment form to maintain)
+	// OLD MANUAL PAYMENT FORM
+	?>	
 
 	<?= $model->formStart("/janitor/admin/shop/addPayment", array("class" => "i:defaultPayment labelstyle:inject")) ?>
 		<fieldset>
@@ -37,7 +45,8 @@ $order_options = $model->toOptions($orders, "id", "order_no", array("add" => arr
 				"required" => true,
 				"options" => $order_options,
 				"value" => $order_id,
-				"hint_message" => "Select order to associate payment with"
+				"hint_message" => "Select order to associate payment with.",
+				"error_message" => "A payment must be associated with an order."
 			)) ?>
 
 			<?= $model->input("currency", array(

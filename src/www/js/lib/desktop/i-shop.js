@@ -316,39 +316,40 @@ Util.Objects["orderItemsList"] = new function() {
 	}
 }
 
-
-// default new form
-Util.Objects["defaultPayment"] = new function() {
-	this.init = function(form) {
-		u.bug("defaultPayment:" + u.nodeId(form));
-
-		u.f.init(form);
-
-		if(form.actions["cancel"]) {
-			form.actions["cancel"].clicked = function(event) {
-				location.href = this.url;
-			}
-		}
-
-		form.submitted = function(iN) {
-
-			this.response = function(response) {
-				if(response.cms_status == "success" && response.cms_object) {
-
-					if(this.actions["cancel"]) {
-//						u.bug("match cancel")
-						this.actions["cancel"].clicked();
-					}
-
-				}
-				else {
-					page.notify(response);
-				}
-			}
-//			u.bug("params:"+u.f.getParams(this))
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
-
-		}
-
-	}
-}
+//
+// // registerPayment form
+// Util.Objects["registerPayment"] = new function() {
+// 	this.init = function(div) {
+// 		u.bug("registerPayment:" + u.nodeId(div));
+//
+// 		var form = u.qs("form", div);
+// 		u.f.init(form);
+//
+// 		if(form.actions["cancel"]) {
+// 			form.actions["cancel"].clicked = function(event) {
+// 				location.href = this.url;
+// 			}
+// 		}
+//
+// 		form.submitted = function(iN) {
+//
+// 			this.response = function(response) {
+// 				if(response.cms_status == "success" && response.cms_object) {
+//
+// 					if(this.actions["cancel"]) {
+// //						u.bug("match cancel")
+// 						this.actions["cancel"].clicked();
+// 					}
+//
+// 				}
+// 				else {
+// 					page.notify(response);
+// 				}
+// 			}
+// //			u.bug("params:"+u.f.getParams(this))
+// 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+//
+// 		}
+//
+// 	}
+// }

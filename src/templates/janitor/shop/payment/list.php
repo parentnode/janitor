@@ -8,7 +8,7 @@ $payments = $model->getPayments();
 	<h1>Payments</h1>
 
 	<ul class="actions">
-		<?= $HTML->link("New payment", "/janitor/admin/shop/payment/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
+		<?//= $HTML->link("New payment", "/janitor/admin/shop/payment/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("Carts", "/janitor/admin/shop/cart/list", array("class" => "button", "wrapper" => "li.carts")) ?>
 		<?= $HTML->link("Orders", "/janitor/admin/shop/order/list", array("class" => "button", "wrapper" => "li.orders")) ?>
 	</ul>

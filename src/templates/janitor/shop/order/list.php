@@ -49,7 +49,13 @@ session()->value("return_to_orderstatus", $status);
 		<ul class="items orders">
 			<? foreach($orders as $order): ?>
 			<li class="item order">
-				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)</h3>
+				<h3>
+					<?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)
+				
+					<? if(!isset($order["user"]) || !$order["items"]): ?>
+					- <span class="system_error">INCOMPLETE ORDER</span>
+					<? endif; ?>				
+				</h3>
 
 				<dl class="info">
 					<dt class="created_at">Created at</dt>
@@ -57,14 +63,14 @@ session()->value("return_to_orderstatus", $status);
 
 				<? if($status === "all"): ?>
 					<dt class="status">Status</dt>
-					<dd class="status"><?= $model->order_statuses[$order["status"]] ?></dd>
+					<dd class="status <?= superNormalize($model->order_statuses[$order["status"]]) ?>"><?= $model->order_statuses[$order["status"]] ?></dd>
 				<? endif; ?>
 
 				<? if($status == 1 || $status === "all"): ?>
 					<dt class="payment_status">Payment status</dt>
-					<dd class="payment_status<?= $order["payment_status"] < 2 ? " missing" : "" ?>"><?= $model->payment_statuses[$order["payment_status"]] ?></dd>
+					<dd class="payment_status <?= ["unpaid", "partial", "paid"][$order["payment_status"]] ?>"><?= $model->payment_statuses[$order["payment_status"]] ?></dd>
 					<dt class="shipping_status">Shipping status</dt>
-					<dd class="shipping_status<?= $order["shipping_status"] < 2 ? " missing" : "" ?>"><?= $model->shipping_statuses[$order["shipping_status"]] ?></dd>
+					<dd class="shipping_status <?= ["unshipped", "partial", "shipped"][$order["shipping_status"]] ?>"><?= $model->shipping_statuses[$order["shipping_status"]] ?></dd>
 				<? endif; ?>
 
 					<dt class="price">Total price</dt>
@@ -86,10 +92,6 @@ session()->value("return_to_orderstatus", $status);
 
 				<? endif; ?>
 				</dl>
-
-				<? if(!isset($order["user"]) || !$order["items"]): ?>
-					<p class="error">INCOMPLETE ORDER</p>
-				<? endif; ?>
 
 				<ul class="actions">
 					<?= $HTML->link(($status < 2 ? "Edit" : "View"), "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>

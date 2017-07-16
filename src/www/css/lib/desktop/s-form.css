@@ -204,26 +204,27 @@ ul.actions a.button,
 ul.actions input.button,
 ul.actions a.button,
 #content ul.actions a.button {font-size: 1rem; line-height: 1.2em; background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px;}
-
 ul.actions input.button:hover,
-ul.actions a.button:hover {background-color: #313942;}
+ul.actions a.button:hover,
+#content ul.actions a.button:hover {background-color: #313942;}
 
 
 /* PRIMARY BUTTON */
 ul.actions input.button.primary,
-ul.actions a.button.primary {background-color: #64ad8e;}
-
-
-
+ul.actions a.button.primary,
+#content ul.actions a.button.primary {background-color: #64ad8e;}
 ul.actions input.button.primary:hover,
-ul.actions a.button.primary:hover {background-color: #313942;}
+ul.actions a.button.primary:hover,
+#content ul.actions a.button.primary:hover {background-color: #313942;}
 
 
 /* SECONDARY BUTTON */
 ul.actions input.button.secondary,
-ul.actions a.button.secondary {background-color: #fecd60; color: #9f742c;}
+ul.actions a.button.secondary,
+#content ul.actions a.button.secondary {background-color: #fecd60; color: #9f742c;}
 ul.actions input.button.secondary:hover,
-ul.actions a.button.secondary:hover {background-color: #fed76e;}
+ul.actions a.button.secondary:hover,
+#content ul.actions a.button.secondary:hover {background-color: #fed76e;}
 
 
 
@@ -245,8 +246,13 @@ ul.actions a.button.secondary:hover {background-color: #fed76e;}
 
 
 /* DISABLED BUTTON */
-#content form input.button.disabled,
-#content form input.button.disabled:hover {cursor: default !important; color: #aaaaaa !important; background-color: #eeeeee !important;}
+ul.actions a.button.disabled,
+#content ul.actions a.button.disabled,
+ul.actions input.button.disabled,
+
+ul.actions a.button.disabled:hover,
+#content ul.actions a.button.disabled:hover,
+ul.actions input.button.disabled:hover {cursor: default !important; color: #aaaaaa !important; background-color: #eeeeee !important;}
 
 
 /* HELP - HINT AND ERROR MESSAGES */
