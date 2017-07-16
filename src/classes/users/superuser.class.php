@@ -1633,6 +1633,8 @@ class SuperUser extends User {
 		// does values validate
 		if(count($action) == 1) {
 
+			global $page;
+
 			$query = new Query();
 			$IC = new Items();
 
@@ -1647,13 +1649,10 @@ class SuperUser extends User {
 				$expired_subscriptions = $query->results();
 
 				foreach($expired_subscriptions as $subscription) {
-					// print "<pre>";
-					// print_r($subscription);
-					// print "</pre>";
-
 
 					// get item with subscription method
 					$item = $IC->getItem(["id" => $subscription["item_id"], "extend" => ["subscription_method" => true]]);
+					// Calculate new expiry
 					$new_expiry = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
 					$price = $SC->getPrice($item["item_id"], array("quantity" => 1));
 
@@ -1670,7 +1669,7 @@ class SuperUser extends User {
 
 
 					// add item to order
-					// adding a membership to an order will automatically change the membership
+					// adding a membership to an order will automatically change the membership to match the new order
 					$_POST["quantity"] = 1;
 					$_POST["item_id"] = $item["id"];
 					$_POST["item_price"] = $price["price"];
@@ -1683,22 +1682,33 @@ class SuperUser extends User {
 					if($order) {
 
 
-						// if payment method is stripe and we have the stripe customer_id, the charge the order
+						// CONSIDER: if payment method is stripe and we have the stripe customer_id, then charge the order directly
 
 
+						$page->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
 
-						global $page;
-						$page->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"]);
+					}
+					// Failed to update subscription
+					else {
 
-						return true;
+						$page->mail(array(
+							"subject" => SITE_URL . " - Subscription renewal failed",
+							"message" => "SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"],
+							"template" => "system"
+						));
+
+
+						$page->addLog("SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
+
 					}
 	
 				}
 
 			}
-
+			return true;
 		}
 
+		return false;
 	}
 
 
