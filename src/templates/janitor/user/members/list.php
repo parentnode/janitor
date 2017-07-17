@@ -64,7 +64,7 @@ $members = $model->getMembers($options);
 
 				<? if($member["order"]): ?>
 					<dt class="payment_status">Payment status</dt>
-					<dd class="payment_status<?= $member["order"]["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$member["order"]["payment_status"]] ?></dd>
+					<dd class="payment_status <?= ["unpaid", "partial", "paid"][$member["order"]["payment_status"]] ?>"><?= $SC->payment_statuses[$member["order"]["payment_status"]] ?></dd>
 				<? endif; ?>
 
 				<? if($member["expires_at"]): ?>

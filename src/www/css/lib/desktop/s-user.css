@@ -151,7 +151,18 @@
 
 
 /* MEMBERS */
-#content .defaultList.memberList dd.payment_status.missing {color: #df0000;}
+/*#content .defaultList.memberList dd.payment_status.missing {color: #df0000;}*/
+
+#content .scene.memberList ul.items > li dl.info dd.waiting,
+#content .scene.memberList ul.items > li dl.info dd.partial {color: orange;}
+#content .scene.memberList ul.items > li dl.info dd.pending,
+#content .scene.memberList ul.items > li dl.info dd.unpaid,
+#content .scene.memberList ul.items > li dl.info dd.unshipped {color: #df0000;}
+#content .scene.memberList ul.items > li dl.info dd.complete,
+#content .scene.memberList ul.items > li dl.info dd.paid,
+#content .scene.memberList ul.items > li dl.info dd.shipped {color: green;}
+
+
 #content .defaultEdit.userMember ul.actions li.user {float: right; padding: 0 0 10px 10px;}
 #content .defaultEdit.userMember div.orders {border-bottom: 1px solid #bbbbbb;}
 
