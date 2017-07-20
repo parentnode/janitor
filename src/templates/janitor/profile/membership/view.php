@@ -172,7 +172,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 					"confirm-value" => "Confirm cancellation",
 					"wrapper" => "li.cancel",
 					"class" => "secondary",
-					"success-location" => "/janitor/admin/user/membership/view/".$user_id
+					"success-location" => "/janitor/admin/profile/membership/view"
 				)) ?>
 			</ul>
 		</div>
