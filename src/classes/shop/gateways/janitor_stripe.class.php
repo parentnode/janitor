@@ -234,6 +234,7 @@ class JanitorStripe {
 					// delete customer id after 
 					$this->deleteCustomerId($user_id, $customer_id);
 
+					global $page;
 					$page->addLog("Customer deleted: user_id:".$user_id.", customer_id:".$response->id, "stripe");
 					return true;
 

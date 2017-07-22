@@ -675,7 +675,6 @@ class UserCore extends Model {
 //			print $sql;
 
 
-
 			if($query->sql($sql)) {
 
 
@@ -691,6 +690,8 @@ class UserCore extends Model {
 
 				// do not allow to cancel users with unpaid orders
 				if(!$unpaid_orders) {
+
+					global $page;
 
 					// WHEN UPDATING - ALSO UPDATE SUPERUSER VERSION
 					// Update name to "Anonymous" and remove all privileges
