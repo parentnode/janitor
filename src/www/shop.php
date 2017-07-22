@@ -2,9 +2,9 @@
 $access_item["/"] = true;
 // SUPER SHOP INTERFACE
 
-$access_item["/addPayment"] = true;
-$access_item["/payment/new"] = "/addPayment";
-$access_item["/order/payment/new"] = "/addPayment";
+$access_item["/registerPayment"] = true;
+$access_item["/payment/new"] = "/registerPayment";
+$access_item["/order/payment/new"] = "/registerPayment";
 
 // $access_item["/addCart"] = true;
 // $access_item["/addOrder"] = true;

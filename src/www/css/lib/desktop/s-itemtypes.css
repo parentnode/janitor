@@ -36,7 +36,6 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 */
 #content .scene.wishList div.wishlists {padding: 0 0 50px; border-bottom: 1px solid #aaaaaa;}
 
-/*#content .scene.wishList ul.items > li dl {display: block; padding: 5px 30px;}*/
 #content .scene.wishList ul.items > li dl dt.reserved {display: none;}
 #content .scene.wishList ul.items > li dl dd.reserved {font-size: 14px;}
 

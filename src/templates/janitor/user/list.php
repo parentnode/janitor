@@ -59,19 +59,25 @@ $users = $model->getUsers($options);
 			<li class="item item_id:<?= $item["id"] ?>">
 				<h3><?= $item["nickname"] ?><?= $item["id"] == session()->value("user_id") ? " (YOU)" : "" ?></h3>
 				<dl class="info">
+<? if($item["status"] != -1): ?>
 					<dt>Last login</dt>
 					<dd><?= $item["last_login_at"] ? $item["last_login_at"] : "Never" ?></dd>
+<? else: ?>
+					<dt>Cancelled</dt>
+					<dd><?= $item["modified_at"] ? $item["modified_at"] : "Never" ?></dd>
+<? endif; ?>
 				</dl>
 				<ul class="actions">
+<? if($item["status"] != -1): ?>
 					<?= $HTML->link("Edit", "/janitor/admin/user/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
-
-<? if($item["id"] != 1): ?>
+<? 	if($item["id"] != 1): ?>
 					<? //= $JML->oneButtonForm("Delete", "/janitor/admin/user/delete/".$item["id"], array(
 					//	"js" => true,
 					//	"wrapper" => "li.delete",
 					//	"static" => true
 					// )) ?>
 					<?= $JML->statusButton("Enable", "Disable", "/janitor/admin/user/status", $item) ?>
+<? 	endif; ?>
 <? endif; ?>
 				</ul>
 			 </li>

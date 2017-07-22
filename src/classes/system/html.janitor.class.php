@@ -672,8 +672,8 @@ class JanitorHTML {
 
 			$_ .= '<div class="subscription_method i:defaultSubscriptionmethod i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["subscriptions"]).'>';
 			$_ .= '<h2>Subscription settings</h2>';
-			$_ .= '<dl class="settings">';
-				$_ .= '<dt class="subscription_method">Subscription period:</dt>';
+			$_ .= '<dl class="info">';
+				$_ .= '<dt class="subscription_method">Subscription period</dt>';
 				$_ .= '<dd class="subscription_method">'.($item["subscription_method"] ? $item["subscription_method"]["name"] : "No renewal").'</dd>';
 			$_ .= '</dl>';
 
@@ -932,7 +932,10 @@ class JanitorHTML {
 		$class = "";
 		$name = "confirm";
 		$confirm_value = "Confirm";
+		$wait_value = false;
 		$static = false;
+
+		$dom_submit = false;
 
 		$success_location = false;
 		$success_function = false;
@@ -951,6 +954,8 @@ class JanitorHTML {
 					case "class"                : $class                  = $_value; break;
 					case "name"                 : $name                   = $_value; break;
 					case "confirm-value"        : $confirm_value          = $_value; break;
+					case "wait-value"           : $wait_value             = $_value; break;
+					case "dom-submit"           : $dom_submit             = $_value; break;
 
 					case "success-location"     : $success_location       = $_value; break;
 					case "success-function"     : $success_function       = $_value; break;
@@ -1000,6 +1005,15 @@ class JanitorHTML {
 
 		$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id;
 		$_ .= ' data-confirm-value="'.$confirm_value.'"';
+
+
+		if($dom_submit) {
+			$_ .= ' data-dom-submit="1"';
+		}
+		// custom waiting value (after submit)
+		if($wait_value) {
+			$_ .= ' data-wait-value="'.$wait_value.'"';
+		}
 
 		if($success_location) {
 			$_ .= ' data-success-location="'.$success_location.'"';

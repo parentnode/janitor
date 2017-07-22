@@ -4,19 +4,10 @@
 #content .scene.shopList ul.tabs li.pending {color: red;}
 #content .scene.shopList ul.tabs li.complete {color: green;}
 
-#content .scene.shopList div.all_items ul.items dd.missing {color: #df0000;}
 #content .scene.shopList ul.items > li dl.info dt.price {display: none;}
 #content .scene.shopList ul.items > li dl.info dd.price {position: absolute; top: 10px; right: 100px; font-size: 26px;}
-#content .scene.shopList ul.items > li dl.info dd.waiting,
-#content .scene.shopList ul.items > li dl.info dd.partial {color: orange;}
 
-#content .scene.shopList ul.items > li dl.info dd.pending,
-#content .scene.shopList ul.items > li dl.info dd.unpaid,
-#content .scene.shopList ul.items > li dl.info dd.unshipped {color: #df0000;}
 
-#content .scene.shopList ul.items > li dl.info dd.complete,
-#content .scene.shopList ul.items > li dl.info dd.paid,
-#content .scene.shopList ul.items > li dl.info dd.shipped {color: green;}
 
 
 
@@ -30,17 +21,22 @@
 /* CART/ORDER */
 
 
-/* CART/ORDER DETAILS LISTINGS */
-#content .scene.shopView dl.list {padding-top: 3px; padding-right: 0; padding-bottom: 25px; width: 370px;}
-#content .scene.shopView dl.list dt {width: 120px;}
-#content .scene.shopView dl.list dt:after {content: ":";}
-#content .scene.shopView dl.list dd {width: 250px; margin: 0;}
-
-
 /* CART/ORDER DATA SECTION FORMS */
-#content .scene.shopView > div > form {display: none; padding-top: 10px; padding-bottom: 10px;}
+#content .scene.shopView > div > h2 + form {display: none; padding-top: 10px; padding-bottom: 10px;}
 #content .scene.shopView > div > h2 > span {color: #7d848c; cursor: pointer;}
 #content .scene.shopView > div > h2 > span:before {content: "\00a0-\00a0";}
+
+/* CART/ORDER DETAILS LISTINGS */
+#content .scene.shopView > div > dl.info,
+#content .scene.shopView div.payments dl.info {padding-top: 3px; padding-right: 0; padding-bottom: 25px; width: 370px;}
+#content .scene.shopView > div > dl.info dt,
+#content .scene.shopView > div > dl.info dd, 
+#content .scene.shopView div.payments dl.info dt,
+#content .scene.shopView div.payments dl.info dd {padding: 5px 0; border-bottom: 1px solid #dbdfe5; height: 14px;}
+#content .scene.shopView > div > dl.info dt,
+#content .scene.shopView div.payments dl.info dt {width: 120px; float: none;}
+#content .scene.shopView > div > dl.info dd,
+#content .scene.shopView div.payments dl.info dd {width: 250px; margin: 0; float: none;}
 
 /* CART/ORDER DATA SECTIONS */
 #content .scene.shopView div.basics,
@@ -111,6 +107,10 @@
 
 /* ORDER EDIT */
 #content .scene.orderView {}
+#content .scene.orderView div.orderstatus h2.waiting {color: orange;}
+#content .scene.orderView div.orderstatus h2.pending {color: #df0000;}
+#content .scene.orderView div.orderstatus h2.complete {color: green;}
+	
 #content .scene.orderView div.all_items > ul.items {padding-bottom: 25px;}
 #content .scene.orderView div.orderstatus {border-bottom: 1px solid #bbbbbb;}
 #content .scene.orderView div.comment {border-bottom: 1px solid #bbbbbb;}
@@ -124,7 +124,6 @@
 #content .scene.paymentList ul.items > li dl.info dd.price {right: 140px;}
 
 #content .scene.newPayment div.basics {border-top: 1px solid #bbbbbb;}
-#content .scene.newPayment div.basics,
 #content .scene.newPayment div.charge,
 #content .scene.newPayment div.reminder,
 #content .scene.newPayment div.register {border-bottom: 1px solid #bbbbbb;}
@@ -162,7 +161,7 @@ body.invoice #content div.scene .basics h2 {padding-top: 25px;}
 body.invoice #content div.scene .basics dl.info {padding: 10px 30px;}
 body.invoice #content div.scene .basics dl.info dt {font-weight: 700;}
 body.invoice #content div.scene .basics dl.info dd,
-body.invoice #content div.scene .basics dl.info dt {display: block; padding: 0 0 5px;}
+body.invoice #content div.scene .basics dl.info dt {display: block; float: none; padding: 0 0 5px;}
 
 
 body.invoice #content div.scene .buyer ul.info {padding-bottom: 20px;}

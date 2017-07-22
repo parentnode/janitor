@@ -52,17 +52,7 @@
 
 /* TAG MAINTENANCE PAGE */
 #content .scene.tagList ul.items > li.unused {background: orange;}
-#content .scene.tagList ul.items > li > h3 > span {font-size: 12px;}
-
-
-#content .scene.tagEdit ul.tag_items {padding: 16px 30px;}
-#content .scene.tagEdit ul.tag_items li {display: block; padding: 2px 0;}
-
-#content .scene.tagEdit ul.tag_items dt {display: none;}
-#content .scene.tagEdit ul.tag_items dd.name {font-weight: bold; padding: 0 15px 0 0;}
-#content .scene.tagEdit ul.tag_items dd.name a {font-weight: bold;}
-#content .scene.tagEdit ul.tag_items dd.itemtype:after {content: "/";}
-
+#content .scene.tagList ul.items > li h3 span {font-size: 12px;}
 
 
 

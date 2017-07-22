@@ -39,12 +39,25 @@
 #content ul.list {padding: 21px 30px;}
 #content ul.list li {display: block;}
 
-#content dl.list {padding: 21px 30px; width: 600px;}
-#content dl.list dt,
-#content dl.list dd {padding: 5px 0; border-bottom: 1px solid #dbdfe5; height: 14px;}
-#content dl.list dt {width: 100px;}
-#content dl.list dt:after {content: ":";}
-#content dl.list dd {width: 170px; margin: 0 30px 0 0;}
+
+#content dl.info {overflow: hidden; padding: 0 30px 6px;}
+#content dl.info dt {float: left; clear: left;}
+#content dl.info dt:after {content: ":\00a0";}
+#content dl.info dd {float: left; clear: right; padding: 0 0 3px; color: #313942;}
+
+
+/* INFO LIST */
+#content dl.info dd.waiting,
+#content dl.info dd.partial {color: orange;}
+
+#content dl.info dd.pending,
+#content dl.info dd.unpaid,
+#content dl.info dd.unshipped {color: #df0000;}
+
+#content dl.info dd.complete,
+#content dl.info dd.paid,
+#content dl.info dd.shipped {color: green;}
+
 
 
 /* ACTIONS */

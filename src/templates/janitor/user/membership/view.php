@@ -95,7 +95,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 				<? if($membership["order_id"]): ?>
 			<dt class="payment_status">Payment status</dt>
-			<dd class="payment_status<?= $membership["order"]["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$membership["order"]["payment_status"]] ?></dd>
+			<dd class="payment_status <?= ["unpaid", "partial", "paid"][$membership["order"]["payment_status"]] ?>"><?= $SC->payment_statuses[$membership["order"]["payment_status"]] ?></dd>
 				<? endif; ?>
 
 			<? endif; ?>
@@ -136,7 +136,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 						<dd class="total_price"><?= formatPrice($total_price) ?></dd>
 
 						<dt class="payment_status">Status</dt>
-						<dd class="payment_status<?= $order["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
+						<dd class="payment_status <?= ["unpaid", "partial", "paid"][$order["payment_status"]] ?>"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
 					</dl>
 
 					<ul class="actions">

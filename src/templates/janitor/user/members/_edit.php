@@ -44,7 +44,7 @@ foreach($memberships as $membership) {
 
 		<h3><?= $member["user"]["nickname"] ?><?= $member["user"]["id"] == session()->value("user_id") ? " (YOU)" : "" ?></h3>
 
-		<dl class="list">
+		<dl class="info">
 			<dt class="member_no">Member No</dt>
 			<dd class="member_no"><?= $member["id"] ?></dd>
 
@@ -58,7 +58,7 @@ foreach($memberships as $membership) {
 			<dd class="payment_status<?= ($member["order"] ? ($member["order"]["payment_status"] < 2 ? " missing" : "") : "") ?>"><?= ($member["order"] ? $SC->payment_statuses[$member["order"]["payment_status"]] : "N/A") ?></dd>
 		</dl>
 
-		<dl class="list">
+		<dl class="info">
 			<dt class="created_at">Created at</dt>
 			<dd class="created_at"><?= ($member["created_at"] ? date("d. F, Y", strtotime($member["created_at"])) : "N/A") ?></dd>
 

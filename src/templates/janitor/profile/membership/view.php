@@ -85,7 +85,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 				<? if($membership["order_id"]): ?>
 			<dt class="payment_status">Payment status</dt>
-			<dd class="payment_status<?= $membership["order"]["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$membership["order"]["payment_status"]] ?></dd>
+			<dd class="payment_status <?= ["unpaid", "partial", "paid"][$membership["order"]["payment_status"]] ?>"><?= $SC->payment_statuses[$membership["order"]["payment_status"]] ?></dd>
 				<? endif; ?>
 			<? endif; ?>
 				
@@ -113,15 +113,18 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 						<dt class="total_price">Total price</dt>
 						<dd class="total_price"><?= formatPrice($total_price) ?></dd>
 
-						<dt class="payment_status">Status</dt>
-						<dd class="payment_status"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
+						<dt class="status">Status</dt>
+						<dd class="status <?= superNormalize($SC->order_statuses[$order["status"]]) ?>"><?= $SC->order_statuses[$order["status"]] ?></dd>
+
+						<dt class="payment_status">Payment status</dt>
+						<dd class="payment_status <?= ["unpaid", "partial", "paid"][$order["payment_status"]] ?>"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
 					</dl>
 
 					<ul class="actions">
 						<? if($order["payment_status"] < 2 && $total_price["price"] != 0): ?>
-						<?= $HTML->link("Pay", "/shop/payment/".$order["order_no"], array("class" => "button", "wrapper" => "li.edit")) ?>
+						<?= $HTML->link("Pay", "/shop/payment/".$order["order_no"], array("class" => "button primary", "wrapper" => "li.edit")) ?>
 						<? endif; ?>
-						<?= $HTML->link("View order", "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.order")) ?>
+						<?= $HTML->link("View", "/janitor/admin/profile/orders/view/".$order["id"], array("class" => "button", "wrapper" => "li.order")) ?>
 					</ul>
 				</li>
 				<? endforeach; ?>

@@ -70,7 +70,7 @@ session()->reset("return_to_wishlist");
 	<?			foreach($wishes as $item): ?>
 				<li class="item item_id:<?= $item["id"] ?><?= $JML->jsMedia($item) ?>">
 					<h3><?= $item["name"] ?></h3>
-					<dl>
+					<dl class="info">
 						<dt class="reserved">Reserved</dt>
 						<dd class="reserved"><?= $item["reserved"] ? ($item["reserved"] == 1 ? "Yes" : $item["reserved"]) : "No" ?></dd>
 					</dl>

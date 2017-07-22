@@ -71,7 +71,7 @@ if($cart) {
 			</ul>
 		<?= $model->formEnd() ?>
 
-		<dl class="list">
+		<dl class="info">
 			<dt>Cart reference</dt>
 			<dd><?= $cart["cart_reference"] ?></dd>
 			<dt>Total price</dt>
@@ -106,7 +106,7 @@ if($cart) {
 		<?= $model->formEnd() ?>
 
 		<? if(isset($cart["user"])): ?>
-		<dl class="list">
+		<dl class="info">
 			<dt>Nickname</dt>
 			<dd><?= $cart["user"]["nickname"] ?></dd>
 			<dt>First</dt>
@@ -198,7 +198,7 @@ if($cart) {
 
 
 		<? if($delivery_address): ?>
-		<dl class="list">
+		<dl class="info">
 			<dt>Name</dt>
 			<dd><?= $delivery_address["address_name"] ?></dd>
 			<dt>Att</dt>
@@ -240,7 +240,7 @@ if($cart) {
 
 
 		<? if($billing_address): ?>
-		<dl class="list">
+		<dl class="info">
 			<dt>Name</dt>
 			<dd><?= $billing_address["address_name"] ?></dd>
 			<dt>Att</dt>

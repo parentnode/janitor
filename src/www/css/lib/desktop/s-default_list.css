@@ -44,11 +44,7 @@
 
 /* ADDITIONAL INFO */
 #content div.all_items ul.items > li .description {padding-bottom: 10px; margin-top: -5px; font-size: 12px; line-height: 1em;}
-#content div.all_items ul.items > li dl {overflow: hidden; padding: 0 30px 6px; margin-top: -5px;}
-#content div.all_items ul.items > li dt {float: left; clear: left;}
-#content div.all_items ul.items > li dt:after {content: ":\00a0";}
-#content div.all_items ul.items > li dd {float: left; clear: right; padding: 0 0 3px;}
-
+#content div.all_items ul.items > li dl.info {margin-top: -5px;}
 
 /* ACTIONS ALIGN RIGHT */
 #content div.all_items ul.items > li ul.actions {position: absolute; top: 0px; padding: 0; right: 30px;}

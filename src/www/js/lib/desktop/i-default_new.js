@@ -14,6 +14,8 @@ Util.Objects["defaultNew"] = new function() {
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
+				u.rc(this, "submitting");
+
 				if(response.cms_status == "success" && response.cms_object) {
 //						u.bug("this.action:" + this.action)
 					// u.bug("location.href:" + location.href)
@@ -48,6 +50,8 @@ Util.Objects["defaultNew"] = new function() {
 					page.notify(response);
 				}
 			}
+			u.ac(this, "submitting");
+
 //			u.bug("params:"+u.f.getParams(this))
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
 

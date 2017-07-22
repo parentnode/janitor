@@ -70,7 +70,7 @@ session()->value("return_to_wishlist", $item_id);
 				<li class="item item_id:<?= $item["id"] ?><?= $JML->jsMedia($item) ?>">
 					<div class="drag"></div>
 					<h3><?= $item["name"] ?></h3>
-					<dl>
+					<dl class="info">
 						<dt class="reserved">Reserved</dt>
 						<dd class="reserved"><?= $item["reserved"] ? ($item["reserved"] == 1 ? "Yes" : $item["reserved"]) : "No" ?></dd>
 					</dl>

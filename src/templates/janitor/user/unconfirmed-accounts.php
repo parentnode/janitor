@@ -31,7 +31,7 @@ $users = $model->getUnconfirmedUsers();
 			<li class="item id:<?= $user["user_id"] ?>">
 				<h3><?= $user["nickname"] ?></h3>
 
-				<dl class="details">
+				<dl class="info">
 					<dt class="email">Email</dt>
 					<dd class="email"><?= $user["username"] ?></dd>
 					<dt class="created_at">Created at</dt>

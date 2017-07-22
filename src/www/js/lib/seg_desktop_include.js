@@ -7,6 +7,7 @@ document.write('<script type="text/javascript" src="/js/manipulator/src/u-events
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-events-movements.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-notifier.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-htmleditor.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-form-onebuttonform.js"></script>');
 
 
 

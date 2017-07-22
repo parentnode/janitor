@@ -20,16 +20,13 @@
 
 /* LIST */
 #content div.all_items ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede;}
-#content div.all_items ul.items > li:hover {background-color: #edf0f2;}
+#content div.all_items ul.items > li:active {background-color: #edf0f2;}
 #content div.all_items ul.items > li h3 {padding: 12px 80px 12px 15px;}
 
 
 /* ADDITIONAL INFO */
 #content div.all_items ul.items > li .description {padding-bottom: 15px; margin-top: -10px; font-size: 12px; line-height: 1em;}
-#content div.all_items ul.items > li dl {overflow: hidden; padding: 0 15px 6px; margin-top: -10px;}
-#content div.all_items ul.items > li dt {float: left; clear: left;}
-#content div.all_items ul.items > li dt:after {content: ":\00a0";}
-#content div.all_items ul.items > li dd {float: left; clear: right; padding: 0 0 3px;}
+#content div.all_items ul.items > li dl.info {margin-top: -5px;}
 
 
 /* ACTIONS ALIGN RIGHT */
@@ -39,6 +36,12 @@
 #content div.all_items ul.items > li ul.actions li input.button {height: 24px;}
 #content div.all_items ul.items > li ul.actions li.delete,
 #content div.all_items ul.items > li ul.actions li.status {display: none;}
+
+/* MORE ACTION PADDING IF ROW CONTAINS ADDITIONAL INFO */
+#content div.all_items ul.items > li dl.info+ul.actions li,
+#content div.all_items ul.items > li ul.info+ul.actions li,
+#content div.all_items ul.items > li p+ul.actions li,
+#content div.all_items ul.items > li ul.tags+ul.actions li {padding-top: 10px;}
 
 
 

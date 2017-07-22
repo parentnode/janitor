@@ -69,7 +69,7 @@ $subscriptions = $model->getSubscriptions(array("user_id" => $user_id));
 
 				<? if($subscription["order_id"]): ?>
 					<dt class="payment_status">Payment status</dt>
-					<dd class="payment_status<?= $subscription["order"]["payment_status"] < 2 ? " missing" : "" ?>"><?= $SC->payment_statuses[$subscription["order"]["payment_status"]] ?></dd>
+					<dd class="payment_status <?= ["unpaid", "partial", "paid"][$subscription["order"]["payment_status"]] ?>"><?= $SC->payment_statuses[$subscription["order"]["payment_status"]] ?></dd>
 				<? endif; ?>
 
 
@@ -93,8 +93,6 @@ $subscriptions = $model->getSubscriptions(array("user_id" => $user_id));
 					)) ?>
 				<? else: ?>
 					<?= $HTML->link("View", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
-
-
 				<? endif; ?>
 				</ul>
 

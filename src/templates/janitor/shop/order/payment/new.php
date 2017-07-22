@@ -50,7 +50,7 @@ foreach($payment_methods as $payment_method) {
 $payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
 
 ?>
-<div class="scene i:scene defaultEdit newPayment">
+<div class="scene i:scene defaultEdit shopView newPayment">
 	<h1>New payment</h1>
 	<h2>Order: <?= $order["order_no"] ?></h2>
 
@@ -63,7 +63,7 @@ $payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
 
 	<div class="basics i:collapseHeader">
 		<h2>Details</h2>
-		<dl class="list">
+		<dl class="info">
 			<dt>Order No.</dt>
 			<dd><?= $order["order_no"] ?></dd>
 			<dt>Total price</dt>
@@ -122,7 +122,6 @@ $payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
 			<?= $model->input("order_id", array("type" => "hidden", "value" => $order_id)) ?>
 			<?= $model->input("return_to", array("type" => "hidden", "value" => "/janitor/admin/shop/order/edit/".$order_id)) ?>
 			<fieldset>
-
 				<?= $model->input("payment_method", array(
 					"type" => "select",
 					"options" => $model->toOptions($payment_sources, "id", "name"),

@@ -157,10 +157,7 @@
 
 /* SUBSCRIPTIONS */
 #content .scene.defaultEdit > div.subscription_method {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
-#content .scene.defaultEdit > div.subscription_method dl.settings {padding: 0 30px 20px;}
-#content .scene.defaultEdit > div.subscription_method dl.settings dt,
-#content .scene.defaultEdit > div.subscription_method dl.settings dd {display: block; font-size: 13px; line-height: 1.38em;}
-#content .scene.defaultEdit > div.subscription_method dl.settings dt {color: #313942;}
+#content .scene.defaultEdit > div.subscription_method dl.info {padding-bottom: 20px;}
 #content .scene.defaultEdit > div.subscription_method ul.actions.change {padding-bottom: 10px;}
 #content .scene.defaultEdit > div.subscription_method div.change_subscription_method {display: none;}
 #content .scene.defaultEdit > div.subscription_method form {padding-bottom: 10px; padding-top: 5px;}

@@ -85,15 +85,15 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 	</ul>
 
 	<div class="orderstatus i:collapseHeader">
-		<h2>Status</h2>
+		<h2 class="<?= superNormalize($model->order_statuses[$order["status"]]) ?>">Status</h2>
 
-		<dl class="list <?= superNormalize($model->order_statuses[$order["status"]]) ?>">
+		<dl class="info">
 			<dt class="status">Status</dt>
-			<dd class="status"><?= $model->order_statuses[$order["status"]] ?></dd>
+			<dd class="status <?= superNormalize($model->order_statuses[$order["status"]]) ?>"><?= $model->order_statuses[$order["status"]] ?></dd>
 			<dt class="payment_status">Payment status</dt>
-			<dd class="payment_status"><?= $model->payment_statuses[$order["payment_status"]] ?></dd>
+			<dd class="payment_status <?= ["unpaid", "partial", "paid"][$order["payment_status"]] ?>"><?= $model->payment_statuses[$order["payment_status"]] ?></dd>
 			<dt class="shipping_status">Shipping status</dt>
-			<dd class="shipping_status"><?= $model->shipping_statuses[$order["shipping_status"]] ?></dd>
+			<dd class="shipping_status <?= ["unshipped", "partial", "shipped"][$order["shipping_status"]] ?>"><?= $model->shipping_statuses[$order["shipping_status"]] ?></dd>
 		</dl>
 	</div>
 
@@ -121,7 +121,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<?= $model->formEnd() ?>
 		<? endif; ?>
 
-		<dl class="list">
+		<dl class="info">
 			<dt>Order No.</dt>
 			<dd><?= $order["order_no"] ?></dd>
 			<dt>Total price</dt>
@@ -139,7 +139,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 
 	<div class="contact i:collapseHeader">
 		<h2>Contact</h2>
-		<dl class="list">
+		<dl class="info">
 			<dt>Nickname</dt>
 			<dd><?= $order["user"]["nickname"] ?></dd>
 			<dt>First</dt>
@@ -266,7 +266,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 			<? foreach($payments as $payment):
 				$payment["payment_method"] = $this->paymentMethods($payment["payment_method"]); ?>
 			<li class="item">
-				<dl class="list">
+				<dl class="info">
 					<dt class="created_at">Created at</dt>
 					<dd class="created_at"><?= $payment["created_at"] ?></dd>
 					<dt class="price">Payment</dt>
@@ -284,7 +284,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<? endif; ?>
 
 
-<? if($order["payment_status"] < 2): ?>
+<? if($order["payment_status"] < 2 && $order["status"] != 3): ?>
 		<h3>Still to be paid: <span class="system_error"><?= formatPrice(array("price" => ($payable_amount), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"])) ?></span></h3>
 	<? if($reminders): ?>
 		<p>Reminded <?= pluralize(count($reminders), "time", "times") ?>, Last on <?= date("Y-m-d H:i", strtotime($reminders[0]["created_at"])); ?></p>
@@ -314,7 +314,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<?= $model->formEnd() ?>
 		<? endif; ?>
 
-		<dl class="list">
+		<dl class="info">
 			<dt>Name</dt>
 			<dd><?= $order["delivery_name"] ?></dd>
 			<dt>Att</dt>
@@ -350,7 +350,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<?= $model->formEnd() ?>
 		<? endif; ?>
 
-		<dl class="list">
+		<dl class="info">
 			<dt>Name</dt>
 			<dd><?= $order["billing_name"] ?></dd>
 			<dt>Att</dt>

@@ -29,10 +29,11 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 		<?= $model->formEnd() ?>
 	</div>
 
-	<h2>Items with tag</h2>
-	<div class="tag_items">
+
+	<div class="all_items">
+		<h2>Items with tag</h2>
 <? 		if($tag["items"]): ?>
-		<ul class="tag_items">
+		<ul class="items">
 <? 			foreach($tag["items"] as $item):
 				$item = $IC->extendItem($item);
 				
@@ -49,21 +50,20 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 					$path = false;
 				}
 ?>
-			<li>
-				<dl>
-					<dt class="name">Name</dt>
-					<dd class="name">
-						<? if($this->validatePath($path."/edit")) { ?>
-							<a href="<?= $path ?>/edit/<?= $item["item_id"] ?>"><?= $item["name"] ?></a>
-						<? } else { ?>
-							<?= $item["name"] ?>
-						<? } ?>
-					</dd>
+			<li class="item">
+				<h3><?= $item["name"] ?></h3>
+				<dl class="info">
 					<dt class="itemtype">Itemtype</dt>
 					<dd class="itemtype"><?= $item["itemtype"] ?></dd>
 					<dt class="status">Status</dt>
 					<dd class="status"><?= $item["status"] ? "enabled" : "disabled" ?></dd>
 				</dl>
+			<ul class="actions">
+<? if($this->validatePath($path."/edit")): ?>
+				<?= $model->link("Edit", $path."/edit/".$item["item_id"], array("class" => "button", "wrapper" => "li.edit")) ?>
+<? endif; ?>
+			</ul>
+				
 			</li>
 <? 			endforeach; ?>
 		</ul>

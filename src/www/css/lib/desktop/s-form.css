@@ -218,6 +218,16 @@ ul.actions a.button.primary:hover,
 #content ul.actions a.button.primary:hover {background-color: #313942;}
 
 
+.submitting input.button,
+.submitting a.button,
+#content .submitting a.button {padding-left: 40px !important;
+	background-image: url(/janitor/admin/img/gx_loader.gif);
+	background-position: 9px 7px;
+	background-repeat: no-repeat;
+}
+
+
+
 /* SECONDARY BUTTON */
 ul.actions input.button.secondary,
 ul.actions a.button.secondary,
