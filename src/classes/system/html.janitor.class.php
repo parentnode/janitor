@@ -1179,6 +1179,88 @@ class JanitorHTML {
 
 
 
+	// TABSET FOR USER AND PROFILE PAGE
+
+	// HTML for tabs for user templates
+	function userTabs($user_id, $selected) {
+		global $HTML;
+
+		$_ = '';
+		
+		$_ .= '<ul class="tabs">';
+			$_ .= $HTML->link("Profile", "/janitor/admin/user/edit/".$user_id, array("wrapper" => "li.profile".($selected == "profile" ? ".selected" : "")));
+
+			if(defined("SITE_ITEMS") && SITE_ITEMS):
+				$_ .= $HTML->link("Content", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content".($selected == "content" ? ".selected" : "")));
+
+				// readstates not available for guest user
+				if($user_id != 1):
+					$_ .= $HTML->link("Readstates", "/janitor/admin/user/readstates/".$user_id, array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
+				endif;
+
+			endif;
+	
+			// orders not available for guest user
+			if(defined("SITE_SHOP") && SITE_SHOP && $user_id != 1):
+				$_ .= $HTML->link("Orders", "/janitor/admin/user/orders/".$user_id, array("wrapper" => "li.orders".($selected == "orders" ? ".selected" : "")));
+			endif;
+
+			// subscriptions not available for guest user
+			if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS && $user_id != 1):
+				$_ .= $HTML->link("Subscriptions", "/janitor/admin/user/subscription/list/".$user_id, array("wrapper" => "li.subscriptions".($selected == "subscriptions" ? ".selected" : "")));
+			endif;
+
+			// membership not available for guest user
+			if(defined("SITE_MEMBERS") && SITE_MEMBERS && $user_id != 1):
+				$_ .= $HTML->link("Membership", "/janitor/admin/user/membership/view/".$user_id, array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
+			endif;
+
+		$_ .= '</ul>';
+		
+		return $_;
+	}
+
+
+
+	// HTML for tabs for profile templates
+	function profileTabs($selected) {
+		global $HTML;
+
+		$_ = '';
+		
+		$_ .= '<ul class="tabs">';
+			$_ .= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile".($selected == "profile" ? ".selected" : "")));
+
+			if(defined("SITE_ITEMS") && SITE_ITEMS):
+				$_ .= $HTML->link("Content", "/janitor/admin/profile/content", array("wrapper" => "li.content".($selected == "content" ? ".selected" : "")));
+
+				// readstates not available for guest user
+				$_ .= $HTML->link("Readstates", "/janitor/admin/profile/readstates", array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
+
+			endif;
+	
+			// orders not available for guest user
+			if(defined("SITE_SHOP") && SITE_SHOP):
+				$_ .= $HTML->link("Orders", "/janitor/admin/profile/orders/list", array("wrapper" => "li.orders".($selected == "orders" ? ".selected" : "")));
+			endif;
+
+			// subscriptions not available for guest user
+			if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS):
+				$_ .= $HTML->link("Subscriptions", "/janitor/admin/profile/subscription/list", array("wrapper" => "li.subscriptions".($selected == "subscriptions" ? ".selected" : "")));
+			endif;
+
+			// membership not available for guest user
+			if(defined("SITE_MEMBERS") && SITE_MEMBERS):
+				$_ .= $HTML->link("Membership", "/janitor/admin/profile/membership/view", array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
+			endif;
+
+		$_ .= '</ul>';
+		
+		return $_;
+	}
+
+
+
 	// USER DASHBOARDS (FOR FRONTPAGE)
 
 
@@ -1266,85 +1348,84 @@ class JanitorHTML {
 	}
 
 
-
-	// HTML for tabs for user templates
-	function userTabs($user_id, $selected) {
+	// Current ORDER STATUS dashboard
+	function listOrderStatus() {
 		global $HTML;
+		global $page;
 
 		$_ = '';
-		
-		$_ .= '<ul class="tabs">';
-			$_ .= $HTML->link("Profile", "/janitor/admin/user/edit/".$user_id, array("wrapper" => "li.profile".($selected == "profile" ? ".selected" : "")));
 
-			if(defined("SITE_ITEMS") && SITE_ITEMS):
-				$_ .= $HTML->link("Content", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content".($selected == "content" ? ".selected" : "")));
+		// only show orders if user has access
+		if($page->validatePath("/janitor/admin/shop/order/list")) {
 
-				// readstates not available for guest user
-				if($user_id != 1):
-					$_ .= $HTML->link("Readstates", "/janitor/admin/user/readstates/".$user_id, array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
-				endif;
+			include_once("classes/shop/supershop.class.php");
+			$model = new SuperShop();
 
-			endif;
-	
-			// orders not available for guest user
-			if(defined("SITE_SHOP") && SITE_SHOP && $user_id != 1):
-				$_ .= $HTML->link("Orders", "/janitor/admin/user/orders/".$user_id, array("wrapper" => "li.orders".($selected == "orders" ? ".selected" : "")));
-			endif;
+			$_ .= '<div class="orders">';
+			$_ .= '<h2>Order status</h2>';
 
-			// subscriptions not available for guest user
-			if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS && $user_id != 1):
-				$_ .= $HTML->link("Subscriptions", "/janitor/admin/user/subscription/list/".$user_id, array("wrapper" => "li.subscriptions".($selected == "subscriptions" ? ".selected" : "")));
-			endif;
 
-			// membership not available for guest user
-			if(defined("SITE_MEMBERS") && SITE_MEMBERS && $user_id != 1):
-				$_ .= $HTML->link("Membership", "/janitor/admin/user/membership/view/".$user_id, array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
-			endif;
+			if($model->order_statuses) {
+				$_ .= '<ul class="orders">';
+				foreach($model->order_statuses as $order_status => $order_status_name) {
+					$_ .= '<li class="'.superNormalize($order_status_name).'">';
+					$_ .= '<h3>';
+					$_ .= '<a href="/janitor/admin/shop/order/list/"'.$order_status.'">'.$order_status_name.'</a> ';
+					$_ .= '<span class="count">'.$model->getOrderCount(array("status" => $order_status)).'</span>';
+					$_ .= '<h3>';
 
-		$_ .= '</ul>';
-		
+					$_ .= '</li>';
+				}
+				$_ .= '</ul>';
+			}
+
+			$_ .= '</div>';
+		}
+
 		return $_;
 	}
 
 
-
-	// HTML for tabs for profile templates
-	function profileTabs($selected) {
+	// Current ORDER STATUS dashboard
+	function listMemberStatus() {
 		global $HTML;
+		global $page;
 
 		$_ = '';
-		
-		$_ .= '<ul class="tabs">';
-			$_ .= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile".($selected == "profile" ? ".selected" : "")));
 
-			if(defined("SITE_ITEMS") && SITE_ITEMS):
-				$_ .= $HTML->link("Content", "/janitor/admin/profile/content", array("wrapper" => "li.content".($selected == "content" ? ".selected" : "")));
 
-				// readstates not available for guest user
-				$_ .= $HTML->link("Readstates", "/janitor/admin/profile/readstates", array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
+		// only show orders if user has access
+		if($page->validatePath("/janitor/admin/user/members/list")) {
 
-			endif;
-	
-			// orders not available for guest user
-			if(defined("SITE_SHOP") && SITE_SHOP):
-				$_ .= $HTML->link("Orders", "/janitor/admin/profile/orders/list", array("wrapper" => "li.orders".($selected == "orders" ? ".selected" : "")));
-			endif;
+			include_once("classes/users/superuser.class.php");
+			$model = new SuperUser();
+			$IC = new Items();
 
-			// subscriptions not available for guest user
-			if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS):
-				$_ .= $HTML->link("Subscriptions", "/janitor/admin/profile/subscription/list", array("wrapper" => "li.subscriptions".($selected == "subscriptions" ? ".selected" : "")));
-			endif;
+			$memberships = $IC->getItems(array("itemtype" => "membership", "extend" => true));
 
-			// membership not available for guest user
-			if(defined("SITE_MEMBERS") && SITE_MEMBERS):
-				$_ .= $HTML->link("Membership", "/janitor/admin/profile/membership/view", array("wrapper" => "li.membership".($selected == "membership" ? ".selected" : "")));
-			endif;
+			$_ .= '<div class="members">';
+			$_ .= '<h2>Member status</h2>';
 
-		$_ .= '</ul>';
-		
+			if($memberships) {
+			$_ .= '<ul class="members">';
+				foreach($memberships as $membership) {
+			
+					$_ .= '<li class="'.superNormalize($membership["name"]).'">';
+					$_ .= '<h3>';
+					$_ .= '<a href="/janitor/admin/user/members/list/'.$membership["id"].'">'.$membership["name"].'</a> ';
+					$_ .= '<span class="count">'.$model->getMemberCount(array("item_id" => $membership["id"])).'</span>';
+					$_ .= '<h3>';
+					$_ .= '</li>';
+				}
+				$_ .= '</ul>';
+			}
+
+			$_ .= '</div>';
+
+		}
+
 		return $_;
 	}
-
 
 }
 

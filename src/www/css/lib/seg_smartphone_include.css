@@ -18,6 +18,7 @@
 @import url(/janitor/admin/css/lib/desktop/s-navigations.css);
 
 @import url(/janitor/admin/css/lib/desktop/s-front.css);
+@import url(/janitor/admin/css/lib/smartphone/s-front.css);
 
 @import url(/janitor/admin/css/lib/smartphone/s-default_list.css);
 @import url(/janitor/admin/css/lib/desktop/s-default_edit.css);

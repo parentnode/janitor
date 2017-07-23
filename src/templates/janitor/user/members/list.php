@@ -39,9 +39,9 @@ $members = $model->getMembers($options);
 <?	if($memberships): ?>
 	<ul class="tabs">
 <?		foreach($memberships as $membership): ?>
-		<?= $HTML->link($membership["name"], "/janitor/admin/user/members/list/".$membership["id"], array("wrapper" => "li.".($membership["id"] == $membership_id ? "selected" : ""))) ?>
+		<?= $HTML->link($membership["name"]. " (".$model->getMemberCount(array("item_id" => $membership["id"])).")", "/janitor/admin/user/members/list/".$membership["id"], array("wrapper" => "li.".($membership["id"] == $membership_id ? "selected" : ""))) ?>
 <?		endforeach; ?>
-		<?= $HTML->link("All", "/janitor/admin/user/members/list/0", array("wrapper" => "li.".($options === false ? "selected" : ""))) ?>
+		<?= $HTML->link("All (".$model->getMemberCount().")", "/janitor/admin/user/members/list/0", array("wrapper" => "li.".($options === false ? "selected" : ""))) ?>
 	</ul>
 <?	endif; ?>
 

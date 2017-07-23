@@ -1,0 +1,4 @@
+#content .scene.front div.orders ul.orders li {width: 50%; text-align: center;}
+#content .scene.front div.members ul.members li {width: 50%; text-align: center;}
+
+#content .scene.front div.todos ul.todos ul.tags {display: none;}
