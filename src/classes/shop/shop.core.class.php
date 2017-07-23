@@ -344,6 +344,8 @@ class ShopCore extends Model {
 		$query = new Query();
 
 		$sql = "SELECT order_no FROM ".$this->db_orders." ORDER BY id DESC LIMIT 1";
+//		print $sql."<br />\n";
+
 		if($query->sql($sql)) {
 			$last_order_no = $query->result(0, "order_no");
 			$order_no = "WEB".(intval(preg_replace("/WEB/", "", $last_order_no))+1);
@@ -353,6 +355,8 @@ class ShopCore extends Model {
 		}
 
 		$sql = "INSERT INTO ".$this->db_orders." SET order_no='$order_no'";
+//		print $sql."<br />\n";
+
 		if($query->sql($sql)) {
 			return $order_no;
 		}
@@ -1066,6 +1070,7 @@ class ShopCore extends Model {
 	// Convert cart to order
 	# /shop/newOrderFromCart
 	function newOrderFromCart($action) {
+//		print "newOrderFromCart";
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -1079,19 +1084,20 @@ class ShopCore extends Model {
 
 			$cart_reference = $action[1];
 
+			// you can never create a cart for someone else, so ignore cart user_id
+			$user_id = session()->value("user_id");
+
 			$cart = $this->getCart();
 
 			// is cart registered and has content
 			// and enforce a sanity check by matching cart far with REST param
 //			print $cart_reference ." ==". $cart["cart_reference"];
-			if($cart && $cart["user_id"] && $cart["items"] && $cart_reference == $cart["cart_reference"]) {
+			if($cart && $user_id && $cart["items"] && $cart_reference == $cart["cart_reference"]) {
 
 				// get new order number
 				$order_no = $this->getNewOrderNumber();
 				if($order_no) {
 
-					// you can never create a cart for someone else, so ignore cart user_id
-					$user_id = session()->value("user_id");
 
 					// get data from cart
 					$currency = $cart["currency"];
@@ -1104,7 +1110,7 @@ class ShopCore extends Model {
 
 					// create base data update sql
 					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency'";
-
+//					print $sql."<br />\n";
 
 					// add delivery address
 					if($delivery_address_id) {
