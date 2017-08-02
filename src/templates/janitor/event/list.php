@@ -4,9 +4,22 @@ global $IC;
 global $model;
 global $itemtype;
 
+// additional parameter
+$past_events = false;
+if(count($action) == 2 && $action[1] == "past") {
+	$past_events = "past";
+}
 
-$items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.".starting_at > NOW()", "order" => "status DESC, ".$itemtype.".starting_at ASC", "extend" => array("tags" => true, "mediae" => true)));
-$past_items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.".starting_at < NOW()", "order" => "status DESC, ".$itemtype.".starting_at ASC", "extend" => array("tags" => true, "mediae" => true)));
+
+// get past events
+if($past_events) {
+	$items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.".starting_at < NOW()", "order" => "status DESC, ".$itemtype.".starting_at DESC", "extend" => array("tags" => true, "mediae" => true)));	
+}
+// get upcoming events
+else {
+	$items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.".starting_at > NOW()", "order" => "status DESC, ".$itemtype.".starting_at ASC", "extend" => array("tags" => true, "mediae" => true)));
+}
+
 
 ?>
 <div class="scene i:scene defaultList <?= $itemtype ?>List">
@@ -18,8 +31,15 @@ $past_items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.
 		<?= $HTML->link("Event performers", "/janitor/admin/event/performers", array("class" => "button", "wrapper" => "li.performers")) ?>
 	</ul>
 
+
+	<ul class="tabs">
+		<?= $HTML->link("Upcoming events", "/janitor/admin/event/list", array("wrapper" => "li.".(!$past_events ? "selected" : ""))) ?>
+		<?= $HTML->link("Past events", "/janitor/admin/event/list/past", array("wrapper" => "li.".($past_events ? "selected" : ""))) ?>
+	</ul>
+
+
 	<div class="all_items i:defaultList taggable filters"<?= $JML->jsData() ?>>
-<?		if($items || $past_items): ?>
+<?		if($items): ?>
 		<ul class="items">
 
 <?			if($items): ?>
@@ -28,22 +48,6 @@ $past_items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.
 				<h3><?= strip_tags($item["name"]) ?></h3>
 				<dl class="info">
 					<dt>Starting</dt>
-					<dd class="starting_at"><?= date("Y-m-d @ H:i", strtotime($item["starting_at"])) ?></dd>
-				</dl>
-
-				<?= $JML->tagList($item["tags"]) ?>
-
-				<?= $JML->listActions($item) ?>
-			 </li>
-<?			endforeach; ?>
-<?			endif; ?>
-
-<?			if($past_items): ?>
-<?			foreach($past_items as $item): ?>
-			<li class="item item_id:<?= $item["id"] ?> past">
-				<h3><?= strip_tags($item["name"]) ?></h3>
-				<dl class="info">
-					<dt>Ended</dt>
 					<dd class="starting_at"><?= date("Y-m-d @ H:i", strtotime($item["starting_at"])) ?></dd>
 				</dl>
 
