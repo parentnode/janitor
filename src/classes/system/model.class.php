@@ -147,6 +147,13 @@ class Model extends HTML {
 			"error_message" => "Subscription method error."
 		));
 
+		$this->addToModel("item_ownership", array(
+			"type" => "integer",
+			"label" => "Subscription method",
+			"hint_message" => "Choose subscription renewal period.",
+			"error_message" => "Subscription method error."
+		));
+
 	}
 
 

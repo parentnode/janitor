@@ -1106,9 +1106,45 @@ class ItemsCore {
 	}
 
 
+	// OWNER
+
+	// get potential owners of an itemtype, 
+	// optionally based on item_id, 
+	// TODO: optionally look at group access and return only mombers of allowed groups 
+	function getOwners($_options=false) {
+
+		$item_id = false;
+		$itemtype = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"    : $item_id        = $_value; break;
+					case "itemtype"   : $itemtype       = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($item_id) {
+			$sql = "SELECT users.id, users.nickname FROM ".SITE_DB.".users as users, ".UT_ITEMS." as items WHERE users.id = items.user_id AND items.id = ".$item_id;
+			if($query->sql($sql)) {
+				return $query->result(0);
+			}
+		}
+
+
+		// return all users
+		$sql = "SELECT users.id, users.nickname FROM ".SITE_DB.".users"." as users";
+		if($query->sql($sql)) {
+			return $query->results();
+		}
+
+	}
+
 
 	// TAGS
-
 
 	// get tag, optionally based on item_id, limited to context, or just check if specific tag exists
 	function getTags($_options=false) {

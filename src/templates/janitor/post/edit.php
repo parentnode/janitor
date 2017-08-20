@@ -16,7 +16,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 	<div class="item i:defaultEdit">
 		<h2>Post content</h2>
 		<?= $model->formStart("update/".$item["id"], array("class" => "labelstyle:inject")) ?>
-
+		
 			<fieldset>
 				<?= $model->input("published_at", array("value" => $item["published_at"])) ?>
 
@@ -31,6 +31,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 		<?= $model->formEnd() ?>
 	</div>
 
+	<?= $JML->editOwner($item) ?>
 
 	<?= $JML->editTags($item) ?>
 

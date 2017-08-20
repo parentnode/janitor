@@ -430,6 +430,43 @@ class JanitorHTML {
 		return $_;
 	}
 
+	// edit owner form for edit page
+	function editOwner($item, $_options = false) {
+		global $page;
+		global $model;
+
+		$_ = '';
+
+		if($page->validPath($this->path."/owner")) {
+
+			$IC = new Items();
+			$owner_options = $model->toOptions($IC->getOwners(), "id", "nickname");
+			$owner = $IC->getOwners(["item_id" => $item["id"]]);
+			$_ .= '<div class="owner i:collapseHeader item_id:'.$item["id"].'">';
+			$_ .= '<h2>Owner</h2>';
+			$_ .= '<p>'.$owner["nickname"]."</p>";
+
+			$_ .= '<div class="change_ownership">';
+				$_ .= $model->formStart($this->path."/owner/".$item["id"], array("class" => "labelstyle:inject i:defaultNew"));
+					$_ .= $model->input("return_to", array("type" => "hidden", "value" => $this->path."/edit/".$item["id"]));
+				$_ .= '<fieldset>';
+					$_ .= $model->input("item_ownership", array("type" => "select", "options" => $owner_options, "value" => $item["user_id"]));
+				$_ .= '</fieldset>';
+
+				$_ .= '<ul class="actions">';
+					$_ .= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save"));
+				$_ .= '</ul>';
+				$_ .= $model->formEnd();
+			$_ .= '</div>';
+
+			$_ .= '</div>';
+		
+
+		}
+
+		return $_;
+	}
+
 	// edit tags form for edit page
 	function editTags($item, $_options = false) {
 		global $model;

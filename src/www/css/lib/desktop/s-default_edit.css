@@ -24,6 +24,9 @@
 #content .scene.defaultEdit > div.item .actions li {padding: 0 5px 10px;}
 
 
+/* EDIT OWNER */
+#content .scene.defaultEdit > div.owner {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+
 
 /* EDIT MEDIA */
 #content .scene.defaultEdit > div.media {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}

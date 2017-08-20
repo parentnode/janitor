@@ -54,6 +54,41 @@ class ItemtypeCore extends Model {
 	}
 
 	/**
+	* Chacnge status of Item
+	* TODO: Implement data validation before allowing enabling 
+	*/
+	# /§controller#/#itemtype#/owner/#item_id#/#new_owner#
+	function owner($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2) {
+
+//			$itemtype = $action[0];
+
+			$item_id = $action[1];
+			$new_owner = $this->getProperty("item_ownership", "value");
+
+			$query = new Query();
+
+
+			// delete item + itemtype + files
+			if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
+				$sql = "UPDATE ".UT_ITEMS." SET user_id = $new_owner WHERE id = $item_id";
+				$query->sql($sql);
+
+				message()->addMessage("Item owner updated");
+				return true;
+			}
+		}
+
+		message()->addMessage("Item ownership could not be changed", array("type" => "error"));
+		return false;
+
+	}
+
+	/**
 	* Delete item function
 	*/
 	# /janitor/[admin/]#itemtype#/delete/#item_id#
