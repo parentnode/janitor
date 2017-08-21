@@ -84,6 +84,16 @@ class UserCore extends Model {
 			"error_message" => "Invalid language"
 		));
 
+		// Terms
+		$this->addToModel("terms", array(
+			"type" => "checkbox",
+			"label" => 'I accept the <a href="/terms">terms and conditions</a>.',
+			"required" => true,
+			"hint_message" => "Accept the terms and conditions to continue.", 
+			"error_message" => "You must accept the terms and conditions to continue"
+		));
+		
+
 
 		// USERNAMES AND PASSWORD
 
