@@ -437,14 +437,15 @@ class JanitorHTML {
 
 		$_ = '';
 
-		if($page->validPath($this->path."/owner")) {
 
-			$IC = new Items();
+		$IC = new Items();
+		$owner = $IC->getOwners(["item_id" => $item["id"]]);
+		$_ .= '<div class="owner i:collapseHeader item_id:'.$item["id"].'">';
+		$_ .= '<h2>Owner</h2>';
+		$_ .= '<p>'.$owner["nickname"]."</p>";
+
+		if($page->validPath($this->path."/owner")) {
 			$owner_options = $model->toOptions($IC->getOwners(), "id", "nickname");
-			$owner = $IC->getOwners(["item_id" => $item["id"]]);
-			$_ .= '<div class="owner i:collapseHeader item_id:'.$item["id"].'">';
-			$_ .= '<h2>Owner</h2>';
-			$_ .= '<p>'.$owner["nickname"]."</p>";
 
 			$_ .= '<div class="change_ownership">';
 				$_ .= $model->formStart($this->path."/owner/".$item["id"], array("class" => "labelstyle:inject i:defaultNew"));
@@ -457,12 +458,11 @@ class JanitorHTML {
 					$_ .= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save"));
 				$_ .= '</ul>';
 				$_ .= $model->formEnd();
-			$_ .= '</div>';
-
-			$_ .= '</div>';
-		
+			$_ .= '</div>';		
 
 		}
+
+		$_ .= '</div>';
 
 		return $_;
 	}
