@@ -1505,10 +1505,20 @@ class PageCore {
 				)
 			) {
 
-				message()->addMessage("CSRF Autorization failed", array("type" => "error"));
+				message()->addMessage("CSRF Autorization failed.", array("type" => "error"));
 
 				// make sure the user is logged out (throwoff will exit)
-				$this->throwOff();
+				if(session()->value("user_id") > 1) {
+					$this->throwOff();
+					
+				}
+				// user wasn't logged in, it's probably a timeout issue
+				else if($_SERVER["HTTP_REFERER"]) {
+					message()->addMessage("Your session may have expired or it has been confused by multiple simultaneaous logins. Please try again.", array("type" => "error"));
+					header("Location:". $_SERVER["HTTP_REFERER"]);
+					exit();
+				}
+
 				return false;
 			}
 			else if($_SERVER["REQUEST_METHOD"] != "POST") {
@@ -1724,8 +1734,15 @@ class PageCore {
 		unset($_POST);
 		unset($_FILES);
 
+		// Preserve messages
+		$messages = $_SESSION["message"];
+
 		//$this->user_id = "";
 		session()->reset();
+
+		// Restore messages
+		$_SESSION["message"] = $messages;
+
 
 		if($url) {
 			session()->value("LoginForward", $url);
