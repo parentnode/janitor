@@ -1371,6 +1371,8 @@ class Setup extends Itemtype {
 			$NC = new Navigation();
 			if(!$NC->getNavigations()) {
 
+
+				// create frontend navigation
 				unset($_POST);
 				$_POST["name"] = "main";
 				$nav = $NC->save(array("save"));
@@ -1401,6 +1403,34 @@ class Setup extends Itemtype {
 					}
 
 				}
+
+
+				// create backend navigation
+				unset($_POST);
+				$_POST["name"] = "main-janitor";
+				$nav = $NC->save(array("save"));
+
+				if($nav) {
+
+					unset($_POST);
+					$_POST["node_name"] = "Posts";
+					$_POST["node_classname"] = "post";
+					$_POST["node_link"] = "/janitor/admin/post/list";
+					$nav_node = $NC->saveNode(array("saveNode", $nav["item_id"]));
+
+					// If new theme install and theme has demo class
+					if(file_exists(LOCAL_PATH."/classes/items/type.demo.class.php") && file_exists(LOCAL_PATH."/www/janitor/demo.php")) {
+
+						unset($_POST);
+						$_POST["node_name"] = "Demo";
+						$_POST["node_classname"] = "demo";
+						$_POST["node_link"] = "/janitor/demo/list";
+						$nav_node = $NC->saveNode(array("saveNode", $nav["item_id"]));
+
+					}
+
+				}
+
 
 			}
 			else {
