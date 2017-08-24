@@ -271,20 +271,6 @@ Util.insertElement = u.ie = function(_parent, node_type, attributes) {
 }
 
 
-/**
-* FOR CONSIDERATION
-*/
-Util.insertAfter = u.ia = function(after_node, insert_node) {
-	var next_node = u.ns(after_node);
-	if(next_node) {
-		after_node.parentNode.insertBefore(next_node, insert_node);
-	}
-	else {
-		after_node.parentNode.appendChild(insert_node);
-	}
-}
-
-
 // insert element in wrap-element and return wrapper
 Util.wrapElement = u.we = function(node, node_type, attributes) {
 	try {
@@ -480,6 +466,7 @@ Util.addClass = u.ac = function(node, classname, dom_update) {
 	return false;
 }
 // Remove all instances of classname from element
+// TODO: SVG.className cannot be set (needs to be SVG.className.baseVal || use classList works from IE 11)
 Util.removeClass = u.rc = function(node, classname, dom_update) {
 	try {
 		if(classname) {
@@ -591,6 +578,18 @@ Util.hasFixedParent = u.hfp = function(node) {
 
 
 // FOR CONSIDERATION
+/**
+* FOR CONSIDERATION
+*/
+Util.insertAfter = u.ia = function(after_node, insert_node) {
+	var next_node = u.ns(after_node);
+	if(next_node) {
+		after_node.parentNode.insertBefore(next_node, insert_node);
+	}
+	else {
+		after_node.parentNode.appendChild(insert_node);
+	}
+}
 
 
 // select text in node

@@ -1,4 +1,6 @@
 u.template = function(template, json, _options) {
+	u.bug("### TEMPLATE ###");
+
 
 	var string = "";
 	var template_string = "";
@@ -18,42 +20,67 @@ u.template = function(template, json, _options) {
 		}
 	}
 
+
+	if((json.length == undefined && typeof(json) == "object" && Object.keys(json).length) || (json.length)) {
+
+		console.log("Some kind of json")
+
+	}
+	else {
+
+		console.log("No kind of json")
+		
+	}
+
 	// IE 7 doesn't accept constructor to identify node, using nodeName as replacement
 
-	// identify template type
+	// identify template type, depending on template content
+
+	// HTML Object
 	if(typeof(template) == "object" && typeof(template.nodeName) != "undefined") {
 //		u.bug("HTML template")
 
 		type_template = "HTML";
-
 	}
+	// JSON Object
 	else if(typeof(template) == "object" && JSON.stringify(template)) {
 //		u.bug("JSON template")
 
 		type_template = "JSON";
-
 	}
+	// JSON String
 	else if(typeof(template) == "string" && template.match(/^(\{|\[)/)) {
 //		u.bug("JSON string template")
 
 		type_template = "JSON_STRING";
 	}
+	// HTML String
 	else if(typeof(template) == "string" && template.match(/^<.+>$/)) {
 //		u.bug("HTML string template")
 
 		type_template = "HTML_STRING";
 	}
+	// plain string
+	else if(typeof(template) == "string") {
+//		u.bug("plain string template")
+
+		type_template = "STRING";
+	}
 
 
+	console.log("type_template: " + type_template);
 
+
+	// is JSON object or array of objects
 	if(json) {
+		console.log("json not false")
 
 		// No array in json means json.length == undefined
 		// and the template function is used for something it wasn't intented to.
 		// Therefore we let it clone the node.
 		// Without this check jsons with an empty result array will create a "ghost" node.
-		if (json.length == undefined || (json.length && json.length > 0)) {
-
+		if((json.length == undefined && typeof(json) == "object") || (json.length && json.length > 0)) {
+			console.log("some kind of json");
 
 			// HTML node or HTML STRING
 			if(type_template == "HTML_STRING" || type_template == "HTML") {
@@ -97,10 +124,9 @@ u.template = function(template, json, _options) {
 					}
 
 					template_string = template;
-					
 				}
 			}
-			// string based (JSON object string)
+			// JSON object string
 			else if(type_template == "JSON") {
 
 				template_string = JSON.stringify(template).replace(/^{/g, "MAN_JSON_START").replace(/}$/g, "MAN_JSON_END");
@@ -110,11 +136,22 @@ u.template = function(template, json, _options) {
 
 				template_string = template.replace(/^{/g, "MAN_JSON_START").replace(/}$/g, "MAN_JSON_END");
 			}
-			
+			// string based (PLAIN string)
+			else if(type_template == "STRING") {
+
+				template_string = template;
+			}
+
 		}
-		
+		else {
+			console.log("no kind of json");
+		}
+
+
 		// multiple results
 		if(json.length) {
+			u.bug("multiple results");
+
 			// use _item (WITH UNDERSCORE) to help IE, where item will be interpreted as item()
 			for(_item in json) {
 
@@ -159,38 +196,42 @@ u.template = function(template, json, _options) {
 				
 
 					string += item_template.replace(/\{(.+?)\}/g, function(string) {
-							// if(string == "{children}") {
-							// 	if(json[_item].children && json[_item].children.length) {
-							// 		var parent_node = template.parentNode.nodeName.toLowerCase();
-							// 		var parent_class = template.parentNode.className;
-							// 		return '<'+parent_node+' class="'+parent_class+'">'+u.template(template, json[_item].children)+'</'+parent_node+'>';
-							// 	}
-							// 	else {
-							// 		return "";
-							// 	}
-							// }
-							// else 
+
+						// if(string == "{children}") {
+						// 	if(json[_item].children && json[_item].children.length) {
+						// 		var parent_node = template.parentNode.nodeName.toLowerCase();
+						// 		var parent_class = template.parentNode.className;
+						// 		return '<'+parent_node+' class="'+parent_class+'">'+u.template(template, json[_item].children)+'</'+parent_node+'>';
+						// 	}
+						// 	else {
+						// 		return "";
+						// 	}
+						// }
+						// else 
 
 						var key = string.toString().replace(/[\{\}]/g, "");
 
+						// clean up strings
 						if(typeof(json[_item][key]) == "string" && json[_item][key]) {
 							return json[_item][key].toString().replace(/(\"|\')/g, "\\$1");
 						}
-						else if (typeof (json[_item][key]) == "number") {
+						// return numbers correct
+						else if(typeof(json[_item][key]) == "number") {
 							return json[_item][key];
 						}
+						// return booleans correct
 						else if(typeof(json[_item][key]) == "boolean") {
 							// Insert BOOL marker, to be replaced with real boolean
 							// (not encapsulated in quotes) before string is returned
 							return "MAN_BOOL" + json[_item][key] + "MAN_BOOL";
 						}
-						else if (typeof (json[_item][key]) == "object") {
+						// return objects correct
+						else if(typeof(json[_item][key]) == "object") {
 							return "MAN_OBJ" + JSON.stringify(json[_item][key]) + "MAN_OBJ";
 						}
 						else {
 							return "";
 						}
-
 					});
 				}
 
@@ -198,24 +239,28 @@ u.template = function(template, json, _options) {
 		}
 		// only one result
 		else {
+			u.bug("single result");
+
 			string += template_string.replace(/\{(.+?)\}/g, function(string) {
 				var key = json[string.replace(/[\{\}]/g, "")];
 
 				// clean up strings
 				if(typeof(json[key]) == "string" && json[key]) {
-					return json[key].replace(/(\"|\')/g, "\\$1")
+					return json[key].replace(/(\"|\')/g, "\\$1");
 				}
 				// return numbers correct
-				else if (typeof (json[key]) == "number") {
+				else if(typeof(json[key]) == "number") {
 					return json[key];
 				}
+				// return booleans correct
 				else if(typeof(json[key]) == "boolean") {
 
 					// Insert BOOL marker, to be replaced with real boolean
 					// (not encapsulated in quotes) before string is returned
 					return "MAN_BOOL" + json[key] + "MAN_BOOL";
 				}
-				else if (typeof (json[key]) == "object") {
+				// return objects correct
+				else if(typeof(json[key]) == "object") {
 					return "MAN_OBJ" + JSON.stringify(json[key]).replace(/(\"|\')/g, "\\$1") + "MAN_OBJ";
 				}
 				else {
@@ -224,25 +269,28 @@ u.template = function(template, json, _options) {
 			});
 		}
 	}
+	else {
+		console.log("json false");
+	}
 
 	// replace boolean markers with real boolean values
 	string = string.replace(/\"MAN_BOOLtrueMAN_BOOL\"/g, "true");
 	string = string.replace(/\"MAN_BOOLfalseMAN_BOOL\"/g, "false");
 
 	// replace object markers with real object
-	string = string.replace(/\"MAN_OBJ(.+)MAN_OBJ\"/g, function (string) {
+	string = string.replace(/\"MAN_OBJ(.+)MAN_OBJ\"/g, function(string) {
 		string = string.replace(/\"MAN_OBJ(.+)MAN_OBJ\"/g, "$1");
 		return string.replace(/\\("|')/g, "$1");
 	});
 
-
+	// html strings or objects
 	if(type_template == "HTML_STRING" || type_template == "HTML") {
 
 		// unescape quotes when outputting to HTML
 		string = string.replace(/\\("|')/g, "$1");
 
 		// IE <=9 doesn't support table.innerHTML, so wrap node in div and innerHTML entire table
-		if (type_parent == "table") {
+		if(type_parent == "table") {
 			dom = document.createElement("div");
 			dom.innerHTML = "<table><tbody>"+string+"</tbody></table>";
 			dom = u.qs("tbody", dom);
@@ -254,11 +302,11 @@ u.template = function(template, json, _options) {
 		}
 
 		// should children be appended to node automatically
-		if (append_to_node) {
+		if(append_to_node) {
 			node_list = [];
 
 			// doing innerHTML cancels events on header - instead use dom
-			while (dom.childNodes.length) {
+			while(dom.childNodes.length) {
 				node_list.push(u.ae(append_to_node, dom.childNodes[0]));
 			}
 			// return array of appended nodes
@@ -269,11 +317,18 @@ u.template = function(template, json, _options) {
 		return dom.childNodes;
 	}
 
-	// JSON objects
+	// json strings or objects
 	else if(type_template == "JSON_STRING" || type_template == "JSON") {
 		// u.bug(string)
 		// u.bug(string.replace(/MAN_JSON_START/g, "{").replace(/MAN_JSON_END/g, "},"))
 		return eval("["+string.replace(/MAN_JSON_START/g, "{").replace(/MAN_JSON_END/g, "},")+"]");
+	}
+
+	// plain string
+	else if(type_template == "STRING") {
+		// u.bug(string)
+		// u.bug(string.replace(/MAN_JSON_START/g, "{").replace(/MAN_JSON_END/g, "},"))
+		return string;
 	}
 
 }

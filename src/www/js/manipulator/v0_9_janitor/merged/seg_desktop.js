@@ -1,6 +1,6 @@
 /*
-Manipulator v0.9.1-full Copyright 2016 http://manipulator.parentnode.dk
-js-merged @ 2017-01-02 05:51:42
+Manipulator v0.9.1-janitor Copyright 2017 http://manipulator.parentnode.dk
+js-merged @ 2017-08-25 01:33:18
 */
 
 /*seg_desktop_include.js*/
@@ -645,15 +645,6 @@ Util.insertElement = u.ie = function(_parent, node_type, attributes) {
 	}
 	return false;
 }
-Util.insertAfter = u.ia = function(after_node, insert_node) {
-	var next_node = u.ns(after_node);
-	if(next_node) {
-		after_node.parentNode.insertBefore(next_node, insert_node);
-	}
-	else {
-		after_node.parentNode.appendChild(insert_node);
-	}
-}
 Util.wrapElement = u.we = function(node, node_type, attributes) {
 	try {
 		var wrapper_node = node.parentNode.insertBefore(document.createElement(node_type), node);
@@ -868,6 +859,15 @@ Util.hasFixedParent = u.hfp = function(node) {
 	}
 	return false;
 }
+Util.insertAfter = u.ia = function(after_node, insert_node) {
+	var next_node = u.ns(after_node);
+	if(next_node) {
+		after_node.parentNode.insertBefore(next_node, insert_node);
+	}
+	else {
+		after_node.parentNode.appendChild(insert_node);
+	}
+}
 Util.selectText = function(node) {
 	var selection = window.getSelection();
 	var range = document.createRange();
@@ -926,7 +926,7 @@ u.easings = new function() {
 Util.Events = u.e = new function() {
 	this.event_pref = typeof(document.ontouchmove) == "undefined" || (navigator.maxTouchPoints > 1 && navigator.userAgent.match(/Windows/i)) ? "mouse" : "touch";
 	if(navigator.maxTouchPoints > 1) {
-		if(typeof(document.ontouchmove) == "undefined" && typeof(document.onmousemove) == "undefined") {
+		if((typeof(document.ontouchmove) == "undefined" && typeof(document.onmousemove) == "undefined") || (document.ontouchmove === null && document.onmousemove === null)) {
 			this.event_support = "multi";
 		}
 	}
@@ -1222,6 +1222,7 @@ Util.Events = u.e = new function() {
 	}
 	this.hover = function(node, _options) {
 		node._hover_out_delay = 100;
+		node._hover_over_delay = 0;
 		node._callback_out = "out";
 		node._callback_over = "over";
 		if(typeof(_options) == "object") {
@@ -1230,6 +1231,7 @@ Util.Events = u.e = new function() {
 				switch(argument) {
 					case "over"				: node._callback_over		= _options[argument]; break;
 					case "out"				: node._callback_out		= _options[argument]; break;
+					case "delay_over"		: node._hover_over_delay	= _options[argument]; break;
 					case "delay"			: node._hover_out_delay		= _options[argument]; break;
 				}
 			}
@@ -1240,16 +1242,33 @@ Util.Events = u.e = new function() {
 	}
 	this._over = function(event) {
 		u.t.resetTimer(this.t_out);
-		if(typeof(this[this._callback_over]) == "function" && !this.is_hovered) {
-			this[this._callback_over](event);
+		if(!this._hover_over_delay) {
+			u.e.__over.call(this, event);
 		}
-		this.is_hovered = true;
+		else if(!u.t.valid(this.t_over)) {
+			this.t_over = u.t.setTimer(this, u.e.__over, this._hover_over_delay, event);
+		}
+	}
+	this.__over = function(event) {
+		u.t.resetTimer(this.t_out);
+		if(!this.is_hovered) {
+			this.is_hovered = true;
+			u.e.removeOverEvent(this, u.e._over);
+			u.e.addOverEvent(this, u.e.__over);
+			if(typeof(this[this._callback_over]) == "function") {
+				this[this._callback_over](event);
+			}
+		}
 	}
 	this._out = function(event) {
+		u.t.resetTimer(this.t_over);
+		u.t.resetTimer(this.t_out);
 		this.t_out = u.t.setTimer(this, u.e.__out, this._hover_out_delay, event);
 	}
 	this.__out = function(event) {
 		this.is_hovered = false;
+		u.e.removeOverEvent(this, u.e.__over);
+		u.e.addOverEvent(this, u.e._over);
 		if(typeof(this[this._callback_out]) == "function") {
 			this[this._callback_out](event);
 		}
@@ -2052,6 +2071,9 @@ Util.Form = u.f = new function() {
 			}
 		}
 		if(!Object.keys(this.error_fields).length) {
+			if(typeof(this.preSubmitted) == "function") {
+				this.preSubmitted(iN);
+			}
 			if(typeof(this.submitted) == "function") {
 				this.submitted(iN);
 			}
@@ -3646,20 +3668,25 @@ Util.request = function(node, url, _options) {
 	node[request_id].request_url = url;
 	node[request_id].request_method = "GET";
 	node[request_id].request_async = true;
-	node[request_id].request_params = "";
+	node[request_id].request_data = "";
 	node[request_id].request_headers = false;
+	node[request_id].response_type = false;
 	node[request_id].callback_response = "response";
+	node[request_id].callback_error = "responseError";
 	node[request_id].jsonp_callback = "callback";
 	if(typeof(_options) == "object") {
 		var argument;
 		for(argument in _options) {
 			switch(argument) {
-				case "method"				: node[request_id].request_method		= _options[argument]; break;
-				case "params"				: node[request_id].request_params		= _options[argument]; break;
-				case "async"				: node[request_id].request_async		= _options[argument]; break;
-				case "headers"				: node[request_id].request_headers		= _options[argument]; break;
-				case "callback"				: node[request_id].callback_response	= _options[argument]; break;
-				case "jsonp_callback"		: node[request_id].jsonp_callback		= _options[argument]; break;
+				case "method"				: node[request_id].request_method			= _options[argument]; break;
+				case "params"				: node[request_id].request_data				= _options[argument]; break;
+				case "data"					: node[request_id].request_data				= _options[argument]; break;
+				case "async"				: node[request_id].request_async			= _options[argument]; break;
+				case "headers"				: node[request_id].request_headers			= _options[argument]; break;
+				case "responseType"			: node[request_id].response_type			= _options[argument]; break;
+				case "callback"				: node[request_id].callback_response		= _options[argument]; break;
+				case "error_callback"		: node[request_id].callback_error			= _options[argument]; break;
+				case "jsonp_callback"		: node[request_id].jsonp_callback			= _options[argument]; break;
 			}
 		}
 	}
@@ -3667,6 +3694,9 @@ Util.request = function(node, url, _options) {
 		node[request_id].HTTPRequest = this.createRequestObject();
 		node[request_id].HTTPRequest.node = node;
 		node[request_id].HTTPRequest.request_id = request_id;
+		if(node[request_id].response_type) {
+			node[request_id].HTTPRequest.responseType = node[request_id].response_type;
+		}
 		if(node[request_id].request_async) {
 			node[request_id].HTTPRequest.statechanged = function() {
 				if(this.readyState == 4 || this.IEreadyState) {
@@ -3679,13 +3709,11 @@ Util.request = function(node, url, _options) {
 		}
 		try {
 			if(node[request_id].request_method.match(/GET/i)) {
-				var params = u.JSONtoParams(node[request_id].request_params);
+				var params = u.JSONtoParams(node[request_id].request_data);
 				node[request_id].request_url += params ? ((!node[request_id].request_url.match(/\?/g) ? "?" : "&") + params) : "";
 				node[request_id].HTTPRequest.open(node[request_id].request_method, node[request_id].request_url, node[request_id].request_async);
-				node[request_id].HTTPRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-				var csfr_field = u.qs('meta[name="csrf-token"]');
-				if(csfr_field && csfr_field.content) {
-					node[request_id].HTTPRequest.setRequestHeader("X-CSRF-Token", csfr_field.content);
+				if(typeof(node[request_id].request_headers) != "object" || (!node[request_id].request_headers["Content-Type"] && !node[request_id].request_headers["content-type"])) {
+					node[request_id].HTTPRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
 				}
 				if(typeof(node[request_id].request_headers) == "object") {
 					var header;
@@ -3697,19 +3725,15 @@ Util.request = function(node, url, _options) {
 			}
 			else if(node[request_id].request_method.match(/POST|PUT|PATCH/i)) {
 				var params;
-				if(typeof(node[request_id].request_params) == "object" && node[request_id].request_params.constructor.toString().match(/function Object/i)) {
-					params = JSON.stringify(node[request_id].request_params);
+				if(typeof(node[request_id].request_data) == "object" && node[request_id].request_data.constructor.toString().match(/function Object/i)) {
+					params = JSON.stringify(node[request_id].request_data);
 				}
 				else {
-					params = node[request_id].request_params;
+					params = node[request_id].request_data;
 				}
 				node[request_id].HTTPRequest.open(node[request_id].request_method, node[request_id].request_url, node[request_id].request_async);
-				if(!params.constructor.toString().match(/FormData/i)) {
+				if(!params.constructor.toString().match(/FormData/i) && (typeof(node[request_id].request_headers) != "object" || (!node[request_id].request_headers["Content-Type"] && !node[request_id].request_headers["content-type"]))) {
 					node[request_id].HTTPRequest.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
-				}
-				var csfr_field = u.qs('meta[name="csrf-token"]');
-				if(csfr_field && csfr_field.content) {
-					node[request_id].HTTPRequest.setRequestHeader("X-CSRF-Token", csfr_field.content);
 				}
 				if(typeof(node[request_id].request_headers) == "object") {
 					var header;
@@ -3741,7 +3765,7 @@ Util.request = function(node, url, _options) {
 			response_object.responseText = response;
 			u.validateResponse(response_object);
 		}
-		var params = u.JSONtoParams(node[request_id].request_params);
+		var params = u.JSONtoParams(node[request_id].request_data);
 		node[request_id].request_url += params ? ((!node[request_id].request_url.match(/\?/g) ? "?" : "&") + params) : "";
 		node[request_id].request_url += (!node[request_id].request_url.match(/\?/g) ? "?" : "&") + node[request_id].jsonp_callback + "=document."+key+".responder";
 		u.ae(u.qs("head"), "script", ({"type":"text/javascript", "src":node[request_id].request_url}));
@@ -3834,14 +3858,22 @@ Util.validateResponse = function(response){
 		}
 	}
 	if(object) {
-		if(typeof(response.node[response.node[response.request_id].callback_response]) == "function") {
+		if(typeof(response.node[response.request_id].callback_response) == "function") {
+			response.node[response.request_id].callback_response(object, response.request_id);
+		}
+		else if(typeof(response.node[response.node[response.request_id].callback_response]) == "function") {
 			response.node[response.node[response.request_id].callback_response](object, response.request_id);
 		}
-		// 
 	}
 	else {
-		if(typeof(response.node.responseError) == "function") {
-			response.node.responseError(response);
+		if(typeof(response.node[response.request_id].callback_error) == "function") {
+			response.node[response.request_id].callback_error(response, response.request_id);
+		}
+		else if(typeof(response.node[response.node[response.request_id].callback_error]) == "function") {
+			response.node[response.node[response.request_id].callback_error](response, response.request_id);
+		}
+		else if(typeof(response.node[response.request_id].callback_response) == "function") {
+			response.node[response.request_id].callback_response(response, response.request_id);
 		}
 		else if(typeof(response.node[response.node[response.request_id].callback_response]) == "function") {
 			response.node[response.node[response.request_id].callback_response](response, response.request_id);
@@ -4033,6 +4065,12 @@ Util.normalize = function(string) {
 	string = string.replace(/^-|-$/g, '');
 	return string;
 }
+Util.pluralize = function(count, singular, plural) {
+	if(count != 1) {
+		return count + " " + plural;
+	}
+	return count + " " + singular;
+}
 
 /*u-svg.js*/
 Util.svg = function(svg_object) {
@@ -4055,8 +4093,8 @@ Util.svg = function(svg_object) {
 	if(svg_object.title) {
 		svg.setAttributeNS(null, "title", svg_object.title);
 	}
-	if(svg_object.class) {
-		svg.setAttributeNS(null, "class", svg_object.class);
+	if(svg_object["class"]) {
+		svg.setAttributeNS(null, "class", svg_object["class"]);
 	}
 	if(svg_object.width) {
 		svg.setAttributeNS(null, "width", svg_object.width);

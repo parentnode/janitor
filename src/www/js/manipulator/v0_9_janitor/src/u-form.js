@@ -622,6 +622,11 @@ Util.Form = u.f = new function() {
 
 //			this.updateFormValidationState(iN ? iN : this.fields[Object.keys(this.error_fields)[0]]);
 
+			// Non obstructive callback before valid submit
+			if(typeof(this.preSubmitted) == "function") {
+				this.preSubmitted(iN);
+			}
+
 //		}
 //		else {
 			// does callback exist
@@ -1492,7 +1497,7 @@ Util.Form = u.f = new function() {
 	// - datetime
 	// - files
 	this.validate = function(iN) {
-//		u.bug("validate:" + iN.name)
+//		u.bug("validate:" + iN.name + ", " + iN.val());
 
 
 		// validation is disabled
