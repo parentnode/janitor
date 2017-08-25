@@ -1351,6 +1351,7 @@ class PageCore {
 	function checkPermissions($controller, $action, $access_item) {
 
 
+		global $mysqli_global;
 //		print "controller:" . $controller . "<br>\n";
 //		print "action:" . $action . "<br>\n";
 //		print_r($access_item);
@@ -1370,7 +1371,7 @@ class PageCore {
 		}
 
 		// SITE_DB is required to look up access permissions
-		else if(!defined("SITE_DB")) {
+		else if(!defined("SITE_DB") || !$mysqli_global) {
 			print "Your site is not configured yet!";
 			exit();
 		}

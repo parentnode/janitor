@@ -62,7 +62,7 @@ include_once("classes/system/model.class.php");
 if(defined("SITE_ITEMS") && SITE_ITEMS) {
 
 	// SITE_ITEMS needs SITE_DB
-	if(!defined("SITE_DB")) {
+	if(!defined("SITE_DB") || !$mysqli_global) {
 		print "Your site is not configured yet!";
 		exit();
 	}
