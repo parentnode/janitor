@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.1-janitor Copyright 2017 http://manipulator.parentnode.dk
-js-merged @ 2017-08-25 01:33:19
+js-merged @ 2017-08-27 08:02:24
 */
 
 /*seg_smartphone_include.js*/
@@ -341,14 +341,25 @@ Util.Animation = u.a = new function() {
 Util.saveCookie = function(name, value, _options) {
 	var expires = true;
 	var path = false;
+	var force = false;
 	if(typeof(_options) == "object") {
 		var _argument;
 		for(_argument in _options) {
 			switch(_argument) {
 				case "expires"	: expires	= _options[_argument]; break;
 				case "path"		: path		= _options[_argument]; break;
+				case "force"	: force		= _options[_argument]; break;
 			}
 		}
+	}
+	if(!force && typeof(window.localStorage) == "object" && typeof(window.sessionStorage) == "object") {
+		if(expires === false) {
+			window.sessionStorage.setItem(name, value);
+		}
+		else {
+			window.localStorage.setItem(name, value);
+		}
+		return;
 	}
 	if(expires === false) {
 		expires = ";expires=Mon, 04-Apr-2020 05:00:00 GMT";
@@ -369,6 +380,12 @@ Util.saveCookie = function(name, value, _options) {
 }
 Util.getCookie = function(name) {
 	var matches;
+	if(typeof(window.sessionStorage) == "object" && window.sessionStorage.getItem(name)) {
+		return window.sessionStorage.getItem(name)
+	}
+	else if(typeof(window.localStorage) == "object" && window.localStorage.getItem(name)) {
+		return window.localStorage.getItem(name)
+	}
 	return (matches = document.cookie.match(encodeURIComponent(name) + "=([^;]+)")) ? decodeURIComponent(matches[1]) : false;
 }
 Util.deleteCookie = function(name, _options) {
@@ -380,6 +397,12 @@ Util.deleteCookie = function(name, _options) {
 				case "path"	: path	= _options[_argument]; break;
 			}
 		}
+	}
+	if(typeof(window.sessionStorage) == "object") {
+		window.sessionStorage.removeItem(name);
+	}
+	if(typeof(window.localStorage) == "object") {
+		window.localStorage.removeItem(name);
 	}
 	if(typeof(path) === "string") {
 		path = ";path="+path;
