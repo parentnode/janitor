@@ -380,6 +380,14 @@ class JanitorHTML {
 		}
 
 
+		if($extend) {
+			foreach($extend as $index => $values) {
+				if(!isset($standard[$index])) {
+					$standard[$index] = $values;
+				}
+			}
+		}
+
 
 		$_ = '';
 
@@ -401,6 +409,20 @@ class JanitorHTML {
 				"wrapper" => $standard["duplicate"]["wrapper"],
 				"success-function" => $standard["duplicate"]["success-function"]
 			));
+		}
+
+		foreach($standard as $button => $data) {
+			if(!preg_match("/list|delete|duplicate|status/", $button)) {
+				if(isset($data["type"]) && $data["type"] == "onebuttonform") {
+					$_ .= $this->oneButtonForm($data["label"], $data["url"], array(
+						"wrapper" => $data["wrapper"],
+						"success-function" => $data["success-function"]
+					));
+				}
+				else {
+					$_ .= $model->link($data["label"], $data["url"], $data["options"]);
+				}
+			}
 		}
 
 		$_ .= '</ul>';
