@@ -47,8 +47,10 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 					<dd class="created_at"><?= $order["created_at"] ?></dd>
 					<dt class="status">Status</dt>
 					<dd class="status <?= superNormalize($SC->order_statuses[$order["status"]]) ?>"><?= $SC->order_statuses[$order["status"]] ?></dd>
+<?					if($order["status"] < 2): ?>
 					<dt class="payment_status">Payment status</dt>
 					<dd class="payment_status <?= ["unpaid", "partial", "paid"][$order["payment_status"]] ?>"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
+<?					endif; ?>
 					<dt class="price">Total price</dt>
 					<dd class="price"><?= formatPrice($SC->getTotalOrderPrice($order["id"])) ?></dd>
 				</dl>

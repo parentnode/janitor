@@ -115,13 +115,14 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 						<dt class="status">Status</dt>
 						<dd class="status <?= superNormalize($SC->order_statuses[$order["status"]]) ?>"><?= $SC->order_statuses[$order["status"]] ?></dd>
-
+<?						if($order["status"] < 2): ?>
 						<dt class="payment_status">Payment status</dt>
 						<dd class="payment_status <?= ["unpaid", "partial", "paid"][$order["payment_status"]] ?>"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
+<?						endif; ?>
 					</dl>
 
 					<ul class="actions">
-						<? if($order["payment_status"] < 2 && $total_price["price"] != 0): ?>
+						<? if($order["payment_status"] < 2 && $total_price["price"] != 0 && $order["status"] < 2): ?>
 						<?= $HTML->link("Pay", "/shop/payment/".$order["order_no"], array("class" => "button primary", "wrapper" => "li.edit")) ?>
 						<? endif; ?>
 						<?= $HTML->link("View", "/janitor/admin/profile/orders/view/".$order["id"], array("class" => "button", "wrapper" => "li.order")) ?>

@@ -135,8 +135,13 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 						<dt class="total_price">Total price</dt>
 						<dd class="total_price"><?= formatPrice($total_price) ?></dd>
 
+<?						if($order["status"] < 2): ?>
 						<dt class="payment_status">Status</dt>
 						<dd class="payment_status <?= ["unpaid", "partial", "paid"][$order["payment_status"]] ?>"><?= $SC->payment_statuses[$order["payment_status"]] ?></dd>
+<?						else: ?>
+						<dt class="status">Status</dt>
+						<dd class="status <?= superNormalize($SC->order_statuses[$order["status"]]) ?>"><?= $SC->order_statuses[$order["status"]] ?></dd>
+<?						endif; ?>
 					</dl>
 
 					<ul class="actions">
