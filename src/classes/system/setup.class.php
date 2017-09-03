@@ -60,6 +60,10 @@ class Setup extends Itemtype {
 		$this->db_ok = isset($_SESSION["DATABASE_INFO"]) ? $_SESSION["DATABASE_INFO"] : "";
 		$this->db_exists = false;
 
+		$this->db_admin_error = false;
+		$this->db_user_error = false;
+		$this->wrong_db_user_password = false;
+
 
 
 		// MAIL VALUES
@@ -267,12 +271,13 @@ class Setup extends Itemtype {
 
 	// reset setup script values
 	function reset() {
-		// unset($_SESSION["SOFTWARE_INFO"]);
-		// unset($_SESSION["CONFIG_INFO"]);
-		// unset($_SESSION["DATABASE_INFO"]);
-		// unset($_SESSION["MAIL_INFO"]);
 
-		session()->reset();
+		foreach($_SESSION as $key => $value) {
+			// Don't delete main SV storage to maintain potential login
+			if($key != "SV") {
+				unset($_SESSION[$key]);
+			}
+		}
 
 		return true;
  	}
@@ -612,11 +617,87 @@ class Setup extends Itemtype {
 
 	}
 
+
 	// check database connection
 	function checkDatabaseConnection() {
 //		unset($_SESSION["DATABASE_INFO"]);
 
-		// do we have enough information to check root login
+
+		// expect nothing
+		$this->db_exists = false;
+		$this->db_admin_error = false;
+		$this->db_user_error = false;
+		$this->wrong_db_user_password = false;
+
+		$this->db_ok = false;
+		$_SESSION["DATABASE_INFO"] = false;
+
+
+
+		// Start by testing janitor user info
+		// we are doing this because you can use an existing account for a new project
+		// and to do this you don't need to provide root/admin account info, so try user login first
+		if(
+			$this->db_host && 
+			$this->db_janitor_db && 
+			$this->db_janitor_user && 
+			$this->db_janitor_pass
+		) {
+			$mysqli = @new mysqli($this->db_host, $this->db_janitor_user, $this->db_janitor_pass);
+			if(!$mysqli->connect_errno) {
+
+				// correct the database connection setting
+				$mysqli->query("SET NAMES utf8");
+				$mysqli->query("SET CHARACTER SET utf8");
+				$mysqli->set_charset("utf8");
+
+				global $mysqli_global;
+				$mysqli_global = $mysqli;
+
+				$query = new Query();
+				if($query->connected) {
+
+					if($query->sql("USE `".$this->db_janitor_db."`")) {
+
+						$this->db_exists = true;
+
+						// test if we can create new table in database
+						$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+//						print $sql."<br>\n";
+						if($query->sql($sql)) {
+							$query->sql("DROP TABLE `".$this->db_janitor_db."`.`janitor_db_test`");
+
+							$this->db_ok = true;
+							$_SESSION["DATABASE_INFO"] = true;
+							return true;
+						}
+
+					}
+					// otherwise attempt creating it
+					else if($query->sql("CREATE DATABASE $this->db_janitor_db")) {
+
+						// test if we can create new table in database
+						$sql = "CREATE TABLE `".$this->db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+//						print $sql."<br>\n";
+						if($query->sql($sql)) {
+							$query->sql("DROP TABLE `".$this->db_janitor_db."`.`janitor_db_test`");
+							$query->sql("DROP DATABASE `".$this->db_janitor_db."`");
+
+							$this->db_ok = true;
+							$_SESSION["DATABASE_INFO"] = true;
+							return true;
+						}
+
+					}
+
+				}
+
+			}
+			$this->db_user_error = true;
+
+		}
+
+		// do we have enough information to check root login (possibly with blank password)
 		if(
 			$this->db_host && 
 			$this->db_root_user && 
@@ -637,101 +718,72 @@ class Setup extends Itemtype {
 				global $mysqli_global;
 				$mysqli_global = $mysqli;
 
-			}
-			// check user login
-			else {
+				$query = new Query();
+				if($query->connected) {
 
-				$mysqli = @new mysqli($this->db_host, $this->db_janitor_user, $this->db_janitor_pass);
-				if(!$mysqli->connect_errno) {
+					// does user already exist
+					if($query->sql("SELECT * FROM mysql.user WHERE user = '".$this->db_janitor_user."'")) {
 
-					// correct the database connection setting
-					$mysqli->query("SET NAMES utf8");
-					$mysqli->query("SET CHARACTER SET utf8");
-					$mysqli->set_charset("utf8");
-
-					global $mysqli_global;
-					$mysqli_global = $mysqli;
-
-				}
-				else {
-
-					$this->db_connection_error = true;
-				}
-
-			}
-
-		}
-
-
-		// check connection
-		$query = new Query();
-
-		// is connection information valid
-		if($this->db_janitor_db && $query->connected && (!isset($this->db_connection_error) || !$this->db_connection_error)) {
-
-			$db_temp_create = false;
-			$this->db_exists = false;
-
-
-			// test if DB exists
-			$sql = "USE `".$this->db_janitor_db."`";
-	//		print $sql."<br>".$query->sql($sql)."<br>";
-			if($query->sql($sql)) {
-
-//				print "exists";
-				$this->db_exists = true;
-
-			}
-			// otherwise attempt creating it
-			else if($query->sql("CREATE DATABASE $this->db_janitor_db")) {
-
-				$sql = "USE `".$this->db_janitor_db."`";
-		//		print $sql."<br>".$query->sql($sql)."<br>";
-				$query->sql($sql);
-
-				$db_temp_create = true;
-
-			}
-
-			// if db exists (either because it existed or because temp db was successfully created)
-			if($this->db_exists || $db_temp_create) {
-
-//				print "we have a db";
-				// test if we can create new table in database
-				$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-	//			print $sql."<br>".$query->sql($sql)."<br>";
-				if($query->sql($sql)) {
-
-//					print "temp table created";
-
-					$query->sql("DROP TABLE `".$this->db_janitor_db."`.`janitor_db_test`");
-
-					$this->db_ok = true;
-					$_SESSION["DATABASE_INFO"] = true;
-
-					// delete temporary database again
-					if($db_temp_create) {
-
-						$query->sql("DROP DATABASE `".$this->db_janitor_db."`");
+						// can the user be used to log in
+						$test_mysqli = @new mysqli($this->db_host, $this->db_janitor_user, $this->db_janitor_pass);
+						if($test_mysqli->connect_errno) {
+							// If not, then return error
+							$this->wrong_db_user_password = true;
+							return false;
+						}
 
 					}
 
-//					print "database is just fine<br>\n";
-					return true;
+
+					// Table exists?
+					if($query->sql("USE `".$this->db_janitor_db."`")) {
+
+						$this->db_exists = true;
+
+						// test if we can create new table in database
+						$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+//						print $sql."<br>\n";
+						if($query->sql($sql)) {
+							$query->sql("DROP TABLE `".$this->db_janitor_db."`.`janitor_db_test`");
+
+							$this->db_ok = true;
+							$_SESSION["DATABASE_INFO"] = true;
+							return true;
+						}
+
+					}
+					// otherwise attempt creating it
+					else if($query->sql("CREATE DATABASE $this->db_janitor_db")) {
+
+						// test if we can create new table in database
+						$sql = "CREATE TABLE `".$this->db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+//						print $sql."<br>\n";
+						if($query->sql($sql)) {
+							$query->sql("DROP TABLE `".$this->db_janitor_db."`.`janitor_db_test`");
+							$query->sql("DROP DATABASE `".$this->db_janitor_db."`");
+
+							$this->db_ok = true;
+							$_SESSION["DATABASE_INFO"] = true;
+							return true;
+						}
+
+					}
+
 				}
-				
+
 			}
+			$this->db_admin_error = true;
 
 		}
 
-		// we still need more/correct info
-		$this->db_ok = false;
-		$_SESSION["DATABASE_INFO"] = false;
 
+		// we still need more/correct info
 		return false;
 	}
 
+
 	// update the database settings
+	// submitted from form
  	function updateDatabaseSettings() {
 
 		// Get posted values to make them available for models
@@ -739,34 +791,37 @@ class Setup extends Itemtype {
 
 		if($this->validateList(array("db_host", "db_root_user", "db_root_pass", "db_janitor_db", "db_janitor_user", "db_janitor_pass"))) {
 
-			$entities = $this->data_entities;
-
-			$this->db_host         = $_SESSION["db_host"]         = $entities["db_host"]["value"];
-			$this->db_root_user    = $_SESSION["db_root_user"]    = $entities["db_root_user"]["value"];
-			$this->db_root_pass    = $_SESSION["db_root_pass"]    = $entities["db_root_pass"]["value"];
-			$this->db_janitor_db   = $_SESSION["db_janitor_db"]   = $entities["db_janitor_db"]["value"];
-			$this->db_janitor_user = $_SESSION["db_janitor_user"] = $entities["db_janitor_user"]["value"];
-			$this->db_janitor_pass = $_SESSION["db_janitor_pass"] = $entities["db_janitor_pass"]["value"];
+			$this->db_host         = $_SESSION["db_host"]         = $this->getProperty("db_host", "value"); 
+			$this->db_root_user    = $_SESSION["db_root_user"]    = $this->getProperty("db_root_user", "value");
+			$this->db_root_pass    = $_SESSION["db_root_pass"]    = $this->getProperty("db_root_pass", "value");
+			$this->db_janitor_db   = $_SESSION["db_janitor_db"]   = $this->getProperty("db_janitor_db", "value");
+			$this->db_janitor_user = $_SESSION["db_janitor_user"] = $this->getProperty("db_janitor_user", "value");
+			$this->db_janitor_pass = $_SESSION["db_janitor_pass"] = $this->getProperty("db_janitor_pass", "value");
 
 		}
 
 		$check_db = $this->checkDatabaseConnection();
 
-//		print "check_db:" . $check_db . ", exists:". $this->db_exists. ", force:" . getPost("force_db") . ", db_janitor_db:" . $_SESSION["db_janitor_db"] . "<br>\n";
+//		print "check_db:" . $check_db . ", exists:". $this->db_exists. ", force:" . getPost("force_db") . ", db_janitor_db:" . $_SESSION["db_janitor_db"] . "," .$this->db_admin_error. ", ".$this->wrong_db_user_password."<br>\n";
 
 		if($check_db && (!$this->db_exists || getPost("force_db") == $_SESSION["db_janitor_db"])) {
 			return true;
 		}
 		else if($check_db && $this->db_exists) {
-			return array("db_exists" => true);
+			return array("status" => "reload", "db_exists" => true);
+		}
+		else if($this->db_admin_error) {
+			return array("status" => "reload", "db_admin_error" => true);
+		}
+		else if($this->wrong_db_user_password) {
+			return array("status" => "reload", "wrong_db_user_password" => true);
+		}
+		else if($this->db_user_error) {
+			return array("status" => "reload", "db_user_error" => true);
 		}
 
-		if(isset($this->db_connection_error) && $this->db_connection_error) {
-			message()->addMessage("Cannot connect to your local MySQL/MariaDB with the information provided", array("type" => "error"));
-		}
-		else {
-			message()->addMessage("Insufficient privileges for database creation", array("type" => "error"));
-		}
+
+		message()->addMessage("Insufficient privileges for database creation", array("type" => "error"));
 		return false;
 
 	}

@@ -79,12 +79,46 @@ Util.Objects["database"] = new function() {
 					if(response && response.cms_status == "success") {
 
 						// reload database page to show confirm dialogue
-						if(response.cms_object && response.cms_object.db_exists) {
+						if(response.cms_object && response.cms_object.status == "reload") {
 							location.reload();
 						}
 						// continue to next step
 						else {
-							var steps = u.qsa("li.setup li:not(.done)", page.nN); 
+							var steps = u.qsa("li.setup li:not(.done)", page.nN);
+
+							var i, node;
+							for(i = 0; node = steps[i]; i++) {
+								if(node.url != location.href) {
+									location.href = node.url;
+									break;
+								}
+							}
+						}
+					}
+					else {
+						page.notify(response);
+					}
+				}
+				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+			}
+		}
+
+		var form_force = u.qs("form.force", scene);
+		if(form_force) {
+
+			u.f.init(form_force);
+			form_force.submitted = function() {
+				this.response = function(response) {
+			
+					if(response && response.cms_status == "success") {
+
+						// reload database page to show confirm dialogue
+						if(response.cms_object && response.cms_object.status == "reload") {
+							location.reload();
+						}
+						// continue to next step
+						else {
+							var steps = u.qsa("li.setup li:not(.done)", page.nN);
 
 							var i, node;
 							for(i = 0; node = steps[i]; i++) {
