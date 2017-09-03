@@ -330,6 +330,7 @@ class HTMLCore {
 					}
 					$_ .= '</select>';
 				}
+
 			}
 
 
@@ -592,6 +593,105 @@ class HTMLCore {
 				$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
 				$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
 			$_ .= '</div>'."\n";
+
+		$_ .= '</div>'."\n";
+
+
+		return $_;
+	}
+
+
+	/**
+	*
+	* @return string Field element
+	*/
+	function output($name = false, $_options = false) {
+
+		// form security
+		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
+			return "";
+		}
+
+		// Get default settings from model first
+
+		// label
+		$label = $this->getProperty($name, "label");
+
+		// type, value and options
+		$type = $this->getProperty($name, "type");
+		$value = $this->getProperty($name, "value");
+		$options = $this->getProperty($name, "options");
+
+		// frontend stuff
+		$class = $this->getProperty($name, "class");
+		$id = $this->getProperty($name, "id");
+
+		// visual feedback
+		$hint_message = $this->getProperty($name, "hint_message");
+
+
+		// overwrite model/defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "label"           : $label            = $_value; break;
+					case "type"            : $type             = $_value; break;
+					case "value"           : $value            = $_value; break;
+					case "options"         : $options          = $_value; break;
+
+					case "class"           : $class            = $_value; break;
+					case "id"              : $id               = $_value; break;
+
+					case "hint_message"    : $hint_message     = $_value; break;
+
+				}
+			}
+		}
+
+		// Start generating HTML
+
+		$_ = '';
+
+
+		$att_id = $this->attribute("id", $id);
+		$att_name = $this->attribute("name", $name);
+
+		// combine classname for field
+		$att_class = $this->attribute("class", "field", $type, $class);
+		$att_value = $this->attribute("value", $value);
+
+
+		$_ .= '<div'.$att_class.'>';
+			$_ .= '<input type="hidden"'.$att_name.$att_id.$att_value.' />';
+
+			$_ .= '<label>'.$label.'</label>';
+
+			// list
+			if($type == "list") {
+
+				$_ .= '<ul'.$att_id.'>';
+				foreach($options as $li_option => $li_value) {
+					$_ .= '<li class="'.($value == $li_option ? ' selected' : '').'>'.$li_value.'</li>';
+				}
+				$_ .= '</ul>';
+
+			}
+			// paragraph
+			else {
+
+				$_ .= '<p'.$att_id.'>'.$value.'</p>';
+
+			}
+
+
+			// HINT MESSAGE
+			if($hint_message) {
+				$_ .= '<div'.$this->attribute("class", "help").'>';
+					$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
+				$_ .= '</div>';
+			}
+
 
 		$_ .= '</div>'."\n";
 
