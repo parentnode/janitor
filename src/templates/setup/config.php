@@ -23,13 +23,13 @@ $config_check = $model->checkConfigSettings();
 			<?= $model->input("project_path", array("value" => $model->project_path)) ?>
 		</fieldset>
 
-		<h3>Specify custom project settings</h3>
-		<p>These values are added to your site config.php – you can always change them later via this page or by editing the config file manually.</p>
+		<h3>Custom project settings</h3>
+		<p>These values exist in theme/config/config.php – you can change them by editing the file manually.</p>
 		<fieldset>
-			<?= $model->input("site_name", array("value" => $model->site_name)) ?>
-			<?= $model->input("site_uid", array("value" => $model->site_uid)) ?>
-			<?= $model->input("site_email", array("value" => $model->site_email)) ?>
-			<?= $model->input("site_description", array("value" => $model->site_description)) ?>
+			<?= $model->output("site_name", array("type" => "paragraph", "value" => $model->site_name)) ?>
+			<?= $model->output("site_uid", array("type" => "paragraph", "value" => $model->site_uid)) ?>
+			<?= $model->output("site_email", array("type" => "paragraph", "value" => $model->site_email)) ?>
+			<?= $model->output("site_description", array("type" => "paragraph", "value" => $model->site_description)) ?>
 		</fieldset>
 
 		<ul class="actions">

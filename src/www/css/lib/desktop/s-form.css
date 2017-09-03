@@ -30,6 +30,13 @@ div.field textarea.autoexpand {width: 366px; padding: 6px 6px 2px; overflow: hid
 /* PSEUDO LABEL - FAKE PLACEHOLDER FOR INTERGER AND NUMBER INPUTS */
 div.field .pseudolabel {position: absolute; font-size: 1.077rem; display: inline-block; padding: 8px 6px; z-index: 2;}
 
+div.field.paragraph label {display: inline-block; vertical-align: top; line-height: 1.38em;} 
+div.field.paragraph label:after {content: ":";}
+div.field.paragraph p {display: inline-block; vertical-align: top; padding: 0 0 0 5px;} 
+
+div.field.list label {} 
+
+
 
 /* BOOLEAN + CHECKBOX */
 div.field.checkbox,
