@@ -1707,68 +1707,80 @@ class SuperShop extends Shop {
 		
 		// Update order shipping status
 		$order = $this->getOrders(array("order_id" => $order_id));
-		$shipped_items = 0;
-		$shipping_status = 0;
-		foreach($order["items"] as $order_item) {
-//			print_r($order_item);
-			if($order_item["shipped_by"]) {
-				$shipped_items++;
+
+		// only validate non-cancelled orders
+		if($order["status"] != 3) {
+
+			$shipped_items = 0;
+			$shipping_status = 0;
+			foreach($order["items"] as $order_item) {
+	//			print_r($order_item);
+				if($order_item["shipped_by"]) {
+					$shipped_items++;
+				}
 			}
-		}
 
-		if($shipped_items == count($order["items"])) {
-			$shipping_status = 2;
-		}
-		else if($shipped_items) {
-			$shipping_status = 1;
-		}
-		
-//		print $shipped_items ."==". count($order["items"]);
-		$query = new Query();
-		$sql = "UPDATE ".$this->db_orders." SET shipping_status = $shipping_status WHERE id = ".$order_id;
-		$query->sql($sql);
-
-		message()->addMessage($this->shipping_statuses[$shipping_status]);
-
-
-		// check payment status
-		$payments = $this->getPayments(array("order_id" => $order_id));
-		$total_order_price = $this->getTotalOrderPrice($order_id);
-		$payment_status = 0;
-		$total_payments = 0;
-		if($payments) {
-			foreach($payments as $payment) {
-				$total_payments += $payment["payment_amount"];
+			if($shipped_items == count($order["items"])) {
+				$shipping_status = 2;
 			}
-		}
-		if($total_payments >= $total_order_price["price"]) {
-			$payment_status = 2;
-		}
-		else if($total_payments) {
-			$payment_status = 1;
-		}
+			else if($shipped_items) {
+				$shipping_status = 1;
+			}
+		
+	//		print $shipped_items ."==". count($order["items"]);
+			$query = new Query();
+			$sql = "UPDATE ".$this->db_orders." SET shipping_status = $shipping_status WHERE id = ".$order_id;
+			$query->sql($sql);
 
-		$query = new Query();
-		$sql = "UPDATE ".$this->db_orders." SET payment_status = $payment_status WHERE id = ".$order_id;
-		$query->sql($sql);
+			message()->addMessage($this->shipping_statuses[$shipping_status]);
 
-		message()->addMessage($this->payment_statuses[$payment_status]);
+
+			// check payment status
+			$payments = $this->getPayments(array("order_id" => $order_id));
+			$total_order_price = $this->getTotalOrderPrice($order_id);
+			$payment_status = 0;
+			$total_payments = 0;
+			if($payments) {
+				foreach($payments as $payment) {
+					$total_payments += $payment["payment_amount"];
+				}
+			}
+			if($total_payments >= $total_order_price["price"]) {
+				$payment_status = 2;
+			}
+			else if($total_payments) {
+				$payment_status = 1;
+			}
+
+			$query = new Query();
+			$sql = "UPDATE ".$this->db_orders." SET payment_status = $payment_status WHERE id = ".$order_id;
+			$query->sql($sql);
+
+			message()->addMessage($this->payment_statuses[$payment_status]);
 
 		
-//		print($payments);
+	//		print($payments);
 
-		// Update order status based on payment and shipment status
-		$status = 1;
-		if($shipping_status == 2 && $payment_status == 2) {
-			$status = 2;
+			// Update order status based on payment and shipment status
+			// if shipped OR (partially) paid
+			if($shipping_status != 0 || $payment_status != 0) {
+				// Waiting
+				$status = 1;
+
+				// if shipped and paid
+				if($shipping_status == 2 && $payment_status == 2) {
+					// Complete
+					$status = 2;
+				}
+
+				$sql = "UPDATE ".$this->db_orders." SET status = $status WHERE id = ".$order_id;
+				$query->sql($sql);
+
+			}
+
 		}
 
 
-		// TODO: if order was not previously complete, then send the order shipped email (unless order was autoshipped?)
-
-
-		$sql = "UPDATE ".$this->db_orders." SET status = $status WHERE id = ".$order_id;
-		$query->sql($sql);
 
 		return $this->getOrders(array("order_id" => $order_id));
 	}
