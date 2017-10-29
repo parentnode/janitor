@@ -939,7 +939,7 @@ class SuperShop extends Shop {
 				$current_user = $UC->getUser();
 				$total_order_price = $this->getTotalOrderPrice($order["id"]);
 
-				$page->mail(array(
+				mailer()->send(array(
 					"from_current_user" => true,
 					"values" => array(
 						"FROM" => $current_user["nickname"],

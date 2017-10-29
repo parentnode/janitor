@@ -121,7 +121,7 @@ class TypeMembership extends Itemtype {
 			//$nickname = false;
 			if($nickname && $email && $membership && $price && $classname) {
 
-				$page->mail(array(
+				mailer()->send(array(
 					"values" => array(
 						"ORDER_NO" => $order["order_no"],
 						"MEMBERID" => $membership["id"],
@@ -135,7 +135,7 @@ class TypeMembership extends Itemtype {
 				));
 
 				// send notification email to admin
-				$page->mail(array(
+				mailer()->send(array(
 					"recipients" => SHOP_ORDER_NOTIFIES,
 					"subject" => SITE_URL . " - New ".$subscription["item"]["name"].": " . $email,
 					"message" => "Do something"
@@ -145,7 +145,7 @@ class TypeMembership extends Itemtype {
 			else {
 
 				// send notification email to admin
-				$page->mail(array(
+				mailer()->send(array(
 					"subject" => "ERROR: subscription creation: " . $email, 
 					"message" => "Do something",
 					"template" => "system"

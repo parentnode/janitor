@@ -6,6 +6,8 @@ include_once("includes/functions.inc.php");
 include_once("classes/system/message.class.php");
 include_once("classes/system/session.class.php");
 include_once("classes/system/cache.class.php");
+include_once("classes/system/mailer.class.php");
+
 
 
 /**
@@ -44,13 +46,6 @@ class PageCore {
 	private $db_username;
 	private $db_password;
 
-	// Mailer settings
-	private $mail_host;
-	private $mail_port;
-	private $mail_username;
-	private $mail_password;
-	private $mail_smtpauth;
-	private $mail_secure;
 
 
 	/**
@@ -60,9 +55,6 @@ class PageCore {
 
 		// database connection
 		$this->loadDBConfiguration();
-
-		// mailer connection
-		$this->loadMailConfiguration();
 
 
 		// set guest user group if no user group is defined (user is not logged in)
@@ -1605,7 +1597,7 @@ class PageCore {
 			if($query->sql($sql)) {
 
 				// send activation reminder email
-				$this->mail(array(
+				mailer()->send(array(
 					"values" => array(
 						"NICKNAME" => $query->result(0, "nickname"), 
 						"EMAIL" => $query->result(0, "username"), 
@@ -1724,7 +1716,8 @@ class PageCore {
 
 		// TODO: Compile more information and send in email
 		$this->addLog("Throwoff - insufficient privileges:".$this->url." by ". session()->value("user_id"));
-		$this->mail(array(
+
+		mailer()->send(array(
 			"subject" => "Throwoff - " . SITE_URL, 
 			"message" => "insufficient privileges:".$this->url, 
 			"template" => "system"
@@ -1806,199 +1799,10 @@ class PageCore {
 		if(defined("SITE_DB")) {
 			@include_once("config/database.constants.php");
 		}
-	}
-
-
-	/**
-	* Create mailer connection
-	*/
-	function mail_connection($settings) {
-
-		$this->mail_host = isset($settings["host"]) ? $settings["host"] : "";
-		$this->mail_username = isset($settings["username"]) ? $settings["username"] : "";
-		$this->mail_password = isset($settings["password"]) ? $settings["password"] : "";
-		$this->mail_port = isset($settings["port"]) ? $settings["port"] : "";
-		$this->mail_secure = isset($settings["secure"]) ? $settings["secure"] : "";
-		$this->mail_smtpauth = isset($settings["smtpauth"]) ? $settings["smtpauth"] : "";
 
 	}
-	// Mail connection loader
-	function loadMailConfiguration() {
-		// mailer connection
-		@include_once("config/connect_mail.php");
-	}
 
 
-	/**
-	* send mail
-	*
-	* all parameters in options array structure
-	* object can be any type of object providing details for email template
-	*/
-	function mail($_options = false) {
-
-		$subject = "Mail from ".SITE_URL;
-		$message = "";
-		$values = "";
-		$recipients = false;
-		$from_current_user = false;
-		$template = false;
-		$attachments = false;
-		$object = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "recipients"             : $recipients             = $_value; break;
-					case "from_current_user"      : $from_current_user      = $_value; break;
-					case "template"               : $template               = $_value; break;
-					case "object"                 : $object                 = $_value; break;
-					case "message"                : $message                = $_value; break;
-					case "values"                 : $values                 = $_value; break;
-					case "subject"                : $subject                = $_value; break;
-					case "attachments"            : $attachments            = $_value; break;
-				}
-			}
-		}
-
-		// if no recipients - send to ADMIN
-		if(!$recipients && defined("ADMIN_EMAIL")) {
-			$recipients = ADMIN_EMAIL;
-		}
-		// include template
-		if($template) {
-			$message_template = false;
-
-			// include local formatting text template
-			if(file_exists(LOCAL_PATH."/templates/mails/$template.txt")) {
-				$message_template = file_get_contents(LOCAL_PATH."/templates/mails/$template.txt");
-			}
-			// include framework formatting text template
-			else if(file_exists(FRAMEWORK_PATH."/templates/mails/$template.txt")) {
-				$message_template = file_get_contents(FRAMEWORK_PATH."/templates/mails/$template.txt");
-			}
-
-			if($message_template) {
-
-				// look for subject
-				if(preg_match("/^SUBJECT\:([^\n]+)\n/", $message_template, $subject_match)) {
-
-					$subject = $subject_match[1];
-
-					// Replace custom values
-					foreach($values as $key => $value) {
-						$subject = preg_replace("/{".$key."}/", $value, $subject);
-					}
-
-					// Replace constants
-					$subject = preg_replace("/{SITE_URL}/", SITE_URL, $subject);
-					$subject = preg_replace("/{SITE_NAME}/", SITE_NAME, $subject);
-					$subject = preg_replace("/{ADMIN_EMAIL}/", ADMIN_EMAIL, $subject);
-					$subject = preg_replace("/{SITE_EMAIL}/", SITE_EMAIL, $subject);
-
-					// Remove subject line from message template
-					$message_template = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $message_template);
-				}
-
-				// parse values from message_template
-				if($values && is_array($values)) {
-
-					// Replace custom values
-					foreach($values as $key => $value) {
-						$message_template = preg_replace("/{".$key."}/", $value, $message_template);
-					}
-
-					// Replace constants
-					$message_template = preg_replace("/{SITE_URL}/", SITE_URL, $message_template);
-					$message_template = preg_replace("/{SITE_NAME}/", SITE_NAME, $message_template);
-					$message_template = preg_replace("/{ADMIN_EMAIL}/", ADMIN_EMAIL, $message_template);
-					$message_template = preg_replace("/{SITE_EMAIL}/", SITE_EMAIL, $message_template);
-
-				}
-
-				// this is the new message
-				$message = trim($message_template);
-
-			}
-			// support old template method (with parameter replacement inside template and execution of PHP)
-			else {
-
-				@include("templates/mails/$template.php");
-
-			}
-		}
-
-//		print $message;
-
-		// only attmempt sending if recipient is specified
-		if($message && $recipients) {
-
-			require_once("includes/PHPMailer-5.2.16/PHPMailerAutoload.php");
-
-			$mail             = new PHPMailer();
-			$mail->Subject    = $subject;
-
-//			$mail->SMTPDebug  = 1;                     // enables SMTP debug information (for testing)
-
-			$mail->CharSet    = "UTF-8";
-			$mail->IsSMTP();
-
-			$mail->SMTPAuth   = $this->mail_smtpauth;
-			$mail->SMTPSecure = $this->mail_secure;
-			$mail->Host       = $this->mail_host;
-			$mail->Port       = $this->mail_port;
-			$mail->Username   = $this->mail_username;
-			$mail->Password   = $this->mail_password;
-
-
-			if($from_current_user) {
-				$UC = new User();
-				$current_user = $UC->getUser();
-
-				$from = $current_user["email"];
-				$mail->addReplyTo($from, $current_user["nickname"]);
-				$mail->SetFrom($from, $current_user["nickname"]);
-			}
-			else {
-				$from = (defined("SITE_EMAIL") ? SITE_EMAIL : ADMIN_EMAIL);
-				$mail->addReplyTo($from, SITE_NAME);
-				$mail->SetFrom($from, SITE_NAME);
-			}
-
-
-			// split comma separated list
-			if(!is_array($recipients) && preg_match("/,|;/", $recipients)) {
-				$recipients = preg_split("/,|;/", $recipients);
-			}
-			// multiple entries
-			if(is_array($recipients)) {
-				foreach($recipients as $recipient) {
-					$mail->AddAddress($recipient);
-				}
-			}
-			else {
-				$mail->AddAddress($recipients);
-			}
-
-			$mail->Body = $message;
-
-			// Attachments
-			if($attachments) {
-				if(is_array($attachments)) {
-					foreach($attachments as $attachment) {
-						$mail->addAttachment($attachment, basename($attachment));
-					}
-				}
-				else {
-					$mail->addAttachment($attachments, basename($attachments));
-				}
-			}
-
-			return $mail->Send();
-		}
-
-		return false;
-	}
 
 
 	/**
@@ -2071,11 +1875,11 @@ class PageCore {
 
 			$message = implode("\n", $notifications);
 
-			// include formatting template
+			// include formatting template (if it exists)
 			@include("templates/mails/notifications/$collection.php");
 
 			// send and reset collection
-			if($this->mail(array(
+			if(mailer()->send(array(
 				"subject" => "NOTIFICATION: $collection on ".$_SERVER["SERVER_ADDR"], 
 				"message" => $message
 			))) {

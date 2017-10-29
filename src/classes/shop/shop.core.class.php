@@ -1292,8 +1292,7 @@ class ShopCore extends Model {
 
 
 						// send notification email to admin
-						global $page;
-						$page->mail(array(
+						mailer()->send(array(
 							"recipients" => SHOP_ORDER_NOTIFIES,
 							"subject" => SITE_URL . " - New order ($order_no) created by: $user_id",
 							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/shop/order/edit/" . $order["id"],

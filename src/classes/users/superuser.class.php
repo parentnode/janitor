@@ -1691,7 +1691,7 @@ class SuperUser extends User {
 					// Failed to update subscription
 					else {
 
-						$page->mail(array(
+						mailer()->send(array(
 							"subject" => SITE_URL . " - Subscription renewal failed",
 							"message" => "SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"],
 							"template" => "system"
@@ -2252,7 +2252,6 @@ class SuperUser extends User {
 	// /janitor/admin/user/sendActivationReminder/[#user_id#]
 	function sendActivationReminder($action) {
 
-		global $page;
 		$query = new Query();
 		$query->checkDbExistence(SITE_DB.".user_log_activation_reminders");
 
@@ -2275,7 +2274,7 @@ class SuperUser extends User {
 			$current_user = $this->getUser();
 //			print_r($)
 
-			$page->mail(array(
+			mailer()->send(array(
 				"from_current_user" => true,
 				"values" => array(
 					"FROM" => $current_user["nickname"],

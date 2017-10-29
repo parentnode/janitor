@@ -409,11 +409,11 @@ class JanitorStripe {
 						// Notify admin
 
 						// Send mail to admin
-						$page->mail(array(
+						mailer()->send([
 							"subject" => SITE_URL." - Error adding Stripe payment", 
 							"message" => "Failed adding payment from Stripe capture. This needs to be handled manually.\n\nCharge ID: ".$charge->id."\nOrder id: ".$order["id"]."\nOrder No: ".$order["order_no"],
 							"template" => "system"
-						));
+						]);
 
 					}
 					unset($_POST);
@@ -425,11 +425,11 @@ class JanitorStripe {
 					// Notify admin
 
 					// Send mail to admin
-					$page->mail(array(
+					mailer()->send([
 						"subject" => SITE_URL." - Error adding Stripe payment", 
 						"message" => "Failed adding payment from Stripe capture (no payment method for stripe). This needs to be handled manually.\n\nCharge ID: ".$charge->id."\nOrder id: ".$order["id"]."\nOrder No: ".$order["order_no"],
 						"template" => "system"
-					));
+					]);
 
 				}
 
@@ -489,22 +489,21 @@ class JanitorStripe {
 	// Handle any stripe exception
 	function exceptionHandler($action, $exception) {
 
-		global $page;
-
 
 		$error_body = $exception->getJsonBody();
 		$error = $error_body["error"];
 		$http_response = $exception->getHttpStatus();
 
 		// Add log entry
+		global $page;
 		$page->addLog($action." failed: type:".$error["type"].", http-response:".$http_response.", message:".$error["message"].", code:".(isset($error["code"]) ? $error["code"] : "N/A").", param:".(isset($error["param"]) ? $error["param"] : "N/A"), "stripe");
 
 		// Send mail to admin
-		$page->mail(array(
+		mailer()->send([
 			"subject" => SITE_URL." - $action - Stripe exception (".$error["type"].")", 
 			"message" => "Exception thrown when $action: \n" . print_r($error, true),
 			"template" => "system"
-		));
+		]);
 
 	}
 

@@ -27,7 +27,7 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 // error handling
 function conversionFailed($reason) {
-	global $page;
+//	global $page;
 
 	global $id;
 	global $variant;
@@ -40,58 +40,58 @@ function conversionFailed($reason) {
 	global $bitrate;
 
 	// get into the detail to make debugging as easy as possible
-	$reason .= "\n".$_SERVER["REQUEST_URI"];
-	$reason .= "\n\nRequest type: ".$request_type;
-	$reason .= "\nFormat: ".$format;
+	$reason .= "<br />".$_SERVER["REQUEST_URI"];
+	$reason .= "<br /><br />Request type: ".$request_type;
+	$reason .= "<br />Format: ".$format;
 
 	if($request_type == "audios") {
 		if(!$bitrate) {
-			$reason .= "\nBitrate: MISSING";
+			$reason .= "<br />Bitrate: MISSING";
 		}
 		else {
-			$reason .= "\nBitrate: ".$bitrate;
+			$reason .= "<br />Bitrate: ".$bitrate;
 		}
 	}
 	else {
 		if(!$width && !$height) {
-			$reason .= "\nWidth and Height: MISSING";
+			$reason .= "<br />Width and Height: MISSING";
 		}
 		else if($width) {
-			$reason .= "\nWidth: ".$width;
+			$reason .= "<br />Width: ".$width;
 		}
 		else if($height) {
-			$reason .= "\nHeight: ".$height;
+			$reason .= "<br />Height: ".$height;
 		}
 	}
 
 	// specify reason
 	if($id && !file_exists(PRIVATE_FILE_PATH."/$id")) {
-		$reason .= "\n\nID does not exist: ".$id;
+		$reason .= "<br /><br />ID does not exist: ".$id;
 	}
 	else if($id && $variant && !file_exists(PRIVATE_FILE_PATH."/$id$variant")) {
-		$reason .= "\n\nVariant does not exist: ".$variant;
+		$reason .= "<br /><br />Variant does not exist: ".$variant;
 	}
 	
 	// show what we got
 	if($id && file_exists(PRIVATE_FILE_PATH."/$id")) {
 		$fs = new FileSystem();
 		$files = $fs->files(PRIVATE_FILE_PATH."/$id");
-		$reason .= "\n\nPrivate files:\n";
+		$reason .= "<br /><br />Private files:<br />";
 		foreach($files as $file) {
-			$reason .= str_replace(PRIVATE_FILE_PATH, "", $file)."\n";
+			$reason .= str_replace(PRIVATE_FILE_PATH, "", $file)."<br />";
 		}
 		$files = $fs->files(PUBLIC_FILE_PATH."/$id");
-		$reason .= "\nPublic files:\n";
+		$reason .= "<br />Public files:<br />";
 		foreach($files as $file) {
-			$reason .= str_replace(PUBLIC_FILE_PATH, "", $file)."\n";
+			$reason .= str_replace(PUBLIC_FILE_PATH, "", $file)."<br />";
 		}
 	}
 
-	$page->mail(array(
+	mailer()->send([
 		"subject" => "Autoconversion failed ($request_type)", 
 		"message" => $reason,
 		"template" => "system"
-	));
+	]);
 
 	// TODO: implement fallback for audio and video
 	// TODO: implement constraints to avoid media generation abuse

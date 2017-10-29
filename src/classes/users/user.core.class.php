@@ -490,7 +490,7 @@ class UserCore extends Model {
 							if($verification_code) {
 
 								// send verification email to user
-								$page->mail(array(
+								mailer()->send(array(
 									"values" => array(
 										"NICKNAME" => $nickname, 
 										"EMAIL" => $email, 
@@ -502,7 +502,7 @@ class UserCore extends Model {
 								));
 
 								// send notification email to admin
-								$page->mail(array(
+								mailer()->send(array(
 									"subject" => SITE_URL . " - New User: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
 									// "template" => "system"
@@ -511,13 +511,13 @@ class UserCore extends Model {
 							// error
 							else {
 								// send error email notification
-								$page->mail(array(
+								mailer()->send(array(
 									"recipients" => $email, 
 									"template" => "signup_error"
 								));
 
 								// send notification email to admin
-								$page->mail(array(
+								mailer()->send(array(
 									"subject" => "New User created ERROR: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
 									// "template" => "system"
@@ -1106,10 +1106,9 @@ class UserCore extends Model {
 					$sql = "INSERT INTO ".$this->db_password_reset_tokens." VALUES(DEFAULT, $user_id, '$reset_token', '".date("Y-m-d H:i:s", strtotime("+15 minutes"))."')";
 					if($query->sql($sql)) {
 
-						global $page;
 
 						// send email
-						$page->mail(array(
+						mailer()->send(array(
 							"values" => array(
 								"TOKEN" => $reset_token,
 								"USERNAME" => $username
@@ -1120,7 +1119,7 @@ class UserCore extends Model {
 
 						// send notification email to admin
 						// TODO: consider disabling this once it has proved itself worthy
-						$page->mail(array(
+						mailer()->send(array(
 							"subject" => "Password reset requested: " . $email,
 							"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
 							"template" => "system"
@@ -1181,10 +1180,9 @@ class UserCore extends Model {
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 					if($query->sql($sql)) {
 
-						global $page;
 						// send notification email to admin
 						// TODO: consider disabling this once it has proved itself worthy
-						$page->mail(array(
+						mailer()->send(array(
 							"subject" => "Password was resat: " . $user_id,
 							"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id
 						));

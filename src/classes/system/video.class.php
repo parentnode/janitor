@@ -55,8 +55,8 @@ class Video {
 		// is input format different from output format - AND conversion not allowed
 		if($input_format != $output_format && !$allow_conversion) {
 			// critical error - report to admin
-			global $page;
-			$page->mail(array(
+
+			mailer()->send(array(
 				"subject" => "ffmpeg failed", 
 				"messsage" => "ffmpeg failed to read source video proporties", 
 				"template" => "system"
@@ -84,8 +84,8 @@ class Video {
 		// max pixels detection
 		if($max_pixels && $output_width * $output_height > $max_pixels) {
 			// critical error - report to admin
-			global $page;
-			$page->mail(array(
+
+			mailer()->send(array(
 				"subject" => "Video failed ($output_width x $output_height)", 
 				"message" => "Video size too big", 
 				"template" => "system"
@@ -394,8 +394,7 @@ class Video {
 
 		}
 
-		global $page;
-		$page->mail(array(
+		mailer()->send(array(
 			"subject" => "ffmpeg failed", 
 			"message" => "Could not output video file (could be missing codec or filepermissions issue)", 
 			"template" => "system"

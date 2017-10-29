@@ -56,8 +56,7 @@ class Audio {
 
 		}
 
-		global $page;
-		$page->mail(array(
+		mailer()->send(array(
 			"subject" => "ffmpeg failed", 
 			"message" => "Could not output audio file (could be missing codec or filepermissions issue)", 
 			"template" => "system"
