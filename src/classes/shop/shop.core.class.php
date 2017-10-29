@@ -1609,7 +1609,7 @@ class ShopCore extends Model {
 
 						$page->addLog("Shop->processOrderPayment: order_id:".$order["id"].", gateway: $gateway");
 
-						include_once("classes/shop/gateways/janitor_stripe.class.php");
+						include_once("classes/adapters/stripe.class.php");
 						$GC = new JanitorStripe();
 
 						return $GC->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
@@ -1689,7 +1689,7 @@ class ShopCore extends Model {
 
 		if($gateway == "stripe") {
 
-			include_once("classes/shop/gateways/janitor_stripe.class.php");
+			include_once("classes/adapters/stripe.class.php");
 			$GC = new JanitorStripe();
 
 			$customer_id = $GC->getCustomerId($user_id);

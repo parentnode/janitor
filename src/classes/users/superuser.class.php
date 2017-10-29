@@ -257,7 +257,7 @@ class SuperUser extends User {
 
 						// we should also delete user account at gateway
 						// TODO: keep updated when more gateways are added
-						include_once("classes/shop/gateways/janitor_stripe.class.php");
+						include_once("classes/adapters/stripe.class.php");
 						$GC = new JanitorStripe();
 						$payment_methods = $page->paymentMethods();
 

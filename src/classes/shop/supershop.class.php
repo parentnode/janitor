@@ -1908,7 +1908,7 @@ class SuperShop extends Shop {
 
 		if($gateway == "stripe") {
 
-			include_once("classes/shop/gateways/janitor_stripe.class.php");
+			include_once("classes/adapters/stripe.class.php");
 			$GC = new JanitorStripe();
 
 			$customer_id = $GC->getCustomerId($user_id);
@@ -1956,7 +1956,7 @@ class SuperShop extends Shop {
 
 				if($payment_method["gateway"] == "stripe") {
 
-					include_once("classes/shop/gateways/janitor_stripe.class.php");
+					include_once("classes/adapters/stripe.class.php");
 					$GC = new JanitorStripe();
 
 					$customer_id = $GC->getCustomerId($order["user_id"]);
