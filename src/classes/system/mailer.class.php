@@ -25,7 +25,7 @@ class Mailer {
 	function mail_connection($_settings) {
 
 		// set type to default, SMTP, if not defined in configs
-		$_settings["type"] = isset($_settings["type"]) ? $_settings["type"] : "SMTP";
+		$_settings["type"] = isset($_settings["type"]) ? $_settings["type"] : "smtp";
 		$this->_settings = $_settings; 
 
 

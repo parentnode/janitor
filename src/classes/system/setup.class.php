@@ -68,10 +68,15 @@ class Setup extends Itemtype {
 
 		// MAIL VALUES
 		$this->mail_admin = isset($_SESSION["mail_admin"]) ? $_SESSION["mail_admin"] : "";
-		$this->mail_host = isset($_SESSION["mail_host"]) ? $_SESSION["mail_host"] : "";
-		$this->mail_port = isset($_SESSION["mail_port"]) ? $_SESSION["mail_port"] : "";
-		$this->mail_username = isset($_SESSION["mail_username"]) ? $_SESSION["mail_username"] : "";
-		$this->mail_password = isset($_SESSION["mail_password"]) ? $_SESSION["mail_password"] : "";
+		$this->mail_type = isset($_SESSION["mail_type"]) ? $_SESSION["mail_type"] : "";
+
+		$this->mail_smtp_host = isset($_SESSION["mail_smtp_host"]) ? $_SESSION["mail_smtp_host"] : "";
+		$this->mail_smtp_port = isset($_SESSION["mail_smtp_port"]) ? $_SESSION["mail_smtp_port"] : "";
+		$this->mail_smtp_username = isset($_SESSION["mail_smtp_username"]) ? $_SESSION["mail_smtp_username"] : "";
+		$this->mail_smtp_password = isset($_SESSION["mail_smtp_password"]) ? $_SESSION["mail_smtp_password"] : "";
+
+		$this->mail_mailgun_api_key = isset($_SESSION["mail_mailgun_api_key"]) ? $_SESSION["mail_mailgun_api_key"] : "";
+		$this->mail_mailgun_domain = isset($_SESSION["mail_mailgun_domain"]) ? $_SESSION["mail_mailgun_domain"] : "";
 
 		// MAIL CHECKS
 		$this->mail_ok = isset($_SESSION["MAIL_INFO"]) ? $_SESSION["MAIL_INFO"] : "";
@@ -230,8 +235,19 @@ class Setup extends Itemtype {
 			"hint_message" => "Email to send system notifications to.", 
 			"error_message" => "Admin email must be filled out."
 		));
+
+		// mail_type
+		$this->addToModel("mail_type", array(
+			"type" => "select",
+			"label" => "Mail type",
+			"options" => ["smtp" => "SMTP Service", "mailgun" => "Mailgun API"],
+			"required" => true,
+			"hint_message" => "Select your type of mail endpoint.", 
+			"error_message" => "Mail type must be filled out."
+		));
+
 		// mail_host
-		$this->addToModel("mail_host", array(
+		$this->addToModel("mail_smtp_host", array(
 			"type" => "string",
 			"label" => "Mail host",
 			"autocomplete" => true,
@@ -240,7 +256,7 @@ class Setup extends Itemtype {
 			"error_message" => "Mail host must be filled out."
 		));
 		// mail_port
-		$this->addToModel("mail_port", array(
+		$this->addToModel("mail_smtp_port", array(
 			"type" => "string",
 			"label" => "Mail port",
 			"autocomplete" => true,
@@ -249,7 +265,7 @@ class Setup extends Itemtype {
 			"error_message" => "Mail port must be filled out."
 		));
 		// mail_username
-		$this->addToModel("mail_username", array(
+		$this->addToModel("mail_smtp_username", array(
 			"type" => "string",
 			"label" => "Mail username",
 			"autocomplete" => true,
@@ -258,12 +274,30 @@ class Setup extends Itemtype {
 			"error_message" => "Mail username must be filled out."
 		));
 		// mail_password
-		$this->addToModel("mail_password", array(
+		$this->addToModel("mail_smtp_password", array(
 			"type" => "password",
 			"label" => "Mail password",
 			"required" => true,
 			"hint_message" => "Password for the outgoing mail account.", 
 			"error_message" => "Mail password must be filled out."
+		));
+
+
+		// mail_api_key
+		$this->addToModel("mail_mailgun_api_key", array(
+			"type" => "string",
+			"label" => "API key",
+			"required" => true,
+			"hint_message" => "API key for the Mailgun account.", 
+			"error_message" => "API key must be filled out."
+		));
+		// mail_api_key
+		$this->addToModel("mail_mailgun_domain", array(
+			"type" => "string",
+			"label" => "Mail domain",
+			"required" => true,
+			"hint_message" => "Mail account domain to use when sending emails.", 
+			"error_message" => "API key must be filled out."
 		));
 
 	}
@@ -789,7 +823,17 @@ class Setup extends Itemtype {
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if($this->validateList(array("db_host", "db_root_user", "db_root_pass", "db_janitor_db", "db_janitor_user", "db_janitor_pass"))) {
+		if(getPost("force_db")) {
+
+			$this->checkDatabaseSettings();
+
+			$_SESSION["db_host"]                = $this->db_host;
+			$_SESSION["db_janitor_db"]          = $this->db_janitor_db;
+			$_SESSION["db_janitor_user"]        = $this->db_janitor_user;
+			$_SESSION["db_janitor_pass"]        = $this->db_janitor_pass;
+
+		}
+		else if($this->validateList(array("db_host", "db_root_user", "db_root_pass", "db_janitor_db", "db_janitor_user", "db_janitor_pass"))) {
 
 			$this->db_host         = $_SESSION["db_host"]         = $this->getProperty("db_host", "value"); 
 			$this->db_root_user    = $_SESSION["db_root_user"]    = $this->getProperty("db_root_user", "value");
@@ -833,8 +877,8 @@ class Setup extends Itemtype {
 	// check mail settings
 	function checkMailSettings() {
 
-		// if we do not have stored db info, attempt to read existing connect_db.php
-		if(!$this->mail_host && file_exists(LOCAL_PATH."/config/connect_mail.php")) {
+		// if we do not have stored mail info, attempt to read existing connect_db.php
+		if(!$this->mail_type && file_exists(LOCAL_PATH."/config/connect_mail.php")) {
 
 			$connection_info = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
 
@@ -843,36 +887,74 @@ class Setup extends Itemtype {
 				$this->mail_admin = $matches[1];
 			}
 
-			preg_match("/\"host\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+			preg_match("/\"type\" \=\> \"([a-zA-Z0-9]+)\"/", $connection_info, $matches);
 			if($matches) {
-				$this->mail_host = $matches[1];
+				$this->mail_type = $matches[1];
 			}
 
-			preg_match("/\"port\" \=\> \"([0-9]+)\"/", $connection_info, $matches);
-			if($matches) {
-				$this->mail_port = $matches[1];
+
+			// MAILGUN
+			if($this->mail_type == "mailgun") {
+
+				preg_match("/\"api-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+				if($matches) {
+					$this->mail_mailgun_api_key = $matches[1];
+				}
+
+				preg_match("/\"domain\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+				if($matches) {
+					$this->mail_mailgun_domain = $matches[1];
+				}
+
 			}
 
-			preg_match("/\"username\" \=\> \"([a-zA-Z0-9\.\_\@\-]+)\"/", $connection_info, $matches);
-			if($matches) {
-				$this->mail_username = $matches[1];
-			}
+			// SMTP
+			else {
 
-			preg_match("/\"password\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
-			if($matches) {
-				$this->mail_password = $matches[1];
+				preg_match("/\"host\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+				if($matches) {
+					$this->mail_smtp_host = $matches[1];
+				}
+
+				preg_match("/\"port\" \=\> \"([0-9]+)\"/", $connection_info, $matches);
+				if($matches) {
+					$this->mail_smtp_port = $matches[1];
+				}
+
+				preg_match("/\"username\" \=\> \"([a-zA-Z0-9\.\_\@\-]+)\"/", $connection_info, $matches);
+				if($matches) {
+					$this->mail_smtp_username = $matches[1];
+				}
+
+				preg_match("/\"password\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+				if($matches) {
+					$this->mail_smtp_password = $matches[1];
+				}
+
 			}
 
 		}
+
+		// set default values
 		else {
 
 			$this->mail_admin = stringOr($this->mail_admin, $this->site_email);
-			$this->mail_host = stringOr($this->mail_host, "smtp.gmail.com");
-			$this->mail_port = stringOr($this->mail_port, "587");
-			
+			$this->mail_type = stringOr($this->mail_type, "smtp");
+
+			$this->mail_smtp_host = stringOr($this->mail_smtp_host, "smtp.gmail.com");
+			$this->mail_smtp_port = stringOr($this->mail_smtp_port, "587");
+
 		}
 
- 		if($this->mail_admin && $this->mail_host && $this->mail_port && $this->mail_username && $this->mail_password) {
+		// check if we have sufficient information
+ 		if($this->mail_admin && 
+			($this->mail_type == "smtp" &&
+			($this->mail_smtp_host && $this->mail_smtp_port && $this->mail_smtp_username && $this->mail_smtp_password))
+				||
+			($this->mail_type == "mailgun" &&
+			($this->mail_mailgun_api_key && $this->mail_mailgun_domain))
+		
+		) {
 
 			$_SESSION["MAIL_INFO"] = true;
 			$this->mail_ok = true;
@@ -888,15 +970,28 @@ class Setup extends Itemtype {
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if($this->validateList(array("mail_admin", "mail_host", "mail_port", "mail_username", "mail_password"))) {
+		if($this->validateList(array("mail_admin", "mail_type"))) {
 
-			$entities = $this->data_entities;
+			$this->mail_admin    = $_SESSION["mail_admin"]    = $this->getProperty("mail_admin", "value");
+			$this->mail_type     = $_SESSION["mail_type"]     = $this->getProperty("mail_type", "value");
 
-			$this->mail_admin    = $_SESSION["mail_admin"]    = $entities["mail_admin"]["value"];
-			$this->mail_host     = $_SESSION["mail_host"]     = $entities["mail_host"]["value"];
-			$this->mail_port     = $_SESSION["mail_port"]     = $entities["mail_port"]["value"];
-			$this->mail_username = $_SESSION["mail_username"] = $entities["mail_username"]["value"];
-			$this->mail_password = $_SESSION["mail_password"] = $entities["mail_password"]["value"];
+			if($this->mail_type == "mailgun") {
+
+				if($this->validateList(array("mail_mailgun_api_key", "mail_mailgun_domain"))) {
+
+					$this->mail_mailgun_api_key    = $_SESSION["mail_mailgun_api_key"]    = $this->getProperty("mail_mailgun_api_key", "value");
+					$this->mail_mailgun_domain     = $_SESSION["mail_mailgun_domain"]     = $this->getProperty("mail_mailgun_domain", "value");
+				}
+			}
+			else {
+
+				if($this->validateList(array("mail_smtp_host", "mail_smtp_port", "mail_smtp_username", "mail_smtp_password"))) {
+					$this->mail_smtp_host       = $_SESSION["mail_smtp_host"]       = $this->getProperty("mail_smtp_host", "value");
+					$this->mail_smtp_port       = $_SESSION["mail_smtp_port"]       = $this->getProperty("mail_smtp_port", "value");
+					$this->mail_smtp_username   = $_SESSION["mail_smtp_username"]   = $this->getProperty("mail_smtp_username", "value");
+					$this->mail_smtp_password   = $_SESSION["mail_smtp_password"]   = $this->getProperty("mail_smtp_password", "value");
+				}
+			} 
 
 		}
 
@@ -1175,13 +1270,22 @@ class Setup extends Itemtype {
 
 					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
 					$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->mail_admin."\");", $file_mail);
-					$file_mail = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"host\" => \"".$this->mail_host."\"", $file_mail);
-					$file_mail = preg_replace("/(\n)[ \t]*\"port\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"port\" => \"".$this->mail_port."\"", $file_mail);
-					if($this->mail_port == "587") {
-						$file_mail = preg_replace("/(\n)[ \t]*\"secure\"[ ]*\=\>[ ]*\"ssl\"/", "\n\t\t\"secure\" => \"tls\"", $file_mail);
+
+					$file_mail = preg_replace("/(\n)[ \t]*\"type\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"type\" => \"".$this->mail_type."\"", $file_mail);
+					if($this->mail_type == "mailgun") {
+						$file_mail = preg_replace("/(\n)[ \t]*\"api-key\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"api-key\" => \"".$this->mail_mailgun_api_key."\"", $file_mail);
+						$file_mail = preg_replace("/(\n)[ \t]*\"domain\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"domain\" => \"".$this->mail_mailgun_domain."\"", $file_mail);
 					}
-					$file_mail = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"username\" => \"".$this->mail_username."\"", $file_mail);
-					$file_mail = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"password\" => \"".$this->mail_password."\"", $file_mail);
+					else {
+						$file_mail = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"host\" => \"".$this->mail_smtp_host."\"", $file_mail);
+						$file_mail = preg_replace("/(\n)[ \t]*\"port\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"port\" => \"".$this->mail_smtp_port."\"", $file_mail);
+						if($this->mail_port == "587") {
+							$file_mail = preg_replace("/(\n)[ \t]*\"secure\"[ ]*\=\>[ ]*\"ssl\"/", "\n\t\t\"secure\" => \"tls\"", $file_mail);
+						}
+						$file_mail = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"username\" => \"".$this->mail_smtp_username."\"", $file_mail);
+						$file_mail = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"password\" => \"".$this->mail_smtp_password."\"", $file_mail);
+					}
+
 					file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
 
 					// Status for updating connect_mail.php
@@ -1193,10 +1297,13 @@ class Setup extends Itemtype {
 
 					$file_mail = file_get_contents(FRAMEWORK_PATH."/config/connect_mail.template.php");
 					$file_mail = preg_replace("/###ADMIN_EMAIL###/", $this->mail_admin, $file_mail);
-					$file_mail = preg_replace("/###HOST###/", $this->mail_host, $file_mail);
-					$file_mail = preg_replace("/###PORT###/", $this->mail_port, $file_mail);
-					$file_mail = preg_replace("/###USERNAME###/", $this->mail_username, $file_mail);
-					$file_mail = preg_replace("/###PASSWORD###/", $this->mail_password, $file_mail);
+
+					$file_mail = preg_replace("/###TYPE###/", $this->mail_type, $file_mail);
+
+					$file_mail = preg_replace("/###HOST###/", $this->mail_smtp_host, $file_mail);
+					$file_mail = preg_replace("/###PORT###/", $this->mail_smtp_port, $file_mail);
+					$file_mail = preg_replace("/###USERNAME###/", $this->mail_smtp_username, $file_mail);
+					$file_mail = preg_replace("/###PASSWORD###/", $this->mail_smtp_password, $file_mail);
 					file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
 
 
@@ -1219,7 +1326,7 @@ class Setup extends Itemtype {
 
 
 				// load mail configuration
-				$page->loadMailConfiguration();
+//				$page->loadMailConfiguration();
 
 			}
 
@@ -1589,7 +1696,7 @@ class Setup extends Itemtype {
 			// If this is a new setup
 			// Send welcome email with password
 			if(SETUP_TYPE == "new") {
-				$page->mail(array(
+				mailer()->send(array(
 					"subject" => "Welcome to Janitor", 
 					"message" => "Your Janitor project is ready.\n\nLog in to your admin system: ".SITE_URL."/janitor\n\nUsername: ".ADMIN_EMAIL."\nPassword: 123rotinaj\n\nSee you soon,\n\nJanitor"
 				));
