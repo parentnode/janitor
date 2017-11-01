@@ -74,6 +74,8 @@ Util.Objects["database"] = new function() {
 
 			u.f.init(form);
 			form.submitted = function() {
+				u.ac(this, "submitting");
+
 				this.response = function(response) {
 			
 					if(response && response.cms_status == "success") {
@@ -96,6 +98,7 @@ Util.Objects["database"] = new function() {
 						}
 					}
 					else {
+						u.rc(this, "submitting");
 						page.notify(response);
 					}
 				}
@@ -108,6 +111,8 @@ Util.Objects["database"] = new function() {
 
 			u.f.init(form_force);
 			form_force.submitted = function() {
+				u.ac(this, "submitting");
+
 				this.response = function(response) {
 			
 					if(response && response.cms_status == "success") {
@@ -130,6 +135,7 @@ Util.Objects["database"] = new function() {
 						}
 					}
 					else {
+						u.rc(this, "submitting");
 						page.notify(response);
 					}
 				}
@@ -154,7 +160,51 @@ Util.Objects["mail"] = new function() {
 		if(form) {
 
 			u.f.init(form);
+
+			var options = form.fields["mail_type"].options;
+			form.div_options = [];
+
+			// index option divs
+			var i, option;
+			for(i = 0; option = options[i]; i++) {
+				form.div_options[option.value] = u.qs("div.type_" + option.value, form);
+				form.div_options[option.value].required_fields = u.qsa("div.field.required", form.div_options[option.value]);
+			}
+
+			form.updateView = function() {
+				var selected = this.fields["mail_type"].val();
+				var i, field;
+
+
+				for(option_value in this.div_options) {
+					if(option_value == selected) {
+						u.ass(this.div_options[option_value], {
+							"display":"block"
+						});
+						for(i = 0; field = this.div_options[option_value].required_fields[i]; i++) {
+							u.ac(field, "required");
+						}
+					}
+					else {
+						u.ass(this.div_options[option_value], {
+							"display":"none"
+						});
+						for(i = 0; field = this.div_options[option_value].required_fields[i]; i++) {
+							u.rc(field, "required");
+						}
+					}
+				}
+			}
+			form.updateView();
+
+			form.fields["mail_type"].updated = function() {
+//				console.log("mailtype:" + this.val());
+				this._form.updateView();
+			}
+			
 			form.submitted = function() {
+				u.ac(this, "submitting");
+
 				this.response = function(response) {
 			
 					if(response && response.cms_status == "success") {
@@ -169,6 +219,7 @@ Util.Objects["mail"] = new function() {
 						}
 					}
 					else {
+						u.rc(this, "submitting");
 						page.notify(response);
 					}
 				}

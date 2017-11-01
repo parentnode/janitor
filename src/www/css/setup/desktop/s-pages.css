@@ -13,6 +13,8 @@
 #content .scene.check ul.requirements li.error {color: #df0000;}
 #content .scene.check ul.requirements li.notice {color: orange;}
 
+#content .scene.config fieldset div.field.paragraph label {display: block;}
+#content .scene.config fieldset div.field.paragraph p {padding-left: 0;}
 
 #content .scene.finish div.ready {padding: 20px 0 0;}
 

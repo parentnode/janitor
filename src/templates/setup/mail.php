@@ -41,14 +41,33 @@ $mail_check = $model->checkMailSettings();
 			<?= $model->input("mail_admin", array("value" => $model->mail_admin)) ?>
 		</fieldset>
 
-		<p>Specify SMTP mail account information to enable system notifications and sending newsletters to your users.</p>
 
+		<p>
+			Which type of mail endpoint will be used? <?= $model->mail_type ?>
+		</p>
 		<fieldset>
-			<?= $model->input("mail_host", array("value" => $model->mail_host)) ?>
-			<?= $model->input("mail_port", array("value" => $model->mail_port)) ?>
-			<?= $model->input("mail_username", array("value" => $model->mail_username)) ?>
-			<?= $model->input("mail_password", array("value" => $model->mail_password)) ?>
+			<?= $model->input("mail_type", array("value" => $model->mail_type)) ?>
 		</fieldset>
+
+		<div class="type_smtp">
+			<p>Specify SMTP mail account information to enable system notifications and sending newsletters to your users.</p>
+
+			<fieldset>
+				<?= $model->input("mail_smtp_host", array("value" => $model->mail_smtp_host)) ?>
+				<?= $model->input("mail_smtp_port", array("value" => $model->mail_smtp_port)) ?>
+				<?= $model->input("mail_smtp_username", array("value" => $model->mail_smtp_username)) ?>
+				<?= $model->input("mail_smtp_password", array("value" => $model->mail_smtp_password)) ?>
+			</fieldset>
+		</div>
+		<div class="type_mailgun">
+			<p>Specify Mailgun account information to enable system notifications and sending newsletters to your users.</p>
+
+			<fieldset>
+				<?= $model->input("mail_mailgun_api_key", array("value" => $model->mail_mailgun_api_key)) ?>
+				<?= $model->input("mail_mailgun_domain", array("value" => $model->mail_mailgun_domain)) ?>
+			</fieldset>
+		</div>
+
 
 		<ul class="actions">
 			<?= $model->submit("Update and continue", array("wrapper" => "li.save", "class" => "primary")) ?>
