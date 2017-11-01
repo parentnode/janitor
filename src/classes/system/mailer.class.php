@@ -410,7 +410,10 @@ class Mailer {
 		}
 		// or system template
 		else {
+			ob_start();
 			@include("templates/mails/$template.html.php");
+			$html = ob_get_contents();
+			ob_end_clean();
 		}
 
 
@@ -420,9 +423,13 @@ class Mailer {
 
 }
 
-$mmm = new Mailer();
+$mmm = false;
 
 function mailer() {
 	global $mmm;
+	if(!$mmm) {
+		$mmm = new Mailer();
+
+	}
 	return $mmm;
 }
