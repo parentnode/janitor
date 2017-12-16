@@ -9,13 +9,7 @@ define("ADMIN_EMAIL", "###ADMIN_EMAIL###");
 
 $this->mail_connection(
 	array(
-		"type" => "###TYPE###",
-		"host" => "###HOST###", 
-		"port" => "###PORT###", 
-		"username" => "###USERNAME###", 
-		"password" => "###PASSWORD###", 
-		"secure" => "tls", 
-		"smtpauth" => true
+		// Different settings for different setups (will be added by setup script)
 	)
 );
 
