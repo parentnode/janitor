@@ -1269,52 +1269,14 @@ class Setup extends Itemtype {
 				if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
 
 					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
-					$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->mail_admin."\");", $file_mail);
-
-					$file_mail = preg_replace("/(\n)[ \t]*\"type\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"type\" => \"".$this->mail_type."\"", $file_mail);
-					if($this->mail_type == "mailgun") {
-						$file_mail = preg_replace("/(\n)[ \t]*\"api-key\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"api-key\" => \"".$this->mail_mailgun_api_key."\"", $file_mail);
-						$file_mail = preg_replace("/(\n)[ \t]*\"domain\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"domain\" => \"".$this->mail_mailgun_domain."\"", $file_mail);
-					}
-					else {
-						$file_mail = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"host\" => \"".$this->mail_smtp_host."\"", $file_mail);
-						$file_mail = preg_replace("/(\n)[ \t]*\"port\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"port\" => \"".$this->mail_smtp_port."\"", $file_mail);
-						if($this->mail_port == "587") {
-							$file_mail = preg_replace("/(\n)[ \t]*\"secure\"[ ]*\=\>[ ]*\"ssl\"/", "\n\t\t\"secure\" => \"tls\"", $file_mail);
-						}
-						$file_mail = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"username\" => \"".$this->mail_smtp_username."\"", $file_mail);
-						$file_mail = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".*\"/", "\n\t\t\"password\" => \"".$this->mail_smtp_password."\"", $file_mail);
-					}
-
-					file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
-
-					// Status for updating connect_mail.php
-					$tasks["completed"][] = "Updating connect_mail.php";
+					$existing_mail_conf = true;
 
 				}
 				// If template exists, use that
 				else if(file_exists(FRAMEWORK_PATH."/config/connect_mail.template.php")) {
 
 					$file_mail = file_get_contents(FRAMEWORK_PATH."/config/connect_mail.template.php");
-					$file_mail = preg_replace("/###ADMIN_EMAIL###/", $this->mail_admin, $file_mail);
-
-					$file_mail = preg_replace("/###TYPE###/", $this->mail_type, $file_mail);
-
-					$file_mail = preg_replace("/###HOST###/", $this->mail_smtp_host, $file_mail);
-					$file_mail = preg_replace("/###PORT###/", $this->mail_smtp_port, $file_mail);
-					$file_mail = preg_replace("/###USERNAME###/", $this->mail_smtp_username, $file_mail);
-					$file_mail = preg_replace("/###PASSWORD###/", $this->mail_smtp_password, $file_mail);
-					file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
-
-
-					// Make sure file remains writeable even if it is edited manually
-					chmod(LOCAL_PATH."/config/connect_mail.php", 0666);
-
-					// Remove template
-//					unlink(LOCAL_PATH."/config/connect_mail.template.php");
-
-					// Status for creating connect_mail.php
-					$tasks["completed"][] = "Creating connect_mail.php";
+					$existing_mail_conf = false;
 
 				}
 				else {
@@ -1322,11 +1284,54 @@ class Setup extends Itemtype {
 					// Status for updating config.php
 					$tasks["failed"][] = "connect_mail.php not found (FAILED)";
 					return $tasks;
+
 				}
 
+				// Replace admin email
+				$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->mail_admin."\");", $file_mail);
 
-				// load mail configuration
-//				$page->loadMailConfiguration();
+				// Create new settings
+				$file_mail_settings = "array(\n";
+				$file_mail_settings .= "\t\t\"type\" => \"".$this->mail_type."\",\n";
+
+				// mailgun settings
+				if($this->mail_type == "mailgun") {
+					$file_mail_settings .= "\t\t\"api-key\" => \"".$this->mail_mailgun_api_key."\",\n";
+					$file_mail_settings .= "\t\t\"domain\" => \"".$this->mail_mailgun_domain."\",\n";
+					
+				}
+				// SMTP settings
+				else {
+					$file_mail_settings .= "\t\t\"host\" => \"".$this->mail_smtp_host."\",\n";
+					$file_mail_settings .= "\t\t\"username\" => \"".$this->mail_smtp_username."\",\n";
+					$file_mail_settings .= "\t\t\"password\" => \"".$this->mail_smtp_password."\",\n";
+					$file_mail_settings .= "\t\t\"port\" => \"".$this->mail_smtp_port."\",\n";
+
+					// fixed values
+					$file_mail_settings .= "\t\t\"smtpauth\" => true,\n";
+					if($this->mail_smtp_port == "587") {
+						$file_mail_settings .= "\t\t\"secure\" => \"tls\",\n";
+					}
+					else {
+						$file_mail_settings .= "\t\t\"secure\" => \"ssl\",\n";
+					}
+				}
+
+				$file_mail_settings .= "\t)";
+
+				// Replace settings
+				$file_mail = preg_replace("/array\([^$]+\t\)/", $file_mail_settings, $file_mail);
+
+				file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
+
+
+				// Make sure file remains writeable even if it is edited manually
+				chmod(LOCAL_PATH."/config/connect_mail.php", 0666);
+
+
+
+				// Status for creating connect_mail.php
+				$tasks["completed"][] = ($existing_mail_conf ? "Updating" : "Creating") . " connect_mail.php";
 
 			}
 
@@ -1338,7 +1343,8 @@ class Setup extends Itemtype {
 			// If the core settings has been changes the Constants already declared in config.php, 
 			// connect_db.php and connect_mail.php are not reflecting the new settings and 
 			// we need a whole new request for those to be reloaded
-			if((!defined("SITE_DB") || SITE_DB != $this->db_janitor_db) || (!defined("ADMIN_EMAIL") || ADMIN_EMAIL != $this->mail_admin)) {
+//			if((!defined("SITE_DB") || SITE_DB != $this->db_janitor_db) || (!defined("ADMIN_EMAIL") || ADMIN_EMAIL != $this->mail_admin)) {
+			if((!defined("SITE_DB") || SITE_DB != $this->db_janitor_db) || (defined("ADMIN_EMAIL") && ADMIN_EMAIL != $this->mail_admin)) {
 
 				if(getPost("setup_type") != "reload") {
 					$tasks["completed"][] = "Flushing constants";
@@ -1358,6 +1364,11 @@ class Setup extends Itemtype {
 			// Define SITE_NAME if not already defined
 			if(!defined("SITE_NAME")) {
 				define("SITE_NAME", $this->site_name);
+			}
+
+			// Define SITE_EMAiL if not already defined
+			if(!defined("SITE_EMAIL")) {
+				define("SITE_EMAIL", $this->site_email);
 			}
 
 
@@ -1494,7 +1505,7 @@ class Setup extends Itemtype {
 
 					// SET USERNAME
 					unset($_POST);
-					$_POST["email"] = ADMIN_EMAIL;
+					$_POST["email"] = $this->mail_admin;
 					$UC->getPostedEntities();
 					$UC->updateEmail(array("updateEmail", 2));
 
