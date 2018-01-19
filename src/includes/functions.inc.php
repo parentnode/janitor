@@ -543,7 +543,8 @@ function _unichr($o) {
 }
 
 // Emoji handling (unicode out of UTF range)
-function mb_ord($string) {
+// included from php72
+ if (!function_exists('mb_ord')): function mb_ord($string) {
 	mb_language('Neutral');
 	mb_internal_encoding('UTF-8');
 	mb_detect_order(array('UTF-8', 'ISO-8859-15', 'ISO-8859-1', 'ASCII'));
@@ -552,13 +553,14 @@ function mb_ord($string) {
 		return $result[1];
 	}
 	return ord($string);
-}
-function mb_chr($string) {
+} endif;
+// included from php72
+if (!function_exists('mb_chr')): function mb_chr($string) {
 	mb_language('Neutral');
 	mb_internal_encoding('UTF-8');
 	mb_detect_order(array('UTF-8', 'ISO-8859-15', 'ISO-8859-1', 'ASCII'));
 	return mb_convert_encoding('&#' . intval($string) . ';', 'UTF-8', 'HTML-ENTITIES');
-}
+} endif;
 function decodeEmoji($string, $system) {
 	global $__decode_emoji_system;
 	$__decode_emoji_system = $system;
