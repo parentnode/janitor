@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Activate your account on {SITE_NAME}!</title>
+	<title>w/ read in browser and unsubscribe</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 	<style>
@@ -43,7 +43,20 @@
 <body style="color: #000000; letter-spacing: normal; orphans: auto; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space; margin: 0; padding: 0;">
 
 <div style="display: none; font-size: 1px; color: #ffffff; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0.001; overflow: hidden">
-	Verify your email to activate your account. Don't miss out - do it now!
+	{PREVIEW}
+</div>
+
+<div class="view-in-browser" style="text-align: center; padding: 5px 0;">
+	<table border="0" cellpadding="0" cellspacing="0" class="janitor-email" style="width: 600px; margin: 0 auto; padding: 0;">
+	<tr>
+		<td align="center" style="text-align: center;">
+			
+			<p style="margin: 0; padding: 0; color: #777777; font-family: Verdana, sans-serif; font-size: 12px; line-height: 14px;">
+				<a href="{NEWSLETTER_URL}" style="color: #777777; font-family: Verdana, sans-serif; font-size: 12px;">Read on think.dk</a>
+			</p>
+		</td>
+	</tr>
+	</table>
 </div>
 
 <div style="background-color: #ffffff; text-align: center; padding: 0 10px;">
@@ -62,40 +75,16 @@
 		<td height="50" style="height: 50px; font-size: 1px; line-height: 1px;">&nbsp;</td>
 	</tr>
 	<tr>
-		<td align="left" style="text-align: left;">
-			<h1 style="font-family: 'Times New Roman', Times, serif; font-size: 30px; font-weight: 400; color: #000000; padding: 0; margin: 0 0 20px;">Verify your email.</h1>
-			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 20px 0 30px;">
-				Your account and subscribed services (like newsletters) will only be accessible <strong style="color: #000000;">after</strong> you have 
-				<a href="{SITE_URL}/signup/confirm/email/{EMAIL}/{VERIFICATION}" style="color: #000000; text-decoration: underline;">verified your email</a>.
-			</p>
-			<p style="padding: 0; margin: 30px 0;">
-				<table border="0" cellpadding="0" cellspacing="0" style="width: auto;">
-				<tr>
-					<td bgcolor="#000000" style="padding: 7px 30px; font-family: Verdana, sans-serif; font-size: 15px; color: #ffffff; margin: 0; border-radius: 5px;">
-						<a href="{SITE_URL}/signup/confirm/email/{EMAIL}/{VERIFICATION}" style="text-decoration: none; color: #ffffff;">Click here to verify your email</a>
-					</td>
-				</tr>
-				</table>
-			</p>
-			<h2 style="font-family: 'Times New Roman', Times, serif; font-size: 26px; font-weight: 400; color: #000000; padding: 0; margin: 30px 0 10px;">Your account details:</h2>
-			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 10px 0 15px;">
-				After verification, you can log in using the details below.
-			</p> 
-			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 15px 0 30px;">
-				<strong style="color: #000000;">URL:</strong><br />
-				<a style="margin-bottom: 10px; display: inline-block; vertical-align: top; color: #777777;">{SITE_URL}</a><br />
-				<strong style="color: #000000;">Username:</strong><br />
-				<a style="margin-bottom: 10px; display: inline-block; vertical-align: top; color: #777777; text-decoration: none !important;">{EMAIL}</a><br />
-				<strong style="color: #000000; margin-top: 10px;">Password:</strong><br />
-				{PASSWORD}
-			</p>
-			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 30px 0 15px;">
-				Thank you for signing up.
-			</p>
+		<td align="left" style="text-align: left;" class="mailcontent">
+			<h1 style="font-family: 'Times New Roman', Times, serif; font-size: 30px; font-weight: 400; color: #000000; padding: 0; margin: 0 0 20px;">Heading 1</h1>
+			<h2 style="font-family: 'Times New Roman', Times, serif; font-size: 26px; font-weight: 400; color: #000000; padding: 0; margin: 20px 0;">Heading 2</h2>
+			<h3 style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 20px 0;">Heading 3</h3>
+			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 0 0 30px;">Paragraph</p>
+			<a href="#" style="color: #000000; text-decoration: underline;">Link</a>.
 		</td>
 	</tr>
 	<tr>
-		<td height="30" style="height: 30px; font-size: 1px; line-height: 1px;">&nbsp;</td>
+		<td height="30" style="height: 50px; font-size: 1px; line-height: 1px;">&nbsp;</td>
 	</tr>
 	<tr>
 		<td align="left" style="text-align: left;">
@@ -105,7 +94,17 @@
 		</td>
 	</tr>
 	<tr>
-		<td height="30" style="height: 30px; font-size: 1px; line-height: 1px;">&nbsp;</td>
+		<td height="50" style="height: 50px; font-size: 1px; line-height: 1px;">&nbsp;</td>
+	</tr>
+	<tr>
+		<td align="center" style="text-align: center;">
+			<p style="margin: 0; padding: 0; color: #777777; font-family: 'Times New Roman', Times, serif; font-size: 12px; line-height: 14px;">
+				<a href="{SITE_URL}/signup/unsubscribe/{USERNAME}" style="font-family: 'Times New Roman', Times, serif; font-size: 12px; line-height: 14px; color: #777777;">Unsubscribe from newsletters</a>
+			</p>
+		</td>
+	</tr>
+	<tr>
+		<td height="50" style="height: 50px; font-size: 1px; line-height: 1px;">&nbsp;</td>
 	</tr>
 	</table>
 </div>
