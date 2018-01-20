@@ -3,7 +3,7 @@
 <head>
 	<!-- (c) & (p) think.dk 2002-2017 -->
 	<!-- For detailed copyright license, see /terms -->
-	<!-- If you want to use or contribute to this code, visit http://parentnode.dk -->
+	<!-- If you want to use or contribute to this code, Visit https://parentnode.dk -->
 	<title>Janitor setup</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="keywords" content="" />
