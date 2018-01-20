@@ -247,6 +247,15 @@ class Query {
 	}
 
 	/**
+	* Get count for affected rows in insert, delete and update
+	*
+	* @return false | count of results
+	*/
+	function affected() {
+		return $this->connection ? $this->connection->affected_rows : 0;
+	}
+
+	/**
 	* Automated version control
 	* Creates a new table + _versions and copies existing data to table before updating
 	* @param $item_id Item to be versioned
