@@ -958,7 +958,7 @@ class Model extends HTML {
 	function isEmail($name) {
 
 		$value = $this->getProperty($name, "value");
-		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\w\.\-\_]+@[\w-\.]+\.\w{2,4}$");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\w\.\-\_]+@[\w-\.]+\.\w{2,10}$");
 
 		if($value && is_string($value) && 
 			(!$pattern || preg_match("/".$pattern."/", $value))
