@@ -247,6 +247,7 @@ function stripDisallowed($string) {
 	return trim($string);
 }
 
+
 // check if value exists in Janitor content array structure
 function arrayKeyValue($array, $key, $value) {
 	if($array && is_array($array)) {

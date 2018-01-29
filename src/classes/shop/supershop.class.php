@@ -948,7 +948,8 @@ class SuperShop extends Shop {
 						"ORDER_PRICE" => formatPrice($total_order_price),
 					),
 					"recipients" => $order["user"]["email"],
-					"template" => "payment_reminder"
+					"template" => "payment_reminder",
+					"track_clicks" => false
 				));
 
 				message()->addMessage("Reminder sent to ".$order["user"]["email"]);
@@ -1969,7 +1970,7 @@ class SuperShop extends Shop {
 						
 						// if partially paid already, add custom description to charge
 						if($total_payments) {
-							$custom_order["custom_description"] = $order["order_no"] . " (partial)";
+							$custom_order["custom_description"] = $order["order_no"] . ", " . $order["comment"] . " (partial)";
 						}
 
 						if($GC->chargeCustomer($custom_order, $customer_id)) {

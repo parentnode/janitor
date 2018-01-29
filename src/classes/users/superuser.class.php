@@ -227,8 +227,8 @@ class SuperUser extends User {
 					$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
 					$query->sql($sql);
 
-					// delete newsletters
-					$sql = "DELETE FROM ".$this->db_newsletters." WHERE user_id = ".$user_id;
+					// delete maillists
+					$sql = "DELETE FROM ".$this->db_maillists." WHERE user_id = ".$user_id;
 					$query->sql($sql);
 
 					// delete readstates
@@ -559,6 +559,34 @@ class SuperUser extends User {
 		return false;
 	}
 
+	// get usernames or specific username
+	function getVerificationCode($type, $username) {
+
+		$query = new Query();
+		if($type && $username) {
+
+			$sql = "SELECT id, verification_code FROM ".$this->db_usernames." WHERE username = '$username' AND type = '$type'";
+			if($query->sql($sql)) {
+
+				$verification_code = $query->result(0, "verification_code");
+				if(!$verification_code) {
+
+					$id = $query->result(0, "id");
+					$verification_code = randomKey(8);
+
+					$sql = "UPDATE $this->db_usernames SET verification_code = '$verification_code' WHERE id = $id";
+					$query->sql($sql);
+
+				}
+
+				return $verification_code;
+			}
+
+		}
+
+		return false;
+	}
+
 	// Update usernames from posted values
 	// /janitor/admin/user/updateEmail/#user_id#
 	function updateEmail($action) {
@@ -586,13 +614,15 @@ class SuperUser extends User {
 
 			$current_email = $this->getUsernames(array("user_id" => $user_id, "type" => "email"));
 
-			// email is sent
+			// email is posted
 			if($email) {
+
+				$verification_code = randomKey(8);
 
 				// email has not been set before
 				if(!$current_email) {
 
-					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, type = 'email', user_id = $user_id";
+					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code', type = 'email', user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 						message()->addMessage("Email added");
@@ -603,7 +633,7 @@ class SuperUser extends User {
 				// email is changed
 				else if($email != $current_email) {
 
-					$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0 WHERE type = 'email' AND user_id = $user_id";
+					$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code' WHERE type = 'email' AND user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 						message()->addMessage("Email updated");
@@ -619,7 +649,7 @@ class SuperUser extends User {
 				}
 			}
 
-			// email is not sent
+			// email is not posted
 			else if(!$email && $current_email !== false) {
 
 				$sql = "DELETE FROM $this->db_usernames WHERE type = 'email' AND user_id = $user_id";
@@ -667,10 +697,12 @@ class SuperUser extends User {
 			// mobile is sent
 			if($mobile) {
 
+				$verification_code = randomKey(8);
+
 				// mobile has not been set before
 				if(!$current_mobile) {
 
-					$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 0, type = 'mobile', user_id = $user_id";
+					$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 0, verification_code = '$verification_code', type = 'mobile', user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 						message()->addMessage("Mobile added");
@@ -681,7 +713,7 @@ class SuperUser extends User {
 				// mobile is changed
 				else if($mobile != $current_mobile) {
 
-					$sql = "UPDATE $this->db_usernames SET username = '$mobile', verified = 0 WHERE type = 'mobile' AND user_id = $user_id";
+					$sql = "UPDATE $this->db_usernames SET username = '$mobile', verified = 0, verification_code = '$verification_code' WHERE type = 'mobile' AND user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 						message()->addMessage("Mobile updated");
@@ -988,25 +1020,25 @@ class SuperUser extends User {
 
 
 
-	// NEWSLETTERS
+	// MAILLISTS
 
-	// get newsletter info
-	// get all newsletters (list of available newsletters)
-	// get newsletters for user
-	// get state of specific newsletter for specific user
-	// get all subscribers to newsletter
-	function getNewsletters($_options = false) {
+	// get maillist info
+	// get all maillists (list of available maillists)
+	// get maillists for user
+	// get state of specific maillist for specific user
+	// get all subscribers to maillist
+	function getMaillists($_options = false) {
 
 		$user_id = false;
-		$newsletter = false;
-		$newsletter_id = false;
+		$maillist = false;
+		$maillist_id = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "user_id"           : $user_id             = $_value; break;
-					case "newsletter"        : $newsletter          = $_value; break;
-					case "newsletter_id"     : $newsletter_id       = $_value; break;
+					case "maillist"        : $maillist          = $_value; break;
+					case "maillist_id"     : $maillist_id       = $_value; break;
 				}
 			}
 		}
@@ -1015,23 +1047,23 @@ class SuperUser extends User {
 
 		if($user_id) {
 
-			// check for specific newsletter (by name) for specific user
-			if($newsletter) {
-				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = newsletters.id AND newsletters.newsletter = '$newsletter'";
+			// check for specific maillist (by name) for specific user
+			if($maillist) {
+				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.maillist_id, maillists.name FROM ".$this->db_maillists." as subscribers, ".UT_MAILLISTS." as maillists WHERE subscribers.user_id = $user_id AND subscribers.maillist_id = maillists.id AND maillists.maillist = '$maillist'";
 				if($query->sql($sql)) {
 					return $query->result(0);
 				}
 			}
-			// check for specific newsletter (by id) for specific user
-			else if($newsletter_id) {
-				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = '$newsletter_id'";
+			// check for specific maillist (by id) for specific user
+			else if($maillist_id) {
+				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.maillist_id, maillists.name FROM ".$this->db_maillists." as subscribers, ".UT_MAILLISTS." as maillists WHERE subscribers.user_id = $user_id AND subscribers.maillist_id = '$maillist_id'";
 				if($query->sql($sql)) {
 					return $query->result(0);
 				}
 			}
-			// get newsletters for specific user
+			// get maillists for specific user
 			else {
-				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = newsletters.id";
+				$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.maillist_id, maillists.name FROM ".$this->db_maillists." as subscribers, ".UT_MAILLISTS." as maillists WHERE subscribers.user_id = $user_id AND subscribers.maillist_id = maillists.id";
 				if($query->sql($sql)) {
 					return $query->results();
 				}
@@ -1039,16 +1071,16 @@ class SuperUser extends User {
 
 		}
 
-		// get active users for specific newsletter_id
-		else if($newsletter_id) {
-			$sql = "SELECT subscribers.id as id, subscribers.user_id as user_id, subscribers.newsletter_id as newsletter_id, newsletters.name as newsletter, users.nickname as nickname, usernames.username as email FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters, ".$this->db." as users, ".$this->db_usernames." as usernames WHERE subscribers.newsletter_id = '$newsletter_id' AND newsletters.id = $newsletter_id AND subscribers.user_id = users.id AND users.status > 0 AND usernames.type = 'email' AND usernames.user_id = users.id";
+		// get active users for specific maillist_id
+		else if($maillist_id) {
+			$sql = "SELECT subscribers.id as id, subscribers.user_id as user_id, subscribers.maillist_id as maillist_id, maillists.name as maillist, users.nickname as nickname, usernames.username as email FROM ".$this->db_maillists." as subscribers, ".UT_MAILLISTS." as maillists, ".$this->db." as users, ".$this->db_usernames." as usernames WHERE subscribers.maillist_id = '$maillist_id' AND maillists.id = $maillist_id AND subscribers.user_id = users.id AND users.status > 0 AND usernames.type = 'email' AND usernames.user_id = users.id";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
 		}
-		// get list of all active newsletter subscribers
+		// get list of all active maillist subscribers
 		else {
-			$sql = "SELECT subscribers.id as id, subscribers.user_id as user_id, subscribers.newsletter_id as newsletter_id, newsletters.name as newsletter, users.nickname as nickname, usernames.username as email FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters, ".$this->db." as users, ".$this->db_usernames." as usernames WHERE subscribers.user_id = users.id AND users.status > 0 AND usernames.type = 'email' AND usernames.user_id = users.id AND subscribers.newsletter_id = newsletters.id";
+			$sql = "SELECT subscribers.id as id, subscribers.user_id as user_id, subscribers.maillist_id as maillist_id, maillists.name as maillist, users.nickname as nickname, usernames.username as email FROM ".$this->db_maillists." as subscribers, ".UT_MAILLISTS." as maillists, ".$this->db." as users, ".$this->db_usernames." as usernames WHERE subscribers.user_id = users.id AND users.status > 0 AND usernames.type = 'email' AND usernames.user_id = users.id AND subscribers.maillist_id = maillists.id";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -1057,54 +1089,54 @@ class SuperUser extends User {
 	}
 
 
-	// /janitor/admin/user/addNewsletter/#user_id#
-	// Newsletter info i $_POST
-	function addNewsletter($action){
+	// /janitor/admin/user/addMaillist/#user_id#
+	// Maillist info i $_POST
+	function addMaillist($action){
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
 		// does values validate
-		if(count($action) == 2 && $this->validateList(array("newsletter_id"))) {
+		if(count($action) == 2 && $this->validateList(array("maillist_id"))) {
 
 			$query = new Query();
 			$user_id = $action[1];
 
-			$newsletter_id = $this->getProperty("newsletter_id", "value");
+			$maillist_id = $this->getProperty("maillist_id", "value");
 
 			// already signed up (to avoid faulty double entries)
-			$sql = "SELECT id FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter_id = '$newsletter_id'";
+			$sql = "SELECT id FROM $this->db_maillists WHERE user_id = $user_id AND maillist_id = '$maillist_id'";
 			if(!$query->sql($sql)) {
-				$sql = "INSERT INTO ".$this->db_newsletters." SET user_id=$user_id, newsletter_id='$newsletter_id'";
+				$sql = "INSERT INTO ".$this->db_maillists." SET user_id=$user_id, maillist_id='$maillist_id'";
 				$query->sql($sql);
 			}
 
-			message()->addMessage("Subscribed to newsletter");
+			message()->addMessage("Subscribed to maillist");
 			return true;
 		}
 
-		message()->addMessage("Could not subscribe to newsletter", array("type" => "error"));
+		message()->addMessage("Could not subscribe to maillist", array("type" => "error"));
 		return false;
 	}
 
-	// /janitor/admin/user/deleteNewsletter/#user_id#/#newsletter_id#
-	function deleteNewsletter($action){
+	// /janitor/admin/user/deleteMaillist/#user_id#/#maillist_id#
+	function deleteMaillist($action){
 
 		// does values validate
 		if(count($action) == 3) {
 
 			$query = new Query();
 			$user_id = $action[1];
-			$newsletter_id = $action[2];
+			$maillist_id = $action[2];
 
-			$sql = "DELETE FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter_id = '$newsletter_id'";
+			$sql = "DELETE FROM $this->db_maillists WHERE user_id = $user_id AND maillist_id = '$maillist_id'";
 			if($query->sql($sql)) {
-				message()->addMessage("Unsubscribed from newsletter");
+				message()->addMessage("Unsubscribed from maillist");
 				return true;
 			}
 		}
 
-		message()->addMessage("Could not unsubscribe from newsletter", array("type" => "error"));
+		message()->addMessage("Could not unsubscribe from maillist", array("type" => "error"));
 		return false;
 
 	}
@@ -1659,10 +1691,10 @@ class SuperUser extends User {
 					// add order
 					$_POST["user_id"] = $subscription["user_id"];
 					if($item["itemtype"] == "membership") {
-						$_POST["order_comment"] = "Membership renewed";
+						$_POST["order_comment"] = "Membership renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
 					}
 					else {
-						$_POST["order_comment"] = "Subscription renewed";
+						$_POST["order_comment"] = "Subscription renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
 					}
 					$order = $SC->addOrder(array("addOrder"));
 					unset($_POST);
@@ -2282,6 +2314,7 @@ class SuperUser extends User {
 					"EMAIL" => $user["username"],
 					"VERIFICATION" => $user["verification_code"],
 				),
+				"track_clicks" => false,
 				"recipients" => $user["username"],
 				"template" => "signup_reminder"
 			));

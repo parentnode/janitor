@@ -10,13 +10,13 @@
 *
 * Only for NON-Admin creation of users, like
 * - signups on website
-* - newsletter signup
+* - maillist signup
 * - placement of orders by unregistered users
 *
 *
 * Creates a member user (user_group=2), with limited privileges
 * - update profile
-* - newsletter administration
+* - maillist administration
 * - own order view (on shops)
 */
 
@@ -42,7 +42,7 @@ class UserCore extends Model {
 		$this->db_passwords = SITE_DB.".user_passwords";
 		$this->db_password_reset_tokens = SITE_DB.".user_password_reset_tokens";
 		$this->db_apitokens = SITE_DB.".user_apitokens";
-		$this->db_newsletters = SITE_DB.".user_newsletters";
+		$this->db_maillists = SITE_DB.".user_maillists";
 
 		// user related item data
 		$this->db_subscriptions = SITE_DB.".user_item_subscriptions";
@@ -87,7 +87,7 @@ class UserCore extends Model {
 		// Terms
 		$this->addToModel("terms", array(
 			"type" => "checkbox",
-			"label" => 'I accept the <a href="/terms">terms and conditions</a>.',
+			"label" => 'I accept the <a href="/terms" target="_blank">terms and conditions</a>.',
 			"required" => true,
 			"hint_message" => "Accept the terms and conditions to continue.", 
 			"error_message" => "You must accept the terms and conditions to continue"
@@ -222,13 +222,13 @@ class UserCore extends Model {
 		));
 
 
-		// newsletter
-		$this->addToModel("newsletter_id", array(
+		// maillist
+		$this->addToModel("maillist_id", array(
 			"type" => "string",
-			"label" => "Newsletter",
+			"label" => "Maillist",
 			"required" => true,
-			"hint_message" => "Newsletter",
-			"error_message" => "Invalid newsletter"
+			"hint_message" => "Maillist",
+			"error_message" => "Invalid maillist"
 		));
 
 
@@ -302,7 +302,7 @@ class UserCore extends Model {
 
 			$user["addresses"] = $this->getAddresses();
 
-			$user["newsletters"] = $this->getNewsletters();
+			$user["maillists"] = $this->getMaillists();
 
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
 				$user["membership"] = $this->getMembership();
@@ -368,8 +368,8 @@ class UserCore extends Model {
 
 
 	// create new user
-	// email is minimum info to create user at this point (signup to newsletter)
-	// will also add subscription for newsletter if it is sent along with signup
+	// email is minimum info to create user at this point (signup to maillist)
+	// will also add subscription for maillist if it is sent along with signup
 	function newUser($action) {
 
 		global $page;
@@ -497,6 +497,7 @@ class UserCore extends Model {
 										"VERIFICATION" => $verification_code,
 										"PASSWORD" => $mail_password
 									), 
+									"track_clicks" => false,
 									"recipients" => $email, 
 									"template" => "signup"
 								));
@@ -505,6 +506,7 @@ class UserCore extends Model {
 								mailer()->send(array(
 									"subject" => SITE_URL . " - New User: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
+									"tracking" => false
 									// "template" => "system"
 								));
 							}
@@ -520,6 +522,7 @@ class UserCore extends Model {
 								mailer()->send(array(
 									"subject" => "New User created ERROR: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
+									"tracking" => false
 									// "template" => "system"
 								));
 							}
@@ -535,23 +538,23 @@ class UserCore extends Model {
 
 
 
-							// NEWSLETTER
+							// MAILLIST
 
-							// newsletter subscription sent as string?
-							$newsletter = getPost("newsletter");
-							if($newsletter) {
-								// check if newsletter exists
-								$newsletters = $page->newsletters();
-								$newsletter_match = arrayKeyValue($newsletters, "name", $newsletter);
-								if($newsletter_match !== false) {
-									$newsletter_id = $newsletters[$newsletter_match]["id"];
-									$_POST["newsletter_id"] = $newsletter_id;
+							// maillist subscription sent as string?
+							$maillist = getPost("maillist");
+							if($maillist) {
+								// check if maillist exists
+								$maillists = $page->maillists();
+								$maillist_match = arrayKeyValue($maillists, "name", $maillist);
+								if($maillist_match !== false) {
+									$maillist_id = $maillists[$maillist_match]["id"];
+									$_POST["maillist_id"] = $maillist_id;
 
-									// add newsletter for current user
-									$this->addNewsletter(array("addNewsletter"));
+									// add maillist for current user
+									$this->addMaillist(array("addMaillist"));
 								}
 								
-								// ignore subscription if newsletter does not exist
+								// ignore subscription if maillist does not exist
 
 							}
 
@@ -644,7 +647,8 @@ class UserCore extends Model {
 				$user_id = $query->result(0, "user_id");
 
 				// update verification state
-				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '' WHERE type = '$type' AND username = '$username'";
+				$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE type = '$type' AND username = '$username'";
+//				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '' WHERE type = '$type' AND username = '$username'";
 //				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '".randomKey(8)."' WHERE type = '$type' AND username = '$username'";
 				if($query->sql($sql)) {
 
@@ -731,8 +735,8 @@ class UserCore extends Model {
 						$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
 						$query->sql($sql);
 
-						// delete newsletters
-						$sql = "DELETE FROM ".$this->db_newsletters." WHERE user_id = ".$user_id;
+						// delete maillists
+						$sql = "DELETE FROM ".$this->db_maillists." WHERE user_id = ".$user_id;
 						$query->sql($sql);
 
 						// delete readstates
@@ -881,10 +885,12 @@ class UserCore extends Model {
 			// email is sent
 			if($email) {
 
+				$verification_code = randomKey(8);
+
 				// email has not been set before
 				if(!$current_email) {
 
-					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, type = 'email', user_id = $user_id";
+					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code', type = 'email', user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 //						message()->addMessage("Email added");
@@ -895,7 +901,7 @@ class UserCore extends Model {
 				// email is changed
 				else if($email != $current_email) {
 
-					$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0 WHERE type = 'email' AND user_id = $user_id";
+					$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code' WHERE type = 'email' AND user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 //						message()->addMessage("Email updated");
@@ -961,10 +967,12 @@ class UserCore extends Model {
 			// mobile is sent
 			if($mobile) {
 
+				$verification_code = randomKey(8);
+
 				// mobile has not been set before
 				if(!$current_mobile) {
 
-					$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 0, type = 'mobile', user_id = $user_id";
+					$sql = "INSERT INTO $this->db_usernames SET username = '$mobile', verified = 0, verification_code = '$verification_code', type = 'mobile', user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 //						message()->addMessage("Mobile added");
@@ -975,7 +983,7 @@ class UserCore extends Model {
 				// mobile is changed
 				else if($mobile != $current_mobile) {
 
-					$sql = "UPDATE $this->db_usernames SET username = '$mobile', verified = 0 WHERE type = 'mobile' AND user_id = $user_id";
+					$sql = "UPDATE $this->db_usernames SET username = '$mobile', verified = 0, verification_code = '$verification_code' WHERE type = 'mobile' AND user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 //						message()->addMessage("Mobile updated");
@@ -1113,6 +1121,7 @@ class UserCore extends Model {
 								"TOKEN" => $reset_token,
 								"USERNAME" => $username
 							),
+							"track_clicks" => false,
 							"recipients" => $email,
 							"template" => "reset_password"
 						));
@@ -1461,23 +1470,23 @@ class UserCore extends Model {
 
 
 
-	// NEWSLETTER
+	// MAILLIST
 
-	// get newsletter info
-	// get all newsletters (list of available newsletters)
-	// get newsletters for user
-	// get state of specific newsletter for specific user
-	function getNewsletters($_options = false) {
+	// get maillist info
+	// get all maillists (list of available maillists)
+	// get maillists for user
+	// get state of specific maillist for specific user
+	function getMaillists($_options = false) {
 
 		$user_id = session()->value("user_id");
-		$newsletter = false;
-		$newsletter_id = false;
+		$maillist = false;
+		$maillist_id = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "newsletter"       : $newsletter         = $_value; break;
-					case "newsletter_id"    : $newsletter_id      = $_value; break;
+					case "maillist"       : $maillist         = $_value; break;
+					case "maillist_id"    : $maillist_id      = $_value; break;
 				}
 			}
 		}
@@ -1485,23 +1494,23 @@ class UserCore extends Model {
 		$query = new Query();
 
 
-		// check for specific newsletter (by nane) for current user
-		if($newsletter) {
-			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = newsletters.id AND newsletters.newsletter = '$newsletter'";
+		// check for specific maillist (by nane) for current user
+		if($maillist) {
+			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.maillist_id, maillists.name FROM ".$this->db_maillists." as subscribers, ".UT_MAILLISTS." as maillists WHERE subscribers.user_id = $user_id AND subscribers.maillist_id = maillists.id AND maillists.maillist = '$maillist'";
 			if($query->sql($sql)) {
 				return $query->result(0);
 			}
 		}
-		// check for specific newsletter (by id) for current user
-		else if($newsletter_id) {
-			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = '$newsletter_id'";
+		// check for specific maillist (by id) for current user
+		else if($maillist_id) {
+			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.maillist_id, maillists.name FROM ".$this->db_maillists." as subscribers, ".UT_MAILLISTS." as maillists WHERE subscribers.user_id = $user_id AND subscribers.maillist_id = '$maillist_id'";
 			if($query->sql($sql)) {
 				return $query->result(0);
 			}
 		}
-		// get newsletters for current user
+		// get maillists for current user
 		else {
-			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.newsletter_id, newsletters.name FROM ".$this->db_newsletters." as subscribers, ".UT_NEWSLETTERS." as newsletters WHERE subscribers.user_id = $user_id AND subscribers.newsletter_id = newsletters.id";
+			$sql = "SELECT subscribers.id, subscribers.user_id, subscribers.maillist_id, maillists.name FROM ".$this->db_maillists." as subscribers, ".UT_MAILLISTS." as maillists WHERE subscribers.user_id = $user_id AND subscribers.maillist_id = maillists.id";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -1509,27 +1518,27 @@ class UserCore extends Model {
 
 	}
 
-	// /#controller#/addNewsletter
-	// Newsletter info i $_POST
-	function addNewsletter($action) {
+	// /#controller#/addMaillist
+	// Maillist info i $_POST
+	function addMaillist($action) {
 		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 		$user_id = session()->value("user_id");
 
-		if(count($action) == 1 && $user_id && $this->validateList(array("newsletter_id"))) {
+		if(count($action) == 1 && $user_id && $this->validateList(array("maillist_id"))) {
 
 			$query = new Query();
 
-			$newsletter_id = $this->getProperty("newsletter_id", "value");
+			$maillist_id = $this->getProperty("maillist_id", "value");
 			// already signed up (to avoid faulty double entries)
-			$sql = "SELECT id FROM $this->db_newsletters WHERE user_id = $user_id AND newsletter_id = $newsletter_id";
+			$sql = "SELECT id FROM $this->db_maillists WHERE user_id = $user_id AND maillist_id = $maillist_id";
 			if(!$query->sql($sql)) {
-				$sql = "INSERT INTO ".$this->db_newsletters." SET user_id=$user_id, newsletter_id=$newsletter_id";
+				$sql = "INSERT INTO ".$this->db_maillists." SET user_id=$user_id, maillist_id=$maillist_id";
 				$query->sql($sql);
 
-				$page->addLog("user->addNewsletter: user subscribed to newsletter, user_id:$user_id, newsletter_id:$newsletter_id)");
+				$page->addLog("user->addMaillist: user subscribed to maillist, user_id:$user_id, maillist_id:$maillist_id)");
 			}
 			return true;
 		}
@@ -1538,16 +1547,16 @@ class UserCore extends Model {
 		
 	}
 
-	// /janitor/admin/profile/deleteNewsletter/#newsletter_id#
-	function deleteNewsletter($action) {
+	// /janitor/admin/profile/deleteMaillist/#maillist_id#
+	function deleteMaillist($action) {
 
 		$user_id = session()->value("user_id");
 
 		if(count($action) == 2 && $user_id) {
 			$query = new Query();
-			$newsletter_id = $action[1];
+			$maillist_id = $action[1];
 
-			$sql = "DELETE FROM $this->db_newsletters WHERE newsletter_id = $newsletter_id AND user_id = $user_id";
+			$sql = "DELETE FROM $this->db_maillists WHERE maillist_id = $maillist_id AND user_id = $user_id";
 			if($query->sql($sql)) {
 				return true;
 			}
@@ -1558,7 +1567,40 @@ class UserCore extends Model {
 	}
 
 
+	// #controller#/unsubscribeUserFromMaillist
+	function unsubscribeUserFromMaillist($action) {
 
+		global $page;
+
+		$maillist_id = getPost("maillist_id");
+		$username = getPost("username");
+		$verification_code = getPost("verification_code");
+
+		$maillist = $page->maillists($maillist_id);
+
+		if($maillist && $username && $verification_code) {
+
+			$query = new Query();
+
+			$sql = "SELECT user_id FROM $this->db_usernames WHERE username = '$username' AND verification_code = '$verification_code'";
+			if($query->sql($sql)) {
+
+				$user_id = $query->result(0, "user_id");
+				$sql = "DELETE FROM $this->db_maillists WHERE maillist_id = $maillist_id AND user_id = $user_id";
+				if($query->sql($sql)) {
+
+					// add to log
+					$page->addLog("user->unsubscribeUserFromMaillist: maillist_id:$maillist_id, user_id:$user_id");
+
+					return true;
+				}
+
+			}
+		}
+
+		
+		return false;
+	}
 
 	// READSTATES
 

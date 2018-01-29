@@ -340,6 +340,9 @@ class Upgrade extends Model {
 			$this->process($this->renameTable(SITE_DB.".countries", "system_countries"));
 			$this->process($this->renameTable(SITE_DB.".currencies", "system_currencies"));
 
+			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
+				$this->process($this->renameTable(SITE_DB.".system_newsletters", "system_maillists"));
+			}
 			if(defined("SITE_SHOP") && SITE_SHOP) {
 				$this->process($this->renameTable(SITE_DB.".vatrates", "system_vatrates"));
 			}
@@ -374,7 +377,7 @@ class Upgrade extends Model {
 				// ITEM SUBSCRIPTION METHOD
 				$this->process($this->createTableIfMissing(UT_ITEMS_SUBSCRIPTION_METHOD), true);
 			}
-			$this->process($this->createTableIfMissing(UT_NEWSLETTERS), true);
+			$this->process($this->createTableIfMissing(UT_MAILLISTS), true);
 
 
 
@@ -777,49 +780,60 @@ class Upgrade extends Model {
 
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 
-				// USER NEWSLETTER SUBSCRIPTIONS
+				// USER NEWSLETTER SUBSCRIPTIONS (DEPRECATED)
+				$user_newsletters_table = $this->tableInfo(SITE_DB.".user_newsletters");
+				if($user_newsletters_table) {
 
-				$this->process($this->createTableIfMissing(SITE_DB.".user_newsletters"), true);
+					// Get all existing newsletters from original (1. version) newsletter table
+					$query->sql("SELECT * FROM ".SITE_DB.".user_newsletters GROUP BY newsletter");
+					$all_newsletters = $query->results();
+					// does newsletter result contain old newsletter column (otherwise is has already been updated)
+					if($all_newsletters && isset($all_newsletters[0]["newsletter"])) {
 
-				// Get all existing newsletters from original newsletter table
-				$query->sql("SELECT * FROM ".SITE_DB.".user_newsletters GROUP BY newsletter");
-				$all_newsletters = $query->results();
-				// does newsletter result contain old newsletter column (otherwise is has already been updated)
-				if($all_newsletters && isset($all_newsletters[0]["newsletter"])) {
+						// Create newsletters in new system table
+						foreach($all_newsletters as $newsletter) {
+							$this->process($this->checkDefaultValues(UT_NEWSLETTERS, "'DEFAULT','".$newsletter["newsletter"]."', DEFAULT", "name = '".$newsletter["newsletter"]."'"), true);
+						}
 
-					// Create newsletters in new system table
-					foreach($all_newsletters as $newsletter) {
-						$this->process($this->checkDefaultValues(UT_NEWSLETTERS, "'DEFAULT','".$newsletter["newsletter"]."', DEFAULT", "name = '".$newsletter["newsletter"]."'"), true);
-					}
-
-					// get all subscribers
-					$query->sql("SELECT * FROM ".SITE_DB.".user_newsletters");
-					$newsletter_subscribers = $query->results();
+						// get all subscribers
+						$query->sql("SELECT * FROM ".SITE_DB.".user_newsletters");
+						$newsletter_subscribers = $query->results();
 				 
-					// get all the newsletters from new system table
-					$query->sql("SELECT * FROM ".UT_NEWSLETTERS);
-					$newsletters = $query->results();
+						// get all the newsletters from new system table
+						$query->sql("SELECT * FROM ".UT_NEWSLETTERS);
+						$newsletters = $query->results();
 
-					// Add newsletter_id column to original table
-					$this->process($this->addColumn(SITE_DB.".user_newsletters", "newsletter_id", "int(11) NOT NULL", "user_id"), true);
+						// Add newsletter_id column to original table
+						$this->process($this->addColumn(SITE_DB.".user_newsletters", "newsletter_id", "int(11) NOT NULL", "user_id"), true);
 
-					// Add newsletter_id's
-					foreach($newsletter_subscribers as $subscriber) {
-						if($subscriber["newsletter"]) {
-							$newsletter_key = arrayKeyValue($newsletters, "name", $subscriber["newsletter"]);
-							if($newsletter_key !== false) {
-								$query->sql("UPDATE ".SITE_DB.".user_newsletters SET newsletter_id = ".$newsletters[$newsletter_key]["id"]." WHERE user_id = ".$subscriber["user_id"]." AND id = ".$subscriber["id"]);
+						// Add newsletter_id's
+						foreach($newsletter_subscribers as $subscriber) {
+							if($subscriber["newsletter"]) {
+								$newsletter_key = arrayKeyValue($newsletters, "name", $subscriber["newsletter"]);
+								if($newsletter_key !== false) {
+									$query->sql("UPDATE ".SITE_DB.".user_newsletters SET newsletter_id = ".$newsletters[$newsletter_key]["id"]." WHERE user_id = ".$subscriber["user_id"]." AND id = ".$subscriber["id"]);
+								}
 							}
 						}
+
+						// drop newsletter column from orginal table
+						$this->process($this->dropColumn(SITE_DB.".user_newsletters", "newsletter"), true);
+
+						$this->process($this->addKey(SITE_DB.".user_newsletters", "newsletter_id"), true);
+						$this->process($this->addConstraint(SITE_DB.".user_newsletters.newsletter_id", UT_NEWSLETTERS.".id", "ON UPDATE CASCADE"), true);
+
 					}
 
-					// drop newsletter column from orginal table
-					$this->process($this->dropColumn(SITE_DB.".user_newsletters", "newsletter"), true);
+					// rename "user_newsletters" table to "user_maillists"
+					$this->process($this->renameTable(SITE_DB.".user_newsletters", "user_maillists"), true);
 
-					$this->process($this->addKey(SITE_DB.".user_newsletters", "newsletter_id"), true);
-					$this->process($this->addConstraint(SITE_DB.".user_newsletters.newsletter_id", UT_NEWSLETTERS.".id", "ON UPDATE CASCADE"), true);
+					// rename "newsletter_id" column to "maillist_id"
+					$this->process($this->renameColumn(SITE_DB.".user_maillists", "newsletter_id", "maillist_id"), true);
 
 				}
+
+				// create the 
+				$this->process($this->createTableIfMissing(SITE_DB.".user_maillists"), true);
 
 			}
 
@@ -883,6 +897,7 @@ class Upgrade extends Model {
 	function replaceEmails() {
 
 		$query = new Query();
+		mailer()->init_adapter();
 
 		try {
 
@@ -1311,6 +1326,11 @@ class Upgrade extends Model {
 			if($query->sql($sql)) {
 				$message .= ": DONE";
 				$success = true;
+			}
+			// DOES BOTH TABLES EXIST ALREADY?
+			else if($query->sql("SELECT table_name FROM information_schema.tables WHERE table_schema = '".$db."' AND table_name = '".$new_name."'")){
+				$message .= ": BOTH TABLES EXIST";
+				$success = false;
 			}
 			// RENAME FAILED
 			else {

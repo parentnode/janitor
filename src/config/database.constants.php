@@ -10,6 +10,6 @@ define("UT_VATRATES",                   SITE_DB.".system_vatrates");            
 define("UT_PAYMENT_METHODS",            SITE_DB.".system_payment_methods");            // Payment methods
 define("UT_SUBSCRIPTION_METHODS",       SITE_DB.".system_subscription_methods");       // Subscription methods
 
-define("UT_NEWSLETTERS",                SITE_DB.".system_newsletters");                // Newsletters
+define("UT_MAILLISTS",                  SITE_DB.".system_maillists");                  // Maillists
 
 ?>

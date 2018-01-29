@@ -410,9 +410,13 @@ class PageCore {
 			$file = FRAMEWORK_PATH."/templates/".$template;
 		}
 
-		// template was not found - include error template
+		// template was not found - include local error template
 		else if(file_exists(LOCAL_PATH."/templates/".$error)) {
 			$file = LOCAL_PATH."/templates/".$error;
+		}
+		// template was not found - include framework error template
+		else if(file_exists(FRAMEWORK_PATH."/templates/".$error)) {
+			$file = FRAMEWORK_PATH."/templates/".$error;
 		}
 
 		if(isset($file)) {
@@ -868,35 +872,35 @@ class PageCore {
 
 
 	/**
-	* Get array of available newsletters
-	* Optional get details for specific newsletter
+	* Get array of available maillists
+	* Optional get details for specific maillist
 	*
-	* @return Array of newsletters or array of newsletter details
+	* @return Array of maillists or array of maillist details
 	*/
-	function newsletters($id = false) {
+	function maillists($id = false) {
 
-		if(!cache()->value("newsletters")) {
+		if(!cache()->value("maillists")) {
 
 			$query = new Query();
-			$query->sql("SELECT * FROM ".UT_NEWSLETTERS);
-			cache()->value("newsletters", $query->results());
+			$query->sql("SELECT * FROM ".UT_MAILLISTS);
+			cache()->value("maillists", $query->results());
 		}
 
-		// looking for specific newsletter details
+		// looking for specific maillist details
 		if($id !== false) {
-			$newsletters = cache()->value("newsletters");
-			$key = arrayKeyValue($newsletters, "id", $id);
+			$maillists = cache()->value("maillists");
+			$key = arrayKeyValue($maillists, "id", $id);
 			if($key !== false) {
-				return $newsletters[$key];
+				return $maillists[$key];
 			}
-			// invalid newsletter requested
+			// invalid maillist requested
 			else {
 				return false;
 			}
 		}
-		// return complete array of newsletters
+		// return complete array of maillists
 		else {
-			return cache()->value("newsletters");
+			return cache()->value("maillists");
 		}
 
 	}
@@ -1486,8 +1490,8 @@ class PageCore {
 	// validate csrf token
 	function validateCsrfToken() {
 
-		// validate csrf-token on all requests?
-		if(!(defined("SITE_INSTALL") && SITE_INSTALL)) {
+		// validate csrf-token on all requests? - Csrf token should always be validated (I think)
+//		if(!(defined("SITE_INSTALL") && SITE_INSTALL)) {
 
 			// if POST, check csrf token
 			if($_SERVER["REQUEST_METHOD"] == "POST" &&
@@ -1519,7 +1523,7 @@ class PageCore {
 				return false;
 
 			}
-		}
+//		}
 
 		return true;
 	}

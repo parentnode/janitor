@@ -48,7 +48,7 @@ if(is_array($action) && count($action)) {
 
 
 	// CONTENT OVERVIEW
-	if(preg_match("/^(content|readstates)$/", $action[0])) {
+	if(preg_match("/^(content|maillists)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",

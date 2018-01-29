@@ -192,13 +192,13 @@ Util.Objects["editAddress"] = new function() {
 	}
 }
 
-// userNewsletters subscribe+unsubscribe form
-Util.Objects["newsletters"] = new function() {
+// userMaillists subscribe+unsubscribe form
+Util.Objects["maillists"] = new function() {
 	this.init = function(div) {
 
 		var i, node;
-		div.newsletters = u.qsa("ul.newsletters > li", div);
-		for(i = 0; node = div.newsletters[i]; i++) {
+		div.maillists = u.qsa("ul.maillists > li", div);
+		for(i = 0; node = div.maillists[i]; i++) {
 
 			node.li_unsubscribe = u.qs("li.unsubscribe", node);
 			node.li_subscribe = u.qs("li.subscribe", node);

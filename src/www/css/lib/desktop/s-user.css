@@ -56,25 +56,26 @@
 #content .scene.userEdit > div.addresses > .actions {padding-bottom: 15px;}
 
 
-/* NEWSLETTERS */
-#content .scene.userEdit > div.newsletters {/*padding: 0 0 10px 0;*/border-bottom: 1px solid #bbbbbb;}
-#content .scene.userEdit > div.newsletters ul.newsletters {padding: 0 30px 10px;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li {display: block; padding: 0 0 10px;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li h3 {padding: 4px 0 0; display: inline-block; vertical-align: top;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions {padding: 0 10px 0 0; display: inline-block; vertical-align: top;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li {padding: 0;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li input {font-size: 0; height: 26px; width: 26px; padding: 3px 12px;}
+/* MAILLISTS */
+#content .scene.defaultList > div.maillists {/*padding: 0 0 10px 0;*/border-bottom: 1px solid #bbbbbb;}
+#content .scene.defaultList > div.maillists h2 {padding-top: 10px;}
+#content .scene.defaultList > div.maillists ul.maillists {padding: 0 30px 10px;}
+#content .scene.defaultList > div.maillists ul.maillists > li {display: block; padding: 0 0 10px;}
+#content .scene.defaultList > div.maillists ul.maillists > li h3 {padding: 4px 0 0; display: inline-block; vertical-align: top;}
+#content .scene.defaultList > div.maillists ul.maillists > li ul.actions {padding: 0 10px 0 0; display: inline-block; vertical-align: top;}
+#content .scene.defaultList > div.maillists ul.maillists > li ul.actions li {padding: 0;}
+#content .scene.defaultList > div.maillists ul.maillists > li ul.actions li input {font-size: 0; height: 26px; width: 26px; padding: 3px 12px;}
 
-#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.unsubscribe input.button {background-color: #f4f5f5; border-left: 3px solid #8c9399; border-top: 3px solid #8c9399; border-right: 27px solid #8c9399; border-bottom: 3px solid #8c9399;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.subscribe input.button {background-color: #f4f5f5; border-right: 3px solid orange; border-top: 3px solid orange; border-left: 27px solid orange; border-bottom: 3px solid orange;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.unsubscribe form:after {content: "ON"; font-size: 10px; font-weight: 700; color: #8c9399; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 6px;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li ul.actions li.subscribe form:after {content: "OFF"; font-size: 10px; font-weight: 700; color: orange; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 29px;}
+#content .scene.defaultList > div.maillists ul.maillists > li ul.actions li.unsubscribe input.button {background-color: #f4f5f5; border-left: 3px solid #8c9399; border-top: 3px solid #8c9399; border-right: 27px solid #8c9399; border-bottom: 3px solid #8c9399;}
+#content .scene.defaultList > div.maillists ul.maillists > li ul.actions li.subscribe input.button {background-color: #f4f5f5; border-right: 3px solid orange; border-top: 3px solid orange; border-left: 27px solid orange; border-bottom: 3px solid orange;}
+#content .scene.defaultList > div.maillists ul.maillists > li ul.actions li.unsubscribe form:after {content: "ON"; font-size: 10px; font-weight: 700; color: #8c9399; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 6px;}
+#content .scene.defaultList > div.maillists ul.maillists > li ul.actions li.subscribe form:after {content: "OFF"; font-size: 10px; font-weight: 700; color: orange; display: block; width: 20px; height: 20px; position: relative; top: -19px; left: 29px;}
 
-#content .scene.userEdit > div.newsletters > ul.actions {padding-top: 20px; border-top: 1px solid #dedede;}
+#content .scene.defaultList > div.maillists > ul.actions {padding-top: 20px; border-top: 1px solid #dedede;}
 
-#content .scene.userEdit > div.newsletters ul.newsletters > li.subscribed li.subscribe {display: none;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li.subscribed li.unsubscribe {display: inline-block;}
-#content .scene.userEdit > div.newsletters ul.newsletters > li li.unsubscribe {display: none;}
+#content .scene.defaultList > div.maillists ul.maillists > li.subscribed li.subscribe {display: none;}
+#content .scene.defaultList > div.maillists ul.maillists > li.subscribed li.unsubscribe {display: inline-block;}
+#content .scene.defaultList > div.maillists ul.maillists > li li.unsubscribe {display: none;}
 
 
 /* ACCESS */
@@ -161,8 +162,8 @@
 #content .defaultList.usersNotVerified > ul.actions li.remind {float: right; padding: 0 0 10px 10px;}
 
 
-/* DOWNLOAD NEWSLETTER SUBSCRIBERS */
-#content .defaultList.newsletterList > ul.actions li.download {float: right; padding: 0 0 10px 10px;}
+/* DOWNLOAD MAILLIST SUBSCRIBERS */
+#content .defaultList.maillistList > ul.actions li.download {float: right; padding: 0 0 10px 10px;}
 
 
 

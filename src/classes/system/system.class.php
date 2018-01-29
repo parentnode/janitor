@@ -7,12 +7,12 @@ class System extends Model {
 	function __construct() {
 
 		// Usergroup
-		$this->addToModel("newsletter", array(
+		$this->addToModel("maillist", array(
 			"type" => "string",
 			"label" => "List title",
 			"required" => true,
 			"hint_message" => "Make it clear",
-			"error_message" => "Invalid newsletter name"
+			"error_message" => "Invalid maillist name"
 		));
 		
 	}
@@ -41,31 +41,31 @@ class System extends Model {
 	// TODO: add language, country, currency, vatrate, etc maintenance functions here
 
 
-	function addNewsletter($action) {
+	function addMaillist($action) {
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
 		// does values validate
-		if(count($action) == 1 && $this->validateList(array("newsletter"))) {
+		if(count($action) == 1 && $this->validateList(array("maillist"))) {
 
 			$query = new Query();
 
-			$newsletter = $this->getProperty("newsletter", "value");
+			$maillist = $this->getProperty("maillist", "value");
 
 			// already signed up (to avoid faulty double entries)
-			$sql = "SELECT * FROM UT_NEWSLETTERS WHERE name = '$newsletter'";
+			$sql = "SELECT * FROM UT_MAILLISTS WHERE name = '$maillist'";
 			if(!$query->sql($sql)) {
-				$sql = "INSERT INTO ".UT_NEWSLETTERS." SET name='$newsletter'";
+				$sql = "INSERT INTO ".UT_MAILLISTS." SET name='$maillist'";
 				$query->sql($sql);
 
-				cache()->reset("newsletters");
+				cache()->reset("maillists");
 			}
 
-			message()->addMessage("Newsletter added");
+			message()->addMessage("Maillist added");
 			return array("item_id" => $query->lastInsertId());
 		}
 
-		message()->addMessage("Could not add newsletter", array("type" => "error"));
+		message()->addMessage("Could not add maillist", array("type" => "error"));
 		return false;
 		
 	}

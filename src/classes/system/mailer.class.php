@@ -75,12 +75,20 @@ class Mailer {
 		$values = [];
 		$from_current_user = false;
 
-		$recipients = false;
+		// we'll do some extra recipient checking before making the final recipients list
+		$temp_recipients = false;
+		$recipients = [];
+
 		$attachments = false;
 
 		$text = "";
 		$html = "";
 
+
+		// tracking settings - should always use default settings from mail-service, unless explicitly set
+		$tracking = "default";
+		$track_clicks = "default";
+		$track_opened = "default";
 
 //		$object = false;
 
@@ -96,11 +104,16 @@ class Mailer {
 					case "from_current_user"      : $from_current_user      = $_value; break;
 					case "values"                 : $values                 = $_value; break;
 
-					case "recipients"             : $recipients             = $_value; break;
+					case "recipients"             : $temp_recipients        = $_value; break;
 					case "attachments"            : $attachments            = $_value; break;
 
 					case "html"                   : $html                   = $_value; break;
 					case "text"                   : $text                   = $_value; break;
+
+					// tracking only supported if supported by mailservice
+					case "tracking"               : $tracking               = $_value; break;
+					case "track_clicks"           : $track_clicks           = $_value; break;
+					case "track_opened"           : $track_opened           = $_value; break;
 
 				}
 			}
@@ -108,16 +121,23 @@ class Mailer {
 
 
 		// if no recipients - send to ADMIN
-		if(!$recipients && defined("ADMIN_EMAIL")) {
-			$recipients[] = ADMIN_EMAIL;
+		if(!$temp_recipients && defined("ADMIN_EMAIL")) {
+			$temp_recipients[] = ADMIN_EMAIL;
 		}
 
 
 		// split comma separated recipient list
-		if(!is_array($recipients)) {
-			$recipients = preg_split("/,|;/", $recipients);
+		if(!is_array($temp_recipients)) {
+			$temp_recipients = preg_split("/,|;/", $temp_recipients);
 		}
 
+		// check that recipient seems to be a valid email
+		foreach($temp_recipients as $recipient) {
+			// only use valid recipients
+			if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+				$recipients[] = $recipient;
+			}
+		}
 
 		// include template
 		// template is prioritized before $text and $html
@@ -154,6 +174,8 @@ class Mailer {
 
 		// remove a subject line from $text template
 		$text = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $text);
+		// trim text message
+		$text = trim($text);
 
 
 		// prepare default values for merging - but don't overwrite
@@ -179,12 +201,19 @@ class Mailer {
 		// create text version from HTML
 		if($html && !$text) {
 
-			// Remove subject line from message template
-			// Whether it has been used or not, out it must go
-//				$text = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $text);
-			$text = strip_tags($html);
-			// this is the new message
-			$text = trim($text);
+			include_once("classes/system/dom.class.php");
+			$DC = new DOM();
+
+			// create DOM object from HTML string
+			$dom = $DC->createDOM($html);
+
+			// get formatted text string from DOM object
+			$text = $DC->getFormattedTextFromDOM($dom);
+
+			//cleanup
+			$DC = null;
+			$dom = null;
+
 		}
 
 
@@ -204,9 +233,14 @@ class Mailer {
 				"recipients" => $recipients,
 
 				"attachments" => $attachments,
-				
+
 				"html" => $html,
 				"text" => $text,
+
+				"tracking" => $tracking,
+				"track_clicks" => $track_clicks,
+				"track_opened" => $track_opened,
+
 			]);
 
 
@@ -218,7 +252,7 @@ class Mailer {
 
 	function sendBulk($_options) {
 
-		print "sendBulk";
+//		print "sendBulk<br>\n";
 
 		// only load mail adapter when needed
 		$this->init_adapter();
@@ -233,12 +267,18 @@ class Mailer {
 		$values = [];
 		$from_current_user = false;
 
-		$recipients = false;
+		$temp_recipients = false;
+		$recipients = [];
 		$attachments = false;
 
 		$text = "";
 		$html = "";
 
+
+		// tracking settings - should always use default settings from mail-service, unless explicitly set
+		$tracking = "default";
+		$track_clicks = "default";
+		$track_opened = "default";
 
 //		$object = false;
 
@@ -254,16 +294,29 @@ class Mailer {
 					case "from_current_user"      : $from_current_user      = $_value; break;
 					case "values"                 : $values                 = $_value; break;
 
-					case "recipients"             : $recipients             = $_value; break;
+					case "recipients"             : $temp_recipients        = $_value; break;
 					case "attachments"            : $attachments            = $_value; break;
 
 					case "html"                   : $html                   = $_value; break;
 					case "text"                   : $text                   = $_value; break;
 
+					// tracking only supported if supported by mailservice
+					case "tracking"               : $tracking               = $_value; break;
+					case "track_clicks"           : $track_clicks           = $_value; break;
+					case "track_opened"           : $track_opened           = $_value; break;
+
 				}
 			}
 		}
 
+
+		// check that recipient seems to be a valid email
+		foreach($temp_recipients as $recipient) {
+			// only use valid recipients
+			if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+				$recipients[] = $recipient;
+			}
+		}
 
 
 		// include template
@@ -279,6 +332,7 @@ class Mailer {
 			$text = $message;
 		}
 
+//		print_r($html);
 
 		// subject was not specified
 		// look for subject in templates - HTML wins
@@ -301,19 +355,24 @@ class Mailer {
 
 		// remove a subject line from $text template
 		$text = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $text);
+		// trim text message
+		$text = trim($text);
+
+//		print_r($recipients);
 
 		// Add system variable to each recipient
-		foreach($recipients as $recipient => $values) {
+//		print_r($values);
+		foreach($recipients as $recipient) {
 
 			// prepare default values for merging - but don't overwrite
-			$recipients[$recipient]["SITE_URL"] = isset($recipients[$recipient]["SITE_URL"]) ? $values : SITE_URL;
-			$recipients[$recipient]["SITE_NAME"] = isset($recipients[$recipient]["SITE_NAME"]) ? $values : SITE_NAME;
-			$recipients[$recipient]["ADMIN_EMAIL"] = isset($recipients[$recipient]["ADMIN_EMAIL"]) ? $values : ADMIN_EMAIL;
-			$recipients[$recipient]["SITE_EMAIL"] = isset($recipients[$recipient]["SITE_EMAIL"]) ? $values : SITE_EMAIL;
+			$values[$recipient]["SITE_URL"] = isset($values[$recipient]["SITE_URL"]) ? $values[$recipient]["SITE_UEL"] : SITE_URL;
+			$values[$recipient]["SITE_NAME"] = isset($values[$recipient]["SITE_NAME"]) ? $values[$recipient]["SITE_NAME"] : SITE_NAME;
+			$values[$recipient]["SITE_EMAIL"] = isset($values[$recipient]["SITE_EMAIL"]) ? $values[$recipient]["SITE_EMAIL"] : SITE_EMAIL;
+			$values[$recipient]["ADMIN_EMAIL"] = isset($values[$recipient]["ADMIN_EMAIL"]) ? $values[$recipient]["ADMIN_EMAIL"] : ADMIN_EMAIL;
 
 			// add message to merging array
-			if($message && !isset($recipients[$recipient]["message"])) {
-				$recipients[$recipient]["message"] = $message;
+			if($message && !isset($values[$recipient]["message"])) {
+				$values[$recipient]["message"] = $message;
 			}
 
 		}
@@ -323,12 +382,23 @@ class Mailer {
 		// create text version from HTML
 		if($html && !$text) {
 
-			// Remove subject line from message template
-			// Whether it has been used or not, out it must go
-//				$text = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $text);
-			$text = strip_tags($html);
-			// this is the new message
-			$text = trim($text);
+			include_once("classes/system/dom.class.php");
+			$DC = new DOM();
+
+			// create DOM object from HTML string
+			$dom = $DC->createDOM($html);
+
+			// get formatted text string from DOM object
+			$text = $DC->getFormattedTextFromDOM($dom);
+
+
+//			print $text;
+			//cleanup
+			$DC = null;
+			$dom = null;
+			// $text = strip_tags($html);
+			// // this is the new message
+			// $text = trim($text);
 		}
 
 
@@ -336,7 +406,6 @@ class Mailer {
 		if($text && $recipients) {
 
 			list($from_email, $from_name) = $this->getSender($from_current_user);
-
 
 			return $this->adapter->sendBulk([
 //			return $mailer->send([
@@ -346,11 +415,16 @@ class Mailer {
 				"from_name" => $from_name,
 				"from_email" => $from_email,
 				"recipients" => $recipients,
+				"values" => $values,
 
 				"attachments" => $attachments,
 				
 				"html" => $html,
 				"text" => $text,
+
+				"tracking" => $tracking,
+				"track_clicks" => $track_clicks,
+				"track_opened" => $track_opened,
 			]);
 
 
@@ -362,7 +436,7 @@ class Mailer {
 
 
 	function getSender($from_current_user) {
-		
+
 		// from information
 		if($from_current_user) {
 			$UC = new User();
@@ -375,12 +449,12 @@ class Mailer {
 			$from_email = (defined("SITE_EMAIL") ? SITE_EMAIL : ADMIN_EMAIL);
 			$from_name = SITE_NAME;
 		}
-		
+
 		return [$from_email, $from_name];
 	}
 
 	function getTemplate($template) {
-		
+
 		$text = "";
 		$html = "";
 
@@ -416,10 +490,8 @@ class Mailer {
 			ob_end_clean();
 		}
 
-
 		return [$text, $html];
 	}
-
 
 }
 

@@ -28,10 +28,10 @@ $access_item["/addAddress"] = "/address";
 $access_item["/updateAddress"] = "/address";
 $access_item["/deleteAddress"] = "/address";
 
-// USER NEWSLETTER INTERFACE
-$access_item["/newsletter"] = true;
-$access_item["/addNewsletter"] = "/newsletter";
-$access_item["/deleteNewsletter"] = "/newsletter";
+// USER MAILLIST INTERFACE
+$access_item["/maillists"] = true;
+$access_item["/addMaillist"] = "/maillists";
+$access_item["/deleteMaillist"] = "/maillists";
 
 
 // USER SUBSCRIPTION INTERFACE
@@ -56,11 +56,6 @@ $access_item["/updateMembership"] = "/members";
 $access_item["/switchMembership"] = "/members";
 $access_item["/upgradeMembership"] = "/members";
 $access_item["/cancelMembership"] = "/members";
-
-
-// NEWSLETTER INTERFACE
-$access_item["/newsletters"] = true;
-
 
 
 // ACCESS INTERFACE
@@ -168,8 +163,8 @@ if(is_array($action) && count($action)) {
 		}
 	}
 
-	// CONTENT/ORDERS/READSTATES/MEMBERSHIP OVERVIEW
-	else if(preg_match("/^(content|orders|readstates)$/", $action[0]) && count($action) > 1) {
+	// CONTENT/ORDERS/MAILLIST OVERVIEW
+	else if(preg_match("/^(content|orders|maillists)$/", $action[0]) && count($action) > 1) {
 		$page->page(array(
 			"type" => "janitor",
 			"page_title" => "User",
@@ -194,70 +189,6 @@ if(is_array($action) && count($action)) {
 		}
 	}
 
-	// NEWSLETTERS
-	else if(preg_match("/^(newsletters)$/", $action[0]) && count($action) > 1) {
-
-		// MEMBER LIST/EDIT
-		if(preg_match("/^(list|new)$/", $action[1])) {
-
-			$page->page(array(
-				"type" => "janitor",
-				"body_class" => "newsletters", 
-				"page_title" => "Newsletters",
-				"templates" => "janitor/user/newsletters/".$action[1].".php"
-			));
-			exit();
-
-		}
-		// Temp newsletter list download
-		else if(preg_match("/^(download)$/", $action[1]) && count($action) == 3) {
-
-
-			$newsletter = $page->newsletters($action[2]);
-			if($newsletter) {
-				$subscribers = $model->getNewsletters(["newsletter_id" => $action[2]]);
-				if($subscribers) {
-
-					$emails = [];
-					foreach($subscribers as $subscriber) {
-						array_push($emails, $subscriber["email"]);
-					}
-
-					if($emails) {
-
-						header('Content-Description: File Transfer');
-						header('Content-Type: text/text');
-						header("Content-Type: application/force-download");
-						header('Content-Disposition: attachment; filename='.date("Ymd-His_").$newsletter["name"].".csv");
-						header('Expires: 0');
-						header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-						header('Pragma: public');
-						header('Content-Length: ' . strlen(implode($emails, "\n")));
-						ob_clean();
-						flush();
-						print implode($emails, "\n");
-						exit();
-					}
-				}
-
-			}
-
-			header('Content-Description: File Transfer');
-			header('Content-Type: text/text');
-			header("Content-Type: application/force-download");
-			header('Content-Disposition: attachment; filename='.date("Ymd-His_").stringOr($newsletter["name"], "unknown").".csv");
-			header('Expires: 0');
-			header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-			header('Pragma: public');
-			header('Content-Length: 0');
-
-			ob_clean();
-			flush();
-			print "";
-			exit();
-
-		}
-	}
 
 	// ACCESS
 	else if(preg_match("/^(access)$/", $action[0]) && count($action) > 1) {

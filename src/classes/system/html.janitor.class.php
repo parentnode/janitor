@@ -106,7 +106,7 @@ class JanitorHTML {
 		global $model;
 
 		$label = "List";
-		$action = "list";
+		$action = $this->path."/list";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -121,7 +121,7 @@ class JanitorHTML {
 
 		$_ = '';
 
-		$_ .= $model->link($label, $this->path."/".$action, array("class" => "button primary key:esc", "wrapper" => "li.back"));
+		$_ .= $model->link($label, $action, array("class" => "button primary key:esc", "wrapper" => "li.back"));
 
 		return $_;
 	}
@@ -1253,10 +1253,15 @@ class JanitorHTML {
 				$_ .= $HTML->link("Content", "/janitor/admin/user/content/".$user_id, array("wrapper" => "li.content".($selected == "content" ? ".selected" : "")));
 
 				// readstates not available for guest user
-				if($user_id != 1):
-					$_ .= $HTML->link("Readstates", "/janitor/admin/user/readstates/".$user_id, array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
-				endif;
+				// if($user_id != 1):
+				// 	$_ .= $HTML->link("Readstates", "/janitor/admin/user/readstates/".$user_id, array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
+				// endif;
 
+			endif;
+
+			// maillist not available for guest user
+			if(defined("SITE_SIGNUP") && SITE_SIGNUP && $user_id != 1):
+				$_ .= $HTML->link("Maillists", "/janitor/admin/user/maillists/".$user_id, array("wrapper" => "li.maillist".($selected == "maillists" ? ".selected" : "")));
 			endif;
 	
 			// orders not available for guest user
@@ -1294,10 +1299,15 @@ class JanitorHTML {
 				$_ .= $HTML->link("Content", "/janitor/admin/profile/content", array("wrapper" => "li.content".($selected == "content" ? ".selected" : "")));
 
 				// readstates not available for guest user
-				$_ .= $HTML->link("Readstates", "/janitor/admin/profile/readstates", array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
+				// $_ .= $HTML->link("Readstates", "/janitor/admin/profile/readstates", array("wrapper" => "li.readstates".($selected == "readstates" ? ".selected" : "")));
 
 			endif;
-	
+
+			// maillist not available for guest user
+			if(defined("SITE_SIGNUP") && SITE_SIGNUP):
+				$_ .= $HTML->link("Maillists", "/janitor/admin/profile/maillists", array("wrapper" => "li.maillist".($selected == "maillists" ? ".selected" : "")));
+			endif;
+
 			// orders not available for guest user
 			if(defined("SITE_SHOP") && SITE_SHOP):
 				$_ .= $HTML->link("Orders", "/janitor/admin/profile/orders/list", array("wrapper" => "li.orders".($selected == "orders" ? ".selected" : "")));

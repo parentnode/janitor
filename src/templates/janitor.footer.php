@@ -23,6 +23,15 @@ endif; ?>
 				</ul>
 			</li>
 <? endif; ?>
+<? if(defined("SITE_MEMBERS") && SITE_MEMBERS): ?>
+			<li class="members">
+				<h3>Members</h3>
+				<ul class="subjects">
+					<?= $HTML->link("Memberships", "/janitor/admin/membership/list", array("wrapper" => "li.membership")) ?>
+					<?= $HTML->link("Members", "/janitor/admin/user/members/list", array("wrapper" => "li.members")) ?>
+				</ul>
+			</li>
+<? endif; ?>
 			<li class="site">
 				<h3>Site</h3>
 				<ul class="subjects">
@@ -43,10 +52,7 @@ endif; ?>
 				<ul class="subjects">
 					<?= $HTML->link("Users", "/janitor/admin/user/list", array("wrapper" => "li.user")) ?>
 					<?= $HTML->link("Groups", "/janitor/admin/user/group/list", array("wrapper" => "li.usergroup")) ?>
-<? if(defined("SITE_SHOP") && SITE_SHOP): ?>
-					<?= $HTML->link("Members", "/janitor/admin/user/members/list", array("wrapper" => "li.members")) ?>
-<? endif; ?>
-					<?= $HTML->link("Newsletters", "/janitor/admin/user/newsletters/list", array("wrapper" => "li.newsletters")) ?>
+					<?= $HTML->link("Messages", "/janitor/admin/message", array("wrapper" => "li.message")) ?>
 					<?= $HTML->link("Profile", "/janitor/admin/profile", array("wrapper" => "li.profile")) ?>
 				</ul>
 			</li>

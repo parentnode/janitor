@@ -21,7 +21,10 @@ global $model;
 
 	</div>
 
-<? if(preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL)): ?>
+<? if(preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL)):
+	// initialize mailer to make ADMIN_EMAIL available
+	mailer();
+ ?>
 	<h2>Development tools</h2>
 	<div class="option">
 		<h3>Replace user emails</h3>
