@@ -8,9 +8,9 @@ Util.Objects["page"] = new function() {
 
 		// show parentnode comment in console
 		u.bug_force = true;
-		u.bug("This site is built using Manipulator, Janitor and Detector");
-		u.bug("Visit http://parentnode.dk for more information");
-		u.bug("Free lunch for new contributers ;-)");
+		u.bug("This site is built using the combined powers of body, mind and spirit. Well, and also Manipulator, Janitor and Detector");
+		u.bug("Visit https://parentnode.dk for more information");
+//		u.bug("Free lunch for new contributers ;-)");
 		u.bug_force = false;
 
 
