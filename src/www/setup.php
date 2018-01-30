@@ -101,7 +101,7 @@ if(is_array($action) && count($action)) {
 					"templates" => "upgrade/".$action[1].".php"
 				));
 				exit();
-				
+
 			}
 
 			

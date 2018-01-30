@@ -45,6 +45,8 @@
 #navigation > ul.navigation li.front a {padding-top: 25px;}
 #navigation > ul.navigation li.web {border-top: 1px solid #777777;}
 
+#navigation > ul.navigation li.copyright {padding: 10px 20px;}
+
 
 #navigation > ul.navigation > li.profile {display: none;}
 

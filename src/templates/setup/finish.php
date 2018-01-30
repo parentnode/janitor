@@ -2,7 +2,7 @@
 global $model;
 
 $all_check = $model->checkAllSettings();
-	
+
 ?>
 <div class="scene finish i:finish">
 	

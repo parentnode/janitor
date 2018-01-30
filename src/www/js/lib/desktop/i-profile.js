@@ -211,13 +211,13 @@ Util.Objects["addressProfile"] = new function() {
 	}
 }
 
-// userNewsletters unsubscribe form
-Util.Objects["newslettersProfile"] = new function() {
+// userMaillists unsubscribe form
+Util.Objects["maillistsProfile"] = new function() {
 	this.init = function(div) {
 
 		var i, node;
-		div.newsletters = u.qsa("ul.newsletters > li", div);
-		for(i = 0; node = div.newsletters[i]; i++) {
+		div.maillists = u.qsa("ul.maillists > li", div);
+		for(i = 0; node = div.maillists[i]; i++) {
 
 			node.li_unsubscribe = u.qs("li.unsubscribe", node);
 			node.li_subscribe = u.qs("li.subscribe", node);
@@ -230,7 +230,7 @@ Util.Objects["newslettersProfile"] = new function() {
 				node.li_unsubscribe.confirmed = function(response) {
 
 					if(response.cms_status == "success") {
-						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Unsubscribed from newsletter"});
+						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Unsubscribed from maillist"});
 						u.rc(this.node, "subscribed");
 					}
 					else {
@@ -251,11 +251,11 @@ Util.Objects["newslettersProfile"] = new function() {
 
 					if(response.cms_status == "success") {
 						u.ac(this.node, "subscribed");
-						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Subscribed to newsletter"});
+						page.notify({"isJSON":true, "cms_status":"success", "cms_message":"Subscribed to maillist"});
 						//this.node.parentNode.removeChild(this.node);
 					}
 					else {
-						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not subscribe to newsletter"});
+						page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Could not subscribe to maillist"});
 					}
 
 				}

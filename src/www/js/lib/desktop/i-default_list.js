@@ -334,6 +334,12 @@ Util.Objects["defaultList"] = new function() {
 
 			u.defaultFilters(div);
 
+			// callback from list filter
+			div.filtered = function() {
+				this.scrolled();
+			}
+
+
 		}
 
 

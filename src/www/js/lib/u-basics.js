@@ -48,7 +48,9 @@ Util.Objects["collapseHeader"] = new function() {
 				// add class (for detailed open settings)
 				u.ac(this.div, "open");
 
-				u.as(this.div, "height", "auto");
+				u.ass(this.div, {
+					height: "auto"
+				});
 				this.div._toggle_is_closed = false;
 				u.saveNodeCookie(this.div, "open", 1, {"ignore_classvars":true, "ignore_classnames":"open"});
 				u.addCollapseArrow(this);
@@ -62,7 +64,9 @@ Util.Objects["collapseHeader"] = new function() {
 				// remove class (for detailed closed settings)
 				u.rc(this.div, "open");
 
-				u.as(this.div, "height", this.offsetHeight+"px");
+				u.ass(this.div, {
+					height: this.offsetHeight+"px"
+				});
 				this.div._toggle_is_closed = true;
 				u.saveNodeCookie(this.div, "open", 0, {"ignore_classvars":true, "ignore_classnames":"open"});
 				u.addExpandArrow(this);
@@ -75,7 +79,7 @@ Util.Objects["collapseHeader"] = new function() {
 		}
 
 		var state = u.getNodeCookie(div, "open", {"ignore_classvars":true, "ignore_classnames":"open"});
-		console.log("state:" + state + ", " + typeof(state));
+//		console.log("state:" + state + ", " + typeof(state));
 		// no state value (or state value = 0), means collapsed
 		if(!state) {
 			div._toggle_header.clicked();
@@ -104,33 +108,11 @@ u.addExpandArrow = function(node) {
 	if(node.collapsearrow) {
 		u.bug("remove collapsearrow");
 		node.collapsearrow.parentNode.removeChild(node.collapsearrow);
-		node.collapsearrow = false;
+		//node.collapsearrow = false;
+		delete node.collapsearrow;
 	}
 
 	node.expandarrow = u.svgIcons("expandarrow", node);
-	// u.svg({
-	// 	"name":"expandarrow",
-	// 	"node":node,
-	// 	"class":"arrow",
-	// 	"width":17,
-	// 	"height":17,
-	// 	"shapes":[
-	// 		{
-	// 			"type": "line",
-	// 			"x1": 2,
-	// 			"y1": 2,
-	// 			"x2": 7,
-	// 			"y2": 9
-	// 		},
-	// 		{
-	// 			"type": "line",
-	// 			"x1": 6,
-	// 			"y1": 9,
-	// 			"x2": 11,
-	// 			"y2": 2
-	// 		}
-	// 	]
-	// });
 }
 
 // global function to add collapse arrow
@@ -139,7 +121,8 @@ u.addCollapseArrow = function(node) {
 	if(node.expandarrow) {
 		u.bug("remove expandarrow");
 		node.expandarrow.parentNode.removeChild(node.expandarrow);
-		node.expandarrow = false;
+		// node.expandarrow = false;
+		delete node.expandarrow;
 	}
 
 	node.collapsearrow = u.svgIcons("collapsearrow", node);
@@ -155,16 +138,20 @@ u.defaultFilters = function(div) {
 	div._filter.div = div;
 
 
-	var i, node;
+	var i, node, j, text_node;
 
 
 	// index list, to speed up filtering process
 	// list should be indexed initially to avoid indexing extended content (like tag-options)
-	for(i = 0; node = div.nodes[i]; i++) {
+//	for(i = 0; node = div.nodes[i]; i++) {
+	for(i = 0; i < div.nodes.length; i++) {
+		node = div.nodes[i];
 		node._c = "";
 
 		var text_nodes = u.qsa("h2,h3,h4,h5,p,ul.info,dl,li.tag", node);
-		for(j = 0; text_node = text_nodes[j]; j++) {
+//		for(j = 0; text_node = text_nodes[j]; j++) {
+		for(j = 0; j < text_nodes.length; j++) {
+			text_node = text_nodes[j];
 			node._c += u.text(text_node).toLowerCase() + ";"; //.replace(/\n|\t|\r/g, " ").replace(/[ ]+/g, ",");
 		}
 //		u.bug("c:" + node._c)
@@ -179,8 +166,9 @@ u.defaultFilters = function(div) {
 		var tag, li, used_tags = [];
 		div._filter._tags = u.ie(div._filter, "ul", {"class":"tags"});
 
-		for(i = 0; node = tags[i]; i++) {
-
+//		for(i = 0; node = tags[i]; i++) {
+		for(i = 0; i < tags.length; i++) {
+			node = tags[i];
 			tag = u.text(node);
 			if(used_tags.indexOf(tag) == -1) {
 				used_tags.push(tag);
@@ -190,7 +178,9 @@ u.defaultFilters = function(div) {
 		used_tags.sort();
 
 
-		for(i = 0; tag = used_tags[i]; i++) {
+//		for(i = 0; tag = used_tags[i]; i++) {
+		for(i = 0; i < used_tags.length; i++) {
+			tag = used_tags[i];
 			li = u.ae(div._filter._tags, "li", {"html":tag});
 			li.tag = tag.toLowerCase();
 			li._filter = div._filter;
@@ -260,17 +250,18 @@ u.defaultFilters = function(div) {
 		if(this.current_filter != query+","+this.selected_tags.join(",")) {
 
 			this.current_filter = query + "," + this.selected_tags.join(",");
-			for(i = 0; node = this.div.nodes[i]; i++) {
-
+//			for(i = 0; node = this.div.nodes[i]; i++) {
+			for(i = 0; i < this.div.nodes.length; i++) {
+				node = this.div.nodes[i];
 //				u.bug("match:" + node._c.match(query) + ", " + node._c + ", " + query)
 				if(node._c.match(query) && this.checkTags(node)) {
 					node._hidden = false;
-					u.rc(node, "hidden");
+					u.rc(node, "hidden", false);
 					u.as(node, "display", "block", false);
 				}
 				else {
 					node._hidden = true;
-					u.ac(node, "hidden");
+					u.ac(node, "hidden", false);
 					u.as(node, "display", "none", false);
 				}
 			}
@@ -279,6 +270,10 @@ u.defaultFilters = function(div) {
 
 		u.rc(this, "filtering");
 
+		// let list know filtering was done
+		if(typeof(this.div.filtered) == "function") {
+			this.div.filtered();
+		}
 		// invoke appropriate image loading
 //		this.div.scrolled();
 

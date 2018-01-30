@@ -8,13 +8,14 @@ $IC = new Items();
 
 
 $user = $model->getUsers(array("user_id" => $user_id));
+$readstates = $model->getReadstates(array("user_id" => $user_id));
 $items = $IC->getItems(array("user_id" => $user_id, "extend" => true));
 $comments = $IC->getComments(array("user_id" => $user_id));
 
 
 ?>
 <div class="scene i:scene defaultList userContentList">
-	<h1>Content</h1>
+	<h1>Readstates, Content and Comments</h1>
 	<h2><?= $user["nickname"] ?></h2>
 
 	<ul class="actions">
@@ -24,11 +25,28 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 
 	<?= $JML->userTabs($user_id, "content") ?>
 
+	<div class="all_items readstates i:defaultList filters"
+		data-csrf-token="<?= session()->value("csrf") ?>"
+		>
+		<h2>Items <?= $user["nickname"] ?> has marked as read:</h2>
+<? 		if($readstates): ?>
+		<ul class="items">
+<? 			foreach($readstates as $item):
+				$item = $IC->getItem(array("id" => $item["item_id"], "extend" => true)); ?>
+			<li class="item item_id:<?= $item["item_id"] ?>">
+				<h3><?= $item["name"] ?> (<?= $item["itemtype"] ?>)</h3>
+			</li>
+<? 			endforeach; ?>
+		</ul>
+<? 		else: ?>
+		<p>No items.</p>
+<? 		endif; ?>
+	</div>
 
 	<div class="all_items content i:defaultList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
-		<h2>Items</h2>
+		<h2>Items Owned by <?= $user["nickname"] ?>:</h2>
 <? 		if($items): ?>
 		<ul class="items">
 <? 			foreach($items as $item):
@@ -65,7 +83,7 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 	<div class="all_items comments i:defaultList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
-		<h2>Comments</h2>
+		<h2>Comments made by <?= $user["nickname"] ?>:</h2>
 <? 		if($comments): ?>
 		<ul class="items">
 <? 			foreach($comments as $comment): 

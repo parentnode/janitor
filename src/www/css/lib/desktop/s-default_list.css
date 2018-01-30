@@ -48,6 +48,7 @@
 
 /* ACTIONS ALIGN RIGHT */
 #content div.all_items ul.items > li ul.actions {position: absolute; top: 0px; padding: 0; right: 30px;}
+#content p + div.all_items {border-top: 1px solid #bbbbbb;}
 #content div.all_items ul.items > li ul.actions li {padding: 5px 0 5px 5px;}
 #content div.all_items ul.items > li ul.actions li a.button {padding: 4px 12px 6px;}
 #content div.all_items ul.items > li ul.actions li input.button {height: 24px;}

@@ -42,7 +42,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	<?= $JML->userTabs($user_id, "membership") ?>
 
 
-	<? if($membership): ?>
+<? if($membership): ?>
 	<div class="item">
 		<h2>Membership details</h2>
 
@@ -210,10 +210,13 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	<? endif; ?>
 
 
-	<? else: ?>
+<? else: ?>
+
 	<div class="item">
+		<h2>Membership details</h2>
 		<p>This user does not have a membership.</p>
 	</div>
-	<? endif; ?>
+
+<? endif; ?>
 
 </div>

@@ -124,7 +124,7 @@ class TypeMembership extends Itemtype {
 				mailer()->send(array(
 					"values" => array(
 						"ORDER_NO" => $order["order_no"],
-						"MEMBERID" => $membership["id"],
+						"MEMBER_ID" => $membership["id"],
 						"MEMBERSHIP" => $membership["item"]["name"],
 						"PRICE" => $price,
 						"EMAIL" => $email,

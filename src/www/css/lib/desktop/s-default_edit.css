@@ -1,6 +1,13 @@
 
 
-#content .scene.defaultEdit > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
+#content .scene > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
+
+#content .scene div.togglable {overflow: hidden;}
+#content .scene div.togglable.open {overflow: visible;}
+#content .scene div.togglable > h2 {position: relative;}
+#content .scene div.togglable > h2 svg {position: absolute; top: 7px; right: 25px; stroke: #313942; stroke-width: 3px;}
+
+
 
 /* EDIT VIEW - STATUS */
 #content .scene.defaultEdit > div.status {border-bottom: 1px solid #bbbbbb;}
@@ -197,6 +204,3 @@
 
 
 
-#content .scene div.togglable {overflow: hidden;}
-#content .scene div.togglable h2 {position: relative;}
-#content .scene div.togglable h2 svg {position: absolute; top: 7px; right: 25px; stroke: #313942; stroke-width: 3px;}

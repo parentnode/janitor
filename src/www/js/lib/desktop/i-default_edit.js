@@ -8,7 +8,10 @@ Util.Objects["defaultEdit"] = new function() {
 		form.div = div;
 
 
-
+		var autosave_setting = u.cv(div, "autosave");
+		if(autosave_setting == "off") {
+			page.autosave_disabled = true;
+		}
 
 		u.f.init(form);
 		// form.actions["cancel"].clicked = function(event) {
@@ -115,4 +118,142 @@ Util.Objects["defaultEdit"] = new function() {
 		u.e.addEvent(document.body, "keydown", form.cancelBackspace);
 
 	}
+}
+
+
+Util.Objects["newSystemMessage"] = new function() {
+	this.init = function(div) {
+
+		// primary form
+		var form = u.qs("form", div);
+		form.div = div;
+
+		form.ul_actions = u.qs("ul.actions", form);
+		var fieldset = u.qs("fieldset.values", form);
+		fieldset.h3_span = u.qs("h3 span.recipient", fieldset);
+		fieldset.h3_span.innerHTML = "?";
+
+		u.f.init(form);
+
+		form.fields["recipients"].keyup = function(event) {
+
+			var recipients = this.val().replace(/,/g, ";").split(";");
+			var fieldsets = u.qsa("fieldset.values", this._form);
+			var i, recipient, inputs, input, labels, label, fieldset;
+
+			// if these keys, update number of fieldsets
+			if(event.key == "," || event.key == "," || event.key == "Delete" || event.key == "Backspace") {
+				if(recipients.length < fieldsets.length && fieldsets.length > 1) {
+					fieldsets[0].parentNode.removeChild(fieldsets[fieldsets.length-1]);
+					fieldsets = u.qsa("fieldset.values", this._form);
+				}
+				else if(recipients.length > fieldsets.length) {
+
+					// duplicate fieldset
+					fieldset = fieldsets[0].parentNode.insertBefore(fieldsets[0].cloneNode(true), this._form.ul_actions);
+
+					// make reference to header span
+					fieldset.h3_span = u.qs("h3 span.recipient", fieldset);
+					fieldsets = u.qsa("fieldset.values", this._form);
+
+					// update input and label attributes
+					inputs = u.qsa("input[type=text]", fieldset);
+					for(i = 0; i < inputs.length; i++) {
+						input = inputs[i];
+						input.value = "";
+						input.name = input.name.replace(/values\[[\d]+\]/, "values["+(fieldsets.length-1)+"]");
+						input.id = input.id.replace(/values\[[\d]+\]/, "values["+(fieldsets.length-1)+"]");
+
+					}
+					labels = u.qsa("label", fieldset);
+					for(i = 0; i < labels.length; i++) {
+						label = labels[i];
+						label.setAttribute("for", label.getAttribute("for").replace(/values\[[\d]+\]/, "values["+(fieldsets.length-1)+"]"));
+					}
+
+					// reinitialize form
+					u.f.init(this._form);
+
+				}
+
+			}
+
+			// update recipients text in all value fieldsets
+			for(i = 0; i < recipients.length; i++) {
+				recipient = recipients[i];
+				fieldsets[i].h3_span.innerHTML = recipient;
+			}
+
+		}
+		u.e.addEvent(form.fields["recipients"], "keyup", form.fields["recipients"].keyup);
+
+
+		form.submitted = function(iN) {
+
+			u.ac(this, "submitting");
+			this.response = function(response) {
+				u.rc(this, "submitting");
+
+				if(response.cms_status == "success") {
+
+					var div_receipt = u.ae(this.div, "div", {class:"receipt"});
+					u.ae(div_receipt, "p", {html:"Mail was successfully sent to:"});
+					var ul_receipt = u.ae(div_receipt, "ul", {class:"receipt"});
+
+					var i;
+					for(i = 0; i < response.cms_object.length; i++) {
+						u.ae(ul_receipt, "li", {html:response.cms_object[i]})
+					}
+					this.parentNode.replaceChild(div_receipt, this);
+//					console.log(response.cms_object);
+
+				}
+				// error could happen if user log off in other tab
+				page.notify(response);
+
+			}
+			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+
+		}
+
+	}
+}
+
+Util.Objects["sendMessage"] = new function() {
+	this.init = function(div) {
+
+		// primary form
+		var form = u.qs("form", div);
+		form.div = div;
+
+		u.f.init(form);
+
+		form.div_message_form = u.qs("div.item.message form");
+
+
+		form.submitted = function(iN) {
+
+			// recipients or maillist_id must be filled out
+			if(this.fields["recipients"].val() || this.fields["maillist_id"].val()) {
+
+				// save message before sending mail
+				this.div_message_form.submit();
+
+				this.response = function(response) {
+					page.notify(response);
+				}
+				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+				
+			}
+			else {
+				
+				u.f.fieldError(this.fields["recipients"]);
+				u.f.fieldError(this.fields["maillist_id"]);
+
+			}
+
+		}
+
+	}
+
 }

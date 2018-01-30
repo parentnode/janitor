@@ -33,7 +33,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	<?= $JML->profileTabs("membership") ?>
 
 
-	<? if($membership): ?>
+<? if($membership): ?>
 	<div class="item">
 		<h2>Membership details</h2>
 
@@ -197,11 +197,16 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		</ul-->
 
 		<? endif; ?>
-
-
-	<? else: ?>
-		<p>You do not have a membership.</p>
-	<? endif; ?>
 	</div>
+
+
+<? else: ?>
+
+	<div class="item">
+		<h2>Membership details</h2>
+		<p>You do not have a membership.</p>
+	</div>
+
+<? endif; ?>
 
 </div>
