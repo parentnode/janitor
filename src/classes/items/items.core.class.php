@@ -1290,7 +1290,7 @@ class ItemsCore {
 
 	// PRICES
 
-
+	// test 2
 	// get prices, 
 	// TODO: extend to be able to get items ordered by price if possible (but not here)
 	// TODO: Include formatting based on selected country
