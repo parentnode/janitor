@@ -100,19 +100,29 @@ session()->value("return_to_todolist", $item_id);
 					<h3><?= $item["name"] ?></h3>
 					<p class="description"><?= $item["description"] ?></p>
 					<dl class="info">
+<?
+// don't show state if you're on specific state view
+if(!$todo_state_view):
+?>
 						<dt class="state">State</dt>
 						<dd class="state <?= strtolower($model_todo->todo_state[$item["state"]]) ?>"><?= $model_todo->todo_state[$item["state"]] ?></dd>
+<? endif; ?>
+
+<? 
+// if todo is not done yet
+if($item["state"] != 1): ?>
 						<dt class="priority">Priority</dt>
 						<dd class="priority <?= strtolower($model_todo->todo_priority[$item["priority"]]) ?>"><?= $model_todo->todo_priority[$item["priority"]] ?></dd>
 						<? if(strtotime($item["deadline"]) > 0): ?>
-						<dt class="deadline">Deadline:</dt>
+						<dt class="deadline">Deadline</dt>
 						<dd class="deadline<?= strtotime($item["deadline"]) < time() ? " overdue" : "" ?>"><?= date("Y-m-d", strtotime($item["deadline"])) ?></dd>
 						<? endif; ?>
 						<dt class="assigned_to">Assigned to</dt>
 						<dd class="assigned_to"><?= $item["user_nickname"] ?></dd>
+<? endif; ?>
 					</dl>
 
-					<? //= $JML->tagList($item["tags"]) ?>
+					<?= $JML->tagList($item["tags"]) ?>
 
 					<ul class="actions">
 						<?= $model->link("Edit", "/janitor/admin/todo/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")); ?>
