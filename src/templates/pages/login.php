@@ -40,7 +40,7 @@ $username = stringOr(getPost("username"));
 
 		<ul class="actions">
 			<?= $model->submit("Log in", array("class" => "primary", "wrapper" => "li.login")) ?>
-			<li class="forgot">Did you <a href="/login/forgot">forget your password</a>?</li>
+			<li class="forgot">Did you <a href="/login/forgot_password">forget your password</a>?</li>
 		</ul>
 	<?= $model->formEnd() ?>
 
