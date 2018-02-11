@@ -7,7 +7,7 @@ global $model;
 
 <? 
 // initialize new project
-if(SETUP_TYPE == "new" || !defined(SITE_DB)): ?>
+if(SETUP_TYPE == "new" || !defined("SITE_DB")): ?>
 
 	<h3>Welcome to Janitor</h3>
 	<p>
