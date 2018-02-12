@@ -13,13 +13,21 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 
 $maillists = $this->maillists();
 // Extend maillist name with subscriber count
-foreach($maillists as $index => $maillist) {
-	$maillists[$index]["name"] .= " (".count($UC->getMaillists(array("maillist_id" => $maillist["id"]))).")";
+if($maillists) {
+	foreach($maillists as $index => $maillist) {
+		$maillists[$index]["name"] .= " (".count($UC->getMaillists(array("maillist_id" => $maillist["id"]))).")";
+	}
+
+	$maillist_options = $HTML->toOptions($maillists, "id", "name", ["add" => ["" => "Maillist"]]);
+}
+// no maillists
+else {
+	$maillist_options = ["" => "No maillists"];
 }
 
 // get available layouts
 $layouts = $model->getLayouts();
-
+$layout_options = $HTML->toOptions($layouts, "name", "subject");
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Selected message</h1>
@@ -39,8 +47,8 @@ $layouts = $model->getLayouts();
 			<fieldset>
 				<?= $model->input("item_id", array("type" => "hidden", "value" => $item_id)) ?>
 				<?= $model->input("recipients") ?>
-				<?= $model->input("maillist_id", array("type" => "select", "options" => $HTML->toOptions($maillists, "id", "name", ["add" => ["" => "Maillist"]]))) ?>
-				<?= $model->input("layout", array("type" => "select", "options" => $HTML->toOptions($layouts, "name", "subject"))) ?>
+				<?= $model->input("maillist_id", array("type" => "select", "options" => $maillist_options)) ?>
+				<?= $model->input("layout", array("type" => "select", "options" => $layout_options)) ?>
 			</fieldset>
 			<ul class="actions">
 				<?= $model->submit("Send", array("class" => "primary", "wrapper" => "li.submit")) ?>
