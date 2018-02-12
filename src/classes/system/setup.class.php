@@ -1390,6 +1390,7 @@ class Setup extends Itemtype {
 			$query->checkDbExistence($this->db_janitor_db.".system_currencies");
 			$query->checkDbExistence($this->db_janitor_db.".system_countries");
 			$query->checkDbExistence($this->db_janitor_db.".system_vatrates");
+			$query->checkDbExistence($this->db_janitor_db.".system_maillists");
 			$query->checkDbExistence($this->db_janitor_db.".users");
 
 			$query->checkDbExistence($this->db_janitor_db.".items");
