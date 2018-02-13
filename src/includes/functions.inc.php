@@ -693,6 +693,9 @@ function ffmpegPath() {
 		else if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/usr/bin/ffmpeg 2>&1"))) {
 			$ffmpeg_path = "/usr/bin/ffmpeg";
 		}
+		else if(!preg_match("/(No such file or directory|command not found|not recognized)/i", shell_exec("/srv/installed-packages/ffmpeg/bin/ffmpeg 2>&1"))) {
+			$ffmpeg_path = "/srv/installed-packages/ffmpeg/bin/ffmpeg";
+		}
 
 		cache()->value("ffmpeg_path", $ffmpeg_path);
 	}
