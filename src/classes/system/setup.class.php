@@ -431,10 +431,11 @@ class Setup extends Itemtype {
 			"ffmpeg -version", 
 			"/opt/local/bin/ffmpeg -version", 
 			"/usr/local/bin/ffmpeg -version",
-			"/srv/ffmpeg/bin/ffmpeg -version"
+			"/srv/ffmpeg/bin/ffmpeg -version",
+			"/srv/installed-packages/ffmpeg/bin/ffmpeg -version"
 		), array(
 			"ffmpeg version (2.[1-9]{1}|3.[0-9]{1})",
-			"ffmpeg version N-67"
+			"ffmpeg version N-[6-9][0-9]"
 		));
 
 
@@ -1326,8 +1327,9 @@ class Setup extends Itemtype {
 
 
 				// Make sure file remains writeable even if it is edited manually
-				chmod(LOCAL_PATH."/config/connect_mail.php", 0666);
-
+				// chown(LOCAL_PATH."/config/connect_mail.php", get_current_user());
+				// chmod(LOCAL_PATH."/config/connect_mail.php", 0666);
+				
 
 
 				// Status for creating connect_mail.php
@@ -1688,7 +1690,7 @@ class Setup extends Itemtype {
 			// create git ignore
 			if(!file_exists($this->project_path."/.gitignore")) {
 				$handle = fopen($this->project_path."/.gitignore", "w+");
-				fwrite($handle, "src/library/log/*\nsrc/library/public/*\nsrc/library/private/*\n!src/library/private/0\n!src/library/private/0/*\ntheme/library/log/*\ntheme/library/public/*\ntheme/library/private/*\n!theme/library/private/0\n!theme/library/private/0/*\n\n.DS_Store\n\nsrc/config/connect_*.php\ntheme/config/connect_*.php");
+				fwrite($handle, "src/library/log/*\nsrc/library/public/*\nsrc/library/private/*\nsrc/library/debug\n!src/library/private/0\n!src/library/private/0/*\ntheme/library/log/*\ntheme/library/public/*\ntheme/library/private/*\ntheme/library/debug\n!theme/library/private/0\n!theme/library/private/0/*\n\n.DS_Store\n.vscode\n\nsrc/config/connect_*.php\ntheme/config/connect_*.php");
 				fclose($handle);
 
 				$tasks["completed"][] = "Creating .gitignore";
