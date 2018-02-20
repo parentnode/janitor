@@ -6,7 +6,7 @@ CREATE TABLE `SITE_DB`.`users` (
   `lastname` varchar(255) DEFAULT NULL,
   `nickname` varchar(255) DEFAULT NULL,
 
-  `status` int(11) NOT NULL,
+  `status` int(11) DEFAULT 0,
   `language` varchar(2) DEFAULT NULL,
 
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
