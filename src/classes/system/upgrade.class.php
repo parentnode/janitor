@@ -301,10 +301,11 @@ class Upgrade extends Model {
 			}
 
 
-
+			// ARTICLES
 			$article_table = $this->tableInfo(SITE_DB.".item_article");
 			$article_table_versions = $this->tableInfo(SITE_DB.".item_article_versions");
 
+			// ARTICLE MAIN TABLE
 			if($article_table) {
 
 				// Set correct default values
@@ -319,6 +320,7 @@ class Upgrade extends Model {
 				}
 
 			}
+			// ARTICLE VERSIONS TABLE
 			if($article_table_versions) {
 
 				// Set correct default values
@@ -409,6 +411,8 @@ class Upgrade extends Model {
 				}
 
 			}
+
+
 
 			$wish_table = $this->tableInfo(SITE_DB.".item_wish");
 			if($wish_table && preg_match("/int\(11\)/", $wish_table["columns"]["reserved"])) {
