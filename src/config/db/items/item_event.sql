@@ -3,14 +3,14 @@ CREATE TABLE `SITE_DB`.`item_event` (
   `item_id` int(11) NOT NULL,
 
   `name` varchar(255) NOT NULL,
-  `classname` varchar(50) NULL,
-  `description` text NOT NULL,
-  `html` text NOT NULL,
+  `classname` varchar(100) NOT NULL DEFAULT '',
+  `description` text NOT NULL DEFAULT '',
+  `html` text NOT NULL DEFAULT '',
 
-  `starting_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `ending_at` timestamp NULL,
+  `starting_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `ending_at` timestamp NULL DEFAULT NULL,
 
-  `host` int(11) DEFAULT NULL,
+  `host` int(11) NULL DEFAULT NULL,
 
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),

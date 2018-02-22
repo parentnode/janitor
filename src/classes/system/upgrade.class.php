@@ -63,30 +63,119 @@ class Upgrade extends Model {
 			$file = "";
 			foreach($controllers as $controller) {
 
-					$file = @file_get_contents($controller);
-					if($file) {
+				$file = @file_get_contents($controller);
+				if($file) {
 
-						if(preg_match("/->\\\$action\[[0-9]+\]/", $file, $matches)) {
-							// replace with valid syntax 
-							$file = preg_replace("/->\\\$action\[([0-9]+)\]/", "->{\\\$action[$1]}", $file);
-							// save file
-							if(@file_put_contents($controller, $file)) {
-								$this->process(array("success" => true, "message" => "Controller updated to PHP7 syntax: ".basename($controller)), true);
-							}
-							else {
-								$this->process(array("success" => false, "message" => "Write permission denied in controller: ".basename($controller)), true);
-							}
-
+					if(preg_match("/->\\\$action\[[0-9]+\]/", $file, $matches)) {
+						// replace with valid syntax 
+						$file = preg_replace("/->\\\$action\[([0-9]+)\]/", "->{\\\$action[$1]}", $file);
+						// save file
+						if(@file_put_contents($controller, $file)) {
+							$this->process(array("success" => true, "message" => "Controller updated to PHP7 syntax: ".basename($controller)), true);
 						}
-					}
-					else {
-						$this->process(array("success" => false, "message" => "Read permission denied in controller: ".basename($controller)), true);
-					}
+						else {
+							$this->process(array("success" => false, "message" => "Write permission denied in controller: ".basename($controller)), true);
+						}
 
+					}
+				}
+				else {
+					$this->process(array("success" => false, "message" => "Read permission denied in controller: ".basename($controller)), true);
+				}
 
 			}
 			// lighten the burden
 			$file = null;
+			$controller = null;
+			$controllers = null;
+
+
+
+			// UPDATING SYSTEM TABLES
+
+			// PREFIX OLD SYSTEM TABLES WITH "SYSTEM"
+			// RENAME (LIKELY) EXISTING TABLES (TABLES MAY NOT EXIST - SO THIS IS NOT CRITICAL)
+			$this->process($this->renameTable(SITE_DB.".languages", "system_languages"));
+			$this->process($this->renameTable(SITE_DB.".countries", "system_countries"));
+			$this->process($this->renameTable(SITE_DB.".currencies", "system_currencies"));
+
+			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
+				$this->process($this->renameTable(SITE_DB.".payment_methods", "system_payment_methods"));
+			}
+			if(defined("SITE_SHOP") && SITE_SHOP) {
+				$this->process($this->renameTable(SITE_DB.".vatrates", "system_vatrates"));
+			}
+			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
+				$this->process($this->renameTable(SITE_DB.".subscription_methods", "system_subscription_methods"));
+			}
+
+
+			// Update newsletters to maillists
+			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
+				$this->process($this->renameTable(SITE_DB.".system_newsletters", "system_maillists"));
+			}
+
+
+			// CREATE ANY MISSING SYSTEM TABLES (CRITICAL)
+			$this->process($this->createTableIfMissing(UT_LANGUAGES), true);
+			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
+			$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
+
+			// CREATE MAILLIST TABLE
+			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
+				$this->process($this->createTableIfMissing(UT_MAILLISTS), true);
+			}
+			// CREATE PAYMENT METHOD TABLE
+			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
+				$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
+			}
+			// CREATE SHOP TABLES
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
+				$this->process($this->createTableIfMissing(UT_VATRATES), true);
+
+				// SHOP
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_carts"), true);
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_cart_items"), true);
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_orders"), true);
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_order_items"), true);
+				$this->process($this->createTableIfMissing(SITE_DB.".shop_payments"), true);
+			}
+			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
+				$this->process($this->createTableIfMissing(UT_SUBSCRIPTION_METHODS), true);
+				// ITEM SUBSCRIPTION METHOD
+				$this->process($this->createTableIfMissing(UT_ITEMS_SUBSCRIPTION_METHOD), true);
+			}
+
+
+
+			// CHECK DEFAULT VALUES
+			$this->process($this->checkDefaultValues(UT_LANGUAGES, "'DA','Dansk'", "id = 'DA'"), true);
+			$this->process($this->checkDefaultValues(UT_CURRENCIES, "'DKK', 'Kroner (Denmark)', 'DKK', 'after', 2, ',', '.'", "id = 'DKK'"), true);
+			$this->process($this->checkDefaultValues(UT_COUNTRIES, "'DK', 'Danmark', '45', '#### ####', 'DA', 'DKK'", "id = 'DK'"), true);
+
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
+				$this->process($this->checkDefaultValues(UT_VATRATES, "1, 'No VAT', 0, 'DK'", "id = 1"), true);
+				$this->process($this->checkDefaultValues(UT_VATRATES, "2, '25%', 25, 'DK'", "id = 2"), true);
+			}
+			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
+				$this->process($this->addColumn(UT_PAYMENT_METHODS, "classname", "varchar(50) DEFAULT NULL", "name"), true);
+				$this->process($this->addColumn(UT_PAYMENT_METHODS, "gateway", "varchar(50) DEFAULT NULL", "description"), true);
+				$this->process($this->addColumn(UT_PAYMENT_METHODS, "position", "int(11) DEFAULT '0'", "gateway"), true);
+
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Bank transfer', 'banktransfer', 'Regular bank transfer. Preferred option.', NULL, 1", "classname = 'banktransfer'"), true);
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Credit Card', 'disabled', 'Coming very soon.', NULL, 4", "classname = 'disabled'"), true);
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'PayPal', 'paypal', 'Pay to our paypal account.', NULL, 3", "classname = 'paypal'"), true);
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Cash', 'cash', 'Pay in cash on your next visit.', NULL, 3", "classname = 'cash'"), true);
+			}
+			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
+				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "1, 'Month', 'monthly', DEFAULT", "id = 1"), true);
+				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "2, 'Never expires', '*', DEFAULT", "id = 2"), true);
+			}
+
+
+
+			// TODO: CREATE verifyTable method which compares tables with sql files
+
 
 
 
@@ -309,14 +398,14 @@ class Upgrade extends Model {
 			if($article_table) {
 
 				// Set correct default values
-				if(!preg_match("/DEFAULT \'\'/", $article_table["columns"]["subheader"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_article", "subheader", "text DEFAULT ''"), true);
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table["columns"]["subheader"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article", "subheader", "varchar(255) NOT NULL DEFAULT ''"), true);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $article_table["columns"]["description"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_article", "description", "text DEFAULT ''"), true);
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article", "description", "text NOT NULL DEFAULT ''"), true);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $article_table["columns"]["html"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_article", "html", "text DEFAULT ''"), true);
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article", "html", "text NOT NULL DEFAULT ''"), true);
 				}
 
 			}
@@ -324,14 +413,50 @@ class Upgrade extends Model {
 			if($article_table_versions) {
 
 				// Set correct default values
-				if(!preg_match("/DEFAULT \'\'/", $article_table_versions["columns"]["subheader"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "subheader", "text DEFAULT ''"), true);
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table_versions["columns"]["subheader"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "subheader", "varchar(255) NOT NULL DEFAULT ''"), true);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $article_table_versions["columns"]["description"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "description", "text DEFAULT ''"), true);
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table_versions["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "description", "text NOT NULL DEFAULT ''"), true);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $article_table_versions["columns"]["html"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "html", "text DEFAULT ''"), true);
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table_versions["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "html", "text NOT NULL DEFAULT ''"), true);
+				}
+
+			}
+
+
+			// EVENTS
+			$event_table = $this->tableInfo(SITE_DB.".item_event");
+			$event_table_versions = $this->tableInfo(SITE_DB.".item_event_versions");
+
+			// EVENT MAIN TABLE
+			if($event_table) {
+
+				// Set correct default values
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $event_table["columns"]["classname"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_event", "classname", "varchar(100) NOT NULL DEFAULT NULL"), true);
+				}
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $event_table["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_event", "description", "text NOT NULL DEFAULT ''"), true);
+				}
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $event_table["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_event", "html", "text NOT NULL DEFAULT ''"), true);
+				}
+
+			}
+			// EVENT VERSIONS TABLE
+			if($event_table_versions) {
+
+				// Set correct default values
+				if(!preg_match("/DEFAULT \'\'/", $event_table_versions["columns"]["classname"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_event_versions", "classname", "varchar(100) NOT NULL DEFAULT NULL"), false);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $event_table_versions["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_event_versions", "description", "text NOT NULL DEFAULT ''"), false);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $event_table_versions["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_event_versions", "html", "text NOT NULL DEFAULT ''"), false);
 				}
 
 			}
@@ -346,13 +471,13 @@ class Upgrade extends Model {
 
 				// Set correct default values
 				if(!preg_match("/DEFAULT \'\'/", $page_table["columns"]["subheader"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_page", "subheader", "text DEFAULT ''"), true);
+					$this->process($this->modifyColumn(SITE_DB.".item_page", "subheader", "varchar(255) NOT NULL DEFAULT ''"), true);
 				}
 				if(!preg_match("/DEFAULT \'\'/", $page_table["columns"]["description"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_page", "description", "text DEFAULT ''"), true);
+					$this->process($this->modifyColumn(SITE_DB.".item_page", "description", "text NOT NULL DEFAULT ''"), true);
 				}
 				if(!preg_match("/DEFAULT \'\'/", $page_table["columns"]["html"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_page", "html", "text DEFAULT ''"), true);
+					$this->process($this->modifyColumn(SITE_DB.".item_page", "html", "text NOT NULL DEFAULT ''"), true);
 				}
 
 			}
@@ -361,13 +486,13 @@ class Upgrade extends Model {
 
 				// Set correct default values
 				if(!preg_match("/DEFAULT \'\'/", $page_table_versions["columns"]["subheader"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "subheader", "text DEFAULT ''"), false);
+					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "subheader", "varchar(255) NOT NULL DEFAULT ''"), false);
 				}
 				if(!preg_match("/DEFAULT \'\'/", $page_table_versions["columns"]["description"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "description", "text DEFAULT ''"), false);
+					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "description", "text NOT NULL DEFAULT ''"), false);
 				}
 				if(!preg_match("/DEFAULT \'\'/", $page_table_versions["columns"]["html"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "html", "text DEFAULT ''"), false);
+					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "html", "text NOT NULL DEFAULT ''"), false);
 				}
 
 			}
@@ -382,15 +507,15 @@ class Upgrade extends Model {
 
 				// Add classname column
 				if(!isset($post_table["columns"]["classname"])) {
-					$this->process($this->addColumn(SITE_DB.".item_post", "classname", "varchar(100) DEFAULT NULL", "name"), true);
+					$this->process($this->addColumn(SITE_DB.".item_post", "classname", "varchar(100) NOT NULL DEFAULT NULL", "name"), true);
 				}
 
 				// Set correct default values
 				if(!preg_match("/DEFAULT \'\'/", $post_table["columns"]["description"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_post", "description", "text DEFAULT ''"), true);
+					$this->process($this->modifyColumn(SITE_DB.".item_post", "description", "text NOT NULL DEFAULT ''"), true);
 				}
 				if(!preg_match("/DEFAULT \'\'/", $post_table["columns"]["html"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_post", "html", "text DEFAULT ''"), true);
+					$this->process($this->modifyColumn(SITE_DB.".item_post", "html", "text NOT NULL DEFAULT ''"), true);
 				}
 
 			}
@@ -398,16 +523,16 @@ class Upgrade extends Model {
 			if($post_table_versions) {
 
 				// Add classname column
-				if($post_table_versions && !isset($post_table_versions["columns"]["classname"])) {
+				if(!isset($post_table_versions["columns"]["classname"])) {
 					$this->process($this->addColumn(SITE_DB.".item_post_versions", "classname", "int(11) DEFAULT NULL", "name"), true);
 				}
 
 				// Set correct default values
 				if(!preg_match("/DEFAULT \'\'/", $post_table_versions["columns"]["description"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "description", "text DEFAULT ''"), false);
+					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "description", "text NOT NULL DEFAULT ''"), false);
 				}
 				if(!preg_match("/DEFAULT \'\'/", $post_table_versions["columns"]["html"])) {
-					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "html", "text DEFAULT ''"), false);
+					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "html", "text NOT NULL DEFAULT ''"), false);
 				}
 
 			}
@@ -427,82 +552,6 @@ class Upgrade extends Model {
 					$this->process($this->modifyColumn(SITE_DB.".item_wish_versions", "reserved", "varchar(100) DEFAULT ''"), true);
 				}
 
-			}
-
-
-			// SYSTEM
-
-			// RENAME (LIKELY) EXISTING TABLES (TABLES MAY NOT EXIST - SO THIS IS NOT CRITICAL)
-			$this->process($this->renameTable(SITE_DB.".languages", "system_languages"));
-			$this->process($this->renameTable(SITE_DB.".countries", "system_countries"));
-			$this->process($this->renameTable(SITE_DB.".currencies", "system_currencies"));
-
-			// Update newsletters to maillists
-			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
-				$this->process($this->renameTable(SITE_DB.".system_newsletters", "system_maillists"));
-			}
-
-			// PREFIX OLD SYSTEM TABLES WITH "SYSTEM"
-			if(defined("SITE_SHOP") && SITE_SHOP) {
-				$this->process($this->renameTable(SITE_DB.".vatrates", "system_vatrates"));
-			}
-			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
-				$this->process($this->renameTable(SITE_DB.".payment_methods", "system_payment_methods"));
-			}
-			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
-				$this->process($this->renameTable(SITE_DB.".subscription_methods", "system_subscription_methods"));
-			}
-
-			// CREATE ANY MISSING SYSTEM TABLES (CRITICAL)
-			$this->process($this->createTableIfMissing(UT_LANGUAGES), true);
-			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
-			$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
-
-
-			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
-				$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
-			}
-			if((defined("SITE_SHOP") && SITE_SHOP)) {
-				$this->process($this->createTableIfMissing(UT_VATRATES), true);
-
-				// SHOP
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_carts"), true);
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_cart_items"), true);
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_orders"), true);
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_order_items"), true);
-				$this->process($this->createTableIfMissing(SITE_DB.".shop_payments"), true);
-			}
-			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
-				$this->process($this->createTableIfMissing(UT_SUBSCRIPTION_METHODS), true);
-				// ITEM SUBSCRIPTION METHOD
-				$this->process($this->createTableIfMissing(UT_ITEMS_SUBSCRIPTION_METHOD), true);
-			}
-			$this->process($this->createTableIfMissing(UT_MAILLISTS), true);
-
-
-
-			// CHECK DEFAULT VALUES
-			$this->process($this->checkDefaultValues(UT_LANGUAGES, "'DA','Dansk'", "id = 'DA'"), true);
-			$this->process($this->checkDefaultValues(UT_CURRENCIES, "'DKK', 'Kroner (Denmark)', 'DKK', 'after', 2, ',', '.'", "id = 'DKK'"), true);
-			$this->process($this->checkDefaultValues(UT_COUNTRIES, "'DK', 'Danmark', '45', '#### ####', 'DA', 'DKK'", "id = 'DK'"), true);
-
-			if((defined("SITE_SHOP") && SITE_SHOP)) {
-				$this->process($this->checkDefaultValues(UT_VATRATES, "1, 'No VAT', 0, 'DK'", "id = 1"), true);
-				$this->process($this->checkDefaultValues(UT_VATRATES, "2, '25%', 25, 'DK'", "id = 2"), true);
-			}
-			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
-				$this->process($this->addColumn(UT_PAYMENT_METHODS, "classname", "varchar(50) DEFAULT NULL", "name"), true);
-				$this->process($this->addColumn(UT_PAYMENT_METHODS, "gateway", "varchar(50) DEFAULT NULL", "description"), true);
-				$this->process($this->addColumn(UT_PAYMENT_METHODS, "position", "int(11) DEFAULT '0'", "gateway"), true);
-
-				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Bank transfer', 'banktransfer', 'Regular bank transfer. Preferred option.', NULL, 1", "classname = 'banktransfer'"), true);
-				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Credit Card', 'disabled', 'Coming very soon.', NULL, 4", "classname = 'disabled'"), true);
-				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'PayPal', 'paypal', 'Pay to our paypal account.', NULL, 3", "classname = 'paypal'"), true);
-				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Cash', 'cash', 'Pay in cash on your next visit.', NULL, 3", "classname = 'cash'"), true);
-			}
-			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
-				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "1, 'Month', 'monthly', DEFAULT", "id = 1"), true);
-				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "2, 'Never expires', '*', DEFAULT", "id = 2"), true);
 			}
 
 
@@ -877,7 +926,6 @@ class Upgrade extends Model {
 
 
 			# NEWSLETTERS
-
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 
 				// USER NEWSLETTER SUBSCRIPTIONS (DEPRECATED)

@@ -14,5 +14,5 @@ CREATE TABLE `SITE_DB`.`item_event_hosts` (
   `modified_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `host_country` (`host_country`),
-  CONSTRAINT `item_event_hosts_ibfk_2` FOREIGN KEY (`host_country`) REFERENCES `SITE_DB`.`countries` (`id`) ON UPDATE CASCADE
+  CONSTRAINT `item_event_hosts_ibfk_1` FOREIGN KEY (`host_country`) REFERENCES `SITE_DB`.`system_countries` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

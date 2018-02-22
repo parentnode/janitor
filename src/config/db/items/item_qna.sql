@@ -3,9 +3,9 @@ CREATE TABLE `SITE_DB`.`item_qna` (
   `item_id` int(11) NOT NULL,
 
   `name` varchar(50) NOT NULL,
-  `about_item_id` int(11) DEFAULT NULL,
-  `question` text NOT NULL,
-  `answer` text DEFAULT NULL,
+  `about_item_id` int(11) NULL DEFAULT NULL,
+  `question` text NOT NULL DEFAULT '',
+  `answer` text NOT NULL DEFAULT '',
 
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),

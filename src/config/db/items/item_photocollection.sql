@@ -3,10 +3,10 @@ CREATE TABLE `SITE_DB`.`item_photocollection` (
   `item_id` int(11) NOT NULL,
 
   `name` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `classname` varchar(100) NOT NULL,
+  `description` text NOT NULL DEFAULT '',
+  `classname` varchar(100) NOT NULL DEFAULT '',
 
-  `position` int(11) DEFAULT '0',
+  `position` int(11) NOT NULL DEFAULT '0',
 
   PRIMARY KEY  (`id`),
   KEY `item_id` (`item_id`),

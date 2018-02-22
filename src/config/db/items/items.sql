@@ -1,11 +1,11 @@
 CREATE TABLE `SITE_DB`.`items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
 
-  `sindex` varchar(255) DEFAULT NULL,
+  `sindex` varchar(255) NULL DEFAULT NULL,
   `status` int(11) NOT NULL,
   `itemtype` varchar(40) NOT NULL,
 
-  `user_id` int(11) DEFAULT NULL,
+  `user_id` int(11) NULL DEFAULT NULL,
 
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_at` timestamp NULL DEFAULT NULL,
