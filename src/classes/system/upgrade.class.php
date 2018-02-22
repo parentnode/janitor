@@ -301,21 +301,114 @@ class Upgrade extends Model {
 			}
 
 
-			$post_table = $this->tableInfo(SITE_DB.".item_post");
-			if($post_table && !isset($post_table["columns"]["classname"])) {
 
-				// add about item id column
-				$this->process($this->addColumn(SITE_DB.".item_post", "classname", "varchar(100) DEFAULT NULL", "name"), true);
+			$article_table = $this->tableInfo(SITE_DB.".item_article");
+			$article_table_versions = $this->tableInfo(SITE_DB.".item_article_versions");
 
-				$post_table_versions = $this->tableInfo(SITE_DB.".item_post_versions");
-				if($post_table_versions && !isset($post_table_versions["columns"]["classname"])) {
+			if($article_table) {
 
-					// add about item id column
-					$this->process($this->addColumn(SITE_DB.".item_post_versions", "classname", "int(11) DEFAULT NULL", "name"), true);
+				// Set correct default values
+				if(!preg_match("/DEFAULT \'\'/", $article_table["columns"]["subheader"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article", "subheader", "text DEFAULT ''"), true);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $article_table["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article", "description", "text DEFAULT ''"), true);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $article_table["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article", "html", "text DEFAULT ''"), true);
+				}
+
+			}
+			if($article_table_versions) {
+
+				// Set correct default values
+				if(!preg_match("/DEFAULT \'\'/", $article_table_versions["columns"]["subheader"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "subheader", "text DEFAULT ''"), true);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $article_table_versions["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "description", "text DEFAULT ''"), true);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $article_table_versions["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "html", "text DEFAULT ''"), true);
 				}
 
 			}
 
+
+			// PAGES
+			$page_table = $this->tableInfo(SITE_DB.".item_page");
+			$page_table_versions = $this->tableInfo(SITE_DB.".item_page_versions");
+
+			// PAGE MAIN TABLE
+			if($page_table) {
+
+				// Set correct default values
+				if(!preg_match("/DEFAULT \'\'/", $page_table["columns"]["subheader"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_page", "subheader", "text DEFAULT ''"), true);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $page_table["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_page", "description", "text DEFAULT ''"), true);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $page_table["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_page", "html", "text DEFAULT ''"), true);
+				}
+
+			}
+			// PAGE VERSIONS TABLE
+			if($page_table_versions) {
+
+				// Set correct default values
+				if(!preg_match("/DEFAULT \'\'/", $page_table_versions["columns"]["subheader"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "subheader", "text DEFAULT ''"), false);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $page_table_versions["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "description", "text DEFAULT ''"), false);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $page_table_versions["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "html", "text DEFAULT ''"), false);
+				}
+
+			}
+
+
+			// POSTS
+			$post_table = $this->tableInfo(SITE_DB.".item_post");
+			$post_table_versions = $this->tableInfo(SITE_DB.".item_post_versions");
+
+			// POST MAIN TABLE
+			if($post_table) {
+
+				// Add classname column
+				if(!isset($post_table["columns"]["classname"])) {
+					$this->process($this->addColumn(SITE_DB.".item_post", "classname", "varchar(100) DEFAULT NULL", "name"), true);
+				}
+
+				// Set correct default values
+				if(!preg_match("/DEFAULT \'\'/", $post_table["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_post", "description", "text DEFAULT ''"), true);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $post_table["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_post", "html", "text DEFAULT ''"), true);
+				}
+
+			}
+			// POST VERSIONS TABLE
+			if($post_table_versions) {
+
+				// Add classname column
+				if($post_table_versions && !isset($post_table_versions["columns"]["classname"])) {
+					$this->process($this->addColumn(SITE_DB.".item_post_versions", "classname", "int(11) DEFAULT NULL", "name"), true);
+				}
+
+				// Set correct default values
+				if(!preg_match("/DEFAULT \'\'/", $post_table_versions["columns"]["description"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "description", "text DEFAULT ''"), false);
+				}
+				if(!preg_match("/DEFAULT \'\'/", $post_table_versions["columns"]["html"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "html", "text DEFAULT ''"), false);
+				}
+
+			}
 
 			$wish_table = $this->tableInfo(SITE_DB.".item_wish");
 			if($wish_table && preg_match("/int\(11\)/", $wish_table["columns"]["reserved"])) {
@@ -340,9 +433,12 @@ class Upgrade extends Model {
 			$this->process($this->renameTable(SITE_DB.".countries", "system_countries"));
 			$this->process($this->renameTable(SITE_DB.".currencies", "system_currencies"));
 
+			// Update newsletters to maillists
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 				$this->process($this->renameTable(SITE_DB.".system_newsletters", "system_maillists"));
 			}
+
+			// PREFIX OLD SYSTEM TABLES WITH "SYSTEM"
 			if(defined("SITE_SHOP") && SITE_SHOP) {
 				$this->process($this->renameTable(SITE_DB.".vatrates", "system_vatrates"));
 			}
@@ -1463,7 +1559,8 @@ class Upgrade extends Model {
 		if($query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = '".$name."' AND TABLE_NAME = '".$table."' AND TABLE_SCHEMA = '".$db."'")) {
 
 			// Modify column
-			if($query->sql("ALTER TABLE $db_table MODIFY $name $declaration" . ($after ? " AFTER $after" : ""))) {
+			$alter_sql = "ALTER TABLE $db_table MODIFY $name $declaration" . ($after ? " AFTER $after" : "");
+			if($query->sql($alter_sql)) {
 				$message .= ": DONE";
 				$success = true;
 			}
