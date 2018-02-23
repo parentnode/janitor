@@ -470,13 +470,13 @@ class Upgrade extends Model {
 			if($page_table) {
 
 				// Set correct default values
-				if(!preg_match("/DEFAULT \'\'/", $page_table["columns"]["subheader"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table["columns"]["subheader"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_page", "subheader", "varchar(255) NOT NULL DEFAULT ''"), true);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $page_table["columns"]["description"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table["columns"]["description"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_page", "description", "text NOT NULL DEFAULT ''"), true);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $page_table["columns"]["html"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table["columns"]["html"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_page", "html", "text NOT NULL DEFAULT ''"), true);
 				}
 
@@ -485,13 +485,13 @@ class Upgrade extends Model {
 			if($page_table_versions) {
 
 				// Set correct default values
-				if(!preg_match("/DEFAULT \'\'/", $page_table_versions["columns"]["subheader"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table_versions["columns"]["subheader"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "subheader", "varchar(255) NOT NULL DEFAULT ''"), false);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $page_table_versions["columns"]["description"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table_versions["columns"]["description"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "description", "text NOT NULL DEFAULT ''"), false);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $page_table_versions["columns"]["html"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table_versions["columns"]["html"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "html", "text NOT NULL DEFAULT ''"), false);
 				}
 
@@ -511,10 +511,13 @@ class Upgrade extends Model {
 				}
 
 				// Set correct default values
-				if(!preg_match("/DEFAULT \'\'/", $post_table["columns"]["description"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table["columns"]["classname"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_post", "classname", "varchar(100) NOT NULL DEFAULT ''"), true);
+				}
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table["columns"]["description"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_post", "description", "text NOT NULL DEFAULT ''"), true);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $post_table["columns"]["html"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table["columns"]["html"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_post", "html", "text NOT NULL DEFAULT ''"), true);
 				}
 
@@ -528,10 +531,13 @@ class Upgrade extends Model {
 				}
 
 				// Set correct default values
-				if(!preg_match("/DEFAULT \'\'/", $post_table_versions["columns"]["description"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table_versions["columns"]["classname"])) {
+					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "classname", "varchar(100) NOT NULL DEFAULT ''"), true);
+				}
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table_versions["columns"]["description"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "description", "text NOT NULL DEFAULT ''"), false);
 				}
-				if(!preg_match("/DEFAULT \'\'/", $post_table_versions["columns"]["html"])) {
+				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table_versions["columns"]["html"])) {
 					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "html", "text NOT NULL DEFAULT ''"), false);
 				}
 
