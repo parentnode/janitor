@@ -1,5 +1,5 @@
 CREATE TABLE `SITE_DB`.`items_prices` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `item_id` int(11) NOT NULL,
 
   `price` float NOT NULL,

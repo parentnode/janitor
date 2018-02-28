@@ -3,7 +3,7 @@ CREATE TABLE `SITE_DB`.`system_countries` (
   `name` varchar(255) NOT NULL,
 
   `phone_countrycode` varchar(4) NOT NULL,
-  `phone_format` varchar(15) default NULL,
+  `phone_format` varchar(15) NOT NULL DEFAULT '',
 
   `language` varchar(2) NOT NULL,
   `currency` varchar(3) NOT NULL,

@@ -1,5 +1,5 @@
 CREATE TABLE `SITE_DB`.`system_vatrates` (
-  `id` int(11) NOT NULL auto_increment,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
 
   `vatrate` float NOT NULL,
