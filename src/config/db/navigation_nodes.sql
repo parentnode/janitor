@@ -16,6 +16,7 @@ CREATE TABLE `SITE_DB`.`navigation_nodes` (
 
   PRIMARY KEY (`id`),
   KEY `navigation_id` (`navigation_id`),
+  KEY `node_item_id` (`node_item_id`),
   CONSTRAINT `navigation_nodes_ibfk_1` FOREIGN KEY (`navigation_id`) REFERENCES `SITE_DB`.`navigation` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `navigation_nodes_ibfk_2` FOREIGN KEY (`node_item_id`) REFERENCES `SITE_DB`.`items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
