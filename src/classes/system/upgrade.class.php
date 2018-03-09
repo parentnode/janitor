@@ -1538,11 +1538,17 @@ class Upgrade extends Model {
 			// Out of sync
 			else {
 
+
+				// Drop contraints, to be able to update keys and columns freely
+				$this->process($this->dropConstraints(SITE_DB.".".$table), true);
+
+
 				// Columns are out of sync
 				// could be both column order and column declarations
 				if($table_info["columns"] !== $reference_info["columns"]) {
 
 //					print "columns DIFFERS<br>\n";
+
 
 					// get numbered index' to compare positions
 					$table_column_index = array_keys($table_info["columns"]);
@@ -1552,7 +1558,7 @@ class Upgrade extends Model {
 					foreach($reference_column_index as $index => $column) {
 
 						// column is not in the right place
-						if(count($table_column_index) < $index || $column != $table_column_index[$index]) {
+						if(count($table_column_index) < $index || !isset($table_column_index[$index]) || $column != $table_column_index[$index]) {
 
 							// does column exist in different place in current table
 							if(isset($table_info["columns"][$column])) {
@@ -1641,12 +1647,9 @@ class Upgrade extends Model {
 
 				// Primary keys or Constraints out of sync
 				// These depend on each other and cannot be updated independently
-				if($table_info["keys"] !== $reference_info["keys"] || $table_info["constraints"] !== $reference_info["constraints"]) {
+				if($table_info["keys"] !== $reference_info["keys"]) {
 
-//					print "keys or constraints DIFFERS<br>\n";
-
-					// Drop contraints, to be able to update keys
-					$this->process($this->dropConstraints(SITE_DB.".".$table), true);
+//					print "keys DIFFERS<br>\n";
 
 					// Drop keys
 					$this->process($this->dropKeys(SITE_DB.".".$table), true);
@@ -1661,21 +1664,21 @@ class Upgrade extends Model {
 						}
 					}
 
-					// Add all constraints from reference table
-					if($reference_info["constraints"]) {
-						foreach($reference_info["constraints"] as $column => $key_names) {
-							foreach($key_names as $key_name => $constraint) {
-								foreach($constraint as $ref_column => $action) {
-									$this->process($this->addConstraint(SITE_DB.".".$table.".".$column, SITE_DB.".".$ref_column, $action, $key_name), true);
-								}
-							}
-						}
-					}
-
-
 					// get updated structure of current table in DB (changes could have been made above)
 					$table_info = $this->tableInfo(SITE_DB.".".$table);
 
+				}
+
+				// Add all constraints from reference table
+				// Constraints are always disabled on update, so always re-apply constraints
+				if($reference_info["constraints"]) {
+					foreach($reference_info["constraints"] as $column => $key_names) {
+						foreach($key_names as $key_name => $constraint) {
+							foreach($constraint as $ref_column => $action) {
+								$this->process($this->addConstraint(SITE_DB.".".$table.".".$column, SITE_DB.".".$ref_column, $action, $key_name), true);
+							}
+						}
+					}
 				}
 
 			}
@@ -1937,7 +1940,10 @@ class Upgrade extends Model {
 		$message .= "MODIFY COLUMN $name $declaration IN $table" . ($first_after === true ? " FIRST" : ($first_after ? " AFTER $first_after" : ""));
 
 		// DOES COLUMN EXIST IN TABLE
-		if($query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME, COLUMN_DEFAULT FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = '".$name."' AND TABLE_NAME = '".$table."' AND TABLE_SCHEMA = '".$db."'")) {
+		if($query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = '".$name."' AND TABLE_NAME = '".$table."' AND TABLE_SCHEMA = '".$db."'")) {
+
+			// get current NULL state for column
+			$is_nullable = $query->result(0, "IS_NULLABLE") === "YES" ? true : false;
 
 			// check content of column before updating declaration to avoid declaraion block by invalid values
 			$allow_null = preg_match("/NOT NULL/i", $declaration) ? false : true;
@@ -1951,20 +1957,33 @@ class Upgrade extends Model {
 
 			// If NULL is not allowed, replace all NULL and empty values with default value
 			if(!$allow_null) {
-				$sql = "UPDATE $db_table SET $name = '$new_default_value' WHERE $name IS NULL OR $name = ''";
+
+				$sql = "UPDATE $db_table SET $name = " . (preg_match("/current_timestamp/i", $new_default_value) ? $new_default_value : "'$new_default_value'") . " WHERE $name IS NULL OR $name = ''";
 //				print "NOT NULL: " . $sql."<br>\n";
 				$query->sql($sql);
 			}
 			// If NULL is allowed, replace all empty values with default value (which might be NULL)
 			else if($allow_null) {
+
+				// Is column currently NOT NULLABLE? Then values cannot be updated until it has been made NULLABLE
+				if(!$is_nullable && $new_default_value === "NULL") {
+
+					// Modify column with full declaration
+					$alter_sql = "ALTER TABLE $db_table MODIFY $name $declaration";
+		//			print "ALTER TABLE: " . $alter_sql."<br>\n";
+					$query->sql($alter_sql);
+
+				}
+
 				$sql = "UPDATE $db_table SET $name = ".($new_default_value === "NULL" ? "NULL" : "'$new_default_value'")." WHERE $name = ''";
 //				print "NULL: " . $sql."<br>\n";
 				$query->sql($sql);
 			}
 
 
-			// Modify column
+			// Modify column with full declaration
 			$alter_sql = "ALTER TABLE $db_table MODIFY $name $declaration" . ($first_after === true ? " FIRST" : ($first_after ? " AFTER $first_after" : ""));
+//			print "ALTER TABLE: " . $alter_sql."<br>\n";
 			if($query->sql($alter_sql)) {
 				$message .= ": DONE";
 				$success = true;
