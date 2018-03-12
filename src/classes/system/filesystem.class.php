@@ -325,29 +325,84 @@ class FileSystem {
 
 
 	// get human readable filesize
-	function filesize($file, $unit = false) {
+	function filesize($file, $unit = false, $decimals = 2, $format = true) {
 
 		$bytes = filesize($file);
-		$sizes = 'BKMGTP';
+		$units = 'BKMGTP';
 
 		if($unit) {
 			// valid unit
-			$factor = strpos($sizes, $unit);
+			$factor = strpos($units, $unit);
 
 			// invalid unit
 			if($factor === false) {
-				$factor = 0;;
+				$factor = 0;
 			}
 		}
 		// determine best option depending on filesize
 		else {
 			$factor = floor((strlen($bytes) - 1) / 3);
+
+			// postfix
+			$unit = $units[intval($factor)];
 		}
 
-		// postfix
-		$size = $sizes[intval($factor)];
+		// calculate size
+		$size = $bytes / pow(1024, $factor);
 
-		return number_format($bytes / pow(1024, $factor), 2, ".", ",").$size;
+
+		if($format) {
+			$size = number_format($size, $decimals, ".", ",").$unit;
+		}
+		else if(is_numeric($decimals)) {
+			$size = round($size, $decimals);
+		}
+
+		return $size;
+
+	}
+
+
+	/**
+	* Get available disk space in unit
+	*
+	* @param $unit String unit to return disk space in
+	* @param $location String file or folder defining the disk to get disk space of
+	*
+	* TODO: not tested on windows
+	*/
+	function availableDiskSpace($unit = "M", $location = __FILE__) {
+
+		// uppercase unit for ease of use
+		$unit = strtoupper($unit);
+
+		// valid units
+		$units = ["B", "K", "M", "G"];
+
+		// check unit validity
+		if(array_search($unit, $units) == -1) {
+			$unit = "M";
+		}
+
+
+		$command = "df -".strtolower($unit)." ".$location." 2>&1";
+
+		// try the mac way
+		$df = shell_exec($command);
+
+		// test for valid response
+		if(preg_match("/(invalid|illegal) option/", $df)) {
+			// try the linux way
+			$command = "df -B".$unit." ".$location." 2>&1";
+			$df = shell_exec($command);
+		}
+
+		// print $df."<br>\n";
+
+		$available_space = preg_replace("/[A-Z]+/", "", explode(" ", preg_replace("/[ ]+/", " ", explode("\n", $df)[1]))[3]);
+//		print $available_space."<br>\n";
+
+		return $available_space;
 
 	}
 
