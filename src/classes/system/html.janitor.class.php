@@ -995,6 +995,8 @@ class JanitorHTML {
 		$static = false;
 
 		$dom_submit = false;
+		$download = false;
+		$target = false;
 
 		$success_location = false;
 		$success_function = false;
@@ -1015,6 +1017,8 @@ class JanitorHTML {
 					case "confirm-value"        : $confirm_value          = $_value; break;
 					case "wait-value"           : $wait_value             = $_value; break;
 					case "dom-submit"           : $dom_submit             = $_value; break;
+					case "download"             : $download               = $_value; break;
+					case "target"               : $target                 = $_value; break;
 
 					case "success-location"     : $success_location       = $_value; break;
 					case "success-function"     : $success_function       = $_value; break;
@@ -1022,7 +1026,7 @@ class JanitorHTML {
 					case "wrapper"              : $wrapper                = $_value; break;
 					case "static"               : $static                 = $_value; break;
 
-					case "inputs"               : $inputs                = $_value; break;
+					case "inputs"               : $inputs                 = $_value; break;
 
 				}
 			}
@@ -1067,7 +1071,10 @@ class JanitorHTML {
 
 
 		if($dom_submit) {
-			$_ .= ' data-dom-submit="1"';
+			$_ .= ' data-dom-submit="true"';
+		}
+		if($download) {
+			$_ .= ' data-download="true"';
 		}
 		// custom waiting value (after submit)
 		if($wait_value) {
@@ -1090,6 +1097,7 @@ class JanitorHTML {
 			$_ .= $inputs ? ' data-inputs="'.json_encode($inputs).'"' : '';
 
 			$_ .= ' data-form-action="'.$action.'"';
+			$_ .= $target ? ' data-form-target="'.$target.'"' : '';
 			$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
 
 		}
@@ -1103,7 +1111,13 @@ class JanitorHTML {
 			$att_class = $HTML->attribute("class", "button", $class);
 			$att_name = $HTML->attribute("name", $name);
 
-			$_ .= $HTML->formStart($action);
+			$form_options = [];
+
+			if($target) {
+				$form_options["target"] = "_blank";
+			}
+
+			$_ .= $HTML->formStart($action, $form_options);
 			if($inputs) {
 				foreach($inputs as $name => $value) {
 					$_ .= '<input type="hidden" name="'.$name.'" value="'.$value.'" />';
