@@ -367,7 +367,7 @@ class JanitorStripe {
 				'amount'               => $order["total_price"]["price"]*100,
 				'currency'             => $order["currency"],
 				'description'          => $order["order_no"],
-				'statement_descriptor' => (isset($order["custom_description"]) && $order["custom_description"] ? $order["custom_description"] : $order["order_no"]),
+				'statement_descriptor' => ((isset($order["custom_description"]) && $order["custom_description"]) ? $order["custom_description"] : ($order["order_no"] . ($order["comment"] ? ", " . $order["comment"] : ""))),
 				'receipt_email'        => $order["user"]["email"],
 			));
 
