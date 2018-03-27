@@ -11,8 +11,8 @@ CREATE TABLE `SITE_DB`.`navigation_nodes` (
   `node_target` varchar(255) DEFAULT NULL,
   `node_fallback` varchar(255) DEFAULT NULL,
 
-  `relation` int(11) DEFAULT 0,
-  `position` int(11) DEFAULT 0,
+  `relation` int(11) NOT NULL DEFAULT 0,
+  `position` int(11) NOT NULL DEFAULT 0,
 
   PRIMARY KEY (`id`),
   KEY `navigation_id` (`navigation_id`),

@@ -1538,6 +1538,7 @@ class Upgrade extends Model {
 			// Out of sync
 			else {
 
+				
 
 				// Drop contraints, to be able to update keys and columns freely
 				$this->process($this->dropConstraints(SITE_DB.".".$table), true);
@@ -1940,9 +1941,10 @@ class Upgrade extends Model {
 		$message .= "MODIFY COLUMN $name $declaration IN $table" . ($first_after === true ? " FIRST" : ($first_after ? " AFTER $first_after" : ""));
 
 		// DOES COLUMN EXIST IN TABLE
-		if($query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME, COLUMN_DEFAULT, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = '".$name."' AND TABLE_NAME = '".$table."' AND TABLE_SCHEMA = '".$db."'")) {
+		if($query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME, COLUMN_DEFAULT, DATA_TYPE, IS_NULLABLE FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = '".$name."' AND TABLE_NAME = '".$table."' AND TABLE_SCHEMA = '".$db."'")) {
 
 			// get current NULL state for column
+			$data_type = $query->result(0, "DATA_TYPE");
 			$is_nullable = $query->result(0, "IS_NULLABLE") === "YES" ? true : false;
 
 			// check content of column before updating declaration to avoid declaraion block by invalid values
@@ -1958,7 +1960,33 @@ class Upgrade extends Model {
 			// If NULL is not allowed, replace all NULL and empty values with default value
 			if(!$allow_null) {
 
-				$sql = "UPDATE $db_table SET $name = " . (preg_match("/current_timestamp/i", $new_default_value) ? $new_default_value : "'$new_default_value'") . " WHERE $name IS NULL OR $name = ''";
+				// if datatype changes in this update
+				if(
+					(preg_match("/text|varchar/", $declaration) && !preg_match("/text|varchar/", $data_type))
+						||
+					(preg_match("/current_timestamp/", $declaration) && !preg_match("/current_timestamp/", $data_type))
+				) {
+
+					// Modify column without NULL OR DEFAULT declaration
+					$alter_sql = "ALTER TABLE $db_table MODIFY $name ". preg_replace("/(NOT NULL[ ]?|DEFAULT [^$]+)/", "", $declaration);
+//					print "ALTER TABLE: " . $alter_sql."<br>\n";
+					$query->sql($alter_sql);
+				}
+
+				$sql = "UPDATE $db_table SET ";
+				// value is function (current_timestamp) or (new) column is integer
+				if(preg_match("/current_timestamp/i", $new_default_value) || preg_match("/int\([\d]+\)/i", $declaration)) {
+					$sql .=	"$name = $new_default_value";
+				}
+				// string - encapsulate column value in quotes (they have been stripped in parsing)
+				else {
+					$sql .=	"$name = '$new_default_value'";
+				}
+				$sql .= " WHERE $name IS NULL";
+				// don't look for empty strings on int columns
+				if(preg_match("/text|varchar/i", $declaration)) {
+					$sql .= " OR $name = ''";
+				}
 //				print "NOT NULL: " . $sql."<br>\n";
 				$query->sql($sql);
 			}
