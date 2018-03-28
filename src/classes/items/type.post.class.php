@@ -37,7 +37,7 @@ class TypePost extends Itemtype {
 		$this->addToModel("classname", array(
 			"type" => "string",
 			"label" => "CSS Class",
-			"hint_message" => "If you don't know what this is, just leave it empty."
+			"hint_message" => "CSS class for custom styling. If you don't know what this is, just leave it empty."
 		));
 
 		// description
