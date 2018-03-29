@@ -1224,11 +1224,11 @@ class SuperUser extends User {
 
 				// get subscription item
 				$subscription["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
-
+				print_r($subscription["item"]);
 				// add membership info if user_id is available
 				if($user_id) {
 					// is this subscription used for membership
-					$subscription["membership"] = $subscriptions[$i]["item"]["itemtype"] == "membership" ? true : false;
+					$subscription["membership"] = $subscription["item"]["itemtype"] == "membership" ? true : false;
 				}
 
 				// extend payment method details
