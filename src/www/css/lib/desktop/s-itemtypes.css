@@ -52,6 +52,10 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 #content .scene.messageList > div.system {border-bottom: 1px solid #aaaaaa;}
 #content .scene.messageList > div.dynamic {padding-bottom: 30px; border-bottom: 1px solid #aaaaaa;}
 
+#content .scene.messageEdit ul.receipt {padding: 0 30px 20px; margin: 0 0 0 10px; list-style: disc;}
+#content .scene.messageEdit ul.receipt li {display: list-item; font-size: 15px; padding-bottom: 7px;}
+
+
 #content .scene.newSystemMessage fieldset.values {padding-top: 10px;}
 #content .scene.newSystemMessage fieldset.values h3 span.recipient {font-style: italic;}
 #content .scene.newSystemMessage ul.receipt {padding: 0 30px; margin: 0 0 0 10px; list-style: disc;}

@@ -40,15 +40,25 @@ $layout_options = $HTML->toOptions($layouts, "name", "subject");
 		]
 	]]) ?>
 
-	<div class="item recipients i:sendMessage">
+	<div class="item recipients i:sendMessage i:collapseHeader">
 		<h2>Send message</h2>
-		<?= $model->formStart("sendMessage", array("class" => "labelstyle:inject")) ?>
+		<?= $model->formStart("userSendMessage", array("class" => "labelstyle:inject")) ?>
+			<?= $model->input("item_id", array("type" => "hidden", "value" => $item_id)) ?>
 
 			<fieldset>
-				<?= $model->input("item_id", array("type" => "hidden", "value" => $item_id)) ?>
+				<h3>Type recipient email(s)</h3> 
 				<?= $model->input("recipients") ?>
+				<p>This will send the message as is directly to the stated email(s). It will not fill out personal variables in the email.</p>
+			</fieldset>
+			<fieldset>
+				<h3>Send to maillist</h3>
 				<?= $model->input("maillist_id", array("type" => "select", "options" => $maillist_options)) ?>
-				<?= $model->input("layout", array("type" => "select", "options" => $layout_options)) ?>
+				<p>This will send the message to every user in the list, filling out as many variables in the email, using data from the user profile.</p>
+			</fieldset>
+			<fieldset>
+				<h3>To specific user</h3>
+				<?= $model->input("user_id", array("type" => "string", "label" => "User Id (yours is ".session()->value("user_id").")")) ?>
+				<p>This will send the message to the specified user, filling out as many variables in the email, using data from the user profile.</p>
 			</fieldset>
 			<ul class="actions">
 				<?= $model->submit("Send", array("class" => "primary", "wrapper" => "li.submit")) ?>
@@ -62,6 +72,7 @@ $layout_options = $HTML->toOptions($layouts, "name", "subject");
 		<?= $model->formStart("update/".$item["id"], array("class" => "labelstyle:inject")) ?>
 		
 			<fieldset>
+				<?= $model->input("layout", array("type" => "select", "options" => $layout_options, "value" => $item["layout"])) ?>
 				<?= $model->input("published_at", array("value" => $item["published_at"])) ?>
 
 				<?= $model->input("name", array("value" => $item["name"])) ?>

@@ -10,16 +10,18 @@ if(count($action) == 4) {
 	$username = $action[2];
 	$verification_code = $action[3];
 
-	$maillist = $this->maillists($maillist_id);
+	if($maillist_id) {
+		$maillist = $this->maillists($maillist_id);
 
-	if($maillist) {
+		if($maillist) {
 
-		$query = new Query();
-		$sql = "SELECT user_id FROM ".SITE_DB.".user_usernames WHERE username = '$username' && verification_code = '$verification_code'";
-		if($query->sql($sql)) {
-			$can_unsubscribe = true;
-		}
+			$query = new Query();
+			$sql = "SELECT user_id FROM ".SITE_DB.".user_usernames WHERE username = '$username' && verification_code = '$verification_code'";
+			if($query->sql($sql)) {
+				$can_unsubscribe = true;
+			}
 		
+		}		
 	}
 }
 

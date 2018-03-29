@@ -63,7 +63,7 @@ class TypeMessage extends Itemtype {
 		$this->addToModel("maillist_id", array(
 			"type" => "integer",
 			"label" => "Maillist",
-			"hint_message" => "List of recipients", 
+			"hint_message" => "Choose a list of recipients", 
 			"error_message" => "Recipients or Maillist must be filled out."
 		));
 
@@ -89,189 +89,206 @@ class TypeMessage extends Itemtype {
 
 	}
 
-	// Send system template mail
-	function sendMessage($action) {
+	// User initiated send custom message mail
+	function userSendMessage($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if($this->validateList(array("layout","item_id"))) {
+		if($this->validateList(array("item_id"))) {
 
-			$query = new Query();
-			$query->checkDbExistence(SITE_DB.".user_log_messages");
+			// $query = new Query();
+			// $query->checkDbExistence(SITE_DB.".user_log_messages");
 
 
-			$recipients_list = $this->getProperty("recipients", "value");
+			$recipients = $this->getProperty("recipients", "value");
 			$maillist_id = $this->getProperty("maillist_id", "value");
-			$layout = $this->getProperty("layout", "value");
 			$item_id = $this->getProperty("item_id", "value");
 
 
-			// for value placeholders found in mail HTML
-			$needed_values = [];
-
-			// item_id of mailcontent and layout available
-			if($item_id && $layout) {
-
-				// create final HTML
-				$html = $this->mergeItemIntoLayout($item_id, $layout);
-
-//				print "##\n".$html."\n##";
-
-				// find variables in content
-				preg_match_all("/\{([a-zA-Z0-9\-_]+)\}/", $html, $matches);
-				foreach($matches[1] as $match) {
-					if(array_search($match, $needed_values) === false) {
-						$needed_values[] = $match;
-					}
-
-				}
-
-			}
+			$user_id = $this->getProperty("user_id", "value");
 
 
-			$recipients = [];
-			$recipient_values = [];
 
-			// recipients sent as comma-separated list
-			if($recipients_list) {
+			return $this->sendMessage([
+				"maillist_id" => $maillist_id,
+				"recipients" => $recipients,
+				"item_id" => $item_id,
+				"from_current_user" => true,
 
-				// filter out invalid recipients
-				$recipients_list = explode(";", preg_replace("/,/", ";", $recipients_list));
-				foreach($recipients_list as $key => $recipient) {
-					// if recipient seems valid, add it (and values) to the arrays that will be passed on
-					if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
-						$recipients[] = $recipient;
-					}
+				"values" => ["martin@think.dk" => ["NICKNAME" => "howski snowski"]],
+				"user_id" => $user_id,
+			]);
 
-					// there is no user-mapping, when using comma-separated list
-					// so don't try to add user values
-
-				}
-
-			}
-			// get recipients from maillist id
-			else if($maillist_id) {
-
-				include_once("classes/users/superuser.class.php");
-				$UC = new SuperUser();
-
-				// get all subscribers for selected maillist
-				$subscribers = $UC->getMaillists(["maillist_id" => $maillist_id]);
-				foreach($subscribers as $subscriber) {
-
-					// User values placeholder
-					$user_values = [];
-
-					// Add message key to user values (to create massage viewer on website)
-					$user_values["MESSAGE_TOKEN"] = randomKey(30);
-					$user_values["MAILLIST_ID"] = $maillist_id;
-
-
-					// Some userdata is readily available from subscriber
-					if(array_search("NICKNAME", $needed_values) !== false) {
-						$user_values["NICKNAME"] = $subscriber["nickname"];
-					}
-					if(array_search("EMAIL", $needed_values) !== false) {
-						$user_values["EMAIL"] = $subscriber["email"];
-					}
-					if(array_search("USERNAME", $needed_values) !== false) {
-						$user_values["USERNAME"] = $subscriber["email"];
-					}
-
-
-					// Check if we need to look up additional user info
-
-					// USER DATA
-					if(preg_match("/FIRSTNAME|LASTNAME|LANGUAGE/", implode(",", $needed_values))) {
-						$user = $UC->getUsers(["user_id" => $subscriber["user_id"]]);
-
-						if(array_search("FIRSTNAME", $needed_values) !== false) {
-							$user_values["FIRSTNAME"] = $user && $user["firstname"] ? $user["firstname"] : "";
-						}
-
-						if(array_search("LASTNAME", $needed_values) !== false) {
-							$user_values["LASTNAME"] = $user && $user["lastname"] ? $user["lastname"] : "";
-						}
-
-						if(array_search("LANGUAGE", $needed_values) !== false) {
-							$user_values["LANGUAGE"] = $user && $user["language"] ? $user["language"] : "EN";
-						}
-
-					}
-
-					// USER VERIFICATION CODE (FOR UNSUBSCRIBE LINK)
-					if(preg_match("/VERIFICATION_CODE/", implode(",", $needed_values))) {
-						$user_values["VERIFICATION_CODE"] = $UC->getVerificationCode("email", $subscriber["email"]);
-					}
-
-					// MEMBERSHIP DATA
-					if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP/", implode(",", $needed_values))) {
-						$member = $UC->getMembers(["user_id" => $subscriber["user_id"]]);
-
-						if(array_search("MEMBER_ID", $needed_values) !== false) {
-							$user_values["MEMBER_ID"] = $member && $member["id"] ? $member["id"] : "N/A";
-						}
-
-						if(array_search("MEMBERSHIP", $needed_values) !== false) {
-							$user_values["MEMBERSHIP"] = $member && $member["item"] && $member["item"]["name"] ? $member["item"]["name"] : "N/A";
-						}
-
-					}
-
-					$recipients[] = $subscriber["email"];
-					$recipient_values[$subscriber["email"]] = $user_values;
-
-
-					// Insert data into messages log to enable "view in browser"
-					$data = $user_values;
-					unset($data["MESSAGE_TOKEN"]);
-					// Save data object with message token in user_log_messages
-					$sql = "INSERT INTO ".SITE_DB.".user_log_messages SET user_id = ".$subscriber["user_id"].", item_id = $item_id, token = '".$user_values["MESSAGE_TOKEN"]."', data = '".prepareForDB(json_encode($data))."'";
-//					print $sql;
-					$query->sql($sql);
-
-				}
-
-			}
-
-
-			// valid recipients and html
-			if($html && $recipients) {
-
-				if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "html" => $html, "tracking" => false])) {
-
-					global $page;
-					$page->addLog("TypeMessage->sendMessage: user_id:".session()->value("user_id").", item_id:".$item_id.", " . ($maillist_id ? "maillist_id:".$maillist_id : "recipients:".implode(";", $recipients)));
-
-					return $recipients;
-
-				}
-				// message failed
-				else {
-
-					// remove user messages log entries, since mail wasn't sent anyway
-					foreach($recipient_values as $values) {
-
-						$sql = "DELETE FROM ".SITE_DB.".user_log_messages WHERE token = '".$values["MESSAGE_TOKEN"]."'";
-				//		print $sql;
-						$query->sql($sql);
-
-					}
-
-				}
-
-			}
+//
+//
+// 			// for value placeholders found in mail HTML
+// 			$needed_values = [];
+//
+// 			// item_id of mailcontent and layout available
+// 			if($item_id && $layout) {
+//
+// 				// create final HTML
+// 				$html = $this->mergeItemIntoLayout($item_id, $layout);
+//
+// //				print "##\n".$html."\n##";
+//
+// 				// find variables in content
+// 				preg_match_all("/\{([a-zA-Z0-9\-_]+)\}/", $html, $matches);
+// 				foreach($matches[1] as $match) {
+// 					if(array_search($match, $needed_values) === false) {
+// 						$needed_values[] = $match;
+// 					}
+//
+// 				}
+//
+// 			}
+//
+//
+// 			$recipients = [];
+// 			$recipient_values = [];
+//
+// 			// recipients sent as comma-separated list
+// 			if($recipients_list) {
+//
+// 				// filter out invalid recipients
+// 				$recipients_list = explode(";", preg_replace("/,/", ";", $recipients_list));
+// 				foreach($recipients_list as $key => $recipient) {
+// 					// if recipient seems valid, add it (and values) to the arrays that will be passed on
+// 					if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+// 						$recipients[] = $recipient;
+// 					}
+//
+// 					// there is no user-mapping, when using comma-separated list
+// 					// so don't try to add user values
+//
+// 				}
+//
+// 			}
+// 			// get recipients from maillist id
+// 			else if($maillist_id) {
+//
+// 				include_once("classes/users/superuser.class.php");
+// 				$UC = new SuperUser();
+//
+// 				// get all subscribers for selected maillist
+// 				$subscribers = $UC->getMaillists(["maillist_id" => $maillist_id]);
+// 				foreach($subscribers as $subscriber) {
+//
+// 					// User values placeholder
+// 					$user_values = [];
+//
+// 					// Add message key to user values (to create massage viewer on website)
+// 					$user_values["MESSAGE_TOKEN"] = randomKey(30);
+// 					$user_values["MAILLIST_ID"] = $maillist_id;
+//
+//
+// 					// Some userdata is readily available from subscriber
+// 					if(array_search("NICKNAME", $needed_values) !== false) {
+// 						$user_values["NICKNAME"] = $subscriber["nickname"];
+// 					}
+// 					if(array_search("EMAIL", $needed_values) !== false) {
+// 						$user_values["EMAIL"] = $subscriber["email"];
+// 					}
+// 					if(array_search("USERNAME", $needed_values) !== false) {
+// 						$user_values["USERNAME"] = $subscriber["email"];
+// 					}
+//
+//
+// 					// Check if we need to look up additional user info
+//
+// 					// USER DATA
+// 					if(preg_match("/FIRSTNAME|LASTNAME|LANGUAGE/", implode(",", $needed_values))) {
+// 						$user = $UC->getUsers(["user_id" => $subscriber["user_id"]]);
+//
+// 						if(array_search("FIRSTNAME", $needed_values) !== false) {
+// 							$user_values["FIRSTNAME"] = $user && $user["firstname"] ? $user["firstname"] : "";
+// 						}
+//
+// 						if(array_search("LASTNAME", $needed_values) !== false) {
+// 							$user_values["LASTNAME"] = $user && $user["lastname"] ? $user["lastname"] : "";
+// 						}
+//
+// 						if(array_search("LANGUAGE", $needed_values) !== false) {
+// 							$user_values["LANGUAGE"] = $user && $user["language"] ? $user["language"] : "EN";
+// 						}
+//
+// 					}
+//
+// 					// USER VERIFICATION CODE (FOR UNSUBSCRIBE LINK)
+// 					if(preg_match("/VERIFICATION_CODE/", implode(",", $needed_values))) {
+// 						$user_values["VERIFICATION_CODE"] = $UC->getVerificationCode("email", $subscriber["email"]);
+// 					}
+//
+// 					// MEMBERSHIP DATA
+// 					if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP/", implode(",", $needed_values))) {
+// 						$member = $UC->getMembers(["user_id" => $subscriber["user_id"]]);
+//
+// 						if(array_search("MEMBER_ID", $needed_values) !== false) {
+// 							$user_values["MEMBER_ID"] = $member && $member["id"] ? $member["id"] : "N/A";
+// 						}
+//
+// 						if(array_search("MEMBERSHIP", $needed_values) !== false) {
+// 							$user_values["MEMBERSHIP"] = $member && $member["item"] && $member["item"]["name"] ? $member["item"]["name"] : "N/A";
+// 						}
+//
+// 					}
+//
+// 					$recipients[] = $subscriber["email"];
+// 					$recipient_values[$subscriber["email"]] = $user_values;
+//
+//
+// 					// Insert data into messages log to enable "view in browser"
+// 					$data = $user_values;
+// 					unset($data["MESSAGE_TOKEN"]);
+// 					// Save data object with message token in user_log_messages
+// 					$sql = "INSERT INTO ".SITE_DB.".user_log_messages SET user_id = ".$subscriber["user_id"].", item_id = $item_id, token = '".$user_values["MESSAGE_TOKEN"]."', data = '".prepareForDB(json_encode($data))."'";
+// //					print $sql;
+// 					$query->sql($sql);
+//
+// 				}
+//
+// 			}
+//
+//
+// 			// valid recipients and html
+// 			if($html && $recipients) {
+//
+// 				if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "html" => $html, "tracking" => false])) {
+//
+// 					global $page;
+// 					$page->addLog("TypeMessage->sendMessage: user_id:".session()->value("user_id").", item_id:".$item_id.", " . ($maillist_id ? "maillist_id:".$maillist_id : "recipients:".implode(";", $recipients)));
+//
+// 					message()->addMessage("Mail(s) sent to ".implode(",", $recipients));
+//
+// 					return $recipients;
+//
+// 				}
+// 				// message failed
+// 				else {
+//
+// 					// remove user messages log entries, since mail wasn't sent anyway
+// 					foreach($recipient_values as $values) {
+//
+// 						$sql = "DELETE FROM ".SITE_DB.".user_log_messages WHERE token = '".$values["MESSAGE_TOKEN"]."'";
+// 				//		print $sql;
+// 						$query->sql($sql);
+//
+// 					}
+//
+// 				}
+//
+// 			}
 
 		}
 
-		message()->addMessage("Mail(s) could not be sent");
+		message()->addMessage("Mail(s) could not be sent", ["type" => "error"]);
 		return false;
 	}
 
 
-	// Send system template mail
-	function sendSystemMessage($action) {
+	// User initiated send system template mail
+	function userSendSystemMessage($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -297,36 +314,41 @@ class TypeMessage extends Itemtype {
 
 		if($recipients) {
 			if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "template" => $template])) {
+
+				message()->addMessage("Mail(s) sent to ".implode(",", $recipients));
 				return $recipients;
 			}
 		}
 
-		message()->addMessage("Mail(s) could not be sent");
+		message()->addMessage("Mail(s) could not be sent", ["type" => "error"]);
 		return false;
 	}
 
 
 	// Merge item html into layout html
-	function mergeItemIntoLayout($item_id, $layout) {
+	function mergeMessageIntoLayout($message) {
 
-		$IC = new Items();
+//		$IC = new Items();
 		$html = "";
 
 
-		$item = $IC->getItem(["id" => $item_id, "extend" => true]);
-		if($item) {
-			$layout_content = $this->getLayoutContent($layout);
+		// $item = $IC->getItem(["id" => $item_id, "extend" => true]);
+		// if($item) {
+		if($message && $message["layout"]) {
+			$layout_content = $this->getLayoutContent($message["layout"]);
 
 			include_once("classes/system/dom.class.php");
 			$DC = new DOM();
 			$dom_layout = $DC->createDOM($layout_content);
 
+			// Update title with name from message
+			$DC->innerHTML($DC->getElement($dom_layout, "title"), $message["name"]);
 
 			// get placerholder for preview (expecting exactly one element to exist)
 			$preview_placeholder = $DC->getElement($dom_layout, "div.preview");
 			if($preview_placeholder) {
 				// insert preview text
-				$DC->innerHTML($preview_placeholder, $item["description"]);
+				$DC->innerHTML($preview_placeholder, $message["description"]);
 			}
 
 
@@ -365,7 +387,7 @@ class TypeMessage extends Itemtype {
 
 
 				// Create dom from message content
-				$dom_content = $DC->createDOM($item["html"]);
+				$dom_content = $DC->createDOM($message["html"]);
 				$dom_content_body = $DC->getElement($dom_content, "body");
 				if($dom_content_body) {
 
@@ -634,6 +656,276 @@ class TypeMessage extends Itemtype {
 		}
 
 		return $layouts;
+
+	}
+
+
+	// Send message to user, maillist or recipient list
+	function sendMessage($_options) {
+
+		// print "sendMessage";
+		// print_r($_options);
+
+		// Recipients
+		$maillist_id = false;
+		$user_id = false;
+
+		// we'll do some extra recipient checking before making the final recipients list
+		$temp_recipients = false;
+		$recipients = [];
+
+
+		// Message item id
+		$item_id = false;
+
+		$values = [];
+		$from_current_user = false;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "recipients"             : $temp_recipients        = $_value; break;
+					case "maillist_id"            : $maillist_id            = $_value; break;
+					case "user_id"                : $user_id                = $_value; break;
+
+					case "item_id"                : $item_id                = $_value; break;
+
+					case "from_current_user"      : $from_current_user      = $_value; break;
+					case "values"                 : $values                 = $_value; break;
+
+				}
+			}
+		}
+
+
+		if($item_id && ($maillist_id || $user_id || $temp_recipients)) {
+			
+			$query = new Query();
+			$query->checkDbExistence(SITE_DB.".user_log_messages");
+
+			$IC = new Items();
+			$message = $IC->getItem(["id" => $item_id, "extend" => true]);
+
+			if($message) {
+
+				// print_r($message);
+
+				// for value placeholders found in mail HTML
+				$needed_values = [];
+				$recipient_values = [];
+
+				// item_id of mailcontent and layout available
+//				if($item_id && $layout) {
+
+				// create final HTML
+				$html = $this->mergeMessageIntoLayout($message);
+
+	//				print "##\n".$html."\n##";
+
+				// find variables in content
+				preg_match_all("/\{([a-zA-Z0-9\-_]+)\}/", $html, $matches);
+				foreach($matches[1] as $match) {
+					if(array_search($match, $needed_values) === false) {
+						$needed_values[] = $match;
+					}
+
+				}
+
+//				}
+
+
+//				$recipients = [];
+				// map any passed values to recipient_values array
+//				$recipient_values = $values;
+
+				// recipients sent as comma-separated list
+				if($temp_recipients) {
+
+					// filter out invalid recipients
+					$recipients_list = explode(";", preg_replace("/,/", ";", $temp_recipients));
+					foreach($recipients_list as $key => $recipient) {
+						// if recipient seems valid, add it (and values) to the arrays that will be passed on
+						if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+							$recipients[] = $recipient;
+
+							if($values) {
+								if(isset($values[$recipient])) {
+									$recipient_values[$recipient] = $values[$recipient];
+								}
+								else if(!is_array($values[reset($values)])) {
+									$recipient_values[$recipient] = $values;
+								}
+
+							}
+						}
+
+						// there is no user-mapping, when using comma-separated list
+						// so don't try to add user values
+
+					}
+					// Values for recipients could potentially be passed to method
+
+				}
+				// get recipients from maillist_id or user_id
+				else if($maillist_id || $user_id) {
+
+					include_once("classes/users/superuser.class.php");
+					$UC = new SuperUser();
+
+					// get recipients from maillist_id
+					if($maillist_id) {
+
+						// get all subscribers for selected maillist
+						$subscribers = $UC->getMaillists(["maillist_id" => $maillist_id]);
+
+					}
+					// get recipient from user_id
+					else {
+
+						// Create subscriber array for user_id
+						$temp_user = $UC->getUsers(["user_id" => $user_id]);
+						$user["user_id"] = $user_id;
+						$user["nickname"] = $temp_user["nickname"];
+						$user["email"] = $UC->getUsernames(["user_id" => $user_id, "type" => "email"]);
+
+						$subscribers[] = $user;
+					}
+
+					// print_r($subscribers);
+
+					// get all subscribers for selected maillist
+//					$subscribers = $UC->getMaillists(["maillist_id" => $maillist_id]);
+					foreach($subscribers as $subscriber) {
+
+						// Prepare for recipient values
+						$recipient_values[$subscriber["email"]] = [];
+
+						// Temp user values placeholder
+						$user_values = [];
+
+						// Add message key to user values (to create massage viewer on website)
+						$user_values["MESSAGE_TOKEN"] = randomKey(30);
+						// Only set maillist id if message was sent to maillist
+						$user_values["MAILLIST_ID"] = $maillist_id ? $maillist_id : 0;
+
+
+						// Some userdata is readily available from subscriber
+						if(array_search("NICKNAME", $needed_values) !== false) {
+							$user_values["NICKNAME"] = $subscriber["nickname"];
+						}
+						if(array_search("EMAIL", $needed_values) !== false) {
+							$user_values["EMAIL"] = $subscriber["email"];
+						}
+						if(array_search("USERNAME", $needed_values) !== false) {
+							$user_values["USERNAME"] = $subscriber["email"];
+						}
+
+
+						// Check if we need to look up additional user info
+
+						// USER DATA
+						if(preg_match("/FIRSTNAME|LASTNAME|LANGUAGE/", implode(",", $needed_values))) {
+							$user = $UC->getUsers(["user_id" => $subscriber["user_id"]]);
+
+							if(array_search("FIRSTNAME", $needed_values) !== false) {
+								$user_values["FIRSTNAME"] = $user && $user["firstname"] ? $user["firstname"] : "";
+							}
+
+							if(array_search("LASTNAME", $needed_values) !== false) {
+								$user_values["LASTNAME"] = $user && $user["lastname"] ? $user["lastname"] : "";
+							}
+
+							if(array_search("LANGUAGE", $needed_values) !== false) {
+								$user_values["LANGUAGE"] = $user && $user["language"] ? $user["language"] : "EN";
+							}
+
+						}
+
+						// USER VERIFICATION CODE (FOR UNSUBSCRIBE LINK)
+						if(preg_match("/VERIFICATION_CODE/", implode(",", $needed_values))) {
+							$user_values["VERIFICATION_CODE"] = $UC->getVerificationCode("email", $subscriber["email"]);
+						}
+
+						// MEMBERSHIP DATA
+						if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP/", implode(",", $needed_values))) {
+							$member = $UC->getMembers(["user_id" => $subscriber["user_id"]]);
+
+							if(array_search("MEMBER_ID", $needed_values) !== false) {
+								$user_values["MEMBER_ID"] = $member && $member["id"] ? $member["id"] : "N/A";
+							}
+
+							if(array_search("MEMBERSHIP", $needed_values) !== false) {
+								$user_values["MEMBERSHIP"] = $member && $member["item"] && $member["item"]["name"] ? $member["item"]["name"] : "N/A";
+							}
+
+						}
+
+						$recipients[] = $subscriber["email"];
+
+						// Values were also passed directly for this user
+						// Merge specific user values and let passed specific values take priority
+						if(isset($values[$subscriber["email"]])) {
+							$recipient_values[$subscriber["email"]] = array_merge($user_values, $values[$subscriber["email"]]);
+						}
+						// Merge specific user values and let passed general values take priority
+						// Make sure $values only contain one set of data (look at content of first element)
+						else if($values && reset($values) && !is_array($values[key($values)])) {
+							$recipient_values[$subscriber["email"]] = array_merge($user_values, $values);
+						}
+						// no passed values matching
+						else {
+							$recipient_values[$subscriber["email"]] = $user_values;
+						}
+
+						// Insert data into messages log to enable "view in browser"
+						$data = $recipient_values[$subscriber["email"]];
+						unset($data["MESSAGE_TOKEN"]);
+						// Save data object with message token in user_log_messages
+						$sql = "INSERT INTO ".SITE_DB.".user_log_messages SET user_id = ".$subscriber["user_id"].", item_id = $item_id, token = '".$user_values["MESSAGE_TOKEN"]."', data = '".prepareForDB(json_encode($data))."'";
+		//					print $sql;
+						$query->sql($sql);
+
+					}
+
+				}
+
+
+				// valid recipients and html
+				if($html && $recipients) {
+
+					// print_r($recipients);
+					// print_r($recipient_values);
+
+					if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "subject" => $message["name"], "html" => $html, "tracking" => true])) {
+
+						global $page;
+						$page->addLog("TypeMessage->sendMessage: user_id:".session()->value("user_id").", item_id:".$item_id.", " . ($maillist_id ? "maillist_id:".$maillist_id : "recipients:".implode(";", $recipients)));
+
+						message()->addMessage("Mail(s) sent to ".implode(",", $recipients));
+						return $recipients;
+
+					}
+					// message failed
+					else {
+
+						// remove user messages log entries, since mail wasn't sent anyway
+						foreach($recipient_values as $values) {
+
+							$sql = "DELETE FROM ".SITE_DB.".user_log_messages WHERE token = '".$values["MESSAGE_TOKEN"]."'";
+					//		print $sql;
+							$query->sql($sql);
+
+						}
+
+					}
+
+				}
+
+			}
+
+		}
 
 	}
 

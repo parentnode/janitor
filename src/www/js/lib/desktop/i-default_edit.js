@@ -197,7 +197,7 @@ Util.Objects["newSystemMessage"] = new function() {
 				if(response.cms_status == "success") {
 
 					var div_receipt = u.ae(this.div, "div", {class:"receipt"});
-					u.ae(div_receipt, "p", {html:"Mail was successfully sent to:"});
+					u.ae(div_receipt, "p", {html:"Mail(s) was successfully sent to:"});
 					var ul_receipt = u.ae(div_receipt, "ul", {class:"receipt"});
 
 					var i;
@@ -234,13 +234,46 @@ Util.Objects["sendMessage"] = new function() {
 		form.submitted = function(iN) {
 
 			// recipients or maillist_id must be filled out
-			if(this.fields["recipients"].val() || this.fields["maillist_id"].val()) {
+			if(this.fields["recipients"].val() || this.fields["maillist_id"].val() || this.fields["user_id"].val()) {
 
 				// save message before sending mail
 				this.div_message_form.submit();
 
+				u.ac(this, "submitting");
 				this.response = function(response) {
+					u.rc(this, "submitting");
+
 					page.notify(response);
+
+					// successful send
+					if(response.cms_status == "success") {
+						u.ass(this, {
+							display:"none",
+						});
+
+						this.div_receipt = u.ae(this.div, "div", {class:"receipt"});
+						u.ae(this.div_receipt, "p", {html:"Mail(s) was successfully sent to:"});
+						var ul_receipt = u.ae(this.div_receipt, "ul", {class:"receipt"});
+
+						var i;
+						for(i = 0; i < response.cms_object.length; i++) {
+							u.ae(ul_receipt, "li", {html:response.cms_object[i]})
+						}
+
+						// enable easy sending another
+						var ul_actions = u.ae(this.div_receipt, "ul", {class:"actions"});
+						var action = u.f.addAction(ul_actions, {name:"send_another", value:"Send another", type:"button", class:"button"});
+						action._form = this
+						u.ce(action);
+						action.clicked = function() {
+							this._form.div_receipt.parentNode.removeChild(this._form.div_receipt);
+							u.ass(this._form, {
+								display: "block",
+							});
+						}
+
+					}
+
 				}
 				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
 				

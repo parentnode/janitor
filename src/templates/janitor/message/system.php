@@ -61,7 +61,7 @@ if($template_options[1]) {
 <? if($template_options[0] || $template_options[1]): ?>
 	<div class="item i:newSystemMessage">
 		<h2>Send message</h2>
-		<?= $model->formStart("sendSystemMessage", array("class" => "labelstyle:inject")) ?>
+		<?= $model->formStart("userSendSystemMessage", array("class" => "labelstyle:inject")) ?>
 			<?= $model->input("template", array("type" => "hidden", "value" => $template)) ?>
 
 			<fieldset class="recipients">

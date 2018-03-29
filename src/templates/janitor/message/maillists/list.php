@@ -44,7 +44,7 @@ $subscribers = $UC->getMaillists($options);
 <?	if($maillists): ?>
 	<ul class="tabs">
 <?		foreach($maillists as $maillist): ?>
-		<?= $HTML->link($maillist["name"].($maillist["id"] == $maillist_id ? " (".count($subscribers).")" : ""), "/janitor/admin/message/maillists/list/".$maillist["id"], array("wrapper" => "li.".($maillist["id"] == $maillist_id ? "selected" : ""))) ?>
+		<?= $HTML->link($maillist["name"].($maillist["id"] == $maillist_id ? " (" . ($subscribers ? count($subscribers) : "0") . ")" : ""), "/janitor/admin/message/maillists/list/".$maillist["id"], array("wrapper" => "li.".($maillist["id"] == $maillist_id ? "selected" : ""))) ?>
 <?		endforeach; ?>
 		<?= $HTML->link("All". (!$maillist_id ? " (".count($subscribers).")" : ""), "/janitor/admin/message/maillists/list/0", array("wrapper" => "li.".($options === false ? "selected" : ""))) ?>
 	</ul>
