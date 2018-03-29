@@ -7,6 +7,7 @@ global $itemtype;
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true, "comments" => true, "subscription_method" => true)));
 
+$messages = $IC->getItems(array("itemtype" => "message", "extend" => true));
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit membership type</h1>
@@ -23,6 +24,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 			<fieldset>
 				<?= $model->input("name", array("value" => $item["name"])) ?>
 				<?= $model->input("classname", array("value" => $item["classname"])) ?>
+				<?= $model->input("subscribed_message_id", array("type" => "select", "options" => $HTML->toOptions($messages, "id", "name"), "value" => $item["subscribed_message_id"])) ?>
 				<?= $model->input("description", array("class" => "autoexpand short", "value" => $item["description"])) ?>
 				<?= $model->inputHTML("introduction", array("value" => $item["introduction"])) ?>
 				<?= $model->inputHTML("html", array("value" => $item["html"])) ?>
