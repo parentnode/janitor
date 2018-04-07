@@ -17,77 +17,120 @@ $db_check = $model->checkDatabaseSettings();
 	</ul>
 
 
-<? if($model->db_ok): ?>
+<?	if($model->get("database", "passed") && SETUP_TYPE == "existing" && (!defined("SITE_INSTALL") || !SITE_INSTALL)): ?>
+
+	<h3>Database connected</h3>
+	<p>Your database is happy and doesn't want it to change.</p>
+
+	<ul class="actions">
+		<li class="continue"><a href="/janitor/admin/setup/account" class="button primary">Continue</a></li>
+	</ul>
+
+
+<?	else: ?>
+
+
+<?		if($model->get("database", "passed")): ?>
+
+<?			if($model->get("database", "exists")): ?>
+
+	<h3>Database status: EXISTS</h3>
+	<p>
+		Are you sure you want to use <em class="system_warning"><?= $model->get("database", "db_janitor_db") ?></em>. 
+		It already exists.
+	</p>
+
+	<?= $model->formStart("/janitor/admin/setup/database/updateDatabaseSettings", array("class" => "force labelstyle:inject")) ?>
+
+		<?= $model->input("force_db", array("type" => "hidden", "value" => $model->get("database", "db_janitor_db"))) ?>
+
+		<ul class="actions">
+			<?= $model->submit("Confirm", array("wrapper" => "li.save", "class" => "primary")) ?>
+		</ul>
+
+	<?= $model->formEnd() ?>
+
+
+<?			else: ?>
+
 
 	<h3>Database status: OK</h3>
 	<p>Your database is already configured correctly.</p>
 
-	<?= $model->formStart("/janitor/admin/setup/database/updateDatabaseSettings", array("class" => "force labelstyle:inject")) ?>
-
-<? 		if($model->db_exists): ?>
-
-	<p>Are you sure you want to use <em class="system_warning"><?= $model->db_janitor_db ?></em>. It already exists.</p>
-
-	<?= $model->input("force_db", array("type" => "hidden", "value" => $model->db_janitor_db)) ?>
-
-<? 		endif; ?>
-
 	<ul class="actions">
-		<?= $model->submit("Continue", array("wrapper" => "li.save", "class" => "primary")) ?>
+		<li class="continue"><a href="/janitor/admin/setup/account" class="button primary">Continue</a></li>
 	</ul>
 
-	<?= $model->formEnd() ?>
 
-<? endif;?>
+<?			endif; ?>
+
+<?		endif; ?>
+
+
+	<h3>New Janitor database</h3>
+	<p>Specify new database <em>name</em>, <em>username</em> and <em>password</em>.</p>
 
 	<?= $model->formStart("/janitor/admin/setup/database/updateDatabaseSettings", array("class" => "database labelstyle:inject")) ?>
 
-	<h3>Root database information</h3>
-	<p>Setting up a new database requires an Admin user with permission to create the project database.</p>
 
-<? if($model->db_admin_error && !$model->wrong_db_user_password): ?>
+<? if($model->get("database", "wrong_user_password")): ?>
 
-	<h3>Connection error</h3>
-	<p class="system_error">Janitor cannot connect to your admin account with the information provided.</p>
+		<h4>Connection error</h4>
+		<p class="system_error"><em><?= $model->get("database", "db_janitor_user") ?></em> already exists – but the password doesn't match.</p>
 
-<? endif;?>
+<? elseif($model->get("database", "user_error")): ?>
 
-
-	<fieldset>
-
-		<?= $model->input("db_host", array("value" => $model->db_host)) ?>
-		<?= $model->input("db_root_user", array("value" => $model->db_root_user, "required" => ($db_check ? false : true))) ?>
-		<?= $model->input("db_root_pass", array("value" => $model->db_root_pass)) ?>
-	</fieldset>
-
-	<h3>New Janitor database</h3>
-	<p>Specify new database name, username and password. Feel free to use a random password - the information will be saved in connect_db.php, so you don't need to remember it or write it down.</p>
-
-<? if($model->wrong_db_user_password): ?>
-
-	<h3>Connection error</h3>
-	<p class="system_error"><em><?= $model->db_janitor_user ?></em> already exists – but the password doesn't match.</p>
-
-<? elseif($model->db_user_error): ?>
-
-	<h3>Connection error</h3>
-	<p class="system_error">Janitor could not log in, using the provided information.</p>
+		<h4>Connection error</h4>
+		<p class="system_error">Janitor could not log in, using the provided information.</p>
 
 <? endif;?>
 
-	<fieldset>
 
-		<?= $model->input("db_janitor_db", array("value" => $model->db_janitor_db)) ?>
-		<?= $model->input("db_janitor_user", array("value" => $model->db_janitor_user)) ?>
-		<?= $model->input("db_janitor_pass", array("value" => $model->db_janitor_pass)) ?>
-	</fieldset>
-	<ul class="actions">
-		<?= $model->submit("Update and continue", array("wrapper" => "li.save", "class" => "primary")) ?>
-	</ul>
+		<fieldset>
+			<?= $model->input("db_janitor_db", array("value" => $model->get("database", "db_janitor_db"))) ?>
+			<?= $model->input("db_janitor_user", array("value" => $model->get("database", "db_janitor_user"))) ?>
+			<?= $model->input("db_janitor_pass", array("value" => $model->get("database", "db_janitor_pass"))) ?>
+		</fieldset>
 
-	<p class="note">Don't let the browser save the passwords used in this page if prompted. These passwords are associated with the database connection and not the website.</p>
+		<p>
+			Feel free to use a random password - the information will be saved in connect_db.php, so you don't need to remember it or write it down.
+			It is strongly recommended that you <strong>don't</strong> use your root account for project connections.
+		</p>
+
+		<p>
+			Setting up a new database requires a database user with permission to create the project database. If your
+			project user does not exist or has insufficient permissions, you can enter your root login info below. Then
+			your project user will automatically be created/updated with the necessary permissions.
+		</p>
+
+
+		<h3>Root database information</h3>
+
+<?		if($model->get("database", "admin_error") && !$model->get("database", "wrong_user_password")): ?>
+
+		<h4>Connection error</h4>
+		<p class="system_error">Janitor cannot connect to your admin account with the information provided.</p>
+
+<?		endif;?>
+
+
+		<fieldset>
+			<?= $model->input("db_host", array("value" => $model->get("database", "db_host"))) ?>
+			<?= $model->input("db_root_user", array("value" => $model->get("database", "db_root_user"), "required" => ($db_check ? false : true))) ?>
+			<?= $model->input("db_root_pass", array("value" => $model->get("database", "db_root_pass"))) ?>
+		</fieldset>
+
+		<ul class="actions">
+			<?= $model->submit("Update and continue", array("wrapper" => "li.save", "class" => "primary")) ?>
+		</ul>
+
+
+		<p class="note">Don't let the browser save the passwords used in this page. These passwords are associated with the database connection and not the website.</p>
 
 	<?= $model->formEnd() ?>
+
+
+<? endif;?>
 
 
 </div>

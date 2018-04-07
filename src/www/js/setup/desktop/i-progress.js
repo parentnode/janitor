@@ -1,12 +1,44 @@
-Util.Objects["check"] = new function() {
+Util.Objects["setup"] = new function() {
 	this.init = function(scene) {
 
-		var bn_continue = u.qs(".actions li.start", scene);
+		var bn_start = u.qs(".actions li.start", scene);
+		if(bn_start) {
+			u.ce(bn_start);
+			bn_start.clicked = function() {
+				u.ac(this.parentNode, "submitting");
+				location.href = this.url;
+			}
+		}
+
+		var bn_upgrade = u.qs(".actions li.upgrade", scene);
+		if(bn_upgrade) {
+			u.ce(bn_upgrade);
+			bn_upgrade.clicked = function() {
+				u.ac(this.parentNode, "submitting");
+				location.href = this.url;
+			}
+		}
+
+
+		// Keep session alive
+		this.keepAlive = function() {
+			u.request(this, "/janitor/admin/setup/keepAlive");
+		}
+		u.t.setInterval(this, "keepAlive", 60000);
+	}
+}
+
+
+Util.Objects["software"] = new function() {
+	this.init = function(scene) {
+
+		var bn_continue = u.qs(".actions li.continue", scene);
 		if(bn_continue) {
 			u.ce(bn_continue);
 			bn_continue.clicked = function() {
-				var steps = u.qsa("li.setup li:not(.done)", page.nN); 
+				u.ac(this.parentNode, "submitting");
 
+				var steps = u.qsa("li.setup li:not(.done)", page.nN); 
 				var i, node;
 				for(i = 0; node = steps[i]; i++) {
 					if(node.url != location.href) {
@@ -17,10 +49,11 @@ Util.Objects["check"] = new function() {
 			}
 		}
 
+
+		// Keep session alive
 		this.keepAlive = function() {
 			u.request(this, "/janitor/admin/setup/keepAlive");
 		}
-
 		u.t.setInterval(this, "keepAlive", 60000);
 	}
 }
@@ -29,16 +62,21 @@ Util.Objects["check"] = new function() {
 Util.Objects["config"] = new function() {
 	this.init = function(scene) {
 
+		// Enable update form
+		// Will jump to the next "not completed" section on successful submit response
 		var form = u.qs("form.config", scene);
 		if(form) {
 
 			u.f.init(form);
 			form.submitted = function() {
+				u.ac(this, "submitting");
+				
 				this.response = function(response) {
+					u.rc(this, "submitting");
 			
 					if(response && response.cms_status == "success") {
-						var steps = u.qsa("li.setup li:not(.done)", page.nN); 
 
+						var steps = u.qsa("li.setup li:not(.done)", page.nN); 
 						var i, node;
 						for(i = 0; node = steps[i]; i++) {
 							if(node.url != location.href) {
@@ -56,11 +94,30 @@ Util.Objects["config"] = new function() {
 
 		}
 
+		// Enable continue button (nothing to update)
+		// Will jump to the next "not completed" section
+		var bn_continue = u.qs(".actions li.continue", scene);
+		if(bn_continue) {
+			u.ce(bn_continue);
+			bn_continue.clicked = function() {
+				u.ac(this.parentNode, "submitting");
 
+				var steps = u.qsa("li.setup li:not(.done)", page.nN); 
+				var i, node;
+				for(i = 0; node = steps[i]; i++) {
+					if(node.url != location.href) {
+						location.href = node.url;
+						break;
+					}
+				}
+			}
+		}
+
+
+		// Keep session alive
 		this.keepAlive = function() {
 			u.request(this, "/janitor/admin/setup/keepAlive");
 		}
-
 		u.t.setInterval(this, "keepAlive", 60000);
 	}
 }
@@ -69,6 +126,8 @@ Util.Objects["config"] = new function() {
 Util.Objects["database"] = new function() {
 	this.init = function(scene) {
 
+		// Enable update form
+		// Will jump to the next "not completed" section on successful submit response
 		var form = u.qs("form.database", scene);
 		if(form) {
 
@@ -77,17 +136,18 @@ Util.Objects["database"] = new function() {
 				u.ac(this, "submitting");
 
 				this.response = function(response) {
-			
+					u.rc(this, "submitting");
+
 					if(response && response.cms_status == "success") {
 
 						// reload database page to show confirm dialogue
 						if(response.cms_object && response.cms_object.status == "reload") {
-							location.reload();
+							location.reload(true);
 						}
 						// continue to next step
 						else {
-							var steps = u.qsa("li.setup li:not(.done)", page.nN);
 
+							var steps = u.qsa("li.setup li:not(.done)", page.nN);
 							var i, node;
 							for(i = 0; node = steps[i]; i++) {
 								if(node.url != location.href) {
@@ -98,7 +158,6 @@ Util.Objects["database"] = new function() {
 						}
 					}
 					else {
-						u.rc(this, "submitting");
 						page.notify(response);
 					}
 				}
@@ -114,17 +173,18 @@ Util.Objects["database"] = new function() {
 				u.ac(this, "submitting");
 
 				this.response = function(response) {
-			
+					u.rc(this, "submitting");
+
 					if(response && response.cms_status == "success") {
 
 						// reload database page to show confirm dialogue
 						if(response.cms_object && response.cms_object.status == "reload") {
-							location.reload();
+							location.reload(true);
 						}
 						// continue to next step
 						else {
-							var steps = u.qsa("li.setup li:not(.done)", page.nN);
 
+							var steps = u.qsa("li.setup li:not(.done)", page.nN);
 							var i, node;
 							for(i = 0; node = steps[i]; i++) {
 								if(node.url != location.href) {
@@ -135,7 +195,6 @@ Util.Objects["database"] = new function() {
 						}
 					}
 					else {
-						u.rc(this, "submitting");
 						page.notify(response);
 					}
 				}
@@ -144,10 +203,75 @@ Util.Objects["database"] = new function() {
 		}
 
 
+		// Keep session alive
 		this.keepAlive = function() {
 			u.request(this, "/janitor/admin/setup/keepAlive");
 		}
+		u.t.setInterval(this, "keepAlive", 60000);
+	}
+}
 
+
+Util.Objects["account"] = new function() {
+	this.init = function(scene) {
+
+
+		// Enable update form
+		// Will jump to the next "not completed" section on successful submit response
+		var form = u.qs("form.account", scene);
+		if(form) {
+
+			u.f.init(form);
+			form.submitted = function() {
+				u.ac(this, "submitting");
+
+				this.response = function(response) {
+					u.rc(this, "submitting");
+			
+					if(response && response.cms_status == "success") {
+
+						var steps = u.qsa("li.setup li:not(.done)", page.nN); 
+						var i, node;
+						for(i = 0; node = steps[i]; i++) {
+							if(node.url != location.href) {
+								location.href = node.url;
+								break;
+							}
+						}
+					}
+					else {
+						page.notify(response);
+					}
+				}
+				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+			}
+
+		}
+
+		// Enable continue button (nothing to update)
+		// Will jump to the next "not completed" section
+		var bn_continue = u.qs(".actions li.continue", scene);
+		if(bn_continue) {
+			u.ce(bn_continue);
+			bn_continue.clicked = function() {
+				u.ac(this.parentNode, "submitting");
+
+				var steps = u.qsa("li.setup li:not(.done)", page.nN); 
+				var i, node;
+				for(i = 0; node = steps[i]; i++) {
+					if(node.url != location.href) {
+						location.href = node.url;
+						break;
+					}
+				}
+			}
+		}
+
+
+		// Keep session alive
+		this.keepAlive = function() {
+			u.request(this, "/janitor/admin/setup/keepAlive");
+		}
 		u.t.setInterval(this, "keepAlive", 60000);
 	}
 }
@@ -228,14 +352,202 @@ Util.Objects["mail"] = new function() {
 
 		}
 
+		var form_skip = u.qs("form.skip", scene);
+		if(form_skip) {
 
+			u.f.init(form_skip);
+			form_skip.submitted = function() {
+				u.ac(this, "submitting");
+
+				this.response = function(response) {
+					u.rc(this, "submitting");
+
+					if(response && response.cms_status == "success") {
+
+						var steps = u.qsa("li.setup li:not(.done)", page.nN);
+						var i, node;
+						for(i = 0; node = steps[i]; i++) {
+							if(node.url != location.href) {
+								location.href = node.url;
+								break;
+							}
+						}
+					}
+					else {
+						page.notify(response);
+					}
+				}
+				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+			}
+		}
+
+
+		// Enable continue button (nothing to update)
+		// Will jump to the next "not completed" section
+		var bn_continue = u.qs(".actions li.continue", scene);
+		if(bn_continue) {
+			u.ce(bn_continue);
+			bn_continue.clicked = function() {
+				u.ac(this.parentNode, "submitting");
+
+				var steps = u.qsa("li.setup li:not(.done)", page.nN); 
+				var i, node;
+				for(i = 0; node = steps[i]; i++) {
+					if(node.url != location.href) {
+						location.href = node.url;
+						break;
+					}
+				}
+			}
+		}
+
+
+		// Keep session alive
 		this.keepAlive = function() {
 			u.request(this, "/janitor/admin/setup/keepAlive");
 		}
-
 		u.t.setInterval(this, "keepAlive", 60000);
 	}
 }
+
+
+
+
+Util.Objects["payment"] = new function() {
+	this.init = function(scene) {
+
+		var form = u.qs("form.payment", scene);
+		if(form) {
+
+			u.f.init(form);
+
+			var options = form.fields["payment_type"].options;
+			form.div_options = [];
+
+			// index option divs
+			var i, option;
+			for(i = 0; option = options[i]; i++) {
+				form.div_options[option.value] = u.qs("div.type_" + option.value, form);
+				form.div_options[option.value].required_fields = u.qsa("div.field.required", form.div_options[option.value]);
+			}
+
+			form.updateView = function() {
+				var selected = this.fields["payment_type"].val();
+				var i, field;
+
+
+				for(option_value in this.div_options) {
+					if(option_value == selected) {
+						u.ass(this.div_options[option_value], {
+							"display":"block"
+						});
+						for(i = 0; field = this.div_options[option_value].required_fields[i]; i++) {
+							u.ac(field, "required");
+						}
+					}
+					else {
+						u.ass(this.div_options[option_value], {
+							"display":"none"
+						});
+						for(i = 0; field = this.div_options[option_value].required_fields[i]; i++) {
+							u.rc(field, "required");
+						}
+					}
+				}
+			}
+			form.updateView();
+
+			form.fields["payment_type"].updated = function() {
+//				console.log("mailtype:" + this.val());
+				this._form.updateView();
+			}
+			
+			form.submitted = function() {
+				u.ac(this, "submitting");
+
+				this.response = function(response) {
+			
+					if(response && response.cms_status == "success") {
+						var steps = u.qsa("li.setup li:not(.done)", page.nN); 
+
+						var i, node;
+						for(i = 0; node = steps[i]; i++) {
+							if(node.url != location.href) {
+								location.href = node.url;
+								break;
+							}
+						}
+					}
+					else {
+						u.rc(this, "submitting");
+						page.notify(response);
+					}
+				}
+				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+			}
+
+		}
+
+		var form_skip = u.qs("form.skip", scene);
+		if(form_skip) {
+
+			u.f.init(form_skip);
+			form_skip.submitted = function() {
+				u.ac(this, "submitting");
+
+				this.response = function(response) {
+					u.rc(this, "submitting");
+
+					if(response && response.cms_status == "success") {
+
+						var steps = u.qsa("li.setup li:not(.done)", page.nN);
+						var i, node;
+						for(i = 0; node = steps[i]; i++) {
+							if(node.url != location.href) {
+								location.href = node.url;
+								break;
+							}
+						}
+					}
+					else {
+						page.notify(response);
+					}
+				}
+				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+			}
+		}
+
+
+		// Enable continue button (nothing to update)
+		// Will jump to the next "not completed" section
+		var bn_continue = u.qs(".actions li.continue", scene);
+		if(bn_continue) {
+			u.ce(bn_continue);
+			bn_continue.clicked = function() {
+				u.ac(this.parentNode, "submitting");
+
+				var steps = u.qsa("li.setup li:not(.done)", page.nN); 
+				var i, node;
+				for(i = 0; node = steps[i]; i++) {
+					if(node.url != location.href) {
+						location.href = node.url;
+						break;
+					}
+				}
+			}
+		}
+
+
+		// Keep session alive
+		this.keepAlive = function() {
+			u.request(this, "/janitor/admin/setup/keepAlive");
+		}
+		u.t.setInterval(this, "keepAlive", 60000);
+	}
+}
+
+
+
 
 
 Util.Objects["finish"] = new function() {
@@ -247,15 +559,14 @@ Util.Objects["finish"] = new function() {
 
 			u.ce(bn_check);
 			bn_check.clicked = function() {
+				u.ac(this.parentNode, "submitting");
 
 				var steps = u.qsa("li.setup li:not(.done)", page.nN); 
-
 				var i, node;
 				for(i = 0; node = steps[i]; i++) {
-					if(node.url != location.href) {
-						location.href = node.url;
-						break;
-					}
+					// If only the finish page is registered as NOT DONE, refresh the page
+					location.href = node.url;
+					break;
 				}
 
 			}
@@ -423,10 +734,10 @@ Util.Objects["finish"] = new function() {
 		// }
 
 
+		// Keep session alive
 		this.keepAlive = function() {
 			u.request(this, "/janitor/admin/setup/keepAlive");
 		}
-
 		u.t.setInterval(this, "keepAlive", 60000);
 	}
 }

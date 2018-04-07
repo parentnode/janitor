@@ -1,8 +1,7 @@
 <?php
 global $model;
-
 ?>
-<div class="scene setup i:scene">
+<div class="scene setup i:setup">
 	<h1>Janitor maintenance room</h1>
 
 <? 
@@ -11,10 +10,11 @@ if(SETUP_TYPE == "new" || !defined("SITE_DB")): ?>
 
 	<h3>Welcome to Janitor</h3>
 	<p>
-		This guide will help you finalize your janitor installation for <em><?= PROJECT_PATH ?></em>.
+		This guide will help you finalize your janitor installation for your project in:
 	</p>
+	<code><?= PROJECT_PATH ?></code>
 	<ul class="actions">
-		<li class="check"><a href="/janitor/admin/setup/check" class="button primary">Start</a></li>
+		<li class="start"><a href="/janitor/admin/setup/software" class="button primary">Start</a></li>
 	</ul>
 	<p class="note">We have pre-populated the fields in the following forms with the most likely values where possible. Don't hesitate to update as needed.</p>
 
@@ -28,10 +28,10 @@ else: ?>
 	<div class="option">
 		<h3>Change configuration</h3>
 		<p>
-			Choose this option to change core/database/mail configuration.
+			Choose this option to change database/mail/payment configuration.
 		</p>
 		<ul class="actions">
-			<li class="check"><a href="/janitor/admin/setup/check" class="button primary">Edit configuration</a></li>
+			<li class="start"><a href="/janitor/admin/setup/software" class="button primary">Edit configuration</a></li>
 		</ul>
 	</div>
 
@@ -41,7 +41,7 @@ else: ?>
 			Choose this option to upgrade your project to the latest version of Janitor.
 		</p>
 		<ul class="actions">
-			<li class="check"><a href="/janitor/admin/setup/upgrade" class="button primary">Upgrade Janitor</a></li>
+			<li class="upgrade"><a href="/janitor/admin/setup/upgrade" class="button primary">Upgrade Janitor</a></li>
 		</ul>
 	</div>
 

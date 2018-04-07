@@ -1,6 +1,6 @@
 <?php
 global $model;
-
+global $upgrade_model;
 	
 ?>
 <div class="scene i:scene">
@@ -8,7 +8,7 @@ global $model;
 
 	<h3>Upgrade process:</h3>
 	<ul class="tasks">
-		<? $model->fullUpgrade(); ?>
+		<? $upgrade_model->fullUpgrade(); ?>
 	</ul>
 
 </div>

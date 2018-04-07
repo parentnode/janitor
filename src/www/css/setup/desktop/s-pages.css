@@ -1,20 +1,33 @@
 
-#content .scene form h3 {padding-top: 15px;}
+/*#content .scene form h3 {padding-top: 15px;}*/
 #content .scene > ul.actions {padding-top: 0;}
 #content .scene p+fieldset {margin-top: -15px;}
-#content .scene fieldset+p {padding-top: 20px;}
+/*#content .scene fieldset+p {padding-top: 20px;}*/
 
 #content .scene.setup .option {padding-bottom: 30px;}
 #content .scene.setup .option p+ul {margin-top: -15px;}
 
 
-#content .scene.check ul.requirements {padding: 0px 30px 20px;}
-#content .scene.check ul.requirements li {display: block; padding: 0 0 10px;}
-#content .scene.check ul.requirements li.error {color: #df0000;}
-#content .scene.check ul.requirements li.notice {color: orange;}
+#content .scene.software ul.requirements {padding: 0px 30px 20px;}
+#content .scene.software ul.requirements li {display: block; padding: 0 0 10px;}
+#content .scene.software ul.requirements li.error {color: #df0000;}
+#content .scene.software ul.requirements li.notice {color: orange;}
 
-#content .scene.config fieldset div.field.paragraph label {display: block;}
-#content .scene.config fieldset div.field.paragraph p {padding-left: 0;}
+
+#content .scene.database form + h3 {padding-top: 30px;}
+#content .scene.database p + ul.actions + h3 {padding-top: 10px;}
+
+#content .scene.mail form + h3 {padding-top: 30px;}
+#content .scene.mail p + ul.actions + h3 {padding-top: 10px;}
+
+#content .scene.payment form + h3 {padding-top: 30px;}
+#content .scene.payment p + ul.actions + h3 {padding-top: 10px;}
+
+
+/*#content .scene.config fieldset + ul.actions {padding-top: 15px;}*/
+
+
+/*#content .scene.config fieldset div.field.paragraph p {padding-left: 0;}*/
 
 #content .scene.finish div.ready {padding: 20px 0 0;}
 
@@ -43,7 +56,10 @@ body.upgrade #content .scene ul.tasks li.error {color: #df0000;}
 body.upgrade #content .scene ul.tasks li.error.fatal {padding: 20px 0 0; font-size: 20px;}
 body.upgrade #content .scene ul.tasks li.done {padding: 20px 0 0; color: #00aa00; font-size: 20px;}
 
-
+body.upgrade #content .scene ul.tasks li.note {list-style: none; padding: 20px 0 0;}
+body.upgrade #content .scene ul.tasks li.note h3, 
+body.upgrade #content .scene ul.tasks li.note p {padding-left: 0; padding-right: 0;}
+body.upgrade #content .scene ul.tasks li.note code {margin-left: 0; margin-right: 0;}
 
 /* CODE AND TYPECASTING */
 #content .scene code {padding: 10px 10px; margin: 0 30px 5px; position: relative; top: -15px; background-color: #ededed; font-size: 0.923rem; display: block; overflow: auto; white-space: pre;

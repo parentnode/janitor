@@ -7,15 +7,6 @@ class Upgrade extends Model {
 
 	function __construct() {
 
-		// global $page;
-		// print "loading db config";
-		// $page->loadDBConfiguration();
-		//
-		//
-		//
-		// include_once("classes/items/items.core.class.php");
-		// include_once("classes/items/items.class.php");
-
 	}
 
 
@@ -38,6 +29,8 @@ class Upgrade extends Model {
 	// Check Database structure for v0_8 requirements
 	function fullUpgrade() {
 		
+		global $model;
+		
 		$query = new Query();
 		$IC = new Items();
 		include_once("classes/users/superuser.class.php");
@@ -51,28 +44,18 @@ class Upgrade extends Model {
 
 		try {
 
-
-//			print_r($this->tableInfo(SITE_DB.".system_countries"));
-
-
-// 			$this->process($this->syncronizeTable("system_countries"));
-//
-// //			print_r($this->tableInfo(SITE_DB.".system_countries"));
-//
-// 			return;
-//
-// 			$this->process($this->dropConstraints(SITE_DB.".system_countries", "language"), true);
-//
-// 			print_r($this->tableInfo(SITE_DB.".system_countries"));
-//
-// 			$this->process($this->addConstraint(SITE_DB.".system_countries.language", SITE_DB.".system_languages.id", "ON UPDATE CASCADE", "system_countries_ibfk_1"), true);
-// 			$this->process($this->addConstraint(SITE_DB.".system_countries.language", SITE_DB.".system_languages.id", ""), true);
-//
-// 			print_r($this->tableInfo(SITE_DB.".system_countries"));
+			if(!$model->readWriteTest()) {
+			
+				$result["message"] = "<p>You need to allow Apache to modify files in your project folder.<br />Run this command in your terminal to continue:</p>";
+				$result["message"] .= "<code>sudo chown -R ".$model->get("system", "apache_user").":".$model->get("system", "deploy_user")." ".PROJECT_PATH."</code>";
+				$result["success"] = false;
+				$this->process($result, true);
+			}
 
 
 
 			// TODO: Pull the latest Janitor version
+			// Requires some sort of reload to continue upgrade on updated codebase
 
 
 
@@ -166,31 +149,25 @@ class Upgrade extends Model {
 			}
 
 
-
 			// CHECK DEFAULT VALUES
-			$this->process($this->checkDefaultValues(UT_LANGUAGES, "'DA','Dansk'", "id = 'DA'"), true);
-			$this->process($this->checkDefaultValues(UT_CURRENCIES, "'DKK', 'Kroner (Denmark)', 'DKK', 'after', 2, ',', '.'", "id = 'DKK'"), true);
-			$this->process($this->checkDefaultValues(UT_COUNTRIES, "'DK', 'Danmark', '45', '#### ####', 'DA', 'DKK'", "id = 'DK'"), true);
+			$this->process($this->checkDefaultValues(UT_LANGUAGES), true);
+			$this->process($this->checkDefaultValues(UT_CURRENCIES), true);
+			$this->process($this->checkDefaultValues(UT_COUNTRIES), true);
 
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
-				$this->process($this->checkDefaultValues(UT_VATRATES, "1, 'No VAT', 0, 'DK'", "id = 1"), true);
-				$this->process($this->checkDefaultValues(UT_VATRATES, "2, '25%', 25, 'DK'", "id = 2"), true);
+				$this->process($this->checkDefaultValues(UT_VATRATES), true);
+				$this->process($this->checkDefaultValues(UT_VATRATES), true);
 			}
 			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "classname", "varchar(50) DEFAULT NULL", "name"), true);
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "gateway", "varchar(50) DEFAULT NULL", "description"), true);
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "position", "int(11) DEFAULT '0'", "gateway"), true);
 
-				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Bank transfer', 'banktransfer', 'Regular bank transfer. Preferred option.', NULL, 1", "classname = 'banktransfer'"), true);
-				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Credit Card', 'disabled', 'Coming very soon.', NULL, 4", "classname = 'disabled'"), true);
-				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'PayPal', 'paypal', 'Pay to our paypal account.', NULL, 3", "classname = 'paypal'"), true);
-				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS, "DEFAULT, 'Cash', 'cash', 'Pay in cash on your next visit.', NULL, 3", "classname = 'cash'"), true);
+				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS), true);
 			}
 			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
-				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "1, 'Month', 'monthly', DEFAULT", "id = 1"), true);
-				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS, "2, 'Never expires', '*', DEFAULT", "id = 2"), true);
+				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS), true);
 			}
-
 
 
 
@@ -199,61 +176,13 @@ class Upgrade extends Model {
 			// ITEM COMMENTS
 			$this->process($this->createTableIfMissing(UT_ITEMS_COMMENTS), true);
 
-			// // update user_id declaration and constraint
-			// $this->process($this->dropConstraints(UT_ITEMS_COMMENTS, "user_id"), true);
-			// $this->process($this->dropKeys(UT_ITEMS_COMMENTS, "user_id"), true);
-			//
-			// $this->process($this->modifyColumn(UT_ITEMS_COMMENTS, "user_id", "int(11) NOT NULL", "item_id"), true);
-			//
-			// $this->process($this->addKey(UT_ITEMS_COMMENTS, "user_id"), true);
-			// $this->process($this->addConstraint(UT_ITEMS_COMMENTS.".user_id", SITE_DB.".users.id", "ON UPDATE CASCADE"), true);
-
-
-			// if((defined("SITE_SHOP") && SITE_SHOP)) {
-			//
-			// 	// ITEM PRICES
-			// 	$this->process($this->createTableIfMissing(UT_ITEMS_PRICES), true);
-			//
-			// 	// add price type and quantity
-			// 	$this->process($this->addColumn(UT_ITEMS_PRICES, "type", "varchar(20) DEFAULT NULL", "vatrate_id"), true);
-			// 	$this->process($this->addColumn(UT_ITEMS_PRICES, "quantity", "int(11) DEFAULT NULL", "type"), true);
-			// 	$query->sql("UPDATE ".UT_ITEMS_PRICES." SET type = 'default' WHERE type = '' OR type IS NULL");
-			//
-			// }
-
-
 
 
 			// USER/ITEM
 
 			// READSTATES
-			// $result = $this->renameTable(SITE_DB.".items_readstate", "user_item_readstates");
-			// $this->process($result);
-
 			$this->process($this->renameTable(SITE_DB.".items_readstate", "user_item_readstates"));
-
-			// // old readstates table exists, update structure
-			// if($result["success"]) {
-			//
-			// 	// move item_id column
-			// 	$this->process($this->modifyColumn(SITE_DB.".user_item_readstates", "item_id", "int(11) NOT NULL", "user_id"), true);
-			//
-			// 	// update user_id declaration and constraint
-			// 	$this->process($this->dropConstraints(SITE_DB.".user_item_readstates", "user_id"), true);
-			// 	$this->process($this->dropKeys(SITE_DB.".user_item_readstates", "user_id"), true);
-			//
-			// 	$this->process($this->modifyColumn(SITE_DB.".user_item_readstates", "user_id", "int(11) NOT NULL"), true);
-			//
-			// 	$this->process($this->addKey(SITE_DB.".user_item_readstates", "user_id"), true);
-			// 	$this->process($this->addConstraint(SITE_DB.".user_item_readstates.user_id", SITE_DB.".users.id", "ON DELETE CASCADE ON UPDATE CASCADE"), true);
-			//
-			// }
-			// // table doesn't exist
-			// else {
-
-				$this->process($this->createTableIfMissing(SITE_DB.".user_item_readstates"), true);
-
-			// }
+			$this->process($this->createTableIfMissing(SITE_DB.".user_item_readstates"), true);
 
 
 
@@ -261,279 +190,7 @@ class Upgrade extends Model {
 
 			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 
-				// // subscriptions table exists
-				// $subscriptions_table = $this->tableInfo(SITE_DB.".user_item_subscriptions");
-				// if($subscriptions_table) {
-				//
-				// 	// user_id constraint
-				// 	if(!isset($subscriptions_table["constraints"]["user_id"]) || !isset($subscriptions_table["constraints"]["user_id"]["users.id"])) {
-				//
-				// 		// remove any existing user_id constraints and keys
-				// 		$this->process($this->dropConstraints(SITE_DB.".user_item_subscriptions", "user_id"), true);
-				// 		$this->process($this->dropKeys(SITE_DB.".user_item_subscriptions", "user_id"), true);
-				//
-				// 		// delete any subscriptions with invalid user_id values
-				// 		$sql = "SELECT id FROM ".SITE_DB.".user_item_subscriptions WHERE user_id NOT IN (SELECT id FROM ".SITE_DB.".users)";
-				// 		if($query->sql($sql)) {
-				// 			$subscriptions = $query->results();
-				// 			foreach($subscriptions as $subscription) {
-				// 				$sql = "DELETE FROM ".SITE_DB.".user_item_subscriptions WHERE id = ".$subscription["id"];
-				// 				$query->sql($sql);
-				// 			}
-				// 		}
-				//
-				// 		// add correct user_id constraint and key
-				// 		$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "user_id"), true);
-				// 		$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.user_id", SITE_DB.".users.id", "ON DELETE CASCADE ON UPDATE CASCADE"), true);
-				//
-				// 	}
-				//
-				// 	// item_id constraint
-				// 	if(!isset($subscriptions_table["constraints"]["item_id"]) || !isset($subscriptions_table["constraints"]["item_id"]["items.id"])) {
-				//
-				// 		// remove any existing item_id constraints and keys
-				// 		$this->process($this->dropConstraints(SITE_DB.".user_item_subscriptions", "item_id"), true);
-				// 		$this->process($this->dropKeys(SITE_DB.".user_item_subscriptions", "item_id"), true);
-				//
-				// 		// delete any subscriptions with invalid item_id values
-				// 		$sql = "SELECT id FROM ".SITE_DB.".user_item_subscriptions WHERE item_id NOT IN (SELECT id FROM ".UT_ITEMS.")";
-				// 		if($query->sql($sql)) {
-				// 			$subscriptions = $query->results();
-				// 			foreach($subscriptions as $subscription) {
-				// 				$sql = "DELETE FROM ".SITE_DB.".user_item_subscriptions WHERE id = ".$subscription["id"];
-				// 				$query->sql($sql);
-				// 			}
-				// 		}
-				//
-				// 		// add correct item_id constraint and key
-				// 		$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "item_id"), true);
-				// 		$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.item_id", SITE_DB.".items.id", "ON UPDATE CASCADE"), true);
-				//
-				// 	}
-				//
-				// 	// order_id constraint
-				// 	if(!isset($subscriptions_table["constraints"]["order_id"]) || !isset($subscriptions_table["constraints"]["order_id"]["orders.id"])) {
-				//
-				// 		// remove any existing order_id constraints and keys
-				// 		$this->process($this->dropConstraints(SITE_DB.".user_item_subscriptions", "order_id"), true);
-				// 		$this->process($this->dropKeys(SITE_DB.".user_item_subscriptions", "order_id"), true);
-				//
-				// 		// correct any invalid order_id values (set to NULL)
-				// 		$sql = "SELECT id FROM ".SITE_DB.".user_item_subscriptions WHERE order_id NOT IN (SELECT id FROM ".SITE_DB.".shop_orders)";
-				// 		if($query->sql($sql)) {
-				// 			$subscriptions = $query->results();
-				// 			foreach($subscriptions as $subscription) {
-				//
-				// 				$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET order_id = NULL WHERE id = ".$subscription["id"];
-				// 				$query->sql($sql);
-				//
-				// 			}
-				// 		}
-				//
-				// 		// add correct order_id constraint and key
-				// 		$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "order_id"), true);
-				// 		$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.order_id", SITE_DB.".shop_orders.id", "ON UPDATE CASCADE"), true);
-				//
-				// 	}
-				//
-				// 	// payment_method constraint
-				// 	if(!isset($subscriptions_table["constraints"]["payment_method"]) || !isset($subscriptions_table["constraints"]["payment_method"]["system_payment_methods.id"])) {
-				//
-				// 		// remove any existing payment_method constraints and keys
-				// 		$this->process($this->dropConstraints(SITE_DB.".user_item_subscriptions", "payment_method"), true);
-				// 		$this->process($this->dropKeys(SITE_DB.".user_item_subscriptions", "payment_method"), true);
-				//
-				// 		// correct any invalid order_id values (set to NULL)
-				// 		$sql = "SELECT id FROM ".SITE_DB.".user_item_subscriptions WHERE payment_method NOT IN (SELECT id FROM ".UT_PAYMENT_METHODS.")";
-				// 		if($query->sql($sql)) {
-				// 			$subscriptions = $query->results();
-				// 			foreach($subscriptions as $subscription) {
-				//
-				// 				$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET payment_method = NULL WHERE id = ".$subscription["id"];
-				// 				$query->sql($sql);
-				//
-				// 			}
-				// 		}
-				//
-				// 		// add correct order_id constraint and key
-				// 		$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "payment_method"), true);
-				// 		$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.payment_method", UT_PAYMENT_METHODS.".id", "ON UPDATE CASCADE"), true);
-				//
-				// 	}
-				//
-				// }
-
-				// // SPECIAL CASES - PRERELEASE UPGRADE
-				//
-				// // SUBSCRIPTIONS
-				// $result = $this->renameTable(SITE_DB.".user_subscriptions", "user_item_subscriptions");
-				// $this->process($result);
-				//
-				// // old subscriptions table exists, update structure
-				// if($result["success"]) {
-				//
-				// 	$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "comment"), true);
-				// 	$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "status"), true);
-				//
-				//
-				// 	$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "renewed_at", "TIMESTAMP NULL DEFAULT NULL", "modified_at"), true);
-				// 	$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "expires_at", "TIMESTAMP NULL DEFAULT NULL", "renewed_at"), true);
-				//
-				// 	// add payment_method column
-				// 	$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "order_id", "int(11) DEFAULT NULL", "item_id"), true);
-				// 	$this->process($this->addColumn(SITE_DB.".user_item_subscriptions", "payment_method", "int(11) DEFAULT NULL", "order_id"), true);
-				// 	$this->process($this->addKey(SITE_DB.".user_item_subscriptions", "payment_method"), true);
-				// 	$this->process($this->addConstraint(SITE_DB.".user_item_subscriptions.payment_method", UT_PAYMENT_METHODS.".id", "ON UPDATE CASCADE"), true);
-				//
-				// 	// TODO: also add order constraint
-				//
-				//
-				//
-				// 	// transfer old subscriptions model to new membership model
-				// 	$item_subscription = $this->tableInfo(SITE_DB.".item_subscription");
-				// 	if($item_subscription && isset($item_subscription["columns"]["renewal"])) {
-				//
-				// 		// change layout
-				// 		$this->process($this->addColumn(SITE_DB.".item_subscription", "introduction", "text NOT NULL", "description"), true);
-				// 		$this->process($this->dropColumn(SITE_DB.".item_subscription", "renewal"), true);
-				//
-				// 		if($this->tableInfo(SITE_DB.".item_subscription_versions")) {
-				//
-				// 			// change layout
-				// 			$this->process($this->addColumn(SITE_DB.".item_subscription_versions", "introduction", "text NOT NULL", "description"), true);
-				// 			$this->process($this->dropColumn(SITE_DB.".item_subscription_versions", "renewal"), true);
-				// 		}
-				//
-				// 		$query->sql("SELECT * FROM ".UT_ITEMS." WHERE itemtype = 'subscription'");
-				// 		$items = $query->results();
-				// 		if($items) {
-				// 			foreach($items as $item) {
-				// 				$query->sql("UPDATE ".UT_ITEMS." SET itemtype = 'membership' WHERE itemtype = 'subscription' AND id = ".$item["id"]);
-				// 			}
-				// 		}
-				//
-				// 		// rename
-				// 		$this->process($this->renameTable(SITE_DB.".item_subscription", "item_membership"), true);
-				//
-				// 		// rename
-				// 		$this->process($this->renameTable(SITE_DB.".item_subscription_versions", "item_membership_versions"), true);
-				//
-				//
-				// 		$model = $IC->typeObject("membership");
-				// 		$items = $IC->getItems(array("itemtype" => "membership"));
-				//
-				// 		foreach($items as $item) {
-				// 			if($item["sindex"] == "curious-cat") {
-				// 				$_POST["item_subscription_method"] = 2;
-				// 			}
-				// 			else {
-				// 				$_POST["item_subscription_method"] = 1;
-				// 			}
-				// 			$model->updateSubscriptionMethod(array("updateSubscriptionMethod", $item["id"]));
-				// 			unset($_POST);
-				//
-				// 			// ADD CORRECT VAT SETTING
-				// 			$query->sql("UPDATE ".SITE_DB.".items_prices SET vatrate_id = 2 WHERE item_id = ".$item["id"]);
-				//
-				// 		}
-				//
-				// 	}
-				//
-				//
-				//
-				// 	// if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
-				// 	// 	// MEMBERS
-				// 	// 	$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
-				// 	//
-				// 	// 	// CONVERT USERS/SUBSCRIBERS TO MEMBERS
-				// 	// 	$sql = "SELECT * FROM ".$UC->db;
-				// 	// 	if($query->sql($sql)) {
-				// 	// 		$users = $query->results();
-				// 	//
-				// 	// 		foreach($users as $user) {
-				// 	//
-				// 	// 			if($user["id"] != 1) {
-				// 	// 				// add members
-				// 	// 				$_POST["user_id"] = $user["id"];
-				// 	// 				$UC->addMembership(array("addMembership"));
-				// 	// 				unset($_POST);
-				// 	//
-				// 	// 				// update member creation date
-				// 	// 				$query->sql("UPDATE ".SITE_DB.".user_members SET created_at = '".$user["created_at"]."' WHERE user_id = ".$user["id"]);
-				// 	// 			}
-				// 	//
-				// 	// 		}
-				// 	//
-				// 	// 	}
-				// 	//
-				// 	// }
-				//
-				//
-				// 	// $sql = "SELECT * FROM ".SITE_DB.".user_item_subscriptions";
-				// 	// if($query->sql($sql)) {
-				// 	// 	$subscriptions = $query->results();
-				// 	//
-				// 	//
-				// 	// 	// TODO: start think specific
-				// 	// 	$opening_timestamp = mktime(0, 0, 0, 9, 24, 2016);
-				// 	// 	// TODO: end think specific
-				// 	//
-				// 	//
-				// 	// 	foreach($subscriptions as $subscription) {
-				// 	//
-				// 	// 		// TODO: start think specific
-				// 	// 		// update subscription timestamps before opening
-				// 	// 		$timestamp = strtotime($subscription["created_at"]);
-				// 	// 		if($timestamp < $opening_timestamp) {
-				// 	//
-				// 	// 			// update subscription creation date
-				// 	// 			$subscription["created_at"] = date("Y-m-d H:i:s", $opening_timestamp);
-				// 	// 			$query->sql("UPDATE ".SITE_DB.".user_item_subscriptions SET created_at = '".$subscription["created_at"]."' WHERE id = ".$subscription["id"]);
-				// 	// 		}
-				// 	// 		// TODO: end think specific
-				// 	//
-				// 	//
-				// 	//
-				// 	// 		// add order
-				// 	// 		$_POST["user_id"] = $subscription["user_id"];
-				// 	// 		$_POST["order_comment"] = "System upgade";
-				// 	// 		$order = $SC->addOrder(array("addOrder"));
-				// 	// 		unset($_POST);
-				// 	//
-				// 	//
-				// 	// 		// add item to order
-				// 	// 		$_POST["item_id"] = $subscription["item_id"];
-				// 	// 		$_POST["quantity"] = 1;
-				// 	// 		$SC->addToOrder(array("addToOrder", $order["id"]));
-				// 	// 		unset($_POST);
-				// 	//
-				// 	// 		$item = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("subscription_method" => true)));
-				// 	//
-				// 	// 		// update subscription timestamps
-				// 	// 		$sql = "UPDATE ".SITE_DB.".user_item_subscriptions SET renewed_at = NULL";
-				// 	// 		$expires_at = $UC->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["created_at"]);
-				// 	// 		if($expires_at) {
-				// 	// 			$sql .= ", expires_at = '$expires_at'";
-				// 	// 		}
-				// 	// 		else {
-				// 	// 			$sql .= ", expires_at = NULL";
-				// 	// 		}
-				// 	// 		$sql .= " WHERE id = ".$subscription["id"];
-				// 	//
-				// 	// 		$query->sql($sql);
-				// 	//
-				// 	// 	}
-				// 	//
-				// 	// }
-				//
-				// }
-
-				// table doesn't exist
-				// else {
-
-					$this->process($this->createTableIfMissing(SITE_DB.".user_item_subscriptions"), true);
-
-				// }
+				$this->process($this->createTableIfMissing(SITE_DB.".user_item_subscriptions"), true);
 
 			}
 
@@ -547,22 +204,6 @@ class Upgrade extends Model {
 				$this->process($this->createTableIfMissing(SITE_DB.".user_members"), true);
 
 			}
-
-
-
-			// USERS
-
-			// $this->process($this->dropConstraints(SITE_DB.".users", "language"), true);
-			// $this->process($this->dropKeys(SITE_DB.".users", "language"), true);
-			//
-			// $this->process($this->modifyColumn(SITE_DB.".users", "language", "varchar(2) DEFAULT NULL"), true);
-			// $query->sql("UPDATE ".SITE_DB.".users SET language = NULL WHERE language = ''");
-			//
-			// $this->process($this->addColumn(SITE_DB.".users", "last_login_at", "timestamp NULL DEFAULT NULL", "modified_at"), true);
-			//
-			// $this->process($this->addKey(SITE_DB.".users", "language"), true);
-			// $this->process($this->addConstraint(SITE_DB.".users.language", UT_LANGUAGES.".id", "ON UPDATE CASCADE"), true);
-
 
 
 			# NEWSLETTERS TO MAILLISTS
@@ -657,420 +298,78 @@ class Upgrade extends Model {
 			}
 
 
-
-
-			// TODO: CREATE verifyTable method which compares tables with sql files
-//			$query->sql("SHOW TABLES AS tables IN ".SITE_DB."");
+			// Compares tables with sql files
 			$query->sql("SELECT TABLE_NAME AS tables FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '".SITE_DB."'");
 			$tables = $query->results("tables");
 			if($tables) {
 				foreach($tables as $table) {
-//					$this->process($this->syncronizeTable($table), true);
-
 					$this->process($this->syncronizeTable($table));
 				}
 			}
 
-//
-//
-// 			// TODO: start stopknappen specific
-// 			$topic_table = $this->tableInfo(SITE_DB.".item_topic");
-// 			// if table exists and still has "problem"-column
-// 			if($topic_table && isset($topic_table["columns"]["problem"])) {
-//
-// //				print_r($topic_table);
-//
-// 				if($query->sql("SELECT * FROM ".SITE_DB.".item_topic")) {
-// 					$topics = $query->results();
-//
-// 					foreach($topics as $topic) {
-//
-// 						// combine all text columns in "problem"-column
-// 						$problem_headline = '<h2 class="problem">'.$topic["problem_headline"].'</h2>';
-// 						$problem_text = $topic["problem"];
-// 						$solution_text = '<h2 class="solution">Løsningen</h2>'."\n".$topic["solution"];
-// 						$details = '<h3 class="details">Detaljer</h3>'."\n".$topic["details"];
-//
-// 						$html = $problem_headline."\n".$problem_text."\n".$solution_text."\n".$details;
-//
-// 						// update problem field with new text
-// 						$sql = "UPDATE ".SITE_DB.".item_topic SET problem = '".prepareForDB($html)."' WHERE id = ".$topic["id"];
-// 						$query->sql($sql);
-//
-// 					}
-//
-// 					// remove excess columns
-// 					$this->process($this->dropColumn(SITE_DB.".item_topic", "problem_headline"), true);
-// 					$this->process($this->dropColumn(SITE_DB.".item_topic", "solution"), true);
-// 					$this->process($this->dropColumn(SITE_DB.".item_topic", "details"), true);
-//
-// 					// rename "problem" column to "html"
-// 					$this->process($this->renameColumn(SITE_DB.".item_topic", "problem", "html"), true);
-// 				}
-//
-// 				$topic_table_versions = $this->tableInfo(SITE_DB.".item_topic_versions");
-// 				if($topic_table_versions && isset($topic_table_versions["columns"]["problem"])) {
-//
-// 					if($query->sql("SELECT * FROM ".SITE_DB.".item_topic_versions")) {
-// 						$topics = $query->results();
-//
-// 						foreach($topics as $topic) {
-//
-// 							// combine all text columns in "problem"-column
-// 							$problem_headline = '<h2 class="problem">'.$topic["problem_headline"].'</h2>';
-// 							$problem_text = $topic["problem"];
-// 							$solution_text = '<h2 class="solution">Løsningen</h2>'."\n".$topic["solution"];
-// 							$details = '<h3 class="details">Detaljer</h3>'."\n".$topic["details"];
-//
-// 							$html = $problem_headline."\n".$problem_text."\n".$solution_text."\n".$details;
-//
-// 							// update problem field with new text
-// 							$sql = "UPDATE ".SITE_DB.".item_topic_versions SET problem = '".prepareForDB($html)."' WHERE id = ".$topic["id"];
-// 							$query->sql($sql);
-//
-// 						}
-//
-// 						// remove excess columns
-// 						$this->process($this->dropColumn(SITE_DB.".item_topic_versions", "problem_headline"), true);
-// 						$this->process($this->dropColumn(SITE_DB.".item_topic_versions", "solution"), true);
-// 						$this->process($this->dropColumn(SITE_DB.".item_topic_versions", "details"), true);
-//
-// 						// rename "problem" column to "html"
-// 						$this->process($this->renameColumn(SITE_DB.".item_topic_versions", "problem", "html"), true);
-// 					}
-//
-// 				}
-// 			}
-// 			// TOPIC TABLE EXIST - SHOULD BE SPLIT INTO stoptopic and starttopic
-// 			if($topic_table) {
-// 				$this->process($this->renameTable(SITE_DB.".item_topic", "item_stoptopic"), true);
-//
-//
-// 				if($query->sql("SELECT * FROM ".SITE_DB.".item_stoptopic ORDER BY position")) {
-//
-// 					$model = $IC->typeObject("starttopic");
-// 					$order = "";
-// 					$topics = $query->results();
-// 					foreach($topics as $topic) {
-//
-// 						// change itemtype to stoptopic
-// 						$query->sql("UPDATE ".UT_ITEMS." SET itemtype = 'stoptopic' WHERE id = ".$topic["item_id"]);
-//
-// 						// clone to starttopics
-// 						foreach($topic as $key => $value) {
-// 							if($key != "id" && $key != "item_id") {
-// 								$_POST[$key] = $value;
-// 							}
-// 						}
-//
-// 						$item = $model->save(["starttopic", "save"]);
-// 						unset($_POST);
-//
-// 						// add to order list (postiion)
-// 						$order .= $item["id"] . ",";
-// 					}
-//
-// 					// update order
-// 					$_POST["order"] = preg_replace("/,$/", "", $order);
-// 					$model->updateOrder(["updateOrder"]);
-// 				}
-//
-// 				// rename topic versions table
-// 				$topic_table_versions = $this->tableInfo(SITE_DB.".item_topic_versions");
-// 				if($topic_table_versions) {
-// 					$this->process($this->renameTable(SITE_DB.".item_topic_versions", "item_stoptopic_versions"), true);
-// 				}
-//
-// 			}
-//
-// 			// TODO: end stopknappen specific
-//
-//
-//
-// 			$qna_table = $this->tableInfo(SITE_DB.".item_qna");
-// 			if($qna_table && !isset($qna_table["columns"]["question"])) {
-//
-//
-// 				// add about item id column
-// 				$this->process($this->addColumn(SITE_DB.".item_qna", "about_item_id", "int(11) DEFAULT NULL", "name"), true);
-// 				$this->process($this->addKey(SITE_DB.".item_qna", "about_item_id"), true);
-// 				$this->process($this->addConstraint(SITE_DB.".item_qna.about_item_id", SITE_DB.".items.id", "ON DELETE CASCADE ON UPDATE CASCADE"), true);
-//
-// 				$this->process($this->addColumn(SITE_DB.".item_qna", "question", "text NOT NULL", "about_item_id"), true);
-// 				$this->process($this->modifyColumn(SITE_DB.".item_qna", "answer", "text NULL"), true);
-//
-// 				if($query->sql("SELECT * FROM ".SITE_DB.".item_qna")) {
-// 					$qnas = $query->results();
-//
-// 					foreach($qnas as $qna) {
-//
-// 						$about_item_id = false;
-// 						// try to find related item based on tag
-// 						$tags = $IC->getTags(array("item_id" => $qna["item_id"], "tag_context" => "qna"));
-// 						if($tags) {
-// 							$related_items = $IC->getItems(array("itemtype" => "topic", "tags" => "qna:".$tags[0]["value"], "limit" => 1));
-// 							if($related_items) {
-// 								$about_item_id = $related_items[0]["id"];
-// 							}
-// 						}
-//
-// 						// adjust values
-// 						$question = $qna["name"];
-// 						$name = cutString($question, 45);
-//
-// 						// update name, about_item_id and question field with new values
-// 						$sql = "UPDATE ".SITE_DB.".item_qna SET ".($about_item_id ? "about_item_id = $about_item_id, " : "").(!$qna["answer"] ? "answer = NULL, " : "")."name = '".prepareForDB($name)."', question = '".prepareForDB($question)."' WHERE id = ".$qna["id"];
-// 						$query->sql($sql);
-//
-// 					}
-//
-// 					$this->process($this->modifyColumn(SITE_DB.".item_qna", "name", "varchar(50) NOT NULL"), true);
-// 					$this->process($this->modifyColumn(SITE_DB.".item_qna", "answer", "text DEFAULT NULL"), true);
-//
-//
-// 				}
-//
-// 				$qna_table_versions = $this->tableInfo(SITE_DB.".item_qna_versions");
-// 				if($qna_table_versions && !isset($qna_table_versions["columns"]["question"])) {
-//
-// 					// add about item id column
-// 					$this->process($this->addColumn(SITE_DB.".item_qna_versions", "about_item_id", "int(11) DEFAULT NULL", "name"), true);
-// 					$this->process($this->addKey(SITE_DB.".item_qna_versions", "about_item_id"), true);
-// 					$this->process($this->addConstraint(SITE_DB.".item_qna_versions.about_item_id", SITE_DB.".items.id", "ON DELETE CASCADE ON UPDATE CASCADE"), true);
-//
-// 					$this->process($this->addColumn(SITE_DB.".item_qna_versions", "question", "text NOT NULL", "name"), true);
-//
-// 					if($query->sql("SELECT * FROM ".SITE_DB.".item_qna_versions")) {
-// 						$qnas = $query->results();
-//
-// 						foreach($qnas as $qna) {
-//
-// 							$about_item_id = false;
-// 							// try to find related item based on tag
-// 							$tags = $IC->getTags(array("item_id" => $qna["item_id"], "context" => "qna"));
-// 							if($tags) {
-// 								$related_items = $IC->getItems(array("itemtype" => "topic", "tags" => "qna:".$tags[0]["value"], "limit" => 1));
-// 								if($related_items) {
-// 									$about_item_id = $related_items[0]["id"];
-// 								}
-// 							}
-//
-// 							// adjust values
-// 							$question = $qna["name"];
-// 							$name = cutString($question, 45);
-//
-// 							// update name, about_item_id and question field with new values
-// 							$sql = "UPDATE ".SITE_DB.".item_qna_versions SET ".($about_item_id ? "about_item_id = $about_item_id, " : "").(!$qna["answer"] ? "answer = NULL, " : "")."name = '".prepareForDB($name)."', question = '".prepareForDB($question)."' WHERE id = ".$qna["id"];
-// 							$query->sql($sql);
-//
-// 						}
-// 					}
-//
-// 					$this->process($this->modifyColumn(SITE_DB.".item_qna_versions", "name", "varchar(50) NOT NULL"), true);
-// 					$this->process($this->modifyColumn(SITE_DB.".item_qna_versions", "answer", "text DEFAULT NULL"), true);
-//
-// 				}
-//
-// 				$tags = $IC->getTags(array("context" => "qna"));
-// 				if($tags) {
-//
-// 					// delete all qna tags
-// 					foreach($tags as $tag) {
-// 						// delete QNA tag
-// 						$TC = new Tag();
-// 						$TC->deleteTag(["deleteTag", $tag["id"]]);
-// 					}
-// 				}
-// 			}
-//
-//
-// 			// ARTICLES
-// 			$article_table = $this->tableInfo(SITE_DB.".item_article");
-// 			$article_table_versions = $this->tableInfo(SITE_DB.".item_article_versions");
-//
-// 			// ARTICLE MAIN TABLE
-// 			if($article_table) {
-//
-// 				// Set correct default values
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table["columns"]["subheader"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_article", "subheader", "varchar(255) NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table["columns"]["description"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_article", "description", "text NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table["columns"]["html"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_article", "html", "text NOT NULL DEFAULT ''"), true);
-// 				}
-//
-// 			}
-// 			// ARTICLE VERSIONS TABLE
-// 			if($article_table_versions) {
-//
-// 				// Set correct default values
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table_versions["columns"]["subheader"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "subheader", "varchar(255) NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table_versions["columns"]["description"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "description", "text NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $article_table_versions["columns"]["html"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_article_versions", "html", "text NOT NULL DEFAULT ''"), true);
-// 				}
-//
-// 			}
-//
-//
-// 			// EVENTS
-// 			$event_table = $this->tableInfo(SITE_DB.".item_event");
-// 			$event_table_versions = $this->tableInfo(SITE_DB.".item_event_versions");
-//
-// 			// EVENT MAIN TABLE
-// 			if($event_table) {
-//
-// 				// Set correct default values
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $event_table["columns"]["classname"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_event", "classname", "varchar(100) NOT NULL DEFAULT NULL"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $event_table["columns"]["description"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_event", "description", "text NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $event_table["columns"]["html"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_event", "html", "text NOT NULL DEFAULT ''"), true);
-// 				}
-//
-// 			}
-// 			// EVENT VERSIONS TABLE
-// 			if($event_table_versions) {
-//
-// 				// Set correct default values
-// 				if(!preg_match("/DEFAULT \'\'/", $event_table_versions["columns"]["classname"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_event_versions", "classname", "varchar(100) NOT NULL DEFAULT NULL"), false);
-// 				}
-// 				if(!preg_match("/DEFAULT \'\'/", $event_table_versions["columns"]["description"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_event_versions", "description", "text NOT NULL DEFAULT ''"), false);
-// 				}
-// 				if(!preg_match("/DEFAULT \'\'/", $event_table_versions["columns"]["html"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_event_versions", "html", "text NOT NULL DEFAULT ''"), false);
-// 				}
-//
-// 			}
-//
-//
-// 			// PAGES
-// 			$page_table = $this->tableInfo(SITE_DB.".item_page");
-// 			$page_table_versions = $this->tableInfo(SITE_DB.".item_page_versions");
-//
-// 			// PAGE MAIN TABLE
-// 			if($page_table) {
-//
-// 				// Set correct default values
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table["columns"]["subheader"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_page", "subheader", "varchar(255) NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table["columns"]["description"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_page", "description", "text NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table["columns"]["html"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_page", "html", "text NOT NULL DEFAULT ''"), true);
-// 				}
-//
-// 			}
-// 			// PAGE VERSIONS TABLE
-// 			if($page_table_versions) {
-//
-// 				// Set correct default values
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table_versions["columns"]["subheader"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "subheader", "varchar(255) NOT NULL DEFAULT ''"), false);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table_versions["columns"]["description"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "description", "text NOT NULL DEFAULT ''"), false);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $page_table_versions["columns"]["html"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_page_versions", "html", "text NOT NULL DEFAULT ''"), false);
-// 				}
-//
-// 			}
-//
-//
-// 			// POSTS
-// 			$post_table = $this->tableInfo(SITE_DB.".item_post");
-// 			$post_table_versions = $this->tableInfo(SITE_DB.".item_post_versions");
-//
-// 			// POST MAIN TABLE
-// 			if($post_table) {
-//
-// 				// Add classname column
-// 				if(!isset($post_table["columns"]["classname"])) {
-// 					$this->process($this->addColumn(SITE_DB.".item_post", "classname", "varchar(100) NOT NULL DEFAULT NULL", "name"), true);
-// 				}
-//
-// 				// Set correct default values
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table["columns"]["classname"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_post", "classname", "varchar(100) NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table["columns"]["description"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_post", "description", "text NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table["columns"]["html"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_post", "html", "text NOT NULL DEFAULT ''"), true);
-// 				}
-//
-// 			}
-// 			// POST VERSIONS TABLE
-// 			if($post_table_versions) {
-//
-// 				// Add classname column
-// 				if(!isset($post_table_versions["columns"]["classname"])) {
-// 					$this->process($this->addColumn(SITE_DB.".item_post_versions", "classname", "int(11) DEFAULT NULL", "name"), true);
-// 				}
-//
-// 				// Set correct default values
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table_versions["columns"]["classname"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "classname", "varchar(100) NOT NULL DEFAULT ''"), true);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table_versions["columns"]["description"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "description", "text NOT NULL DEFAULT ''"), false);
-// 				}
-// 				if(!preg_match("/NOT NULL DEFAULT \'\'/", $post_table_versions["columns"]["html"])) {
-// 					$this->process($this->modifyColumn(SITE_DB.".item_post_versions", "html", "text NOT NULL DEFAULT ''"), false);
-// 				}
-//
-// 			}
-//
-//
-//
-// 			$wish_table = $this->tableInfo(SITE_DB.".item_wish");
-// 			if($wish_table && preg_match("/int\(11\)/", $wish_table["columns"]["reserved"])) {
-//
-// 				// update reserved column
-// 				$this->process($this->modifyColumn(SITE_DB.".item_wish", "reserved", "varchar(100) DEFAULT ''"), true);
-//
-// 				$wish_table_versions = $this->tableInfo(SITE_DB.".item_wish_versions");
-// 				if($wish_table_versions && preg_match("/int\(11\)/", $wish_table_versions["columns"]["reserved"])) {
-//
-// 					// update reserved column
-// 					$this->process($this->modifyColumn(SITE_DB.".item_wish_versions", "reserved", "varchar(100) DEFAULT ''"), true);
-// 				}
-//
-// 			}
-//
+
+			//
+			// GIT SETTINGS
+			//
+			// create git ignore
+			if(!file_exists(PROJECT_PATH."/.gitignore") && file_exists(FRAMEWORK_PATH."/config/gitignore.template")) {
+				copy(FRAMEWORK_PATH."/config/gitignore.template", PROJECT_PATH."/.gitignore");
+
+				// Make sure file remains writeable even if it is edited manually
+				chmod(PROJECT_PATH."/.gitignore", 0777);
+
+				$this->process(["message" => "Git ignore file added (.gitignore)", "success" => true]);
+			}
+
+			// Add Git attributes
+			if(!file_exists(PROJECT_PATH."/.gitattributes") && file_exists(FRAMEWORK_PATH."/config/gitattributes.template")) {
+				copy(FRAMEWORK_PATH."/config/gitattributes.template", PROJECT_PATH."/.gitattributes");
+
+				// Make sure file remains writeable even if it is edited manually
+				chmod(PROJECT_PATH."/.gitattributes", 0777);
+
+				$this->process(["message" => "Git attributes file added (.gitattributes)", "success" => true]);
+			}
 
 
-
-
-
-			// TODO: set filemode and file permissions as well (just to be sure) 
-			// TODO: if file permissions are correct you don't have permissions to change filemode
 			// Tell git to ignore file permission changes
-			// exec("cd ".LOCAL_PATH."/.. && git config core.filemode false");
-			// exec("cd ".LOCAL_PATH."/../submodules/janitor && git config core.filemode false");
-			// exec("cd ".LOCAL_PATH."/../submodules/js-merger && git config core.filemode false");
-			// exec("cd ".LOCAL_PATH."/../submodules/css-merger && git config core.filemode false");
+			exec("cd ".PROJECT_PATH." && git config core.filemode false");
+			exec("cd ".PROJECT_PATH."/submodules/janitor && git config core.filemode false");
+			exec("cd ".PROJECT_PATH."/submodules/js-merger && git config core.filemode false");
+			exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode false");
+
+			$this->process(["message" => "Git filemode updated to false", "success" => true]);
+
+
+			// set file permissions
+			if($model->recurseFilePermissions(PROJECT_PATH,
+				$model->get("system", "apache_user"),
+				$model->get("system", "deploy_user"),
+				0777)
+			) {
+				$this->process(["message" => "File permissions set for development environment", "success" => true]);
+			}
+			else {
+				$this->process(["message" => "File permissions could not be set t development environment", "success" => false]);
+			}
 
 
 			// Upgrade complete
 			print '<li class="done">UPGRADE COMPLETE</li>';
-			
+
+			print '<li class="note">';
+			print '	<h3>File permissions for live site</h3>';
+			print '	<p>';
+			print '		If you are upgrading a production site you need to set <span class="system_warning">file permissions</span>';
+			print '		on your project manually.';
+			print '	</p>';
+			print '	<p>';
+			print '		Copy this into your terminal to set file permissions to production settings. You want to make';
+			print '		sure this is done to protect your files from unintended manipulation.';
+			print '	</p>';
+			print '	<code>sudo chown -R root:'.$model->get("system", "deploy_user").' '.PROJECT_PATH.' && sudo chmod -R 755 '.PROJECT_PATH.' && sudo chown -R '.$model->get("system", "apache_user").':'.$model->get("system", "deploy_user").' '.LOCAL_PATH.'/library && sudo chmod -R 770 '.LOCAL_PATH.'/library</code>';
+			print '</li>';
+
 			// clear system messages
 			message()->resetMessages();
 
@@ -1094,14 +393,12 @@ class Upgrade extends Model {
 			if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames WHERE type='email'")) {
 				$usernames = $query->results();
 				foreach($usernames as $username) {
-//					if($username["type"] == "email" && !preg_match("/@think\.dk/", $username["username"])) {
-						if($query->sql("UPDATE ".SITE_DB.".user_usernames SET username = '".ADMIN_EMAIL."' WHERE id = ".$username["id"])) {
-							$this->process(array("success" => true, "message" => "Replaced ". $username["username"] . " with " . ADMIN_EMAIL), true);
-						}
-						else {
-							$this->process(array("success" => false), true);
-						}
-//					}
+					if($query->sql("UPDATE ".SITE_DB.".user_usernames SET username = '".ADMIN_EMAIL."' WHERE id = ".$username["id"])) {
+						$this->process(array("success" => true, "message" => "Replaced ". $username["username"] . " with " . ADMIN_EMAIL), true);
+					}
+					else {
+						$this->process(array("success" => false), true);
+					}
 				}
 			}
 
@@ -2456,32 +1753,59 @@ class Upgrade extends Model {
 
 
 	// check if acceptable default values exist in table
-	function checkDefaultValues($db_table, $values, $accept_row) {
+//	function checkDefaultValues($db_table, $values, $accept_row) {
+	function checkDefaultValues($db_table) {
 
 		$query = new Query();
 		list($db, $table) = explode(".", $db_table);
 
-		$message = '';
-		$message .= "CHECK DEFAULT VALUE OF $table ($accept_row)";
+		$default_data = false;
 
-		$sql = "SELECT * FROM $db_table WHERE $accept_row";
+
+		$message = '';
+		$message .= "CHECK DEFAULT VALUE OF $table";
+
+
+		$sql = "SELECT * FROM $db_table";
 		if(!$query->sql($sql)) {
 
-			$sql = "INSERT INTO $db_table values($values)";
-//			print $sql;
-			if($query->sql($sql)) {
-				$message .= ": VALUES ADDED";
-				$success = true;
+			if(file_exists(LOCAL_PATH."/config/db/default_data/$table.sql")) {
+				$default_data = file_get_contents(LOCAL_PATH."/config/db/default_data/$table.sql");
+			}
+			else if(file_exists(FRAMEWORK_PATH."/config/db/default_data/$table.sql")) {
+				$default_data = file_get_contents(FRAMEWORK_PATH."/config/db/default_data/$table.sql");
+			}
+
+			if($default_data) {
+
+				$default_data = preg_replace("/SITE_DB/", SITE_DB, $default_data);
+				if($query->sql($default_data)) {
+
+					$message .= ": VALUES ADDED";
+					$success = true;
+
+				}
+				else {
+
+					$message .= ": VALUES COULD NOT BE ADDED";
+					$success = false;
+
+				}
+
 			}
 			else {
-				$message .= ": VALUES COULD NOT BE ADDED";
+
+				$message .= ": NO DEFAULT VALUES";
 				$success = false;
+
 			}
 
 		}
 		else {
+
 			$message .= ": VALUES EXIST";
 			$success = true;
+
 		}
 
 		return array("success" => $success, "message" => $message);

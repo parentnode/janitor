@@ -1,5 +1,6 @@
 <?php
 global $model;
+global $upgrade_model;
 
 	
 ?>
@@ -8,7 +9,7 @@ global $model;
 
 	<h3>Result:</h3>
 	<ul class="tasks">
-		<? $model->replaceEmails(); ?>
+		<? $upgrade_model->replaceEmails(); ?>
 	</ul>
 
 </div>

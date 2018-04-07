@@ -21,7 +21,7 @@ $all_check = $model->checkAllSettings();
 	<p>You need to provide more information to finish the installation process.</p>
 
 	<ul class="actions">
-		<?= $model->link("Continue", "/janitor/admin/setup/check", array("wrapper" => "li.check", "class" => "button primary")) ?>
+		<?= $model->link("Continue", "/janitor/admin/setup/software", array("wrapper" => "li.check", "class" => "button primary")) ?>
 	</ul>
 
 <? else: ?>
@@ -37,7 +37,7 @@ $all_check = $model->checkAllSettings();
 	</ul>
 
 	<div class="ready">
-		<p>Click <em>install</em> to finish the installation.</p>
+		<p>Click <em>install</em> to write configuration files and finish the installation.</p>
 
 		<ul class="actions">
 			<?= $JML->oneButtonForm("Install", "/janitor/admin/setup/finish/finishInstallation", array(
@@ -55,31 +55,20 @@ $all_check = $model->checkAllSettings();
 
 	<div class="final_touches">
 
-		<h2>Final touches</h2>
-<?	if(SETUP_TYPE == "existing"): ?>
+<?	if($model->get("config", "site_deployment") == "live"): ?>
+		<h2>File permissions for live site</h2>
 		<p>
 			If you are deploying a site into production you need to set <span class="system_warning">file permissions</span>
-			on your project.
+			on your project manually.
 		</p>
-<?	else: ?>
-		<p>
-			If you are deploying a site into production you need to set <span class="system_warning">file permissions</span>
-			on your project and <span class="system_warning">restart</span> Apache.
-		</p>
-<?	endif; ?>
 
-		<h3>Production projects</h3>
 		<p>
 			Copy this into your terminal to set file permissions to production settings. You want to make
 			sure this is done to protect your files from unintended manipulation.
 		</p>
-		<code>sudo chown -R root:<?= $model->deploy_user ?> <?= $model->project_path ?>
+		<code>sudo chown -R root:<?= $model->get("system", "deploy_user") ?> <?= PROJECT_PATH ?> && sudo chmod -R 755 <?= PROJECT_PATH ?> && sudo chown -R <?= $model->get("system", "apache_user") ?>:<?= $model->get("system", "deploy_user") ?> <?= LOCAL_PATH ?>/library && sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
 
-sudo chmod -R 755 <?= $model->project_path ?>
-
-
-sudo chown -R <?= $model->apache_user ?>:<?= $model->deploy_user ?> <?= LOCAL_PATH ?>/library
-sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
+<?	endif; ?>
 
 
 <?	if(SETUP_TYPE == "existing"): ?>
@@ -93,13 +82,15 @@ sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
 
 <?	else: ?>
 
-		<h3>Restart Apache</h3>
+		<h2>Restart Apache</h2>
 		<p>Finally, restart your Apache:</p>
 
-		<? if($model->apachectls): ?>
+		<? if($model->parentnode_setup): ?>
+		<code>apache restart</code>
+		<? elseif($model->apachectls): ?>
 
 			<? foreach($model->apachectls as $apachectl): ?>
-				<code><?= $apachectl ?> -k graceful</code>
+			<code><?= $apachectl ?> -k graceful</code>
 			<? endforeach; ?>
 
 			<? if(count($model->apachectls) > 1): ?>

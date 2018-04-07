@@ -10,18 +10,18 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init-setup.php");
 $action = $page->actions();
 
 
+// Setup class as model
+include_once("classes/system/setup.class.php");
+$model = new Setup();
+
+
 $page->pageTitle("Janitor setup guide");
 
 
 if(is_array($action) && count($action)) {
 
 	// Setup process
-	if(preg_match("/^(check|config|database|mail|finish)$/", $action[0])) {
-
-		// Setup class as model
-		include_once("classes/system/setup.class.php");
-		$model = new Setup();
-
+	if(preg_match("/^(software|config|account|database|mail|payment|finish)$/", $action[0])) {
 
 		// Basic install process
 		if(count($action) == 1) {
@@ -50,9 +50,6 @@ if(is_array($action) && count($action)) {
 	// Reset install process
 	else if(preg_match("/^(reset)$/", $action[0])) {
 
-		include_once("classes/system/setup.class.php");
-		$model = new Setup();
-
 		$output = new Output();
 		$output->screen($model->reset());
 		exit();
@@ -80,16 +77,16 @@ if(is_array($action) && count($action)) {
 		else if(count($action) > 1) {
 
 			include_once("classes/system/upgrade.class.php");
-			$model = new Upgrade();
+			$upgrade_model = new Upgrade();
 
 			// Class interface
 			if($page->validateCsrfToken() && preg_match("/^[a-zA-Z]+/", $action[1])) {
 
 				// check if custom function exists on User class
-				if($model && method_exists($model, $action[1])) {
+				if($upgrade_model && method_exists($upgrade_model, $action[1])) {
 
 					$output = new Output();
-					$output->screen($model->{$action[1]}($action));
+					$output->screen($upgrade_model->{$action[1]}($action));
 					exit();
 				}
 			}
@@ -104,15 +101,11 @@ if(is_array($action) && count($action)) {
 
 			}
 
-			
 		}
-
 
 	}
 
-
 }
-
 
 // Setup front page
 $page->page(array(
@@ -124,36 +117,5 @@ exit();
 
 
 
-
-?>
-
-
-<?
-// $access_item = false;
-// if(isset($read_access) && $read_access) {
-// 	return;
-// }
-//
-//
-// // no path
-// if(!isset($_SERVER["PATH_INFO"]) || $_SERVER["PATH_INFO"] == "/") {
-// 	$params = array();
-// }
-// else {
-// 	// get params
-// 	$params = explode("/", preg_replace("/^\/|\/$/", "", $_SERVER["PATH_INFO"]));
-// }
-//
-//
-// if($params) {
-// //	print_r($params);
-// 	include_once("../setup/".$param[0].".php");
-//
-// }
-// else {
-// //	print "include index";
-// 	include_once("../setup/index.php");
-//
-// }
 
 ?>

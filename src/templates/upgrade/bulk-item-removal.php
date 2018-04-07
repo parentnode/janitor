@@ -1,5 +1,6 @@
 <?php
 global $model;
+global $upgrade_model;
 
 	
 ?>

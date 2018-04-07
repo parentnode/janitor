@@ -5,7 +5,7 @@ div.field {padding: 0 28px 10px; position: relative; font-size: 0; z-index: 1;}
 
 
 /* INLINE LABELS */
-div.field label {display: none;}
+div.field label {display: none; padding-left: 2px;}
 
 
 /* BASIC FORM INPUTS */
@@ -32,7 +32,7 @@ div.field .pseudolabel {position: absolute; font-size: 1.077rem; display: inline
 
 div.field.paragraph label {display: inline-block; vertical-align: top; line-height: 1.38em;} 
 div.field.paragraph label:after {content: ":";}
-div.field.paragraph p {display: inline-block; vertical-align: top; padding: 0 0 0 5px;} 
+div.field.paragraph p {display: inline-block; vertical-align: top; padding: 0 0 0 2px;} 
 
 div.field.list label {} 
 

@@ -12,75 +12,93 @@ class Setup extends Itemtype {
 
 		parent::__construct(get_class());
 
-
-		// SOFTWARE CHECKS
-		$this->apache = false;
-		$this->php = false;
-		$this->readwrite = false;
-		$this->mysql = false;
-		$this->ffmpeg = false;
-		$this->wkhtmlto = false;
-
-		// PHP modules
-		$this->zip = false;
-		$this->curl = false;
-		$this->memcached = false;
-		$this->imagemagick = false;
-		$this->simplexml = false;
-		$this->mbstring = false;
-		$this->session = false;
-		$this->dom = false;
-
-		$this->software_ok = isset($_SESSION["SOFTWARE_INFO"]) ? $_SESSION["SOFTWARE_INFO"] : "";
+		$this->set("system", "current_user", get_current_user());
+		$this->set("system", "apache_user", trim(shell_exec('whoami')));
+		$this->set("system", "deploy_user", trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : (trim(shell_exec('egrep -i "^staff" /etc/group')) ? "staff" : $this->current_user));
 
 
-		// CONFIG VALUES
-		$this->project_path = isset($_SESSION["project_path"]) ? $_SESSION["project_path"] : "";
-		$this->site_name = isset($_SESSION["site_name"]) ? $_SESSION["site_name"] : "";
-		$this->site_uid = isset($_SESSION["site_uid"]) ? $_SESSION["site_uid"] : "";
+		// $this->current_user = get_current_user();
+		// $this->apache_user = trim(shell_exec('whoami'));
+		// $this->deploy_user = trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : (trim(shell_exec('egrep -i "^staff" /etc/group')) ? "staff" : $this->current_user);
 
-		$this->site_email = isset($_SESSION["site_email"]) ? $_SESSION["site_email"] : "";
-		$this->site_description = isset($_SESSION["site_description"]) ? $_SESSION["site_description"] : "";
-
-		// CONFIG CHECKS
-		$this->config_ok = isset($_SESSION["CONFIG_INFO"]) ? $_SESSION["CONFIG_INFO"] : "";
-
-
-
-		// DATABASE VALUES
-		$this->db_host = isset($_SESSION["db_host"]) ? $_SESSION["db_host"] : "";
-		$this->db_root_user = isset($_SESSION["db_root_user"]) ? $_SESSION["db_root_user"] : "";
-		$this->db_root_pass = isset($_SESSION["db_root_pass"]) ? $_SESSION["db_root_pass"] : "";
-
-		$this->db_janitor_db = isset($_SESSION["db_janitor_db"]) ? $_SESSION["db_janitor_db"] : "";
-		$this->db_janitor_user = isset($_SESSION["db_janitor_user"]) ? $_SESSION["db_janitor_user"] : "";
-		$this->db_janitor_pass = isset($_SESSION["db_janitor_pass"]) ? $_SESSION["db_janitor_pass"] : "";
-
-		// DATABASE CHECKS
-		$this->db_ok = isset($_SESSION["DATABASE_INFO"]) ? $_SESSION["DATABASE_INFO"] : "";
-		$this->db_exists = false;
-
-		$this->db_admin_error = false;
-		$this->db_user_error = false;
-		$this->wrong_db_user_password = false;
-
-
-
-		// MAIL VALUES
-		$this->mail_admin = isset($_SESSION["mail_admin"]) ? $_SESSION["mail_admin"] : "";
-		$this->mail_type = isset($_SESSION["mail_type"]) ? $_SESSION["mail_type"] : "";
-
-		$this->mail_smtp_host = isset($_SESSION["mail_smtp_host"]) ? $_SESSION["mail_smtp_host"] : "";
-		$this->mail_smtp_port = isset($_SESSION["mail_smtp_port"]) ? $_SESSION["mail_smtp_port"] : "";
-		$this->mail_smtp_username = isset($_SESSION["mail_smtp_username"]) ? $_SESSION["mail_smtp_username"] : "";
-		$this->mail_smtp_password = isset($_SESSION["mail_smtp_password"]) ? $_SESSION["mail_smtp_password"] : "";
-
-		$this->mail_mailgun_api_key = isset($_SESSION["mail_mailgun_api_key"]) ? $_SESSION["mail_mailgun_api_key"] : "";
-		$this->mail_mailgun_domain = isset($_SESSION["mail_mailgun_domain"]) ? $_SESSION["mail_mailgun_domain"] : "";
-
-		// MAIL CHECKS
-		$this->mail_ok = isset($_SESSION["MAIL_INFO"]) ? $_SESSION["MAIL_INFO"] : "";
-
+		//
+		// // SOFTWARE CHECKS
+		// $this->apache = false;
+		// $this->php = false;
+		// $this->readwrite = false;
+		// $this->mysql = false;
+		// $this->ffmpeg = false;
+		// $this->wkhtmlto = false;
+		//
+		// // PHP modules
+		// $this->zip = false;
+		// $this->curl = false;
+		// $this->memcached = false;
+		// $this->imagemagick = false;
+		// $this->simplexml = false;
+		// $this->mbstring = false;
+		// $this->session = false;
+		// $this->dom = false;
+		//
+		// $this->software_ok = isset($_SESSION["SOFTWARE_INFO"]) ? $_SESSION["SOFTWARE_INFO"] : "";
+		//
+		//
+		// // CONFIG VALUES
+		// $this->project_path = isset($_SESSION["project_path"]) ? $_SESSION["project_path"] : "";
+		// $this->site_name = isset($_SESSION["site_name"]) ? $_SESSION["site_name"] : "";
+		// $this->site_uid = isset($_SESSION["site_uid"]) ? $_SESSION["site_uid"] : "";
+		//
+		// $this->site_email = isset($_SESSION["site_email"]) ? $_SESSION["site_email"] : "";
+		// $this->site_description = isset($_SESSION["site_description"]) ? $_SESSION["site_description"] : "";
+		//
+		// // CONFIG CHECKS
+		// $this->config_ok = isset($_SESSION["CONFIG_INFO"]) ? $_SESSION["CONFIG_INFO"] : "";
+		//
+		//
+		// // ACCOUNT VALUES
+		// $this->username = isset($_SESSION["username"]) ? $_SESSION["username"] : "";
+		// $this->password = isset($_SESSION["password"]) ? $_SESSION["password"] : "";
+		//
+		// // ACCOUNT CHECKS
+		// $this->account_ok = isset($_SESSION["ACCOUNT_INFO"]) ? $_SESSION["ACCOUNT_INFO"] : "";
+		// $this->account_exists = false;
+		//
+		//
+		//
+		// // DATABASE VALUES
+		// $this->db_host = isset($_SESSION["db_host"]) ? $_SESSION["db_host"] : "";
+		// $this->db_root_user = isset($_SESSION["db_root_user"]) ? $_SESSION["db_root_user"] : "";
+		// $this->db_root_pass = isset($_SESSION["db_root_pass"]) ? $_SESSION["db_root_pass"] : "";
+		//
+		// $this->db_janitor_db = isset($_SESSION["db_janitor_db"]) ? $_SESSION["db_janitor_db"] : "";
+		// $this->db_janitor_user = isset($_SESSION["db_janitor_user"]) ? $_SESSION["db_janitor_user"] : "";
+		// $this->db_janitor_pass = isset($_SESSION["db_janitor_pass"]) ? $_SESSION["db_janitor_pass"] : "";
+		//
+		// // DATABASE CHECKS
+		// $this->db_ok = isset($_SESSION["DATABASE_INFO"]) ? $_SESSION["DATABASE_INFO"] : "";
+		// $this->db_exists = false;
+		//
+		// $this->db_admin_error = false;
+		// $this->db_user_error = false;
+		// $this->wrong_db_user_password = false;
+		//
+		//
+		//
+		// // MAIL VALUES
+		// $this->mail_admin = isset($_SESSION["mail_admin"]) ? $_SESSION["mail_admin"] : "";
+		// $this->mail_type = isset($_SESSION["mail_type"]) ? $_SESSION["mail_type"] : "";
+		//
+		// $this->mail_smtp_host = isset($_SESSION["mail_smtp_host"]) ? $_SESSION["mail_smtp_host"] : "";
+		// $this->mail_smtp_port = isset($_SESSION["mail_smtp_port"]) ? $_SESSION["mail_smtp_port"] : "";
+		// $this->mail_smtp_username = isset($_SESSION["mail_smtp_username"]) ? $_SESSION["mail_smtp_username"] : "";
+		// $this->mail_smtp_password = isset($_SESSION["mail_smtp_password"]) ? $_SESSION["mail_smtp_password"] : "";
+		//
+		// $this->mail_mailgun_api_key = isset($_SESSION["mail_mailgun_api_key"]) ? $_SESSION["mail_mailgun_api_key"] : "";
+		// $this->mail_mailgun_domain = isset($_SESSION["mail_mailgun_domain"]) ? $_SESSION["mail_mailgun_domain"] : "";
+		//
+		// // MAIL CHECKS
+		// $this->mail_ok = isset($_SESSION["MAIL_INFO"]) ? $_SESSION["MAIL_INFO"] : "";
+		//
 
 
 
@@ -127,41 +145,46 @@ class Setup extends Itemtype {
 			"hint_message" => "Default SEO description og your project. Will be used when no specific page description is available.", 
 			"error_message" => "Invalid description."
 		));
+		// site_deployment
+		$this->addToModel("site_deployment", array(
+			"type" => "select",
+			"label" => "Site deployment environment",
+			"options" => ["live" => "Production/live site", "dev" => "Development site"],
+			"hint_message" => "Choose the type of site deployment. Is this a live deployment or a development intallation", 
+			"error_message" => "Invalid deployment environment."
+		));
 
-		// // site_image
-		// $this->addToModel("site_image", array(
-		// 	"type" => "string",
-		// 	"label" => "Site image",
-		// 	"required" => true,
-		// 	"hint_message" => "Default SM/sharing image for your site. Will be used to generate OG:metadata when no specific image is available.",
-		// 	"error_message" => "Invalid string."
-		// ));
 
-		// // site_signup
-		// $this->addToModel("site_signup", array(
-		// 	"type" => "string",
-		// 	"label" => "Enable signup",
-		// 	"hint_message" => "Enable signup module."
-		// ));
-		// // site_shop
-		// $this->addToModel("site_shop", array(
-		// 	"type" => "string",
-		// 	"label" => "Enable shop",
-		// 	"hint_message" => "Enable shop module."
-		// ));
-		// // site_subscriptions
-		// $this->addToModel("site_subscriptions", array(
-		// 	"type" => "string",
-		// 	"label" => "Enable shop",
-		// 	"hint_message" => "Enable subscription module."
-		// ));
-		// // site_shop
-		// $this->addToModel("site_members", array(
-		// 	"type" => "string",
-		// 	"label" => "Enable members",
-		// 	"hint_message" => "Enable members module."
-		// ));
 
+		// JANITOR ADMIN USER
+
+		// admin_nickname
+		$this->addToModel("account_nickname", array(
+			"type" => "string",
+			"label" => "Janitor Admin nickname",
+			"hint_message" => "The nickname of the admin account in Janitor.",
+			"error_message" => "The entered value is not valid."
+		));
+
+		// account_username
+		$this->addToModel("account_username", array(
+			"type" => "string",
+			"label" => "Janitor Admin email",
+			"autocomplete" => true,
+			"required" => true,
+			"pattern" => "[\w\.\-_]+@[\w\-\.]+\.\w{2,10}", 
+			"hint_message" => "The email adress which should be used for the initial admin account in Janitor. This email will be used to log in.",
+			"error_message" => "The entered value is not a valid email."
+		));
+		// account_password
+		$this->addToModel("account_password", array(
+			"type" => "password",
+			"label" => "Password",
+			"required" => true,
+			"min" => 1,
+			"hint_message" => "Password of admin account.",
+			"error_message" => "Admin password must be filled out."
+		));
 
 
 
@@ -246,7 +269,8 @@ class Setup extends Itemtype {
 			"error_message" => "Mail type must be filled out."
 		));
 
-		// mail_host
+		// SMTP
+		// mail_smtp_host
 		$this->addToModel("mail_smtp_host", array(
 			"type" => "string",
 			"label" => "Mail host",
@@ -255,7 +279,7 @@ class Setup extends Itemtype {
 			"hint_message" => "Mail host like smtp.gmail.com or smtp.mailgun.org.", 
 			"error_message" => "Mail host must be filled out."
 		));
-		// mail_port
+		// mail_smtp_port
 		$this->addToModel("mail_smtp_port", array(
 			"type" => "string",
 			"label" => "Mail port",
@@ -264,7 +288,7 @@ class Setup extends Itemtype {
 			"hint_message" => "Mail connection port like 587 or 465.", 
 			"error_message" => "Mail port must be filled out."
 		));
-		// mail_username
+		// mail_smtp_username
 		$this->addToModel("mail_smtp_username", array(
 			"type" => "string",
 			"label" => "Mail username",
@@ -273,7 +297,7 @@ class Setup extends Itemtype {
 			"hint_message" => "Username for the outgoing mail account.", 
 			"error_message" => "Mail username must be filled out."
 		));
-		// mail_password
+		// mail_smtp_password
 		$this->addToModel("mail_smtp_password", array(
 			"type" => "password",
 			"label" => "Mail password",
@@ -282,8 +306,8 @@ class Setup extends Itemtype {
 			"error_message" => "Mail password must be filled out."
 		));
 
-
-		// mail_api_key
+		// MAILGUN
+		// mail_mailgun_api_key
 		$this->addToModel("mail_mailgun_api_key", array(
 			"type" => "string",
 			"label" => "API key",
@@ -291,7 +315,7 @@ class Setup extends Itemtype {
 			"hint_message" => "API key for the Mailgun account.", 
 			"error_message" => "API key must be filled out."
 		));
-		// mail_api_key
+		// mail_mailgun_domain
 		$this->addToModel("mail_mailgun_domain", array(
 			"type" => "string",
 			"label" => "Mail domain",
@@ -299,6 +323,39 @@ class Setup extends Itemtype {
 			"hint_message" => "Mail account domain to use when sending emails.", 
 			"error_message" => "API key must be filled out."
 		));
+
+
+
+		// PAYMENT MODEL
+
+		// payment_type
+		$this->addToModel("payment_type", array(
+			"type" => "select",
+			"label" => "Payment type",
+			"options" => ["stripe" => "Stripe"],
+			"required" => true,
+			"hint_message" => "Select your payment gateway.", 
+			"error_message" => "Payment gateway must be filled out."
+		));
+
+		// STRIPE
+		// payment_stripe_private_key
+		$this->addToModel("payment_stripe_private_key", array(
+			"type" => "string",
+			"label" => "Private API key",
+			"required" => true,
+			"hint_message" => "Private API key for the Stripe account.", 
+			"error_message" => "Private API key must be filled out."
+		));
+		// payment_stripe_public_key
+		$this->addToModel("payment_stripe_public_key", array(
+			"type" => "string",
+			"label" => "Publishable API key",
+			"required" => true,
+			"hint_message" => "Publishable API key for the Stripe account.", 
+			"error_message" => "Publishable API key must be filled out."
+		));
+
 
 	}
 
@@ -315,6 +372,18 @@ class Setup extends Itemtype {
 
 		return true;
  	}
+
+
+	// Keeping track of data and system checks
+	function get($setup_area, $property) {
+		if(isset($_SESSION[$setup_area]) && isset($_SESSION[$setup_area][$property])) {
+			return $_SESSION[$setup_area][$property];
+		}
+		return false;
+	}
+	function set($setup_area, $property, $value) {
+		$_SESSION[$setup_area][$property] = $value;
+	}
 
 
 
@@ -352,127 +421,168 @@ class Setup extends Itemtype {
 
 	// check software - very simple checks
 	// TODO: improve software checks
+	// TODO: Test software checks on Windows
 	function checkSoftware() {
 
+
+		// reset software checks
+		$this->set("software", "passed", false);
+
+
 		// check apache
-		// $this->apache = $this->isInstalled(array(
-		// 	"apachectl -v",
-		// 	"/opt/local/apache2/bin/apachectl -v",
-		// 	"/usr/sbin/apachectl -v",
-		// 	"/opt/sbin/apachectl -v"
-		// ), array("Apache\/2\.[23456]{1}"));
-		// store identified apache command - used when printing message on finish
-		// if($this->apache) {
-		// 	$_SESSION["APACHE_COMMAND"] = $this->apache;
-		// }
-		$this->apache = preg_match("/2\.[2345678]{1}/", $_SERVER["SERVER_SOFTWARE"]);
+		$this->set("software", 
+			"apache", preg_match("/2\.[2345678]{1}/", $_SERVER["SERVER_SOFTWARE"])
+		);
 
 
 		// check PHP
-		// $this->php = $this->isInstalled(array("php -v"), array("PHP 5.[3456]{1}"));
-		$this->php = preg_match("/5\.[345678]{1}|7\./", phpversion());
+		$this->set("software", 
+			"php", preg_match("/5\.[345678]{1}|7\./", phpversion())
+		);
+
 
 		// get PHP modules
 		$php_modules = get_loaded_extensions();
 
 		// check if mysqli is available
-		// $this->mysql = $this->isInstalled(array("/opt/local/bin/mysql5 --version", "/usr/local/bin/mysql5 --version", "/opt/bin/mysql5 --version", "/user/bin/mysql5 --version", "/usr/bin/mysql --version", "/opt/local/lib/mysql56/bin/mysql --version"), array("Distrib 5"));
-		$this->mysql = (array_search("mysqlnd", $php_modules) !== false);
-
+		$this->set("software", 
+			"mysql", (array_search("mysqlnd", $php_modules) !== false)
+		);
 
 		// ImageMagick
-		$this->imagemagick = (array_search("imagick", $php_modules) !== false);
+		$this->set("software", 
+			"imagemagick", (array_search("imagick", $php_modules) !== false)
+		);
 
 		// Session
-		$this->session = (array_search("session", $php_modules) !== false);
+		$this->set("software", 
+			"session", (array_search("session", $php_modules) !== false)
+		);
 
 		// SimpleXML
-		$this->simplexml = (array_search("SimpleXML", $php_modules) !== false);
+		$this->set("software", 
+			"simplexml", (array_search("SimpleXML", $php_modules) !== false)
+		);
 
 		// DOM
-		$this->dom = (array_search("dom", $php_modules) !== false);
+		$this->set("software", 
+			"dom", (array_search("dom", $php_modules) !== false)
+		);
 
 		// mbstring
-		$this->mbstring = (array_search("mbstring", $php_modules) !== false);
-
+		$this->set("software", 
+			"mbstring", (array_search("mbstring", $php_modules) !== false)
+		);
 
 		// Check read/write
-		$this->readwrite = $this->readWriteTest();
+		$this->set("software",
+			"readwrite", $this->readWriteTest()
+		);
 
 
 		// Zip
-		$this->zip = (array_search("zip", $php_modules) !== false && $this->isInstalled(array(
-			"zip --version"
-		), array(
-			"This is Zip [3]{1}.[0-9]"
-		)));
+		$this->set("software",
+			"zip", (
+				array_search("zip", $php_modules) !== false && 
+				$this->isInstalled(
+					array(
+						"zip --version"
+					), 
+					array(
+						"This is Zip [3]{1}.[0-9]"
+					)
+				)
+			)
+		);
+
 
 		// Curl
-		$this->curl = (array_search("curl", $php_modules) !== false && $this->isInstalled(array(
-			"curl --version"
-		), array(
-			"curl [67]{1}.[0-9]"
-		)));
+		$this->set("software",
+			"curl", (
+				array_search("curl", $php_modules) !== false && 
+				$this->isInstalled(
+					array(
+						"curl --version"
+					), 
+					array(
+						"curl [67]{1}.[0-9]"
+					)
+				)
+			)
+		);
 
 		
 		// Memcached
-		$this->memcached = (array_search("memcached", $php_modules) !== false && $this->isInstalled(array(
-			"/opt/local/bin/memcached -i",
-			"/usr/local/bin/memcached -i",
-			"/usr/bin/memcached -i"
-		), array(
-			"memcached 1.[4-9]"
-		)));
+		$this->set("software",
+			"memcached", (
+				array_search("memcached", $php_modules) !== false && 
+				$this->isInstalled(
+					array(
+						"/opt/local/bin/memcached -i",
+						"/usr/local/bin/memcached -i",
+						"/usr/bin/memcached -i"
+					), 
+					array(
+						"memcached 1.[4-9]"
+					)
+				)
+			)
+		);
 
 
-		// check ffmpeg
-		// wierd version names on windows
-		$this->ffmpeg = $this->isInstalled(array(
-			"ffmpeg -version", 
-			"/opt/local/bin/ffmpeg -version", 
-			"/usr/local/bin/ffmpeg -version",
-			"/srv/ffmpeg/bin/ffmpeg -version",
-			"/srv/installed-packages/ffmpeg/bin/ffmpeg -version"
-		), array(
-			"ffmpeg version (2.[1-9]{1}|3.[0-9]{1})",
-			"ffmpeg version N-[6-9][0-9]"
-		));
+		// check FFMPEG
+		$this->set("software",
+			"ffmpeg", ($this->isInstalled(
+				array(
+					"ffmpeg -version", 
+					"/opt/local/bin/ffmpeg -version", 
+					"/usr/local/bin/ffmpeg -version",
+					"/srv/ffmpeg/bin/ffmpeg -version",
+					"/srv/installed-packages/ffmpeg/bin/ffmpeg -version"
+				), 
+				array(
+					"ffmpeg version (2.[1-9]{1}|3.[0-9]{1})",
+					"ffmpeg version N-[6-9][0-9]"
+				)
+			) !== false)
+		);
 
 
-		// check ffmpeg
-		// wierd version names on windows
-		$this->wkhtmlto = $this->isInstalled(array(
-			"/usr/bin/static_wkhtmltopdf --version",
-			"/usr/local/bin/static_wkhtmltopdf --version", 
-			"/opt/local/bin/wkhtmltopdf --version",
-			"/usr/local/bin/wkhtmltopdf --version", 
-			"/usr/bin/wkhtmltopdf --version"
-		), array(
-			"wkhtmltopdf 0.1[0-9]{1}"
-		));
+		// check WKHTMLTO
+		$this->set("software",
+			"wkhtmlto", ($this->isInstalled(
+				array(
+					"/usr/bin/static_wkhtmltopdf --version",
+					"/usr/local/bin/static_wkhtmltopdf --version", 
+					"/opt/local/bin/wkhtmltopdf --version",
+					"/usr/local/bin/wkhtmltopdf --version", 
+					"/usr/bin/wkhtmltopdf --version"
+				), 
+				array(
+					"wkhtmltopdf 0.1[0-9]{1}"
+				)
+			) !== false)
+		);
 
 
 
 		// if everything is fine
 		if(
-			$this->apache && 
-			$this->php && 
-			$this->mysql && 
-			$this->session &&
-			$this->simplexml &&
-			$this->dom &&
-			$this->mbstring &&
-			$this->readwrite
+			$this->get("software", "apache") && 
+			$this->get("software", "php") && 
+			$this->get("software", "mysql") && 
+			$this->get("software", "session") &&
+			$this->get("software", "simplexml") &&
+			$this->get("software", "dom") &&
+			$this->get("software", "mbstring") &&
+			$this->get("software", "readwrite")
 		):
 
-			$_SESSION["SOFTWARE_INFO"] = true;
-			$this->software_ok = true;
+			$this->set("software", "passed", true);
 			return true;
 
 		else:
 
-			$_SESSION["SOFTWARE_INFO"] = false;
-			$this->software_ok = false;
 			return false;
 
 		endif;
@@ -480,9 +590,19 @@ class Setup extends Itemtype {
 	}
 
 	// CHECK FOR READ/WRITE ACCESS
+	// TODO: Test read/write checks on Windows
 	function readWriteTest() {
-		$handle = @fopen(PROJECT_PATH."/wr.test", "a+");
 
+		// Check if we can write random file in project root file
+		$handle = @fopen(PROJECT_PATH."/wr.test", "a+");
+		if($handle && file_exists(PROJECT_PATH."/wr.test")) {
+			fclose($handle);
+			unlink(PROJECT_PATH."/wr.test");
+		}
+
+
+
+		// Check if we can update existing config file
 		$config_handle = true;
 		if(file_exists(LOCAL_PATH."/config/config.php")) {
 			$config_handle = @fopen(LOCAL_PATH."/config/config.php", "a+");
@@ -490,6 +610,8 @@ class Setup extends Itemtype {
 				fclose($config_handle);
 			}
 		}
+
+		// Check if we can update existing db connect file
 		$connect_db_handle = true;
 		if(file_exists(LOCAL_PATH."/config/connect_db.php")) {
 			$connect_db_handle = @fopen(LOCAL_PATH."/config/connect_db.php", "a+");
@@ -497,6 +619,8 @@ class Setup extends Itemtype {
 				fclose($connect_db_handle);
 			}
 		}
+
+		// Check if we can update existing mail connect file
 		$connect_mail_handle = true;
 		if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
 			$connect_mail_handle = @fopen(LOCAL_PATH."/config/connect_mail.php", "a+");
@@ -505,15 +629,59 @@ class Setup extends Itemtype {
 			}
 		}
 
-
-		if($handle && $config_handle && $connect_db_handle && $connect_mail_handle) {
-			fclose($handle);
-			unlink(PROJECT_PATH."/wr.test");
-
-
-			return true;
+		// Check if we can write .git/config file
+		$git_handle = true;
+		if(file_exists(PROJECT_PATH."/.git/config")) {
+			$git_handle = @fopen(PROJECT_PATH."/.git/config", "a+");
+			if($git_handle) {
+				fclose($git_handle);
+			}
 		}
+
+
+		// Don't try to set owner, group and permissions, unless initial permission probing was successful
+		if($handle && $config_handle && $connect_db_handle && $connect_mail_handle && $git_handle) {
+
+			// Set owner, group and permissions for all project files and folders
+			if($this->recurseFilePermissions(PROJECT_PATH, 
+				$this->get("system", "apache_user"), 
+				$this->get("system", "deploy_user"), 
+				0777)
+			) {
+				return true;
+			};
+
+		}
+
 		return false;
+	}
+
+
+	// Change owner, group and permissions recursively on $path and any subfolder/file
+	function recurseFilePermissions($path, $user, $group, $permissions) {
+		$directory = opendir($path) ;
+		while(($file = readdir($directory)) !== false) {
+			if($file != "." && $file != "..") {
+
+				$filepath = $path . "/" . $file ;
+
+//				print $filepath. " : " . filetype($filepath). " : " . $user . "<br>\n";
+				if(is_dir($filepath)) {
+					if(!$this->recurseFilePermissions($filepath, $user, $group, $permissions)) {
+						return false;
+					}
+				}
+
+				if(!@chown($filepath, $user) || !@chgrp($filepath, $group) || !@chmod($filepath, $permissions)) {
+					return false;
+				}
+
+			}
+
+		}
+
+		return true;
+
 	}
 
 
@@ -522,60 +690,75 @@ class Setup extends Itemtype {
 
 	// check config settings
 	function checkConfigSettings() {
+//		print "checkConfigSettings<br>\n";
 
- 		if(
-			$this->project_path && file_exists($this->project_path) &&
-			$this->site_uid && 
-			$this->site_name && 
-			$this->site_email
-		) {
 
-			$_SESSION["CONFIG_INFO"] = true;
-			$this->config_ok = true;
-			return true;
-		}
+		// reset config checks
+		$this->set("config", "passed", false);
+		$this->set("config", "invalid_project_path", false);
+
+
+		// parse existing values from config.php if it already exists
 		// config exists but was not loaded
-		else if(!defined("SITE_UID") && file_exists(LOCAL_PATH."/config/config.php")) {
+		if(!defined("SITE_UID") && file_exists(LOCAL_PATH."/config/config.php") && (!$this->get("config", "site_uid") && !$this->get("config", "site_name") && !$this->get("config", "site_email"))) {
 
 			$config_info = file_get_contents(LOCAL_PATH."/config/config.php");
 
 
-			$this->project_path = stringOr($this->project_path, PROJECT_PATH);
-
 			preg_match("/\n[ \t]*define\(\"SITE_UID\",[ ]*\"(.+)\"\);/", $config_info, $matches);
 			if($matches) {
-				$this->site_uid = $matches[1];
+				$this->set("config", "site_uid", $matches[1]);
 			}
 
 			preg_match("/\n[ \t]*define\(\"SITE_NAME\",[ ]*\"(.+)\"\);/", $config_info, $matches);
 			if($matches) {
-				$this->site_name = $matches[1];
+				$this->set("config", "site_name", $matches[1]);
 			}
 
 			preg_match("/\n[ \t]*define\(\"SITE_EMAIL\",[ ]*\"(.+)\"\);/", $config_info, $matches);
 			if($matches) {
-				$this->site_email = $matches[1];
+				$this->set("config", "site_email", $matches[1]);
 			}
 
 			preg_match("/\n[ \t]*define\(\"DEFAULT_PAGE_DESCRIPTION\",[ ]*\"(.+)\"\);/", $config_info, $matches);
 			if($matches) {
-				$this->site_description = $matches[1];
+				$this->set("config", "site_description", $matches[1]);
 			}
+
+			// deployment setting
+			$this->set("config", "site_deployment", stringOr($this->get("config", "site_deployment"), (preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL) ? "dev" : "live")));
 
 		}
 		// get default or existing values
 		else {
 
-			$this->project_path = stringOr($this->project_path, PROJECT_PATH);
-			$this->site_name = stringOr($this->site_name, defined("SITE_NAME") ? SITE_NAME : preg_replace("/\.[^\.]*$/", "", $_SERVER["SERVER_NAME"]));
-			$this->site_uid = stringOr($this->site_uid, defined("SITE_UID") ? SITE_UID : substr(strtoupper(preg_replace("/[AEIOUYaeiouy-]/", "", superNormalize($this->site_name))), 0, 8));
-			$this->site_email = stringOr($this->site_email, defined("SITE_EMAIL") ? SITE_EMAIL : "");
-			$this->site_description = stringOr($this->site_description, defined("DEFAULT_PAGE_DESCRIPTION") ? DEFAULT_PAGE_DESCRIPTION : "");
+//			$this->project_path = stringOr($this->project_path, PROJECT_PATH);
+			$this->set("config", "site_name", stringOr($this->get("config", "site_name"), defined("SITE_NAME") ? SITE_NAME : preg_replace("/\.[^\.]*$/", "", $_SERVER["SERVER_NAME"])));
+			$this->set("config", "site_uid", stringOr($this->get("config", "site_uid"), defined("SITE_UID") ? SITE_UID : substr(strtoupper(preg_replace("/[AEIOUYaeiouy-]/", "", superNormalize($this->get("config", "site_name")))), 0, 8)));
+			$this->set("config", "site_email", stringOr($this->get("config", "site_email"), defined("SITE_EMAIL") ? SITE_EMAIL : ""));
+			$this->set("config", "site_description", stringOr($this->get("config", "site_description"), defined("DEFAULT_PAGE_DESCRIPTION") ? DEFAULT_PAGE_DESCRIPTION : ""));
+
+			// deployment setting
+			$this->set("config", "site_deployment", stringOr($this->get("config", "site_deployment"), (preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL) ? "dev" : "live")));
 
 		}
 
-		if(!file_exists($this->project_path)) {
-			message()->addMessage("Invalid project path", array("type" => "error"));
+
+		// check data
+		// Do we have all relevant data
+		// Custom message for bad project path
+		if(!defined("PROJECT_PATH") || !PROJECT_PATH || !file_exists(PROJECT_PATH) || !(file_exists(PROJECT_PATH."/core") || file_exists(PROJECT_PATH."/submodules"))) {
+
+			$this->set("config", "invalid_project_path", true);
+
+		}
+ 		else if(
+			$this->get("config", "site_uid") && 
+			$this->get("config", "site_name") && 
+			$this->get("config", "site_email")
+		) {
+			$this->set("config", "passed", true);
+			return true;
 		}
 
 		return false;
@@ -587,16 +770,22 @@ class Setup extends Itemtype {
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if($this->validateList(array("project_path", "site_uid", "site_name", "site_email"))) {
+		if(SETUP_TYPE == "new" && $this->validateList(array("site_uid", "site_name", "site_email"))) {
 
-			$this->project_path       = $_SESSION["project_path"]       = $this->getProperty("project_path", "value"); 
+			$this->set("config", "site_uid", $this->getProperty("site_uid", "value"));
+			$this->set("config", "site_name", $this->getProperty("site_name", "value"));
+			$this->set("config", "site_email", $this->getProperty("site_email", "value"));
 
-			$this->site_uid           = $_SESSION["site_uid"]           = $this->getProperty("site_uid", "value");
-			$this->site_name          = $_SESSION["site_name"]          = $this->getProperty("site_name", "value");
-			$this->site_email         = $_SESSION["site_email"]         = $this->getProperty("site_email", "value");
+			$this->set("config", "site_description", $this->getProperty("site_description", "value"));
 
-			$this->site_description   = $_SESSION["site_description"]   = $this->getProperty("site_description", "value");
+			$this->set("config", "site_deployment", $this->getProperty("site_deployment", "value"));
 
+		}
+		// On existing projects, we only allow site_deployment to be changed
+		else {
+
+			$this->set("config", "site_deployment", $this->getProperty("site_deployment", "value"));
+			
 		}
 
 		return $this->checkConfigSettings();
@@ -610,40 +799,44 @@ class Setup extends Itemtype {
 	// check for database settings and connection
 	function checkDatabaseSettings() {
 
+		
+		// reset database checks is done in checkDatabaseConnection
+		
+
 		// if we do not have stored db info, attempt to read existing connect_db.php
-		if(!$this->db_janitor_db && file_exists(LOCAL_PATH."/config/connect_db.php")) {
+		if(!$this->get("database", "db_janitor_db") && file_exists(LOCAL_PATH."/config/connect_db.php")) {
 
 			$connection_info = file_get_contents(LOCAL_PATH."/config/connect_db.php");
 
 			preg_match("/\"host\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
 			if($matches) {
-				$this->db_host = $matches[1];
+				$this->set("database", "db_host", $matches[1]);
 			}
 
 			preg_match("/\"SITE_DB\", \"([a-zA-Z0-9\.\-\_]+)\"/", $connection_info, $matches);
 			if($matches) {
-				$this->db_janitor_db = $matches[1];
+				$this->set("database", "db_janitor_db", $matches[1]);
 			}
 
 			preg_match("/\"username\" \=\> \"([a-zA-Z0-9\.\-\_]+)\"/", $connection_info, $matches);
 			if($matches) {
-				$this->db_janitor_user = $matches[1];
+				$this->set("database", "db_janitor_user", $matches[1]);
 			}
 
 			preg_match("/\"password\" \=\> \"([a-zA-Z0-9\.\-\_]+)\"/", $connection_info, $matches);
 			if($matches) {
-				$this->db_janitor_pass = $matches[1];
+				$this->set("database", "db_janitor_pass", $matches[1]);
 			}
 
 		}
 		// set default values
 		else {
 
-			$this->db_host = stringOr($this->db_host, "127.0.0.1");
-			$this->db_root_user = stringOr($this->db_root_user, "root");
+			$this->set("database", "db_host", stringOr($this->get("database", "db_host"), "127.0.0.1"));
+			$this->set("database", "db_root_user", stringOr($this->get("database", "db_root_user"), "root"));
 
-			$this->db_janitor_db = stringOr($this->db_janitor_db, preg_replace("/[-]/", "_", superNormalize($this->site_name)));
-			$this->db_janitor_user = stringOr($this->db_janitor_user, substr(preg_replace("/[-]/", "", superNormalize($this->site_name)), 0, 16));
+			$this->set("database", "db_janitor_db",  stringOr($this->get("database", "db_janitor_db"), preg_replace("/[-]/", "_", superNormalize($this->get("config", "site_name")))));
+			$this->set("database", "db_janitor_user", stringOr($this->get("database", "db_janitor_user"), substr(preg_replace("/[-]/", "", superNormalize($this->get("config", "site_name"))), 0, 16)));
 
 		}
 
@@ -654,31 +847,50 @@ class Setup extends Itemtype {
 
 
 	// check database connection
+	// First check if it is possible to log in using the specified user data
+	// - if successful login, then check if database exists or if database can be created
+	// Then check if root login is possible
+	// - if successful login, then check if database exists or if database can be created
 	function checkDatabaseConnection() {
-//		unset($_SESSION["DATABASE_INFO"]);
+//		print "checkDatabaseConnection<br>\n";
 
 
-		// expect nothing
-		$this->db_exists = false;
-		$this->db_admin_error = false;
-		$this->db_user_error = false;
-		$this->wrong_db_user_password = false;
+		// reset database checks
+		$this->set("database", "exists", false);
+		$this->set("database", "passed", false);
 
-		$this->db_ok = false;
-		$_SESSION["DATABASE_INFO"] = false;
+		$this->set("database", "user_error", false);
+		$this->set("database", "wrong_user_password", false);
+		$this->set("database", "admin_error", false);
 
+
+		// Updating database info could have an impact on the admin account
+		// so reset account check when ever user returns to database checks to force user to revisit account page
+		$this->set("account", "exists", false);
+		$this->set("account", "passed", false);
+
+
+		// get any stored database information in short variable names
+		$db_host = $this->get("database", "db_host");
+		$db_janitor_db = $this->get("database", "db_janitor_db");
+		$db_janitor_user = $this->get("database", "db_janitor_user");
+		$db_janitor_pass = $this->get("database", "db_janitor_pass");
+
+		$db_root_user = $this->get("database", "db_root_user");
+		$db_root_pass = $this->get("database", "db_root_pass");
 
 
 		// Start by testing janitor user info
 		// we are doing this because you can use an existing account for a new project
 		// and to do this you don't need to provide root/admin account info, so try user login first
 		if(
-			$this->db_host && 
-			$this->db_janitor_db && 
-			$this->db_janitor_user && 
-			$this->db_janitor_pass
+			$db_host && 
+			$db_janitor_db && 
+			$db_janitor_user && 
+			$db_janitor_pass
 		) {
-			$mysqli = @new mysqli($this->db_host, $this->db_janitor_user, $this->db_janitor_pass);
+			// Attempt to make connection
+			$mysqli = @new mysqli($db_host, $db_janitor_user, $db_janitor_pass);
 			if(!$mysqli->connect_errno) {
 
 				// correct the database connection setting
@@ -686,40 +898,48 @@ class Setup extends Itemtype {
 				$mysqli->query("SET CHARACTER SET utf8");
 				$mysqli->set_charset("utf8");
 
+				// Make connection available for Query module
 				global $mysqli_global;
 				$mysqli_global = $mysqli;
 
 				$query = new Query();
+				// Did connection stick?
 				if($query->connected) {
 
-					if($query->sql("USE `".$this->db_janitor_db."`")) {
+					// check if database exists
+					if($query->sql("USE `".$db_janitor_db."`")) {
 
-						$this->db_exists = true;
+
+						$this->set("database", "exists", true);
+
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 //						print $sql."<br>\n";
 						if($query->sql($sql)) {
-							$query->sql("DROP TABLE `".$this->db_janitor_db."`.`janitor_db_test`");
 
-							$this->db_ok = true;
-							$_SESSION["DATABASE_INFO"] = true;
+							// Creation was successful, clean up again
+							$query->sql("DROP TABLE `".$db_janitor_db."`.`janitor_db_test`");
+
+							$this->set("database", "passed", true);
 							return true;
+
 						}
 
 					}
 					// otherwise attempt creating it
-					else if($query->sql("CREATE DATABASE $this->db_janitor_db")) {
+					else if($query->sql("CREATE DATABASE $db_janitor_db")) {
 
 						// test if we can create new table in database
-						$sql = "CREATE TABLE `".$this->db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+						$sql = "CREATE TABLE `".$db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 //						print $sql."<br>\n";
 						if($query->sql($sql)) {
-							$query->sql("DROP TABLE `".$this->db_janitor_db."`.`janitor_db_test`");
-							$query->sql("DROP DATABASE `".$this->db_janitor_db."`");
 
-							$this->db_ok = true;
-							$_SESSION["DATABASE_INFO"] = true;
+							// Creation successful, clean up again
+							$query->sql("DROP TABLE `".$db_janitor_db."`.`janitor_db_test`");
+							$query->sql("DROP DATABASE `".$db_janitor_db."`");
+
+							$this->set("database", "passed", true);
 							return true;
 						}
 
@@ -728,21 +948,26 @@ class Setup extends Itemtype {
 				}
 
 			}
-			$this->db_user_error = true;
+
+			// Check can still be 
+			$this->set("database", "user_error", true);
 
 		}
 
+
+		// Database connection still not verified
 		// do we have enough information to check root login (possibly with blank password)
 		if(
-			$this->db_host && 
-			$this->db_root_user && 
-//			$this->db_root_pass && 
-			$this->db_janitor_db && 
-			$this->db_janitor_user && 
-			$this->db_janitor_pass
+			$db_host && 
+			$db_root_user && 
+//			$db_root_pass && 
+			$db_janitor_db && 
+			$db_janitor_user && 
+			$db_janitor_pass
 		) {
 
-			$mysqli = @new mysqli($this->db_host, $this->db_root_user, $this->db_root_pass);
+			// Attempt to make connection
+			$mysqli = @new mysqli($db_host, $db_root_user, $db_root_pass);
 			if(!$mysqli->connect_errno) {
 
 				// correct the database connection setting
@@ -750,55 +975,65 @@ class Setup extends Itemtype {
 				$mysqli->query("SET CHARACTER SET utf8");
 				$mysqli->set_charset("utf8");
 
+				// Make connection available for Query module
 				global $mysqli_global;
 				$mysqli_global = $mysqli;
 
 				$query = new Query();
+				// Did connection stick?
 				if($query->connected) {
 
 					// does user already exist
-					if($query->sql("SELECT * FROM mysql.user WHERE user = '".$this->db_janitor_user."'")) {
+					if($query->sql("SELECT * FROM mysql.user WHERE user = '".$db_janitor_user."'")) {
 
 						// can the user be used to log in
-						$test_mysqli = @new mysqli($this->db_host, $this->db_janitor_user, $this->db_janitor_pass);
+						$test_mysqli = @new mysqli($db_host, $db_janitor_user, $db_janitor_pass);
 						if($test_mysqli->connect_errno) {
+
 							// If not, then return error
-							$this->wrong_db_user_password = true;
+							$this->set("database", "wrong_user_password", true);
 							return false;
 						}
 
 					}
 
 
-					// Table exists?
-					if($query->sql("USE `".$this->db_janitor_db."`")) {
+					// check if database exists
+					if($query->sql("USE `".$db_janitor_db."`")) {
 
-						$this->db_exists = true;
+						$this->set("database", "exists", true);
+//						$this->db_exists = true;
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 //						print $sql."<br>\n";
 						if($query->sql($sql)) {
-							$query->sql("DROP TABLE `".$this->db_janitor_db."`.`janitor_db_test`");
 
-							$this->db_ok = true;
-							$_SESSION["DATABASE_INFO"] = true;
+							// Creation successful, clean up again
+							$query->sql("DROP TABLE `".$db_janitor_db."`.`janitor_db_test`");
+
+
+							$this->set("database", "passed", true);
+							$this->set("database", "user_error", false);
 							return true;
 						}
 
 					}
 					// otherwise attempt creating it
-					else if($query->sql("CREATE DATABASE $this->db_janitor_db")) {
+					else if($query->sql("CREATE DATABASE $db_janitor_db")) {
 
 						// test if we can create new table in database
-						$sql = "CREATE TABLE `".$this->db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+						$sql = "CREATE TABLE `".$db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 //						print $sql."<br>\n";
 						if($query->sql($sql)) {
-							$query->sql("DROP TABLE `".$this->db_janitor_db."`.`janitor_db_test`");
-							$query->sql("DROP DATABASE `".$this->db_janitor_db."`");
 
-							$this->db_ok = true;
-							$_SESSION["DATABASE_INFO"] = true;
+							// Creation successful, clean up again
+							$query->sql("DROP TABLE `".$db_janitor_db."`.`janitor_db_test`");
+							$query->sql("DROP DATABASE `".$db_janitor_db."`");
+
+
+							$this->set("database", "user_error", false);
+							$this->set("database", "passed", true);
 							return true;
 						}
 
@@ -807,10 +1042,13 @@ class Setup extends Itemtype {
 				}
 
 			}
-			$this->db_admin_error = true;
+
+			$this->set("database", "admin_error", true);
+//			$this->db_admin_error = true;
 
 		}
 
+		$this->set("database", "passed", false);
 
 		// we still need more/correct info
 		return false;
@@ -824,44 +1062,33 @@ class Setup extends Itemtype {
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if(getPost("force_db")) {
+		if($this->validateList(array("db_host", "db_root_user", "db_root_pass", "db_janitor_db", "db_janitor_user", "db_janitor_pass"))) {
 
-			$this->checkDatabaseSettings();
-
-			$_SESSION["db_host"]                = $this->db_host;
-			$_SESSION["db_janitor_db"]          = $this->db_janitor_db;
-			$_SESSION["db_janitor_user"]        = $this->db_janitor_user;
-			$_SESSION["db_janitor_pass"]        = $this->db_janitor_pass;
-
-		}
-		else if($this->validateList(array("db_host", "db_root_user", "db_root_pass", "db_janitor_db", "db_janitor_user", "db_janitor_pass"))) {
-
-			$this->db_host         = $_SESSION["db_host"]         = $this->getProperty("db_host", "value"); 
-			$this->db_root_user    = $_SESSION["db_root_user"]    = $this->getProperty("db_root_user", "value");
-			$this->db_root_pass    = $_SESSION["db_root_pass"]    = $this->getProperty("db_root_pass", "value");
-			$this->db_janitor_db   = $_SESSION["db_janitor_db"]   = $this->getProperty("db_janitor_db", "value");
-			$this->db_janitor_user = $_SESSION["db_janitor_user"] = $this->getProperty("db_janitor_user", "value");
-			$this->db_janitor_pass = $_SESSION["db_janitor_pass"] = $this->getProperty("db_janitor_pass", "value");
+			$this->set("database", "db_host", $this->getProperty("db_host", "value"));
+			$this->set("database", "db_root_user", $this->getProperty("db_root_user", "value"));
+			$this->set("database", "db_root_pass", $this->getProperty("db_root_pass", "value"));
+			$this->set("database", "db_janitor_db", $this->getProperty("db_janitor_db", "value"));
+			$this->set("database", "db_janitor_user", $this->getProperty("db_janitor_user", "value"));
+			$this->set("database", "db_janitor_pass", $this->getProperty("db_janitor_pass", "value"));
 
 		}
 
 		$check_db = $this->checkDatabaseConnection();
 
-//		print "check_db:" . $check_db . ", exists:". $this->db_exists. ", force:" . getPost("force_db") . ", db_janitor_db:" . $_SESSION["db_janitor_db"] . "," .$this->db_admin_error. ", ".$this->wrong_db_user_password."<br>\n";
 
-		if($check_db && (!$this->db_exists || getPost("force_db") == $_SESSION["db_janitor_db"])) {
+		if($check_db && (!$this->get("database", "exists") || getPost("force_db") == $this->get("database", "db_janitor_db"))) {
 			return true;
 		}
-		else if($check_db && $this->db_exists) {
+		else if($check_db && $this->get("database", "exists")) {
 			return array("status" => "reload", "db_exists" => true);
 		}
-		else if($this->db_admin_error) {
+		else if($this->get("database", "admin_error")) {
 			return array("status" => "reload", "db_admin_error" => true);
 		}
-		else if($this->wrong_db_user_password) {
+		else if($this->get("database", "wrong_user_password")) {
 			return array("status" => "reload", "wrong_db_user_password" => true);
 		}
-		else if($this->db_user_error) {
+		else if($this->get("database", "user_error")) {
 			return array("status" => "reload", "db_user_error" => true);
 		}
 
@@ -873,38 +1100,119 @@ class Setup extends Itemtype {
 
 
 
+	// ACCOUNT
+
+	// Check if user accounts already exist
+	function checkAccountSettings() {
+//		print "checkAccountSettings<br>\n";
+
+		// reset account checks
+		$this->set("account", "exists", false);
+		$this->set("account", "passed", false);
+
+		// We need a database connection to check for users
+
+		// If SITE_DB is not defined
+		if(!defined("SITE_DB")) {
+			// create temp connection
+			$db_check = $this->checkDatabaseConnection();
+			if($db_check) {
+
+				// Define temp SITE_DB constant
+				define("SITE_DB", $this->get("database", "db_janitor_db"));
+
+			}
+			
+		}
+			
+		// Is database connection enabled
+		if(defined("SITE_DB") && SITE_DB) {
+
+			include_once("classes/users/superuser.class.php");
+			$UC = new SuperUser();
+
+			// check if database already contains users
+			$users = $UC->getUsers();
+			if($users) {
+
+				$this->set("account", "exists", true);
+				$this->set("account", "passed", true);
+				return true;
+
+			}
+
+		}
+
+		// Do we have enough info to create admin account
+		if($this->get("account", "account_username") && $this->get("account", "account_password")) {
+
+			$this->set("account", "passed", true);
+			return true;
+
+		}
+
+		return false;
+
+	}
+
+	// Update the admin account settings
+	function updateAccountSettings() {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if($this->validateList(array("account_username", "account_password", "account_nickname"))) {
+
+			$this->set("account", "account_username", $this->getProperty("account_username", "value"));
+			$this->set("account", "account_password", $this->getProperty("account_password", "value"));
+			$this->set("account", "account_nickname", $this->getProperty("account_nickname", "value"));
+
+		}
+		
+		return $this->checkAccountSettings();
+
+	}
+
+
+
 	// MAIL
 
 	// check mail settings
 	function checkMailSettings() {
 
+
+		// reset mail checks
+		$this->set("mail", "passed", false);
+		$this->set("mail", "skipped", false);
+
+
 		// if we do not have stored mail info, attempt to read existing connect_db.php
-		if(!$this->mail_type && file_exists(LOCAL_PATH."/config/connect_mail.php")) {
+		if(!$this->get("mail", "mail_type") && file_exists(LOCAL_PATH."/config/connect_mail.php")) {
 
 			$connection_info = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
 
 			preg_match("/\"ADMIN_EMAIL\", \"([a-zA-Z0-9\.\-\_\@]+)\"/", $connection_info, $matches);
 			if($matches) {
-				$this->mail_admin = $matches[1];
+				$this->set("mail", "mail_admin", $matches[1]);
 			}
 
 			preg_match("/\"type\" \=\> \"([a-zA-Z0-9]+)\"/", $connection_info, $matches);
 			if($matches) {
-				$this->mail_type = $matches[1];
+				$this->set("mail", "mail_type", $matches[1]);
 			}
 
 
 			// MAILGUN
-			if($this->mail_type == "mailgun") {
+			if($this->get("mail", "mail_type") == "mailgun") {
 
 				preg_match("/\"api-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
 				if($matches) {
-					$this->mail_mailgun_api_key = $matches[1];
+					$this->set("mail", "mail_mailgun_api_key", $matches[1]);
 				}
 
 				preg_match("/\"domain\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
 				if($matches) {
-					$this->mail_mailgun_domain = $matches[1];
+					$this->set("mail", "mail_mailgun_domain", $matches[1]);
 				}
 
 			}
@@ -914,22 +1222,22 @@ class Setup extends Itemtype {
 
 				preg_match("/\"host\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
 				if($matches) {
-					$this->mail_smtp_host = $matches[1];
+					$this->set("mail", "mail_smtp_host", $matches[1]);
 				}
 
 				preg_match("/\"port\" \=\> \"([0-9]+)\"/", $connection_info, $matches);
 				if($matches) {
-					$this->mail_smtp_port = $matches[1];
+					$this->set("mail", "mail_smtp_port", $matches[1]);
 				}
 
 				preg_match("/\"username\" \=\> \"([a-zA-Z0-9\.\_\@\-]+)\"/", $connection_info, $matches);
 				if($matches) {
-					$this->mail_smtp_username = $matches[1];
+					$this->set("mail", "mail_smtp_username", $matches[1]);
 				}
 
 				preg_match("/\"password\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
 				if($matches) {
-					$this->mail_smtp_password = $matches[1];
+					$this->set("mail", "mail_smtp_password", $matches[1]);
 				}
 
 			}
@@ -939,26 +1247,33 @@ class Setup extends Itemtype {
 		// set default values
 		else {
 
-			$this->mail_admin = stringOr($this->mail_admin, $this->site_email);
-			$this->mail_type = stringOr($this->mail_type, "smtp");
+			$this->set("mail", "mail_admin", stringOr($this->get("mail", "mail_admin"), $this->get("account", "account_username")));
+			$this->set("mail", "mail_type", stringOr($this->get("mail", "mail_type"), "smtp"));
 
-			$this->mail_smtp_host = stringOr($this->mail_smtp_host, "smtp.gmail.com");
-			$this->mail_smtp_port = stringOr($this->mail_smtp_port, "587");
+			$this->set("mail", "mail_smtp_host", stringOr($this->get("mail", "mail_smtp_host"), "smtp.gmail.com"));
+			$this->set("mail", "mail_smtp_port", stringOr($this->get("mail", "mail_smtp_port"), "587"));
 
 		}
 
+
 		// check if we have sufficient information
- 		if($this->mail_admin && 
-			($this->mail_type == "smtp" &&
-			($this->mail_smtp_host && $this->mail_smtp_port && $this->mail_smtp_username && $this->mail_smtp_password))
+ 		if($this->get("mail", "mail_admin") && 
+			($this->get("mail", "mail_type") == "smtp" && (	
+				$this->get("mail", "mail_smtp_host") && 
+				$this->get("mail", "mail_smtp_port") && 
+				$this->get("mail", "mail_smtp_username") && 
+				$this->get("mail", "mail_smtp_password")
+			))
 				||
-			($this->mail_type == "mailgun" &&
-			($this->mail_mailgun_api_key && $this->mail_mailgun_domain))
+			($this->get("mail", "mail_type") == "mailgun" && (
+				$this->get("mail", "mail_mailgun_api_key") && 
+				$this->get("mail", "mail_mailgun_domain")
+			))
 		
 		) {
 
-			$_SESSION["MAIL_INFO"] = true;
-			$this->mail_ok = true;
+			// set mail check
+			$this->set("mail", "passed", true);
 			return true;
 		}
 
@@ -971,32 +1286,158 @@ class Setup extends Itemtype {
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if($this->validateList(array("mail_admin", "mail_type"))) {
+		// Mail set up is optional
+		if(getPost("skip_mail")) {
 
-			$this->mail_admin    = $_SESSION["mail_admin"]    = $this->getProperty("mail_admin", "value");
-			$this->mail_type     = $_SESSION["mail_type"]     = $this->getProperty("mail_type", "value");
+			$this->set("mail", "skipped", true);
+			$this->set("mail", "passed", true);
+			return true;
 
-			if($this->mail_type == "mailgun") {
+		}
+		// Did we receive admin mail and setup type?
+		else if($this->validateList(array("mail_admin", "mail_type"))) {
+
+			$this->set("mail", "mail_admin", $this->getProperty("mail_admin", "value"));
+			$this->set("mail", "mail_type", $this->getProperty("mail_type", "value"));
+
+			// Mailgun account
+			if($this->get("mail", "mail_type") == "mailgun") {
 
 				if($this->validateList(array("mail_mailgun_api_key", "mail_mailgun_domain"))) {
 
-					$this->mail_mailgun_api_key    = $_SESSION["mail_mailgun_api_key"]    = $this->getProperty("mail_mailgun_api_key", "value");
-					$this->mail_mailgun_domain     = $_SESSION["mail_mailgun_domain"]     = $this->getProperty("mail_mailgun_domain", "value");
+					$this->set("mail", "mail_mailgun_api_key", $this->getProperty("mail_mailgun_api_key", "value"));
+					$this->set("mail", "mail_mailgun_domain", $this->getProperty("mail_mailgun_domain", "value"));
+
 				}
 			}
+
+			// SMTP account
 			else {
 
 				if($this->validateList(array("mail_smtp_host", "mail_smtp_port", "mail_smtp_username", "mail_smtp_password"))) {
-					$this->mail_smtp_host       = $_SESSION["mail_smtp_host"]       = $this->getProperty("mail_smtp_host", "value");
-					$this->mail_smtp_port       = $_SESSION["mail_smtp_port"]       = $this->getProperty("mail_smtp_port", "value");
-					$this->mail_smtp_username   = $_SESSION["mail_smtp_username"]   = $this->getProperty("mail_smtp_username", "value");
-					$this->mail_smtp_password   = $_SESSION["mail_smtp_password"]   = $this->getProperty("mail_smtp_password", "value");
+
+					$this->set("mail", "mail_smtp_host", $this->getProperty("mail_smtp_host", "value"));
+					$this->set("mail", "mail_smtp_port", $this->getProperty("mail_smtp_port", "value"));
+					$this->set("mail", "mail_smtp_username", $this->getProperty("mail_smtp_username", "value"));
+					$this->set("mail", "mail_smtp_password", $this->getProperty("mail_smtp_password", "value"));
+
 				}
+
 			} 
 
 		}
 
 		return $this->checkMailSettings();
+
+	}
+
+
+
+	// PAYMENT GATEWAY
+
+	// check payment settings
+	function checkPaymentSettings() {
+
+
+		// reset payment checks
+		$this->set("payment", "passed", false);
+		$this->set("payment", "skipped", false);
+
+
+		// if we do not have stored payment info, attempt to read existing connect_payment.php
+		if(!$this->get("payment", "payment_type") && file_exists(LOCAL_PATH."/config/connect_payment.php")) {
+
+			$connection_info = file_get_contents(LOCAL_PATH."/config/connect_payment.php");
+
+			preg_match("/\"type\" \=\> \"([a-zA-Z0-9]+)\"/", $connection_info, $matches);
+			if($matches) {
+				$this->set("payment", "payment_type", $matches[1]);
+			}
+
+
+			// STRIPE
+			if($this->get("payment", "payment_type") == "stripe") {
+
+				preg_match("/\"secret-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+				if($matches) {
+					$this->set("payment", "payment_stripe_private_key", $matches[1]);
+				}
+
+				preg_match("/\"public-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+				if($matches) {
+					$this->set("payment", "payment_stripe_public_key", $matches[1]);
+				}
+
+			}
+
+		}
+
+		// set default values
+		else {
+
+			$this->set("payment", "payment_type", stringOr($this->get("payment", "payment_type"), "stripe"));
+
+			$this->set("payment", "payment_stripe_private_key", stringOr($this->get("payment", "payment_stripe_private_key"), ""));
+			$this->set("payment", "payment_stripe_public_key", stringOr($this->get("payment", "payment_stripe_public_key"), ""));
+
+		}
+
+
+		// check if we have sufficient information
+ 		if(
+			($this->get("payment", "payment_type") == "stripe" && (	
+				$this->get("payment", "payment_stripe_private_key") && 
+				$this->get("payment", "payment_stripe_public_key")
+			))
+		) {
+
+			// set payment check
+			$this->set("payment", "passed", true);
+			return true;
+		}
+
+		return false;
+	}
+
+	// update the payment settings
+ 	function updatePaymentSettings() {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// Mail set up is optional
+		if(getPost("skip_payment")) {
+
+			$this->set("payment", "skipped", true);
+			$this->set("payment", "passed", true);
+			return true;
+
+		}
+		// Did we receive admin mail and setup type?
+		else if($this->validateList(array("payment_type"))) {
+
+			$this->set("payment", "payment_type", $this->getProperty("payment_type", "value"));
+
+			// Mailgun account
+			if($this->get("payment", "payment_type") == "stripe") {
+
+				if($this->validateList(array("payment_stripe_private_key", "payment_stripe_public_key"))) {
+
+					$this->set("payment", "payment_stripe_private_key", $this->getProperty("payment_stripe_private_key", "value"));
+					$this->set("payment", "payment_stripe_public_key", $this->getProperty("payment_stripe_public_key", "value"));
+
+				}
+			}
+
+			// Other account
+			else {
+
+
+			} 
+
+		}
+
+		return $this->checkPaymentSettings();
 
 	}
 
@@ -1008,27 +1449,20 @@ class Setup extends Itemtype {
 	function checkAllSettings() {
 
 		if(
-			$this->config_ok &&
-//			($this->config_ok || SETUP_TYPE == "init") &&
-			$this->software_ok &&
-			$this->db_ok &&
-			$this->mail_ok &&
+			$this->get("software", "passed") &&
+			$this->get("config", "passed") &&
+			$this->get("database", "passed") &&
+			$this->get("account", "passed") &&
+			$this->get("mail", "passed") &&
+			$this->get("payment", "passed") &&
 			defined("LOCAL_PATH") &&
 			defined("FRAMEWORK_PATH")
 		) {
 
-			$this->project_path = PROJECT_PATH;
-			$this->local_path =  LOCAL_PATH;
-			$this->framework_path = FRAMEWORK_PATH;
-
-
-			// get apache user to set permissions
-			$this->current_user = get_current_user();
-			$this->apache_user = trim(shell_exec('whoami'));
-			$this->deploy_user = trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : (trim(shell_exec('egrep -i "^staff" /etc/group')) ? "staff" : $this->current_user);
-
+			// Check if environment looks like parentnode setup
+			$this->parentnode_setup = file_exists("/srv/sites/apache/apache.conf");
 			// find apachectl's
-			$this->apachectls = explode("\n", trim(shell_exec("find /usr /opt /Users/".$this->current_user."/Applications -name 'apachectl' 2>/dev/null")));
+			$this->apachectls = explode("\n", trim(shell_exec("find /usr /opt /Users/".$this->get("system", "current_user")."/Applications -name 'apachectl' 2>/dev/null")));
 
 			return true;
 		}
@@ -1051,56 +1485,65 @@ class Setup extends Itemtype {
 
 			$fs = new FileSystem();
 
+			include_once("classes/system/upgrade.class.php");
+			$UP = new Upgrade();
+
 
 			// ONLY FOR NEW SETUP
 			if(SETUP_TYPE == "new") {
 
+				// INSTALL THEME FROM GITHUB IF THEME DOES NOT EXIST (OR IS EMPTY)
+				if(!file_exists(PROJECT_PATH."/theme") || scandir(PROJECT_PATH."/theme") != array(".", "..")) {
+					
+					// Download theme
+					$url = "https://github.com/parentnode/janitor-theme-minimal/archive/master.tar.gz";
+					$zip_file = PROJECT_PATH."/theme.tar.gz";
+					$fp = fopen($zip_file, "w");
+
+					$ch = curl_init();
+					curl_setopt($ch, CURLOPT_URL, $url);
+					curl_setopt($ch, CURLOPT_FAILONERROR, true);
+					curl_setopt($ch, CURLOPT_HEADER, 0);
+					curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+					curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+					curl_setopt($ch, CURLOPT_BINARYTRANSFER,true);
+					curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+					curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+					curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); 
+					curl_setopt($ch, CURLOPT_FILE, $fp);
+					$success = curl_exec($ch);
+					curl_close($ch);
+					fclose($fp);
+
+					// Extract
+					$output = shell_exec("tar -xzf ".PROJECT_PATH."/theme.tar.gz -C ".PROJECT_PATH." 2>&1");
+
+					// Replace existing theme
+					$fs->removeDirRecursively(PROJECT_PATH."/theme");
+					$fs->copy(PROJECT_PATH."/janitor-theme-minimal-master", PROJECT_PATH."/theme");
+
+					// Clean up
+					$fs->removeDirRecursively(PROJECT_PATH."/janitor-theme-minimal-master");
+					unlink(PROJECT_PATH."/theme.tar.gz");
 
 
-				// INSTALL THEME FROM GITHUB
+					// Status for installing theme
+					if(file_exists(PROJECT_PATH."/theme") && file_exists(PROJECT_PATH."/theme/www/index.php") && file_exists(PROJECT_PATH."/theme/templates/pages/front.php")) {
+						$tasks["completed"][] = "Standard theme installed";
+					}
+					// Task failed
+					else {
+						$tasks["failed"][] = "Standard theme (FAILED)";
+						return $tasks;
+					}
 
-				// Download theme
-				$url = "https://github.com/parentnode/janitor-theme-minimal/archive/master.tar.gz";
-				$zip_file = PROJECT_PATH."/theme.tar.gz";
-				$fp = fopen($zip_file, "w");
-
-				$ch = curl_init();
-				curl_setopt($ch, CURLOPT_URL, $url);
-				curl_setopt($ch, CURLOPT_FAILONERROR, true);
-				curl_setopt($ch, CURLOPT_HEADER, 0);
-				curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-				curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-				curl_setopt($ch, CURLOPT_BINARYTRANSFER,true);
-				curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); 
-				curl_setopt($ch, CURLOPT_FILE, $fp);
-				$success = curl_exec($ch);
-				curl_close($ch);
-				fclose($fp);
-
-				// Extract
-				$output = shell_exec("tar -xzf ".PROJECT_PATH."/theme.tar.gz -C ".PROJECT_PATH." 2>&1");
-
-				// Replace existing theme
-				$fs->removeDirRecursively(PROJECT_PATH."/theme");
-				$fs->copy(PROJECT_PATH."/janitor-theme-minimal-master", PROJECT_PATH."/theme");
-
-				// Clean up
-				$fs->removeDirRecursively(PROJECT_PATH."/janitor-theme-minimal-master");
-				unlink(PROJECT_PATH."/theme.tar.gz");
-
-
-				// Status for installing theme
-				if(file_exists(PROJECT_PATH."/theme") && file_exists(PROJECT_PATH."/theme/www/index.php") && file_exists(PROJECT_PATH."/theme/templates/pages/front.php")) {
-					$tasks["completed"][] = "Installing standard theme";
 				}
-				// Task failed
+				// Skip theme
 				else {
-					$tasks["failed"][] = "Installing standard theme (FAILED)";
-					return $tasks;
-				}
 
+					$tasks["completed"][] = "Skipped theme install (Found existing theme)";
+
+				}
 
 
 				// APACHE CONF
@@ -1110,18 +1553,37 @@ class Setup extends Itemtype {
 
 					// apache
 					$file_apache = file_get_contents(FRAMEWORK_PATH."/config/httpd-vhosts.template.conf");
-					$file_apache = preg_replace("/###LOCAL_PATH###/", $this->local_path, $file_apache);
-					$file_apache = preg_replace("/###FRAMEWORK_PATH###/", $this->framework_path, $file_apache);
-					$file_apache = preg_replace("/###PROJECT_PATH###/", $this->project_path, $file_apache);
+					$file_apache = preg_replace("/###LOCAL_PATH###/", LOCAL_PATH, $file_apache);
+					$file_apache = preg_replace("/###FRAMEWORK_PATH###/", FRAMEWORK_PATH, $file_apache);
+					$file_apache = preg_replace("/###PROJECT_PATH###/", PROJECT_PATH, $file_apache);
 					$file_apache = preg_replace("/###SITE_URL###/", $_SERVER["SERVER_NAME"], $file_apache);
 					$file_apache = preg_replace("/###LOG_NAME###/", superNormalize($_SERVER["SERVER_NAME"]), $file_apache);
-					$file_apache = preg_replace("/###MODULES_PATH###/", (preg_match("/\/submodules\//", $this->framework_path) ? "submodules" : "core"), $file_apache);
+					$file_apache = preg_replace("/###MODULES_PATH###/", (preg_match("/\/submodules\//", FRAMEWORK_PATH) ? "submodules" : "core"), $file_apache);
 					file_put_contents(PROJECT_PATH."/apache/httpd-vhosts.conf", $file_apache);
 
 //					unlink(LOCAL_PATH."/config/httpd-vhosts.template.conf");
 
 					// Status for updating Apache conf
-					$tasks["completed"][] = "Updating project Apache configuration";
+					$tasks["completed"][] = "Project Apache configuration updated";
+
+				}
+
+			}
+
+
+			// Special case for old sites with an outdated database table layout
+			// Solution is to Upgrade Janitor first (to avoid implementing upgrades in the setup)
+			if(SETUP_TYPE == "existing" &&
+				file_exists(LOCAL_PATH."/config/config.php") &&
+				file_exists(LOCAL_PATH."/config/connect_db.php")
+			) {
+				$query = new Query();
+				// check if outdated database table exists
+				$sql = "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '".SITE_DB."' AND TABLE_NAME = 'languages'";
+				if($query->sql($sql)) {
+					// Status for updating config.php
+					$tasks["failed"][] = "Old database table layout detected. You should upgrade your Janitor code and choose the upgrade option under setup, before you run the setup script again.";
+					return $tasks;
 
 				}
 
@@ -1131,140 +1593,140 @@ class Setup extends Itemtype {
 			// FOR ALL SETUP TYPES
 
 
+			// WRITE CONFIGURATION FILES
+
+
 			// CONFIG
 			// config.php
 
-			// don't re-write configs on reloads 
-			if(getPost("setup_type") != "reload") {
+			// Use existing config.php
+			if(file_exists(LOCAL_PATH."/config/config.php")) {
 
-				// Use existing config.php
-				if(file_exists(LOCAL_PATH."/config/config.php")) {
+				$file_config = file_get_contents(LOCAL_PATH."/config/config.php");
+				$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_UID\",[ ]*\".+\"\);/", "\ndefine(\"SITE_UID\", \"".$this->get("config", "site_uid")."\");", $file_config);
+				$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_NAME\",[ ]*\".+\"\);/", "\ndefine(\"SITE_NAME\", \"".$this->get("config", "site_name")."\");", $file_config);
+				$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_EMAIL\",[ ]*\".+\"\);/", "\ndefine(\"SITE_EMAIL\", \"".$this->get("config", "site_email")."\");", $file_config);
+				$file_config = preg_replace("/(\n)[ \t]*define\(\"DEFAULT_PAGE_DESCRIPTION\",[ ]*\".+\"\);/", "\ndefine(\"DEFAULT_PAGE_DESCRIPTION\", \"".$this->get("config", "site_description")."\");", $file_config);
+				file_put_contents(LOCAL_PATH."/config/config.php", $file_config);
 
-					$file_config = file_get_contents(LOCAL_PATH."/config/config.php");
-					$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_UID\",[ ]*\".+\"\);/", "\ndefine(\"SITE_UID\", \"".$this->site_uid."\");", $file_config);
-					$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_NAME\",[ ]*\".+\"\);/", "\ndefine(\"SITE_NAME\", \"".$this->site_name."\");", $file_config);
-					$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_EMAIL\",[ ]*\".+\"\);/", "\ndefine(\"SITE_EMAIL\", \"".$this->site_email."\");", $file_config);
-					$file_config = preg_replace("/(\n)[ \t]*define\(\"DEFAULT_PAGE_DESCRIPTION\",[ ]*\".+\"\);/", "\ndefine(\"DEFAULT_PAGE_DESCRIPTION\", \"".$this->site_description."\");", $file_config);
-					file_put_contents(LOCAL_PATH."/config/config.php", $file_config);
+				// Make sure file remains writeable even if it is edited manually
+				chmod(LOCAL_PATH."/config/config.php", 0777);
 
-					// Status for updating config.php
-					$tasks["completed"][] = "Updating config.php";
+				// Status for updating config.php
+				$tasks["completed"][] = "Project config.php updated";
 
-				}
-				// If template exists, use that
-				else if(file_exists(FRAMEWORK_PATH."/config/config.template.php")) {
+			}
+			// If template exists, use that
+			else if(file_exists(FRAMEWORK_PATH."/config/config.template.php")) {
 
-					// config
-					$file_config = file_get_contents(FRAMEWORK_PATH."/config/config.template.php");
-					$file_config = preg_replace("/###SITE_UID###/", $this->site_uid, $file_config);
-					$file_config = preg_replace("/###SITE_NAME###/", $this->site_name, $file_config);
-					$file_config = preg_replace("/###SITE_EMAIL###/", $this->site_email, $file_config);
-					$file_config = preg_replace("/###DEFAULT_PAGE_DESCRIPTION###/", $this->site_description, $file_config);
-					file_put_contents(LOCAL_PATH."/config/config.php", $file_config);
+				// config
+				$file_config = file_get_contents(FRAMEWORK_PATH."/config/config.template.php");
+				$file_config = preg_replace("/###SITE_UID###/", $this->get("config", "site_uid"), $file_config);
+				$file_config = preg_replace("/###SITE_NAME###/", $this->get("config", "site_name"), $file_config);
+				$file_config = preg_replace("/###SITE_EMAIL###/", $this->get("config", "site_email"), $file_config);
+				$file_config = preg_replace("/###DEFAULT_PAGE_DESCRIPTION###/", $this->get("config", "site_description"), $file_config);
+				file_put_contents(LOCAL_PATH."/config/config.php", $file_config);
 
-					// Make sure file remains writeable even if it is edited manually
-					chmod(LOCAL_PATH."/config/config.php", 0666);
+				// Make sure file remains writeable even if it is edited manually
+				chmod(LOCAL_PATH."/config/config.php", 0777);
 
-					// Remove template
-//					unlink(LOCAL_PATH."/config/config.template.php");
+				// Status for creating config.php
+				$tasks["completed"][] = "Project config.php created";
 
-					// Status for creating config.php
-					$tasks["completed"][] = "Creating config.php";
+			}
+			// Error
+			else {
 
-				}
-				else {
-
-					// Status for updating config.php
-					$tasks["failed"][] = "config.php not found (FAILED)";
-					return $tasks;
-				}
+				// Status for updating config.php
+				$tasks["failed"][] = "Project config.php not found (FAILED)";
+				return $tasks;
+			}
 
 
 
-				// DATABASE
-				// connect_db.php
+			// DATABASE
+			// connect_db.php
 
-				// Use existing connect_db.php
-				if(file_exists(LOCAL_PATH."/config/connect_db.php")) {
+			// Use existing connect_db.php
+			if(file_exists(LOCAL_PATH."/config/connect_db.php")) {
 
-					$file_db = file_get_contents(LOCAL_PATH."/config/connect_db.php");
-					$file_db = preg_replace("/(\n)[ \t]*define\(\"SITE_DB\",[ ]*\".+\"\);/", "\ndefine(\"SITE_DB\", \"".$this->db_janitor_db."\");", $file_db);
-					$file_db = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"host\" => \"".$this->db_host."\"", $file_db);
-					$file_db = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"username\" => \"".$this->db_janitor_user."\"", $file_db);
-					$file_db = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"password\" => \"".$this->db_janitor_pass."\"", $file_db);
-					file_put_contents(LOCAL_PATH."/config/connect_db.php", $file_db);
+				$file_db = file_get_contents(LOCAL_PATH."/config/connect_db.php");
+				$file_db = preg_replace("/(\n)[ \t]*define\(\"SITE_DB\",[ ]*\".+\"\);/", "\ndefine(\"SITE_DB\", \"".$this->get("database", "db_janitor_db")."\");", $file_db);
+				$file_db = preg_replace("/(\n)[ \t]*\"host\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"host\" => \"".$this->get("database", "db_host")."\"", $file_db);
+				$file_db = preg_replace("/(\n)[ \t]*\"username\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"username\" => \"".$this->get("database", "db_janitor_user")."\"", $file_db);
+				$file_db = preg_replace("/(\n)[ \t]*\"password\"[ ]*\=\>[ ]*\".+\"/", "\n\t\t\"password\" => \"".$this->get("database", "db_janitor_pass")."\"", $file_db);
+				file_put_contents(LOCAL_PATH."/config/connect_db.php", $file_db);
 
-					// Status for updating connect_db.php
-					$tasks["completed"][] = "Updating connect_db.php";
+				// Make sure file remains writeable even if it is edited manually
+				chmod(LOCAL_PATH."/config/connect_db.php", 0777);
 
-				}
-				// If template exists, use that
-				else if(file_exists(FRAMEWORK_PATH."/config/connect_db.template.php")) {
+				// Status for updating connect_db.php
+				$tasks["completed"][] = "Project connect_db.php updated";
 
-					// database
-					$file_db = file_get_contents(FRAMEWORK_PATH."/config/connect_db.template.php");
-					$file_db = preg_replace("/###SITE_DB###/", $this->db_janitor_db, $file_db);
-					$file_db = preg_replace("/###HOST###/", $this->db_host, $file_db);
-					$file_db = preg_replace("/###USERNAME###/", $this->db_janitor_user, $file_db);
-					$file_db = preg_replace("/###PASSWORD###/", $this->db_janitor_pass, $file_db);
-					file_put_contents(LOCAL_PATH."/config/connect_db.php", $file_db);
+			}
+			// If template exists, use that
+			else if(file_exists(FRAMEWORK_PATH."/config/connect_db.template.php")) {
 
-					// Make sure file remains writeable even if it is edited manually
-					chmod(LOCAL_PATH."/config/connect_db.php", 0666);
+				// database
+				$file_db = file_get_contents(FRAMEWORK_PATH."/config/connect_db.template.php");
+				$file_db = preg_replace("/###SITE_DB###/", $this->get("database", "db_janitor_db"), $file_db);
+				$file_db = preg_replace("/###HOST###/", $this->get("database", "db_host"), $file_db);
+				$file_db = preg_replace("/###USERNAME###/", $this->get("database", "db_janitor_user"), $file_db);
+				$file_db = preg_replace("/###PASSWORD###/", $this->get("database", "db_janitor_pass"), $file_db);
+				file_put_contents(LOCAL_PATH."/config/connect_db.php", $file_db);
 
-					// Remove template
-//					unlink(LOCAL_PATH."/config/connect_db.template.php");
+				// Make sure file remains writeable even if it is edited manually
+				chmod(LOCAL_PATH."/config/connect_db.php", 0777);
 
-					// Status for creating connect_db.php
-					$tasks["completed"][] = "Creating connect_db.php";
+				// Status for creating connect_db.php
+				$tasks["completed"][] = "Project connect_db.php created";
 
-				}
-				else {
+			}
+			// Error
+			else {
 
-					// Status for updating config.php
-					$tasks["failed"][] = "connect_db.php not found (FAILED)";
-					return $tasks;
-				}
+				// Status for updating config.php
+				$tasks["failed"][] = "Project connect_db.php not found (FAILED)";
+				return $tasks;
+			}
 
 
-				// CREATE DB
+			// CREATE DB
 
-				// only create if it does not exist
-				if($this->checkDatabaseConnection() && !$this->db_exists) {
+			// only create if it does not exist
+			$check_db = $this->checkDatabaseConnection();
+			if($check_db && !$this->get("database", "exists")) {
 
-					$query = new Query();
-					if($query->sql("CREATE DATABASE $this->db_janitor_db")) {
+				$query = new Query();
+				if($query->sql("CREATE DATABASE ".$this->get("database", "db_janitor_db"))) {
 
-						$sql = "GRANT ALL PRIVILEGES ON ".$this->db_janitor_db.".* TO '".$this->db_janitor_user."'@'".$this->db_host."' IDENTIFIED BY '".$this->db_janitor_pass."' WITH GRANT OPTION;";
-						$query->sql($sql);
+					$sql = "GRANT ALL PRIVILEGES ON ".$this->get("database", "db_janitor_db").".* TO '".$this->get("database", "db_janitor_user")."'@'".$this->get("database", "db_host")."' IDENTIFIED BY '".$this->get("database", "db_janitor_pass")."' WITH GRANT OPTION;";
+					$query->sql($sql);
 
-						// Status for creating database
-						$tasks["completed"][] = "Creating database";
-
-					}
-					else {
-
-						// Status for creating database
-						$tasks["failed"][] = "Could not create database (FAILED)";
-						return $tasks;
-					}
+					// Status for creating database
+					$tasks["completed"][] = "Database created";
 
 				}
-				// use existing database
 				else {
 
 					// Status for creating database
-					$tasks["completed"][] = "Using existing database";
+					$tasks["failed"][] = "Could not create database (FAILED)";
+					return $tasks;
 				}
 
+			}
+			// use existing database
+			else {
 
-				// Load database configuration
-				$page->loadDBConfiguration();
+				// Status for creating database
+				$tasks["completed"][] = "Using existing database";
+			}
 
 
 
-				// MAIL
-				// connect_mail.php
+			// MAIL
+			// connect_mail.php
+			if(!$this->get("mail", "skipped")) {
 
 				// Use existing connect_mail.php
 				if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
@@ -1289,28 +1751,28 @@ class Setup extends Itemtype {
 				}
 
 				// Replace admin email
-				$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->mail_admin."\");", $file_mail);
+				$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->get("mail", "mail_admin")."\");", $file_mail);
 
 				// Create new settings
 				$file_mail_settings = "array(\n";
-				$file_mail_settings .= "\t\t\"type\" => \"".$this->mail_type."\",\n";
+				$file_mail_settings .= "\t\t\"type\" => \"".$this->get("mail", "mail_type")."\",\n";
 
 				// mailgun settings
-				if($this->mail_type == "mailgun") {
-					$file_mail_settings .= "\t\t\"api-key\" => \"".$this->mail_mailgun_api_key."\",\n";
-					$file_mail_settings .= "\t\t\"domain\" => \"".$this->mail_mailgun_domain."\",\n";
-					
+				if($this->get("mail", "mail_type") == "mailgun") {
+					$file_mail_settings .= "\t\t\"api-key\" => \"".$this->get("mail", "mail_mailgun_api_key")."\",\n";
+					$file_mail_settings .= "\t\t\"domain\" => \"".$this->get("mail", "mail_mailgun_domain")."\",\n";
+				
 				}
 				// SMTP settings
 				else {
-					$file_mail_settings .= "\t\t\"host\" => \"".$this->mail_smtp_host."\",\n";
-					$file_mail_settings .= "\t\t\"username\" => \"".$this->mail_smtp_username."\",\n";
-					$file_mail_settings .= "\t\t\"password\" => \"".$this->mail_smtp_password."\",\n";
-					$file_mail_settings .= "\t\t\"port\" => \"".$this->mail_smtp_port."\",\n";
+					$file_mail_settings .= "\t\t\"host\" => \"".$this->get("mail", "mail_smtp_host")."\",\n";
+					$file_mail_settings .= "\t\t\"username\" => \"".$this->get("mail", "mail_smtp_username")."\",\n";
+					$file_mail_settings .= "\t\t\"password\" => \"".$this->get("mail", "mail_smtp_password")."\",\n";
+					$file_mail_settings .= "\t\t\"port\" => \"".$this->get("mail", "mail_smtp_port")."\",\n";
 
 					// fixed values
 					$file_mail_settings .= "\t\t\"smtpauth\" => true,\n";
-					if($this->mail_smtp_port == "587") {
+					if($this->get("mail", "mail_smtp_port") == "587") {
 						$file_mail_settings .= "\t\t\"secure\" => \"tls\",\n";
 					}
 					else {
@@ -1325,53 +1787,134 @@ class Setup extends Itemtype {
 
 				file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
 
-
 				// Make sure file remains writeable even if it is edited manually
-				// chown(LOCAL_PATH."/config/connect_mail.php", get_current_user());
-				// chmod(LOCAL_PATH."/config/connect_mail.php", 0666);
-				
+				chmod(LOCAL_PATH."/config/connect_mail.php", 0777);
 
 
 				// Status for creating connect_mail.php
-				$tasks["completed"][] = ($existing_mail_conf ? "Updating" : "Creating") . " connect_mail.php";
+				$tasks["completed"][] = "Project connect_mail.php " . ($existing_mail_conf ? "updated" : "created");
+
+			}
+			// Skip mail setup
+			else {
+
+				// Delete existing connect_mail.php
+				if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
+					unlink(LOCAL_PATH."/config/connect_mail.php");
+				}
+
+				$tasks["completed"][] = "Mail setup skipped";
 
 			}
 
 
 
-			
-			// If setup is run on existing projects loadDBConfiguration and loadMailConfiguration will
-			// not be updated, because they are included as include_once.
-			// If the core settings has been changes the Constants already declared in config.php, 
-			// connect_db.php and connect_mail.php are not reflecting the new settings and 
-			// we need a whole new request for those to be reloaded
-//			if((!defined("SITE_DB") || SITE_DB != $this->db_janitor_db) || (!defined("ADMIN_EMAIL") || ADMIN_EMAIL != $this->mail_admin)) {
-			if((!defined("SITE_DB") || SITE_DB != $this->db_janitor_db) || (defined("ADMIN_EMAIL") && ADMIN_EMAIL != $this->mail_admin)) {
+			// PAYMENT
+			// connect_payment.php
+			if(!$this->get("payment", "skipped")) {
 
-				if(getPost("setup_type") != "reload") {
-					$tasks["completed"][] = "Flushing constants";
-					$tasks["reload_constants"] = true;
-					return $tasks;
+				// Use existing connect_mail.php
+				if(file_exists(LOCAL_PATH."/config/connect_payment.php")) {
+
+					$file_payment = file_get_contents(LOCAL_PATH."/config/connect_payment.php");
+					$existing_payment_conf = true;
+
+				}
+				// If template exists, use that
+				else if(file_exists(FRAMEWORK_PATH."/config/connect_payment.template.php")) {
+
+					$file_payment = file_get_contents(FRAMEWORK_PATH."/config/connect_payment.template.php");
+					$existing_payment_conf = false;
+
 				}
 				else {
-					$tasks["failed"][] = "Flushing constants";
+
+					// Status for updating config.php
+					$tasks["failed"][] = "connect_payment.php not found (FAILED)";
 					return $tasks;
+
 				}
+
+				// Create new settings
+				$file_payment_settings = "array(\n";
+				$file_payment_settings .= "\t\t\"type\" => \"".$this->get("payment", "payment_type")."\",\n";
+
+				// mailgun settings
+				if($this->get("payment", "payment_type") == "stripe") {
+					$file_payment_settings .= "\t\t\"secret-key\" => \"".$this->get("payment", "payment_stripe_private_key")."\",\n";
+					$file_payment_settings .= "\t\t\"public-key\" => \"".$this->get("payment", "payment_stripe_public_key")."\",\n";
+				
+				}
+				// Other gateway
+				else {
+
+				}
+
+				$file_payment_settings .= "\t)";
+
+				// Replace settings
+				$file_payment = preg_replace("/array\([^$]+\t\)/", $file_payment_settings, $file_payment);
+
+				file_put_contents(LOCAL_PATH."/config/connect_payment.php", $file_payment);
+
+
+				// Make sure file remains writeable even if it is edited manually
+				chmod(LOCAL_PATH."/config/connect_payment.php", 0777);
+			
+
+
+				// Status for creating connect_payment.php
+				$tasks["completed"][] = "Project connect_payment.php " . ($existing_payment_conf ? "updated" : "created");
+
+			}
+			// Skip payment setup
+			else {
+
+				// Delete existing connect_payment.php
+				if(file_exists(LOCAL_PATH."/config/connect_payment.php")) {
+					unlink(LOCAL_PATH."/config/connect_payment.php");
+				}
+
+				$tasks["completed"][] = "Payment setup skipped";
 
 			}
 
-			$tasks["completed"][] = "Constants verified";
 
+
+			// Define SITE_NAME if not already defined and temp Database connection established
+			if(!defined("SITE_DB") && $check_db) {
+				define("SITE_DB", $this->get("database", "db_janitor_db"));
+
+				// include database constants
+				@include_once("config/database.constants.php");
+			}
 
 			// Define SITE_NAME if not already defined
 			if(!defined("SITE_NAME")) {
-				define("SITE_NAME", $this->site_name);
+				define("SITE_NAME", $this->get("config", "site_name"));
 			}
 
 			// Define SITE_EMAiL if not already defined
 			if(!defined("SITE_EMAIL")) {
-				define("SITE_EMAIL", $this->site_email);
+				define("SITE_EMAIL", $this->get("config", "site_email"));
 			}
+
+
+			// Check needed constants
+			if(defined("SITE_DB") && SITE_DB == $this->get("database", "db_janitor_db") && defined("SITE_NAME") && defined("SITE_EMAIL")) {
+				$tasks["completed"][] = "Constants verified";
+			}
+			else {
+				$tasks["failed"][] = "Constants mismatch";
+				return $tasks;
+			}
+
+
+
+			// Can only be included after SITE_DB has been declared
+			include_once("classes/users/superuser.class.php");
+			$UC = new SuperUser();
+
 
 
 			// DEFAULT DATA
@@ -1380,52 +1923,66 @@ class Setup extends Itemtype {
 			$fs->makeDirRecursively(LOCAL_PATH."/library/private");
 			$fs->makeDirRecursively(LOCAL_PATH."/library/public");
 
-			$tasks["completed"][] = "Creating library";
+			$tasks["completed"][] = "Library created";
 
 
 
 			// VERIFY DATABASE TABLES
-
 			$query = new Query();
-			$query->checkDbExistence($this->db_janitor_db.".user_groups");
-			$query->checkDbExistence($this->db_janitor_db.".system_languages");
-			$query->checkDbExistence($this->db_janitor_db.".system_currencies");
-			$query->checkDbExistence($this->db_janitor_db.".system_countries");
-			$query->checkDbExistence($this->db_janitor_db.".system_vatrates");
-			$query->checkDbExistence($this->db_janitor_db.".system_maillists");
-			$query->checkDbExistence($this->db_janitor_db.".users");
+			$query->checkDbExistence(UT_LANGUAGES);
+			$query->checkDbExistence(UT_CURRENCIES);
+			$query->checkDbExistence(UT_COUNTRIES);
+			$query->checkDbExistence(UT_VATRATES);
+			$query->checkDbExistence(UT_PAYMENT_METHODS);
+			$query->checkDbExistence($UC->db_user_groups);
+			$query->checkDbExistence($UC->db);
 
-			$query->checkDbExistence($this->db_janitor_db.".items");
-			$query->checkDbExistence($this->db_janitor_db.".tags");
-			$query->checkDbExistence($this->db_janitor_db.".taggings");
 
-			$query->checkDbExistence($this->db_janitor_db.".items_mediae");
-			$query->checkDbExistence($this->db_janitor_db.".items_comments");
-			$query->checkDbExistence($this->db_janitor_db.".items_prices");
+			// make sure item tables exist
+			$query->checkDbExistence(UT_ITEMS);
+			$query->checkDbExistence(UT_TAG);
+			$query->checkDbExistence(UT_TAGGINGS);
 
-			$tasks["completed"][] = "Verifying database tables";
+			$query->checkDbExistence(UT_ITEMS_MEDIAE);
+			$query->checkDbExistence(UT_ITEMS_COMMENTS);
+			$query->checkDbExistence(UT_ITEMS_PRICES);
+
+			// navigation requires items - must be run after items
+			$query->checkDbExistence(UT_NAV);
+			$query->checkDbExistence(UT_NAV_NODES);
+
+			$tasks["completed"][] = "Database tables verified";
 
 
 
 			// DEFAULT DATA
 
-			include_once("classes/system/upgrade.class.php");
-			$UP = new Upgrade();
 
 			// CREATE LANGUAGE
-			$UP->checkDefaultValues(UT_LANGUAGES, "'DA','Dansk'", "id = 'DA'");
-			$UP->checkDefaultValues(UT_LANGUAGES, "'EN','English'", "id = 'EN'");
-			// CREATE CURRENCY
-			$UP->checkDefaultValues(UT_CURRENCIES, "'DKK', 'Kroner (Denmark)', 'DKK', 'after', 2, ',', '.'", "id = 'DKK'");
-			// CREATE COUNTRY
-			$UP->checkDefaultValues(UT_COUNTRIES, "'DK', 'Danmark', '45', '#### ####', 'DA', 'DKK'", "id = 'DK'");
+			$UP->checkDefaultValues(UT_LANGUAGES);
 
-			if((defined("SITE_SHOP") && SITE_SHOP)) {
-				$UP->checkDefaultValues(UT_VATRATES, "1, 'No VAT', 0, 'DK'", "id = 1");
-				$UP->checkDefaultValues(UT_VATRATES, "2, '25%', 25, 'DK'", "id = 2");
+			// CREATE CURRENCY
+			$UP->checkDefaultValues(UT_CURRENCIES);
+
+			// CREATE COUNTRY
+			$UP->checkDefaultValues(UT_COUNTRIES);
+
+
+			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
+				$UP->checkDefaultValues(UT_SUBSCRIPTION_METHODS);
 			}
 
-			$tasks["completed"][] = "Checking default data";
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
+				$UP->checkDefaultValues(UT_VATRATES);
+				$UP->checkDefaultValues(UT_PAYMENT_METHODS);
+			}
+
+			// CREATE BASE NAVIGATION
+			$UP->checkDefaultValues(UT_NAV);
+			$UP->checkDefaultValues(UT_NAV_NODES);
+
+
+			$tasks["completed"][] = "Default data checked";
 
 
 
@@ -1433,24 +1990,19 @@ class Setup extends Itemtype {
 			//
 			// CREATE DEFAULT USER GROUPS AND USERS
 			//
-			include_once("classes/users/user.core.class.php");
-			include_once("classes/users/user.class.php");
-			include_once("classes/users/superuser.class.php");
-			$UC = new SuperUser();
 
+			// check user groups
 			$user_groups = $UC->getUserGroups();
 			if(!$user_groups) {
 
-				$UP->checkDefaultValues($UC->db_user_groups, "1,'Guest'", "id = 1");
-				$UP->checkDefaultValues($UC->db_user_groups, "2,'Member'", "id = 2");
-				$UP->checkDefaultValues($UC->db_user_groups, "3,'Developer'", "id = 3");
+				$UP->checkDefaultValues($UC->db_user_groups);
 
 				$user_groups = $UC->getUserGroups();
-				if(count($user_groups) == 3) {
-					$tasks["completed"][] = "Creating default user groups";
+				if($user_groups && count($user_groups) == 3) {
+					$tasks["completed"][] = "Default user groups created";
 				}
 				else {
-					$tasks["failed"][] = "Creating default user groups (FAILED)";
+					$tasks["failed"][] = "Default user groups (FAILED)";
 					return $tasks;
 				}
 
@@ -1473,12 +2025,11 @@ class Setup extends Itemtype {
 				}
 				unset($_POST);
 				$_POST["grant"] = $grants;
-				$UC->getPostedEntities();
 				if($UC->updateAccess(array("updateAccess", 3))) {
-					$tasks["completed"][] = "Adding Developer permissions";
+					$tasks["completed"][] = "Developer permissions added";
 				}
 				else {
-					$tasks["failed"][] = "Adding Developer permissions (FAILED)";
+					$tasks["failed"][] = "Developer permissions (FAILED)";
 					return $tasks;
 				}
 
@@ -1486,6 +2037,9 @@ class Setup extends Itemtype {
 			else {
 				$tasks["completed"][] = "User groups: OK";
 			}
+
+
+
 
 
 
@@ -1498,35 +2052,40 @@ class Setup extends Itemtype {
 			if(!$users) {
 
 				
-				$UP->checkDefaultValues($UC->db, "1,1,'','','Anonymous',1,'EN',DEFAULT,DEFAULT,DEFAULT", "id = 1");
-				// ADD DEVELOPER ACCOUNT
-				$UP->checkDefaultValues($UC->db, "2,3,'','','Dummy developer',1,'EN',DEFAULT,DEFAULT,DEFAULT", "id = 2");
+				$UP->checkDefaultValues($UC->db);
 
 
-				$users = $UC->getUsers();
-				if(count($users) == 1) {
+				$users = $UC->getUsers(["user_group_id" => 3]);
+
+				// Anonymous user will not be returned by getUsers()
+				if($users && count($users) == 1) {
+
+					// Did user type account nickname
+					if($this->get("account", "account_nickname")) {
+						unset($_POST);
+						$_POST["nickname"] = $this->get("account", "account_nickname");
+						$UC->update(array("update", $users[0]["id"]));
+					}
 
 					// SET USERNAME
 					unset($_POST);
-					$_POST["email"] = $this->mail_admin;
-					$UC->getPostedEntities();
-					$UC->updateEmail(array("updateEmail", 2));
+					$_POST["email"] = $this->get("account", "account_username");
+					$UC->updateEmail(array("updateEmail", $users[0]["id"]));
 
 					// SET PASSWORD
 					unset($_POST);
-					$_POST["password"] = "123rotinaj";
-					$UC->getPostedEntities();
-					$UC->setPAssword(array("setPassword", 2));
+					$_POST["password"] = $this->get("account", "account_password");
+					$UC->setPAssword(array("setPassword", $users[0]["id"]));
 
 					// store user_id for content creation
-					session()->value("user_id", 2);
+					session()->value("user_id", $users[0]["id"]);
 
-					$tasks["completed"][] = "Creating default users";
+					$tasks["completed"][] = "Default users created";
 
 				}
 				else {
 
-					$tasks["failed"][] = "Creating default users";
+					$tasks["failed"][] = "Default users";
 					return $tasks;
 				}
 
@@ -1536,140 +2095,10 @@ class Setup extends Itemtype {
 			}
 
 
-			include_once("classes/items/items.core.class.php");
-			include_once("classes/items/items.class.php");
-			$IC = new Items();
-
-
-			//
-			// CREATE TEST NAVIGATION
-			//
-			$NC = new Navigation();
-			if(!$NC->getNavigations()) {
-
-
-				// create frontend navigation
-				unset($_POST);
-				$_POST["name"] = "main";
-				$nav = $NC->save(array("save"));
-
-				if($nav) {
-
-					unset($_POST);
-					$_POST["node_name"] = "Frontpage";
-					$_POST["node_classname"] = "front";
-					$_POST["node_link"] = "/";
-					$nav_node = $NC->saveNode(array("saveNode", $nav["item_id"]));
-
-					unset($_POST);
-					$_POST["node_name"] = "Posts";
-					$_POST["node_classname"] = "posts";
-					$_POST["node_link"] = "/posts";
-					$nav_node = $NC->saveNode(array("saveNode", $nav["item_id"]));
-
-					// If new theme install and theme has demo class
-					if(file_exists(LOCAL_PATH."/classes/items/type.demo.class.php") && file_exists(LOCAL_PATH."/www/janitor/demo.php")) {
-
-						unset($_POST);
-						$_POST["node_name"] = "Demo";
-						$_POST["node_classname"] = "demo";
-						$_POST["node_link"] = "/demo";
-						$nav_node = $NC->saveNode(array("saveNode", $nav["item_id"]));
-
-					}
-
-				}
-
-
-				// create backend navigation
-				unset($_POST);
-				$_POST["name"] = "main-janitor";
-				$nav = $NC->save(array("save"));
-
-				if($nav) {
-
-					unset($_POST);
-					$_POST["node_name"] = "Posts";
-					$_POST["node_classname"] = "post";
-					$_POST["node_link"] = "/janitor/admin/post/list";
-					$nav_node = $NC->saveNode(array("saveNode", $nav["item_id"]));
-
-					// If new theme install and theme has demo class
-					if(file_exists(LOCAL_PATH."/classes/items/type.demo.class.php") && file_exists(LOCAL_PATH."/www/janitor/demo.php")) {
-
-						unset($_POST);
-						$_POST["node_name"] = "Demo";
-						$_POST["node_classname"] = "demo";
-						$_POST["node_link"] = "/janitor/demo/list";
-						$nav_node = $NC->saveNode(array("saveNode", $nav["item_id"]));
-
-					}
-
-				}
-
-
-			}
-			else {
-				$tasks["completed"][] = "Navigation: OK";
-			}
-
-
-
-			//
-			// CREATE TEST CONTENT
-			//
-			if(!$IC->getItems() && session()->value("user_id")) {
-
-				include_once("classes/items/type.post.class.php");
-				$PC = new TypePost();
-
-
-				unset($_POST);
-				$_POST["name"] = "Welcome to the basement";
-				$_POST["description"] = "This is a test post made by the setup script. You can delete this post.";
-				$_POST["html"] = "<p>This is a test post made by the setup script. You can delete this post.</p>";
-				$_POST["status"] = 1;
-				$item = $PC->save(array("save", "post"));
-
-				// add a tag
-				unset($_POST);
-				$_POST["tags"] = "post:My first post tag";
-				$PC->addTag(array("addTag", $item["id"]));
-
-
-				// If new theme install and theme has demo class
-				if(file_exists(LOCAL_PATH."/classes/items/type.demo.class.php") && file_exists(LOCAL_PATH."/www/janitor/demo.php")) {
-
-					include_once("classes/items/type.demo.class.php");
-					$DC = new TypeDemo();
-
-					unset($_POST);
-					$_POST["name"] = "This is a demo item";
-					$_POST["v_text"] = "This is a demo item made by the setup script. You can delete it.";
-					$_POST["v_html"] = "<p>This is a html snippet made by the setup script. You can delete it.</p>";
-					$_POST["status"] = 1;
-					$item = $DC->save(array("save", "demo"));
-
-					// add a tag
-					unset($_POST);
-					$_POST["tags"] = "demo:My first demo tag";
-					$DC->addTag(array("addTag", $item["id"]));
-				}
-
-
-				$tasks["completed"][] = "Creating test content";
-
-			}
-			else {
-				$tasks["completed"][] = "Content: OK";
-			}
-
-
-
-
 			// Make sure CMS messages are not waiting
 			$messages = message()->getMessages(array("type" => "message"));
 			if($messages) {
+				// Add messages to completed task list
 				foreach($messages as $message) {
 					$tasks["completed"][] = $message;
 				}
@@ -1677,75 +2106,115 @@ class Setup extends Itemtype {
 
 			$errors = message()->getMessages(array("type" => "error"));
 			if($errors) {
+				// Add error to failed task list
 				foreach($errors as $error) {
 					$tasks["failed"][] = $error;
 				}
 			}
 
+			// get rid of messages
+			message()->resetMessages();
 
 
 			//
 			// GIT SETTINGS
 			//
 			// create git ignore
-			if(!file_exists($this->project_path."/.gitignore")) {
-				$handle = fopen($this->project_path."/.gitignore", "w+");
-				fwrite($handle, "src/library/log/*\nsrc/library/public/*\nsrc/library/private/*\nsrc/library/debug\n!src/library/private/0\n!src/library/private/0/*\ntheme/library/log/*\ntheme/library/public/*\ntheme/library/private/*\ntheme/library/debug\n!theme/library/private/0\n!theme/library/private/0/*\n\n.DS_Store\n.vscode\n\nsrc/config/connect_*.php\ntheme/config/connect_*.php");
-				fclose($handle);
+			if(!file_exists(PROJECT_PATH."/.gitignore") && file_exists(FRAMEWORK_PATH."/config/gitignore.template")) {
+				copy(FRAMEWORK_PATH."/config/gitignore.template", PROJECT_PATH."/.gitignore");
 
-				$tasks["completed"][] = "Creating .gitignore";
+				// Make sure file remains writeable even if it is edited manually
+				chmod(PROJECT_PATH."/.gitignore", 0777);
+
+				$tasks["completed"][] = "Git ignore file added (.gitignore)";
+			}
+
+			// Add Git attributes
+			if(!file_exists(PROJECT_PATH."/.gitattributes") && file_exists(FRAMEWORK_PATH."/config/gitattributes.template")) {
+				copy(FRAMEWORK_PATH."/config/gitattributes.template", PROJECT_PATH."/.gitattributes");
+
+				// Make sure file remains writeable even if it is edited manually
+				chmod(PROJECT_PATH."/.gitattributes", 0777);
+
+				$tasks["completed"][] = "Git attributes file added (.gitattributes)";
 			}
 
 
 			// Tell git to ignore file permission changes
-			exec("cd ".$this->project_path." && git config core.filemode false");
-			exec("cd ".$this->project_path."/submodules/janitor && git config core.filemode false");
-			exec("cd ".$this->project_path."/submodules/js-merger && git config core.filemode false");
-			exec("cd ".$this->project_path."/submodules/css-merger && git config core.filemode false");
+			exec("cd ".PROJECT_PATH." && git config core.filemode false");
+			exec("cd ".PROJECT_PATH."/submodules/janitor && git config core.filemode false");
+			exec("cd ".PROJECT_PATH."/submodules/js-merger && git config core.filemode false");
+			exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode false");
 
 
-			$tasks["completed"][] = "Updating git filemode";
+			$tasks["completed"][] = "Git filemode updated to false";
 
 
-			// If this is a new setup
-			// Send welcome email with password
-			if(SETUP_TYPE == "new") {
-				mailer()->send(array(
-					"subject" => "Welcome to Janitor", 
-					"message" => "Your Janitor project is ready.\n\nLog in to your admin system: ".SITE_URL."/janitor\n\nUsername: ".ADMIN_EMAIL."\nPassword: 123rotinaj\n\nSee you soon,\n\nJanitor"
-				));
+			// Set final file permissions
+			// Live environment
+			if($this->get("config", "site_deployment") == "live") {
+
+				// CANNOT CHANGE FILE OWNER WITHOUT BEING ROOT OR SUDU
+				// USER WILL HAVE TO DO THIS ON THEIR OWN
+
+				// if($this->recurseFilePermissions(PROJECT_PATH,
+				// 	"root",
+				// 	$this->get("system", "deploy_user"),
+				// 	0755)
+				// ) {
+				//
+				// 	if($this->recurseFilePermissions(LOCAL_PATH."/library",
+				// 		$this->get("system", "apache_user"),
+				// 		$this->get("system", "deploy_user"),
+				// 		0700)
+				// 	) {
+				// 		$tasks["completed"][] = "File permissions updated for production environment";
+				// 	}
+				// 	else {
+				// 		$tasks["failed"][] = "File permissions could not be updated for production environment";
+				// 		return $tasks;
+				// 	}
+				//
+				// }
+				// else {
+				// 	$tasks["failed"][] = "File permissions could not be updated for production environment";
+				// 	return $tasks;
+				// }
+
+
+			}
+			// Dev environment
+			else {
+
+				if($this->recurseFilePermissions(PROJECT_PATH,
+					$this->get("system", "apache_user"),
+					$this->get("system", "deploy_user"),
+					0777)
+				) {
+					$tasks["completed"][] = "File permissions updated for development environment";
+				}
+				else {
+					$tasks["failed"][] = "File permissions could not be updated for development environment";
+					return $tasks;
+				}
+
 			}
 
 
-			// TODO: delete session when done testing
 
-			// unset($_SESSION["SOFTWARE_INFO"]);
-			//
-			// unset($_SESSION["project_path"]);
-			// unset($_SESSION["site_name"]);
-			// unset($_SESSION["site_uid"]);
-			// unset($_SESSION["site_email"]);
-			// unset($_SESSION["site_description"]);
-			// unset($_SESSION["CONFIG_INFO"]);
-			//
-			//
-			// unset($_SESSION["db_host"]);
-			// unset($_SESSION["db_root_user"]);
-			// unset($_SESSION["db_root_pass"]);
-			// unset($_SESSION["db_janitor_db"]);
-			// unset($_SESSION["db_janitor_user"]);
-			// unset($_SESSION["db_janitor_pass"]);
-			// unset($_SESSION["DATABASE_INFO"]);
-			//
-			// unset($_SESSION["mail_admin"]);
-			// unset($_SESSION["mail_host"]);
-			// unset($_SESSION["mail_port"]);
-			// unset($_SESSION["mail_username"]);
-			// unset($_SESSION["mail_password"]);
-			// unset($_SESSION["MAIL_INFO"]);
+			// If this is a new setup
+			// Send welcome email with password 
+			if(SETUP_TYPE == "new" && $this->get("account", "account_username") && $this->get("account", "account_password")) {
+				mailer()->send(array(
+					"subject" => "Welcome to Janitor", 
+					"message" => "Your Janitor project is ready.\n\nLog in to your new Janitor project: ".SITE_URL."/janitor\n\nUsername: ".$this->get("account", "account_username")."\nPassword: ".$this->get("account", "account_password")."\n\nSee you soon,\n\nJanitor",
+					"tracking" => false
+				));
+			}
 
-			//			print_r($tasks);
-
+			
+			$this->reset();
+			
 			return $tasks;
 		}
 

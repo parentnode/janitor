@@ -1,40 +1,41 @@
 <?php
-// Project is already initialized - Setting up existing project on new server
-if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"] && 
-	file_exists($_SERVER["LOCAL_PATH"]."/config/config.php") && 
-	file_exists($_SERVER["LOCAL_PATH"]."/config/connect_db.php") &&
-	file_exists($_SERVER["LOCAL_PATH"]."/config/connect_mail.php")
 
-) {
-
-//	print "existing project";
+header("Content-type: text/html; charset=UTF-8");
+error_reporting(E_ALL);
 
 
-	define("SETUP_TYPE", "existing");
-	define("PROJECT_PATH", preg_replace("/\/(theme|src)/", "", $_SERVER["LOCAL_PATH"]));
-
-	include_once("init.php");
-
-}
-else if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
-
-//	print "new project";
+// Framework and local path exists - PRIMARY CONDITION
+if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 
 
-	header("Content-type: text/html; charset=UTF-8");
-	error_reporting(E_ALL);
+	// Project is already initialized - Re-running setup on existing project
+	if(file_exists($_SERVER["LOCAL_PATH"]."/config/config.php") && 
+		file_exists($_SERVER["LOCAL_PATH"]."/config/connect_db.php")
+	) {
 
-	// if config file already exist, this could be an uninitialized existing project
-	if(file_exists($_SERVER["LOCAL_PATH"]."/config/config.php")) {
+		// print "existing project";
 		define("SETUP_TYPE", "existing");
 	}
+	// New instance of existing project
+	else if(file_exists($_SERVER["LOCAL_PATH"]."/config/config.php")) {
+		define("SETUP_TYPE", "existing");
+		define("SITE_INSTALL", true);
+	}
+	// New project set up - 1st run
 	else {
 		define("SETUP_TYPE", "new");
+		define("SITE_INSTALL", true);
 	}
 
-	define("SITE_INSTALL", true);
+
+
+	// if config file already exist, this could be an uninitialized existing project
 	define("PROJECT_PATH", preg_replace("/\/(theme|src)/", "", $_SERVER["LOCAL_PATH"]));
+
+
+
 	define("SITE_URL", (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]);
+
 
 
 	/**
@@ -97,6 +98,8 @@ else if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 
 	include_once("classes/system/html.janitor.class.php");
 
+	include_once("classes/items/items.core.class.php");
+	include_once("classes/items/items.class.php");
 
 	include_once("classes/items/itemtype.core.class.php");
 	include_once("classes/items/itemtype.class.php");
@@ -110,6 +113,8 @@ else if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 
 	include_once("classes/shop/shop.core.class.php");
 	include_once("classes/shop/shop.class.php");
+
+	include_once("classes/helpers/payment_gateway.class.php");
 
 }
 // Invalid conditions for setup

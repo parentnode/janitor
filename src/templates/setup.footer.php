@@ -1,34 +1,6 @@
 	</div>
 <?
-# PROGRESS METER
-
-$config_verified = false;
-$software_verified = false;
-
-$paths_verified = false;
-$database_verified = false;
-$mail_verified = false;
-
-if(isset($_SESSION["SOFTWARE_INFO"]) && $_SESSION["SOFTWARE_INFO"]) {
-	$software_verified = true;
-}
-
-if(isset($_SESSION["CONFIG_INFO"]) && $_SESSION["CONFIG_INFO"]) {
-	$config_verified = true;
-}
-
-// if(isset($_SESSION["PATH_INFO"]) && $_SESSION["PATH_INFO"]) {
-// 	$paths_verified = true;
-// }
-
-if(isset($_SESSION["DATABASE_INFO"]) && $_SESSION["DATABASE_INFO"]) {
-	$database_verified = true;
-}
-
-if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
-	$mail_verified = true;
-}
-
+global $model;
 ?>
 	<div id="navigation">
 		<ul class="navigation">
@@ -36,10 +8,12 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 			<li class="setup">
 				<h3>Setup</h3>
 				<ul class="subjects">
-					<li class="check<?= $software_verified ? " done" : "" ?>"><a href="/janitor/admin/setup/check">Check system</a></li>
-					<li class="config<?= $config_verified ? " done" : "" ?>"><a href="/janitor/admin/setup/config">Janitor configuration</a></li>
-					<li class="database<?= $database_verified ? " done" : "" ?>"><a href="/janitor/admin/setup/database">Setup database</a></li>
-					<li class="mail<?= $mail_verified ? " done" : "" ?>"><a href="/janitor/admin/setup/mail">Setup mail</a></li>
+					<li class="software<?= $model->get("software", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/software">System and software</a></li>
+					<li class="config<?= $model->get("config", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/config">Basic configuration</a></li>
+					<li class="database<?= $model->get("database", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/database">Database connection</a></li>
+					<li class="account<?= $model->get("account", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/account">Admin account</a></li>
+					<li class="mail<?= $model->get("mail", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/mail">Mail gateway</a></li>
+					<li class="payment<?= $model->get("payment", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/payment">Payment gateway</a></li>
 					<li class="finish"><a href="/janitor/admin/setup/finish">Finish installation</a></li>
 				</ul>
 			</li>
@@ -59,7 +33,7 @@ if(isset($_SESSION["MAIL_INFO"]) && $_SESSION["MAIL_INFO"]) {
 			<li class="totop"><a href="#header">To top</a></li>
 		</ul>
 
-		<p class="copyright">Copyright 2017, parentNode.dk</p>
+		<p class="copyright">Copyright 2017-2018, parentNode.dk</p>
 	</div>
 
 </div>
