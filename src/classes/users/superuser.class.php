@@ -255,7 +255,7 @@ class SuperUser extends User {
 
 
 
-						// we should also delete user account at gateway
+						// we should also delete user account at payment gateway
 						// TODO: keep updated when more gateways are added
 						include_once("classes/adapters/stripe.class.php");
 						$GC = new JanitorStripe();
@@ -790,7 +790,7 @@ class SuperUser extends User {
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
 				}
 				if($query->sql($sql)) {
-					message()->addMessage("password saved");
+					message()->addMessage("Password saved");
 					return true;
 				}
 			}

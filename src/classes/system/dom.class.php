@@ -1,6 +1,6 @@
 <?php
 /**
-* This file contains Cache-functions
+* This file contains DOM-functions
 */
 
 class DOM extends DOMElement {

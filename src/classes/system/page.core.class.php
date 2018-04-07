@@ -10,6 +10,8 @@ include_once("classes/system/mailer.class.php");
 
 
 
+
+
 /**
 * This class contains the site backbone
 * 
@@ -1718,9 +1720,8 @@ class PageCore {
 	*/
 	function throwOff($url=false) {
 
-		// TODO: Compile more information and send in email
+		// Log and send in email
 		$this->addLog("Throwoff - insufficient privileges:".$this->url." by ". session()->value("user_id"));
-
 		mailer()->send(array(
 			"subject" => "Throwoff - " . SITE_URL, 
 			"message" => "insufficient privileges:".$this->url, 
