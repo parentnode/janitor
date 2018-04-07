@@ -65,184 +65,187 @@ class Mailer {
 		// only load mail adapter when needed
 		$this->init_adapter();
 
+		// Only attempt sending with valid adapter
+		if($this->adapter && defined("ADMIN_EMAIL")) {
 
-		$subject = false;
+			$subject = false;
 
-		// message is appended to template template
-		$message = "";
-		$template = false;
+			// message is appended to template template
+			$message = "";
+			$template = false;
 
-		$values = [];
-		$from_current_user = false;
+			$values = [];
+			$from_current_user = false;
 
-		// we'll do some extra recipient checking before making the final recipients list
-		$temp_recipients = false;
-		$recipients = [];
+			// we'll do some extra recipient checking before making the final recipients list
+			$temp_recipients = false;
+			$recipients = [];
 
-		$attachments = false;
+			$attachments = false;
 
-		$text = "";
-		$html = "";
+			$text = "";
+			$html = "";
 
 
-		// tracking settings - should always use default settings from mail-service, unless explicitly set
-		$tracking = "default";
-		$track_clicks = "default";
-		$track_opened = "default";
+			// tracking settings - should always use default settings from mail-service, unless explicitly set
+			$tracking = "default";
+			$track_clicks = "default";
+			$track_opened = "default";
 
-//		$object = false;
+	//		$object = false;
 
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
+			if($_options !== false) {
+				foreach($_options as $_option => $_value) {
+					switch($_option) {
 
-					case "subject"                : $subject                = $_value; break;
+						case "subject"                : $subject                = $_value; break;
 
-					case "message"                : $message                = $_value; break;
-					case "template"               : $template               = $_value; break;
+						case "message"                : $message                = $_value; break;
+						case "template"               : $template               = $_value; break;
 
-					case "from_current_user"      : $from_current_user      = $_value; break;
-					case "values"                 : $values                 = $_value; break;
+						case "from_current_user"      : $from_current_user      = $_value; break;
+						case "values"                 : $values                 = $_value; break;
 
-					case "recipients"             : $temp_recipients        = $_value; break;
-					case "attachments"            : $attachments            = $_value; break;
+						case "recipients"             : $temp_recipients        = $_value; break;
+						case "attachments"            : $attachments            = $_value; break;
 
-					case "html"                   : $html                   = $_value; break;
-					case "text"                   : $text                   = $_value; break;
+						case "html"                   : $html                   = $_value; break;
+						case "text"                   : $text                   = $_value; break;
 
-					// tracking only supported if supported by mailservice
-					case "tracking"               : $tracking               = $_value; break;
-					case "track_clicks"           : $track_clicks           = $_value; break;
-					case "track_opened"           : $track_opened           = $_value; break;
+						// tracking only supported if supported by mailservice
+						case "tracking"               : $tracking               = $_value; break;
+						case "track_clicks"           : $track_clicks           = $_value; break;
+						case "track_opened"           : $track_opened           = $_value; break;
 
+					}
 				}
 			}
-		}
 
 
-		// if no recipients - send to ADMIN
-		if(!$temp_recipients && defined("ADMIN_EMAIL")) {
-			$temp_recipients[] = ADMIN_EMAIL;
-		}
-
-
-		// split comma separated recipient list
-		if(!is_array($temp_recipients)) {
-			$temp_recipients = preg_split("/,|;/", $temp_recipients);
-		}
-
-		// check that recipient seems to be a valid email
-		foreach($temp_recipients as $recipient) {
-			// only use valid recipients
-			if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
-				$recipients[] = $recipient;
-			}
-		}
-
-		// include template
-		// template is prioritized before $text and $html
-		if($template) {
-
-			// TODO: check for mail template in database
-			list($text, $html) = $this->getTemplate($template);
-
-		}
-		// No template, text or html, - just plain text message
-		else if(!$text && !$html && $message) {
-			$text = $message;
-		}
-
-
-		// subject was not specified
-		// look for subject in templates - HTML wins
-		if(!$subject) {
-
-			// look for subject in html template
-			if($html && preg_match("/<title>([^$]+)<\/title>/", $html, $subject_match)) {
-				$subject = $subject_match[1];
-			}
-			// look for subject in text template
-			else if($text && preg_match("/^SUBJECT\:([^\n]+)\n/", $text, $subject_match)) {
-				$subject = $subject_match[1];
-			}
-			else {
-				$subject = "Mail from ".SITE_URL;
+			// if no recipients - send to ADMIN
+			if(!$temp_recipients && defined("ADMIN_EMAIL")) {
+				$temp_recipients[] = ADMIN_EMAIL;
 			}
 
-		}
+
+			// split comma separated recipient list
+			if(!is_array($temp_recipients)) {
+				$temp_recipients = preg_split("/,|;/", $temp_recipients);
+			}
+
+			// check that recipient seems to be a valid email
+			foreach($temp_recipients as $recipient) {
+				// only use valid recipients
+				if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+					$recipients[] = $recipient;
+				}
+			}
+
+			// include template
+			// template is prioritized before $text and $html
+			if($template) {
+
+				// TODO: check for mail template in database
+				list($text, $html) = $this->getTemplate($template);
+
+			}
+			// No template, text or html, - just plain text message
+			else if(!$text && !$html && $message) {
+				$text = $message;
+			}
 
 
-		// remove a subject line from $text template
-		$text = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $text);
-		// trim text message
-		$text = trim($text);
+			// subject was not specified
+			// look for subject in templates - HTML wins
+			if(!$subject) {
+
+				// look for subject in html template
+				if($html && preg_match("/<title>([^$]+)<\/title>/", $html, $subject_match)) {
+					$subject = $subject_match[1];
+				}
+				// look for subject in text template
+				else if($text && preg_match("/^SUBJECT\:([^\n]+)\n/", $text, $subject_match)) {
+					$subject = $subject_match[1];
+				}
+				else {
+					$subject = "Mail from ".SITE_URL;
+				}
+
+			}
 
 
-		// prepare default values for merging - but don't overwrite
-		$values["SITE_URL"] = isset($values["SITE_URL"]) ? $values["SITE_URL"] : SITE_URL;
-		$values["SITE_NAME"] = isset($values["SITE_NAME"]) ? $values["SITE_NAME"] : SITE_NAME;
-		$values["ADMIN_EMAIL"] = isset($values["ADMIN_EMAIL"]) ? $values["ADMIN_EMAIL"] : ADMIN_EMAIL;
-		$values["SITE_EMAIL"] = isset($values["SITE_EMAIL"]) ? $values["SITE_EMAIL"] : SITE_EMAIL;
-
-		// add message to merging array
-		if($message && !isset($values["message"])) {
-			$values["message"] = $message;
-		}
-
-		// Replace values
-		foreach($values as $key => $value) {
-			$html = preg_replace("/{".$key."}/", $value, $html);
-			$text = preg_replace("/{".$key."}/", $value, $text);
-			$subject = preg_replace("/{".$key."}/", $value, $subject);
-		}
+			// remove a subject line from $text template
+			$text = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $text);
+			// trim text message
+			$text = trim($text);
 
 
-		// if html but no text version
-		// create text version from HTML
-		if($html && !$text) {
+			// prepare default values for merging - but don't overwrite
+			$values["SITE_URL"] = isset($values["SITE_URL"]) ? $values["SITE_URL"] : SITE_URL;
+			$values["SITE_NAME"] = isset($values["SITE_NAME"]) ? $values["SITE_NAME"] : SITE_NAME;
+			$values["ADMIN_EMAIL"] = isset($values["ADMIN_EMAIL"]) ? $values["ADMIN_EMAIL"] : ADMIN_EMAIL;
+			$values["SITE_EMAIL"] = isset($values["SITE_EMAIL"]) ? $values["SITE_EMAIL"] : SITE_EMAIL;
 
-			include_once("classes/system/dom.class.php");
-			$DC = new DOM();
+			// add message to merging array
+			if($message && !isset($values["message"])) {
+				$values["message"] = $message;
+			}
 
-			// create DOM object from HTML string
-			$dom = $DC->createDOM($html);
-
-			// get formatted text string from DOM object
-			$text = $DC->getFormattedTextFromDOM($dom);
-
-			//cleanup
-			$DC = null;
-			$dom = null;
-
-		}
-
-
-		// only attmempt sending if recipients are specified
-		if($text && $recipients) {
-
-			list($from_email, $from_name) = $this->getSender($from_current_user);
+			// Replace values
+			foreach($values as $key => $value) {
+				$html = preg_replace("/{".$key."}/", $value, $html);
+				$text = preg_replace("/{".$key."}/", $value, $text);
+				$subject = preg_replace("/{".$key."}/", $value, $subject);
+			}
 
 
-			return $this->adapter->send([
-//			return $mailer->send([
-				"subject" => $subject,
+			// if html but no text version
+			// create text version from HTML
+			if($html && !$text) {
+
+				include_once("classes/system/dom.class.php");
+				$DC = new DOM();
+
+				// create DOM object from HTML string
+				$dom = $DC->createDOM($html);
+
+				// get formatted text string from DOM object
+				$text = $DC->getFormattedTextFromDOM($dom);
+
+				//cleanup
+				$DC = null;
+				$dom = null;
+
+			}
 
 
-				"from_name" => $from_name,
-				"from_email" => $from_email,
-				"recipients" => $recipients,
+			// only attmempt sending if recipients are specified
+			if($text && $recipients) {
 
-				"attachments" => $attachments,
+				list($from_email, $from_name) = $this->getSender($from_current_user);
 
-				"html" => $html,
-				"text" => $text,
 
-				"tracking" => $tracking,
-				"track_clicks" => $track_clicks,
-				"track_opened" => $track_opened,
+				return $this->adapter->send([
+	//			return $mailer->send([
+					"subject" => $subject,
 
-			]);
 
+					"from_name" => $from_name,
+					"from_email" => $from_email,
+					"recipients" => $recipients,
+
+					"attachments" => $attachments,
+
+					"html" => $html,
+					"text" => $text,
+
+					"tracking" => $tracking,
+					"track_clicks" => $track_clicks,
+					"track_opened" => $track_opened,
+
+				]);
+
+			}
 
 		}
 
@@ -257,176 +260,179 @@ class Mailer {
 		// only load mail adapter when needed
 		$this->init_adapter();
 
+		// Only attempt sending with valid adapter
+		if($this->adapter && defined("ADMIN_EMAIL")) {
 
-		$subject = false;
+			$subject = false;
 
-		// message is appended to template template
-		$message = "";
-		$template = false;
+			// message is appended to template template
+			$message = "";
+			$template = false;
 
-		$values = [];
-		$from_current_user = false;
+			$values = [];
+			$from_current_user = false;
 
-		$temp_recipients = false;
-		$recipients = [];
-		$attachments = false;
+			$temp_recipients = false;
+			$recipients = [];
+			$attachments = false;
 
-		$text = "";
-		$html = "";
+			$text = "";
+			$html = "";
 
 
-		// tracking settings - should always use default settings from mail-service, unless explicitly set
-		$tracking = "default";
-		$track_clicks = "default";
-		$track_opened = "default";
+			// tracking settings - should always use default settings from mail-service, unless explicitly set
+			$tracking = "default";
+			$track_clicks = "default";
+			$track_opened = "default";
 
-//		$object = false;
+	//		$object = false;
 
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
+			if($_options !== false) {
+				foreach($_options as $_option => $_value) {
+					switch($_option) {
 
-					case "subject"                : $subject                = $_value; break;
+						case "subject"                : $subject                = $_value; break;
 
-					case "message"                : $message                = $_value; break;
-					case "template"               : $template               = $_value; break;
+						case "message"                : $message                = $_value; break;
+						case "template"               : $template               = $_value; break;
 
-					case "from_current_user"      : $from_current_user      = $_value; break;
-					case "values"                 : $values                 = $_value; break;
+						case "from_current_user"      : $from_current_user      = $_value; break;
+						case "values"                 : $values                 = $_value; break;
 
-					case "recipients"             : $temp_recipients        = $_value; break;
-					case "attachments"            : $attachments            = $_value; break;
+						case "recipients"             : $temp_recipients        = $_value; break;
+						case "attachments"            : $attachments            = $_value; break;
 
-					case "html"                   : $html                   = $_value; break;
-					case "text"                   : $text                   = $_value; break;
+						case "html"                   : $html                   = $_value; break;
+						case "text"                   : $text                   = $_value; break;
 
-					// tracking only supported if supported by mailservice
-					case "tracking"               : $tracking               = $_value; break;
-					case "track_clicks"           : $track_clicks           = $_value; break;
-					case "track_opened"           : $track_opened           = $_value; break;
+						// tracking only supported if supported by mailservice
+						case "tracking"               : $tracking               = $_value; break;
+						case "track_clicks"           : $track_clicks           = $_value; break;
+						case "track_opened"           : $track_opened           = $_value; break;
 
+					}
 				}
 			}
-		}
 
 
-		// check that recipient seems to be a valid email
-		foreach($temp_recipients as $recipient) {
-			// only use valid recipients
-			if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
-				$recipients[] = $recipient;
-			}
-		}
-
-
-		// include template
-		// template is prioritized before $text and $html
-		if($template) {
-
-			// TODO: check for mail template in database
-			list($text, $html) = $this->getTemplate($template);
-
-		}
-		// No template, text or html, - just plain text message
-		else if(!$text && !$html && $message) {
-			$text = $message;
-		}
-
-//		print_r($html);
-
-		// subject was not specified
-		// look for subject in templates - HTML wins
-		if(!$subject) {
-
-			// look for subject in html template
-			if($html && preg_match("/<title>([^$]+)<\/title>/", $html, $subject_match)) {
-				$subject = $subject_match[1];
-			}
-			// look for subject in text template
-			else if($text && preg_match("/^SUBJECT\:([^\n]+)\n/", $text, $subject_match)) {
-				$subject = $subject_match[1];
-			}
-			else {
-				$subject = "Mail from ".SITE_URL;
+			// check that recipient seems to be a valid email
+			foreach($temp_recipients as $recipient) {
+				// only use valid recipients
+				if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+					$recipients[] = $recipient;
+				}
 			}
 
-		}
 
+			// include template
+			// template is prioritized before $text and $html
+			if($template) {
 
-		// remove a subject line from $text template
-		$text = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $text);
-		// trim text message
-		$text = trim($text);
+				// TODO: check for mail template in database
+				list($text, $html) = $this->getTemplate($template);
 
-//		print_r($recipients);
-
-		// Add system variable to each recipient
-//		print_r($values);
-		foreach($recipients as $recipient) {
-
-			// prepare default values for merging - but don't overwrite
-			$values[$recipient]["SITE_URL"] = isset($values[$recipient]["SITE_URL"]) ? $values[$recipient]["SITE_UEL"] : SITE_URL;
-			$values[$recipient]["SITE_NAME"] = isset($values[$recipient]["SITE_NAME"]) ? $values[$recipient]["SITE_NAME"] : SITE_NAME;
-			$values[$recipient]["SITE_EMAIL"] = isset($values[$recipient]["SITE_EMAIL"]) ? $values[$recipient]["SITE_EMAIL"] : SITE_EMAIL;
-			$values[$recipient]["ADMIN_EMAIL"] = isset($values[$recipient]["ADMIN_EMAIL"]) ? $values[$recipient]["ADMIN_EMAIL"] : ADMIN_EMAIL;
-
-			// add message to merging array
-			if($message && !isset($values[$recipient]["message"])) {
-				$values[$recipient]["message"] = $message;
+			}
+			// No template, text or html, - just plain text message
+			else if(!$text && !$html && $message) {
+				$text = $message;
 			}
 
-		}
+	//		print_r($html);
+
+			// subject was not specified
+			// look for subject in templates - HTML wins
+			if(!$subject) {
+
+				// look for subject in html template
+				if($html && preg_match("/<title>([^$]+)<\/title>/", $html, $subject_match)) {
+					$subject = $subject_match[1];
+				}
+				// look for subject in text template
+				else if($text && preg_match("/^SUBJECT\:([^\n]+)\n/", $text, $subject_match)) {
+					$subject = $subject_match[1];
+				}
+				else {
+					$subject = "Mail from ".SITE_URL;
+				}
+
+			}
 
 
-		// if html but no text version
-		// create text version from HTML
-		if($html && !$text) {
+			// remove a subject line from $text template
+			$text = preg_replace("/^SUBJECT\:([^\n]+)\n/", "", $text);
+			// trim text message
+			$text = trim($text);
 
-			include_once("classes/system/dom.class.php");
-			$DC = new DOM();
+	//		print_r($recipients);
 
-			// create DOM object from HTML string
-			$dom = $DC->createDOM($html);
+			// Add system variable to each recipient
+	//		print_r($values);
+			foreach($recipients as $recipient) {
 
-			// get formatted text string from DOM object
-			$text = $DC->getFormattedTextFromDOM($dom);
+				// prepare default values for merging - but don't overwrite
+				$values[$recipient]["SITE_URL"] = isset($values[$recipient]["SITE_URL"]) ? $values[$recipient]["SITE_UEL"] : SITE_URL;
+				$values[$recipient]["SITE_NAME"] = isset($values[$recipient]["SITE_NAME"]) ? $values[$recipient]["SITE_NAME"] : SITE_NAME;
+				$values[$recipient]["SITE_EMAIL"] = isset($values[$recipient]["SITE_EMAIL"]) ? $values[$recipient]["SITE_EMAIL"] : SITE_EMAIL;
+				$values[$recipient]["ADMIN_EMAIL"] = isset($values[$recipient]["ADMIN_EMAIL"]) ? $values[$recipient]["ADMIN_EMAIL"] : ADMIN_EMAIL;
 
+				// add message to merging array
+				if($message && !isset($values[$recipient]["message"])) {
+					$values[$recipient]["message"] = $message;
+				}
 
-//			print $text;
-			//cleanup
-			$DC = null;
-			$dom = null;
-			// $text = strip_tags($html);
-			// // this is the new message
-			// $text = trim($text);
-		}
-
-
-		// only attmempt sending if recipients are specified
-		if($text && $recipients) {
-
-			list($from_email, $from_name) = $this->getSender($from_current_user);
-
-			return $this->adapter->sendBulk([
-//			return $mailer->send([
-				"subject" => $subject,
+			}
 
 
-				"from_name" => $from_name,
-				"from_email" => $from_email,
-				"recipients" => $recipients,
-				"values" => $values,
+			// if html but no text version
+			// create text version from HTML
+			if($html && !$text) {
 
-				"attachments" => $attachments,
+				include_once("classes/system/dom.class.php");
+				$DC = new DOM();
+
+				// create DOM object from HTML string
+				$dom = $DC->createDOM($html);
+
+				// get formatted text string from DOM object
+				$text = $DC->getFormattedTextFromDOM($dom);
+
+
+	//			print $text;
+				//cleanup
+				$DC = null;
+				$dom = null;
+				// $text = strip_tags($html);
+				// // this is the new message
+				// $text = trim($text);
+			}
+
+
+			// only attmempt sending if recipients are specified
+			if($text && $recipients) {
+
+				list($from_email, $from_name) = $this->getSender($from_current_user);
+
+				return $this->adapter->sendBulk([
+	//			return $mailer->send([
+					"subject" => $subject,
+
+
+					"from_name" => $from_name,
+					"from_email" => $from_email,
+					"recipients" => $recipients,
+					"values" => $values,
+
+					"attachments" => $attachments,
 				
-				"html" => $html,
-				"text" => $text,
+					"html" => $html,
+					"text" => $text,
 
-				"tracking" => $tracking,
-				"track_clicks" => $track_clicks,
-				"track_opened" => $track_opened,
-			]);
+					"tracking" => $tracking,
+					"track_clicks" => $track_clicks,
+					"track_opened" => $track_opened,
+				]);
 
+			}
 
 		}
 
