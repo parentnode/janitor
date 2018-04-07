@@ -1742,8 +1742,8 @@ class PageCore {
 		// Restore messages
 		$_SESSION["message"] = $messages;
 
-
-		if($url) {
+		// TODO: Temp quickfix to avoid being redirected to API endpoints after login
+		if($url && !preg_match("/\/(save|update|add|remove|delete|upload|duplicate|keepAlive)/", $url)) {
 			session()->value("LoginForward", $url);
 		}
 		print '<script type="text/javacript">location.href="/login?page_status=logoff"</script>';
