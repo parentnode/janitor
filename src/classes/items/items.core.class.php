@@ -8,35 +8,6 @@
 *
 */
 
-// define default database name constants
-// base DB tables
-define("UT_ITEMS",                      SITE_DB.".items");                             // Items
-
-// MEDIAE
-define("UT_ITEMS_MEDIAE",               SITE_DB.".items_mediae");                      // Items Mediae
-
-// COMMENTS
-define("UT_ITEMS_COMMENTS",             SITE_DB.".items_comments");                    // Items Comments
-
-// PRICES
-define("UT_ITEMS_PRICES",               SITE_DB.".items_prices");                      // Items Prices
-
-// SUBSCRIPTION METHOD
-define("UT_ITEMS_SUBSCRIPTION_METHOD",  SITE_DB.".items_subscription_method");         // Items Subscription method
-
-
-
-// TAGS
-define("UT_TAG",                        SITE_DB.".tags");                              // Item tags
-define("UT_TAGGINGS",                   SITE_DB.".taggings");                          // Item tags relations
-
-
-// NAVIGATION EXTENSIONS
-define("UT_NAV",                        SITE_DB.".navigation");                        // Site navigation
-define("UT_NAV_NODES",                  SITE_DB.".navigation_nodes");                  // Site navigation nodes
-
-
-
 class ItemsCore {
 
 	/**
