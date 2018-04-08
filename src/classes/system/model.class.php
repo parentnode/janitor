@@ -101,7 +101,7 @@ class Model extends HTML {
 		$this->addToModel("item_price", array(
 			"type" => "string",
 			"label" => "New price",
-			"pattern" => "[0-9\,]+",
+			"pattern" => "[0-9,]+",
 			"class" => "price",
 			"required" => true,
 			"hint_message" => "State the price INCLUDING VAT, using comma (,) as decimal point.",
