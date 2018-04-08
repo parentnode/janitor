@@ -661,7 +661,7 @@ class Setup extends Itemtype {
 	function recurseFilePermissions($path, $user, $group, $permissions) {
 		$directory = opendir($path) ;
 		while(($file = readdir($directory)) !== false) {
-			if($file != "." && $file != "..") {
+			if($file != "." && $file != ".." && $file != ".git") {
 
 				$filepath = $path . "/" . $file ;
 
