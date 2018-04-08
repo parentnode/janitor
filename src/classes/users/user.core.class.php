@@ -661,6 +661,11 @@ class UserCore extends Model {
 						$query->sql($sql);
 
 
+						global $page;
+						$page->addLog("User->confirmUser: user_id:$user_id");
+
+
+
 						return true;
 					}
 				}
@@ -762,24 +767,30 @@ class UserCore extends Model {
 
 
 							// we should also delete user account at gateway
-							// TODO: keep updated when more gateways are added
-							include_once("classes/adapters/stripe.class.php");
-							$GC = new JanitorStripe();
-							$payment_methods = $page->paymentMethods();
+							payments()->deleteGatewayUserId($user_id);
 
-							foreach($payment_methods as $payment_method) {
-
-								if($payment_method["gateway"] == "stripe") {
-
-									$GC->deleteCustomer($user_id);
-
-								}
-
-							}
+							// // TODO: keep updated when more gateways are added
+							// include_once("classes/adapters/stripe.class.php");
+							// $GC = new JanitorStripe();
+							// $payment_methods = $page->paymentMethods();
+							//
+							// foreach($payment_methods as $payment_method) {
+							//
+							// 	if($payment_method["gateway"] == "stripe") {
+							//
+							// 		$GC->deleteCustomer($user_id);
+							//
+							// 	}
+							//
+							// }
 						}
 
 						// reset user session
 						session()->reset();
+
+						global $page;
+						$page->addLog("User->cancel: user_id:$user_id");
+
 
 						return true;
 

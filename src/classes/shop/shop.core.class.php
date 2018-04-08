@@ -1166,6 +1166,7 @@ class ShopCore extends Model {
 						// get the new order
 						$order = $this->getOrders(array("order_no" => $order_no));
 
+
 //						print "items";
 //						print_r($cart["items"]);
 
@@ -1252,6 +1253,10 @@ class ShopCore extends Model {
 										// clean up POST array
 										unset($_POST);
 
+//										print_r($subscription);
+										$order["comment"] .= $subscription["item"]["name"] . ($subscription["expires_at"] ? " (" . ($subscription["renewed_at"] ? date("d/m/Y", strtotime($subscription["renewed_at"])) : date("d/m/Y", strtotime($subscription["created_at"]))) ." - ". date("d/m/Y", strtotime($subscription["expires_at"])).")" : "");
+//										print_r($order);
+
 									}
 
 								}
@@ -1273,6 +1278,12 @@ class ShopCore extends Model {
 
 						// Add cookie for user
 						setcookie("order_no", $order_no, time()+60*60*24*60, "/");
+
+
+						// Update order comment
+						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."'";
+//						print $sql."<br>\n";
+						$query->sql($sql);
 
 
 						// set payment status for 0-prices orders
@@ -1604,15 +1615,18 @@ class ShopCore extends Model {
 					$order["user"] = $UC->getUser();
 					$order["total_price"] = $this->getTotalOrderPrice($order["id"]);
 
-					if($gateway == "stripe") {
+					return payments()->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
 
-						$page->addLog("Shop->processOrderPayment: order_id:".$order["id"].", gateway: $gateway");
 
-						include_once("classes/adapters/stripe.class.php");
-						$GC = new JanitorStripe();
-
-						return $GC->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
-					}
+					// if($gateway == "stripe") {
+					//
+					// 	$page->addLog("Shop->processOrderPayment: order_id:".$order["id"].", gateway: $gateway");
+					//
+					// 	include_once("classes/adapters/stripe.class.php");
+					// 	$GC = new JanitorStripe();
+					//
+					// 	return $GC->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+					// }
 
 
 					// More gateways can be added here
@@ -1686,16 +1700,22 @@ class ShopCore extends Model {
 			}
 		}
 
-		if($gateway == "stripe") {
 
-			include_once("classes/adapters/stripe.class.php");
-			$GC = new JanitorStripe();
-
-			$customer_id = $GC->getCustomerId($user_id);
-			if($customer_id) {
-				return true;
-			}
+		$customer_id = payments()->getGatewayUserId($user_id);
+		if($customer_id) {
+			return true;
 		}
+
+		// if($gateway == "stripe") {
+		//
+		// 	include_once("classes/adapters/stripe.class.php");
+		// 	$GC = new JanitorStripe();
+		//
+		// 	$customer_id = $GC->getCustomerId($user_id);
+		// 	if($customer_id) {
+		// 		return true;
+		// 	}
+		// }
 
 		return false;
 	}

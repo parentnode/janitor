@@ -12,17 +12,12 @@ class JanitorStripe {
 	/**
 	*
 	*/
-	function __construct() {
+	function __construct($_settings) {
 
-		// include stripe connection keys
-		@include("config/connect_stripe.php");
+		$this->secret_key = $_settings["secret-key"];
+		$this->publishable_key = $_settings["public-key"];
 
-		$this->stripe = array(
-		  "secret_key"      => $stripe_keys["secret"],
-		  "publishable_key" => $stripe_keys["public"]
-		);
-
-		\Stripe\Stripe::setApiKey($this->stripe['secret_key']);
+		\Stripe\Stripe::setApiKey($this->secret_key);
 	
 	}
 
@@ -366,8 +361,8 @@ class JanitorStripe {
 				'customer'             => $customer_id,
 				'amount'               => $order["total_price"]["price"]*100,
 				'currency'             => $order["currency"],
-				'description'          => $order["order_no"],
-				'statement_descriptor' => ((isset($order["custom_description"]) && $order["custom_description"]) ? $order["custom_description"] : ($order["order_no"] . ($order["comment"] ? ", " . $order["comment"] : ""))),
+				'statement_descriptor' => $order["order_no"],
+				'description'          => ((isset($order["custom_description"]) && $order["custom_description"]) ? $order["custom_description"] : ($order["order_no"] . ($order["comment"] ? ", " . $order["comment"] : ""))),
 				'receipt_email'        => $order["user"]["email"],
 			));
 

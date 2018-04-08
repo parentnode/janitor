@@ -1907,16 +1907,22 @@ class SuperShop extends Shop {
 		}
 
 
-		if($gateway == "stripe") {
-
-			include_once("classes/adapters/stripe.class.php");
-			$GC = new JanitorStripe();
-
-			$customer_id = $GC->getCustomerId($user_id);
-			if($customer_id) {
-				return true;
-			}
+		$customer_id = payments()->getGatewayUserId($user_id);
+		if($customer_id) {
+			return true;
 		}
+
+		//
+		// if($gateway == "stripe") {
+		//
+		// 	include_once("classes/adapters/stripe.class.php");
+		// 	$GC = new JanitorStripe();
+		//
+		// 	$customer_id = $GC->getCustomerId($user_id);
+		// 	if($customer_id) {
+		// 		return true;
+		// 	}
+		// }
 
 		return false;
 	}
@@ -1954,45 +1960,83 @@ class SuperShop extends Shop {
 
 				$payment_amount = $total_order_price["price"]-$total_payments;
 
+				$custom_order = $order;
+				$custom_order["total_price"]["price"] = $payment_amount;
+				
+				// if partially paid already, add custom description to charge
+				if($total_payments) {
+					$custom_order["custom_description"] = $order["order_no"] . ", " . $order["comment"] . " (partial)";
+				}
 
-				if($payment_method["gateway"] == "stripe") {
+				// // if partially paid already, add custom description to charge
+				// if($total_payments) {
+				// 	$order["custom_description"] = $order["order_no"] . ", " . $order["comment"] . " (partial)";
+				// }
 
-					include_once("classes/adapters/stripe.class.php");
-					$GC = new JanitorStripe();
+//				print "should charge $payment_amount from ".$payment_method["gateway"];
 
-					$customer_id = $GC->getCustomerId($order["user_id"]);
+				if(payments()->chargeUser($custom_order)) {
 
-					if($customer_id) {
-//						print "should charge $payment_amount from ".$payment_method["gateway"];
-
-						$custom_order = $order;
-						$custom_order["total_price"]["price"] = $payment_amount;
-						
-						// if partially paid already, add custom description to charge
-						if($total_payments) {
-							$custom_order["custom_description"] = $order["order_no"] . ", " . $order["comment"] . " (partial)";
-						}
-
-						if($GC->chargeCustomer($custom_order, $customer_id)) {
-
-							message()->addMessage("Payment charged sucessfully.");
-							return true;
-
-						}
-
-					}
-					else {
-
-						message()->addMessage("User does not have Stripe account.", array("type" => "error"));
-						return false;
-
-					}
+					message()->addMessage("Payment charged sucessfully.");
+					return true;
 
 				}
-	
+				else {
+
+					message()->addMessage("Payment could not be charged.", array("type" => "error"));
+					return false;
+
+				}
+
+			}
+			else {
+
+				message()->addMessage("Unknown order.", array("type" => "error"));
+				return false;
+
 			}
 
 		}
+
+//
+// 				if($payment_method["gateway"] == "stripe") {
+//
+// 					include_once("classes/adapters/stripe.class.php");
+// 					$GC = new JanitorStripe();
+//
+// 					$customer_id = $GC->getCustomerId($order["user_id"]);
+//
+// 					if($customer_id) {
+// //						print "should charge $payment_amount from ".$payment_method["gateway"];
+//
+// 						$custom_order = $order;
+// 						$custom_order["total_price"]["price"] = $payment_amount;
+//
+// 						// if partially paid already, add custom description to charge
+// 						if($total_payments) {
+// 							$custom_order["custom_description"] = $order["order_no"] . ", " . $order["comment"] . " (partial)";
+// 						}
+//
+// 						if($GC->chargeCustomer($custom_order, $customer_id)) {
+//
+// 							message()->addMessage("Payment charged sucessfully.");
+// 							return true;
+//
+// 						}
+//
+// 					}
+// 					else {
+//
+// 						message()->addMessage("User does not have Stripe account.", array("type" => "error"));
+// 						return false;
+//
+// 					}
+//
+// 				}
+//
+// 			}
+//
+// 		}
 
 		message()->addMessage("Payment could not be charged", array("type" => "error"));
 		return false;

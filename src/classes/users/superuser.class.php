@@ -254,27 +254,34 @@ class SuperUser extends User {
 						$query->sql($sql);
 
 
-
 						// we should also delete user account at payment gateway
-						// TODO: keep updated when more gateways are added
-						include_once("classes/adapters/stripe.class.php");
-						$GC = new JanitorStripe();
-						$payment_methods = $page->paymentMethods();
+						payments()->deleteGatewayUserId($user_id);
 
-						foreach($payment_methods as $payment_method) {
-
-							if($payment_method["gateway"] == "stripe") {
-
-								$GC->deleteCustomer($user_id);
-
-							}
-
-						}
+						// // TODO: keep updated when more gateways are added
+						// include_once("classes/adapters/stripe.class.php");
+						// $GC = new JanitorStripe();
+						// $payment_methods = $page->paymentMethods();
+						//
+						// foreach($payment_methods as $payment_method) {
+						//
+						// 	if($payment_method["gateway"] == "stripe") {
+						//
+						// 		$GC->deleteCustomer($user_id);
+						//
+						// 	}
+						//
+						// }
 
 					}
 
 					// flush user session when user is deleted
 					$this->flushUserSession(array("flushUserSession", $user_id));
+
+
+					// add to log
+					global $page;
+					$page->addLog("SuperUser->cancel: user_id:$user_id");
+
 
 					message()->addMessage("Account cancelled");
 					return true;
@@ -1224,7 +1231,7 @@ class SuperUser extends User {
 
 				// get subscription item
 				$subscription["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
-				print_r($subscription["item"]);
+//				print_r($subscription["item"]);
 				// add membership info if user_id is available
 				if($user_id) {
 					// is this subscription used for membership
