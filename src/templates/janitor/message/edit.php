@@ -27,7 +27,7 @@ else {
 
 // get available layouts
 $layouts = $model->getLayouts();
-$layout_options = $HTML->toOptions($layouts, "name", "subject");
+$layout_options = $HTML->toOptions($layouts, "name", "subject", ["add" => ["" => "Choose layout"]]);
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Selected message</h1>
