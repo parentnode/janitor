@@ -788,6 +788,15 @@ class Upgrade extends Model {
 
 				// Update syntax to reflect versions-table (to enable easy comparison)
 
+				// Exception for older MySQL/MariaDB (> 5.6.1)
+				$query = new Query();
+				$query->sql("SELECT VERSION() as version");
+				$db_version = $query->result(0, "version");
+				if(preg_match("/5\.([0-5]|6\.0)/", $db_version)) {
+					// TODO: remove CURRENT_TIMESTAMP
+					$sql_file_content = preg_replace("/current_timestamp[\(\)]*/i", "NULL", $sql_file_content);
+				}
+
 				// update constraints names
 				$sql_file_content = str_replace(preg_replace("/_versions$/", "", $table), $table, $sql_file_content);
 
@@ -985,7 +994,7 @@ class Upgrade extends Model {
 
 		}
 		else {
-			return array("success" => false, "message" => "REFERENCE SQL FILE NOT FOUND");
+			return array("success" => false, "message" => "$table: REFERENCE SQL FILE NOT FOUND");
 		}
 
 	}

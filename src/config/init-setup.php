@@ -13,16 +13,24 @@ if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 		file_exists($_SERVER["LOCAL_PATH"]."/config/connect_db.php")
 	) {
 
+		include_once($_SERVER["LOCAL_PATH"]."/config/config.php");
+
 		// print "existing project";
 		define("SETUP_TYPE", "existing");
 	}
 	// New instance of existing project
 	else if(file_exists($_SERVER["LOCAL_PATH"]."/config/config.php")) {
+
+		include_once($_SERVER["LOCAL_PATH"]."/config/config.php");
+
 		define("SETUP_TYPE", "existing");
 		define("SITE_INSTALL", true);
 	}
 	// New project set up - 1st run
 	else {
+
+		define("SITE_URL", (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]);
+
 		define("SETUP_TYPE", "new");
 		define("SITE_INSTALL", true);
 	}
@@ -34,7 +42,6 @@ if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 
 
 
-	define("SITE_URL", (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]);
 
 
 
