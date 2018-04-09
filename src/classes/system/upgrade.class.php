@@ -213,7 +213,13 @@ class Upgrade extends Model {
 				$user_newsletters_table = $this->tableInfo(SITE_DB.".user_newsletters");
 				if($user_newsletters_table) {
 
-					// Get all existing newsletters from original (1. version) newsletter table
+					// Drop contraints and keys, to be able to update keys and columns freely
+					$this->process($this->dropConstraints(SITE_DB.".user_newsletters"), true);
+					$this->process($this->dropKeys(SITE_DB.".user_newsletters"), true);
+
+
+
+					// Get all existing newsletters from original (1. version) newsletter table which had a newsletter column
 					$query->sql("SELECT * FROM ".SITE_DB.".user_newsletters GROUP BY newsletter");
 					$all_newsletters = $query->results();
 					// does newsletter result contain old newsletter column (otherwise is has already been updated)
@@ -221,15 +227,17 @@ class Upgrade extends Model {
 
 						// Create newsletters in new system table
 						foreach($all_newsletters as $newsletter) {
-							$this->process($this->checkDefaultValues(UT_NEWSLETTERS, "'DEFAULT','".$newsletter["newsletter"]."', DEFAULT", "name = '".$newsletter["newsletter"]."'"), true);
+							if(!$query->sql("SELECT * FROM ".UT_MAILLISTS." WHERE name = '".$newsletter["newsletter"]."'")) {
+								$query->sql("INSERT INTO ".UT_MAILLISTS." set name = '".$newsletter["newsletter"]."'");
+							}
 						}
 
 						// get all subscribers
 						$query->sql("SELECT * FROM ".SITE_DB.".user_newsletters");
 						$newsletter_subscribers = $query->results();
-				 
+			 
 						// get all the newsletters from new system table
-						$query->sql("SELECT * FROM ".UT_NEWSLETTERS);
+						$query->sql("SELECT * FROM ".UT_MAILLISTS);
 						$newsletters = $query->results();
 
 						// Add newsletter_id column to original table
