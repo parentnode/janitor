@@ -1124,6 +1124,40 @@ class Upgrade extends Model {
 		return array("success" => $success, "message" => $message);
 	}
 
+	// Drop a table
+	function dropTable($db_table) {
+
+		$query = new Query();
+		list($db, $table) = explode(".", $db_table);
+
+		$message = '';
+		$message .= "DROP TABLE $table";
+
+		// DOES TABLE NAME EXIST
+		$sql = "SELECT table_name FROM information_schema.tables WHERE table_schema = '".$db."' AND table_name = '".$table."'";
+		if($query->sql($sql)) {
+
+			// ATTEMPT DROP
+			$sql = "DROP TABLE `".$db."`.`".$table."`";
+			if($query->sql($sql)) {
+				$message .= ": DONE";
+				$success = true;
+			}
+			// DROP FAILED
+			else {
+				$message .= ": FAILED";
+				$success = false;
+			}
+
+		}
+		// TABLE NOT FOUND
+		else {
+			$message .= ": NOT FOUND";
+			$success = true;
+		}
+
+		return array("success" => $success, "message" => $message);
+	}
 
 
 	/**
