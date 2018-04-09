@@ -256,10 +256,10 @@ class Upgrade extends Model {
 						// drop newsletter column from orginal table
 						$this->process($this->dropColumn(SITE_DB.".user_newsletters", "newsletter"), true);
 
-						$this->process($this->addKey(SITE_DB.".user_newsletters", "newsletter_id"), true);
-						$this->process($this->addConstraint(SITE_DB.".user_newsletters.newsletter_id", UT_NEWSLETTERS.".id", "ON UPDATE CASCADE"), true);
+//						}
 
 					}
+
 
 					// rename "user_newsletters" table to "user_maillists"
 					$this->process($this->renameTable(SITE_DB.".user_newsletters", "user_maillists"), true);
@@ -267,9 +267,12 @@ class Upgrade extends Model {
 					// rename "newsletter_id" column to "maillist_id"
 					$this->process($this->renameColumn(SITE_DB.".user_maillists", "newsletter_id", "maillist_id"), true);
 
+
+					// Re-applying constaints will be done in syncronization
+
 				}
 
-				// create the 
+				// create the table if missing
 				$this->process($this->createTableIfMissing(SITE_DB.".user_maillists"), true);
 
 			}
@@ -796,14 +799,24 @@ class Upgrade extends Model {
 
 				// Update syntax to reflect versions-table (to enable easy comparison)
 
+
 				// Exception for older MySQL/MariaDB (> 5.6.1)
+				// It does not support current_timestamp as default on two columns
+				// Replace all occurences of current_timestamp with NULL
+				// and leave only the versioned column to be default current_timestamp
 				$query = new Query();
 				$query->sql("SELECT VERSION() as version");
 				$db_version = $query->result(0, "version");
 				if(preg_match("/5\.([0-5]|6\.0)/", $db_version)) {
-					// TODO: remove CURRENT_TIMESTAMP
+
+					// Also enable null where needed first
+					$sql_file_content = preg_replace("/NOT NULL DEFAULT current_timestamp[\(\)]*/i", "NULL DEFAULT NULL", $sql_file_content);
+
+					// replace where null is already allowed
 					$sql_file_content = preg_replace("/current_timestamp[\(\)]*/i", "NULL", $sql_file_content);
+
 				}
+
 
 				// update constraints names
 				$sql_file_content = str_replace(preg_replace("/_versions$/", "", $table), $table, $sql_file_content);
