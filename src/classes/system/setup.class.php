@@ -1493,7 +1493,7 @@ class Setup extends Itemtype {
 			if(SETUP_TYPE == "new") {
 
 				// INSTALL THEME FROM GITHUB IF THEME DOES NOT EXIST (OR IS EMPTY)
-				if(!file_exists(PROJECT_PATH."/theme") || scandir(PROJECT_PATH."/theme") != array(".", "..")) {
+				if(!file_exists(PROJECT_PATH."/theme") || scandir(PROJECT_PATH."/theme") == array(".", "..")) {
 					
 					// Download theme
 					$url = "https://github.com/parentnode/janitor-theme-minimal/archive/master.tar.gz";
