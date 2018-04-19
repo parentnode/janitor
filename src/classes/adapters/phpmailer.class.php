@@ -4,7 +4,7 @@
 */
 
 
-require_once("includes/PHPMailer-5.2.16/PHPMailerAutoload.php");
+require_once("includes/PHPMailer-5.2.26/PHPMailerAutoload.php");
 
 
 class JanitorPHPMailer {
@@ -135,8 +135,9 @@ class JanitorPHPMailer {
 
 		$from_name = false;
 		$from_email = false;
-
 		$recipients = false;
+		$recipient_values = [];
+
 		$attachments = false;
 
 
@@ -151,6 +152,7 @@ class JanitorPHPMailer {
 					case "from_name"              : $from_name              = $_value; break;
 					case "from_email"             : $from_email             = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
+					case "values"                 : $recipient_values       = $_value; break;
 
 					case "attachments"            : $attachments            = $_value; break;
 
@@ -158,18 +160,25 @@ class JanitorPHPMailer {
 			}
 		}
 
+		print "recipient values:<br>\n";
+		print_r($recipient_values);
 
-		foreach($recipients as $recipient => $values) {
+
+		foreach($recipients as $recipient) {
 
 			$user_html = $html;
 			$user_text = $text;
 			$user_subject = $subject;
 
-			// Replace values
-			foreach($values as $key => $value) {
-				$user_html = preg_replace("/{".$key."}/", $value, $user_html);
-				$user_text = preg_replace("/{".$key."}/", $value, $user_text);
-				$user_subject = preg_replace("/{".$key."}/", $value, $user_subject);
+			if(isset($recipient_values[$recipient])) {
+
+				// Replace values
+				foreach($recipient_values[$recipient] as $key => $value) {
+					$user_html = preg_replace("/{".$key."}/", $value, $user_html);
+					$user_text = preg_replace("/{".$key."}/", $value, $user_text);
+					$user_subject = preg_replace("/{".$key."}/", $value, $user_subject);
+				}
+
 			}
 
 			$this->send([

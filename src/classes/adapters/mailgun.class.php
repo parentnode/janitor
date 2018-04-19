@@ -124,6 +124,7 @@ class JanitorMailgun {
 		$from_email = false;
 
 		$recipients = false;
+		$recipient_values = [];
 		$attachments = false;
 
 		// tracking settings
@@ -143,7 +144,7 @@ class JanitorMailgun {
 					case "from_name"              : $from_name              = $_value; break;
 					case "from_email"             : $from_email             = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
-					case "values"                 : $values                 = $_value; break;
+					case "values"                 : $recipient_values                 = $_value; break;
 
 					case "attachments"            : $attachments            = $_value; break;
 
@@ -169,7 +170,7 @@ class JanitorMailgun {
 		$mail_options["to"] = $recipients;
 		$mail_options["text"] = $text;
 		$mail_options["html"] = $html;
-		$mail_options["recipient-variables"] = json_encode($values);
+		$mail_options["recipient-variables"] = json_encode($recipient_values);
 
 		// set tracking 
 		if($tracking != "default") {
