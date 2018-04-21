@@ -17,7 +17,7 @@
 * 1 = Active
 * 2 = Order has been paid, cannot be updated
 */
-class SuperShop extends Shop {
+class SuperShopCore extends Shop {
 
 	/**
 	*
