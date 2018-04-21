@@ -760,11 +760,11 @@ class SuperUserCore extends User {
 	// PASSWORD
 
 	// check if password exists
-	function hasPassword($user_id) {
+	function hasPassword($user_id, $include_empty = false) {
 
 		$query = new Query();
 
-		$sql = "SELECT id FROM ".$this->db_passwords." WHERE user_id = $user_id";
+		$sql = "SELECT id FROM ".$this->db_passwords." WHERE user_id = $user_id" . ($include_empty ? " AND (password != '' OR upgrade_password != '')" : "");
 		if($query->sql($sql)) {
 			return true;
 		}
@@ -790,7 +790,7 @@ class SuperUserCore extends User {
 				$query->checkDbExistence($this->db_passwords);
 
 				$password = password_hash($this->getProperty("password", "value"), PASSWORD_DEFAULT);
-				if($this->hasPassword($user_id)) {
+				if($this->hasPassword($user_id, true)) {
 					$sql = "UPDATE ".$this->db_passwords." SET password = '$password' WHERE user_id = $user_id";
 				}
 				else {

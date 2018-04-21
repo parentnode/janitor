@@ -687,8 +687,7 @@ class UserCore extends Model {
 		if(count($action) == 1 && $user_id && $this->validateList(array("password"))) {
 			$query = new Query();
 
-
-
+			// Get user password to check if user is allowed to cancel
 			$sql = "SELECT passwords.password as password FROM ".SITE_DB.".user_passwords as passwords WHERE passwords.user_id = $user_id AND passwords.password != ''";
 			if($query->sql($sql)) {
 
