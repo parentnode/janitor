@@ -101,6 +101,9 @@ if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 
 	include_once("classes/system/model.class.php");
 
+	// initialize new page object
+	$page = new Page();
+
 
 
 	include_once("classes/system/html.janitor.class.php");
