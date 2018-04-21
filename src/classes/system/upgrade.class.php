@@ -547,7 +547,7 @@ class Upgrade extends Model {
 					$height = $image->getImageHeight();
 				}
 				else if(preg_Match("/^(mov|mp4)$/", $format)) {
-					include_once("classes/system/video.class.php");
+					include_once("classes/helpers/video.class.php");
 					$VC = new Video();
 					$info = $VC->info($file);
 					$width = $info["width"];

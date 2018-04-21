@@ -6,7 +6,7 @@ include_once("includes/functions.inc.php");
 include_once("classes/system/message.class.php");
 include_once("classes/system/session.class.php");
 include_once("classes/system/cache.class.php");
-include_once("classes/system/mailer.class.php");
+include_once("classes/helpers/mailer.class.php");
 
 
 

@@ -210,7 +210,7 @@ if($id === false || !file_exists(PRIVATE_FILE_PATH."/$id$variant")) {
 
 // images
 if($request_type == "images" && ($width || $height) && ($format == "jpg" || $format == "png" || $format == "gif")) {
-	include_once("classes/system/image.class.php");
+	include_once("classes/helpers/image.class.php");
 
 	$Image = new Image();
 
@@ -269,7 +269,7 @@ if($request_type == "images" && ($width || $height) && ($format == "jpg" || $for
 
 // video
 else if($request_type == "videos" && ($width || $height) && ($format == "mp4" || $format == "webm" || $format == "ogv" || $format == "mov" || $format == "3gp")) {
-	include_once("classes/system/video.class.php");
+	include_once("classes/helpers/video.class.php");
 
 	$Video = new Video();
 
@@ -342,7 +342,7 @@ else if($request_type == "videos" && ($width || $height) && ($format == "mp4" ||
 
 // audio
 else if($request_type == "audios" && $bitrate && ($format == "mp3" || $format == "ogg" || $format == "wav")) {
-	include_once("classes/system/audio.class.php");
+	include_once("classes/helpers/audio.class.php");
 
 	$Audio = new Audio();
 

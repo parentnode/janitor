@@ -734,7 +734,7 @@ class Model extends HTML {
 					// video upload (mp4)
 					if(preg_match("/video/", $temp_type)) {
 
-						include_once("classes/system/video.class.php");
+						include_once("classes/helpers/video.class.php");
 						$Video = new Video();
 
 						// check if we can get relevant info about movie
@@ -759,7 +759,7 @@ class Model extends HTML {
 					// audio upload (mp3)
 					else if(preg_match("/audio/", $temp_type)) {
 
-						include_once("classes/system/audio.class.php");
+						include_once("classes/helpers/audio.class.php");
 						$Audio = new Audio();
 
  						// check if we can get relevant info about audio

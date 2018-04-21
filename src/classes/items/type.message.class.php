@@ -337,7 +337,7 @@ class TypeMessage extends Itemtype {
 		if($message && $message["layout"]) {
 			$layout_content = $this->getLayoutContent($message["layout"]);
 
-			include_once("classes/system/dom.class.php");
+			include_once("classes/helpers/dom.class.php");
 			$DC = new DOM();
 			$dom_layout = $DC->createDOM($layout_content);
 

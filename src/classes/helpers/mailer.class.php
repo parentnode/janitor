@@ -203,7 +203,7 @@ class Mailer {
 			// create text version from HTML
 			if($html && !$text) {
 
-				include_once("classes/system/dom.class.php");
+				include_once("classes/helpers/dom.class.php");
 				$DC = new DOM();
 
 				// create DOM object from HTML string
@@ -387,7 +387,7 @@ class Mailer {
 			// create text version from HTML
 			if($html && !$text) {
 
-				include_once("classes/system/dom.class.php");
+				include_once("classes/helpers/dom.class.php");
 				$DC = new DOM();
 
 				// create DOM object from HTML string
