@@ -789,7 +789,7 @@ class SuperUser extends User {
 				// make sure type tables exist
 				$query->checkDbExistence($this->db_passwords);
 
-				$password = sha1($this->getProperty("password", "value"));
+				$password = password_hash($this->getProperty("password", "value"), PASSWORD_DEFAULT);
 				if($this->hasPassword($user_id)) {
 					$sql = "UPDATE ".$this->db_passwords." SET password = '$password' WHERE user_id = $user_id";
 				}

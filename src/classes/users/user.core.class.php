@@ -470,7 +470,7 @@ class UserCore extends Model {
 						}
 
 						// encrypt password
-						$password = sha1($raw_password);
+						$password = password_hash($raw_password, PASSWORD_DEFAULT);
 						$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
 						if($query->sql($sql)) {
 						
@@ -687,123 +687,127 @@ class UserCore extends Model {
 		if(count($action) == 1 && $user_id && $this->validateList(array("password"))) {
 			$query = new Query();
 
-			$password = $this->getProperty("password", "value");
-
-			// check user password before processing cancelation
-			$sql = "SELECT user_id FROM ".SITE_DB.".user_passwords as passwords WHERE passwords.user_id = $user_id AND password='".sha1($password)."'";
-//			print $sql;
 
 
+			$sql = "SELECT passwords.password as password FROM ".SITE_DB.".user_passwords as passwords WHERE passwords.user_id = $user_id AND passwords.password != ''";
 			if($query->sql($sql)) {
+
+				$password = $this->getProperty("password", "value");
+				$hashed_password = $query->result(0, "password");
+
+				// Check real hash
+				if($hashed_password && password_verify($password, $hashed_password)) {
 
 
 				// check for unpaid orders
-				$unpaid_orders = false;
-				if(defined("SITE_SHOP") && SITE_SHOP) {
-					include_once("classes/shop/shop.core.class.php");
-					$SC = new Shop();
-					$unpaid_orders = $SC->getUnpaidOrders();
-
-				}
-
-
-				// do not allow to cancel users with unpaid orders
-				if(!$unpaid_orders) {
-
-					global $page;
-
-					// WHEN UPDATING - ALSO UPDATE SUPERUSER VERSION
-					// Update name to "Anonymous" and remove all privileges
-					$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
-					if($query->sql($sql)) {
-
-						// delete usernames
-						$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-
-						// delete activation reminders
-						$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = ".$user_id;
-						$query->sql($sql);
-
-						// delete password
-						$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-						// delete password reset tokens
-						$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-
-						// delete addresses
-						$sql = "DELETE FROM ".$this->db_addresses." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-
-						// delete api tokens
-						$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-
-						// delete maillists
-						$sql = "DELETE FROM ".$this->db_maillists." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-
-						// delete readstates
-						$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-
-						// delete membership
-						if(SITE_MEMBERS) {
-							$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
-							$query->sql($sql);
-						}
-
-						// delete subscriptions
-						if(SITE_SUBSCRIPTIONS) {
-							$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
-							$query->sql($sql);
-						}
-
-						// delete carts
-						if(SITE_SHOP) {
-							$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
-							$query->sql($sql);
-
-
-							// we should also delete user account at gateway
-							payments()->deleteGatewayUserId($user_id);
-
-							// // TODO: keep updated when more gateways are added
-							// include_once("classes/adapters/stripe.class.php");
-							// $GC = new JanitorStripe();
-							// $payment_methods = $page->paymentMethods();
-							//
-							// foreach($payment_methods as $payment_method) {
-							//
-							// 	if($payment_method["gateway"] == "stripe") {
-							//
-							// 		$GC->deleteCustomer($user_id);
-							//
-							// 	}
-							//
-							// }
-						}
-
-						// reset user session
-						session()->reset();
-
-						global $page;
-						$page->addLog("User->cancel: user_id:$user_id");
-
-
-						return true;
+					$unpaid_orders = false;
+					if(defined("SITE_SHOP") && SITE_SHOP) {
+						include_once("classes/shop/shop.core.class.php");
+						$SC = new Shop();
+						$unpaid_orders = $SC->getUnpaidOrders();
 
 					}
 
-				}
 
-				return array("error" => "unpaid_orders");;
+					// do not allow to cancel users with unpaid orders
+					if(!$unpaid_orders) {
+
+						global $page;
+
+						// WHEN UPDATING - ALSO UPDATE SUPERUSER VERSION
+						// Update name to "Anonymous" and remove all privileges
+						$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
+						if($query->sql($sql)) {
+
+							// delete usernames
+							$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+							// delete activation reminders
+							$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+							// delete password
+							$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+							// delete password reset tokens
+							$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+							// delete addresses
+							$sql = "DELETE FROM ".$this->db_addresses." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+							// delete api tokens
+							$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+							// delete maillists
+							$sql = "DELETE FROM ".$this->db_maillists." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+							// delete readstates
+							$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+							// delete membership
+							if(SITE_MEMBERS) {
+								$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
+								$query->sql($sql);
+							}
+
+							// delete subscriptions
+							if(SITE_SUBSCRIPTIONS) {
+								$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
+								$query->sql($sql);
+							}
+
+							// delete carts
+							if(SITE_SHOP) {
+								$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
+								$query->sql($sql);
+
+
+								// we should also delete user account at gateway
+								payments()->deleteGatewayUserId($user_id);
+
+								// // TODO: keep updated when more gateways are added
+								// include_once("classes/adapters/stripe.class.php");
+								// $GC = new JanitorStripe();
+								// $payment_methods = $page->paymentMethods();
+								//
+								// foreach($payment_methods as $payment_method) {
+								//
+								// 	if($payment_method["gateway"] == "stripe") {
+								//
+								// 		$GC->deleteCustomer($user_id);
+								//
+								// 	}
+								//
+								// }
+							}
+
+							// reset user session
+							session()->reset();
+
+							global $page;
+							$page->addLog("User->cancel: user_id:$user_id");
+
+
+							return true;
+
+						}
+
+					}
+
+
+					return array("error" => "unpaid_orders");;
+
+				}
 
 			}
 
 			return array("error" => "wrong_password");
-
 		}
 
 		return false;
@@ -1052,13 +1056,17 @@ class UserCore extends Model {
 				// make sure type tables exist
 				$query->checkDbExistence($this->db_passwords);
 
-				$old_password = sha1($this->getProperty("old_password", "value"));
-				$new_password = sha1($this->getProperty("new_password", "value"));
+				// Needed for comparison
+				$old_password = $this->getProperty("old_password", "value");
+				// Hash to inject if old password comparison is successful
+				$new_password = password_hash($this->getProperty("new_password", "value"), PASSWORD_DEFAULT);
 
 
 				$sql = "SELECT password FROM ".$this->db_passwords." WHERE user_id = $user_id";
 				if($query->sql($sql)) {
-					if($old_password == $query->result(0, "password")) {
+					// print $old_password . "," . $query->result(0, "password")."<br>\n";
+					// print "::".password_verify($old_password, $query->result(0, "password"))."<br>\n";
+					if(password_verify($old_password, $query->result(0, "password"))) {
 
 						// DELETE OLD PASSWORD
 						$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = $user_id";
@@ -1172,7 +1180,7 @@ class UserCore extends Model {
 		$this->getPostedEntities();
 
 		$reset_token = getPost("reset-token");
-		$new_password = sha1($this->getProperty("new_password", "value"));
+		$new_password = password_hash($this->getProperty("new_password", "value"), PASSWORD_DEFAULT);
 
 		// correct information available
 		if(count($action) == 1 && $new_password && $this->checkResetToken($reset_token)) {

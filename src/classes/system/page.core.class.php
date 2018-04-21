@@ -1548,81 +1548,129 @@ class PageCore {
 		if($username && $password) {
 			$query = new Query();
 
-			// make login query
-			// look for user with username and password
-			$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND password='".sha1($password)."' AND username='$username'";
-//			print $sql;
+			// password table check
+			// password table has not been upgraded
+			if(!$query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = 'upgrade_password' AND TABLE_NAME = 'user_passwords' AND TABLE_SCHEMA = '".SITE_DB."'")) {
+
+				include_once("classes/system/upgrade.class.php");
+				$UG = new Upgrade();
+
+				// move password to password_upgrade
+				$UG->renameColumn(SITE_DB.".user_passwords", "password", "upgrade_password");
+				
+				// add new password column
+				$UG->addColumn(SITE_DB.".user_passwords", "password", "varchar(255) NOT NULL DEFAULT ''", "user_id");
+
+			}			
+
+			$sql = "SELECT passwords.password as password, passwords.upgrade_password as upgrade_password, passwords.id as password_id FROM ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE usernames.user_id = passwords.user_id AND (passwords.password != '' OR passwords.upgrade_password != '') AND username='$username'";
+//			print "$sql<br>\n";
 			if($query->sql($sql)) {
 
-				// add user_id and user_group_id to session
-				session()->value("user_id", intval($query->result(0, "id")));
-				session()->value("user_group_id", intval($query->result(0, "user_group_id")));
-				session()->value("user_nickname", $query->result(0, "nickname"));
-				session()->value("last_login_at", date("Y-m-d H:i:s"));
-				session()->reset("user_group_permissions");
-
-				// Update login timestamp
-				$sql = "UPDATE ".SITE_DB.".users SET last_login_at=CURRENT_TIMESTAMP WHERE users.id = ".session()->value("user_id");
-				$query->sql($sql);
-
-				$this->addLog("Login: ".$username .", user_id:".session()->value("user_id"));
-
-				// set new csrf token for user
-				session()->value("csrf", gen_uuid());
+				$hashed_password = $query->result(0, "password");
+				$sha1_password = $query->result(0, "upgrade_password");
+				$password_id = $query->result(0, "password_id");
 
 
-				// regerate Session id
-				session_regenerate_id(true);
-
-
-				if(getPost("ajaxlogin")) {
-					$output = new Output();
-					$output->screen(array("csrf-token" => session()->value("csrf")));
-
-				}
-				else {
-					// redirect to originally requested page
-					$login_forward = session()->value("login_forward");
-//					print $login_forward . "<br>";
-					if(!$login_forward || !$this->validatePath($login_forward)) {
-						$login_forward = "/";
+				// old sha1 password exists and matches
+				// User password should be upgraded
+				if($sha1_password && sha1($password) === $sha1_password) {
+					
+					// create new hash 
+					$hashed_password = password_hash($password, PASSWORD_DEFAULT);
+					if($hashed_password) {
+						// and add it to password table and delete old sha1 password
+						$sql = "UPDATE ".SITE_DB.".user_passwords SET upgrade_password = '', password = '$hashed_password' WHERE id = $password_id";
+						$query->sql($sql);
 					}
 
-					session()->reset("login_forward");
-
-					header("Location: " . $login_forward);
 				}
-				exit();
-			}
+
+
+				// Check real hash
+				if($hashed_password && password_verify($password, $hashed_password)) {
+
+					// make login query
+					// look for user with username and password
+					$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND usernames.username='$username'";
+		//			print $sql;
+					if($query->sql($sql)) {
+
+						// add user_id and user_group_id to session
+						session()->value("user_id", intval($query->result(0, "id")));
+						session()->value("user_group_id", intval($query->result(0, "user_group_id")));
+						session()->value("user_nickname", $query->result(0, "nickname"));
+						session()->value("last_login_at", date("Y-m-d H:i:s"));
+						session()->reset("user_group_permissions");
+
+						// Update login timestamp
+						$sql = "UPDATE ".SITE_DB.".users SET last_login_at=CURRENT_TIMESTAMP WHERE users.id = ".session()->value("user_id");
+						$query->sql($sql);
+
+						$this->addLog("Login: ".$username .", user_id:".session()->value("user_id"));
+
+						// set new csrf token for user
+						session()->value("csrf", gen_uuid());
+
+
+						// regerate Session id
+						session_regenerate_id(true);
+
+
+						// Special return for ajax logins
+						if(getPost("ajaxlogin")) {
+							$output = new Output();
+							$output->screen(array("csrf-token" => session()->value("csrf")));
+
+						}
+						else {
+							// redirect to originally requested page
+							$login_forward = session()->value("login_forward");
+		//					print $login_forward . "<br>";
+							if(!$login_forward || !$this->validatePath($login_forward)) {
+								$login_forward = "/";
+							}
+
+							session()->reset("login_forward");
+
+							header("Location: " . $login_forward);
+						}
+						exit();
+					}
 			
-			// is the reason that the user has not been activated yet?
-			// make login query and
-			// look for user with status 0, verified = 0
-			$sql = "SELECT users.id, users.nickname, usernames.username, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND password='".sha1($password)."' AND username='$username' AND verified = 0";
-//			print $sql;
-			if($query->sql($sql)) {
+					// is the reason that the user has not been activated yet?
+					// make login query and
+					// look for user with status 0, verified = 0
+					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND username='$username' AND verified = 0";
+//					print $sql;
+					if($query->sql($sql)) {
 
-				// send activation reminder email
-				mailer()->send(array(
-					"values" => array(
-						"NICKNAME" => $query->result(0, "nickname"), 
-						"EMAIL" => $query->result(0, "username"), 
-						"VERIFICATION" => $query->result(0, "verification_code"),
-					), 
-					"recipients" => $query->result(0, "username"), 
-					"template" => "signup_reminder"
-				));
-
-
-				// Add to user log
-				$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$query->result(0, "id");
-	//			print $sql;
-				$query->sql($sql);
+						// send activation reminder email
+						mailer()->send(array(
+							"values" => array(
+								"NICKNAME" => $query->result(0, "nickname"), 
+								"EMAIL" => $query->result(0, "username"), 
+								"VERIFICATION" => $query->result(0, "verification_code"),
+							), 
+							"recipients" => $query->result(0, "username"), 
+							"template" => "signup_reminder"
+						));
 
 
-				message()->addMessage("User has not been verified yet – did you forget to activate your account?", array("type" => "error"));
-				return false;
+						// Add to user log
+						$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$query->result(0, "id");
+			//			print $sql;
+						$query->sql($sql);
+
+
+						message()->addMessage("User has not been verified yet – did you forget to activate your account?", array("type" => "error"));
+						return false;
+					}					
+
+				}
+
 			}
+
 		}
 
 		$this->addLog("Login error: ".$username);

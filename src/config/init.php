@@ -49,13 +49,13 @@ include_once("classes/system/queryi.class.php");
 include_once("classes/helpers/filesystem.class.php");
 include_once("classes/system/output.class.php");
 
+include_once("classes/system/html.core.class.php");
+include_once("classes/system/html.class.php");
+include_once("classes/system/model.class.php");
+
 include_once("classes/system/page.core.class.php");
 include_once("classes/system/page.class.php");
 
-include_once("classes/system/html.core.class.php");
-include_once("classes/system/html.class.php");
-
-include_once("classes/system/model.class.php");
 
 
 // Extend with items model - not required for static sites

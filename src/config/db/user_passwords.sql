@@ -2,7 +2,8 @@ CREATE TABLE `SITE_DB`.`user_passwords` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
 
-  `password` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL DEFAULT '',
+  `upgrade_password` varchar(255) NOT NULL DEFAULT '',
 
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
