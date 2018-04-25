@@ -136,6 +136,7 @@ class Upgrade extends Model {
 				$this->process($this->createTableIfMissing(UT_VATRATES), true);
 
 				// SHOP
+				$this->process($this->createTableIfMissing(SITE_DB.".user_addresses"), true);
 				$this->process($this->createTableIfMissing(SITE_DB.".shop_carts"), true);
 				$this->process($this->createTableIfMissing(SITE_DB.".shop_cart_items"), true);
 				$this->process($this->createTableIfMissing(SITE_DB.".shop_orders"), true);
@@ -155,7 +156,6 @@ class Upgrade extends Model {
 			$this->process($this->checkDefaultValues(UT_COUNTRIES), true);
 
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
-				$this->process($this->checkDefaultValues(UT_VATRATES), true);
 				$this->process($this->checkDefaultValues(UT_VATRATES), true);
 			}
 			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
@@ -285,23 +285,26 @@ class Upgrade extends Model {
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
 
 				$orders = $SC->getOrders();
-				foreach($orders as $order) {
+				if($orders) {
+					foreach($orders as $order) {
 
-					if(!$order["billing_name"]) {
-						$user = $UC->getUsers(["user_id" => $order["user_id"]]);
+						if(!$order["billing_name"]) {
+							$user = $UC->getUsers(["user_id" => $order["user_id"]]);
 
-						// create base data update sql
-						$sql = "UPDATE ".$SC->db_orders." SET ";
+							// create base data update sql
+							$sql = "UPDATE ".$SC->db_orders." SET ";
 
-						if($user["firstname"] && $user["lastname"]) {
-							$sql .= "billing_name='".prepareForDB($user["firstname"]) ." ". prepareForDB($user["lastname"])."'";
+							if($user["firstname"] && $user["lastname"]) {
+								$sql .= "billing_name='".prepareForDB($user["firstname"]) ." ". prepareForDB($user["lastname"])."'";
+							}
+							else {
+								$sql .= "billing_name='".prepareForDB($user["nickname"])."'";
+							}
+
+							$sql .= " WHERE id=".$order["id"];
+							$query->sql($sql);
 						}
-						else {
-							$sql .= "billing_name='".prepareForDB($user["nickname"])."'";
-						}
 
-						$sql .= " WHERE id=".$order["id"];
-						$query->sql($sql);
 					}
 
 				}
@@ -1860,7 +1863,7 @@ class Upgrade extends Model {
 			else {
 
 				$message .= ": NO DEFAULT VALUES";
-				$success = false;
+				$success = true;
 
 			}
 
