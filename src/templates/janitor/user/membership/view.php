@@ -217,6 +217,13 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		<p>This user does not have a membership.</p>
 	</div>
 
+	<div class="add i:collapseHeader">
+		<h2>Add membership</h2>
+		<ul class="actions">
+			<?= $HTML->link("Add membership", "/janitor/admin/user/membership/add/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
+		</ul>
+	</div>
+
 <? endif; ?>
 
 </div>

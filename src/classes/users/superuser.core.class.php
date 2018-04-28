@@ -2162,6 +2162,56 @@ class SuperUserCore extends User {
 	}
 
 
+	// change membership type
+	// info in $_POST
+
+	# /#controller#/addNewhMembership/#user_id#
+	function addNewhMembership($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		// does values validate
+		if(count($action) == 2 && $this->validateList(array("item_id"))) {
+
+			$query = new Query();
+			$IC = new Items();
+			
+			include_once("classes/shop/supershop.class.php");
+			$SC = new SuperShop();
+
+			$user_id = $action[1];
+			$item_id = $this->getProperty("item_id", "value");
+
+			// $member = $this->getMembers(array("user_id" => $user_id));
+			// if($member) {
+
+				$current_user = $this->getUser();
+				$_POST["user_id"] = $user_id;
+				$_POST["order_comment"] = "New membership added by ".$current_user["nickname"];
+				$order = $SC->addOrder(array("addOrder"));
+				unset($_POST);
+
+
+				// add item to order
+				$_POST["quantity"] = 1;
+				$_POST["item_id"] = $item_id;
+				// adding a membership to an order will automatically change the membership
+				$order = $SC->addToOrder(array("addToOrder", $order["id"]));
+				unset($_POST);
+
+				if($order) {
+					return $order;
+				}
+//			}
+
+		}
+
+		return false;
+	}
+
+
 	// upgrade to higher level membership
 	// add new order with custom price (new_price - current_orice)
 	# /#controller#/upgradeMembership/#user_id#
