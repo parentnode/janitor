@@ -189,13 +189,13 @@ class Upgrade extends Model {
 			
 			// ADD UPGRADE COLUMN, IF IT DOES NOT EXIST
 			$user_passwords_table = $this->tableInfo(SITE_DB.".user_passwords");
-			if($user_passwords_table && !isset($user_passwords_table["upgrade_password"])) {
+			if($user_passwords_table && !isset($user_passwords_table["columns"]["upgrade_password"])) {
 
 				// move password to password_upgrade
-				$UG->renameColumn(SITE_DB.".user_passwords", "password", "upgrade_password");
-				
+				$this->process($this->renameColumn(SITE_DB.".user_passwords", "password", "upgrade_password"), true);
+
 				// add new password column
-				$UG->addColumn(SITE_DB.".user_passwords", "password", "varchar(255) NOT NULL DEFAULT ''", "user_id");
+				$this->process($this->addColumn(SITE_DB.".user_passwords", "password", "varchar(255) NOT NULL DEFAULT ''", "user_id"), true);
 
 			}
 
