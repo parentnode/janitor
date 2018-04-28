@@ -849,11 +849,24 @@ class TypeMessage extends Itemtype {
 						}
 
 						// MEMBERSHIP DATA
-						if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP/", implode(",", $needed_values))) {
+						if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP|MEMBERSHIP_PRICE/", implode(",", $needed_values))) {
 							$member = $UC->getMembers(["user_id" => $subscriber["user_id"]]);
 
 							if(array_search("MEMBER_ID", $needed_values) !== false) {
 								$user_values["MEMBER_ID"] = $member && $member["id"] ? $member["id"] : "N/A";
+							}
+
+							if(array_search("MEMBERSHIP_PRICE", $needed_values) !== false) {
+
+								if($member && $member["item"] && $member["item"]["item_id"]) {
+									$SC = new Shop();
+									$price = $SC->getPrice($member["item"]["item_id"]);
+									$user_values["MEMBERSHIP_PRICE"] = formatPrice($price);
+								}
+								else {
+									$user_values["MEMBERSHIP_PRICE"] = formatPrice(["price" => 0]);
+								}
+
 							}
 
 							if(array_search("MEMBERSHIP", $needed_values) !== false) {
