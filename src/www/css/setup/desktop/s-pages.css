@@ -71,6 +71,7 @@ body.upgrade #content .scene ul.tasks li.note code {margin-left: 0; margin-right
 
 
 
+body.pull #content .scene.pull p.pull_result {white-space: pre;}
 
 
 

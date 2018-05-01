@@ -12,7 +12,7 @@ class Setup extends Itemtype {
 
 		parent::__construct(get_class());
 
-		$this->set("system", "os", preg_match("/Darwin/", PHP_OS) ? "mac" : (preg_match("/win/", PHP_OS) ? "win" : "unix"));
+		$this->set("system", "os", preg_match("/Darwin/i", PHP_OS) ? "unix" : (preg_match("/win/i", PHP_OS) ? "win" : "unix"));
 
 		$this->set("system", "current_user", get_current_user());
 		$this->set("system", "apache_user", trim(shell_exec('whoami')));
@@ -2234,7 +2234,7 @@ class Setup extends Itemtype {
 			$project_path = realpath(LOCAL_PATH."/..");
 	//		print "cd '$project_path' && sudo git pull && sudo git submodule update";
 			$output = shell_exec("cd '$project_path' && sudo git pull && sudo git submodule update");
-
+			return $output;
 		}
 
 		return false;

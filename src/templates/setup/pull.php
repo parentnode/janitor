@@ -1,8 +1,6 @@
 <?php
 global $model;
 
-
-print $model->get("system", "os");
 ?>
 <div class="scene pull i:pull">
 

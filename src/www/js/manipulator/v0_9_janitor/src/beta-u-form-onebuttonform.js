@@ -94,8 +94,8 @@ Util.Objects["oneButtonForm"] = new function() {
 
 					this.response = function(response) {
 
-						console.log("RESPONSE");
-						console.log(response);
+						// console.log("RESPONSE");
+						// console.log(response);
 
 						u.rc(this, "submitting");
 						u.rc(this.confirm_submit_button, "disabled");
@@ -179,7 +179,7 @@ Util.Objects["oneButtonForm"] = new function() {
 						this.DOMsubmit();
 					}
 					else {
-						u.request(this, this.action, {"method":"post", "data":u.f.getParams(this), "responseType":"text"});
+						u.request(this, this.action, {"method":"post", "data":u.f.getParams(this)});
 					}
 				}
 			}
