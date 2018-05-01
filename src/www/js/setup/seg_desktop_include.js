@@ -7,5 +7,6 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-basi
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/setup/desktop/i-progress.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/setup/desktop/i-upgrade.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/setup/desktop/i-pull.js"></script>');
 
 

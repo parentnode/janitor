@@ -1,13 +1,12 @@
 <?php
 global $model;
 
-
-print $model->get("system", "os");
 ?>
 <div class="scene pull i:pull">
 
 	<h1>Pull source code</h1>
 	<h2><?= realpath(LOCAL_PATH."/..") ?></h2>
+
 
 <? if($model->get("system", "os") == "unix"): ?>
 
@@ -21,12 +20,13 @@ print $model->get("system", "os");
 		)); ?>
 	</ul>
 
-	<div class="pull_result"></div>
+	<p class="pull_result"></p>
 
 <? else: ?>
 
 	<p>Your cannot pull the latest sources in an development environment. Use your Git application to update your local code.</p>
 
 <? endif; ?>
+
 
 </div>

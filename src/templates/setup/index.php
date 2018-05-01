@@ -47,7 +47,7 @@ else: ?>
 
 <?	if($this->validatePath("/janitor/admin/setup/pull")): ?>
 	<div class="option">
-		<h3>Pull project sourcecode</h3>
+		<h3>Pull project source code</h3>
 		<p>
 			Choose this option to pull the latest updates from the project repository.
 		</p>
