@@ -2225,6 +2225,7 @@ class Setup extends Itemtype {
 	function pull() {
 		
 		$project_path = realpath(LOCAL_PATH."/..");
+		print "cd '$project_path' && git pull && git submodule update";
 		$output = shell_exec("cd '$project_path' && git pull && git submodule update");
 
 		print $output;
