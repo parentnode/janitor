@@ -1,19 +1,31 @@
-Util.audioPlayer = function(_options) {
+Util.videoPlayer = function(_options) {
 
 
 	// designed to work with just one player being moved around
 
 	var player = document.createElement("div");
-	u.ac(player, "audioplayer");
+	u.ac(player, "videoplayer");
 
-	// auto play
+
+	// autoplay
 	player._autoplay = false;
+	player._muted = false;
+	player._loop = false;
+	player._playsinline = false;
+	player._crossorigin = "anonymous";
 
 	// native controls default settings
-	player._controls = false;
+	player._native_controls = false;
+
 
 	// play/pause button
 	player._controls_playpause = false;
+	player._controls_play = false;
+	player._controls_pause = false;
+	player._controls_stop = false;
+
+	// TODO: zoom/fullscreen button
+	player._controls_zoom = false;
 	// TODO: volume button
 	player._controls_volume = false;
 	// TODO: rw/ff buttons
@@ -34,6 +46,7 @@ Util.audioPlayer = function(_options) {
 				case "controls"     : player._controls               = _options[_argument]; break;
 
 				case "playpause"    : player._controls_playpause     = _options[_argument]; break;
+				case "zoom"         : player._controls_zoom          = _options[_argument]; break;
 				case "volume"       : player._controls_volume        = _options[_argument]; break;
 				case "search"       : player._controls_search        = _options[_argument]; break;
 
@@ -43,71 +56,76 @@ Util.audioPlayer = function(_options) {
 		}
 	}
 
-	// create HTML5 audio node
-	player.audio = u.ae(player, "audio");
+
+	// create HTML5 video node
+	player.video = u.ae(player, "video");
 
 
-	// Does browser have HTML5 support
-	if(typeof(player.audio.play) == "function") {
+	// Does browser support HTML5 video
+	if(typeof(player.video.play) == "function") {
 
 		// set up functions for HTML5 player
 
-		// Load audio
+		// Load video
 		player.load = function(src, _options) {
+			u.bug("load video:" + src);
 
 			// optional controls override
-			if(typeof(_options) == "object") {
-				var _argument;
-				for(_argument in _options) {
+			// if(typeof(_options) == "object") {
+			// 	var _argument;
+			// 	for(_argument in _options) {
+			//
+			// 		switch(_argument) {
+			//
+			// 			case "autoplay"     : this._autoplay               = _options[_argument]; break;
+			// 			case "controls"     : this._controls               = _options[_argument]; break;
+			//
+			// 			case "playpause"    : this._controls_playpause     = _options[_argument]; break;
+			// 			case "zoom"         : this._controls_zoom          = _options[_argument]; break;
+			// 			case "volume"       : this._controls_volume        = _options[_argument]; break;
+			// 			case "search"       : this._controls_search        = _options[_argument]; break;
+			// 			case "fullscreen"   : this._controls_fullscreen    = _options[_argument]; break;
+			//
+			// 			case "ff_skip"      : this._ff_skip                = _options[_argument]; break;
+			// 			case "rw_skip"      : this._rw_skip                = _options[_argument]; break;
+			// 		}
+			// 	}
+			// }
 
-					switch(_argument) {
-
-						case "autoplay"     : this._autoplay               = _options[_argument]; break;
-						case "controls"     : this._controls               = _options[_argument]; break;
-
-						case "playpause"    : this._controls_playpause     = _options[_argument]; break;
-						case "volume"       : this._controls_volume        = _options[_argument]; break;
-						case "search"       : this._controls_search        = _options[_argument]; break;
-
-						case "ff_skip"      : this._ff_skip                = _options[_argument]; break;
-						case "rw_skip"      : this._rw_skip                = _options[_argument]; break;
-					}
-				}
-			}
-
-			// stop audio if playing
+			// stop video if playing
 			if(u.hc(this, "playing")) {
 				this.stop();
 			}
 
-			// reset audio safety net (or old video may show before new one loads)
-			this.setup();
+			// reset video safety net (or old video may show before new one loads)
+			this.setup(_options);
 
-			// only attempt to load audio if source is available
+			// only attempt to load video if source is available
 			if(src) {
+//				u.bug(this.correctSource(src));
 
 				// get correct source for browser
-				this.audio.src = this.correctSource(src);
+				this.video.src = this.correctSource(src);
 
-				// load audio
-				this.audio.load();
+				// load video
+				this.video.load();
 
-				this.audio.controls = player._controls;
-				this.audio.autoplay = player._autoplay;
+				// this.video.controls = player._controls;
+				// this.video.autoplay = player._autoplay;
 			}
 		}
 
-		// Play audio
+		// Play video
 		player.play = function(position) {
 
 			// use position only if stated (position can be 0)
-			if(this.audio.currentTime && position !== undefined) {
-				this.audio.currentTime = position;
+			if(this.video.currentTime && position !== undefined) {
+				this.video.currentTime = position;
 			}
 
 			// has src? then play
-			if(this.audio.src) {
-				this.audio.play();
+			if(this.video.src) {
+				this.video.play();
 			}
 		}
 
@@ -131,42 +149,44 @@ Util.audioPlayer = function(_options) {
 			// load and send player options
 			this.load(src, _options);
 
+			// firefox does not throw canplaythrough event unless I call play when loading
+			// TODO: test if this is still firefox issue
+
 			// play when ready
 			this.play(position);
 		}
 
 		// Pause playback but stay at current position
 		player.pause = function() {
-			this.audio.pause();
+			this.video.pause();
 		}
 
 		// Stop playback and reset postion
 		player.stop = function() {
-
-			this.audio.pause();
+			this.video.pause();
 
 			// reset position
-			if(this.audio.currentTime) {
-				this.audio.currentTime = 0;
+			if(this.video.currentTime) {
+				this.video.currentTime = 0;
 			}
 		}
 
-		// Fast forward audio - only if audio is fully loaded
+		// Fast forward video - only if video is fully loaded
 		player.ff = function() {
 
 //			u.bug("player.ff:" + this.video.currentTime);
-			if(this.audio.src && this.audio.currentTime && this.audioLoaded) {
-				this.audio.currentTime = (this.audio.duration - this.audio.currentTime >= this._ff_skip) ? (this.audio.currentTime + this._ff_skip) : this.audio.duration;
-				this.audio._timeupdate();
+			if(this.video.src && this.video.currentTime && this.videoLoaded) {
+				this.video.currentTime = (this.video.duration - this.video.currentTime >= this._ff_skip) ? (this.video.currentTime + this._ff_skip) : this.video.duration;
+				this.video._timeupdate();
 			}
 		}
 
-		// Rewind audio - only if audio is fully loaded
+		// Rewind video - only if video is fully loaded
 		player.rw = function() {
 //			u.bug("player.rw:" + this.video.currentTime);
-			if(this.audio.src && this.audio.currentTime && this.audioLoaded) {
-				this.audio.currentTime = (this.audio.currentTime >= this._rw_skip) ? (this.audio.currentTime - this._rw_skip) : 0;
-				this.audio._timeupdate();
+			if(this.video.src && this.video.currentTime && this.videoLoaded) {
+				this.video.currentTime = (this.video.currentTime >= this._rw_skip) ? (this.video.currentTime - this._rw_skip) : 0;
+				this.video._timeupdate();
 			}
 		}
  
@@ -181,34 +201,60 @@ Util.audioPlayer = function(_options) {
 			}
 		}
 
+		// set volume
+		player.volume = function(value) {
+//			u.bug("set volume:" + value)
+			this.video.volume = value;
+
+			if(value === 0) {
+				u.ac(this, "muted");
+			}
+			else {
+				u.rc(this, "muted");
+			}
+		}
+
+		// toggle sound on/off
+		player.toggleVolume = function() {
+			if(this.video.volume) {
+				this.video.volume = 0;
+				u.ac(this, "muted");
+			}
+			else {
+				this.video.volume = 1;
+				u.rc(this, "muted");
+			}
+		}
 
 		// destroy old player and set up new player from scratch
 		player.setup = function() {
 
-			if(this.audio) {
-				var audio = this.removeChild(this.audio);
-				delete audio;
+			// reset video safety net (or old video may show before new one loads)
+			if(this.video) {
+				var video = this.removeChild(this.video);
+				delete video;
 			}
 
 			// add video player again
-			this.audio = u.ie(this, "audio");
-			this.audio.player = this;
+			this.video = u.ie(this, "video");
+			this.video.player = this;
 
 
 			// set up controls (based on JSON settings)
 			this.setControls();
 
+
 			// reset external values
 			this.currentTime = 0;
 			this.duration = 0;
-			this.audioLoaded = false;
+			this.videoLoaded = false;
 			this.metaLoaded = false;
 
 
 			// CALLBACK EVENTS
 
-
-			this.audio._loadstart = function(event) {
+			// loading has started
+			this.video._loadstart = function(event) {
 //				u.bug("_loadstart");
 
 				u.ac(this.player, "loading");
@@ -217,10 +263,10 @@ Util.audioPlayer = function(_options) {
 					this.player.loading(event);
 				}
 			}
-			u.e.addEvent(this.audio, "loadstart", this.audio._loadstart);
+			u.e.addEvent(this.video, "loadstart", this.video._loadstart);
 
 			// enough is loaded to play entire movie
-			this.audio._canplaythrough = function(event) {
+			this.video._canplaythrough = function(event) {
 //				u.bug("_canplaythrough");
 
 				u.rc(this.player, "loading");
@@ -229,10 +275,10 @@ Util.audioPlayer = function(_options) {
 					this.player.canplaythrough(event);
 				}
 			}
-			u.e.addEvent(this.audio, "canplaythrough", this.audio._canplaythrough);
+			u.e.addEvent(this.video, "canplaythrough", this.video._canplaythrough);
 
 			// movie is playing
-			this.audio._playing = function(event) {
+			this.video._playing = function(event) {
 //				u.bug("_playing");
 
 				u.rc(this.player, "loading|paused");
@@ -242,10 +288,10 @@ Util.audioPlayer = function(_options) {
 					this.player.playing(event);
 				}
 			}
-			u.e.addEvent(this.audio, "playing", this.audio._playing);
+			u.e.addEvent(this.video, "playing", this.video._playing);
 
 			// movie is paused
-			this.audio._paused = function(event) {
+			this.video._paused = function(event) {
 //				u.bug("_paused");
 
 				u.rc(this.player, "playing|loading");
@@ -255,10 +301,10 @@ Util.audioPlayer = function(_options) {
 					this.player.paused(event);
 				}
 			}
-			u.e.addEvent(this.audio, "pause", this.audio._paused);
+			u.e.addEvent(this.video, "pause", this.video._paused);
 
 			// movie is stalled
-			this.audio._stalled = function(event) {
+			this.video._stalled = function(event) {
 //				u.bug("_stalled");
 
 				u.rc(this.player, "playing|paused");
@@ -268,10 +314,10 @@ Util.audioPlayer = function(_options) {
 					this.player.stalled(event);
 				}
 			}
-			u.e.addEvent(this.audio, "stalled", this.audio._paused);
+			u.e.addEvent(this.video, "stalled", this.video._paused);
 
 			// movie has played til its end
-			this.audio._ended = function(event) {
+			this.video._ended = function(event) {
 //				u.bug("_ended");
 
 				u.rc(this.player, "playing|paused");
@@ -280,10 +326,10 @@ Util.audioPlayer = function(_options) {
 					this.player.ended(event);
 				}
 			}
-			u.e.addEvent(this.audio, "ended", this.audio._ended);
+			u.e.addEvent(this.video, "ended", this.video._ended);
 
 			// metadata loaded
-			this.audio._loadedmetadata = function(event) {
+			this.video._loadedmetadata = function(event) {
 //				u.bug("_loadedmetadata:duration:" + this.duration);
 //				u.bug("_loadedmetadata:currentTime:" + this.currentTime);
 
@@ -295,22 +341,22 @@ Util.audioPlayer = function(_options) {
 					this.player.loadedmetadata(event);
 				}
 			}
-			u.e.addEvent(this.audio, "loadedmetadata", this.audio._loadedmetadata);
+			u.e.addEvent(this.video, "loadedmetadata", this.video._loadedmetadata);
 
-			// audio loaded
-			this.audio._loadeddata = function(event) {
+			// video loaded
+			this.video._loadeddata = function(event) {
 //				u.bug("_loadeddata:" + this.duration);
 	
-				this.player.audioLoaded = true;
+				this.player.videoLoaded = true;
 
 				if(typeof(this.player.loadeddata) == "function") {
 					this.player.loadeddata(event);
 				}
 			}
-			u.e.addEvent(this.audio, "loadeddata", this.audio._loadeddata);
+			u.e.addEvent(this.video, "loadeddata", this.video._loadeddata);
 
 			// timeupdate
-			this.audio._timeupdate = function(event) {
+			this.video._timeupdate = function(event) {
 //				u.bug("_timeupdate:" + this.currentTime);
 				this.player.currentTime = this.currentTime;
 
@@ -318,18 +364,48 @@ Util.audioPlayer = function(_options) {
 					this.player.timeupdate(event);
 				}
 			}
-			u.e.addEvent(this.audio, "timeupdate", this.audio._timeupdate);
-
+			u.e.addEvent(this.video, "timeupdate", this.video._timeupdate);
 		}
 
+
+		/* FOR EVENT DEBUGGING
+		player.video._event = function(event) {
+			 u.bug("3", "event:" + event.type);
+		}
+		u.e.addEvent(this.video, 'progress', 		this.video._event);
+		u.e.addEvent(this.video, 'canplay', 		this.video._event);
+		u.e.addEvent(this.video, 'canplaythrough', 	this.video._event);
+		u.e.addEvent(this.video, 'suspend', 		this.video._event);
+		u.e.addEvent(this.video, 'abort', 			this.video._event);
+		u.e.addEvent(this.video, 'error', 			this.video._event);
+		u.e.addEvent(this.video, 'emptied', 		this.video._event);
+		u.e.addEvent(this.video, 'stalled', 		this.video._event);
+		u.e.addEvent(this.video, 'loadstart', 		this.video._event);
+		u.e.addEvent(this.video, 'loadeddata', 		this.video._event);
+		u.e.addEvent(this.video, 'loadedmetadata', 	this.video._event);
+		u.e.addEvent(this.video, 'waiting', 		this.video._event);
+		u.e.addEvent(this.video, 'playing', 		this.video._event);
+		u.e.addEvent(this.video, 'seeking', 		this.video._event);
+		u.e.addEvent(this.video, 'seeked', 			this.video._event);
+		u.e.addEvent(this.video, 'ended', 			this.video._event);
+		u.e.addEvent(this.video, 'durationchange', 	this.video._event);
+		u.e.addEvent(this.video, 'timeupdate', 		this.video._event);
+		u.e.addEvent(this.video, 'play', 			this.video._event);
+		u.e.addEvent(this.video, 'pause', 			this.video._event);
+		u.e.addEvent(this.video, 'ratechange', 		this.video._event);
+		u.e.addEvent(this.video, 'volumechange', 	this.video._event);
+		//vid.webkitEnterFullscreen();
+		*/
+
+
 	}
-	
+
 	// Flash support
-	else if(typeof(u.audioPlayerFallback) == "function") {
+	else if(typeof(u.videoPlayerFallback) == "function") {
 
 		// remove HTML5 element
 		player.removeChild(player.video);
-		player = u.audioPlayerFallback(player);
+		player = u.videoPlayerFallback(player);
 	}
 
 	else {
@@ -344,6 +420,7 @@ Util.audioPlayer = function(_options) {
 	}
 
 
+
 	// GLOBAL PLAYER FUNCTIONS
 
 
@@ -355,30 +432,51 @@ Util.audioPlayer = function(_options) {
 		src = src.replace(/\?[^$]+/, "");
 
 		// remove format extension
-		src = src.replace(/.mp3|.ogg|.wav/, "");
+		src = src.replace(/\.m4v|\.mp4|\.webm|\.ogv|\.3gp|\.mov/, "");
 
 
-		// if flash fallback is used, always use mp3
+		// u.bug("cpt:m4v"+this.video.canPlayType("video/x-m4v"));
+		// u.bug("cpt:mp4"+this.video.canPlayType("video/mp4"));
+		// u.bug("cpt:webm"+this.video.canPlayType("video/webm"));
+		// u.bug("cpt:ogg+"+this.video.canPlayType('video/ogg; codecs="theora"'));
+		// u.bug("cpt:ogg+"+this.video.canPlayType('video/ogg'));
+		// u.bug("cpt:3gpp"+this.video.canPlayType("video/3gpp"));
+		// u.bug("cpt:mov"+this.video.canPlayType("video/quicktime"));
+
+
+
+		// if flash fallback is used, always use mp4
 		if(this.flash) {
-			return src+".mp3"+param;
+			return src+".mp4"+param;
 		}
 
-		// MP3 support
-		if(this.audio.canPlayType("audio/mpeg")) {
-			return src+".mp3"+param;
+		// MP4
+		else if(this.video.canPlayType("video/mp4")) {
+			return src+".mp4"+param;
 		}
 
-		// OGG support
-		else if(this.audio.canPlayType("audio/ogg")) {
-			return src+".ogg"+param;
+		// OGV
+		else if(this.video.canPlayType("video/ogg")) {
+			return src+".ogv"+param;
 		}
 
-		// fallback to WAV
+		// webm - currently not supported
+		//else if(this.video.canPlayType("video/webm")) {
+		//	return src+".webm";
+		//}
+
+		// 3gp
+		else if(this.video.canPlayType("video/3gpp")) {
+			return src+".3gp"+param;
+		}
+
+		// fallback to oldschool quicktime
 		else {
-			return src+".wav"+param;
+		//else if(this.video.canPlayType("video/quicktime")) {
+			return src+".mov"+param;
 		}
-	}
 
+	}
 
 	// controls overlay
 	player.setControls = function() {
@@ -413,7 +511,7 @@ Util.audioPlayer = function(_options) {
 
 				// hide controls
 				this.hideControls = function() {
-//					u.bug("hide controls")
+					u.bug("hide controls")
 
 					if(!this._keep) {
 						// reset timer to avoid double actions
@@ -426,7 +524,7 @@ Util.audioPlayer = function(_options) {
 
 				// show controls
 				this.showControls = function() {
-//					u.bug("show controls")
+					u.bug("show controls")
 
 					// reset timer to keep visible
 					if(this.t_controls) {
@@ -544,6 +642,7 @@ Util.audioPlayer = function(_options) {
 				}
 				
 			}
+			// hide if exists
 			else if(this.controls.search) {
 				u.as(this.controls.search_ff, "display", "none");
 				u.as(this.controls.search_rw, "display", "none");
@@ -555,9 +654,34 @@ Util.audioPlayer = function(_options) {
 			else if(this.controls.zoom) {}
 
 
-			// TODO: volume
-			if(this._controls_volume && !this.controls.volume) {}
-			else if(this.controls.volume) {}
+			// volume control
+			if(this._controls_volume) {
+				
+				// if button does not already exist
+				if(!this.controls.volume) {
+			
+					// set up volume control
+					this.controls.volume = u.ae(this.controls, "a", {"class":"volume"});
+					// remember default display state (block, inline-block, inline)
+					this.controls.volume._default_display = u.gcs(this.controls.volume, "display");
+					this.controls.volume.player = this;
+
+					u.e.click(this.controls.volume);
+					this.controls.volume.clicked = function(event) {
+						u.bug("volume toggle")
+						this.player.toggleVolume();
+					}
+				}
+				// it already exists, make it visible
+				else {
+					u.as(this.controls.volume, "display", this.controls.volume._default_display);
+				}
+
+			}
+			// hide if exists
+			else if(this.controls.volume) {
+				u.as(this.controls.volume, "display", "none");
+			}
 
 
 			// enable controls on mousemove
@@ -579,5 +703,4 @@ Util.audioPlayer = function(_options) {
 
 
 	return player;
-
 }

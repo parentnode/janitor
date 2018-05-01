@@ -540,6 +540,9 @@ Util.Form = u.f = new function() {
 			if(!_form.fields[hidden_field.name]) {
 				_form.fields[hidden_field.name] = hidden_field;
 
+				// map internal form reference
+				hidden_field._form = _form;
+
 				// add get/set value funtion
 				hidden_field.val = this._value;
 			}
@@ -599,7 +602,7 @@ Util.Form = u.f = new function() {
 	// original form.submit will be available as form.DOMsubmit
 	this._submit = function(event, iN) {
 
-//		u.bug("_submitted:" + this._validation)
+		// u.bug("_submitted:" + this._validation)
 
 		// do pre validation of all fields
 		for(name in this.fields) {
@@ -609,7 +612,7 @@ Util.Form = u.f = new function() {
 				// change used state for input
 				this.fields[name].used = true;
 				// validate
-//				u.bug("validate from _submit")
+				// u.bug("validate from _submit:" + name)
 				u.f.validate(this.fields[name]);
 			}
 		}
@@ -650,7 +653,7 @@ Util.Form = u.f = new function() {
 					}
 				}
 
-				//u.bug("this is where I should cut the rope")
+				// u.bug("this is where I should cut the rope")
 				this.DOMsubmit();
 			}
 		}
@@ -1497,11 +1500,11 @@ Util.Form = u.f = new function() {
 	// - datetime
 	// - files
 	this.validate = function(iN) {
-//		u.bug("validate:" + iN.name + ", " + iN.val());
+//		u.bug("validate name: " + iN.name + ", value: " + iN.val());
+//		console.log(iN);
 
-
-		// validation is disabled
-		if(!iN._form._validation) {
+		// validation is disabled or input has no field – validation success
+		if(!iN._form._validation || !iN.field) {
 			return true;
 		}
 
@@ -1711,10 +1714,6 @@ Util.Form = u.f = new function() {
 				}
 			}
 
-
-
-
-			// TODO: needs to be tested
 			// select validation
 			else if(u.hc(iN.field, "select")) {
 
@@ -1726,8 +1725,7 @@ Util.Form = u.f = new function() {
 				}
 			}
 
-			// TODO: needs to be tested
-			// checkbox/radio validation
+			// checkbox/radiobutton validation
 			else if(u.hc(iN.field, "checkbox|boolean|radiobuttons")) {
 
 				if(iN.val() !== "") {

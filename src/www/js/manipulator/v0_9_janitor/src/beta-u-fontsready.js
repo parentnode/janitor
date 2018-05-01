@@ -213,7 +213,7 @@ u.fontsReady = function(node, fonts, _options) {
 
 
 	window["_man_fonts_"+loadkey].checkFontsStatus = function(event) {
-		u.bug("checkFontsStatus");
+//		u.bug("checkFontsStatus");
 
 		var i, node;
 		for(i = 0; node = this.nodes[i]; i++) {

@@ -1,10 +1,13 @@
 u.template = function(template, json, _options) {
-	u.bug("### TEMPLATE ###");
+	// u.bug("### TEMPLATE ###");
+	// u.bug("template typeof:" + typeof(template));
+	// u.bug("json typeof:" + typeof(json));
+	// console.log(json);
 
 
 	var string = "";
 	var template_string = "";
-	var clone, container, item_template, dom, node_list, type_template, type_parent, template_contructor;
+	var clone, container, item_template, dom, node_list, type_template, type_parent;
 
 	// settings
 	// append results to node
@@ -21,20 +24,9 @@ u.template = function(template, json, _options) {
 	}
 
 
-	if((json.length == undefined && typeof(json) == "object" && Object.keys(json).length) || (json.length)) {
 
-		console.log("Some kind of json")
-
-	}
-	else {
-
-		console.log("No kind of json")
-		
-	}
-
+	// Identify template type, depending on template content
 	// IE 7 doesn't accept constructor to identify node, using nodeName as replacement
-
-	// identify template type, depending on template content
 
 	// HTML Object
 	if(typeof(template) == "object" && typeof(template.nodeName) != "undefined") {
@@ -68,89 +60,77 @@ u.template = function(template, json, _options) {
 	}
 
 
-	console.log("type_template: " + type_template);
+
+	// Prepare template string (for string replacement/manipulation)
+
+	// HTML node or HTML STRING
+	if(type_template == "HTML_STRING" || type_template == "HTML") {
+//		u.bug("TEMPLATE:" + template);
+
+		// HTML node
+		if(type_template == "HTML") {
+			clone = template.cloneNode(true);
+			u.rc(clone, "template");
+
+			if(template.nodeName == "LI") {
+				type_parent = "ul";
+				container = document.createElement(type_parent);
+			}
+			else if(template.nodeName == "TR") {
+				type_parent = "table";
+				container = document.createElement("table").appendChild(document.createElement("tbody"));
+			}
+			else {
+				type_parent = "div";
+				container = document.createElement("div");
+			}
+
+			container.appendChild(clone);
+			template_string = container.innerHTML;
+			template_string = template_string.replace(/href\=\"([^\"]+)\"/g, function(string) {return decodeURIComponent(string);});
+			template_string = template_string.replace(/src\=\"([^\"]+)\"/g, function(string) {return decodeURIComponent(string);});
+		}
+
+		// string based (HTML string)
+		else {
+
+			if(template.match(/^<li/i)) {
+				type_parent = "ul";
+			}
+			else if(template.match(/^<tr/i)) {
+				type_parent = "table";
+			}
+			else {
+				type_parent = "div";
+			}
+
+			template_string = template;
+		}
+	}
+	// JSON object string
+	else if(type_template == "JSON") {
+
+		template_string = JSON.stringify(template).replace(/^{/g, "MAN_JSON_START").replace(/}$/g, "MAN_JSON_END");
+	}
+	// string based (JSON string)
+	else if(type_template == "JSON_STRING") {
+
+		template_string = template.replace(/^{/g, "MAN_JSON_START").replace(/}$/g, "MAN_JSON_END");
+	}
+	// string based (PLAIN string)
+	else if(type_template == "STRING") {
+
+		template_string = template;
+	}
+
 
 
 	// is JSON object or array of objects
-	if(json) {
-		console.log("json not false")
-
-		// No array in json means json.length == undefined
-		// and the template function is used for something it wasn't intented to.
-		// Therefore we let it clone the node.
-		// Without this check jsons with an empty result array will create a "ghost" node.
-		if((json.length == undefined && typeof(json) == "object") || (json.length && json.length > 0)) {
-			console.log("some kind of json");
-
-			// HTML node or HTML STRING
-			if(type_template == "HTML_STRING" || type_template == "HTML") {
-//				u.bug("TEMPLATE:" + template.innerHTML)
-
-				// HTML node
-				if(type_template == "HTML") {
-					clone = template.cloneNode(true);
-					u.rc(clone, "template");
-
-					if(template.nodeName == "LI") {
-						type_parent = "ul";
-						container = document.createElement(type_parent);
-					}
-					else if(template.nodeName == "TR") {
-						type_parent = "table";
-						container = document.createElement("table").appendChild(document.createElement("tbody"));
-					}
-					else {
-						type_parent = "div";
-						container = document.createElement("div");
-					}
-
-					container.appendChild(clone);
-					template_string = container.innerHTML;
-					template_string = template_string.replace(/href\=\"([^\"]+)\"/g, function(string) {return decodeURIComponent(string);});
-					template_string = template_string.replace(/src\=\"([^\"]+)\"/g, function(string) {return decodeURIComponent(string);});
-				}
-
-				// string based (HTML string)
-				else {
-
-					if(template.match(/^<li/i)) {
-						type_parent = "ul";
-					}
-					else if(template.match(/^<tr/i)) {
-						type_parent = "table";
-					}
-					else {
-						type_parent = "div";
-					}
-
-					template_string = template;
-				}
-			}
-			// JSON object string
-			else if(type_template == "JSON") {
-
-				template_string = JSON.stringify(template).replace(/^{/g, "MAN_JSON_START").replace(/}$/g, "MAN_JSON_END");
-			}
-			// string based (JSON string)
-			else if(type_template == "JSON_STRING") {
-
-				template_string = template.replace(/^{/g, "MAN_JSON_START").replace(/}$/g, "MAN_JSON_END");
-			}
-			// string based (PLAIN string)
-			else if(type_template == "STRING") {
-
-				template_string = template;
-			}
-
-		}
-		else {
-			console.log("no kind of json");
-		}
-
+	if(typeof(json) == "object" && ((json.length == undefined && Object.keys(json).length) || json.length)) {
 
 		// multiple results
 		if(json.length) {
-			u.bug("multiple results");
+//			u.bug("multiple results");
 
 			// use _item (WITH UNDERSCORE) to help IE, where item will be interpreted as item()
 			for(_item in json) {
@@ -217,17 +197,27 @@ u.template = function(template, json, _options) {
 						}
 						// return numbers correct
 						else if(typeof(json[_item][key]) == "number") {
-							return json[_item][key];
+							// Insert NUM marker, to be replaced with real number
+							// (not encapsulated in quotes) before string is returned as JSON
+							return "MAN_NUM" + json[_item][key] + "MAN_NUM";
 						}
 						// return booleans correct
 						else if(typeof(json[_item][key]) == "boolean") {
 							// Insert BOOL marker, to be replaced with real boolean
-							// (not encapsulated in quotes) before string is returned
+							// (not encapsulated in quotes) before string is returned as JSON
 							return "MAN_BOOL" + json[_item][key] + "MAN_BOOL";
+						}
+						// return null correct
+						else if(json[_item][key] === null) {
+							// Insert NULL marker, to be replaced with null or empty string 
+							// (depending on template type)
+							return "MAN_NULL";
 						}
 						// return objects correct
 						else if(typeof(json[_item][key]) == "object") {
-							return "MAN_OBJ" + JSON.stringify(json[_item][key]) + "MAN_OBJ";
+							// Insert OBJ marker, to be replaced with real object
+							// (not encapsulated in quotes) before string is returned as JSON
+							return "MAN_OBJ" + JSON.stringify(json[_item][key]).replace(/(\"|\')/g, "\\$1") + "MAN_OBJ";
 						}
 						else {
 							return "";
@@ -237,12 +227,13 @@ u.template = function(template, json, _options) {
 
 			}
 		}
-		// only one result
+		// only one result (or empty array)
 		else {
-			u.bug("single result");
+//			u.bug("single result");
 
 			string += template_string.replace(/\{(.+?)\}/g, function(string) {
-				var key = json[string.replace(/[\{\}]/g, "")];
+
+				var key = string.toString().replace(/[\{\}]/g, "");
 
 				// clean up strings
 				if(typeof(json[key]) == "string" && json[key]) {
@@ -250,17 +241,26 @@ u.template = function(template, json, _options) {
 				}
 				// return numbers correct
 				else if(typeof(json[key]) == "number") {
-					return json[key];
+					// Insert NUM marker, to be replaced with real number
+					// (not encapsulated in quotes) before string is returned as JSON
+					return "MAN_NUM" + json[key] + "MAN_NUM";
 				}
 				// return booleans correct
 				else if(typeof(json[key]) == "boolean") {
-
 					// Insert BOOL marker, to be replaced with real boolean
-					// (not encapsulated in quotes) before string is returned
+					// (not encapsulated in quotes) before string is returned as JSON
 					return "MAN_BOOL" + json[key] + "MAN_BOOL";
+				}
+				// return null correct
+				else if(json[key] === null) {
+					// Insert NULL marker, to be replaced with null or empty string
+					// (depending on template type)
+					return "MAN_NULL";
 				}
 				// return objects correct
 				else if(typeof(json[key]) == "object") {
+					// Insert OBJ marker, to be replaced with real object
+					// (not encapsulated in quotes) before string is returned as JSON
 					return "MAN_OBJ" + JSON.stringify(json[key]).replace(/(\"|\')/g, "\\$1") + "MAN_OBJ";
 				}
 				else {
@@ -269,22 +269,31 @@ u.template = function(template, json, _options) {
 			});
 		}
 	}
-	else {
-		console.log("json false");
-	}
+	// else {
+	// 	console.log("no results");
+	// }
 
-	// replace boolean markers with real boolean values
-	string = string.replace(/\"MAN_BOOLtrueMAN_BOOL\"/g, "true");
-	string = string.replace(/\"MAN_BOOLfalseMAN_BOOL\"/g, "false");
 
-	// replace object markers with real object
-	string = string.replace(/\"MAN_OBJ(.+)MAN_OBJ\"/g, function(string) {
-		string = string.replace(/\"MAN_OBJ(.+)MAN_OBJ\"/g, "$1");
-		return string.replace(/\\("|')/g, "$1");
-	});
+
+	// Post process string for MARKERS
+	// Prepare final return object/string
 
 	// html strings or objects
 	if(type_template == "HTML_STRING" || type_template == "HTML") {
+
+		// BOOLEANS + NUMBERS
+		string = string.replace(/MAN_(BOOL|NUM)(.+?(?=MAN_(BOOL|NUM)))MAN_(BOOL|NUM)/g, "$2");
+
+		// null value = empty string
+		string = string.replace(/MAN_NULL/g, "");
+
+		// OBJECTS
+		string = string.replace(/MAN_OBJ(.+?(?=MAN_OBJ))MAN_OBJ/g, function(string) {
+			// remove marker
+			string = string.replace(/MAN_OBJ(.+?(?=MAN_OBJ))MAN_OBJ/g, "$1");
+			// unescape quotes
+			return string.replace(/\\("|')/g, "$1");
+		});
 
 		// unescape quotes when outputting to HTML
 		string = string.replace(/\\("|')/g, "$1");
@@ -298,7 +307,6 @@ u.template = function(template, json, _options) {
 		else {
 			dom = document.createElement(type_parent);
 			dom.innerHTML = string;
-			
 		}
 
 		// should children be appended to node automatically
@@ -319,16 +327,44 @@ u.template = function(template, json, _options) {
 
 	// json strings or objects
 	else if(type_template == "JSON_STRING" || type_template == "JSON") {
-		// u.bug(string)
+
+		// BOOLEANS + NUMBERS
+		string = string.replace(/[\"]?MAN_(BOOL|NUM)(.+?(?=MAN_(BOOL|NUM)))MAN_(BOOL|NUM)[\"]?/g, "$2");
+
+		// null value = null
+		string = string.replace(/[\"]?MAN_NULL[\"]?/g, "null");
+
+		// OBJECTS
+		string = string.replace(/[\"]?MAN_OBJ(.+?(?=MAN_OBJ))MAN_OBJ[\"]?/g, function(string) {
+			// remove marker
+			string = string.replace(/[\"]?MAN_OBJ(.+?(?=MAN_OBJ))MAN_OBJ[\"]?/g, "$1");
+			// unescape quotes
+			return string.replace(/\\("|')/g, "$1");
+		});
+
 		// u.bug(string.replace(/MAN_JSON_START/g, "{").replace(/MAN_JSON_END/g, "},"))
 		return eval("["+string.replace(/MAN_JSON_START/g, "{").replace(/MAN_JSON_END/g, "},")+"]");
 	}
 
 	// plain string
 	else if(type_template == "STRING") {
-		// u.bug(string)
-		// u.bug(string.replace(/MAN_JSON_START/g, "{").replace(/MAN_JSON_END/g, "},"))
-		return string;
+
+		// BOOLEANS + NUMBERS
+		string = string.replace(/MAN_(BOOL|NUM)(.+?(?=MAN_(BOOL|NUM)))MAN_(BOOL|NUM)/g, "$2");
+
+		// null value = empty string
+		string = string.replace(/MAN_NULL/g, "");
+
+		// OBJECTS
+		string = string.replace(/MAN_OBJ(.+?(?=MAN_OBJ))MAN_OBJ/g, function(string) {
+			// remove marker
+			string = string.replace(/MAN_OBJ(.+?(?=MAN_OBJ))MAN_OBJ/g, "$1");
+			// unescape quotes
+			return string.replace(/\\("|')/g, "$1");
+		});
+
+		// remove any double escapes
+		return string.replace(/\\("|')/g, "$1");
 	}
 
 }
