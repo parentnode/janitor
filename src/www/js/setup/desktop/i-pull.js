@@ -11,6 +11,7 @@ Util.Objects["pull"] = new function() {
 			console.log(scene.bn_pull);
 			
 			scene.bn_pull.confirmed = function(response) {
+				console.log(response);
 				this.scene.p_pull_result.innerHTML = response.cms_object;
 				console.log("callback received");
 			}
