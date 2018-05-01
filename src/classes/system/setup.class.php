@@ -2223,14 +2223,21 @@ class Setup extends Itemtype {
 		return false;
 	}
 
+
 	// Pull latest updates from repository
 	function pull() {
-		
-		$project_path = realpath(LOCAL_PATH."/..");
-		print "cd '$project_path' && sudo git pull && sudo git submodule update";
-		$output = shell_exec("cd '$project_path' && git pull && git submodule update");
 
-		print $output;
+		// only allow pull updates on systems deployed on linux
+		// commands will cause permission errors in development environments on win/mac
+		if($this->get("system", "os") == "unix") {
+
+			$project_path = realpath(LOCAL_PATH."/..");
+	//		print "cd '$project_path' && sudo git pull && sudo git submodule update";
+			$output = shell_exec("cd '$project_path' && sudo git pull && sudo git submodule update");
+
+		}
+
+		return false;
 
 	}
 
