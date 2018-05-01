@@ -375,12 +375,19 @@ class UserCore extends Model {
 		global $page;
 		$page->addLog("user->newUser: initiated");
 
-		// only attempt user creation if signup are allowed for this site
+		// only attempt user creation if signups are allowed for this site
 		if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 
 			// Get posted values to make them available for models
 			$this->getPostedEntities();
+			$terms = $this->getProperty("terms", "value");
 			$email = $this->getProperty("email", "value");
+
+			// if user already exists, return error
+			if(!$terms) {
+				$page->addLog("user->newUser: missing terms agreement");
+				return array("status" => "MISSING_TERMS");
+			}
 
 
 			// if user already exists, return error
@@ -390,7 +397,7 @@ class UserCore extends Model {
 			}
 
 
-			// does values validate
+			// does values validate - minimum is email
 			if(count($action) == 1 && $this->validateList(array("email")) && $email) {
 
 				$query = new Query();
@@ -398,8 +405,6 @@ class UserCore extends Model {
 				$firstname = $this->getProperty("firstname", "value");
 				$lastname = $this->getProperty("lastname", "value");
 
-				// make sure type tables exist
-				$query->checkDbExistence($this->db);
 
 				// get entities for current value
 				$entities = $this->getModel();
@@ -442,6 +447,9 @@ class UserCore extends Model {
 				if($query->sql($sql)) {
 
 					$user_id = $query->lastInsertId();
+
+
+					// Gererate verification code
 					$verification_code = randomKey(8);
 
 					// add email to user_usernames
@@ -472,8 +480,8 @@ class UserCore extends Model {
 						// encrypt password
 						$password = password_hash($raw_password, PASSWORD_DEFAULT);
 						$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
+						// password added successfully
 						if($query->sql($sql)) {
-						
 
 							// store signup email for receipt page
 							session()->value("signup_email", $email);
@@ -535,6 +543,13 @@ class UserCore extends Model {
 							// but also reset user group
 							// - in case another user was already logged in before signup started
 							session()->value("user_group_id", 1);
+
+
+
+							// TERMS
+
+							// Add terms agreement
+							$this->acceptedTerms();
 
 
 
@@ -2622,6 +2637,35 @@ class UserCore extends Model {
 
 			}
 
+		}
+
+		return false;
+	}
+
+
+	// User has accepted terms
+	// Add to database
+	function acceptedTerms() {
+
+		$query = new Query();
+		$user_id = session()->value("user_id");
+
+		$query->checkDbExistence(SITE_DB.".user_log_agreements");
+		$sql = "INSERT INTO ".SITE_DB.".user_log_agreements SET user_id = $user_id, name = 'terms'";
+		$query->sql($sql);
+
+	}
+	
+	// Check if user has accepted terms
+	function hasAcceptedTerms() {
+
+		$query = new Query();
+		$user_id = session()->value("user_id");
+
+		$query->checkDbExistence(SITE_DB.".user_log_agreements");
+		$sql = "SELECT user_id FROM ".SITE_DB.".user_log_agreements WHERE user_id = $user_id";
+		if($query->sql($sql)) {
+			return true;
 		}
 
 		return false;

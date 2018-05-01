@@ -3,7 +3,6 @@ CREATE TABLE `SITE_DB`.`user_log_agreements` (
   `user_id` int(11) NOT NULL,
 
   `name` varchar(255) NOT NULL DEFAULT '',
-  `version` varchar(255) NULL DEFAULT NULL,
 
   `accepted_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
