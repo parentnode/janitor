@@ -123,9 +123,11 @@ class Upgrade extends Model {
 			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
 			$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
 
-			// CREATE MAILLIST TABLE
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
+				// CREATE MAILLIST TABLE
 				$this->process($this->createTableIfMissing(UT_MAILLISTS), true);
+				// CREATE AGREEMENTS
+				$this->process($this->createTableIfMissing(SITE_DB.".user_log_agreements"), true);
 			}
 			// CREATE PAYMENT METHOD TABLE
 			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
@@ -220,8 +222,12 @@ class Upgrade extends Model {
 			}
 
 
-			# NEWSLETTERS TO MAILLISTS
+			# SIGNUP
+
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
+
+
+				# NEWSLETTERS TO MAILLISTS
 
 				// USER NEWSLETTER SUBSCRIPTIONS (DEPRECATED)
 				$user_newsletters_table = $this->tableInfo(SITE_DB.".user_newsletters");

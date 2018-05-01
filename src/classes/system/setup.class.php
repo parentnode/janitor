@@ -14,7 +14,7 @@ class Setup extends Itemtype {
 
 		$this->set("system", "current_user", get_current_user());
 		$this->set("system", "apache_user", trim(shell_exec('whoami')));
-		$this->set("system", "deploy_user", trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : (trim(shell_exec('egrep -i "^staff" /etc/group')) ? "staff" : $this->current_user));
+		$this->set("system", "deploy_user", trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : (trim(shell_exec('egrep -i "^staff" /etc/group')) ? "staff" : $this->get("system", "current_user")));
 
 
 		// $this->current_user = get_current_user();
@@ -1493,7 +1493,7 @@ class Setup extends Itemtype {
 			if(SETUP_TYPE == "new") {
 
 				// INSTALL THEME FROM GITHUB IF THEME DOES NOT EXIST (OR IS EMPTY)
-				if(!file_exists(PROJECT_PATH."/theme") || scandir(PROJECT_PATH."/theme") == array(".", "..")) {
+				if(!file_exists(PROJECT_PATH."/theme") || scandir(PROJECT_PATH."/theme") == array(".", "..") || (scandir(PROJECT_PATH."/theme") == array(".", "..", "www") && scandir(PROJECT_PATH."/theme/www") == array(".", "..", "index.php"))) {
 					
 					// Download theme
 					$url = "https://github.com/parentnode/janitor-theme-minimal/archive/master.tar.gz";
@@ -2213,8 +2213,8 @@ class Setup extends Itemtype {
 			}
 
 			
-			$this->reset();
-			
+//			$this->reset();
+
 			return $tasks;
 		}
 
