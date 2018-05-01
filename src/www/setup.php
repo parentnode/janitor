@@ -1,5 +1,6 @@
 <?php
 $access_item["/"] = true;
+$access_item["/pull"] = true;
 if(isset($read_access) && $read_access) {
 	return;
 }
@@ -53,6 +54,28 @@ if(is_array($action) && count($action)) {
 		$output = new Output();
 		$output->screen($model->reset());
 		exit();
+
+	}
+	// Reset install process
+	else if(preg_match("/^(pull)$/", $action[0])) {
+
+		if(getPost("pull") == "ok" && $page->validateCsrfToken()) {
+
+			$output = new Output();
+			$output->screen($model->pull());
+			exit();
+
+		}
+		else {
+
+			$page->page(array(
+				"body_class" => $action[0],
+				"type" => "setup",
+				"templates" => "setup/pull.php"
+			));
+			exit();
+
+		}
 
 	}
 	// keepAlive for install process

@@ -2221,6 +2221,16 @@ class Setup extends Itemtype {
 		return false;
 	}
 
+	// Pull latest updates from repository
+	function pull() {
+		
+		$project_path = realpath(LOCAL_PATH."/..");
+		$output = shell_exec("cd '$project_path' && git pull && git submodule update");
+
+		print $output;
+
+	}
+
 }
 
 ?>

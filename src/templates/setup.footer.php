@@ -25,6 +25,12 @@ global $model;
 				</ul>
 			</li>
 			<? endif; ?>
+			<li class="git">
+				<h3>Git</h3>
+				<ul class="subjects">
+					<?= $HTML->link("Pull", "/janitor/admin/setup/pull", ["wrapper" => "li.pull"]); ?>
+				</ul>
+			</li>
 		</ul>
 	</div>
 
