@@ -37,7 +37,7 @@ global $upgrade_model;
 			DON'T DO THIS IN PRODUCTION ENVIROMENTS - CHANGES CANNOT BE UNDONE.
 		</p>
 		<ul class="actions">
-			<li class="replace"><a href="/janitor/admin/setup/upgrade/replace-emails" class="button primary">Replace emails</a></li>
+			<li class="replace"><a href="/janitor/admin/setup/upgrade/replace-emails" class="button">Replace emails</a></li>
 		</ul>
 	</div>
 
@@ -50,7 +50,7 @@ global $upgrade_model;
 			DON'T DO THIS IN PRODUCTION ENVIROMENTS - CHANGES CANNOT BE UNDONE.
 		</p>
 		<ul class="actions">
-			<li class="bulk"><a href="/janitor/admin/setup/upgrade/bulk-item-removal" class="button primary">Bulk removal</a></li>
+			<li class="bulk"><a href="/janitor/admin/setup/upgrade/bulk-item-removal" class="button">Bulk removal</a></li>
 		</ul>
 	</div>
 <? endif; ?>
