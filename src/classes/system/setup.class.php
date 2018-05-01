@@ -12,6 +12,8 @@ class Setup extends Itemtype {
 
 		parent::__construct(get_class());
 
+		$this->set("system", "os", preg_match("/Darwin/", PHP_OS) ? "mac" : (preg_match("/win/", PHP_OS) ? "win" : "unix"));
+
 		$this->set("system", "current_user", get_current_user());
 		$this->set("system", "apache_user", trim(shell_exec('whoami')));
 		$this->set("system", "deploy_user", trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : (trim(shell_exec('egrep -i "^staff" /etc/group')) ? "staff" : $this->get("system", "current_user")));
