@@ -376,7 +376,10 @@ class Upgrade extends Model {
 
 
 			// set file permissions
-			if($model->recurseFilePermissions(PROJECT_PATH,
+			if($this->get("system", "os") == "win") {
+				$tasks["completed"][] = "File permissions left untouched for Windows development environment";
+			}
+			else if($model->recurseFilePermissions(PROJECT_PATH,
 				$model->get("system", "apache_user"),
 				$model->get("system", "deploy_user"),
 				0777)
@@ -391,18 +394,20 @@ class Upgrade extends Model {
 			// Upgrade complete
 			print '<li class="done">UPGRADE COMPLETE</li>';
 
-			print '<li class="note">';
-			print '	<h3>File permissions for live site</h3>';
-			print '	<p>';
-			print '		If you are upgrading a production site you need to set <span class="system_warning">file permissions</span>';
-			print '		on your project manually.';
-			print '	</p>';
-			print '	<p>';
-			print '		Copy this into your terminal to set file permissions to production settings. You want to make';
-			print '		sure this is done to protect your files from unintended manipulation.';
-			print '	</p>';
-			print '	<code>sudo chown -R root:'.$model->get("system", "deploy_user").' '.PROJECT_PATH.' && sudo chmod -R 755 '.PROJECT_PATH.' && sudo chown -R '.$model->get("system", "apache_user").':'.$model->get("system", "deploy_user").' '.LOCAL_PATH.'/library && sudo chmod -R 770 '.LOCAL_PATH.'/library</code>';
-			print '</li>';
+			if($this->get("system", "os") != "win") {
+				print '<li class="note">';
+				print '	<h3>File permissions for live site</h3>';
+				print '	<p>';
+				print '		If you are upgrading a production site you need to set <span class="system_warning">file permissions</span>';
+				print '		on your project manually.';
+				print '	</p>';
+				print '	<p>';
+				print '		Copy this into your terminal to set file permissions to production settings. You want to make';
+				print '		sure this is done to protect your files from unintended manipulation.';
+				print '	</p>';
+				print '	<code>sudo chown -R root:'.$model->get("system", "deploy_user").' '.PROJECT_PATH.' && sudo chmod -R 755 '.PROJECT_PATH.' && sudo chown -R '.$model->get("system", "apache_user").':'.$model->get("system", "deploy_user").' '.LOCAL_PATH.'/library && sudo chmod -R 770 '.LOCAL_PATH.'/library</code>';
+				print '</li>';
+			}
 
 			// clear system messages
 			message()->resetMessages();

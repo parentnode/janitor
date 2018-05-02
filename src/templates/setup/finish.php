@@ -55,7 +55,7 @@ $all_check = $model->checkAllSettings();
 
 	<div class="final_touches">
 
-<?	if($model->get("config", "site_deployment") == "live"): ?>
+<?	if($model-get("system", "os") != "win" && $model->get("config", "site_deployment") == "live"): ?>
 		<h2>File permissions for live site</h2>
 		<p>
 			If you are deploying a site into production you need to set <span class="system_warning">file permissions</span>

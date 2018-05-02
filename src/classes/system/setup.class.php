@@ -645,10 +645,10 @@ class Setup extends Itemtype {
 		if($handle && $config_handle && $connect_db_handle && $connect_mail_handle && $git_handle) {
 
 			// Set owner, group and permissions for all project files and folders
-			if($this->recurseFilePermissions(PROJECT_PATH, 
-				$this->get("system", "apache_user"), 
-				$this->get("system", "deploy_user"), 
-				0777)
+			if(
+				$this->get("system", "os") == "win"
+				|| 
+				$this->recurseFilePermissions(PROJECT_PATH, $this->get("system", "apache_user"), $this->get("system", "deploy_user"), 0777)
 			) {
 				return true;
 			};
@@ -2183,12 +2183,14 @@ class Setup extends Itemtype {
 				// 	return $tasks;
 				// }
 
-
 			}
 			// Dev environment
 			else {
 
-				if($this->recurseFilePermissions(PROJECT_PATH,
+				if($this->get("system", "os") == "win") {
+					$tasks["completed"][] = "File permissions left untouched for Windows development environment";
+				}
+				else if($this->recurseFilePermissions(PROJECT_PATH,
 					$this->get("system", "apache_user"),
 					$this->get("system", "deploy_user"),
 					0777)
