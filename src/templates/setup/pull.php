@@ -1,23 +1,40 @@
 <?php
 global $model;
 
+// Get local path
+$project_path = realpath(LOCAL_PATH."/..");
+
+// Get git origin
+$remote_origin = shell_exec("cd '$project_path' && git config --get remote.origin.url");
+$remote_origin = preg_replace("/(http[s]?):\/\/([^:]+)?[:]?([^@]+)?@/", "$1://", $remote_origin);
+
 ?>
 <div class="scene pull i:pull">
 
 	<h1>Pull source code</h1>
-	<h2><?= realpath(LOCAL_PATH."/..") ?></h2>
+	<h2><?= $project_path ?></h2>
 
-<? if($model->get("system", "os") == "unix"): ?>
+<? if($model->get("system", "unix") == "mac"): ?>
 
-	<p>Your are about to pull the latest source code from the Git repository.</p>
+	<p>Your are about to pull the latest source code from:<br /><?= trim($remote_origin) ?>.</p>
 
-	<ul class="actions">
-		<?= $JML->oneButtonForm("Pull now", "/janitor/admin/setup/pull", array(
-			"confirm-value" => "Are you sure you want to pull?",
-			"wrapper" => "li.pull",
-			"inputs" => ["pull" => "ok"]
-		)); ?>
-	</ul>
+	<p class="note">
+		If your repository is private, you need to enter your git username and password to 
+		be able to pull, otherwise you can leave the fields empty.
+	</p>
+
+	<?= $model->formStart("/janitor/admin/setup/pull", array("class" => "pull labelstyle:inject")) ?>
+		<?= $model->input("pull", array("type" => "hidden", "value" => "ok")); ?>
+
+		<fieldset>
+			<?= $model->input("git_username", array("label" => "Git username", "type" => "string", "hint_message" => "Enter your git username", "error_message" => "Not a valid username")); ?>
+			<?= $model->input("git_password", array("label" => "Git password", "type" => "password", "hint_message" => "Enter your git password", "error_message" => "Not a valid password")); ?>
+		</fieldset>
+
+		<ul class="actions">
+			<?= $model->submit("Pull now", array("class" => "primary", "wrapper" => "li.pull")) ?>
+		</ul>
+	<?= $model->formEnd() ?>
 
 	<p class="pull_result"></p>
 

@@ -72,6 +72,8 @@ body.upgrade #content .scene ul.tasks li.note code {margin-left: 0; margin-right
 
 
 body.pull #content .scene.pull p.pull_result {white-space: pre;}
+body.pull #content ul.actions input.button.confirm,
+body.pull #content ul.actions input.button.confirm:hover {color: #ffffff; background-color: #df0000;}
 
 
 
