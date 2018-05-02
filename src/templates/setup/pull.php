@@ -14,7 +14,7 @@ $remote_origin = preg_replace("/(http[s]?):\/\/([^:]+)?[:]?([^@]+)?@/", "$1://",
 	<h1>Pull source code</h1>
 	<h2><?= $project_path ?></h2>
 
-<? if($model->get("system", "unix") == "mac"): ?>
+<? if($model->get("system", "os") == "unix"): ?>
 
 	<p>Your are about to pull the latest source code from:<br /><?= trim($remote_origin) ?>.</p>
 
