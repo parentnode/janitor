@@ -5,14 +5,14 @@ global $model;
 $project_path = realpath(LOCAL_PATH."/..");
 
 // Get git origin
-$remote_origin = shell_exec("cd '$project_path' && git config --get remote.origin.url");
+$remote_origin = trim(shell_exec("cd '$project_path' && git config --get remote.origin.url"));
 
 // Test origins
 // $remote_origin = "https://kaestel:pass@github.com/kaestel/casepoint_dk";
 // $remote_origin = "https://kaestel@github.com/kaestel/casepoint_dk";
 // $remote_origin = "https://github.com/kaestel/casepoint_dk";
 
-$remote_origin = trim(preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin));
+$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin);
 
 ?>
 <div class="scene pull i:pull">

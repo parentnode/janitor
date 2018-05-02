@@ -2235,7 +2235,7 @@ class Setup extends Itemtype {
 			$project_path = realpath(LOCAL_PATH."/..");
 
 			// Get git origin
-			$remote_origin = shell_exec("cd '$project_path' && git config --get remote.origin.url");
+			$remote_origin = trim(shell_exec("cd '$project_path' && git config --get remote.origin.url"));
 
 			// Was git username and password sent
 			$git_username = getPost("git_username");
