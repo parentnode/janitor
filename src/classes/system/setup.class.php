@@ -2242,19 +2242,20 @@ class Setup extends Itemtype {
 			$git_password = getPost("git_password");
 
 			if($git_username && $git_password) {
-				$remote_origin = preg_replace("/(http[s]?):\/\/([^:]+)?[:]?([^@]+)?@/", "$1://$git_username:$git_password@", $remote_origin);
+				$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://$git_username:$git_password@", $remote_origin);
 			}
 			else if($git_username) {
-				$remote_origin = preg_replace("/(http[s]?):\/\/([^:]+)?[:]?([^@]+)?@/", "$1://$git_username@", $remote_origin);
+				$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://$git_username@", $remote_origin);
 			}
 			else {
-				$remote_origin = preg_replace("/(http[s]?):\/\/([^:]+)?[:]?([^@]+)?@/", "$1://", $remote_origin);
+				$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin);
 			}
 
 //			$command = "cd '$project_path' && git pull $remote_origin && git submodule update";
-			$command = "cd '$project_path' && sudo git pull $remote_origin && sudo git submodule update";
+			$command = "cd '$project_path' && sudo git pull '$remote_origin' && sudo git submodule update";
 //			print $command;
 			$output = shell_exec($command);
+//			print $output;
 			return $output;
 		}
 
