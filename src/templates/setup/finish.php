@@ -55,7 +55,7 @@ $all_check = $model->checkAllSettings();
 
 	<div class="final_touches">
 
-<?	if($model-get("system", "os") != "win" && $model->get("config", "site_deployment") == "live"): ?>
+<?	if($model->get("system", "os") != "win" && $model->get("config", "site_deployment") == "live"): ?>
 		<h2>File permissions for live site</h2>
 		<p>
 			If you are deploying a site into production you need to set <span class="system_warning">file permissions</span>
@@ -67,7 +67,6 @@ $all_check = $model->checkAllSettings();
 			sure this is done to protect your files from unintended manipulation.
 		</p>
 		<code>sudo chown -R root:<?= $model->get("system", "deploy_user") ?> <?= PROJECT_PATH ?> && sudo chmod -R 755 <?= PROJECT_PATH ?> && sudo chown -R <?= $model->get("system", "apache_user") ?>:<?= $model->get("system", "deploy_user") ?> <?= LOCAL_PATH ?>/library && sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
-
 <?	endif; ?>
 
 
