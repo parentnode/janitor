@@ -1,6 +1,6 @@
 <?php
 /**
-* This file contains System maintanence functionality
+* This file contains System maintenance functionality
 */
 class System extends Model {
 

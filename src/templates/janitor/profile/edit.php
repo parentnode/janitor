@@ -147,13 +147,13 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 			membership and subscriptions from our system.
 		</p>
 		<p>
-			To unsubscribe from out maillists, see the "maillists" section above.
+			To unsubscribe from our maillists, see the "maillists" section above.
 		</p>
 
 <? if($unpaid_orders): ?>
 		<p class="note system_error">
 			You have <?= pluralize(count($unpaid_orders), "unpaid order", "unpaid orders")?>. 
-			Settle <?= pluralize(count($unpaid_orders), "it", "them") ?> befor you
+			Settle <?= pluralize(count($unpaid_orders), "it", "them") ?> before you
 			cancel your account.
 		</p>
 
