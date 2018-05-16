@@ -1561,6 +1561,8 @@ class Setup extends Itemtype {
 					$file_apache = preg_replace("/###SITE_URL###/", $_SERVER["SERVER_NAME"], $file_apache);
 					$file_apache = preg_replace("/###LOG_NAME###/", superNormalize($_SERVER["SERVER_NAME"]), $file_apache);
 					$file_apache = preg_replace("/###MODULES_PATH###/", (preg_match("/\/submodules\//", FRAMEWORK_PATH) ? "submodules" : "core"), $file_apache);
+
+					$fs->makeDirRecursively(PROJECT_PATH."/apache");
 					file_put_contents(PROJECT_PATH."/apache/httpd-vhosts.conf", $file_apache);
 
 //					unlink(LOCAL_PATH."/config/httpd-vhosts.template.conf");
@@ -1594,8 +1596,19 @@ class Setup extends Itemtype {
 
 			// FOR ALL SETUP TYPES
 
+			// Make sure config path exists
+			if(!file_exists(LOCAL_PATH."/config")) {
+				$fs->makeDirRecursively(LOCAL_PATH."/config");
+			}
+
+			// Make sure templates path exists
+			if(!file_exists(LOCAL_PATH."/templates")) {
+				$fs->makeDirRecursively(LOCAL_PATH."/templates");
+			}
+
 
 			// WRITE CONFIGURATION FILES
+
 
 
 			// CONFIG
