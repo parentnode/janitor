@@ -11,6 +11,10 @@
 //include_once("functions_arrays.inc.php");
 //include_once("functions_files.inc.php");
 
+function hallo() {
+	print "test";
+}
+
 /**
 * used by zip
 */
