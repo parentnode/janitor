@@ -1519,7 +1519,7 @@ class Setup extends Itemtype {
 
 					if($this->get("system", "os") == "win") {
 						// Extract
-						$output = shell_exec("C:/Program Files/7-Zip/7z.exe e ".PROJECT_PATH."/theme.tar.gz");
+						$output = shell_exec('"C:/Program Files/7-Zip/7z.exe" e "'.PROJECT_PATH.'/theme.tar.gz"');
 					}
 					else {
 						// Extract
