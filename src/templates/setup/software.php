@@ -48,8 +48,7 @@ $software_ok = $model->checkSoftware();
 <?	if(
 		!$model->get("software", "apache") || 
 		!$model->get("software", "php") || 
-		!$model->get("software", "mysql") || 
-		!$model->get("software", "ffmpeg")
+		!$model->get("software", "mysql")
 	): ?>
 	<p>
 		Your software does not meet the requirements for running Janitor. Please update your system.
