@@ -1517,8 +1517,14 @@ class Setup extends Itemtype {
 					curl_close($ch);
 					fclose($fp);
 
-					// Extract
-					$output = shell_exec("tar -xzf ".PROJECT_PATH."/theme.tar.gz -C ".PROJECT_PATH." 2>&1");
+					if($this->get("system", "os") == "win") {
+						// Extract
+						$output = shell_exec("C:/Program Files/7-Zip/7z.exe e ".PROJECT_PATH."/theme.tar.gz");
+					}
+					else {
+						// Extract
+						$output = shell_exec("tar -xzf ".PROJECT_PATH."/theme.tar.gz -C ".PROJECT_PATH." 2>&1");
+					}
 
 					// Replace existing theme
 					$fs->removeDirRecursively(PROJECT_PATH."/theme");
