@@ -1391,7 +1391,7 @@ class ItemtypeCore extends Model {
 						$upload["format"] = "zip";
 
 						$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
-						$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 30)).".zip";
+						$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40)).".zip";
 						
 
 						$fs->removeDirRecursively(dirname($output_file));
@@ -1420,7 +1420,7 @@ class ItemtypeCore extends Model {
 						$upload["format"] = "zip";
 
 						$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"] ;
-						$zip_name = superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 30));
+						$zip_name = superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40));
 						$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".$zip_name.".zip";
 
 						$fs->removeDirRecursively(dirname($output_file));
