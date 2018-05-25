@@ -1517,13 +1517,14 @@ class Setup extends Itemtype {
 					curl_close($ch);
 					fclose($fp);
 
+					// Extraction on Windows
 					if($this->get("system", "os") == "win") {
 						// Extract
 						$output = shell_exec('"C:/Program Files/7-Zip/7z.exe" x "'.PROJECT_PATH.'/theme.tar.gz" -o"'.PROJECT_PATH.'"');
 						$output = shell_exec('"C:/Program Files/7-Zip/7z.exe" x "'.PROJECT_PATH.'/theme.tar" -o"'.PROJECT_PATH.'"');
 					}
+					// Extraction on Mac/Linux
 					else {
-						// Extract
 						$output = shell_exec("tar -xzf ".PROJECT_PATH."/theme.tar.gz -C ".PROJECT_PATH." 2>&1");
 					}
 
