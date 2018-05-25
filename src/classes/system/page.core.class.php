@@ -1935,7 +1935,8 @@ class PageCore {
 			// send and reset collection
 			if(mailer()->send(array(
 				"subject" => "NOTIFICATION: $collection on ".$_SERVER["SERVER_ADDR"], 
-				"message" => $message
+				"message" => $message,
+				"tracking" => false
 			))) {
 				$fp = fopen($collection_file, "w");
 				fclose($fp);
