@@ -1362,7 +1362,7 @@ class ItemtypeCore extends Model {
 						$upload["format"] = "pdf";
 
 						$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
-						$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 30)).".pdf";
+						$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40)).".pdf";
 						
 
 						$fs->removeDirRecursively(dirname($output_file));
