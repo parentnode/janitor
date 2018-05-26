@@ -2,34 +2,18 @@
 global $action;
 global $model;
 
+$entries = cache()->getAllDomainPairs();
 
-if(class_exists("Memcached")) {
-
-	$memc = new Memcached();
-	$con = $memc->addServer('localhost', 11211);
-
-	$entries = array();
-	$keys = $memc->getAllKeys();
-
-	foreach($keys as $key) {
-		// only list cache entries matching current site
-		if(preg_match("/^".preg_quote(SITE_URL, "/")."\-/", $key)) {
-
-			$entry = $memc->get($key);
-			$data = cache()->decodeSessionJSON($entry);
-
-			$entries[preg_replace("/^".preg_quote(SITE_URL, "/")."\-/", "", $key)] = $data;
-
-		}
-
-	}
-
-}
 ?>
 <div class="scene i:scene defaultList cacheList">
 	<h1>Cache entries</h1>
-	<h2><?= SITE_URL ?></h2>
+	<h2><?= cache()->cache_type ?> cache</h2>
 
+	<? if(cache()->cache_type == "pseudo"): ?>
+	<p>No caching server available on your system. The following values should have been cached.</p>
+	<? endif; ?>
+
+	<? if($entries): ?>
 	<div class="all_items users i:defaultList i:cacheList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		data-flush-url="<?= $this->validPath("/janitor/admin/system/flushFromCache") ?>"
@@ -50,5 +34,7 @@ if(class_exists("Memcached")) {
 		</ul>
 
 	</div>
-
+	<? else: ?>
+	<p>No entries in your cache.</p>
+	<? endif; ?>
 </div>

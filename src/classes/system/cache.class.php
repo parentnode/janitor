@@ -5,18 +5,33 @@
 
 class Cache {
 
+	public $cache_type;
+
 	function __construct() {
 
-		// Memcached not installed - create fake cache to make sure dependencies don't fail
-		if(class_exists("Memcached")) {
+		// If Redis or Memcached not installed - create pseudo cache to make sure dependencies don't fail
 
-			$this->memc = new Memcached();
-			$this->memc->addServer('localhost', 11211);
+
+		if(class_exists("Redis")) {
+
+			$this->cache_type = "redis";
+
+			$this->cache = new Redis();
+			$this->cache->connect('127.0.0.1', 6379);
 		}
-		// fallback to fake cache if Memcached is not installed
+		else if(class_exists("Memcached")) {
+
+			$this->cache_type = "memcached";
+
+			$this->cache = new Memcached();
+			$this->cache->addServer('localhost', 11211);
+		}
+		// fallback to pseudo cache if Redis or Memcached is not installed
 		else {
 
-			$this->memc = new FakeCache();
+			$this->cache_type = "pseudo";
+
+			$this->cache = new PseudoCache();
 		}
 
 	}
@@ -27,41 +42,58 @@ class Cache {
 
 		// set value
 		if($value) {
-			$this->memc->set(SITE_URL."-".$key, json_encode($value));
+			$this->cache->set(SITE_URL."-".$key, json_encode($value));
 		}
 		// get value
 		else {
-			return json_decode($this->memc->get(SITE_URL."-".$key), true);
+			return json_decode($this->cache->get(SITE_URL."-".$key), true);
 		}
 
 	}
 
 
-	// TODO: return true/false on success/error
+	// return true/false on success/error
 	function reset($key) {
 
-		if($this->memc->get(SITE_URL."-".$key) ) {
-			$this->memc->delete(SITE_URL."-".$key);
+		if($this->cache->get(SITE_URL."-".$key)) {
+			return $this->cache->delete(SITE_URL."-".$key);
+		}
+		else if($this->cache->get($key)) {
+			return $this->cache->delete($key);
 		}
 
 	}
 
+	// igbinary unserializer with additional string and JSON decoding
+	// TODO: Fix Unicode issues in nicknames
 	function unserializeSession($data) {
 
 		$results = "";
-		$vars = preg_split('/([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\|/', $data, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-		if(count($vars) > 1) {
 
-			for($i = 0; isset($vars[$i]); $i++) {
-				$results[$vars[$i++]] = unserialize($vars[$i]);
-			}
+		// For some reason this returns all strings as quoted, like "martin" instead of martin
+		$dataset = igbinary_unserialize($data);
+		if(isset($dataset["SV"])) {
 
-			foreach($results as $index => $result) {
-				$results[$index] = $this->decodeSessionJSON($result);
+			foreach($dataset["SV"] as $key => $value) {
+				if(is_string($value)) {
+//					print $key . "=>" . $value."<br>\n";
+
+					// detect JSON objects
+					if(preg_match("/^\{[^$]+\}$/", $value)) {
+						$dataset["SV"][$key] = json_decode($value, true);
+					}
+					// remove extra quotes from regular strings.
+					else {
+						$dataset["SV"][$key] = stripslashes(preg_replace("/^\"|\"$/", "", mb_convert_encoding($value, "UTF-8")));
+					}
+
+				}
+
+
 			}
 
 		}
-		return $results;
+		return $dataset;
 	}
 
 	function decodeSessionJSON($dataset) {
@@ -80,23 +112,140 @@ class Cache {
 		}
 
 	}
+
+
+	function getAllDomainPairs() {
+
+		$entries = array();
+
+		// Redis
+		if($this->cache_type == "redis") {
+		
+			$keys = $this->cache->keys("*");
+		}
+		// Memcached
+		else if($this->cache_type == "memcached") {
+			
+			$keys = $this->cache->getAllKeys();
+		}
+		// Pseudo cache
+		else {
+
+			$keys = $this->cache->keys("*");
+		}
+
+		foreach($keys as $key) {
+//			print $key."<br>\n";
+
+			// only list cache entries matching current site
+			if(preg_match("/^".preg_quote(SITE_URL, "/")."\-/", $key)) {
+
+				$entry = $this->cache->get($key);
+				// print $entry."<br>\n";
+				$data = $this->decodeSessionJSON($entry);
+
+				// print_r($data);
+				$entries[preg_replace("/^".preg_quote(SITE_URL, "/")."\-/", "", $key)] = $data;
+
+			}
+
+		}
+
+		return $entries;
+
+	}
+
+
+	function getAllDomainSessions() {
+
+		$users = array();
+
+		// Redis
+		if($this->cache_type == "redis") {
+		
+			$keys = $this->cache->keys("PHPREDIS_SESSION*");
+		}
+		// Memcached
+		else if($this->cache_type == "memcached") {
+			
+			$keys = $this->cache->getAllKeys();
+			foreach($keys as $i => $key) {
+				if(!preg_match("/sess\.(?!lock)/i", $key)) {
+					unset($keys[$i]);
+				}
+			}
+		}
+		// Pseudo cache (no access to user session)
+		else {
+
+			return $users;
+		}
+
+		foreach($keys as $key) {
+//			print $key."<br>\n";
+			$user = $this->cache->get($key);
+			// print_r($user);
+
+			if($user) {
+
+				$data = $this->unserializeSession($user);
+				// print_r($data);
+
+				// collect sessions users
+				// skip current user
+				if($data && isset($data["SV"]) && $data["SV"]["csrf"] != session()->value("csrf")) {
+
+					$values = $data["SV"];
+
+					if($values["site"] == SITE_URL) {
+						$users[] = array(
+							"user_id" => $values["user_id"],
+							"user_group_id" => $values["user_group_id"],
+							"nickname" => isset($values["user_nickname"]) ? $values["user_nickname"] : "Anonymous",
+							"ip" => $values["ip"]."cc",
+							"useragent" => $values["useragent"],
+							"last_login_at" => $values["last_login_at"],
+							"session_key" => $key
+						);
+					}
+
+				}
+
+			}
+
+		}
+
+		return $users;
+
+	}
+
 }
 
-// Fake Caching for systems without Memcached installed
-class FakeCache {
+
+// Pseudo Caching for systems without Redis/Memcached installed
+class PseudoCache {
+
+	private $pseudo_cache;
 
 	function __construct() {
-		$this->fake_cache = array();
+		$this->pseudo_cache = array();
 	}
 	function get($key) {
-		return isset($this->fake_cache[$key]) ? $this->fake_cache[$key] : "";
+		return isset($this->pseudo_cache[$key]) ? $this->pseudo_cache[$key] : "";
 	}
 	function set($key, $value = false) {
-		$this->fake_cache[$key] = $value;
+		$this->pseudo_cache[$key] = $value;
 	}
 	function delete($key) {
-		unset($this->fake_cache[$key]);
+		if(isset($this->pseudo_cache[$key])) {
+			unset($this->pseudo_cache[$key]);
+		}
+		return true;
 	}
+	function keys() {
+		return array_keys($this->pseudo_cache);
+	}
+
 }
 
 

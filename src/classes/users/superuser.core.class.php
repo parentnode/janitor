@@ -371,33 +371,21 @@ class SuperUserCore extends User {
 		if(count($action) == 2) {
 			$user_id = $action[1];
 
-			if(class_exists("Memcached")) {
+			$online_users = cache()->getAllDomainSessions();
+			if($online_users) {
 
-				$memc = new Memcached();
-				$memc->addServer('localhost', 11211);
+				foreach($online_users as $user) {
 
-				$keys = $memc->getAllKeys();
+					if($user["user_id"] == $user_id) {
+						cache()->reset($user["session_key"]);
 
-				foreach($keys as $key) {
-
-					if(preg_match("/sess\.key/", $key)) {
-						$user = $memc->get($key);
-			//			print "session:" . $user."<br>\n";
-
-						if($user) {
-
-							$data = cache()->unserializeSession($user);
-
-							if(isset($data["SV"]) && $data["SV"]["site"] == SITE_URL && $data["SV"]["user_id"] == $user_id) {
-								$memc->delete($key);
-
-								message()->addMessage("User session flushed");
-								return true;
-							}
-						}
+						message()->addMessage("User session flushed");
+						return true;
 					}
 				}
+
 			}
+
 		}
 
 		message()->addMessage("No user session found", array("type" => "error"));
