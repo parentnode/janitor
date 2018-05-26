@@ -2,3 +2,5 @@
 *.sublime-project
 *.sublime-workspace
 nbproject/*
+.vscode
+src/www/opsnr.stt
