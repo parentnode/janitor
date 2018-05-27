@@ -747,6 +747,9 @@ function wkhtmltoPath() {
 			$wkhtmlto_path = "/srv/tools/bin/wkhtmltopdf";
 		}
 
+		else if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/usr/bin/wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "/usr/bin/wkhtmltopdf";
+		}
 
 		else if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/usr/local/bin/static_wkhtmltopdf 2>&1"))) {
 			$wkhtmlto_path = "/usr/local/bin/wkhtmltopdf";
@@ -768,9 +771,6 @@ function wkhtmltoPath() {
 		}
 
 
-		else if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/usr/bin/wkhtmltopdf 2>&1"))) {
-			$wkhtmlto_path = "/usr/bin/wkhtmltopdf";
-		}
 
 		cache()->value("wkhtmlto_path", $wkhtmlto_path);
 
