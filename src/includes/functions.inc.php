@@ -743,12 +743,12 @@ function wkhtmltoPath() {
 
 
 		# Current MAC / Linux
-		if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/srv/tools/bin/wkhtmltopdf 2>&1"))) {
+		if(!preg_match("/(No such file or directory|not found|not recognized|cannot find|ikke fundet)/i", shell_exec("/srv/tools/bin/wkhtmltopdf 2>&1"))) {
 			$wkhtmlto_path = "/srv/tools/bin/wkhtmltopdf";
 		}
 		# Current Windows
-		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/srv/installed-packages/wkhtmltopdf/bin/wkhtmltopdf 2>&1"))) {
-			$wkhtmlto_path = "/srv/installed-packages/wkhtmltopdf/bin/wkhtmltopdf";
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/srv/installed-packages/wkhtmltopdf/bin/wkhtmltopdf.exe 2>&1"))) {
+			$wkhtmlto_path = "/srv/installed-packages/wkhtmltopdf/bin/wkhtmltopdf.exe";
 		}
 
 
