@@ -681,20 +681,25 @@ function ffmpegPath() {
 
 	if(!$ffmpeg_path) {
 
-		if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("ffmpeg 2>&1"))) {
-			$ffmpeg_path = "ffmpeg";
-		}
-		else if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/opt/local/bin/ffmpeg 2>&1"))) {
+		// Mac path
+		if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/opt/local/bin/ffmpeg 2>&1"))) {
 			$ffmpeg_path = "/opt/local/bin/ffmpeg";
 		}
-		else if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/usr/local/bin/ffmpeg 2>&1"))) {
+		// Linux path
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/usr/local/bin/ffmpeg 2>&1"))) {
 			$ffmpeg_path = "/usr/local/bin/ffmpeg";
 		}
-		else if(!preg_match("/(No such file or directory|command not found)/i", shell_exec("/usr/bin/ffmpeg 2>&1"))) {
+		// Windows path
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/srv/installed-packages/ffmpeg/bin/ffmpeg 2>&1"))) {
+			$ffmpeg_path = "/srv/installed-packages/ffmpeg/bin/ffmpeg";
+		}
+
+		// Alternative paths
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/usr/bin/ffmpeg 2>&1"))) {
 			$ffmpeg_path = "/usr/bin/ffmpeg";
 		}
-		else if(!preg_match("/(No such file or directory|command not found|not recognized|cannot find the path)/i", shell_exec("/srv/installed-packages/ffmpeg/bin/ffmpeg 2>&1"))) {
-			$ffmpeg_path = "/srv/installed-packages/ffmpeg/bin/ffmpeg";
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("ffmpeg 2>&1"))) {
+			$ffmpeg_path = "ffmpeg";
 		}
 
 		cache()->value("ffmpeg_path", $ffmpeg_path);
@@ -736,34 +741,35 @@ function wkhtmltoPath() {
 //	print $wkhtmlto_path;
 	if(!$wkhtmlto_path) {
 
-		// The most common way of installing WKHTMLTO is by using a static (precompiled) binary version
-
-		// If this has been installed using the parentnode stack installer
-		if(!preg_match("/(No such file or directory|not found)/i", shell_exec("wkhtmltopdf 2>&1"))) {
-			$wkhtmlto_path = "wkhtmltopdf";
-		}
 
 		# Current MAC / Linux
-		else if(!preg_match("/(No such file or directory|not found)/i", shell_exec("/srv/tools/bin/wkhtmltopdf 2>&1"))) {
+		if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/srv/tools/bin/wkhtmltopdf 2>&1"))) {
 			$wkhtmlto_path = "/srv/tools/bin/wkhtmltopdf";
+		}
+		# Current Windows
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/srv/installed-packages/wkhtmltopdf/bin/wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "/srv/installed-packages/wkhtmltopdf/bin/wkhtmltopdf";
 		}
 
 
 		# Older versions MAC / Linux
-		else if(!preg_match("/(No such file or directory|not found)/i", shell_exec("static_wkhtmltopdf 2>&1"))) {
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("static_wkhtmltopdf 2>&1"))) {
 			$wkhtmlto_path = "static_wkhtmltopdf";
 		}
-		else if(!preg_match("/(No such file or directory|not found)/i", shell_exec("/usr/bin/static_wkhtmltopdf 2>&1"))) {
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/usr/bin/static_wkhtmltopdf 2>&1"))) {
 			$wkhtmlto_path = "/usr/bin/static_wkhtmltopdf";
 		}
-		else if(!preg_match("/(No such file or directory|not found)/i", shell_exec("/usr/local/bin/static_wkhtmltopdf 2>&1"))) {
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/usr/local/bin/static_wkhtmltopdf 2>&1"))) {
 			$wkhtmlto_path = "/usr/local/bin/static_wkhtmltopdf";
 		}
-		else if(!preg_match("/(No such file or directory|not found)/i", shell_exec("/usr/bin/wkhtmltopdf 2>&1"))) {
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/usr/bin/wkhtmltopdf 2>&1"))) {
 			$wkhtmlto_path = "/usr/bin/wkhtmltopdf";
 		}
-		else if(!preg_match("/(No such file or directory|not found)/i", shell_exec("/usr/local/bin/wkhtmltopdf 2>&1"))) {
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("/usr/local/bin/wkhtmltopdf 2>&1"))) {
 			$wkhtmlto_path = "/usr/local/bin/wkhtmltopdf";
+		}
+		else if(!preg_match("/(No such file or directory|not found|not recognized|cannot find)/i", shell_exec("wkhtmltopdf 2>&1"))) {
+			$wkhtmlto_path = "wkhtmltopdf";
 		}
 
 
