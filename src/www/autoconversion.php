@@ -256,7 +256,7 @@ if($request_type == "images" && ($width || $height) && ($format == "jpg" || $for
 		$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
 
 		// redirect to new image
-		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format, true, 200);
+		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format, true, 307);
 		exit();
 
 	}
@@ -330,7 +330,7 @@ else if($request_type == "videos" && ($width || $height) && ($format == "mp4" ||
 		$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
 
 		// redirect to new image
-		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format, true, 200);
+		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format, true, 307);
 		exit();
 
 	}
@@ -382,7 +382,7 @@ else if($request_type == "audios" && $bitrate && ($format == "mp3" || $format ==
 		// collect log autoconvertion for bundled notification
 		$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
 
-		header("Location: /".$request_type."/".$id.$variant."/".$bitrate.".".$format, true, 200);
+		header("Location: /".$request_type."/".$id.$variant."/".$bitrate.".".$format, true, 307);
 		exit();
 
 	}
