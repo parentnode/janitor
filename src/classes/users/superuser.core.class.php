@@ -2561,13 +2561,21 @@ class SuperUserCore extends User {
 		foreach($controllers as $controller) {
 			$access_item = array();
 
-			// get controller access items
-			include($controller);
+			// Check that controller is formed correctly
+			// ($read_access return statement exists in the begining of the file)
+			$file_as_string = file_get_contents($controller);
+			if(preg_match("/if[ ]?\(isset\(\\\$read_access\)[ ]?&&[ ]?\\\$read_access\)[ ]?\{/", $file_as_string)) {
 
-			// replace local path
-			$short_point = str_replace(".php", "", str_replace(LOCAL_PATH."/www", "", $controller));
-			// store information
-			$access["points"][$short_point] = $access_item;
+				// get controller access items
+				include($controller);
+
+				// replace local path
+				$short_point = str_replace(".php", "", str_replace(LOCAL_PATH."/www", "", $controller));
+				// store information
+				$access["points"][$short_point] = $access_item;
+
+			}
+
 		}
 
 
@@ -2578,14 +2586,22 @@ class SuperUserCore extends User {
 		foreach($controllers as $controller) {
 			$access_item = array();
 
-			// get controller access items
-			include($controller);
+			// Check that controller is formed correctly
+			// ($read_access return statement exists in the begining of the file)
+			$file_as_string = file_get_contents($controller);
+			if(preg_match("/if[ ]?\(isset\(\\\$read_access\)[ ]?&&[ ]?\\\$read_access\)[ ]?\{/", $file_as_string)) {
 
-			// replace Framework path, but add /janitor/admin because that is reprensentative for how they are accessed
-			$short_point = str_replace(".php", "", str_replace(FRAMEWORK_PATH."/www", "/janitor/admin", $controller));
+				// get controller access items
+				include($controller);
 
-			// store information
-			$access["points"][$short_point] = $access_item;
+				// replace Framework path, but add /janitor/admin because that is reprensentative for how they are accessed
+				$short_point = str_replace(".php", "", str_replace(FRAMEWORK_PATH."/www", "/janitor/admin", $controller));
+
+				// store information
+				$access["points"][$short_point] = $access_item;
+
+			}
+
 		}
 
 
