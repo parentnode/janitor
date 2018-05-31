@@ -61,7 +61,7 @@ $software_ok = $model->checkSoftware();
 <?	if(
 		!$model->get("software", "ffmpeg") || 
 		!$model->get("software", "wkhtmlto") || 
-		!$model->get("software", "memcached") || 
+		!$model->get("software", "redis") || 
 		!$model->get("software", "zip") || 
 		!$model->get("software", "curl")
 	): ?>

@@ -376,7 +376,7 @@ class Upgrade extends Model {
 
 
 			// set file permissions
-			if($this->get("system", "os") == "win") {
+			if($model->get("system", "os") == "win") {
 				$tasks["completed"][] = "File permissions left untouched for Windows development environment";
 			}
 			else if($model->recurseFilePermissions(PROJECT_PATH,
@@ -394,7 +394,7 @@ class Upgrade extends Model {
 			// Upgrade complete
 			print '<li class="done">UPGRADE COMPLETE</li>';
 
-			if($this->get("system", "os") != "win") {
+			if($model->get("system", "os") != "win") {
 				print '<li class="note">';
 				print '	<h3>File permissions for live site</h3>';
 				print '	<p>';
