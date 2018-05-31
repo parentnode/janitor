@@ -411,7 +411,7 @@ class Setup extends Itemtype {
 				$this->isInstalled(
 					array(
 						"curl --version"
-					), 
+					),
 					array(
 						"curl [67]{1}.[0-9]"
 					)
@@ -435,7 +435,7 @@ class Setup extends Itemtype {
 					"/usr/local/bin/ffmpeg -version",
 					"/srv/ffmpeg/bin/ffmpeg -version",
 					"/srv/installed-packages/ffmpeg/bin/ffmpeg -version"
-				), 
+				),
 				array(
 					"ffmpeg version (2\.[1-9]{1}|3\.|4\.)",
 					"ffmpeg version N-[6-9][0-9]"
@@ -454,8 +454,8 @@ class Setup extends Itemtype {
 					"/opt/local/bin/wkhtmltopdf --version",
 					"/usr/local/bin/wkhtmltopdf --version", 
 					"/usr/bin/wkhtmltopdf --version",
-					"/srv/installed-packages/wkhtmltopdf/bin/wkhtmltopdf --version"
-				), 
+					"/srv/installed-packages/wkhtmltopdf/bin/wkhtmltopdf.exe --version"
+				),
 				array(
 					"wkhtmltopdf 0.1[0-9]{1}"
 				)
