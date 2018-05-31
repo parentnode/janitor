@@ -5,7 +5,9 @@ $account_check = $model->checkAccountSettings();
 
 ?>
 <div class="scene account i:account">
-	
+
+	<div class="progress">4/7</div>
+
 	<h1>Janitor configuration</h1>
 	<h2>Admin account</h2>
 	<ul class="actions">

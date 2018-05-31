@@ -364,7 +364,7 @@ class SuperUserCore extends User {
 		return false;
 	}
 
-	// flush a user session from Memcached sessions
+	// flush a user session from Redis/Memcached sessions
 	// /janitor/admin/user/flushUserSession/#user_id#
 	function flushUserSession($action) {
 

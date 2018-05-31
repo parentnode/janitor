@@ -1828,7 +1828,7 @@ class PageCore {
 			// connection error is handled different when setting up site
 			if(!defined("SETUP_TYPE")) {
 
-				echo "Failed to connect to MySQL: " . $mysqli->connect_error;
+				echo "Failed to connect to DB: " . $mysqli->connect_error;
 				exit();
 
 			}

@@ -5,6 +5,8 @@ $config_check = $model->checkConfigSettings();
 ?>
 <div class="scene config i:config">
 
+	<div class="progress">2/7</div>
+
 	<h1>Janitor configuration</h1>
 	<h2>Project settings</h2>
 	<ul class="actions">

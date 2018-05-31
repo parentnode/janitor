@@ -19,90 +19,6 @@ class Setup extends Itemtype {
 		$this->set("system", "deploy_user", trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : (trim(shell_exec('egrep -i "^staff" /etc/group')) ? "staff" : $this->get("system", "current_user")));
 
 
-		// $this->current_user = get_current_user();
-		// $this->apache_user = trim(shell_exec('whoami'));
-		// $this->deploy_user = trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : (trim(shell_exec('egrep -i "^staff" /etc/group')) ? "staff" : $this->current_user);
-
-		//
-		// // SOFTWARE CHECKS
-		// $this->apache = false;
-		// $this->php = false;
-		// $this->readwrite = false;
-		// $this->mysql = false;
-		// $this->ffmpeg = false;
-		// $this->wkhtmlto = false;
-		//
-		// // PHP modules
-		// $this->zip = false;
-		// $this->curl = false;
-		// $this->memcached = false;
-		// $this->imagemagick = false;
-		// $this->simplexml = false;
-		// $this->mbstring = false;
-		// $this->session = false;
-		// $this->dom = false;
-		//
-		// $this->software_ok = isset($_SESSION["SOFTWARE_INFO"]) ? $_SESSION["SOFTWARE_INFO"] : "";
-		//
-		//
-		// // CONFIG VALUES
-		// $this->project_path = isset($_SESSION["project_path"]) ? $_SESSION["project_path"] : "";
-		// $this->site_name = isset($_SESSION["site_name"]) ? $_SESSION["site_name"] : "";
-		// $this->site_uid = isset($_SESSION["site_uid"]) ? $_SESSION["site_uid"] : "";
-		//
-		// $this->site_email = isset($_SESSION["site_email"]) ? $_SESSION["site_email"] : "";
-		// $this->site_description = isset($_SESSION["site_description"]) ? $_SESSION["site_description"] : "";
-		//
-		// // CONFIG CHECKS
-		// $this->config_ok = isset($_SESSION["CONFIG_INFO"]) ? $_SESSION["CONFIG_INFO"] : "";
-		//
-		//
-		// // ACCOUNT VALUES
-		// $this->username = isset($_SESSION["username"]) ? $_SESSION["username"] : "";
-		// $this->password = isset($_SESSION["password"]) ? $_SESSION["password"] : "";
-		//
-		// // ACCOUNT CHECKS
-		// $this->account_ok = isset($_SESSION["ACCOUNT_INFO"]) ? $_SESSION["ACCOUNT_INFO"] : "";
-		// $this->account_exists = false;
-		//
-		//
-		//
-		// // DATABASE VALUES
-		// $this->db_host = isset($_SESSION["db_host"]) ? $_SESSION["db_host"] : "";
-		// $this->db_root_user = isset($_SESSION["db_root_user"]) ? $_SESSION["db_root_user"] : "";
-		// $this->db_root_pass = isset($_SESSION["db_root_pass"]) ? $_SESSION["db_root_pass"] : "";
-		//
-		// $this->db_janitor_db = isset($_SESSION["db_janitor_db"]) ? $_SESSION["db_janitor_db"] : "";
-		// $this->db_janitor_user = isset($_SESSION["db_janitor_user"]) ? $_SESSION["db_janitor_user"] : "";
-		// $this->db_janitor_pass = isset($_SESSION["db_janitor_pass"]) ? $_SESSION["db_janitor_pass"] : "";
-		//
-		// // DATABASE CHECKS
-		// $this->db_ok = isset($_SESSION["DATABASE_INFO"]) ? $_SESSION["DATABASE_INFO"] : "";
-		// $this->db_exists = false;
-		//
-		// $this->db_admin_error = false;
-		// $this->db_user_error = false;
-		// $this->wrong_db_user_password = false;
-		//
-		//
-		//
-		// // MAIL VALUES
-		// $this->mail_admin = isset($_SESSION["mail_admin"]) ? $_SESSION["mail_admin"] : "";
-		// $this->mail_type = isset($_SESSION["mail_type"]) ? $_SESSION["mail_type"] : "";
-		//
-		// $this->mail_smtp_host = isset($_SESSION["mail_smtp_host"]) ? $_SESSION["mail_smtp_host"] : "";
-		// $this->mail_smtp_port = isset($_SESSION["mail_smtp_port"]) ? $_SESSION["mail_smtp_port"] : "";
-		// $this->mail_smtp_username = isset($_SESSION["mail_smtp_username"]) ? $_SESSION["mail_smtp_username"] : "";
-		// $this->mail_smtp_password = isset($_SESSION["mail_smtp_password"]) ? $_SESSION["mail_smtp_password"] : "";
-		//
-		// $this->mail_mailgun_api_key = isset($_SESSION["mail_mailgun_api_key"]) ? $_SESSION["mail_mailgun_api_key"] : "";
-		// $this->mail_mailgun_domain = isset($_SESSION["mail_mailgun_domain"]) ? $_SESSION["mail_mailgun_domain"] : "";
-		//
-		// // MAIL CHECKS
-		// $this->mail_ok = isset($_SESSION["MAIL_INFO"]) ? $_SESSION["MAIL_INFO"] : "";
-		//
-
-
 
 		// CONFIG MODEL
 
@@ -484,17 +400,7 @@ class Setup extends Itemtype {
 
 		// Zip
 		$this->set("software",
-			"zip", (
-				array_search("zip", $php_modules) !== false && 
-				$this->isInstalled(
-					array(
-						"zip --version"
-					), 
-					array(
-						"This is Zip [3]{1}.[0-9]"
-					)
-				)
-			)
+			"zip", (array_search("zip", $php_modules) !== false)
 		);
 
 
@@ -514,21 +420,9 @@ class Setup extends Itemtype {
 		);
 
 		
-		// Memcached
+		// Redis
 		$this->set("software",
-			"memcached", (
-				array_search("memcached", $php_modules) !== false && 
-				$this->isInstalled(
-					array(
-						"/opt/local/bin/memcached -i",
-						"/usr/local/bin/memcached -i",
-						"/usr/bin/memcached -i"
-					), 
-					array(
-						"memcached 1.[4-9]"
-					)
-				)
-			)
+			"redis", (array_search("redis", $php_modules) !== false)
 		);
 
 
@@ -543,7 +437,7 @@ class Setup extends Itemtype {
 					"/srv/installed-packages/ffmpeg/bin/ffmpeg -version"
 				), 
 				array(
-					"ffmpeg version (2.[1-9]{1}|3.[0-9]{1})",
+					"ffmpeg version (2\.[1-9]{1}|3\.|4\.)",
 					"ffmpeg version N-[6-9][0-9]"
 				)
 			) !== false)
@@ -554,11 +448,13 @@ class Setup extends Itemtype {
 		$this->set("software",
 			"wkhtmlto", ($this->isInstalled(
 				array(
+					"/srv/tools/bin/wkhtmltopdf --version",
 					"/usr/bin/static_wkhtmltopdf --version",
 					"/usr/local/bin/static_wkhtmltopdf --version", 
 					"/opt/local/bin/wkhtmltopdf --version",
 					"/usr/local/bin/wkhtmltopdf --version", 
-					"/usr/bin/wkhtmltopdf --version"
+					"/usr/bin/wkhtmltopdf --version",
+					"/srv/installed-packages/wkhtmltopdf/bin/wkhtmltopdf --version"
 				), 
 				array(
 					"wkhtmltopdf 0.1[0-9]{1}"
@@ -1496,7 +1392,7 @@ class Setup extends Itemtype {
 
 				// INSTALL THEME FROM GITHUB IF THEME DOES NOT EXIST (OR IS EMPTY)
 				if(!file_exists(PROJECT_PATH."/theme") || scandir(PROJECT_PATH."/theme") == array(".", "..") || (scandir(PROJECT_PATH."/theme") == array(".", "..", "www") && scandir(PROJECT_PATH."/theme/www") == array(".", "..", "index.php"))) {
-					
+
 					// Download theme
 					$url = "https://github.com/parentnode/janitor-theme-minimal/archive/master.tar.gz";
 					$zip_file = PROJECT_PATH."/theme.tar.gz";

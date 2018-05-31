@@ -6,6 +6,8 @@ $software_ok = $model->checkSoftware();
 ?>
 <div class="scene software i:software">
 
+	<div class="progress">1/7</div>
+
 	<h1>Janitor setup guide</h1>
 	<h2>Software requirements test</h2>
 	<ul class="actions">
@@ -15,7 +17,6 @@ $software_ok = $model->checkSoftware();
 			"success-location" => "/janitor/admin/setup"
 		)); ?>
 	</ul>
-
 
 	<h3>Required software</h3>
 	<ul class="requirements">
@@ -33,7 +34,7 @@ $software_ok = $model->checkSoftware();
 	<ul class="requirements">
 		<li<?= !$model->get("software", "imagemagick") ? ' class="notice"' : "" ?>>PHP-ImageMagick: <?= $model->get("software", "imagemagick") ? "Success" : "Not installed" ?></li>
 		<li<?= !$model->get("software", "zip") ? ' class="notice"' : "" ?>>Zip: <?= $model->get("software", "zip") ? "Success" : "Not installed" ?></li>
-		<li<?= !$model->get("software", "memcached") ? ' class="notice"' : "" ?>>Memcached: <?= $model->get("software", "memcached") ? "Success" : "Not installed" ?></li>
+		<li<?= !$model->get("software", "redis") ? ' class="notice"' : "" ?>>Redis: <?= $model->get("software", "redis") ? "Success" : "Not installed" ?></li>
 		<li<?= !$model->get("software", "curl") ? ' class="notice"' : "" ?>>Curl: <?= $model->get("software", "curl") ? "Success" : "Not installed" ?></li>
 		<li<?= !$model->get("software", "ffmpeg") ? ' class="notice"' : "" ?>>FFMpeg: <?= $model->get("software", "ffmpeg") ? "Success" : "Not installed" ?></li>
 		<li<?= !$model->get("software", "wkhtmlto") ? ' class="notice"' : "" ?>>wkhtmlto: <?= $model->get("software", "wkhtmlto") ? "Success" : "Not installed" ?></li>

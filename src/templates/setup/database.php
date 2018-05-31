@@ -6,6 +6,8 @@ $db_check = $model->checkDatabaseSettings();
 ?>
 <div class="scene database i:database">
 
+	<div class="progress">3/7</div>
+
 	<h1>Janitor configuration</h1>
 	<h2>Database settings</h2>
 	<ul class="actions">

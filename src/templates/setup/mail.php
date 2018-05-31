@@ -6,6 +6,8 @@ $mail_check = $model->checkMailSettings();
 ?>
 <div class="scene mail i:mail">
 
+	<div class="progress">5/7</div>
+
 	<h1>Janitor configuration</h1>
 	<h2>Mail gateway (optional)</h2>
 	<ul class="actions">

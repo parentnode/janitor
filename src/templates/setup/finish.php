@@ -8,6 +8,8 @@ $all_check = $model->checkAllSettings();
 	
 <? if(!$all_check): ?>
 
+	<div class="progress">?/7</div>
+
 	<h1>Can't finish until you are done</h1>
 	<h2>- and you're not done.</h2>
 	<ul class="actions">
@@ -25,6 +27,8 @@ $all_check = $model->checkAllSettings();
 	</ul>
 
 <? else: ?>
+
+	<div class="progress">7/7</div>
 
 	<h1>Janitor is almost ready!</h1>
 	<h2 class="subheader">The required information has been validated.</h2>

@@ -6,6 +6,8 @@ $payment_check = $model->checkPaymentSettings();
 ?>
 <div class="scene payment i:payment">
 
+	<div class="progress">6/7</div>
+
 	<h1>Janitor configuration</h1>
 	<h2>Payment gateway (optional)</h2>
 	<ul class="actions">

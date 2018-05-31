@@ -4,6 +4,8 @@
 #content .scene p+fieldset {margin-top: -15px;}
 /*#content .scene fieldset+p {padding-top: 20px;}*/
 
+#content .scene div.progress {position: absolute; top: 15px; right: 30px; font-size: 24px;}
+
 #content .scene.setup .option {padding-bottom: 30px;}
 #content .scene.setup .option p+ul {margin-top: -15px;}
 
