@@ -24,7 +24,8 @@ global $upgrade_model;
 
 <? if(preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL)):
 	// initialize mailer to make ADMIN_EMAIL available
-	mailer();
+		mailer();
+		if(defined("ADMIN_EMAIL")):
  ?>
 	<h2>Development tools</h2>
 	<div class="option">
@@ -40,6 +41,8 @@ global $upgrade_model;
 			<li class="replace"><a href="/janitor/admin/setup/upgrade/replace-emails" class="button">Replace emails</a></li>
 		</ul>
 	</div>
+
+<?		endif; ?>
 
 	<div class="option">
 		<h3>Bulk remove items</h3>
