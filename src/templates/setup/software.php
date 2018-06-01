@@ -28,6 +28,8 @@ $software_ok = $model->checkSoftware();
 		<li<?= !$model->get("software", "simplexml") ? ' class="error"' : "" ?>>PHP-SimpleXML: <?= $model->get("software", "simplexml") ? "Success" : "Failed" ?></li>
 		<li<?= !$model->get("software", "mbstring") ? ' class="error"' : "" ?>>PHP-mbstring: <?= $model->get("software", "mbstring") ? "Success" : "Failed" ?></li>
 		<li<?= !$model->get("software", "readwrite") ? ' class="error"' : "" ?>>Read/Write: <?= $model->get("software", "readwrite") ? "Success" : "Failed" ?></li>
+		<li<?= !$model->get("software", "curl") ? ' class="notice"' : "" ?>>Curl: <?= $model->get("software", "curl") ? "Success" : "Not installed" ?></li>
+		<li<?= !$model->get("software", "tar") ? ' class="notice"' : "" ?>>Tar: <?= $model->get("software", "tar") ? "Success" : "Not installed" ?></li>
 	</ul>
 
 	<h3>Optional software</h3>
@@ -35,7 +37,6 @@ $software_ok = $model->checkSoftware();
 		<li<?= !$model->get("software", "imagemagick") ? ' class="notice"' : "" ?>>PHP-ImageMagick: <?= $model->get("software", "imagemagick") ? "Success" : "Not installed" ?></li>
 		<li<?= !$model->get("software", "zip") ? ' class="notice"' : "" ?>>Zip: <?= $model->get("software", "zip") ? "Success" : "Not installed" ?></li>
 		<li<?= !$model->get("software", "redis") ? ' class="notice"' : "" ?>>Redis: <?= $model->get("software", "redis") ? "Success" : "Not installed" ?></li>
-		<li<?= !$model->get("software", "curl") ? ' class="notice"' : "" ?>>Curl: <?= $model->get("software", "curl") ? "Success" : "Not installed" ?></li>
 		<li<?= !$model->get("software", "ffmpeg") ? ' class="notice"' : "" ?>>FFMpeg: <?= $model->get("software", "ffmpeg") ? "Success" : "Not installed" ?></li>
 		<li<?= !$model->get("software", "wkhtmlto") ? ' class="notice"' : "" ?>>wkhtmlto: <?= $model->get("software", "wkhtmlto") ? "Success" : "Not installed" ?></li>
 	</ul>

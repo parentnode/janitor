@@ -313,7 +313,7 @@ class Setup extends Itemtype {
 		// try first possible command
 		$command = array_shift($commands);
 
-//		print escapeshellcmd($command)."\n";
+		// print escapeshellcmd($command)."\n";
 		if($escape) {
 			$cmd_output = shell_exec(escapeshellcmd($command)." 2>&1");
 		}
@@ -321,7 +321,7 @@ class Setup extends Itemtype {
 			$cmd_output = shell_exec($command." 2>&1");
 		}
 	
-//		print $cmd_output;
+		// print $cmd_output;
 
 		foreach($valid_responses as $valid_response) {
 			if(preg_match("/".$valid_response."/", $cmd_output)) {
@@ -419,6 +419,21 @@ class Setup extends Itemtype {
 			)
 		);
 
+		// Tar
+		$this->set("software",
+			"tar", (
+				$this->isInstalled(
+					array(
+						"tar --version"
+					),
+					array(
+						"bsdtar [23]{1}.[0-9]",
+						"tar (GNU tar)"
+					)
+				)
+			)
+		);
+
 		
 		// Redis
 		$this->set("software",
@@ -473,6 +488,8 @@ class Setup extends Itemtype {
 			$this->get("software", "simplexml") &&
 			$this->get("software", "dom") &&
 			$this->get("software", "mbstring") &&
+			$this->get("software", "curl") && 
+			$this->get("software", "tar") && 
 			$this->get("software", "readwrite")
 		):
 
