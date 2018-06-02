@@ -1312,7 +1312,10 @@ class PageCore {
 		if($controller && isset($access_item)) {
 
 			// deduce action
-			$action = str_replace($controller, "", $path);
+			$action = substr($path, strlen($controller));
+
+			// This will replace multiple occurences of $controller string (should only ever replace first)
+			// $action = str_replace($controller, "", $path);
 
 			// check permissions
 			return $this->checkPermissions($controller, $action, $access_item);
@@ -1350,10 +1353,10 @@ class PageCore {
 
 
 		global $mysqli_global;
-//		print "controller:" . $controller . "<br>\n";
-//		print "action:" . $action . "<br>\n";
-//		print_r($access_item);
-//		print "<br>\n";
+		// print "controller:" . $controller . "<br>\n";
+		// print "action:" . $action . "<br>\n";
+		// print_r($access_item);
+		// print "<br>\n";
 
 
 		// all actions are allowed on SITE_INSTALL
@@ -1466,6 +1469,10 @@ class PageCore {
 				// store permissions in session
 				session()->value("user_group_permissions", $permissions);
 			}
+
+
+			// print_r($permissions);
+			// print $controller . " /// " . $action_test . "<br>\n\n";
 
 			// do the actual access check
 			if(isset($permissions[$controller]) && isset($permissions[$controller][$action_test]) && $permissions[$controller][$action_test]) {
