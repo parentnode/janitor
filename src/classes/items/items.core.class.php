@@ -21,23 +21,17 @@ class ItemsCore {
 
 	/**
 	* Get matching type object instance
+	* TODO: Use of wording: model or item? Why Object in this case - it is an instance you are getting. (a lot of work to rename but has to be done at some point)
 	*
 	* @return return instance of type object
 	*/
 	function TypeObject($itemtype) {
 
-		// TODO: is mixed needed anymore?
-		// include generic type (for mixed itemtypes)
-		if($itemtype == "mixed" || !$itemtype) {
-			$itemtype = "mixed";
-			$class = "TypeMixed";
-		}
-		else {
-			$class = "Type".ucfirst($itemtype);
-		}
 
 		if(!isset($this->itemtypes["class"][$itemtype])) {
 			include_once("classes/items/type.$itemtype.class.php");
+
+			$class = "Type".ucfirst($itemtype);
 			$this->itemtypes["class"][$itemtype] = new $class();
 
 		}
@@ -48,7 +42,7 @@ class ItemsCore {
 	/**
 	* Helper funtion to get simple user class
 	*/
-	function getUserClass() {
+	private function getUserClass() {
 		if($this->UC == false) {
 			$this->UC = new User();
 		}
@@ -289,7 +283,7 @@ class ItemsCore {
 
 			// TODO: Implement ratings and comments
 			// NOT IMPLEMENTED YET
-			// if($everything || $ratings) {
+			// if($all || $ratings) {
 			//	$item["ratings"] = $this->getRatings(array("item_id" => $item["id"]));
 			// }
 
@@ -551,6 +545,7 @@ class ItemsCore {
 
 		$query = new Query();
 
+		// Prepare query parts
 		$SELECT = array();
 		$FROM = array();
 		$LEFTJOIN = array();
@@ -559,7 +554,7 @@ class ItemsCore {
 		$HAVING = "";
 		$ORDER = array();
 
-
+		// Add base select properties
 		$SELECT[] = "items.id";
 		$SELECT[] = "items.sindex";
 		$SELECT[] = "items.status";
@@ -1140,9 +1135,9 @@ class ItemsCore {
 
 		$query = new Query();
 
-
+		// get tag information for specific item
 		if($item_id) {
-			// specific tag exists?
+			// does specific tag exists?
 			if($tag_context && $tag_value) {
 				return $query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id");
 			}
@@ -1160,6 +1155,9 @@ class ItemsCore {
 				}
 			}
 		}
+
+		// Other tag relations
+
 		// get tag and items using tag_id
 		else if($tag_id) {
 			$query->sql("SELECT * FROM ".UT_TAG." as tags WHERE tags.id = '$tag_id'");
@@ -1176,22 +1174,23 @@ class ItemsCore {
 			$query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id");
 			return $query->results();
 		}
+
+
 		// get all tags
-		else {
-			// get all tags with context
-			if($tag_context) {
-				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags WHERE tags.context = '$tag_context'".($order ? " ORDER BY $order" : ""))) {
-					return $query->results();
-				}
+
+		// get all tags with context
+		else if($tag_context) {
+			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags WHERE tags.context = '$tag_context'".($order ? " ORDER BY $order" : ""))) {
+				return $query->results();
 			}
-			// all tags
-			else {
-				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG.($order ? " ORDER BY $order" : " ORDER BY tags.context, tags.value"))) {
-					return $query->results();
-				}
-			}
-			
 		}
+		// all tags
+		else {
+			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG.($order ? " ORDER BY $order" : " ORDER BY tags.context, tags.value"))) {
+				return $query->results();
+			}
+		}
+
 		return false;
 	}
 
