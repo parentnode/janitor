@@ -428,7 +428,7 @@ class Setup extends Itemtype {
 					),
 					array(
 						"bsdtar [23]{1}.[0-9]",
-						"tar (GNU tar)"
+						"tar \(GNU tar\)"
 					)
 				)
 			)
