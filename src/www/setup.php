@@ -7,9 +7,6 @@ if(isset($read_access) && $read_access) {
 
 include_once($_SERVER["FRAMEWORK_PATH"]."/config/init-setup.php");
 
-// Upgrade and setup may take longer than 30 secs.
-set_time_limit(0);
-
 
 $action = $page->actions();
 
