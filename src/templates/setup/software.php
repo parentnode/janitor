@@ -50,7 +50,9 @@ $software_ok = $model->checkSoftware();
 <?	if(
 		!$model->get("software", "apache") || 
 		!$model->get("software", "php") || 
-		!$model->get("software", "mysql")
+		!$model->get("software", "mysql") ||
+		!$model->get("software", "curl") ||
+		!$model->get("software", "tar")
 	): ?>
 	<p>
 		Your software does not meet the requirements for running Janitor. Please update your system.
@@ -63,11 +65,10 @@ $software_ok = $model->checkSoftware();
 		!$model->get("software", "ffmpeg") || 
 		!$model->get("software", "wkhtmlto") || 
 		!$model->get("software", "redis") || 
-		!$model->get("software", "zip") || 
-		!$model->get("software", "curl")
+		!$model->get("software", "zip")
 	): ?>
 	<p>
-		You should consider installing the optional software components. The playgound is more fun with all the toys out.
+		You should consider installing the optional software components. The playground is more fun with all the toys out.
 		Read more about the <a href="http://janitor.parentnode.dk/getting-started/software-requirements" target="_blank">software requirements</a>.
 	</p>
 <?	endif; ?>
