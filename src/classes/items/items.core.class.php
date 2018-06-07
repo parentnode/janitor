@@ -532,7 +532,8 @@ class ItemsCore {
 
 					case "extend"        : $extend        = $_value; break;
 
-					case "count"         : $count         = $_value; break;
+					// Uknown functionality (what is it used for?)
+					// case "count"         : $count         = $_value; break;
 					
 					// TODO: implement date ranges
 
