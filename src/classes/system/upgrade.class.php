@@ -13,8 +13,24 @@ class Upgrade extends Model {
 	// process upgrade task
 	function process($result, $critical = false) {
 
-		// print message
-		print '<li'.(!$result["success"] ? ' class="error"' : '').'>'.$result["message"].'</li>'."\n";
+		// Critical task failed
+		if(!$result["success"] && $critical) {
+
+			// print message
+			print '<li class="error">'.$result["message"].'</li>'."\n";
+		}
+		// Non-critical task failed
+		else if(!$result["success"]) {
+
+			// print message
+			print '<li class="notice">'.$result["message"].' – AND THAT IS OK</li>'."\n";
+		}
+		// Task successful
+		else {
+
+			print '<li>'.$result["message"].'</li>'."\n";
+		}
+
 
 		// end process on critical error
 		if(!$result["success"] && $critical) {
@@ -28,9 +44,13 @@ class Upgrade extends Model {
 
 	// Check Database structure for v0_8 requirements
 	function fullUpgrade() {
-		
+
+		// Upgrade can take some time - allow it to take the time it needs
+		set_time_limit(0);
+
+
 		global $model;
-		
+
 		$query = new Query();
 		$IC = new Items();
 		include_once("classes/users/superuser.class.php");
@@ -394,7 +414,7 @@ class Upgrade extends Model {
 			// Upgrade complete
 			print '<li class="done">UPGRADE COMPLETE</li>';
 
-			if($model->get("system", "os") != "win") {
+			if($model->get("system", "os") != "win" && !preg_match("/\.local$/", SITE_URL)) {
 				print '<li class="note">';
 				print '	<h3>File permissions for live site</h3>';
 				print '	<p>';
@@ -1486,7 +1506,7 @@ class Upgrade extends Model {
 			if(!isset($table_info["constraints"]) || !isset($table_info["constraints"][$column]) || !isset($table_info["constraints"][$column]["$ref_table.$ref_column"])) {
 
 				$sql = "ALTER TABLE $db.$table ADD CONSTRAINT".($constraint_name ? " `$constraint_name`" : "")." FOREIGN KEY (`$column`) REFERENCES $ref_db.$ref_table(`$ref_column`) $action";
-//				print $sql."<br>\n";
+				// print $sql."<br>\n";
 				if($query->sql($sql)) {
 					$message .= ": CONSTRAINT ADDED";
 					$success = true;

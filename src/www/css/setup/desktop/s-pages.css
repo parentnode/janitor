@@ -55,6 +55,7 @@
 body.upgrade #content .scene ul.tasks {padding: 20px 30px 20px; list-style: disc; margin-left: 20px;}
 body.upgrade #content .scene ul.tasks li {display: list-item; font-size: 14px; line-height: 1.38em;}
 body.upgrade #content .scene ul.tasks li.error {color: #df0000;}
+body.upgrade #content .scene ul.tasks li.notice {color: orange;}
 body.upgrade #content .scene ul.tasks li.error.fatal {padding: 20px 0 0; font-size: 20px;}
 body.upgrade #content .scene ul.tasks li.done {padding: 20px 0 0; color: #00aa00; font-size: 20px;}
 
