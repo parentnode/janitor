@@ -407,7 +407,7 @@ class Upgrade extends Model {
 				$this->process(["message" => "File permissions set for development environment", "success" => true]);
 			}
 			else {
-				$this->process(["message" => "File permissions could not be set t development environment", "success" => false]);
+				$this->process(["message" => "File permissions could not be set for development environment", "success" => false]);
 			}
 
 
