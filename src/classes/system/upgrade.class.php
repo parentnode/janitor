@@ -395,6 +395,49 @@ class Upgrade extends Model {
 			$this->process(["message" => "Git filemode updated to false", "success" => true]);
 
 
+
+			// CODE SYNTAX JANITOR
+			// get all php files in theme
+			$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php"]);
+			foreach($php_files as $php_file) {
+
+				$is_code_altered = false;
+				$code_lines = file($php_file);
+				foreach($code_lines as $line_no => $line) {
+
+					if(preg_match("/[\$](page|this)\-\>mail\(/", $line)) {
+
+						$new_code_line = preg_replace("/[\$](page|this)\-\>mail\(/", "mailer()->send(", $line);
+						if($code_lines[$line_no] != $new_code_line) {
+
+							$code_lines[$line_no] = $new_code_line;
+							$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE IN " . $php_file . " in line " . ($line_no+1)]);
+							$is_code_altered = true;
+
+
+//							print '<li class="notice">'.</li>';
+						}
+						else {
+							$this->process(["success" => false, "message" => "FOUND OLD CODE IN " . $php_file . " in line " . ($line_no+1)], true);
+//							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
+							
+						}
+
+					}
+
+				}
+
+				// Should we write
+				if($is_code_altered) {
+					file_put_contents($php_file, implode("", $code_lines));
+				}
+
+			}
+//			print_r($php_files);
+
+			
+
+
 			// set file permissions
 			if($model->get("system", "os") == "win") {
 				$tasks["completed"][] = "File permissions left untouched for Windows development environment";
