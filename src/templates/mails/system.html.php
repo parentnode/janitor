@@ -5,7 +5,7 @@
 <body>
 
 
-<h3>{message} test</h3>
+<h3>{message}</h3>
 
 
 <h2>------ ADDITIONAL SERVER INFO ------</h2>
