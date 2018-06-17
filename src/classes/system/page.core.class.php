@@ -1646,7 +1646,7 @@ class PageCore {
 						exit();
 					}
 			
-					// is the reason that the user has not been activated yet?
+					// is the reason, that the user has not been activated yet?
 					// make login query and
 					// look for user with status 0, verified = 0
 					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND username='$username' AND verified = 0";
@@ -1673,7 +1673,7 @@ class PageCore {
 
 						message()->addMessage("User has not been verified yet – did you forget to activate your account?", array("type" => "error"));
 						return false;
-					}					
+					}
 
 				}
 
@@ -1692,6 +1692,7 @@ class PageCore {
 	*/
 	function tokenLogIn() {
 
+		// Allow GET parameters
 		$token = getVar("token");
 		$username = getVar("username");
 

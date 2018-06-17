@@ -8,7 +8,7 @@ document.write('<script type="text/javascript" src="/js/manipulator/src/u-string
 
 
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-audio.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-media.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-sortable.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-form-htmleditor.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-form-geolocation.js"></script>');
