@@ -2,19 +2,12 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/manipulato
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-basics.js"></script>');
 
-document.write('<script type="text/javascript" src="/js/manipulator/src/u-dom.js"></script>');
-document.write('<script type="text/javascript" src="/js/manipulator/src/u-request.js"></script>');
-document.write('<script type="text/javascript" src="/js/manipulator/src/u-string.js"></script>');
-
-
-
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-media.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-sortable.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-form-htmleditor.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/u-form-geolocation.js"></script>');
-document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-form-onebuttonform.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/beta-u-form-onebuttonform.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_janitor/src/beta-u-notifier.js"></script>');
-document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-notifier.js"></script>');
 
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-page.js"></script>');

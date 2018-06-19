@@ -43,6 +43,9 @@ Util.Events = u.e = new function() {
 
 
 	// theoretical support for dual input sources
+	// TODO: in some rare edge cases Firefox on windows ontouchmove and onmousemove are both null but maxTouchPoints is 0.
+	// In most cases this in-between state disappears after restarting the computer (maybe maxTouchPoints should not be used for this detection??)
+
 	if(navigator.maxTouchPoints > 1) {
 
 		if((typeof(document.ontouchmove) == "undefined" && typeof(document.onmousemove) == "undefined") || (document.ontouchmove === null && document.onmousemove === null)) {
