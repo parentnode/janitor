@@ -1672,7 +1672,7 @@ class PageCore {
 
 
 						message()->addMessage("User has not been verified yet – did you forget to activate your account?", array("type" => "error"));
-						return false;
+						return ["status" => "USER_NOT_VERIFIED"];
 					}
 
 				}
