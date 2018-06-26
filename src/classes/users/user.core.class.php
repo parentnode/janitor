@@ -129,6 +129,15 @@ class UserCore extends Model {
 			"error_message" => "Invalid password"
 		));
 
+		// confirm_password
+		$this->addToModel("confirm_password", array(
+			"type" => "password",
+			"label" => "Repeat password",
+			"compare_to" => "new_password",
+			"hint_message" => "Type your new password again to verify",
+			"error_message" => "Passwords do not match"
+		));
+
 		// old_password
 		$this->addToModel("old_password", array(
 			"type" => "password",
