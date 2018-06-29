@@ -20,7 +20,7 @@ if($item && $item["status"] >= 0) {
 	$email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
 
 	// get password state
-	$has_password = $model->hasPassword($user_id);
+	$has_password = $model->hasPassword(["user_id" => $user_id]);
 
 	// get api token
 	$apitoken = $model->getToken($user_id);

@@ -748,14 +748,29 @@ class SuperUserCore extends User {
 	// PASSWORD
 
 	// check if password exists
-	function hasPassword($user_id, $include_empty = false) {
+	function hasPassword($_options = false) {
+
+		$user_id = false;
+		$include_empty = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"           : $user_id             = $_value; break;
+					case "include_empty"     : $include_empty       = $_value; break;
+				}
+			}
+		}
 
 		$query = new Query();
 
-		$sql = "SELECT id FROM ".$this->db_passwords." WHERE user_id = $user_id" . ($include_empty ? " AND (password != '' OR upgrade_password != '')" : "");
-		if($query->sql($sql)) {
-			return true;
+		if($user_id) {
+			$sql = "SELECT id FROM ".$this->db_passwords." WHERE user_id = $user_id" . ($include_empty ? " AND (password != '' OR upgrade_password != '')" : "");
+			if($query->sql($sql)) {
+				return true;
+			}
 		}
+
 		return false;
 	}
 
@@ -778,7 +793,7 @@ class SuperUserCore extends User {
 				$query->checkDbExistence($this->db_passwords);
 
 				$password = password_hash($this->getProperty("password", "value"), PASSWORD_DEFAULT);
-				if($this->hasPassword($user_id, true)) {
+				if($this->hasPassword(["user_id" => $user_id, "include_empty" => true])) {
 					$sql = "UPDATE ".$this->db_passwords." SET password = '$password' WHERE user_id = $user_id";
 				}
 				else {

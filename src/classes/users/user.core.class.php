@@ -157,6 +157,16 @@ class UserCore extends Model {
 			"error_message" => "The entered value is neither an email or a mobilenumber."
 		));
 
+		// verification code
+		$this->addToModel("verification_code", array(
+			"type" => "string",
+			"label" => "Verification code",
+			"pattern" => "[0-9A-Za-z]{8}", 
+			"hint_message" => "Enter the verification code from the email.", 
+			"error_message" => "The entered value is not a valid verification code."
+		));
+
+
 
 		// ADDRESS INFO
 
@@ -652,6 +662,9 @@ class UserCore extends Model {
 	// xxx/(email|mobile)/#email|mobile#
 	// 
 	// will only make alterations if username is not already verified and verification code matches
+
+	// TODO: Maybe skip type check - it's not super relevant
+
 	// verification code is altered on success to prevent re-activation 
 	// (which could teoretically lead to re-activation of disabled accounts)
 	function confirmUser($action) {
@@ -671,7 +684,7 @@ class UserCore extends Model {
 				$user_id = $query->result(0, "user_id");
 
 				// update verification state
-				$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE type = '$type' AND username = '$username'";
+				$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND username = '$username'";
 //				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '' WHERE type = '$type' AND username = '$username'";
 //				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '".randomKey(8)."' WHERE type = '$type' AND username = '$username'";
 				if($query->sql($sql)) {
@@ -689,7 +702,6 @@ class UserCore extends Model {
 						$page->addLog("User->confirmUser: user_id:$user_id");
 
 
-
 						return true;
 					}
 				}
@@ -699,6 +711,54 @@ class UserCore extends Model {
 		return false;
 	}
 
+
+	// will only make alterations if username is not already verified and verification code matches
+	function confirmAccount($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1) {
+
+			$query = new Query();
+
+			$username = $this->getProperty("username", "value");
+			$verification_code = $this->getProperty("verification_code", "value");
+
+			// only make alterations if not already verified
+			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 0 AND verification_code = '$verification_code'";
+			print "$sql<br />\n";
+			if($query->sql($sql)) {
+
+				$user_id = $query->result(0, "user_id");
+
+				// update verification state
+				$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND username = '$username'";
+//				print $sql."<br>\n";
+				if($query->sql($sql)) {
+
+					// enable user
+					$sql = "UPDATE ".$this->db." SET status = 1 WHERE id = $user_id";
+					if($query->sql($sql)) {
+
+						// delete activation reminder logs (not needed after user has been verified)
+						$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id";
+						$query->sql($sql);
+
+
+						global $page;
+						$page->addLog("User->confirmAccount: user_id:$user_id");
+
+
+						return $user_id;
+					}
+				}
+			}
+		}
+		// confirmation failed
+		return false;
+	}
 
 	// cancel user
 	// /#controller/user/cancel
@@ -1060,6 +1120,31 @@ class UserCore extends Model {
 
 	// PASSWORD
 
+	// check if password exists
+	function hasPassword($_options = false) {
+
+		$user_id = session()->value("user_id");
+		$include_empty = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "include_empty"     : $include_empty       = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($user_id != 1) {
+			$sql = "SELECT id FROM ".$this->db_passwords." WHERE user_id = $user_id" . ($include_empty ? " AND (password != '' OR upgrade_password != '')" : "");
+			if($query->sql($sql)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
 
 	// set new password for current user
 	// /janitor/admin/profile/setPassword
@@ -1071,46 +1156,74 @@ class UserCore extends Model {
 
 		if(count($action) == 1 && $user_id) {
 
-			// does values validate
-			if($this->validateList(array("new_password", "old_password"))) {
+			// If user already has a password
+			if($this->hasPassword()) {
 
-				$query = new Query();
+				// does values validate
+				if($this->validateList(array("new_password", "old_password"))) {
 
-				// make sure type tables exist
-				$query->checkDbExistence($this->db_passwords);
+					$query = new Query();
 
-				// Needed for comparison
-				$old_password = $this->getProperty("old_password", "value");
-				// Hash to inject if old password comparison is successful
-				$new_password = password_hash($this->getProperty("new_password", "value"), PASSWORD_DEFAULT);
+					// make sure type tables exist
+					$query->checkDbExistence($this->db_passwords);
+
+					// Needed for comparison
+					$old_password = $this->getProperty("old_password", "value");
+					// Hash to inject if old password comparison is successful
+					$new_password = password_hash($this->getProperty("new_password", "value"), PASSWORD_DEFAULT);
 
 
-				$sql = "SELECT password FROM ".$this->db_passwords." WHERE user_id = $user_id";
-				if($query->sql($sql)) {
-					// print $old_password . "," . $query->result(0, "password")."<br>\n";
-					// print "::".password_verify($old_password, $query->result(0, "password"))."<br>\n";
-					if(password_verify($old_password, $query->result(0, "password"))) {
+					$sql = "SELECT password FROM ".$this->db_passwords." WHERE user_id = $user_id";
+					if($query->sql($sql)) {
+						// print $old_password . "," . $query->result(0, "password")."<br>\n";
+						// print "::".password_verify($old_password, $query->result(0, "password"))."<br>\n";
+						if(password_verify($old_password, $query->result(0, "password"))) {
 
-						// DELETE OLD PASSWORD
-						$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = $user_id";
-						if($query->sql($sql)) {
-
-							// SAVE NEW PASSWORD
-							$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
+							// DELETE OLD PASSWORD
+							$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = $user_id";
 							if($query->sql($sql)) {
 
-								message()->addMessage("Password updated");
-								return true;
-							}
-						}
+								// SAVE NEW PASSWORD
+								$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
+								if($query->sql($sql)) {
 
+									return true;
+								}
+							}
+
+						}
+					}
+
+				}
+
+			}
+			// user does not have a password
+			else {
+
+				// does values validate
+				if($this->validateList(array("new_password"))) {
+
+					$query = new Query();
+
+					// make sure type tables exist
+					$query->checkDbExistence($this->db_passwords);
+
+					// Hash to inject
+					$new_password = password_hash($this->getProperty("new_password", "value"), PASSWORD_DEFAULT);
+
+
+					// SAVE NEW PASSWORD
+					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
+					if($query->sql($sql)) {
+
+						return true;
 					}
 				}
 
 			}
+
 		}
 
-		message()->addMessage("Password could not be updated", array("type" => "error"));
 		return false;
 	}
 
