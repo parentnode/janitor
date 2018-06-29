@@ -230,6 +230,8 @@ class Model extends HTML {
 					case "unique"                : $this->setProperty($name, "unique",               $_value); break;
 					case "pattern"               : $this->setProperty($name, "pattern",              $_value); break;
 
+					case "compare_to"            : $this->setProperty($name, "compare_to",           $_value); break;
+
 
 					case "min"                   : $this->setProperty($name, "min",                  $_value); break;
 					case "max"                   : $this->setProperty($name, "max",                  $_value); break;

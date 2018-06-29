@@ -132,11 +132,14 @@ class HTMLCore {
 		$required = $this->getProperty($name, "required");
 		$pattern = $this->getProperty($name, "pattern");
 
+		// Compare password with other input
+		$compare_to = $this->getProperty($name, "compare_to");
+
 		// visual feedback
 		$hint_message = $this->getProperty($name, "hint_message");
 		$error_message = $this->getProperty($name, "error_message");
-
-
+ 
+ 
 		// overwrite model/defaults
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -158,6 +161,8 @@ class HTMLCore {
 					case "max"             : $max              = $_value; break;
 					case "required"        : $required         = $_value; break;
 					case "pattern"         : $pattern          = $_value; break;
+
+					case "compare_to"      : $compare_to       = $_value; break;
 
 					case "error_message"   : $error_message    = $_value; break;
 					case "hint_message"    : $hint_message     = $_value; break;
@@ -281,8 +286,9 @@ class HTMLCore {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
+					$att_compare_to = $this->attribute("data-compare-to", $compare_to);
 
-					$_ .= '<input type="password"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="password"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.$att_compare_to.' />';
 				}
 
 				// STRING

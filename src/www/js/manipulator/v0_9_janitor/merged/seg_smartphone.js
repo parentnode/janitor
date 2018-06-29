@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.2-janitor Copyright 2018 http://manipulator.parentnode.dk
-js-merged @ 2018-06-19 08:39:27
+js-merged @ 2018-06-29 09:57:38
 */
 
 /*seg_smartphone_include.js*/
@@ -2554,7 +2554,7 @@ Util.Form = u.f = new function() {
 		if(!iN._form._validation || !iN.field) {
 			return true;
 		}
-		var min, max, pattern;
+		var min, max, pattern, compare_to;
 		var validated = false;
 		if(!u.hc(iN.field, "required") && iN.val() === "") {
 			this.fieldCorrect(iN);
@@ -2578,10 +2578,12 @@ Util.Form = u.f = new function() {
 				min = min ? min : 8;
 				max = max ? max : 20;
 				pattern = iN.getAttribute("pattern");
+				compare_to = iN.getAttribute("data-compare-to");
 				if(
 					iN.val().length >= min && 
 					iN.val().length <= max && 
-					(!pattern || iN.val().match("^"+pattern+"$"))
+					(!pattern || iN.val().match("^"+pattern+"$")) &&
+					(!compare_to || iN.val() == iN._form.fields[compare_to].val())
 				) {
 					this.fieldCorrect(iN);
 				}
