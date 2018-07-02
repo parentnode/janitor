@@ -19,7 +19,7 @@ $remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://"
 // Check that git has been set up with project credentials file
 $credential_helper = trim(shell_exec("cd '$project_path' && git config --get credential.helper"));
 $credential_helper_ready = false;
-if(strpos("store --file $project_path/.git_credentials", $credential_helper) === 0) {
+if(strpos("store --file ".PRIVATE_FILE_PATH."/.git_credentials", $credential_helper) === 0) {
 	$credential_helper_ready = true;
 }
 
