@@ -45,7 +45,7 @@ if(strpos("store --file ".PRIVATE_FILE_PATH."/.git_credentials", $credential_hel
 
 			<fieldset>
 				<?= $model->input("git_username", array("label" => "Git username", "type" => "string", "hint_message" => "Enter your git username", "error_message" => "Not a valid username")); ?>
-				<?= $model->input("git_password", array("label" => "Git password", "type" => "password", "hint_message" => "Enter your git password", "error_message" => "Not a valid password")); ?>
+				<?= $model->input("git_password", array("label" => "Git password", "min" => 1, "type" => "password", "hint_message" => "Enter your git password", "error_message" => "Not a valid password")); ?>
 			</fieldset>
 
 			<ul class="actions">
