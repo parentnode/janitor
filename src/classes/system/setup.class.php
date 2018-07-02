@@ -2174,48 +2174,46 @@ class Setup extends Itemtype {
 			$remote_origin = trim(shell_exec("cd '$project_path' && git config --get remote.origin.url"));
 			// Remove any existing username:password from remote url
 			$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin);
-//			print "#REMO:".$remote_origin."#\n";
+
 
 			// Was git username and password sent
 			$git_username = getPost("git_username");
 			$git_password = getPost("git_password");
 
+			// Both username and password was provided
 			if($git_username && $git_password) {
 
 				$credentials = preg_replace("/(http[s]?):\/\/([a-zA-Z0-9\-\.]+)[^$]+/", "$1://$git_username:$git_password@$2", $remote_origin);
 
 			}
+			// Only username was provided
 			else if($git_username) {
 
 				$credentials = preg_replace("/(http[s]?):\/\/([a-zA-Z0-9\-\.]+)[^$]+/", "$1://$git_username@$2", $remote_origin);
 
-//				$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://$git_username@", $remote_origin);
-
 			}
+			// Nothing was provided
 			else {
 
 				$credentials = preg_replace("/(http[s]?):\/\/([a-zA-Z0-9\-\.]+)[^$]+/", "$1://$2", $remote_origin);
 
-//				$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin);
-
 			}
 
-			
 
 			// Update git credentials file to allow pull command to execute without credentials in command-line
-//			print "#CRED:".$credentials."#"\n;
 			file_put_contents(PRIVATE_FILE_PATH."/.git_credentials", $credentials);
 
-//			$command = "cd '$project_path' && git pull $remote_origin && git submodule update";
 			$command = "cd '$project_path' && sudo git pull '$remote_origin' && sudo git submodule update";
 //			print $command;
-//			$output = shell_exec($command);
+
+			$output = shell_exec($command);
 //			print $output;
 
 
 			// Remove username:password from credential file (storing is temporary on purpose)
+			unlink(PRIVATE_FILE_PATH."/.git_credentials");
 
-
+			// Return response
 			return $output;
 		}
 
