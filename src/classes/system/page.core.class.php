@@ -988,7 +988,7 @@ class PageCore {
 
 //					print "\nno real session segment";
 
-					$segment_session["segment"] = @file_get_contents("http://detector-v3.dearapi.com/text?ua=".(isset($_SERVER["HTTP_USER_AGENT"]) ? urlencode($_SERVER["HTTP_USER_AGENT"]) : "")."&site=".urlencode($_SERVER["HTTP_HOST"]));
+					$segment_session["segment"] = @file_get_contents("http://detector-v4.dearapi.com/text?ua=".(isset($_SERVER["HTTP_USER_AGENT"]) ? urlencode($_SERVER["HTTP_USER_AGENT"]) : "")."&site=".urlencode($_SERVER["HTTP_HOST"]));
 
 					// if the request failed, pass default segment back
 					// don't update - make attempt again on next function call
