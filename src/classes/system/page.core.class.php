@@ -1834,13 +1834,10 @@ class PageCore {
 		// Delete cart reference cookie
 		setcookie("cart_reference", "", time() - 3600, "/");
 		
-
+		// Reset session (includes destroy, start and regenerate)
 		session()->reset();
 
-		// start new session to store existing segment and dev values
-		session_start();
-		session_regenerate_id();
-
+		// Remember dev and segment even after logout
 		session()->value("dev", $dev);
 		session()->value("segment", $segment);
 
