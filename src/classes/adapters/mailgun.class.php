@@ -3,9 +3,10 @@
 * @package janitor.shop
 */
 
-require_once('includes/mailgun-php-2.3/vendor/autoload.php');
+require_once('includes/mailgun-php-2.5/vendor/autoload.php');
 
 use Mailgun\Mailgun;
+use Mailgun\Exception\HttpClientException;
 
 
 class JanitorMailgun {
@@ -108,8 +109,15 @@ class JanitorMailgun {
 
 		}
 
+		try {
+			return $this->client->messages()->send($this->domain, $mail_options);
+		}
+		catch(HttpClientException $e) {
 
-		return $this->client->messages()->send($this->domain, $mail_options);
+			return false;
+
+		}
+
 
 	}
 
@@ -203,8 +211,14 @@ class JanitorMailgun {
 
 		}
 
+		try {
+			return $this->client->messages()->send($this->domain, $mail_options); 
+		}
+		catch(HttpClientException $e) {
 
-		return $this->client->messages()->send($this->domain, $mail_options); 
+			return false;
+
+		}
 
 	}
 

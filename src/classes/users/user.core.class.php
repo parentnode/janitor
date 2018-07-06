@@ -402,6 +402,7 @@ class UserCore extends Model {
 			$terms = $this->getProperty("terms", "value");
 			$email = $this->getProperty("email", "value");
 
+
 			// if user already exists, return error
 			if(!$terms) {
 				$page->addLog("user->newUser: missing terms agreement");
@@ -462,7 +463,7 @@ class UserCore extends Model {
 
 
 				$sql = "INSERT INTO ".$this->db." SET " . implode(",", $values);
-	//			print $sql;
+				// print $sql."<br>\n";
 				if($query->sql($sql)) {
 
 					$user_id = $query->lastInsertId();
@@ -473,7 +474,7 @@ class UserCore extends Model {
 
 					// add email to user_usernames
 					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code', type = 'email', user_id = $user_id";
-	//				print $sql;
+					// print $sql."<br>\n";
 					if($query->sql($sql)) {
 
 
