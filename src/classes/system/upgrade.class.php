@@ -519,7 +519,7 @@ class Upgrade extends Model {
 
 
 		// Get posted values to make them available for models
-		$this->getPostedEntities();
+		// $this->getPostedEntities();
 
 
 		// does values validate
