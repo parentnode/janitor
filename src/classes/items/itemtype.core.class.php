@@ -157,15 +157,16 @@ class ItemtypeCore extends Model {
 
 		// superNormalize $sindex suggetion
 		$sindex = superNormalize(substr($sindex, 0, 60));
+		// print "try this:" . $sindex."<br>\n";
 
 		// check for existence
-		// update if sindex does not exist already
+		// update if sindex does not exist for other item already
 		$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE sindex = '$sindex' AND id != $item_id";
-//		print $sql."<br>\n";
+		// print $sql."<br>\n";
 
 		if(array_search($sindex, $excluded) === false && !$query->sql($sql)) {
 			$sql = "UPDATE ".UT_ITEMS." SET sindex = '$sindex' WHERE id = $item_id";
-//			print $sql."<br>\n";
+			// print $sql."<br>\n";
 
 			$query->sql($sql);
 		}
@@ -179,12 +180,12 @@ class ItemtypeCore extends Model {
 			// print "We have tried these already:<br>\n";
 			// print_r($excluded);
 
-			// clean sindex in case it's coming from iteration
+			// clean sindex in case it's coming from iteration (removing incremental value)
 			$sindex = preg_replace("/-([\d]+)$/", "", $sindex);
 
 			// find all existing incremental versions of this sindex
-			$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE sindex REGEXP '^".$sindex."[-]?[0-9]+$' ORDER BY LENGTH(sindex) DESC, sindex DESC";
-//			print $sql . "<br>\n";
+			$sql = "SELECT id, sindex FROM ".UT_ITEMS." WHERE sindex REGEXP '^".$sindex."[-]?[0-9]+$' ORDER BY LENGTH(sindex) DESC, sindex DESC";
+			// print $sql . "<br>\n";
 
 			$query->sql($sql);
 			$existing_sindexes = $query->results();
@@ -204,16 +205,16 @@ class ItemtypeCore extends Model {
 				if($matches && is_numeric($matches[1])) {
 					$last_i = $matches[1];
 				}
-//				print "last_i: $last_i". "<br>\n";
+				// print "last_i: $last_i". "<br>\n";
 
 
 				// amount of increments and last value matches or too many numbers in order
 
 				// it doesn't mean that the order is perfect (just that it probably is)
 				// let's just go for last+1 - if we haven't tried that already (it's the fastest option)
-				if(count($existing_sindexes) >= $last_i && array_search($sindex."-".$last_i+1, $excluded) === false) {
+				if(count($existing_sindexes) >= $last_i && array_search($sindex."-".($last_i+1), $excluded) === false) {
 					$next_i = $last_i+1;
-//					print "try last number: $next_i";
+					// print "try last number: $next_i";
 				}
 				// some numbers seems to be missing in order
 				else {
@@ -261,7 +262,7 @@ class ItemtypeCore extends Model {
 			}
 
 			$sindex = $sindex . "-" . $next_i;
-//			print $sindex . "<br>\n";
+			// print $sindex . "<br>\n";
 
 			// recurse until valid sindex has been generated
 			$sindex = $this->sindex($sindex, $item_id, $excluded);
@@ -471,7 +472,7 @@ class ItemtypeCore extends Model {
 						$sindex = $item["name"];
 					}
 					// create sindex
-					$this->sindex($sindex, $item_id);
+					$item["sindex"] = $this->sindex($sindex, $item_id);
 
 					message()->addMessage("Item updated");
 
