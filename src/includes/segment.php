@@ -10,7 +10,7 @@
 	// no session value, look up segment
 	else if(!isset($_SESSION["segment"])) {
 
-		$segment = file_get_contents("http://detector-v3.dearapi.com/text?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"])."&file=".urlencode($_SERVER["SCRIPT_NAME"]));
+		$segment = file_get_contents("http://detector-v4.dearapi.com/text?ua=".urlencode($_SERVER["HTTP_USER_AGENT"])."&site=".urlencode($_SERVER["HTTP_HOST"])."&file=".urlencode($_SERVER["SCRIPT_NAME"]));
 
 		if(!$segment) {
 			$segment = "desktop";
