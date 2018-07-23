@@ -1633,10 +1633,14 @@ class PageCore {
 
 						}
 						else {
+
 							// redirect to originally requested page
-							$login_forward = session()->value("login_forward");
-		//					print $login_forward . "<br>";
-							if(!$login_forward || !$this->validatePath($login_forward)) {
+							$login_forward = stringOr(getVar("login_forward"), session()->value("login_forward"));
+							// print "login_forward:" . $login_forward."<br>";
+
+
+							// TODO: Regex is temp quickfix to avoid being redirected to API endpoints after login
+							if(!$login_forward || !$this->validatePath($login_forward) || preg_match("/\/(save|update|add|remove|delete|upload|duplicate|keepAlive)/", $login_forward)) {
 								$login_forward = "/";
 							}
 
@@ -1652,8 +1656,8 @@ class PageCore {
 					// is the reason, that the user has not been activated yet?
 					// make login query and
 					// look for user with status 0, verified = 0, password exists
-					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND username='$username' AND verified = 0";
-//					print $sql;
+					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND username='$username' AND verified = 0";
+					// print $sql;
 					if($query->sql($sql)) {
 
 						// Make sure we have the email username
@@ -1852,11 +1856,13 @@ class PageCore {
 	*/
 	function throwOff($url=false) {
 
+		$url = $url ? $url : $this->url;
+
 		// Log and send in email
-		$this->addLog("Throwoff - insufficient privileges:".$this->url." by ". session()->value("user_id"));
+		$this->addLog("Throwoff - insufficient privileges:".$url." by ". session()->value("user_id"));
 		mailer()->send(array(
 			"subject" => "Throwoff - " . SITE_URL, 
-			"message" => "insufficient privileges:".$this->url, 
+			"message" => "insufficient privileges:".$url, 
 			"template" => "system"
 		));
 
@@ -1874,10 +1880,7 @@ class PageCore {
 		// Restore messages
 		$_SESSION["message"] = $messages;
 
-		// TODO: Temp quickfix to avoid being redirected to API endpoints after login
-		if($url && !preg_match("/\/(save|update|add|remove|delete|upload|duplicate|keepAlive)/", $url)) {
-			session()->value("LoginForward", $url);
-		}
+		session()->value("login_forward", $url);
 		print '<script type="text/javacript">location.href="/login?page_status=logoff"</script>';
 
 		header("Location: /login");

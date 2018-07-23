@@ -3,10 +3,10 @@ global $action;
 global $model;
 
 
-$forward_url = getVar("forward_url");
-if($forward_url) {
-	session()->value("login_forward", $forward_url);
-}
+$login_forward = getVar("login_forward");
+// if($login_forward) {
+// 	session()->value("login_forward", $login_forward);
+// }
 
 
 $username = stringOr(getPost("username"));
@@ -19,7 +19,7 @@ $username = stringOr(getPost("username"));
 <?	endif; ?>
 
 	<?= $model->formStart("?login=true", array("class" => "labelstyle:inject")) ?>
-
+		<?= $model->input("login_forward", ["type" => "hidden", "value" => $login_forward]); ?>
 		<? if(message()->hasMessages()): ?>
 		<div class="messages">
 		<?
