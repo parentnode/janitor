@@ -32,7 +32,7 @@ $payment_sources = [];
 $payment_gateways = [];
 foreach($payment_methods as $payment_method) {
 
-	if($payment_method["classname"] != "disabled") {
+//	if($payment_method["classname"] != "disabled") {
 
 		if($payment_method["gateway"]) {
 			$payment_gateways[] = $payment_method;
@@ -41,7 +41,7 @@ foreach($payment_methods as $payment_method) {
 			$payment_sources[] = $payment_method;
 		}
 
-	}
+//	}
 
 }
 
