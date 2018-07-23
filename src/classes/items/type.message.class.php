@@ -849,17 +849,32 @@ class TypeMessage extends Itemtype {
 						}
 
 						// MEMBERSHIP DATA
-						if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP|MEMBERSHIP_PRICE/", implode(",", $needed_values))) {
+						if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP|MEMBERSHIP_PRICE|ORDER_NO/", implode(",", $needed_values))) {
 							$member = $UC->getMembers(["user_id" => $subscriber["user_id"]]);
 
 							if(array_search("MEMBER_ID", $needed_values) !== false) {
 								$user_values["MEMBER_ID"] = $member && $member["id"] ? $member["id"] : "N/A";
 							}
 
+
+							if(array_search("ORDER_NO", $needed_values) !== false) {
+								if($member && $member["order"] && $member["order"]["order_no"]) {
+									$user_values["ORDER_NO"] = $member["order"]["order_no"];
+								}
+								else {
+									$user_values["ORDER_NO"] = "";
+								}
+
+							}
+
+
+
+
 							if(array_search("MEMBERSHIP_PRICE", $needed_values) !== false) {
 
+								$SC = new Shop();
+
 								if($member && $member["item"] && $member["item"]["item_id"]) {
-									$SC = new Shop();
 									$price = $SC->getPrice($member["item"]["item_id"]);
 									$user_values["MEMBERSHIP_PRICE"] = formatPrice($price);
 								}
