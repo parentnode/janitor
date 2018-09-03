@@ -1673,7 +1673,7 @@ class SuperUserCore extends User {
 
 
 		// does values validate
-		if(count($action) == 1) {
+		if(count($action) >= 1) {
 
 			global $page;
 
@@ -1683,9 +1683,20 @@ class SuperUserCore extends User {
 			include_once("classes/shop/supershop.class.php");
 			$SC = new SuperShop();
 
-			// get all user subscriptions where expires_at is now
-			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURDATE()";
-			print $sql;
+			// renew specific user
+			if(count($action) == 2) {
+				$user_id = $action[1];
+				// get all user subscriptions where expires_at is now
+				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURDATE() AND user_id = $user_id";
+				print $sql;
+			}
+			// renew for all users
+			else {
+				// get all user subscriptions where expires_at is now
+				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURDATE()";
+				print $sql;
+			}
+
 
 			if($query->sql($sql)) {
 				$expired_subscriptions = $query->results();
