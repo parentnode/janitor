@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.2-janitor Copyright 2018 http://manipulator.parentnode.dk
-js-merged @ 2018-06-29 09:57:37
+js-merged @ 2018-09-14 11:44:46
 */
 
 /*seg_desktop_include.js*/
@@ -3183,7 +3183,7 @@ u.f.addAction = function(node, _options) {
 			}
 		}
 	}
-	var p_ul = node.nodeName.toLowerCase() == "ul" ? node : u.pn(node, {"include":"ul"});
+	var p_ul = node.nodeName.toLowerCase() == "ul" ? node : u.pn(node, {"include":"ul.actions"});
 	if(!p_ul || !u.hc(p_ul, "actions")) {
 		if(node.nodeName.toLowerCase() == "form") {
 			p_ul = u.qs("ul.actions", node);
