@@ -43,7 +43,7 @@
 
 
 /* ADDITIONAL INFO */
-#content div.all_items ul.items > li .description {padding-bottom: 10px; margin-top: -5px; font-size: 12px; line-height: 1em;}
+#content div.all_items ul.items > li p.description {padding-bottom: 10px; margin-top: -5px; font-size: 12px; line-height: 1em;}
 #content div.all_items ul.items > li dl.info {margin-top: -5px;}
 
 /* ACTIONS ALIGN RIGHT */
@@ -101,3 +101,15 @@
 #content div.all_items.sortable.images ul.items > li {background-position: 50px center;}
 #content div.all_items.sortable.audios ul.items > li div.audioplayer {left: 55px;}
 #content div.all_items.sortable.videos ul.items > li div.videoplayer {left: 45px;}
+
+
+
+/* SELECTABLE LIST */
+#content div.all_items.selectable ul.items > li > input {position: absolute; top: 10px; left: 30px; cursor: pointer;}
+#content div.all_items.selectable ul.items > li.all {padding: 10px 30px 10px 50px;}
+#content div.all_items.selectable ul.items > li.all > input {position: absolute; top: 9px; left: 30px;}
+#content div.all_items.selectable ul.items > li.all.deselect input[type=checkbox] {opacity: 0.4;}
+#content div.all_items.selectable ul.items > li.all div.range {padding-left: 25px; height: 10px; display: inline-block; vertical-align: top;}
+#content div.all_items.selectable ul.items > li.all div.range span {display: inline-block; vertical-align: top; font-size: 12px; padding: 0 5px;}
+#content div.all_items.selectable ul.items > li.all div.range > input {width: 30px; height: 14px; margin-top: -4px; font-size: 12px;}
+#content div.all_items.selectable ul.items > li h3 {padding-left: 50px;}

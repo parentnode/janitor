@@ -1,7 +1,7 @@
 
 Util.Objects["defaultList"] = new function() {
 	this.init = function(div) {
-		u.bug("init defaultList:" + u.nodeId(div))
+		// u.bug("init defaultList:", div);
 
 		var i, node;
 
@@ -337,6 +337,13 @@ Util.Objects["defaultList"] = new function() {
 			// callback from list filter
 			div.filtered = function() {
 				this.scrolled();
+
+				// If list is selectable
+				if(this.bn_all) {
+					this.bn_all.updateState();
+					this.bn_range._to.value = "";
+					this.bn_range._from.value = "";
+				}
 			}
 
 
@@ -348,6 +355,14 @@ Util.Objects["defaultList"] = new function() {
 		if(u.hc(div, "sortable")) {
 
 			u.defaultSortableList(div.list);
+
+		}
+
+
+		// selectable list
+		if(u.hc(div, "selectable")) {
+
+			u.defaultSelectable(div);
 
 		}
 

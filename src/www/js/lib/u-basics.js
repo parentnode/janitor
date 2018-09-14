@@ -326,6 +326,8 @@ u.defaultSortableList = function(list) {
 
 
 
+
+
 // TAGS
 
 // enable tagging
@@ -595,6 +597,284 @@ u.activateTag = function(tag_node) {
 
 	}
 
+}
+
+
+
+// SELECTABLE
+
+u.defaultSelectable = function(div) {
+	// u.bug("defaultSelectable:", div);
+
+
+	// add select all option
+	div.bn_all = u.ie(div.list, "li", {"class":"all"});
+	div.bn_all._text = u.ae(div.bn_all, "span", {"html":"Select all"});
+	div.bn_all._checkbox = u.ie(div.bn_all, "input", {"type":"checkbox"});
+
+
+	// disable regular onclick event
+	div.bn_all.onclick = function(event) {u.e.kill(event);}
+
+	div.bn_all.div = div;
+	div.bn_all._checkbox.div = div;
+
+
+	// handle clicking
+	u.e.click(div.bn_all._checkbox);
+	div.bn_all._checkbox.clicked = function(event) {
+		var i, node;
+		u.e.kill(event);
+		// figure out wether to select or deselect (if one is selected, de-select all)
+		var inputs = u.qsa("li.item:not(.hidden) input:checked", this.div.list);
+
+//			for(i = 0; node = this.div.nodes[i]; i++) {
+		for(i = 0; i < this.div.nodes.length; i++) {
+			node = this.div.nodes[i];
+			if(inputs.length) {
+				node._checkbox.checked = false;
+			}
+
+			// don't select hidden nodes
+			else if(!node._hidden) {
+				node._checkbox.checked = true;
+
+			}
+		}
+
+		// update range inputs
+		this.div.bn_range._from.value = "";
+		this.div.bn_range._to.value = "";
+
+		// Update bn_all state
+		this.div.bn_all.updateState();
+
+	}
+
+	// update select all state
+	div.bn_all.updateState = function() {
+//		u.bug("updateState");
+
+		// figure out what the current state is and deal with it
+		this.div.checked_inputs = u.qsa("li.item input:checked", this.div.list);
+		this.div.visible_inputs = u.qsa("li.item:not(.hidden) input", this.div.list);
+
+		// u.bug("checked_inputs:", this.div.checked_inputs.length, "visible_inputs:", this.div.visible_inputs.length)
+
+		// all is selected
+		if(this.div.checked_inputs.length == this.div.visible_inputs.length) {
+
+			this._text.innerHTML = "Deselect all";
+			u.rc(this, "deselect");
+			this._checkbox.checked = true;
+		}
+		else if(this.div.checked_inputs.length) {
+			this._text.innerHTML = "Deselect all";
+			u.ac(this, "deselect");
+			this._checkbox.checked = true;
+		}
+		else {
+			this._text.innerHTML = "Select all";
+			u.rc(this, "deselect");
+			this._checkbox.checked = false;
+		}
+
+		// update options
+		if(fun(this.div.selectionUpdated)) {
+			this.div.selectionUpdated(this.div.checked_inputs);
+		}
+
+	}
+
+
+	// add select range option
+	div.bn_range = u.ae(div.bn_all, "div", {class:"range"});
+	div.bn_range._text = u.ae(div.bn_range, "span", {html:"Select range:"});
+	div.bn_range._from = u.ae(div.bn_range, "input", {type:"text", name:"range_from", maxlength:4});
+	div.bn_range._text = u.ae(div.bn_range, "span", {html:"to"});
+	div.bn_range._to = u.ae(div.bn_range, "input", {type:"text", name:"range_to", maxlength:4});
+
+
+	div.bn_range.div = div;
+	div.bn_range._from.bn_range = div.bn_range;
+	div.bn_range._to.bn_range = div.bn_range;
+
+	// attached to inputs
+	div.bn_range._updated = function(event) {
+
+
+//			console.log(event)
+		var key = event.key;
+		// console.log(key);
+		// console.log(event.code)
+
+//			return;
+		// increment
+		if(key == "ArrowUp" && event.shiftKey) {
+			u.e.kill(event);
+
+			this.value = this.value > 0 ? Number(this.value)+10 : 10;
+		}
+		else if(key == "ArrowUp") {
+			u.e.kill(event);
+
+			this.value = this.value > 0 ? Number(this.value)+1 : 1;
+		}
+
+		// decrement
+		else if(key == "ArrowDown" && event.shiftKey) {
+			u.e.kill(event);
+
+			this.value = this.value > 10 ? Number(this.value)-10 : 1;
+		}
+		else if(key == "ArrowDown") {
+			u.e.kill(event);
+
+			this.value = this.value > 1 ? Number(this.value)-1 : 1;
+		}
+
+// 			// kill non-numeric keys
+		else if((parseInt(key) != key) && (key != "Backspace" && key != "Delete" && key != "Tab" && key != "ArrowLeft" && key != "ArrowRight" && !event.metaKey && !event.ctrlKey)) {
+			u.e.kill(event);
+		}
+
+		var value = false;
+		var to, from;
+
+		// figure out what the value will be after keyup
+		if(parseInt(key) == key) {
+			value = this.value.length < 4 ? this.value + key : this.value;
+		}
+		else if(key == "Backspace") {
+			value = this.value.substring(0, this.value.length-1);
+		}
+		else if(key == "Delete") {
+			value = this.value.substring(1);
+		}
+		else if(key == "ArrowUp" || key == "ArrowDown") {
+			value = this.value;
+		}
+
+		if(value !== false) {
+
+			value = Number(value);
+
+			// add updated values and correct "sister" values
+			if(this.name == "range_from") {
+
+				if(Number(this.bn_range._to.value) < value) {
+					this.bn_range._to.value = value;
+				}
+
+				from = value;
+				to = Number(this.bn_range._to.value);
+			}
+			else if(this.name == "range_to") {
+
+				if(!this.bn_range._from.value) {
+					this.bn_range._from.value = 1;
+				}
+				else if(Number(this.bn_range._from.value) > value) {
+					this.bn_range._from.value = value;
+				}
+
+				to = value;
+				from = Number(this.bn_range._from.value);
+			}
+
+			// input indecies to select between
+			to = to-1;
+			from = from-1;
+
+			if(!isNaN(from && !isNaN(to))) {
+				var inputs = u.qsa("li.item:not(.hidden) input", this.bn_range.div.list);
+				var i, input;
+				for(i = 0; i < inputs.length; i++) {
+					input = inputs[i];
+					if(i >= from && i <= to) {
+						input.checked = true;
+					}
+					else {
+						input.checked = false;
+					}
+				}
+
+				// Update bn_all state
+				this.bn_range.div.bn_all.updateState();
+
+			}
+
+		}
+
+	}
+
+	u.e.addEvent(div.bn_range._from, "keypress", div.bn_range._updated);
+	u.e.addEvent(div.bn_range._to, "keypress", div.bn_range._updated);
+
+
+
+
+
+	// add checkboxes and handlers to all rows
+//		for(i = 0; node = div.nodes[i]; i++) {
+	for(i = 0; i < div.nodes.length; i++) {
+		node = div.nodes[i];
+		node.ua_id = u.cv(node, "ua_id");
+		node.div = div;
+
+		// enable selection
+		node._checkbox = u.ie(node, "input", {"type":"checkbox"});
+		node._checkbox.node = node;
+
+		u.e.click(node._checkbox);
+		node._checkbox.onclick = function(event) {u.e.kill(event);}
+
+		// enable multiple selection on drag
+		node._checkbox.inputStarted = function(event) {
+			u.e.kill(event);
+
+			// map div for body events
+			document.body.selection_div = this.node.div;
+
+
+			if(this.checked) {
+				this.checked = false;
+				document.body._multideselection = true;
+			}
+			else {
+				this.checked = true;
+				document.body._multiselection = true;
+			}
+
+			// end multi de/selection
+			document.body.onmouseup = function(event) {
+//					console.log("selection end")
+
+				this.onmouseup = null;
+				this._multiselection = false;
+				this._multideselection = false;
+
+
+				// Update bn_all state
+				this.selection_div.bn_all.updateState();
+
+				delete document.body.selection_div;
+
+			}
+
+		}
+
+		// select/deselect if state is correct on mouseover
+		node._checkbox.onmouseover = function() {
+			if(document.body._multiselection) {
+				this.checked = true;
+			}
+			else if(document.body._multideselection) {
+				this.checked = false;
+			}
+		}
+
+	}
 }
 
 

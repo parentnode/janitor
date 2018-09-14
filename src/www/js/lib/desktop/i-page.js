@@ -2,7 +2,7 @@ u.bug_console_only = true;
 
 Util.Objects["page"] = new function() {
 	this.init = function(page) {
-		u.bug("init page:" + page)
+		u.bug("init page:",  page);
 
 		window.page = page;
 
