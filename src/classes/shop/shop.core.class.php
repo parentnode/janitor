@@ -355,7 +355,7 @@ class ShopCore extends Model {
 		}
 
 		$sql = "INSERT INTO ".$this->db_orders." SET order_no='$order_no'";
-//		print $sql."<br />\n";
+		// print $sql."<br />\n";
 
 		if($query->sql($sql)) {
 			return $order_no;
@@ -1673,7 +1673,7 @@ class ShopCore extends Model {
 		}
 		else {
 
-			$sql = "SELECT * FROM ".$this->db_payments." WHERE user_id = ".$user_id . " ORDER BY created_at, id DESC";
+			$sql = "SELECT * FROM ".$this->db_payments." as payments, ".$this->db_orders." as orders WHERE payments.order_id = orders.id AND orders.user_id = ".$user_id." ORDER BY payments.created_at, payments.id DESC";
 
 //			print $sql."<br>";
 			if($query->sql($sql)) {

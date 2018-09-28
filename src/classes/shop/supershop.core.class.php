@@ -1815,7 +1815,7 @@ class SuperShopCore extends Shop {
 
 			$sql = "SELECT * FROM ".$this->db_payments." WHERE order_id = ".$order_id;
 
-//			print $sql."<br>";
+			// print $sql."<br>";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -1823,9 +1823,9 @@ class SuperShopCore extends Shop {
 		}
 		else if($user_id) {
 
-			$sql = "SELECT * FROM ".$this->db_payments." WHERE user_id = ".$user_id . " ORDER BY created_at, id DESC";
+			$sql = "SELECT * FROM ".$this->db_payments." as payments, ".$this->db_orders." as orders WHERE payments.order_id = orders.id AND orders.user_id = ".$user_id . " ORDER BY payments.created_at, payments.id DESC";
 
-//			print $sql."<br>";
+			// print $sql."<br>";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -1834,7 +1834,7 @@ class SuperShopCore extends Shop {
 		else {
 			$sql = "SELECT * FROM ".$this->db_payments . " ORDER BY created_at, id DESC";
 
-//			print $sql."<br>";
+			// print $sql."<br>";
 			if($query->sql($sql)) {
 				
 				return $query->results();
