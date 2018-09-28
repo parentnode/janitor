@@ -1281,7 +1281,7 @@ class ShopCore extends Model {
 
 
 						// Update order comment
-						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."'";
+						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."' WHERE order_no='$order_no'";
 //						print $sql."<br>\n";
 						$query->sql($sql);
 
