@@ -119,21 +119,22 @@ class ItemtypeCore extends Model {
 
 					$sql = "DELETE FROM ".UT_ITEMS." WHERE id = $item_id";
 //					print $sql;
-					$query->sql($sql);
-					
-					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
-					$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
+					if($query->sql($sql)) {
+						
+						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
+						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
 
-					message()->addMessage("Item deleted");
+						message()->addMessage("Item deleted");
 
 
-					// itemtype post delete handler?
-					if(method_exists($this, "postDelete")) {
-						$this->postDelete($item_id);
+						// itemtype post delete handler?
+						if(method_exists($this, "postDelete")) {
+							$this->postDelete($item_id);
+						}
+
+
+						return true;
 					}
-
-
-					return true;
 				}
 			}
 		}
