@@ -41,6 +41,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 <?			foreach($orders as $order): ?>
 			<li class="item">
 				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items" ) ?>)</h3>
+				<p class="description"><?= $order["comment"] ?></p>
 
 				<dl class="info">
 					<dt class="created_at">Created at</dt>

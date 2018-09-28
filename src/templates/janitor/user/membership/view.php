@@ -127,6 +127,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 				$total_price = $SC->getTotalOrderPrice($order["id"]); ?>
 				<li class="item item_id:<?= $order["id"] ?>">
 					<h3><span>#<?= $order["order_no"] ?></span></h3>
+					<p class="description"><?= $order["comment"] ?></p>
 
 					<dl class="info">
 						<dt class="created_at">Created at</dt>
