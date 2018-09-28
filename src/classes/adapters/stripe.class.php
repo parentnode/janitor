@@ -531,13 +531,14 @@ class JanitorStripe {
 		return false;
 	}
 
-	// Save stripe customer id
+	// Delete stripe customer id
 	function deleteCustomerId($user_id, $customer_id) {
 
 		$query = new Query();
 		$query->checkDBExistence(SITE_DB.".user_gateway_stripe");
 
-		$sql = "DELETE FROM ".SITE_DB.".user_gateway_stripe WHERE user_id=$user_id, customer_id='$customer_id'";
+		$sql = "DELETE FROM ".SITE_DB.".user_gateway_stripe WHERE user_id=$user_id AND customer_id='$customer_id'";
+
 		if($query->sql($sql)) {
 			return true;
 		}
