@@ -593,6 +593,7 @@ class UserCore extends Model {
 
 							}
 
+							message()->resetMessages();
 
 							// return enough information to the frontend
 							return array("user_id" => $user_id, "nickname" => $nickname, "email" => $email);

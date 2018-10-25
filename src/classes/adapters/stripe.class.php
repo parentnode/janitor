@@ -572,7 +572,7 @@ class JanitorStripe {
 						$_POST["payment_amount"] = $remaining_order_price["price"];
 						$_POST["payment_method"] = $payment_methods[$stripe_index]["id"];
 						$_POST["order_id"] = $order_id;
-						$_POST["transaction_id"] = $charge->id . "\n(".formatPrice($bulk_order["total_price"]).")";
+						$_POST["transaction_id"] = $charge->id . "\n(".formatPrice(["price" => $bulk_order["total_price"], "currency" => $bulk_order["currency"]]).")";
 						$payment_id = $SC->registerPayment(array("registerPayment"));
 						if($payment_id) {
 
