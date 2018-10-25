@@ -287,7 +287,7 @@ u.defaultFilters = function(div) {
 // SORTABLE
 
 u.defaultSortableList = function(list) {
-
+	console.log("defaultSortableList");
 	list.div.save_order_url = list.div.getAttribute("data-item-order");
 
 	if(list.div.save_order_url && list.div.csrf_token) {
@@ -308,7 +308,7 @@ u.defaultSortableList = function(list) {
 
 			this.nodes = u.qsa("li.item", this);
 			for(i = 0; node = this.nodes[i]; i++) {
-				order.push(u.cv(node, "id"));
+				order.push(u.cv(node, "item_id"));
 			}
 			this.orderResponse = function(response) {
 				// Notify of event
