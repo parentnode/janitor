@@ -60,9 +60,8 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 			"class" => "secondary",
 			"success-location" => "/janitor/admin/shop/order/list/3"
 		)) ?>
-		<? else: ?>
-		<?= $HTML->link("Invoice", "/janitor/admin/shop/order/invoice/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice", "target" => "blank")) ?>
 		<? endif; ?>
+		<?= $HTML->link("Invoice", "/janitor/admin/shop/order/invoice/".$order["id"], array("class" => "button primary", "wrapper" => "li.invoice", "target" => "blank")) ?>
 
 		<? if($order["status"] == 3): ?>
 		<?= $HTML->link("Credit note", "/janitor/admin/shop/order/creditnote/".$order["id"], array("class" => "button primary", "wrapper" => "li.creditnote", "target" => "blank")) ?>

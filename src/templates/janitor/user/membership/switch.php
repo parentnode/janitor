@@ -11,12 +11,15 @@ $user_id = $action[2];
 $user = $model->getUsers(array("user_id" => $user_id));
 $member = $model->getMembers(array("user_id" => $user_id));
 
-$memberships = $IC->getItems(array("itemtype" => "membership", "extend" => array("subscription_method" => true, "prices" => true)));
+$memberships = $IC->getItems(array("itemtype" => "membership", "status" => 1, "extend" => array("subscription_method" => true, "prices" => true)));
 
 $membership_options = array();
 foreach($memberships as $membership) {
-	$price = $SC->getPrice($membership["item_id"]);
-	$membership_options[$membership["item_id"]] = strip_tags($membership["name"])." (".formatPrice($price).")";
+	// do not include current membership
+	if($membership["item_id"] != $member["item_id"])  {
+		$price = $SC->getPrice($membership["item_id"]);
+		$membership_options[$membership["item_id"]] = strip_tags($membership["name"])." (".formatPrice($price).")";
+	}
 }
 
 ?>

@@ -1872,14 +1872,14 @@ class SuperShopCore extends Shop {
 				// update modified at time
 				$sql = "INSERT INTO ".$this->db_payments." SET order_id=$order_id, currency='".$order["currency"]."', payment_amount=$payment_amount, transaction_id='$transaction_id', payment_method=$payment_method";
 				if($query->sql($sql)) {
-
+					$payment_id = $query->lastInsertId();
 					$this->validateOrder($order["id"]);
 
 					global $page;
 					$page->addLog("SuperShop->addPayment: order_id:$order_id, payment_method:$payment_method, payment_amount:$payment_amount");
 
 					message()->addMessage("Payment added");
-					return true;
+					return $payment_id;
 				
 				}
 			}

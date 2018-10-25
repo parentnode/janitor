@@ -10,7 +10,7 @@ $user = $model->getUsers(array("user_id" => $user_id));
 $member = $model->getMembers(array("user_id" => $user_id));
 $current_membership_price = $SC->getPrice($member["item_id"]);
 
-$memberships = $IC->getItems(array("itemtype" => "membership", "extend" => array("subscription_method" => true, "prices" => true)));
+$memberships = $IC->getItems(array("itemtype" => "membership", "status" => 1, "extend" => array("subscription_method" => true, "prices" => true)));
 
 $membership_options = array();
 foreach($memberships as $membership) {
@@ -29,6 +29,7 @@ foreach($memberships as $membership) {
 		<?= $HTML->link("Back", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button", "wrapper" => "li.membership")); ?>
 	</ul>
 
+<? if(count($membership_options)): ?>
 	<div class="item">
 		<h2>Upgrade your existing membership</h2>
 		<?= $model->formStart("/janitor/admin/user/upgradeMembership/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
@@ -52,18 +53,11 @@ foreach($memberships as $membership) {
 			</ul>
 		<?= $model->formEnd() ?>
 	</div>
+<? else: ?>
 
-	<? /*<div class="item">
-		<h2>Cancel your membership</h2>
+	<h3>Your membership cannot be upgraded.</h3>
+	<p>(There are no upgrades available for <?= $member["item"]["name"] ?> members)</p>
 
-		<p>You membership will be cancelled immediately. <br />We will contact you regarding refunds/additional payment.</p>
-		<ul class="actions">
-			<?= $JML->oneButtonForm("Cancel your membership", "/janitor/admin/shop/cancelMembership/".$member["id"], array(
-				"wrapper" => "li.cancelmembership",
-				"class" => "secondary"
-			)) ?>
-		</ul>
-
-	</div> */ ?>
+<? endif; ?>
 
 </div>

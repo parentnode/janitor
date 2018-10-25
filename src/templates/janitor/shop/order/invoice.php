@@ -6,7 +6,7 @@ global $model;
 $order_id = $action[2];
 $order = $model->getOrders(array("order_id" => $action[2]));
 
-if($order && $order["status"] >= 2) {
+if($order) {
 
 	$this->pageTitle("Invoice ".$order["order_no"]);
 	$this->bodyClass("invoice");
@@ -17,7 +17,15 @@ if($order && $order["status"] >= 2) {
 
 ?>
 <div class="scene i:scene invoice">
-<? if($order && $order["status"] >= 2): ?>
+<? if($order): ?>
+
+	<div class="status">
+	<? if($order["status"] >= 2): ?>
+		<h3>Paid</h3>
+	<? else: ?>
+		<h3>Payment due</h3>
+	<? endif; ?>
+	</div>
 
 	<div class="basics">
 
@@ -27,8 +35,11 @@ if($order && $order["status"] >= 2) {
 		<dl class="info">
 			<dt>Created</dt>
 			<dd><?= $order["created_at"] ?></dd>
-			<? if($order["modified_at"]): ?>
+			<? if($order["status"] == 2): ?>
 			<dt>Completed</dt>
+			<dd><?= $order["modified_at"] ?></dd>
+			<? elseif($order["status"] == 3): ?>
+			<dt>Cancelled</dt>
 			<dd><?= $order["modified_at"] ?></dd>
 			<? endif; ?>
 		</dl>
@@ -84,7 +95,7 @@ if($order && $order["status"] >= 2) {
 				<span>Total</span> <span class="amount"><?= formatPrice($total_order_price, ["vat" => false]) ?></span>
 			</li>
 			<li class="order_vat">
-				<span>VAT</span> <span class="amount"><?= formatPrice(["price" => $total_order_price["vat"], "currency" => $total_order_price["currency"]], ["vat" => false]) ?>
+				<span>VAT</span> <span class="amount"><?= formatPrice(["price" => $total_order_price["vat"], "currency" => $total_order_price["currency"]], ["vat" => false]) ?></span>
 			</li>
 		</ul>
 		<? else: ?>

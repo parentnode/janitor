@@ -47,8 +47,46 @@ class JanitorStripe {
 					if($response) {
 
 						// Charge customer
-						if($this->chargeCustomer($order, $customer_id)) {
-							return true;
+						$charge = $this->chargeCustomer($order, $customer_id);
+						if($charge) {
+							return $charge;
+						}
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	// Process payment
+	function processCardAndPayOrders($bulk_order, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
+
+		if($bulk_order && $bulk_order["user"] && $bulk_order["user"]["email"]) {
+
+			// does customer already exist in Stripe account
+			$customer_id = $this->getCustomerId($bulk_order["user_id"]);
+
+			// create customer, if it doesn't exist
+			if(!$customer_id) {
+				$customer_id = $this->createCustomer($bulk_order);
+			}
+
+			// customer created or updated
+			if($customer_id) {
+
+				// create token for card
+				$token_id = $this->createToken($card_number, $card_exp_month, $card_exp_year, $card_cvc);
+				if($token_id) {
+
+					// Add card to customer
+					$response = $this->addCard($customer_id, $token_id);
+					if($response) {
+
+						// Charge customer
+						$charge = $this->bulkChargeCustomer($bulk_order, $customer_id);
+						if($charge) {
+							return $charge;
 						}
 					}
 				}
@@ -392,10 +430,11 @@ class JanitorStripe {
 					$_POST["payment_method"] = $payment_methods[$stripe_index]["id"];
 					$_POST["order_id"] = $order["id"];
 					$_POST["transaction_id"] = $charge->id;
-					if($SC->registerPayment(array("registerPayment"))) {
+					$payment_id = $SC->registerPayment(array("registerPayment"));
+					if($payment_id) {
 
 						$page->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$charge->id.", amount:".$order["total_price"]["price"], "stripe");
-						return true;
+						return $payment_id;
 
 					}
 					else {
@@ -479,6 +518,152 @@ class JanitorStripe {
 		return false;
 	}
 
+	function bulkChargeCustomer($bulk_order, $customer_id) {
+
+		global $page;
+
+
+		try {
+
+			// TODO: amount should be stated in smallest unit. 
+			// Currency knows about decimals, which should be used to calculate amount rather than the *100 currently used.
+
+			$charge = \Stripe\Charge::create(array(
+				'capture'              => true,
+				'customer'             => $customer_id,
+				'amount'               => $bulk_order["total_price"]*100,
+				'currency'             => $bulk_order["currency"],
+				'statement_descriptor' => $bulk_order["order_no"],
+				'description'          => ((isset($bulk_order["custom_description"]) && $bulk_order["custom_description"]) ? $bulk_order["custom_description"] : ($bulk_order["order_no"] . ($bulk_order["comment"] ? ", " . $bulk_order["comment"] : ""))),
+				'receipt_email'        => $bulk_order["user"]["email"],
+			));
+
+			$page->addLog("Customer charged: customer_id:".$customer_id.", status:".$charge->status.", amount:".$charge->amount.", captured:".$charge->captured.", paid:".$charge->paid, "stripe");
+
+
+//			print_r($charge);
+			//
+			// print "status#".$charge->status."<br>";
+			// print "id#".$charge->id."<br>";
+			// print "captured#".$charge->captured."<br>";
+			// print "paid#".$charge->paid."<br>";
+			// print "description#".$charge->description."<br>";
+
+			if($charge && $charge->id && $charge->paid && $charge->captured && $charge->status) {
+
+				// add payment
+
+				include_once("classes/shop/supershop.class.php");
+				$SC = new SuperShop();
+
+				// find correct payment method id
+				$payment_methods = $page->paymentMethods();
+				$stripe_index = arrayKeyValue($payment_methods, "gateway", "stripe");
+				if($stripe_index !== false) {
+
+					$order_ids = explode(",", $bulk_order["id"]);
+					$payment_ids = [];
+					
+					foreach($order_ids as $order_id) {
+
+						$remaining_order_price = $SC->getRemainingOrderPrice($order_id);
+
+						// Add variables for addPayment
+						$_POST["payment_amount"] = $remaining_order_price["price"];
+						$_POST["payment_method"] = $payment_methods[$stripe_index]["id"];
+						$_POST["order_id"] = $order_id;
+						$_POST["transaction_id"] = $charge->id . "\n(".formatPrice($bulk_order["total_price"]).")";
+						$payment_id = $SC->registerPayment(array("registerPayment"));
+						if($payment_id) {
+
+							$payment_ids[] = $payment_id;
+							$page->addLog("Payment added to Janitor: order_id:".$bulk_order["id"].", transaction_id:".$charge->id.", amount:".$bulk_order["total_price"], "stripe");
+
+						}
+						else {
+
+							$page->addLog("Failed adding payment to Janitor (adding payment): order_id:".$bulk_order["id"].", transaction_id:".$charge->id.", amount:".$bulk_order["total_price"], "stripe");
+							// Notify admin
+
+							// Send mail to admin
+							mailer()->send([
+								"subject" => SITE_URL." - Error adding Stripe payment", 
+								"message" => "Failed adding payment from Stripe capture. This needs to be handled manually.\n\nCharge ID: ".$charge->id."\nOrder id: ".$bulk_order["id"]."\nOrder No: ".$bulk_order["order_no"],
+								"template" => "system"
+							]);
+
+						}
+						unset($_POST);
+						
+					}
+					return implode(",", $payment_ids);
+
+
+				}
+				else {
+
+					$page->addLog("Could not find payment method id for stripe: order_id:".$bulk_order["id"].", transaction_id:".$charge->id.", amount:".$bulk_order["total_price"], "stripe");
+					// Notify admin
+
+					// Send mail to admin
+					mailer()->send([
+						"subject" => SITE_URL." - Error adding Stripe payment", 
+						"message" => "Failed adding payment from Stripe capture (no payment method for stripe). This needs to be handled manually.\n\nCharge ID: ".$charge->id."\nOrder id: ".$bulk_order["id"]."\nOrder No: ".$bulk_order["order_no"],
+						"template" => "system"
+					]);
+
+				}
+
+
+			}
+
+		}
+		// Card error
+		catch(\Stripe\Error\Card $exception) {
+
+			$this->exceptionHandler("Charging customer", $exception);
+			return false;
+		}
+		// Too many requests made to the API too quickly
+		catch (\Stripe\Error\RateLimit $exception) {
+
+			$this->exceptionHandler("Charging customer", $exception);
+			return false;
+		} 
+		// Invalid parameters were supplied to Stripe's API
+		catch (\Stripe\Error\InvalidRequest $exception) {
+
+			$this->exceptionHandler("Charging customer", $exception);
+			return false;
+		}
+		// Authentication with Stripe's API failed
+		catch (\Stripe\Error\Authentication $exception) {
+
+			$this->exceptionHandler("Charging customer", $exception);
+			return false;
+		}
+		// Network communication with Stripe failed
+		catch (\Stripe\Error\ApiConnection $exception) {
+
+			$this->exceptionHandler("Charging customer", $exception);
+			return false;
+		}
+		// Display a very generic error to the user, and maybe send yourself an email
+		catch (\Stripe\Error\Base $exception) {
+
+			$this->exceptionHandler("Charging customer", $exception);
+			return false;
+		}
+		// Something else happened, completely unrelated to Stripe
+		catch (Exception $exception) {
+
+			$this->exceptionHandler("Charging customer", $exception);
+			return false;
+		}
+
+
+		return false;
+	}
 
 
 	// Handle any stripe exception

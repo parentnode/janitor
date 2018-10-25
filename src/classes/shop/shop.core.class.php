@@ -265,6 +265,15 @@ class ShopCore extends Model {
 			"hint_message" => "Select order to associate payment with.",
 			"error_message" => "Invalid order."
 		));
+		// order ids
+		$this->addToModel("order_ids", array(
+			"type" => "string",
+			"label" => "Orders",
+			"required" => true,
+			"hint_message" => "Select orders to associate payment with.",
+			"error_message" => "Invalid orders."
+		));
+
 		// transactions id
 		$this->addToModel("transaction_id", array(
 			"type" => "string",
@@ -446,6 +455,28 @@ class ShopCore extends Model {
 		return array("price" => $total_price, "vat" => $total_vat, "currency" => $order["currency"], "country" => $order["country"]);
 	}
 
+	/**
+	* Get remaining order price
+	*
+	* @return price object without VAT info
+	*/
+	function getRemainingOrderPrice($order_id) {
+		$total_order_price = $this->getTotalOrderPrice($order_id);
+		$total_order_amount = $total_order_price["price"];
+
+		// Loop through all payments to get remaining payment amount
+		$payments = $this->getPayments(["order_id" => $order_id]);
+		$total_payments = 0;
+		if($payments) {
+			foreach($payments as $payment) {
+				$total_payments += $payment["payment_amount"];
+			}
+		}
+
+		$total_order_amount = $total_order_amount-$total_payments;
+
+		return array("price" => $total_order_amount, "currency" => $total_order_price["currency"]);
+	}
 
 	/**
 	* Get total price for cart
@@ -1365,7 +1396,6 @@ class ShopCore extends Model {
 					case "itemtype"          : $itemtype            = $_value; break;
 
 					case "status"            : $status              = $_value; break;
-
 				}
 			}
 		}
@@ -1407,7 +1437,7 @@ class ShopCore extends Model {
 			if($itemtype) {
 
 				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE orders.user_id=$user_id".($status !== false ? " AND status=$status" : "")." AND order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
-//				print $sql;
+				// print $sql;
 				if($query->sql($sql)) {
 					$orders = $query->results();
 
@@ -1525,6 +1555,8 @@ class ShopCore extends Model {
 		return false;
 	}
 
+	// Select payment method
+	// If order is for subscription, then also set this payment method for the subscription
 	function selectPaymentMethod($action) {
 
 		global $page;
@@ -1585,6 +1617,43 @@ class ShopCore extends Model {
 	}
 
 
+	// select bulk payment method
+	// make payment method details and order ids ready
+	function selectBulkPaymentMethod($action) {
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("payment_method", "order_ids"))) {
+
+			$query = new Query();
+			$UC = new User();
+
+
+			$user_id = session()->value("user_id");
+			$order_ids = $this->getProperty("order_ids", "value");
+
+			$payment_method_id = $this->getProperty("payment_method", "value");
+			$payment_method = $page->paymentMethods($payment_method_id);
+
+ 			if($order_ids && $payment_method) {
+
+				// add order no to return object - because receipt requires and order_no to display correctly
+				$payment_method["order_ids"] = $order_ids;
+
+				return $payment_method;
+
+			}
+
+		}
+
+		return false;
+	}
+
+
 	// Process gateway data
 	function processOrderPayment($action) {
 
@@ -1617,20 +1686,6 @@ class ShopCore extends Model {
 
 					return payments()->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
 
-
-					// if($gateway == "stripe") {
-					//
-					// 	$page->addLog("Shop->processOrderPayment: order_id:".$order["id"].", gateway: $gateway");
-					//
-					// 	include_once("classes/adapters/stripe.class.php");
-					// 	$GC = new JanitorStripe();
-					//
-					// 	return $GC->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
-					// }
-
-
-					// More gateways can be added here
-
 				}
 
 			}
@@ -1641,6 +1696,66 @@ class ShopCore extends Model {
 
 	}
 
+	// Process gateway data
+	function processBulkOrderPayment($action) {
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		// does values validate
+		if(count($action) == 4 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
+
+			$order_ids = explode(",", $action[1]);
+			$gateway = $action[2];
+
+			$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
+			$card_exp_month = $this->getProperty("card_exp_month", "value");
+			$card_exp_year = $this->getProperty("card_exp_year", "value");
+			$card_cvc = $this->getProperty("card_cvc", "value");
+
+
+			if($order_ids) {
+				$bulk_order = ["total_price" => 0];
+
+				$order_nos = [];
+				$UC = new User();
+				$bulk_order["user"] = $UC->getUser();
+				$bulk_order["user_id"] = $bulk_order["user"]["id"];
+				foreach($order_ids as $order_id) {
+
+					$order = $this->getOrders(array("order_id" => $order_id));
+					$remaining_order_price = false;
+
+					if($order && $order["payment_status"] !== 2) {
+						$remaining_order_price = $this->getRemainingOrderPrice($order_id);
+
+						$bulk_order["currency"] = $order["currency"];
+
+						$order_nos[] = $order["order_no"];
+//						$order_ids[] = $order["id"];
+
+						$bulk_order["total_price"] += $remaining_order_price["price"];
+					}
+
+				}
+
+				$description = implode(", ", $order_nos);
+				$bulk_order["order_no"]	= strlen($description) > 22 ? cutString($description, 14)." and more" : $description;
+				$bulk_order["id"]	= implode(", ", $order_ids);
+				$bulk_order["custom_description"] = "Bulk payment of ".implode(", ", $order_nos);
+
+				return payments()->processCardAndPayOrders($bulk_order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+
+			}
+
+		}
+
+		return false;
+
+	}
 
 
 	// PAYMENTS
@@ -1649,10 +1764,12 @@ class ShopCore extends Model {
 
 		$user_id = session()->value("user_id");
 		$order_id = false;
+		$payment_id = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
+					case "payment_id"        : $payment_id          = $_value; break;
 					case "order_id"          : $order_id            = $_value; break;
 				}
 			}
@@ -1661,13 +1778,24 @@ class ShopCore extends Model {
 		$query = new Query();
 
 		// get specific order
-		if($order_id) {
+		if($order_id !== false) {
 
 			$sql = "SELECT * FROM ".$this->db_payments.", ".$this->db_orders." as orders WHERE order_id = $order_id AND orders.id = $order_id AND orders.user_id = $user_id";
 
-//			print $sql."<br>";
+			// print $sql."<br>\n";
 			if($query->sql($sql)) {
 				return $query->results();
+			}
+
+		}
+		// get specific payment
+		else if($payment_id !== false) {
+
+			$sql = "SELECT * FROM ".$this->db_payments." as payments, ".$this->db_orders." as orders WHERE payments.order_id = orders.id AND payments.id = $payment_id AND orders.user_id = $user_id";
+
+			// print $sql."<br>\n";
+			if($query->sql($sql)) {
+				return $query->result(0);
 			}
 
 		}
@@ -1675,7 +1803,7 @@ class ShopCore extends Model {
 
 			$sql = "SELECT * FROM ".$this->db_payments." as payments, ".$this->db_orders." as orders WHERE payments.order_id = orders.id AND orders.user_id = ".$user_id." ORDER BY payments.created_at, payments.id DESC";
 
-//			print $sql."<br>";
+			// print $sql."<br>\n";
 			if($query->sql($sql)) {
 				return $query->results();
 			}

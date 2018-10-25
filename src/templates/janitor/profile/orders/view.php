@@ -27,20 +27,10 @@ if($order) {
 		$billing_address_options = array("" => "No addresses");
 	}
 
-
 	$payments = $SC->getPayments(array("order_id" => $order_id));
+	$payable_amount = $SC->getRemainingOrderPrice($order_id);
 	$total_order_price = $SC->getTotalOrderPrice($order_id);
 
-	$total_payments = 0;
-	// if order is not paid, sum up all payments
-	if($order["payment_status"] < 2 && $payments) {
-		foreach($payments as $payment) {
-			$total_payments += $payment["payment_amount"];
-		}
-	}
-	// then calculate total remaining payment
-	$payable_amount = $total_order_price["price"]-$total_payments;
-	
 }
 
 
@@ -178,7 +168,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 					<dt class="price">Payment</dt>
 					<dd class="price"><?= formatPrice(array("price" => $payment["payment_amount"], "vat" => 0, "currency" => $payment["currency"], "country" => $order["country"])) ?></dd>
 					<dt class="transaction_id">Transaction id</dt>
-					<dd class="transaction_id"><?= $payment["transaction_id"] ?></dd>
+					<dd class="transaction_id"><?= nl2br($payment["transaction_id"]) ?></dd>
 					<dt class="payment_method">Payment method</dt>
 					<dd class="payment_method"><?= $payment["payment_method"]["name"] ?></dd>
 				</dl>
@@ -190,7 +180,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<? endif; ?>
 
 		<? if($order["payment_status"] < 2 && $order["status"] != 3): ?>
-		<h3>Still to be paid: <span class="system_error"><?= formatPrice(array("price" => ($payable_amount), "vat" => 0, "currency" => $order["currency"], "country" => $order["country"])) ?></span></h3>
+		<h3>Still to be paid: <span class="system_error"><?= formatPrice($payable_amount) ?></span></h3>
 		<ul class="actions">
 			<?= $HTML->link("Pay order", "/shop/payment/".$order["order_no"], array("class" => "button primary", "wrapper" => "li.pay")) ?>
 		</ul>

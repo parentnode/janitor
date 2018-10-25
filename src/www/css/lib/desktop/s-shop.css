@@ -28,11 +28,15 @@
 
 /* CART/ORDER DETAILS LISTINGS */
 #content .scene.shopView > div > dl.info,
-#content .scene.shopView div.payments dl.info {padding-top: 3px; padding-right: 0; padding-bottom: 25px; width: 370px;}
+#content .scene.shopView div.payments dl.info {padding: 3px 0 0 0; margin: 0 30px 30px; width: 370px; border-bottom: 1px solid #dbdfe5;}
 #content .scene.shopView > div > dl.info dt,
 #content .scene.shopView > div > dl.info dd, 
 #content .scene.shopView div.payments dl.info dt,
-#content .scene.shopView div.payments dl.info dd {padding: 5px 0; border-bottom: 1px solid #dbdfe5; height: 14px;}
+#content .scene.shopView div.payments dl.info dd {padding: 5px 0; border-top: 1px solid #dbdfe5; vertical-align: top;}
+#content .scene.shopView div.payments dl.info dt:first-child,
+#content .scene.shopView div.payments dl.info dd:nth-child(2) {border-top: none;}
+
+
 #content .scene.shopView > div > dl.info dt,
 #content .scene.shopView div.payments dl.info dt {width: 120px; float: none;}
 #content .scene.shopView > div > dl.info dd,

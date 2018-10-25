@@ -95,6 +95,18 @@ class PaymentGateway {
 
 	}
 
+	function processCardAndPayOrders($bulk_order, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->processCardAndPayOrders($bulk_order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+		}
+
+	}
+
 	function getGatewayUserId($user_id) {
 
 		// only load payment adapter when needed
