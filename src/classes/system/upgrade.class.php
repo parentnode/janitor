@@ -389,8 +389,15 @@ class Upgrade extends Model {
 			// Tell git to ignore file permission changes
 			exec("cd ".PROJECT_PATH." && git config core.filemode false");
 			exec("cd ".PROJECT_PATH."/submodules/janitor && git config core.filemode false");
-			exec("cd ".PROJECT_PATH."/submodules/js-merger && git config core.filemode false");
-			exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode false");
+			if(file_exists(PROJECT_PATH."/submodules/js-merger")) {
+				exec("cd ".PROJECT_PATH."/submodules/js-merger && git config core.filemode false");
+			}
+			if(file_exists(PROJECT_PATH."/submodules/css-merger")) {
+				exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode false");
+			}
+			if(file_exists(PROJECT_PATH."/submodules/asset-builder")) {
+				exec("cd ".PROJECT_PATH."/submodules/asset-builder && git config core.filemode false");
+			}
 
 			$this->process(["message" => "Git filemode updated to false", "success" => true]);
 
