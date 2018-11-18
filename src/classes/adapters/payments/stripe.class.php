@@ -4,7 +4,7 @@
 */
 
 
-require_once("includes/stripe-php-4.1.1/init.php");
+require_once("includes/payments/stripe-php-4.1.1/init.php");
 
 
 class JanitorStripe {

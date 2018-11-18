@@ -3,7 +3,7 @@
 * @package janitor.shop
 */
 
-require_once('includes/mailgun-php-2.5/vendor/autoload.php');
+require_once('includes/mailer/mailgun-php-2.5/vendor/autoload.php');
 
 use Mailgun\Mailgun;
 use Mailgun\Exception\HttpClientException;

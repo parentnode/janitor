@@ -780,6 +780,31 @@ function wkhtmltoPath() {
 }
 
 
+$__mmm = false;
+function mailer() {
+	global $__mmm;
+	if(!$__mmm) {
+		include_once("classes/helpers/mailer.class.php");
+		$__mmm = new MailGateway();
+	}
+	return $__mmm;
+}
+
+
+
+$__ppp = false;
+function payments() {
+	global $__ppp;
+	if(!$__ppp) {
+		include_once("classes/helpers/payments.class.php");
+		$__ppp = new PaymentGateway();
+
+	}
+	return $__ppp;
+}
+
+
+
 /**
 * Converts dd:mm:yyyy hh:mm to yyyy:mm:dd hh:mm:ss
 */

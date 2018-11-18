@@ -2,7 +2,7 @@
 	
 
 
-class PaymentGateway {
+class Payments {
 
 
 	// Payment gateway settings
@@ -19,15 +19,14 @@ class PaymentGateway {
 
 		// mailer connection info
 		@include_once("config/connect_payment.php");
-			
+
 	}
 
 	function payment_connection($_settings) {
 
 		// set type to default, Stripe, if not defined in configs
 		$_settings["type"] = isset($_settings["type"]) ? $_settings["type"] : "stripe";
-		$this->_settings = $_settings; 
-
+		$this->_settings = $_settings;
 
 	}
 
@@ -37,7 +36,7 @@ class PaymentGateway {
 
 			if(preg_match("/^stripe$/i", $this->_settings["type"])) {
 
-				@include_once("classes/adapters/stripe.class.php");
+				@include_once("classes/adapters/payments/stripe.class.php");
 				$this->adapter = new JanitorStripe($this->_settings);
 
 			}
@@ -121,15 +120,4 @@ class PaymentGateway {
 
 	}
 
-}
-
-$ppp = false;
-
-function payments() {
-	global $ppp;
-	if(!$ppp) {
-		$ppp = new PaymentGateway();
-
-	}
-	return $ppp;
 }

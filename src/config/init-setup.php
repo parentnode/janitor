@@ -124,7 +124,8 @@ if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 	include_once("classes/shop/shop.core.class.php");
 	include_once("classes/shop/shop.class.php");
 
-	include_once("classes/helpers/payment_gateway.class.php");
+	// Suppose it is not needed?? (mak, 17/11/2018)
+	// include_once("classes/helpers/payments.class.php");
 
 }
 // Invalid conditions for setup

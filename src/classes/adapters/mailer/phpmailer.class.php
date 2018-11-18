@@ -4,7 +4,7 @@
 */
 
 
-require_once("includes/PHPMailer-5.2.26/PHPMailerAutoload.php");
+require_once("includes/mailer/PHPMailer-5.2.26/PHPMailerAutoload.php");
 
 
 class JanitorPHPMailer {

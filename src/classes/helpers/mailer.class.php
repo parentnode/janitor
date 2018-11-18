@@ -2,7 +2,7 @@
 	
 
 
-class Mailer {
+class MailGateway {
 
 
 	// Mailer settings
@@ -26,7 +26,7 @@ class Mailer {
 
 		// set type to default, SMTP, if not defined in configs
 		$_settings["type"] = isset($_settings["type"]) ? $_settings["type"] : "smtp";
-		$this->_settings = $_settings; 
+		$this->_settings = $_settings;
 
 
 	}
@@ -37,14 +37,14 @@ class Mailer {
 
 			if(preg_match("/^mailgun$/i", $this->_settings["type"])) {
 
-				@include_once("classes/adapters/mailgun.class.php");
+				@include_once("classes/adapters/mailer/mailgun.class.php");
 				$this->adapter = new JanitorMailgun($this->_settings);
 
 			}
 			// default smtp
 			else {
 
-				@include_once("classes/adapters/phpmailer.class.php");
+				@include_once("classes/adapters/mailer/phpmailer.class.php");
 				$this->adapter = new JanitorPHPMailer($this->_settings);
 
 			}
@@ -499,15 +499,4 @@ class Mailer {
 		return [$text, $html];
 	}
 
-}
-
-$mmm = false;
-
-function mailer() {
-	global $mmm;
-	if(!$mmm) {
-		$mmm = new Mailer();
-
-	}
-	return $mmm;
 }
