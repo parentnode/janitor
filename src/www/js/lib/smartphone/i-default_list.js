@@ -1,7 +1,7 @@
 
 Util.Objects["defaultList"] = new function() {
 	this.init = function(div) {
-//		u.bug("init defaultList:" + u.nodeId(div))
+		// u.bug("init defaultList:", div);
 
 		var i, node;
 

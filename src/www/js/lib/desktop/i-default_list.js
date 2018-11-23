@@ -69,7 +69,7 @@ Util.Objects["defaultList"] = new function() {
 
 		// build node, when user scrolls it into view
 		div.buildNode = function(node) {
-//			u.bug("build node:" + u.nodeId(node));
+			// u.bug("build node:", node);
 
 
 			// action injection for predefined action types (to minimize page load and initialization time)

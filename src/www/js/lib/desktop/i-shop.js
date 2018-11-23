@@ -320,7 +320,7 @@ Util.Objects["orderItemsList"] = new function() {
 // // registerPayment form
 // Util.Objects["registerPayment"] = new function() {
 // 	this.init = function(div) {
-// 		u.bug("registerPayment:" + u.nodeId(div));
+// 		u.bug("registerPayment:", div);
 //
 // 		var form = u.qs("form", div);
 // 		u.f.init(form);

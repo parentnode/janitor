@@ -1,7 +1,7 @@
 // default new form
 Util.Objects["defaultNew"] = new function() {
 	this.init = function(form) {
-		u.bug("defaultNew:" + u.nodeId(form));
+		// u.bug("defaultNew:", form);
 
 		u.f.init(form);
 
@@ -17,10 +17,10 @@ Util.Objects["defaultNew"] = new function() {
 				u.rc(this, "submitting");
 
 				if(response.cms_status == "success" && response.cms_object) {
-//						u.bug("this.action:" + this.action)
-					// u.bug("location.href:" + location.href)
-					console.log(response)
-//					return;
+					// u.bug("this.action:", this.action);
+					// u.bug("location.href:", location.href);
+					// u.bug(response);
+					// return;
 
 					if(response.return_to) {
 						if(response.cms_object.item_id) {
