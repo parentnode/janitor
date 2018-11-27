@@ -363,59 +363,59 @@ class ItemsCore {
 			$exclude_array = explode(";", $exclude);
 		}
 
+		// Compile query for related items
+		$query = new Query();
+
+		$SELECT = array();
+		$FROM = array();
+		$LEFTJOIN = array();
+		$WHERE = array();
+		$GROUP_BY = "";
+		$ORDER = array();
+		$LIMIT = "";
+
+		$SELECT[] = "items.id";
+		$SELECT[] = "items.sindex";
+		$SELECT[] = "items.status";
+		$SELECT[] = "items.itemtype";
+		$SELECT[] = "items.user_id";
+
+		$SELECT[] = "items.created_at";
+		$SELECT[] = "items.modified_at";
+		$SELECT[] = "items.published_at";
+
+	 	$FROM[] = UT_ITEMS." as items";
+
+		if(isset($where)) {
+			if(is_array($where)) {
+				$WHERE = $where;
+			}
+			else {
+				$WHERE[] = $where;
+			}
+		}
+
+		$WHERE[] = "items.status = 1";
+
+
+		// add exclude exceptions
+		foreach($exclude_array as $exclude_id) {
+			$WHERE[] = "items.id != $exclude_id";
+		}
+
+		// add itemtype if available
+		if(isset($itemtype)) {
+			$WHERE[] = "items.itemtype = '$itemtype'";
+		}
+
+		// filter readstates
+		if(isset($no_readstate) && $no_readstate) {
+			$user_id = session()->value("user_id");
+			$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".SITE_DB.".user_item_readstates WHERE user_id = $user_id)";
+		}
+
 		// if tags are available make complex query
 		if(isset($tags) && $tags) {
-
-			$query = new Query();
-
-			$SELECT = array();
-			$FROM = array();
-			$LEFTJOIN = array();
-			$WHERE = array();
-			$GROUP_BY = "";
-			$ORDER = array();
-			$LIMIT = "";
-
-			$SELECT[] = "items.id";
-			$SELECT[] = "items.sindex";
-			$SELECT[] = "items.status";
-			$SELECT[] = "items.itemtype";
-			$SELECT[] = "items.user_id";
-
-			$SELECT[] = "items.created_at";
-			$SELECT[] = "items.modified_at";
-			$SELECT[] = "items.published_at";
-
-		 	$FROM[] = UT_ITEMS." as items";
-
-			if(isset($where)) {
-				if(is_array($where)) {
-					$WHERE = $where;
-				}
-				else {
-					$WHERE[] = $where;
-				}
-			}
-
-			$WHERE[] = "items.status = 1";
-
-
-			// add exclude exceptions
-			foreach($exclude_array as $exclude_id) {
-				$WHERE[] = "items.id != $exclude_id";
-			}
-
-			// add itemtype if available
-			if(isset($itemtype)) {
-				$WHERE[] = "items.itemtype = '$itemtype'";
-			}
-
-			// filter readstates
-			if(isset($no_readstate) && $no_readstate) {
-				$user_id = session()->value("user_id");
-				$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".SITE_DB.".user_item_readstates WHERE user_id = $user_id)";
-			}
-
 			// tag query
 			$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
 			$LEFTJOIN[] = UT_TAG." as tags ON tags.id = taggings.tag_id";
@@ -428,21 +428,24 @@ class ItemsCore {
 			$WHERE[] = "(".$tag_sql.")";
 
 			// Order result for best matches first
-			$ORDER[] = "count(*) DESC, published_at DESC";
-			$GROUP_BY = "items.id";
-
-			// set limit
-			if(isset($limit)) {
-				$LIMIT = " LIMIT $limit";
-			}
-
-			$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $LIMIT;
-//			print $sql."<br>\n";
-
-			$query->sql($sql);
-			$related_items = $query->results();
-
+			$ORDER[] = "count(*) DESC";
 		}
+
+		// Order by published time
+		$ORDER[] = "published_at DESC";
+		$GROUP_BY = "items.id";
+
+		// set limit
+		if(isset($limit)) {
+			$LIMIT = " LIMIT $limit";
+		}
+
+		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $LIMIT;
+		// print $sql."<br>\n";
+
+		$query->sql($sql);
+		$related_items = $query->results();
+
 
 		// update exclude values to exlude any tags matches
 		if($related_items) {
