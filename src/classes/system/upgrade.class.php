@@ -1060,7 +1060,7 @@ class Upgrade extends Model {
 					if($reference_info["unique_keys"]) {
 						foreach($reference_info["unique_keys"] as $column => $key_names) {
 							foreach($key_names as $key_name) {
-								$this->process($this->addUniqueKeys(SITE_DB.".".$table, $column, $key_name), true);
+								$this->process($this->addUniqueKey(SITE_DB.".".$table, $column, $key_name), true);
 							}
 						}
 					}
