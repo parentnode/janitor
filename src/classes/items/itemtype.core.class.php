@@ -347,6 +347,7 @@ class ItemtypeCore extends Model {
 
 
 						// itemtype post save handler?
+						// TODO: Consider if failed postSave should have consequences
 						if(method_exists($this, "postSave")) {
 							$this->postSave($item_id);
 						}
@@ -476,6 +477,13 @@ class ItemtypeCore extends Model {
 					$item["sindex"] = $this->sindex($sindex, $item_id);
 
 					message()->addMessage("Item updated");
+
+					// itemtype post update handler?
+					// TODO: Consider if failed postSave should have consequences
+					// TODO: risky - can cause endless loop - if postUpdate, makes update, makes update, makes update
+					if(method_exists($this, "postUpdate")) {
+						$this->postUpdate($item_id);
+					}
 
 					// add log
 					$page->addLog("ItemType->update ($item_id)");
