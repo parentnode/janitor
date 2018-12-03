@@ -458,7 +458,7 @@ class ItemtypeCore extends Model {
 				$query->versionControl($item_id, $values);
 
 				$sql = "UPDATE ".$this->db." SET ".implode(",", $values)." WHERE item_id = ".$item_id;
-//				print $sql;
+				// print $sql;
 				if($query->sql($sql)) {
 
 

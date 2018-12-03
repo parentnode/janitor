@@ -27,7 +27,14 @@ endif; ?>
 			<li class="members">
 				<h3>Members</h3>
 				<ul class="subjects">
+					<? 
+					// prioritize local controller
+					if(file_exists(LOCAL_PATH."/www/janitor/membership.php")): ?>
+					<?= $HTML->link("Memberships", "/janitor/membership/list", array("wrapper" => "li.membership")) ?>
+					<? else: ?>
 					<?= $HTML->link("Memberships", "/janitor/admin/membership/list", array("wrapper" => "li.membership")) ?>
+					<? endif; ?>
+
 					<?= $HTML->link("Members", "/janitor/admin/user/members/list", array("wrapper" => "li.members")) ?>
 				</ul>
 			</li>

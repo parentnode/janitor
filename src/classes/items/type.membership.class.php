@@ -38,6 +38,7 @@ class TypeMembership extends Itemtype {
 		$this->addToModel("subscribed_message_id", array(
 			"type" => "integer",
 			"label" => "Welcome message",
+			"required" => true,
 			"hint_message" => "Select a message to send to users when they subscribe to this membership"
 		));
 
