@@ -1681,7 +1681,7 @@ class SuperShopCore extends Shop {
 									$model = $IC->typeObject($item["itemtype"]);
 									// does model have shipped callback
 									if($model && method_exists($model, "shipped")) {
-										$model->shipped($order_item["id"], $order);
+										$model->shipped($order_item, $order);
 									}
 								}
 							}
