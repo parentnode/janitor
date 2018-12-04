@@ -714,7 +714,7 @@ class PageCore {
 			}
 			// $value is not valid currency
 			else {
-				session()->value("currency", defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DK");
+				session()->value("currency", defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK");
 			}
 		}
 
