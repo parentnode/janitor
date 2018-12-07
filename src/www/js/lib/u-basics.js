@@ -38,7 +38,7 @@ Util.Objects["collapseHeader"] = new function() {
 
 		// add collapsable header
 		u.ac(div, "togglable");
-		div._toggle_header = u.qs("h2,h3", div);
+		div._toggle_header = u.qs("h2,h3,h4", div);
 
 		div._toggle_header.div = div;
 		u.e.click(div._toggle_header);

@@ -2,7 +2,7 @@ u.bug_console_only = true;
 
 Util.Objects["page"] = new function() {
 	this.init = function(page) {
-		u.bug("init page:",  page);
+		// u.bug("init page:",  page);
 
 		window.page = page;
 
@@ -32,28 +32,29 @@ Util.Objects["page"] = new function() {
 		page.fN = u.qs("#footer", page);
 
 
-		// global scroll handler 
+		// global resized handler 
 		page.resized = function() {
+			// u.bug("page resized");
 
-			page.browser_h = u.browserH();
-			page.browser_w = u.browserW();
+			this.browser_h = u.browserH();
+			this.browser_w = u.browserW();
 
 			// forward resize event to current scene
-			if(page.cN && page.cN.scene && typeof(page.cN.scene.resized) == "function") {
-				page.cN.scene.resized();
+			if(this.cN && this.cN.scene && fun(this.cN.scene.resized)) {
+				this.cN.scene.resized();
 			}
 
 		}
 
 		// global scroll handler 
 		page.scrolled = function() {
-//			u.bug("page scrolled")
+			// u.bug("page scrolled");
 
-			page.scroll_y = u.scrollY();
+			this.scroll_y = u.scrollY();
 
 			// forward scroll event to current scene
-			if(page.cN && page.cN.scene && typeof(page.cN.scene.scrolled) == "function") {
-				page.cN.scene.scrolled();
+			if(this.cN && this.cN.scene && fun(this.cN.scene.scrolled)) {
+				this.cN.scene.scrolled();
 			}
 
 		}
@@ -61,14 +62,14 @@ Util.Objects["page"] = new function() {
 		page.orientationchanged = function() {
 
 			// forward scroll event to current scene
-			if(page.cN && page.cN.scene && typeof(page.cN.scene.orientationchanged) == "function") {
-				page.cN.scene.orientationchanged();
+			if(this.cN && this.cN.scene && fun(this.cN.scene.orientationchanged)) {
+				this.cN.scene.orientationchanged();
 			}
 		}
 
 		// Page is ready - called from several places, evaluates when page is ready to be shown
 		page.ready = function() {
-//				u.bug("page ready")
+			u.bug("page ready");
 
 			// page is ready to be shown - only initalize if not already shown
 			if(!this.is_ready) {
@@ -77,29 +78,29 @@ Util.Objects["page"] = new function() {
 				this.is_ready = true;
 
 				// set resize handler
-				u.e.addEvent(window, "resize", page.resized);
+				u.e.addEvent(window, "resize", this.resized);
 				// set scroll handler
-				u.e.addEvent(window, "scroll", page.scrolled);
+				u.e.addEvent(window, "scroll", this.scrolled);
 				// set orientation change handler
-				u.e.addEvent(window, "orientationchange", page.orientationchanged);
+				u.e.addEvent(window, "orientationchange", this.orientationchanged);
 
 				// initialize header
-				page.initHeader();
+				this.initHeader();
 
 				// adds notifier and page.notify function
-				u.notifier(page);
+				u.notifier(this);
 
-				// adds notifier and page.notify function
+				// adds popstate navigation and page.cN.navigate callback
 				u.navigation();
 
 				// initial resize
-				page.resized();
+				this.resized();
 			}
 		}
 
 		// TODO: dummy navigation handler - just refreshes the page
 		page.cN.navigate = function(url) {
-			
+
 			u.bug("page.navigated");
 			location.href = url;
 
@@ -108,7 +109,7 @@ Util.Objects["page"] = new function() {
 		page.initHeader = function() {
 
 			var janitor = u.ie(this.hN, "ul", {"class":"janitor"});
-			u.ae(janitor, u.qs(".servicenavigation .front", page.hN));
+			u.ae(janitor, u.qs(".servicenavigation .front", this.hN));
 
 			// prepare janitor text for animation
 			var janitor_text = u.qs("li a", janitor);
@@ -136,10 +137,10 @@ Util.Objects["page"] = new function() {
 			}
 
 
-			u.ae(page, u.qs(".servicenavigation", page.hN));
+			u.ae(this, u.qs(".servicenavigation", this.hN));
 
 
-			var sections = u.qsa("ul.navigation > li", page.nN);
+			var sections = u.qsa("ul.navigation > li", this.nN);
 			if(sections.length) {
 				for(i = 0; section = sections[i]; i++) {
 
@@ -229,15 +230,17 @@ Util.Objects["page"] = new function() {
 			}
 
 			// avoid accidental clicking
-			u.ass(page.nN, {
-				"display":"none"
-			});
+			if(this.nN) {
+				u.ass(this.nN, {
+					"display":"none"
+				});
+			}
 
 			if(sections.length && janitor_text) {
 				// enable collapsed navigation
 				if(u.e.event_support == "mouse") {
 
-					u.e.hover(page.hN, {"delay_over":300});
+					u.e.hover(this.hN, {"delay_over":300});
 				
 				}
 				// touch enabled devices should not use hover method
