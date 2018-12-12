@@ -8,11 +8,14 @@ if($page_item) {
 	$this->sharingMetaData($page_item);
 }
 
-$type = session()->value("signup_type");
-$username = session()->value("signup_username");
+// $type = session()->value("signup_type");
+// session()->reset("signup_type");
 
-session()->reset("signup_type");
-session()->reset("signup_username");
+// $username = session()->value("signup_username");
+// session()->reset("signup_username");
+
+$username = session()->value("signup_email");
+session()->reset("signup_email");
 
 ?>
 <div class="scene signup i:scene">
@@ -51,7 +54,7 @@ session()->reset("signup_username");
 	</div>
 <? else:?>
 	<h1>What??</h1>
-	<p>Your <?= $type ?>, <?= $username ?>, could not be verified.</p>
+	<p><?= $username ?> could not be verified.</p>
 <? endif; ?>
 
 </div>

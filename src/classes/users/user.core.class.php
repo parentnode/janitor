@@ -660,104 +660,73 @@ class UserCore extends Model {
 	}
 
 
-
-	// xxx/(email|mobile)/#email|mobile#
-	// 
-	// will only make alterations if username is not already verified and verification code matches
-
-	// TODO: Maybe skip type check - it's not super relevant
-
-	// verification code is altered on success to prevent re-activation 
-	// (which could teoretically lead to re-activation of disabled accounts)
+	// Get relevant user data and check verification before enabling user
 	function confirmUser($action) {
 
-		// does values validate
-		if(count($action) == 4) {
+		$query = new Query();
 
-			$query = new Query();
-			$type = $action[1];
-			$username = $action[2];
-			$verification_code = $action[3];
-
-			// only make alterations if not already verified
-			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE type = '$type' AND username = '$username' AND verified = 0 AND verification_code = '$verification_code'";
-			if($query->sql($sql)) {
-
-				$user_id = $query->result(0, "user_id");
-
-				// update verification state
-				$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND username = '$username'";
-//				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '' WHERE type = '$type' AND username = '$username'";
-//				$sql = "UPDATE ".$this->db_usernames." SET verified = 1, verification_code = '".randomKey(8)."' WHERE type = '$type' AND username = '$username'";
-				if($query->sql($sql)) {
-
-					// enable user
-					$sql = "UPDATE ".$this->db." SET status = 1 WHERE id = $user_id";
-					if($query->sql($sql)) {
-
-						// delete activation reminder logs (not needed after user has been verified)
-						$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id";
-						$query->sql($sql);
-
-
-						global $page;
-						$page->addLog("User->confirmUser: user_id:$user_id");
-
-
-						return true;
-					}
-				}
-			}
-		}
-		// confirmation failed
-		return false;
-	}
-
-
-	// will only make alterations if username is not already verified and verification code matches
-	function confirmAccount($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-		// does values validate
+		// For dynamic verification (getting values from POST and SESSION)
 		if(count($action) == 1) {
 
-			$query = new Query();
-
-			$username = $this->getProperty("username", "value");
+			// Get posted values to make them available for models
+			$this->getPostedEntities();
 			$verification_code = $this->getProperty("verification_code", "value");
 
-			// only make alterations if not already verified
-			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 0 AND verification_code = '$verification_code'";
-			print "$sql<br />\n";
+			$user = $this->getUser();
+			// $user_id = $user["id"];
+			$username = $user["email"];
+			
+		}
+
+		// For static verification (values hardcoded in links)
+		// xxx/(email|mobile)/#email|mobile#
+		else if(count($action) == 3) {
+
+			// TODO: Maybe skip type check - it's not super relevant
+			// $type = $action[1];
+			$username = $action[1];
+			$verification_code = $action[2];
+		
+		}
+
+		// only make alterations if not already verified
+		$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 0 AND verification_code = '$verification_code'";
+		if($query->sql($sql)) {
+
+			// get user_id from sql query
+			$user_id = $query->result(0, "user_id");
+
+			// update verification state
+			$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND username = '$username'";
+
 			if($query->sql($sql)) {
 
-				$user_id = $query->result(0, "user_id");
-
-				// update verification state
-				$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND username = '$username'";
-//				print $sql."<br>\n";
+				// enable user
+				$sql = "UPDATE ".$this->db." SET status = 1 WHERE id = $user_id";
 				if($query->sql($sql)) {
 
-					// enable user
-					$sql = "UPDATE ".$this->db." SET status = 1 WHERE id = $user_id";
-					if($query->sql($sql)) {
+					// delete activation reminder logs (not needed after user has been verified)
+					$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id";
+					$query->sql($sql);
 
-						// delete activation reminder logs (not needed after user has been verified)
-						$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id";
-						$query->sql($sql);
+					global $page;
+					$page->addLog("User->confirmUser: user_id:$user_id");
 
-
-						global $page;
-						$page->addLog("User->confirmAccount: user_id:$user_id");
-
-
-						return $user_id;
-					}
+					return true;
 				}
 			}
 		}
+		else {
+			// If user is already verified
+			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 1 AND verification_code = '$verification_code'";
+
+			if($query->sql($sql)) {
+				global $page;
+				$page->addLog("user->confirmUser: user has already been verified ($username)");
+				return array("status" => "USER_VERIFIED");
+			}
+		}
+
 		// confirmation failed
 		return false;
 	}
