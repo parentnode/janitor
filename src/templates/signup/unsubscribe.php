@@ -26,7 +26,7 @@ if(count($action) == 4) {
 }
 
 ?>
-<div class="scene unsubscribe i:unsubscribe">
+<div class="scene unsubscribe i:unsubscribe i:scene">
 
 <? if($can_unsubscribe): ?>
 	<h1>Unsubscribe</h1>
