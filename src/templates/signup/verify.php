@@ -14,7 +14,8 @@ if($page_item) {
 	<h1>Your account has been created!</h1>
 	<h2>We've sent you a verification email</h2>
 	<p>The email contains a verification code which you can use in the input field below.</p>
-	<p>Alternatively you can skip verifying now, and verify later through a link from the activation email.</p>
+	<p>Alternatively the email also has a link you can use instead to verify.</p>
+	<p>If you don't want to verify now, you can do so later through the link.</p>
 
 	<?= $model->formStart("confirm", ["class" => "verify_code"]) ?>
 
