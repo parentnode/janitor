@@ -268,8 +268,9 @@ class HTMLCore {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
+					$att_compare_to = $this->attribute("data-compare-to", $compare_to);
 
-					$_ .= '<input type="email"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="email"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.$att_compare_to.' />';
 				}
 
 				// TEL
@@ -277,8 +278,9 @@ class HTMLCore {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
+					$att_compare_to = $this->attribute("data-compare-to", $compare_to);
 
-					$_ .= '<input type="tel"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="tel"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.$att_compare_to.' />';
 				}
 
 				// PASSWORD

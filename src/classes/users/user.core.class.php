@@ -104,6 +104,14 @@ class UserCore extends Model {
 			"hint_message" => "Your email",
 			"error_message" => "Invalid email"
 		));
+		// confirm email
+		$this->addToModel("confirm_email", array(
+			"type" => "email",
+			"label" => "Confirm your email",
+			"compare_to" => "email",
+			"hint_message" => "Your email again, to make sure your didin't mistype it.",
+			"error_message" => "Email mismatch"
+		));
 
 		// mobile
 		$this->addToModel("mobile", array(
@@ -111,6 +119,14 @@ class UserCore extends Model {
 			"label" => "Your mobile",
 			"hint_message" => "Write your mobile number",
 			"error_message" => "Invalid number"
+		));
+		// confirm mobile
+		$this->addToModel("confirm_mobile", array(
+			"type" => "tel",
+			"label" => "Confirm your mobile",
+			"compare_to" => "mobile",
+			"hint_message" => "Write your mobile number again, to make sure your didin't mistype it.",
+			"error_message" => "Number mismatch"
 		));
 
 		// password
