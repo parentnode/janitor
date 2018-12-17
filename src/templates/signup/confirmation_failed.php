@@ -18,7 +18,7 @@ $username = session()->value("signup_email");
 session()->reset("signup_email");
 
 ?>
-<div class="scene signup i:scene">
+<div class="scene signup confirm-failed i:scene">
 
 <? if($page_item && $page_item["status"]): 
 	$media = $IC->sliceMedia($page_item); ?>

@@ -728,7 +728,7 @@ class UserCore extends Model {
 					global $page;
 					$page->addLog("User->confirmUser: user_id:$user_id");
 
-					return true;
+					return $user_id;
 				}
 			}
 		}
