@@ -2,7 +2,7 @@
 	
 
 
-class Payments {
+class PaymentGateway {
 
 
 	// Payment gateway settings
