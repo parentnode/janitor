@@ -1198,6 +1198,7 @@ class ShopCore extends Model {
 						$order = $this->getOrders(array("order_no" => $order_no));
 
 
+						$admin_summary = [];
 //						print "items";
 //						print_r($cart["items"]);
 
@@ -1229,6 +1230,7 @@ class ShopCore extends Model {
 								if($query->sql($sql)) {
 
 									// additional tasks
+									$admin_summary[] = $item["name"];
 
 
 									$membership = false;
@@ -1337,7 +1339,7 @@ class ShopCore extends Model {
 						mailer()->send(array(
 							"recipients" => SHOP_ORDER_NOTIFIES,
 							"subject" => SITE_URL . " - New order ($order_no) created by: $user_id",
-							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/shop/order/edit/" . $order["id"],
+							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/shop/order/edit/" . $order["id"] . "\n\nOrder content: ".implode(",", $admin_summary),
 							// "template" => "system"
 						));
 
