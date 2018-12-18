@@ -609,6 +609,13 @@ class UserCore extends Model {
 
 							}
 
+							// itemtype post save handler?
+							// TODO: Consider if failed postSave should have consequences
+							if(method_exists($this, "postSave")) {
+								$this->postSave();
+							}
+
+
 							message()->resetMessages();
 
 							// return enough information to the frontend

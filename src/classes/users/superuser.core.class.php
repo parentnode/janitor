@@ -83,11 +83,20 @@ class SuperUserCore extends User {
 //				print $sql;
 
 				if($query->sql($sql)) {
+
+					$user_id = $query->lastInsertId();
+
+					// itemtype post save handler?
+					// TODO: Consider if failed postSave should have consequences
+					if(method_exists($this, "postSave")) {
+						$this->postSave($user_id);
+					}
+
 					global $page;
-					$page->addLog("User created: user_id:" . $query->lastInsertId() . ", created by: " . session()->value("user_id"));
+					$page->addLog("User created: user_id:" . $user_id . ", created by: " . session()->value("user_id"));
 
 					message()->addMessage("User created");
-					return array("item_id" => $query->lastInsertId());
+					return array("item_id" => $user_id);
 				}
 			}
 		}
