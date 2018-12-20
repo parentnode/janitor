@@ -25,10 +25,21 @@ else if(count($action) == 2 && $maillists) {
 session()->value("return_to_maillistlist", $maillist_id);
 
 if($maillist_id) {
-	$maillist = $this->maillists($maillist_id);
+	$current_maillist = $this->maillists($maillist_id);
 }
 
+// Get count for each maillist
+if($maillists) {
+	foreach($maillists as $i => $maillist) {
+		$list_subscribers = $UC->getMaillists(["maillist_id" => $maillist["id"]]);
+		$maillists[$i]["count"] = $list_subscribers ? count($list_subscribers) : 0;
+	}
+}
+$total_subscribers = $UC->getMaillists();
+
+// Subscribers for current maillist
 $subscribers = $UC->getMaillists($options);
+
 ?>
 <div class="scene i:scene defaultList maillistList">
 	<h1>Maillists</h1>
@@ -36,17 +47,17 @@ $subscribers = $UC->getMaillists($options);
 	<ul class="actions">
 		<?= $HTML->link("Messages", "/janitor/admin/message/", array("class" => "button", "wrapper" => "li.messages")) ?>
 		<?= $HTML->link("New mailing list", "/janitor/admin/message/maillists/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
-		<? if(isset($maillist)): ?>
-		<?= $HTML->link("Download list (".$maillist["name"].")", "/janitor/admin/message/maillists/download/".$maillist_id, array("class" => "button primary", "wrapper" => "li.download")) ?>
+		<? if(isset($current_maillist)): ?>
+		<?= $HTML->link("Download list (".$current_maillist["name"].")", "/janitor/admin/message/maillists/download/".$maillist_id, array("class" => "button primary", "wrapper" => "li.download")) ?>
 		<? endif; ?>
 	</ul>
 
 <?	if($maillists): ?>
 	<ul class="tabs">
 <?		foreach($maillists as $maillist): ?>
-		<?= $HTML->link($maillist["name"].($maillist["id"] == $maillist_id ? " (" . ($subscribers ? count($subscribers) : "0") . ")" : ""), "/janitor/admin/message/maillists/list/".$maillist["id"], array("wrapper" => "li.".($maillist["id"] == $maillist_id ? "selected" : ""))) ?>
+		<?= $HTML->link($maillist["name"]." (" . $maillist["count"] . ")", "/janitor/admin/message/maillists/list/".$maillist["id"], array("wrapper" => "li.".($maillist["id"] == $maillist_id ? "selected" : ""))) ?>
 <?		endforeach; ?>
-		<?= $HTML->link("All". (!$maillist_id ? " (".count($subscribers).")" : ""), "/janitor/admin/message/maillists/list/0", array("wrapper" => "li.".($options === false ? "selected" : ""))) ?>
+		<?= $HTML->link("All (". ($total_subscribers ? count($total_subscribers) : "0").")", "/janitor/admin/message/maillists/list/0", array("wrapper" => "li.".($options === false ? "selected" : ""))) ?>
 	</ul>
 <?	endif; ?>
 
