@@ -662,7 +662,7 @@ u.defaultSelectable = function(div) {
 		// u.bug("checked_inputs:", this.div.checked_inputs.length, "visible_inputs:", this.div.visible_inputs.length)
 
 		// all is selected
-		if(this.div.checked_inputs.length == this.div.visible_inputs.length) {
+		if(this.div.checked_inputs.length && this.div.checked_inputs.length == this.div.visible_inputs.length) {
 
 			this._text.innerHTML = "Deselect all";
 			u.rc(this, "deselect");
