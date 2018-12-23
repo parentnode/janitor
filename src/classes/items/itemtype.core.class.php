@@ -128,8 +128,8 @@ class ItemtypeCore extends Model {
 
 
 						// itemtype post delete handler?
-						if(method_exists($this, "postDelete")) {
-							$this->postDelete($item_id);
+						if(method_exists($this, "deleted")) {
+							$this->deleted($item_id);
 						}
 
 
