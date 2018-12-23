@@ -357,8 +357,8 @@ class ItemtypeCore extends Model {
 
 						// itemtype post save handler?
 						// TODO: Consider if failed postSave should have consequences
-						if(method_exists($this, "postSave")) {
-							$this->postSave($item_id);
+						if(method_exists($this, "saved")) {
+							$this->saved($item_id);
 						}
 
 						// add log

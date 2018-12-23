@@ -53,7 +53,7 @@ class TypeTodolist extends Itemtype {
 
 
 	// enable and add tag on save
-	function postSave($item_id) {
+	function saved($item_id) {
 
 		// enable item
 		$this->status(array("status", $item_id, 1));

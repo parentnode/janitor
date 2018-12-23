@@ -96,7 +96,7 @@ class TypeTodo extends Itemtype {
 	// internal helper functions
 
 	// add todolist tag after save (if todo was created from todolist)
-	function postSave($item_id) {
+	function saved($item_id) {
 
 		// add todolist tag if created from within todolist
 		$return_to_todolist = session()->value("return_to_todolist");

@@ -72,7 +72,7 @@ class TypeWish extends Itemtype {
 	// internal helper functions
 
 	// add wishlist tag after save (if wish was created from wishlist)
-	function postSave($item_id) {
+	function saved($item_id) {
 
 		$return_to_wishlist = session()->value("return_to_wishlist");
 		if($return_to_wishlist) {

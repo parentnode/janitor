@@ -88,8 +88,8 @@ class SuperUserCore extends User {
 
 					// itemtype post save handler?
 					// TODO: Consider if failed postSave should have consequences
-					if(method_exists($this, "postSave")) {
-						$this->postSave($user_id);
+					if(method_exists($this, "saved")) {
+						$this->saved($user_id);
 					}
 
 					global $page;

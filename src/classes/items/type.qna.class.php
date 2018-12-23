@@ -59,7 +59,7 @@ class TypeQna extends Itemtype {
 	// custom loopback function
 
 	// update name based on question
-	function postSave($item_id) {
+	function saved($item_id) {
 
 		$IC = new Items();
 		$item = $IC->getItem(["id" => $item_id, "extend" => true]);
