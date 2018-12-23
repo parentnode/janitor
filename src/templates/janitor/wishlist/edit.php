@@ -28,7 +28,7 @@ session()->value("return_to_wishlist", $item_id);
 	<ul class="actions i:defaultEditActions">
 		<?= $model->link("Back to overview", "/janitor/admin/wish/list", array("class" => "button", "wrapper" => "li.cancel")); ?>
 		<?= $model->link("New wish", "/janitor/admin/wish/new", array("class" => "button primary", "wrapper" => "li.new")); ?>
-		<?= $JML->oneButtonForm("Delete me", "/janitor/admin/wishlist/delete/".$item["id"], array(
+		<?= $JML->oneButtonForm("Delete wishlist", "/janitor/admin/wishlist/delete/".$item["id"], array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/wish/list"
 		)) ?>
