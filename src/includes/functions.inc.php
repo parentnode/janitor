@@ -5,6 +5,25 @@
 * @package Functions
 */
 
+
+function debug($vars, $output = "print") {
+	if(!is_array($vars)) {
+		$vars = [$vars];
+	}
+	foreach($vars as $var) {
+
+		if($output == "file") {
+			writeToFile($var);
+		}
+		else {
+			print_r($var);
+			print "<br />\n";
+		}
+		
+	}
+}
+
+
 /**
 * Include additional functions
 */
