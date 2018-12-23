@@ -110,8 +110,8 @@ class ItemtypeCore extends Model {
 				$pre_delete_state = true;
 
 				// itemtype pre delete handler?
-				if(method_exists($this, "preDelete")) {
-					$pre_delete_state = $this->preDelete($item_id);
+				if(method_exists($this, "deleting")) {
+					$pre_delete_state = $this->deleting($item_id);
 				}
 
 				// pre delete state allows full delete

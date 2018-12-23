@@ -78,7 +78,7 @@ class TypeWishlist extends Itemtype {
 	// internal helper functions
 
 	// delete wishlist tag, when wishlist is deleted
-	function preDelete($item_id) {
+	function deleting($item_id) {
 
 		$IC = new Items();
 

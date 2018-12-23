@@ -67,7 +67,7 @@ class TypeTodolist extends Itemtype {
 
 
 	// delete todolist tag, when todolist is deleted
-	function preDelete($item_id) {
+	function deleting($item_id) {
 
 		$IC = new Items();
 		$todolist_tag = $IC->getTags(array("item_id" => $item_id, "context" => "todolist"));
