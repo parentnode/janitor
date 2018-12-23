@@ -497,8 +497,8 @@ class ItemtypeCore extends Model {
 					// itemtype post update handler?
 					// TODO: Consider if failed postSave should have consequences
 					// TODO: risky - can cause endless loop - if postUpdate, makes update, makes update, makes update
-					if(method_exists($this, "postUpdate")) {
-						$this->postUpdate($item_id);
+					if(method_exists($this, "updated")) {
+						$this->updated($item_id);
 					}
 
 					// add log
