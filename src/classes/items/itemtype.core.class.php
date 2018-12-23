@@ -314,7 +314,16 @@ class ItemtypeCore extends Model {
 						// - are files, tags, prices, comments and ratings all external features or integrated parts of an Item
 
 						$names[] = $name;
-						$values[] = $name."='".$entity["value"]."'";
+
+						// if value is posted
+						if($entity["value"]) {
+							$values[] = $name."='".$entity["value"]."'";
+						}
+						// no value is posted – reset to default value
+						else {
+							$values[] = $name."=DEFAULT";
+						}
+
 					}
 				}
 
@@ -448,7 +457,14 @@ class ItemtypeCore extends Model {
 					// - are files, tags, prices, comments and ratings all external features or integrated parts of an Item
 
 					$names[] = $name;
-					$values[] = $name."='".$entity["value"]."'";
+					// if value is posted 
+					if($entity["value"]) {
+						$values[] = $name."='".$entity["value"]."'";
+					}
+					// no value is posted – reset to default value
+					else {
+						$values[] = $name."=DEFAULT";
+					}
 				}
 			}
 
