@@ -1562,114 +1562,123 @@ class ItemtypeCore extends Model {
 //				$temp_extension = mimetypeToExtension($temp_type);
 				$upload["type"] = $temp_type;
 
-					// define variant value
-					if($auto_add_variant) {
-						$upload["variant"] = "HTML-".randomKey(8);
-						$variant = "/".$upload["variant"];
-					}
-					else if($_variant) {
-						$upload["variant"] = $_variant;
-						$variant = "/".$upload["variant"];
-					}
-					else {
-						$variant = "";
-						$upload["variant"] = $_variant;
-					}
+				// define variant value
+				if($auto_add_variant) {
+					$upload["variant"] = "HTML-".randomKey(8);
+					$variant = "/".$upload["variant"];
+				}
+				else if($_variant) {
+					$upload["variant"] = $_variant;
+					$variant = "/".$upload["variant"];
+				}
+				else {
+					$variant = "";
+					$upload["variant"] = $_variant;
+				}
 
-					// pdf upload
-					if(preg_match("/pdf/", $temp_type)) {
+				// pdf upload
+				if(preg_match("/pdf/", $temp_type)) {
 
-						$upload["format"] = "pdf";
+					$upload["format"] = "pdf";
 
-						$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
-						$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40)).".pdf";
-						
+					$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
+					$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40)).".pdf";
+					
 
-						$fs->removeDirRecursively(dirname($output_file));
-						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+					$fs->removeDirRecursively(dirname($output_file));
+					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
 
-						$fs->makeDirRecursively(dirname($output_file));
-						$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+					$fs->makeDirRecursively(dirname($output_file));
+					$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
 
-						copy($temp_file, $output_file);
-						copy($temp_file, $public_file);
+					copy($temp_file, $output_file);
+					copy($temp_file, $public_file);
 
-						$upload["name"] = basename($public_file);
-						$upload["filesize"] = filesize($public_file);
-						$upload["file"] = $output_file;
-						$uploads[] = $upload;
+					$upload["name"] = basename($public_file);
+					$upload["filesize"] = filesize($public_file);
+					$upload["file"] = $output_file;
+					$uploads[] = $upload;
 
-						unlink($temp_file);
+					unlink($temp_file);
 //						unlink($output_file);
 
-						message()->addMessage("PDF uploaded (".$upload["name"].")");
+					message()->addMessage("PDF uploaded (".$upload["name"].")");
 
-					}
-					// zip upload
-					else if(preg_match("/zip/", $temp_type)) {
+				}
+				// zip upload
+				else if(preg_match("/zip/", $temp_type)) {
 
-						$upload["format"] = "zip";
+					$upload["format"] = "zip";
 
-						$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
-						$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40)).".zip";
-						
+					$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
+					$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40)).".zip";
+					
 
-						$fs->removeDirRecursively(dirname($output_file));
-						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+					$fs->removeDirRecursively(dirname($output_file));
+					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
 
-						$fs->makeDirRecursively(dirname($output_file));
-						$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+					$fs->makeDirRecursively(dirname($output_file));
+					$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
 
-						copy($temp_file, $output_file);
-						copy($temp_file, $public_file);
+					copy($temp_file, $output_file);
+					copy($temp_file, $public_file);
 
-						$upload["name"] = basename($public_file);
-						$upload["filesize"] = filesize($public_file);
-						$upload["file"] = $output_file;
-						$uploads[] = $upload;
+					$upload["name"] = basename($public_file);
+					$upload["filesize"] = filesize($public_file);
+					$upload["file"] = $output_file;
+					$uploads[] = $upload;
 
-						unlink($temp_file);
+					unlink($temp_file);
 //						unlink($output_file);
 
-						message()->addMessage("ZIP uploaded (".$upload["name"].")");
+					message()->addMessage("ZIP uploaded (".$upload["name"].")");
 
-					}
-					// not PDF or ZIP, zip it for download
-					else {
+				}
+				// not PDF or ZIP, zip it for download
+				else {
 
-						$upload["format"] = "zip";
+					$upload["format"] = "zip";
 
-						$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"] ;
-						$zip_name = superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40));
-						$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".$zip_name.".zip";
+					$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"] ;
+					$zip_name = superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40));
+					$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".$zip_name.".zip";
 
-						$fs->removeDirRecursively(dirname($output_file));
-						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+					// Replace uploaded file with zipped result to avoid having different file formats for PUBLIC and PRIVATE folders
+					$private_file_zipped = PRIVATE_FILE_PATH."/".$item_id.$variant."/zip";
 
-						$fs->makeDirRecursively(dirname($output_file));
-						$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
+					$fs->removeDirRecursively(dirname($output_file));
+					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
 
-						
-						copy($temp_file, $output_file);
+					$fs->makeDirRecursively(dirname($output_file));
+					$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
 
-	//					print "create new zip:" . $zip_file . "<br>";
+					
+					copy($temp_file, $output_file);
 
-						$zip = new ZipArchive();
-						$zip->open($public_file, ZipArchive::CREATE);
-						$zip->addFile($output_file, basename($output_file));
-						$zip->close();
+//					print "create new zip:" . $zip_file . "<br>";
 
-						$upload["filesize"] = filesize($public_file);
-						$upload["file"] = $public_file;
-						$upload["name"] = basename($public_file);
-						$uploads[] = $upload;
+					$zip = new ZipArchive();
+					$zip->open($public_file, ZipArchive::CREATE);
+					$zip->addFile($output_file, basename($output_file));
+					$zip->close();
 
-						unlink($temp_file);
+
+					// Replace private file with zipped version
+					copy($public_file, $private_file_zipped);
+					unlink($output_file);
+
+
+					$upload["filesize"] = filesize($public_file);
+					$upload["file"] = $public_file;
+					$upload["name"] = basename($public_file);
+					$uploads[] = $upload;
+
+					unlink($temp_file);
 //						unlink($output_file);
 
-						message()->addMessage("File uploaded (".$upload["name"].")");
+					message()->addMessage("File uploaded (".$upload["name"].")");
 
-					}
+				}
 
 			}
 			// file group error
@@ -1816,7 +1825,8 @@ class ItemtypeCore extends Model {
 
 					// bulk items price can only exist once for specific quantity
 					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type = '$type' AND quantity = $quantity";
-//					print $sql;
+					// debug($sql);
+
 					if($query->sql($sql)) {
 						message()->addMessage("Item already has bulk price for this type, currency and quantity", array("type" => "error"));
 						return false;
@@ -1826,7 +1836,8 @@ class ItemtypeCore extends Model {
 				else {
 					// default and offer price can only exist once for an item
 					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type = '$type'";
-//					print $sql;
+					// debug($sql);
+
 					if($query->sql($sql)) {
 						message()->addMessage("Item already has price for this type and currency", array("type" => "error"));
 						return false;
@@ -1839,7 +1850,8 @@ class ItemtypeCore extends Model {
 				$price = preg_replace("/,/", ".", $price);
 
 				$sql = "INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', $vatrate, '$type', $quantity)";
-//				print $sql;
+				// debug($sql);
+
 				if($query->sql($sql)) {
 					message()->addMessage("Price added");
 
