@@ -559,14 +559,18 @@ class ItemtypeCore extends Model {
 		if(count($action) == 2) {
 			$item_id = $action[1];
 
-			$item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true)));
+			$item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true, "prices" => true, "subscription_method" => true)));
 
 			if($item) {
 				$query = new Query();
+				$fs = new FileSystem();
 
 				unset($_POST);
+				// Compile new POST array for item
 				foreach($item as $property => $value) {
 					if(is_string($value) && !preg_match("/^(id|status|sindex|itemtype|user_id|item_id|published_at|created_at|modified_at|tags|mediae)$/", $property)) {
+
+						// Add value to POST array
 						$_POST[$property] = $value;
 					}
 				}
@@ -577,7 +581,10 @@ class ItemtypeCore extends Model {
 				$cloned_item = $this->save(["save"]);
 				unset($_POST);
 
+				// Did we succeed in creating duplicate item
 				if($cloned_item) {
+
+					$new_item_id = $cloned_item["id"];
 
 					// add tags
 					if($item["tags"]) {
@@ -585,15 +592,199 @@ class ItemtypeCore extends Model {
 
 							unset($_POST);
 							$_POST["tags"] = $tag["id"];
-							$this->addTag(array("addTags", $cloned_item["id"]));
+							$this->addTag(array("addTags", $new_item_id));
 							unset($_POST);
 
 						}
 					}
 
+
+					// Add prices
+					if($item["prices"]) {
+
+						foreach($item["prices"] as $price) {
+
+							// Get full price data set
+							$sql = "SELECT * FROM ".UT_ITEMS_PRICES." WHERE id = ".$price["id"];
+							if($query->sql($sql)) {
+								$complete_price = $query->result(0);
+
+								// Create insert statement
+								$sql = "INSERT INTO ".UT_ITEMS_PRICES." SET ";
+								$sql .= "item_id='".$new_item_id."',";
+			
+								$sql .= "price='".$complete_price["price"]."',";
+								$sql .= "currency='".$complete_price["currency"]."',";
+								$sql .= "type='".$complete_price["type"]."',";
+								$sql .= "vatrate_id='".$complete_price["vatrate_id"]."'";
+
+								if($complete_price["type"] === "bulk") {
+									$sql .= ",quantity='".$complete_price["quantity"]."'";
+								}
+
+								// Insert price
+								$query->sql($sql);
+
+							}
+
+						}
+
+					}
+
+
+					// Add subscription method
+					if($item["subscription_method"]) {
+
+						unset($_POST);
+						$_POST["item_subscription_method"] = $item["subscription_method"]["subscription_method_id"];
+						$this->updateSubscriptionMethod(array("updateSubscriptionMethod", $new_item_id));
+						unset($_POST);
+
+					}
+
+
+					// Copy/add "static" mediae
+					if($item["mediae"]) {
+						
+						foreach($item["mediae"] as $media) {
+
+							// Create insert statement
+							$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+							$sql .= "item_id='".$new_item_id."',";
+							
+							$sql .= "name='".$media["name"]."',";
+							$sql .= "format='".$media["format"]."',";
+							$sql .= "variant='".$media["variant"]."',";
+							$sql .= "width='".$media["width"]."',";
+							$sql .= "height='".$media["height"]."',";
+							$sql .= "filesize='".$media["filesize"]."',";
+							$sql .= "position=".$media["position"];
+
+							// Insert media
+							if($query->sql($sql)) {
+
+								// Copy media
+								$fs->copy(
+									PRIVATE_FILE_PATH."/".$media["item_id"].($media["variant"] ? "/".$media["variant"] : "")."/".$media["format"], 
+									PRIVATE_FILE_PATH."/".$new_item_id.($media["variant"] ? "/".$media["variant"] : "")."/".$media["format"]
+								);
+
+							}
+
+						}
+
+					}
+
+					// Copy/add "dynamic" mediae
+					// We need model to find HTML input types
+					$model = $IC->typeObject($item["itemtype"]);
+
+					// Prepare POST array for updating HTML
+					unset($_POST);
+
+
+					// Look for media/files in HTML fields
+					// – HTML must be updated and content must be copied to new item
+					foreach($item as $property => $value) {
+						if(is_string($value) && !preg_match("/^(id|status|sindex|itemtype|user_id|item_id|published_at|created_at|modified_at|tags|mediae)$/", $property)) {
+
+							// Type is HTML
+							if($model->getProperty($property, "type") === "html") {
+
+								// Look for media div's
+								preg_match_all("/\<div class\=\"(media|file) item_id\:[\d]+ variant\:HTML-[A-Za-z0-9]+ name/", $value, $mediae_matches);
+								if($mediae_matches) {
+
+									// Loop over media div's
+									foreach($mediae_matches[0] as $media_match) {
+
+										// debug($media_match);
+
+										preg_match("/(file|media) item_id\:([\d]+) variant\:(HTML-[A-Za-z0-9]+)/", $media_match, $media_details);
+										if($media_details) {
+											// Get item_id and variant for each embedded media
+											list(,$type, $old_item_id, $old_variant) = $media_details;
+
+
+											// Get full media data set
+											$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $old_item_id AND variant = '$old_variant'";
+											if($query->sql($sql)) {
+												$media = $query->result(0);
+
+
+												$new_variant = "HTML-".randomKey(8);
+
+
+												// Create insert statement
+												$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+												$sql .= "item_id='".$new_item_id."',";
+							
+												$sql .= "name='".$media["name"]."',";
+												$sql .= "format='".$media["format"]."',";
+												$sql .= "variant='".$new_variant."',";
+												$sql .= "width='".$media["width"]."',";
+												$sql .= "height='".$media["height"]."',";
+												$sql .= "filesize='".$media["filesize"]."',";
+												$sql .= "position=".$media["position"];
+
+												// debug($sql);
+
+												// Insert media
+												if($query->sql($sql)) {
+
+													// Update HTML block
+													// Div properties
+													$value = str_replace("item_id:$old_item_id variant:$old_variant", "item_id:$new_item_id variant:$new_variant", $value);
+													// a-href link
+													$value = str_replace("/$old_item_id/$old_variant/", "/$new_item_id/$new_variant/", $value);
+
+													// Add to POST array
+													$_POST[$property] = $value;
+
+													// Copy private media
+													$fs->copy(
+														PRIVATE_FILE_PATH."/".$old_item_id."/".$old_variant, 
+														PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant
+													);
+
+													// Extra action for files
+													if($type === "file") {
+
+														// Copy public files (because public zip/pdf files are not yet auto re-generated)
+														$fs->copy(
+															PUBLIC_FILE_PATH."/".$old_item_id."/".$old_variant, 
+															PUBLIC_FILE_PATH."/".$new_item_id."/".$new_variant
+														);
+
+													}
+
+												}
+
+											}
+
+										}
+
+									}
+
+								}
+
+							}
+
+						}
+
+					}
+
+					// Do we have update HTML values
+					if(isset($_POST)) {
+						// Update item
+						$this->update(["update", $cloned_item["id"]]);
+					}
+					unset($_POST);
+
+
 					message()->addMessage("Item duplicated");
 
-					// get and return new device (id will be used to redirect to new device page)
+					// get and return new device (id will be used to redirect to new item page)
 					$item = $IC->getItem(array("id" => $cloned_item["id"]));
 					return $item;
 
@@ -602,6 +793,9 @@ class ItemtypeCore extends Model {
 			}
 
 		}
+
+		message()->addMessage("Item could not be duplicated", ["type" => "error"]);
+		return false;
 	}
 
 
