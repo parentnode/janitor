@@ -1260,7 +1260,7 @@ class UserCore extends Model {
 					$reset_token = randomKey(24);
 
 					// insert reset token
-					$sql = "INSERT INTO ".$this->db_password_reset_tokens." VALUES(DEFAULT, $user_id, '$reset_token', '".date("Y-m-d H:i:s", strtotime("+15 minutes"))."')";
+					$sql = "INSERT INTO ".$this->db_password_reset_tokens." VALUES(DEFAULT, $user_id, '$reset_token', '".date("Y-m-d H:i:s")."')";
 					if($query->sql($sql)) {
 
 
@@ -1362,7 +1362,8 @@ class UserCore extends Model {
 	function cleanUpResetRequests() {
 
 		$query = new Query();
-		$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE created_at < NOW()";
+
+		$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE created_at < '".date("Y-m-d H:i:s", strtotime("-15 minutes"))."'";
 		$query->sql($sql);
 
 	}
@@ -1381,7 +1382,7 @@ class UserCore extends Model {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
