@@ -1697,13 +1697,13 @@ class SuperUserCore extends User {
 				$user_id = $action[1];
 				// get all user subscriptions where expires_at is now
 				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURDATE() AND user_id = $user_id";
-				print $sql;
+				debug($sql);
 			}
 			// renew for all users
 			else {
 				// get all user subscriptions where expires_at is now
 				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURDATE()";
-				print $sql;
+				debug($sql);
 			}
 
 
@@ -1714,56 +1714,72 @@ class SuperUserCore extends User {
 
 					// get item with subscription method
 					$item = $IC->getItem(["id" => $subscription["item_id"], "extend" => ["subscription_method" => true]]);
-					// Calculate new expiry
-					$new_expiry = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
-					$price = $SC->getPrice($item["item_id"], array("quantity" => 1));
 
-					// add order
-					$_POST["user_id"] = $subscription["user_id"];
-					if($item["itemtype"] == "membership") {
-						$_POST["order_comment"] = "Membership renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
+					// debug([$item]);
+
+					// Is expiry relevant (does item still require renewal)
+					if($item && $item["subscription_method"] && $item["subscription_method"]["duration"] != "*") {
+
+						// Calculate new expiry
+						$new_expiry = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
+						$price = $SC->getPrice($item["item_id"], array("quantity" => 1));
+
+						// add order
+						$_POST["user_id"] = $subscription["user_id"];
+						if($item["itemtype"] == "membership") {
+							$_POST["order_comment"] = "Membership renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
+						}
+						else {
+							$_POST["order_comment"] = "Subscription renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
+						}
+						$order = $SC->addOrder(array("addOrder"));
+						unset($_POST);
+
+
+						// add item to order
+						// adding a membership to an order will automatically change the membership to match the new order
+						$_POST["quantity"] = 1;
+						$_POST["item_id"] = $item["id"];
+						$_POST["item_price"] = $price["price"];
+						$_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
+						$_POST["subscription_renewal"] = 1;
+						$order = $SC->addToOrder(array("addToOrder", $order["id"]));
+						unset($_POST);
+
+
+						if($order) {
+
+
+							// CONSIDER: if payment method is stripe and we have the stripe customer_id, then charge the order directly
+
+
+							$page->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
+
+						}
+						// Failed to update subscription
+						else {
+
+							mailer()->send(array(
+								"subject" => SITE_URL . " - Subscription renewal failed",
+								"message" => "SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"],
+								"template" => "system"
+							));
+
+
+							$page->addLog("SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
+
+						}
+
 					}
+					// expiry irrelevant (item no longer expires) - remove old expires_at timestamp
 					else {
-						$_POST["order_comment"] = "Subscription renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
-					}
-					$order = $SC->addOrder(array("addOrder"));
-					unset($_POST);
 
-
-					// add item to order
-					// adding a membership to an order will automatically change the membership to match the new order
-					$_POST["quantity"] = 1;
-					$_POST["item_id"] = $item["id"];
-					$_POST["item_price"] = $price["price"];
-					$_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
-					$_POST["subscription_renewal"] = 1;
-					$order = $SC->addToOrder(array("addToOrder", $order["id"]));
-					unset($_POST);
-
-
-					if($order) {
-
-
-						// CONSIDER: if payment method is stripe and we have the stripe customer_id, then charge the order directly
-
-
-						$page->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
+						$sql = "UPDATE ".$this->db_subscriptions." SET expires_at = NULL WHERE id = ".$subscription["id"];
+						// debug($sql);
+						$query->sql($sql);
 
 					}
-					// Failed to update subscription
-					else {
 
-						mailer()->send(array(
-							"subject" => SITE_URL . " - Subscription renewal failed",
-							"message" => "SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"],
-							"template" => "system"
-						));
-
-
-						$page->addLog("SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
-
-					}
-	
 				}
 
 			}
