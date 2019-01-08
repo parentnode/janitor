@@ -9,7 +9,7 @@
 #content .scene div.togglable > h4,
 #content .scene li.togglable > h2,
 #content .scene li.togglable > h3,
-#content .scene li.togglable > h4 {position: relative;}
+#content .scene li.togglable > h4 {position: relative; cursor: ns-resize;}
 #content .scene div.togglable > h2 svg,
 #content .scene div.togglable > h3 svg,
 #content .scene div.togglable > h4 svg,
