@@ -437,9 +437,23 @@ class Model extends HTML {
 
 		// is optional and empty?
 		// if value is not empty - it needs to be validated even for optional entities
-		if(!$this->getProperty($name, "required") && $this->getProperty($name, "value") == "") {
+		// NOTO: Also work with unchecked checkboxes, where value is 0 (MAK 2019-01-25 – check for unforseen consequences)
+		// if(!$this->getProperty($name, "required") && $this->getProperty($name, "value") == "") {
+		if(!$this->getProperty($name, "required") && 
+			(
+				$this->getProperty($name, "value") == "" 
+				|| 
+				// Special case for checkbox
+				(
+					$this->getProperty($name, "type") == "checkbox"
+					&& 
+					$this->getProperty($name, "value") === "0"
+				)
+			)
+		) {
 			return true;
 		}
+
 
 		// string or text field
 		if(
