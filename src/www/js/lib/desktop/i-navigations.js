@@ -66,15 +66,16 @@ Util.Objects["navigationNodes"] = new function() {
 //					var = u.qs("li.delete", node);
 					u.bug("look for children")
 
+					node.form = u.qs("form", node);
 					if(node.bn_delete && node.form) {
 						// form = u.qs("form", action);
 						// if(form) {
 							if(u.qs("ul.items li.item", node)) {
 								u.bug("has children")
-								u.ac(form.confirm_submit_button, "disabled");
+								u.ac(node.form.confirm_submit_button, "disabled");
 							}
 							else {
-								u.rc(form.confirm_submit_button, "disabled");
+								u.rc(node.form.confirm_submit_button, "disabled");
 							}
 //						}
 					}
