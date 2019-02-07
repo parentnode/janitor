@@ -60,7 +60,7 @@ class PageCore {
 
 		// set guest user group if no user group is defined (user is not logged in)
 		if(!session()->value("user_group_id")) {
-			session()->value("user_group_id", 1);
+			session()->value("user_group_id", -1);
 			session()->value("user_id", 1);
 			session()->value("csrf", gen_uuid());
 			session()->value("site", SITE_URL);
@@ -1215,7 +1215,18 @@ class PageCore {
 
 				$dev = session()->value("dev");
 				$segment = session()->value("segment");
+				$user_group_id = session()->value("user_group_id");
+				$username = session()->value("temp-username");
 
+				if ($user_group_id > 0) {
+					$query = new Query();
+					$sql = "SELECT user_group FROM ".SITE_DB.".user_groups WHERE id = ".$user_group_id;
+
+					if($query->sql($sql)) {
+						$results = $query->results();
+						$user_group_name = $results[0]["user_group"];
+					}
+				}
 
 				session()->reset();
 
@@ -1223,7 +1234,13 @@ class PageCore {
 				session()->value("login_forward", $this->url);
 				session()->value("dev", $dev);
 				session()->value("segment", $segment);
+				session()->value("temp-username", $username);
 
+				if ($user_group_id >= 0) {
+					message()->addMessage("Your User Group (".$user_group_name.") has no permissions, please contact administration.", ["type"=>"error"]);
+				} else {
+					message()->addMessage("Your Session Has Expired. Please login Again", ["type"=>"error"]);
+				}
 
 				// redirect to login
 				header("Location: /login");
@@ -1609,6 +1626,7 @@ class PageCore {
 						session()->value("user_group_id", intval($query->result(0, "user_group_id")));
 						session()->value("user_nickname", $query->result(0, "nickname"));
 						session()->value("last_login_at", date("Y-m-d H:i:s"));
+						session()->value("temp-username", $username);
 						session()->reset("user_group_permissions");
 
 						// Update login timestamp
