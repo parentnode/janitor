@@ -22,7 +22,7 @@ function recurseNodes($nodes) {
 
 	foreach($nodes as $node) {
 
-		$att_class = $HTML->attribute("class", "item draggable node_id:".$node["id"], $node["classname"]);
+		$att_class = $HTML->attribute("class", "item draggable item_id:".$node["id"], $node["classname"]);
 		$_ .= '<li'.$att_class.'>';
 		$_ .= '<div class="drag"></div>';
 		$_ .= '<h3>'.$node["name"].'</h3>';
