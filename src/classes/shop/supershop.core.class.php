@@ -1436,7 +1436,8 @@ class SuperShopCore extends Shop {
 		//				print_r($price);
 
 						$unit_price = $item_price;
-						$unit_vat = $item_price*($price["vatrate"]/100);
+						$unit_vat = $item_price * (1 - (1 / (1 + ($price["vatrate"]/100))));
+
 						$total_price = $unit_price * $quantity;
 						$total_vat = $unit_vat * $quantity;
 
