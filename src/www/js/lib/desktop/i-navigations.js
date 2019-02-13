@@ -66,17 +66,14 @@ Util.Objects["navigationNodes"] = new function() {
 //					var = u.qs("li.delete", node);
 					u.bug("look for children")
 
-					if(node.bn_delete && node.form) {
-						// form = u.qs("form", action);
-						// if(form) {
-							if(u.qs("ul.items li.item", node)) {
-								u.bug("has children")
-								u.ac(form.confirm_submit_button, "disabled");
-							}
-							else {
-								u.rc(form.confirm_submit_button, "disabled");
-							}
-//						}
+					// disable delete buttons for nodes with children
+					var child_nodes = u.qs("ul.items li.item", node);
+					var bn_delete_input =  u.qs("ul.actions li.delete input[type=submit]", node);
+					if(child_nodes && bn_delete_input) {
+						u.ac(bn_delete_input, "disabled");
+					}
+					else {
+						u.rc(bn_delete_input, "disabled");
 					}
 				}
 			}
