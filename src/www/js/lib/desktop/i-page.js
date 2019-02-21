@@ -101,7 +101,7 @@ Util.Objects["page"] = new function() {
 		// TODO: dummy navigation handler - just refreshes the page
 		page.cN.navigate = function(url) {
 
-			u.bug("page.navigated");
+			u.bug("page.navigated:", url);
 			location.href = url;
 
 		}
