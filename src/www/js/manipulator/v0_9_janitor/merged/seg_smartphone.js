@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.2-janitor Copyright 2018 http://manipulator.parentnode.dk
-js-merged @ 2018-11-23 18:55:48
+js-merged @ 2019-02-08 09:50:48
 */
 
 /*seg_smartphone_include.js*/
@@ -498,7 +498,7 @@ Util.cookieReference = function(node, _options) {
 				classname = classname.replace(regex, " ").replace(/[ ]{2,4}/, " ");
 			}
 			if(ignore_classvars) {
-				classname = classname.replace(/(^| )[a-zA-Z_]+\:[\?\=\w\/\\#~\:\.\,\+\&\%\@\!\-]+(^| )/g, " ").replace(/[ ]{2,4}/g, " ");
+				classname = classname.replace(/\b[a-zA-Z_]+\:[\?\=\w\/\\#~\:\.\,\+\&\%\@\!\-]+\b/g, "").replace(/[ ]{2,4}/g, " ");
 			}
 			node_identifier = node.nodeName+"."+classname.trim().replace(/ /g, ".");
 		}
@@ -1017,18 +1017,14 @@ u.easings = new function() {
 /*u-events.js*/
 Util.Events = u.e = new function() {
 	this.event_pref = typeof(document.ontouchmove) == "undefined" || (navigator.maxTouchPoints > 1 && navigator.userAgent.match(/Windows/i)) ? "mouse" : "touch";
-	if(navigator.maxTouchPoints > 1) {
-		if((typeof(document.ontouchmove) == "undefined" && typeof(document.onmousemove) == "undefined") || (document.ontouchmove === null && document.onmousemove === null)) {
-			this.event_support = "multi";
-		}
+    if (navigator.userAgent.match(/Windows/i) && ((obj(document.ontouchmove) && obj(document.ontouchmove)) || (fun(document.ontouchmove) && fun(document.ontouchmove)))) {
+        this.event_support = "multi";
+    }
+    else if (obj(document.ontouchmove) || fun(document.ontouchmove)) {
+		this.event_support = "touch";
 	}
-	if(!this.event_support) {
-		if(typeof(document.ontouchmove) == "undefined") {
-			this.event_support = "mouse";
-		}
-		else {
-			this.event_support = "touch";
-		}
+	else {
+		this.event_support = "mouse";
 	}
 	this.events = {
 		"mouse": {
@@ -1057,7 +1053,7 @@ Util.Events = u.e = new function() {
 			node.addEventListener(type, action, false);
 		}
 		catch(exception) {
-			alert("exception in addEvent:" + node + "," + type + ":" + exception);
+			u.exception("u.e.addEvent", arguments, exception);
 		}
 	}
 	this.removeEvent = function(node, type, action) {
@@ -1065,7 +1061,7 @@ Util.Events = u.e = new function() {
 			node.removeEventListener(type, action, false);
 		}
 		catch(exception) {
-			u.bug("exception in removeEvent:" + node + "," + type + ":" + exception);
+			u.exception("u.e.removeEvent", arguments, exception);
 		}
 	}
 	this.addStartEvent = this.addDownEvent = function(node, action) {
@@ -1163,6 +1159,8 @@ Util.Events = u.e = new function() {
 		u.t.resetTimer(node.t_clicked);
 		this.removeEvent(node, "mouseup", this._dblclicked);
 		this.removeEvent(node, "touchend", this._dblclicked);
+		this.removeEvent(node, "mouseup", this._rightclicked);
+		this.removeEvent(node, "touchend", this._rightclicked);
 		this.removeEvent(node, "mousemove", this._cancelClick);
 		this.removeEvent(node, "touchmove", this._cancelClick);
 		this.removeEvent(node, "mouseout", this._cancelClick);
@@ -1192,35 +1190,49 @@ Util.Events = u.e = new function() {
 		this.move_last_x = 0;
 		this.move_last_y = 0;
 		this.swiped = false;
-		if(this.e_click || this.e_dblclick || this.e_hold) {
-			if(event.type.match(/mouse/)) {
-				var node = this;
-				while(node) {
-					if(node.e_drag || node.e_swipe) {
-						u.e.addMoveEvent(this, u.e._cancelClick);
-						break;
+		if(!event.button) {
+			if(this.e_click || this.e_dblclick || this.e_hold) {
+				if(event.type.match(/mouse/)) {
+					var node = this;
+					while(node) {
+						if(node.e_drag || node.e_swipe) {
+							u.e.addMoveEvent(this, u.e._cancelClick);
+							break;
+						}
+						else {
+							node = node.parentNode;
+						}
 					}
-					else {
-						node = node.parentNode;
-					}
+					u.e.addEvent(this, "mouseout", u.e._cancelClick);
 				}
-				u.e.addEvent(this, "mouseout", u.e._cancelClick);
+				else {
+					u.e.addMoveEvent(this, u.e._cancelClick);
+				}
+				u.e.addMoveEvent(this, u.e._move);
+				u.e.addEndEvent(this, u.e._dblclicked);
+				if(this.e_hold) {
+					this.t_held = u.t.setTimer(this, u.e._held, 750);
+				}
 			}
-			else {
-				u.e.addMoveEvent(this, u.e._cancelClick);
+			if(this.e_drag || this.e_swipe) {
+				u.e.addMoveEvent(this, u.e._pick);
 			}
-			u.e.addMoveEvent(this, u.e._move);
-			u.e.addEndEvent(this, u.e._dblclicked);
+			if(this.e_scroll) {
+				u.e.addMoveEvent(this, u.e._scrollStart);
+				u.e.addEndEvent(this, u.e._scrollEnd);
+			}
 		}
-		if(this.e_hold) {
-			this.t_held = u.t.setTimer(this, u.e._held, 750);
-		}
-		if(this.e_drag || this.e_swipe) {
-			u.e.addMoveEvent(this, u.e._pick);
-		}
-		if(this.e_scroll) {
-			u.e.addMoveEvent(this, u.e._scrollStart);
-			u.e.addEndEvent(this, u.e._scrollEnd);
+		else if(event.button === 2) {
+			if(this.e_rightclick) {
+				if(event.type.match(/mouse/)) {
+					u.e.addEvent(this, "mouseout", u.e._cancelClick);
+				}
+				else {
+					u.e.addMoveEvent(this, u.e._cancelClick);
+				}
+				u.e.addMoveEvent(this, u.e._move);
+				u.e.addEndEvent(this, u.e._rightclicked);
+			}
 		}
 		if(fun(this.inputStarted)) {
 			this.inputStarted(event);
@@ -1278,7 +1290,25 @@ Util.Events = u.e = new function() {
 			this.clicked(event);
 		}
 	}
-	this.dblclick = this.doubletap = function(node, _options) {
+	this.rightclick = function(node, _options) {
+		node.e_rightclick_options = _options ? _options : {};
+		node.e_rightclick_options.eventAction = u.stringOr(node.e_rightclick_options.eventAction, "RightClicked");
+		node.e_rightclick = true;
+		u.e.addStartEvent(node, this._inputStart);
+		u.e.addEvent(node, "contextmenu", function(event){u.e.kill(event);});
+	}
+	this._rightclicked = function(event) {
+		u.bug("_rightclicked:", this);
+		if(this.e_rightclick_options) {
+			this.e_rightclick_options.event = event;
+			u.stats.event(this, this.e_rightclick_options);
+		}
+		u.e.resetNestedEvents(this);
+		if(fun(this.rightclicked)) {
+			this.rightclicked(event);
+		}
+	}
+	this.dblclick = this.doubleclick = this.doubletap = this.dbltap = function(node, _options) {
 		node.e_dblclick_options = _options ? _options : {};
 		node.e_dblclick_options.eventAction = u.stringOr(node.e_dblclick_options.eventAction, "DblClicked");
 		node.e_dblclick = true;
@@ -2651,9 +2681,15 @@ Util.Form = u.f = new function() {
 			}
 			else if(u.hc(iN.field, "tel")) {
 				pattern = iN.getAttribute("pattern");
+				compare_to = iN.getAttribute("data-compare-to");
 				if(
-					!pattern && iN.val().match(/^([\+0-9\-\.\s\(\)]){5,18}$/) ||
-					(pattern && iN.val().match("^"+pattern+"$"))
+					(
+						!pattern && iN.val().match(/^([\+0-9\-\.\s\(\)]){5,18}$/)
+						||
+						(pattern && iN.val().match("^"+pattern+"$"))
+					)
+					&&
+					(!compare_to || iN.val() == iN._form.fields[compare_to].val())
 				) {
 					this.fieldCorrect(iN);
 				}
@@ -2662,9 +2698,16 @@ Util.Form = u.f = new function() {
 				}
 			}
 			else if(u.hc(iN.field, "email")) {
+				compare_to = iN.getAttribute("data-compare-to");
+				pattern = iN.getAttribute("pattern");
 				if(
-					!pattern && iN.val().match(/^([^<>\\\/%$])+\@([^<>\\\/%$])+\.([^<>\\\/%$]{2,20})$/) ||
-					(pattern && iN.val().match("^"+pattern+"$"))
+					(
+						!pattern && iN.val().match(/^([^<>\\\/%$])+\@([^<>\\\/%$])+\.([^<>\\\/%$]{2,20})$/)
+						 ||
+						(pattern && iN.val().match("^"+pattern+"$"))
+					)
+					&&
+					(!compare_to || iN.val() == iN._form.fields[compare_to].val())
 				) {
 					this.fieldCorrect(iN);
 				}

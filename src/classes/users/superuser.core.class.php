@@ -1828,8 +1828,13 @@ class SuperUserCore extends User {
 				$member["user"] = $this->getUsers(array("user_id" => $member["user_id"]));
 				$member["item"] = $IC->getItem(array("id" => $member["item_id"], "extend" => array("subscription_method" => true, "prices" => true)));
 
-				// payment status
-				$member["order"] = $SC->getOrders(array("order_id" => $member["order_id"]));
+				if($member["order_id"]) {
+					// payment status
+					$member["order"] = $SC->getOrders(array("order_id" => $member["order_id"]));
+				}
+				else {
+					$member["order"] = false;
+				}
 
 				return $member;
 			}
