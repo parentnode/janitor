@@ -2,7 +2,7 @@
 global $action;
 global $model;
 ?>
-<div class="scene unsubscribe i:unsubscribe i:scene">
+<div class="scene unsubscribe i:unsubscribe">
 
 	<h1>You have been unsubscribed</h1>
 	<p>
