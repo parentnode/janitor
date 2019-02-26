@@ -16,17 +16,18 @@ if(count($action) == 4) {
 		if($maillist) {
 
 			$query = new Query();
-			$sql = "SELECT user_id FROM ".SITE_DB.".user_usernames WHERE username = '$username' && verification_code = '$verification_code'";
+			$sql = "SELECT user_id FROM ".SITE_DB.".user_usernames WHERE username = '$username' AND verification_code = '$verification_code'";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				$can_unsubscribe = true;
 			}
 		
-		}		
+		}
 	}
 }
 
 ?>
-<div class="scene unsubscribe i:unsubscribe i:scene">
+<div class="scene unsubscribe i:unsubscribe">
 
 <? if($can_unsubscribe): ?>
 	<h1>Unsubscribe</h1>
