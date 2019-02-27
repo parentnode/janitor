@@ -1484,7 +1484,7 @@ class JanitorHTML {
 			$model = new SuperUser();
 			$IC = new Items();
 
-			$memberships = $IC->getItems(array("itemtype" => "membership", "extend" => true));
+			$memberships = $IC->getItems(array("itemtype" => "membership", "status" => 1, "extend" => true));
 
 			$_ .= '<div class="members">';
 			$_ .= '<h2>Member status</h2>';
