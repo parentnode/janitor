@@ -1572,14 +1572,14 @@ class PageCore {
 
 			// Get user password
 			$sql = "SELECT passwords.password as password, passwords.upgrade_password as upgrade_password, passwords.id as password_id FROM ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE usernames.user_id = passwords.user_id AND (passwords.password != '' OR passwords.upgrade_password != '') AND usernames.username='$username'";
-//			print "$sql<br>\n";
+			//			print "$sql<br>\n";
 			if($query->sql($sql)) {
-
+				
 				$hashed_password = $query->result(0, "password");
 				$sha1_password = $query->result(0, "upgrade_password");
 				$password_id = $query->result(0, "password_id");
-
-
+				
+				
 				// old sha1 password exists and matches
 				// User password should be upgraded
 				if($sha1_password && sha1($password) === $sha1_password) {
@@ -1591,10 +1591,10 @@ class PageCore {
 						$sql = "UPDATE ".SITE_DB.".user_passwords SET upgrade_password = '', password = '$hashed_password' WHERE id = $password_id";
 						$query->sql($sql);
 					}
-
+					
 				}
-
-
+				
+				
 				// Check real hash
 				if($hashed_password && password_verify($password, $hashed_password)) {
 
