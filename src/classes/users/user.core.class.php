@@ -730,31 +730,6 @@ class UserCore extends Model {
 		return false;
 	}
 
-	/**
-	 * Check if current user is verified (and not a guest user)
-	 *
-	 * @return boolean
-	 */
-	function isVerified() {
-		$user_id = session()->value("user_id");
-
-		$query = new Query();
-
-		// user is not a guest user
-		if($user_id != 1) {
-			$sql = "SELECT user_id FROM ".SITE_DB.".user_usernames WHERE user_id = '$user_id' AND verified = 1";
-			
-			// user is verified
-			if($query->sql($sql)) {
-				return true;
-			}
-		}
-
-		// user is not verified
-		return false;
-
-	}
-
 	// cancel user
 	// /#controller/user/cancel
 	function cancel($action) {
