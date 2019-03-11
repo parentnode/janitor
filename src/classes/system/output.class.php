@@ -45,8 +45,8 @@ class Output {
 		if($type == "error" || !$object) {
 			$output["cms_status"] = "error";
 			$output["cms_message"] = message()->getMessages(array("type"=>"error"));
-			message()->resetMessages();
 		}
+		
 		else {
 //			print_r(message()->getMessages());
 		//if($type == "success") {
