@@ -41,7 +41,10 @@ class CurlRequest {
 		if(isset($params['cookie'])) {
 			@curl_setopt($this->ch, CURLOPT_COOKIE, $params['cookie']);
 		}
-
+		
+		if(isset($params['cookiejar'])) {
+			@curl_setopt($this->ch, CURLOPT_COOKIEJAR, $params['cookiejar']);
+		}
 	}
 
 	public function exec($url, $_options = false) {
@@ -88,14 +91,17 @@ class CurlRequest {
 		$result['http_code'] = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
 		$result['last_url'] = curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL);
 		$result['cookies'] = curl_getinfo($this->ch, CURLINFO_COOKIELIST);
-		
 
-		if($result["http_code"] == 200 && $result['last_url'] == $url) {
-			return $result;
-		}
-		else {
-			return false;
-		}
+		// Disabled because it turned out to be too restrictive for certain common use cases
+		//
+		// if($result["http_code"] == 200 && $result['last_url'] == $url) {
+		// 	return $result;
+		// }
+		// else {
+		// 	return false;
+		// }
+
+		return $result;
 
 	}
 }
