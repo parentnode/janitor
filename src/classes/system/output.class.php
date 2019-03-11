@@ -21,20 +21,20 @@ class Output {
 	* object can be nested php array
 	* - option: type = error - outputs cms_status and cms_message as error. 
 	*
-	* If message is true, any generated messages will be stored in the object. If message is false, messages will be reset. 
+	* Reset_messages is pr default true and all messages will be reset. If reset_messages is false, messages will not be reset but will be stored in the object. 
 	*/
 	function screen($object, $_options = false) {
 
 		$format = "json";
 		$type = false;
-		$message = false;
+		$reset_messages = true;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "format"        : $format =   $_value; break;
 					case "type"          : $type =     $_value; break;
-					case "message"     : $message =  $_value; break;
+					case "reset_messages"     : $reset_messages =  $_value; break;
 
 				}
 			}
@@ -64,7 +64,7 @@ class Output {
 			// 	
 		}
 	
-		if($message != true) {
+		if($reset_messages) {
 			message()->resetMessages();
 		}
 
