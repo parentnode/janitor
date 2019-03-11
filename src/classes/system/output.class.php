@@ -19,18 +19,22 @@ class Output {
 	* output object as type
 	* default json
 	* object can be nested php array
-	* - option: type = error - outputs cms_status and  
+	* - option: type = error - outputs cms_status and cms_message as error. 
+	*
+	* If message is true, any generated messages will be stored in the object. If message is false, messages will be reset. 
 	*/
 	function screen($object, $_options = false) {
 
 		$format = "json";
 		$type = false;
+		$message = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "format"        : $format =   $_value; break;
 					case "type"          : $type =     $_value; break;
+					case "message"     : $message =  $_value; break;
 
 				}
 			}
@@ -57,6 +61,10 @@ class Output {
 			// 	$object["cms_"] = implode(", ", $message);
 			// 	
 			// }
+			// 	
+		}
+	
+		if($message != true) {
 			message()->resetMessages();
 		}
 
