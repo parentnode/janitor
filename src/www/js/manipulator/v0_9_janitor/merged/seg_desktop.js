@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.2-janitor Copyright 2018 http://manipulator.parentnode.dk
-js-merged @ 2019-03-13 19:54:54
+js-merged @ 2019-03-14 15:39:23
 */
 
 /*seg_desktop_include.js*/
@@ -813,7 +813,7 @@ Util.setClass = u.sc = function(node, classname, dom_update) {
 		old_class = node.className;
 		node.className = classname;
 	}
-	dom_update = (!dom_update) || (node.offsetTop);
+	dom_update = (dom_update === false) || (node.offsetTop);
 	return old_class;
 }
 Util.hasClass = u.hc = function(node, classname) {
@@ -837,7 +837,7 @@ Util.hasClass = u.hc = function(node, classname) {
 }
 Util.addClass = u.ac = function(node, classname, dom_update) {
 	node.classList.add(classname);
-	dom_update = (!dom_update) || (node.offsetTop);
+	dom_update = (dom_update === false) || (node.offsetTop);
 	return node.className;
 }
 Util.removeClass = u.rc = function(node, classname, dom_update) {
@@ -853,7 +853,7 @@ Util.removeClass = u.rc = function(node, classname, dom_update) {
 			node.className = node.className.replace(regexp, " ").trim().replace(/[\s]{2}/g, " ");
 		}
 	}
-	dom_update = (!dom_update) || (node.offsetTop);
+	dom_update = (dom_update === false) || (node.offsetTop);
 	return node.className;
 }
 Util.toggleClass = u.tc = function(node, classname, _classname, dom_update) {
@@ -869,12 +869,12 @@ Util.toggleClass = u.tc = function(node, classname, _classname, dom_update) {
 			u.rc(node, _classname);
 		}
 	}
-	dom_update = (!dom_update) || (node.offsetTop);
+	dom_update = (dom_update === false) || (node.offsetTop);
 	return node.className;
 }
 Util.applyStyle = u.as = function(node, property, value, dom_update) {
 	node.style[u.vendorProperty(property)] = value;
-	dom_update = (!dom_update) || (node.offsetTop);
+	dom_update = (dom_update === false) || (node.offsetTop);
 }
 Util.applyStyles = u.ass = function(node, styles, dom_update) {
 	if(styles) {
@@ -888,7 +888,7 @@ Util.applyStyles = u.ass = function(node, styles, dom_update) {
 			}
 		}
 	}
-	dom_update = (!dom_update) || (node.offsetTop);
+	dom_update = (dom_update === false) || (node.offsetTop);
 }
 Util.getComputedStyle = u.gcs = function(node, property) {
 	var dom_update = node.offsetHeight;
