@@ -1595,13 +1595,13 @@ class PageCore {
 				}
 				
 				
-				// Check real hash
+				// hashed password corresponds to posted password
 				if($hashed_password && password_verify($password, $hashed_password)) {
 
 					// make login query
-					// look for active user with username and password
-					$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND usernames.username='$username'";
-		//			print $sql;
+					// look for active user with verified username and password
+					$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND usernames.verified = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND usernames.username='$username'";
+					// print $sql;
 					if($query->sql($sql)) {
 
 						// add user_id and user_group_id to session
@@ -1652,10 +1652,10 @@ class PageCore {
 
 					// User could not be logged in
 
-					// is the reason, that the user has not been activated yet?
+					// is the reason, that the user has not been verified yet?
 					// make login query and
 					// look for user with status 0, verified = 0, password exists
-					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND username='$username' AND verified = 0";
+					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND username='$username' AND verified = 0";
 					// print $sql;
 					if($query->sql($sql)) {
 
@@ -1680,7 +1680,7 @@ class PageCore {
 							$email = $query->result(0, "username");
 							$verification_code = $query->result(0, "verification_code");
 
-							// send activation reminder email
+							// send verification reminder email
 							mailer()->send(array(
 								"values" => array(
 									"NICKNAME" => $nickname, 
@@ -1739,12 +1739,12 @@ class PageCore {
 					
 				}
 				
-				// has the user not been activated yet?
+				// has the user not been verified yet?
 				// look for user with status 0, verified = 0
 				$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames WHERE users.status = 0 AND users.id = usernames.user_id AND username='$username' AND verified = 0";
 
 				if($query->sql($sql)) {
-					// send activation reminder email
+					// send verification reminder email
 					mailer()->send(array(
 						"values" => array(
 							"NICKNAME" => $nickname, 
@@ -1761,6 +1761,18 @@ class PageCore {
 					$query->sql($sql);
 
 					return ["status" => "NOT_VERIFIED", "email" => $email];
+
+				}
+
+				// has the user been verified and subsequently deactivated?
+				// look for user with status 0, verified = 1
+				$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames WHERE users.status = 0 AND users.id = usernames.user_id AND username='$username' AND verified = 1";
+
+				if($query->sql($sql)) {
+					$this->addLog("Login error: ".$username);
+
+					message()->addMessage("Computer says NO!", array("type" => "error"));
+					return false;
 
 				}
 				
