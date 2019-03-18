@@ -1215,9 +1215,28 @@ class PageCore {
 
 				$dev = session()->value("dev");
 				$segment = session()->value("segment");
-
+				$user_group_id = session()->value("user_group_id");
 
 				session()->reset();
+
+				# We might be here because the Group has no Access assigned. That is an Admin error.
+				# user group GUEST is not to gice this error message.
+				if ($user_group_id > 1) {
+					$query = new Query();
+					$sql = "SELECT user_group FROM ".SITE_DB.".user_groups WHERE id = ".$user_group_id." 
+					AND (
+						SELECT count('a') FROM ".SITE_DB.".user_access WHERE user_group_id = user_groups.id
+					) = 0";
+
+					if($query->sql($sql)) {
+						$results = $query->results();
+						$user_group_name = $results[0]['user_group'];
+						message()->addMessage("User Group <strong>$user_group_name</strong> has no Access allocated. Please contact the Administrator.", array("type" => "error"));
+					} 
+				}
+
+
+				
 
 				// save current url, to be able to redirect after login
 				session()->value("login_forward", $this->url);
