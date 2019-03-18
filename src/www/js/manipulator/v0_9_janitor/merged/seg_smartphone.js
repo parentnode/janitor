@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.2-janitor Copyright 2018 http://manipulator.parentnode.dk
-js-merged @ 2019-03-14 15:39:23
+js-merged @ 2019-03-18 20:58:38
 */
 
 /*seg_smartphone_include.js*/
@@ -4761,6 +4761,18 @@ Util.Timer = u.t = new function() {
 	}
 }
 
+
+/*u-txt.js*/
+u.txt = function(index) {
+	if(!u.translations) {
+		u.bug("Should load translations for:", document.documentElement.lang);
+	}
+	if(u.txt[index]) {
+		return u.txt[index];
+	}
+	u.bug("MISSING TEXT: "+index);
+	return "";
+}
 
 /*u-url.js*/
 Util.getVar = function(param, url) {
