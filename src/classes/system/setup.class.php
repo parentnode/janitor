@@ -90,7 +90,7 @@ class Setup extends Itemtype {
 			"label" => "Janitor Admin email",
 			"autocomplete" => true,
 			"required" => true,
-			"pattern" => "[\w\.\-_]+@[\w\-\.]+\.\w{2,10}", 
+			"pattern" => "[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}", 
 			"hint_message" => "The email adress which should be used for the initial admin account in Janitor. This email will be used to log in.",
 			"error_message" => "The entered value is not a valid email."
 		));

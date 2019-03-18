@@ -136,7 +136,7 @@ class MailGateway {
 			// check that recipient seems to be a valid email
 			foreach($temp_recipients as $recipient) {
 				// only use valid recipients
-				if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+				if($recipient && preg_match("/^[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
 					$recipients[] = $recipient;
 				}
 			}
@@ -318,7 +318,7 @@ class MailGateway {
 			// check that recipient seems to be a valid email
 			foreach($temp_recipients as $recipient) {
 				// only use valid recipients
-				if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+				if($recipient && preg_match("/^[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
 					$recipients[] = $recipient;
 				}
 			}

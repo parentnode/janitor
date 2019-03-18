@@ -55,7 +55,7 @@ class TypeMessage extends Itemtype {
 		$this->addToModel("recipients", array(
 			"type" => "string",
 			"label" => "Recipient(s)",
-			"pattern" => "([,;]?[\w\.\-_]+@[\w\-\.]+\.\w{2,10})+",
+			"pattern" => "([,;]?[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10})+",
 			"hint_message" => "Comma separate multiple recipients", 
 			"error_message" => "Recipients or Maillist must be filled out."
 		));
@@ -306,7 +306,7 @@ class TypeMessage extends Itemtype {
 
 		foreach($temp_recipients as $key => $recipient) {
 			// if recipient seems valid, add it (and values) to the arrays that will be passed on
-			if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+			if($recipient && preg_match("/^[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
 				$recipients[] = $recipient;
 				$recipient_values[$recipient] = isset($values[$key]) ? $values[$key] : [];
 			}
@@ -747,7 +747,7 @@ class TypeMessage extends Itemtype {
 					$recipients_list = explode(";", preg_replace("/,/", ";", $temp_recipients));
 					foreach($recipients_list as $key => $recipient) {
 						// if recipient seems valid, add it (and values) to the arrays that will be passed on
-						if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+						if($recipient && preg_match("/^[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
 							$recipients[] = $recipient;
 
 							if($values) {
