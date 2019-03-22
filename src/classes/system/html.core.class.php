@@ -875,7 +875,7 @@ class HTMLCore {
 		$att_action = $this->attribute("action", $action);
 		$att_enctype = $this->attribute("enctype", $enctype);
 
-		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.$att_enctype.'>'."\n";
+		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.$att_enctype.' onSubmit="ofuscate(this);">'."\n";
 		$_ .= '<input type="hidden" name="csrf-token" value="'.session()->value("csrf").'" />'."\n";
 
 
@@ -912,6 +912,7 @@ class HTMLCore {
 		$type = "button";
 		$name = false;
 		$class = false;
+		$script = array();
 
 		$wrapper = false;
 
@@ -926,6 +927,8 @@ class HTMLCore {
 					case "class"         : $class          = $_value; break;
 
 					case "wrapper"       : $wrapper        = $_value; break;
+
+					case "script"        : $script         = $_value; break;
 				}
 			}
 		}
@@ -936,6 +939,10 @@ class HTMLCore {
 		$att_type = $this->attribute("type", $type);
 		$att_class = $this->attribute("class", "button", $class);
 		$att_name = $this->attribute("name", $name);
+		$att_script = "";
+		if (count($script)) {
+			$att_script = $this->attribute($script[0], $script[1]);
+		}
 
 		$att_wrap_id = "";
 		$att_wrap_class = "";
@@ -964,7 +971,7 @@ class HTMLCore {
 	
 		}
 
-		$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.' />';
+		$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.$att_script.' />';
 
 		if($wrapper) {
 			$_ .= '</'.$wrap_node.'>'."\n";

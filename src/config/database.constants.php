@@ -12,6 +12,8 @@ define("UT_SUBSCRIPTION_METHODS",       SITE_DB.".system_subscription_methods");
 
 define("UT_MAILLISTS",                  SITE_DB.".system_maillists");                  // Maillists
 
+define("UT_DEPARTMENTS",                SITE_DB.".system_departments");                  // Maillists
+
 
 // ITEMS
 define("UT_ITEMS",                      SITE_DB.".items");                             // Items
@@ -27,6 +29,9 @@ define("UT_ITEMS_PRICES",               SITE_DB.".items_prices");               
 
 // SUBSCRIPTION METHOD
 define("UT_ITEMS_SUBSCRIPTION_METHOD",  SITE_DB.".items_subscription_method");         // Items Subscription method
+
+// DEPARTMENTS
+define("UT_ITEM_DEPARTMENT",          SITE_DB.".item_department");         // Items Subscription method
 
 
 

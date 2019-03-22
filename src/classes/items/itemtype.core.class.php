@@ -43,12 +43,11 @@ class ItemtypeCore extends Model {
 			if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
 				$query->sql("UPDATE ".UT_ITEMS." SET status = $status WHERE id = $item_id");
 
-				message()->addMessage("Item ".$this->status_states[$status]);
 				return true;
 			}
 		}
 
-		message()->addMessage("Item could not be ".$this->status_states[$status], array("type" => "error"));
+		message()->addMessage("Item Status could not be changed." , array("type" => "error"));
 		return false;
 
 	}
@@ -349,8 +348,6 @@ class ItemtypeCore extends Model {
 						// create sindex
 						$this->sindex($sindex, $item_id);
 
-
-						message()->addMessage("Item saved");
 						// return current item
 						$IC = new Items();
 
@@ -431,7 +428,6 @@ class ItemtypeCore extends Model {
 	// TODO: implement itemtype checks
 	function update($action) {
 		global $page;
-
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
@@ -446,6 +442,16 @@ class ItemtypeCore extends Model {
 
 			// get entities for current value
 			$entities = $this->getModel();
+
+			foreach($entities as $name => $entity) {
+				if ((is_int($entity['value']) || is_string($entity['value'])) && strstr($entity['value'],"+++")) {
+					// TODO obfuscatio check
+					$entity['value'] = base64_decode(str_replace("+++","",$entity['value']));
+					$entity['value'] = str_replace("&amp;","&",$entity['value']);
+				}
+				
+			}
+
 			$names = array();
 			$values = array();
 
@@ -960,7 +966,6 @@ class ItemtypeCore extends Model {
 			$item_id = $action[1];
 
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
-
 			if($this->validateList(array("mediae"), $item_id)) {
 				$uploads = $this->upload($item_id, array("input_name" => "mediae", "auto_add_variant" => true));
 				if($uploads) {
@@ -1184,7 +1189,6 @@ class ItemtypeCore extends Model {
 
 
 		if(isset($_FILES[$_input_name])) {
-//			print "input_name:" . $_input_name;
 //			print_r($_FILES[$_input_name]);
 
 			foreach($_FILES[$_input_name]["name"] as $index => $value) {

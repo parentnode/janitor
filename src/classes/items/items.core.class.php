@@ -8,7 +8,7 @@
 *
 */
 
-class ItemsCore {
+class ItemsCore extends Model {
 
 	/**
 	* Init, set varnames, validation rules
@@ -186,6 +186,7 @@ class ItemsCore {
 			$ratings = false;
 			$comments = false;
 			$subscription_method = false;
+			$departments = false;
 
 			$user = false;
 			$readstate = false;
@@ -204,6 +205,7 @@ class ItemsCore {
 						case "ratings"               : $ratings                 = $_value; break;
 						case "comments"              : $comments                = $_value; break;
 						case "subscription_method"   : $subscription_method     = $_value; break;
+						case "departments"           : $departments             = $_value; break;
 
 						case "user"                  : $user                    = $_value; break;
 						case "readstate"             : $readstate               = $_value; break;
@@ -217,11 +219,16 @@ class ItemsCore {
 
 			// get the specific type data
 			$typeObject = $this->TypeObject($item["itemtype"]);
+			
 			if(method_exists($typeObject, "get")) {
 				$item = array_merge($item, $typeObject->get($item["id"]));
 			}
 			else {
-				$item = array_merge($item, $this->getSimpleType($item["id"], $typeObject));
+				$tmp_simple_item = $this->getSimpleType($item["id"], $typeObject);
+				
+				if(count($tmp_simple_item)) {
+					$item = array_merge($item, $tmp_simple_item);
+				}
 			}
 
 			// add mediae
@@ -258,6 +265,12 @@ class ItemsCore {
 			// add subscription method (for item)
 			if($all || $subscription_method) {
 				$item["subscription_method"] = $this->getSubscriptionMethod(array("item_id" => $item["id"]));
+			}
+
+
+			// add departments (for item)
+			if($all || $departments) {
+				$item["departments"] = $this->getDepartments(array("item_id" => $item["id"]));
 			}
 
 
@@ -317,6 +330,7 @@ class ItemsCore {
 		$query = new Query();
 
 		$sql = "SELECT * FROM ".$typeObject->db." WHERE item_id = $item_id";
+
 		if($query->sql($sql)) {
 			$item = $query->result(0);
 			unset($item["id"]);
@@ -612,10 +626,12 @@ class ItemsCore {
 		// }
 
 		if(isset($itemtype)) {
-			$WHERE[] = "items.itemtype = '$itemtype'";
-
 			// add main itemtype table to enable sorting based on local values
-			$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
+			$WHERE[] = "items.itemtype = '$itemtype'";
+			$WHERE[] = "items.id = ".$itemtype.".item_id";
+			$FROM[] = $this->typeObject($itemtype)->db." as ".$itemtype;
+
+//			$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
 		}
 
 		// tag query
@@ -691,7 +707,7 @@ class ItemsCore {
 			$ORDER[] = $order;
 		}
 
-		$ORDER[] = "items.published_at DESC";
+		$ORDER[] = "items.published_at DESC, items.id";
 
 		if(isset($limit)) {
 			$limit = " LIMIT $limit";
@@ -703,11 +719,9 @@ class ItemsCore {
 		$items = array();
 
 		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit;
-//		print $sql."<br>\n";
 
 		$query->sql($sql);
 		$items = $query->results();
-
 
 		// TODO: consider if this could be integrated in primary query
 		// - but might give issues with flexibility and query load on mixed lists
@@ -1399,6 +1413,60 @@ class ItemsCore {
 		return false;
 	}
 
+	// get departments for item_id
+	// maintain $_options parameter despite only one option for now (could be more in the future)
+	function getDepartments($_options=false) {
+		$item_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"     : $item_id        = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($item_id) {
+
+			$sql = "SELECT * FROM ".UT_ITEM_DEPARTMENT." as department 
+					WHERE department.item_id = $item_id"; 
+
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+			
+		}
+
+		return false;
+	}
+
+	// togle status value on item
+	function togleStatus($_options=false) {
+		$item_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"     : $item_id        = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		if($item_id) {
+			// notice the "!" in the sql. togles the boolean value
+			$sql = "UPDATE ".UT_ITEMS." as items set status = !status WHERE id = $item_id"; 
+			if($query->sql($sql)) {
+				return true;
+			}
+			
+		}
+
+		return false;
+	}
 }
 
 ?>

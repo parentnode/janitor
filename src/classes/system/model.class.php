@@ -303,6 +303,11 @@ class Model extends HTML {
 				// regular variable
 				else {
 					$value = getPost($name);
+					if ((is_int($value) || is_string($value)) && strstr($value,"+++")) {
+						$value = base64_decode(str_replace("+++","",$value));
+						$value = str_replace("\&amp;","",$value);
+					}
+
 //					if($value !== false) {
 //						print $name."=".$value."\n";
 						$this->setProperty($name, "value", $value);
@@ -314,6 +319,8 @@ class Model extends HTML {
 				}
 			}
 		}
+
+		return true;
 	}
 
 
