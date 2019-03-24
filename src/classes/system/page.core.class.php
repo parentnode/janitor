@@ -1591,14 +1591,14 @@ class PageCore {
 
 			// Get user password
 			$sql = "SELECT passwords.password as password, passwords.upgrade_password as upgrade_password, passwords.id as password_id FROM ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE usernames.user_id = passwords.user_id AND (passwords.password != '' OR passwords.upgrade_password != '') AND usernames.username='$username'";
-//			print "$sql<br>\n";
+			//			print "$sql<br>\n";
 			if($query->sql($sql)) {
-
+				
 				$hashed_password = $query->result(0, "password");
 				$sha1_password = $query->result(0, "upgrade_password");
 				$password_id = $query->result(0, "password_id");
-
-
+				
+				
 				// old sha1 password exists and matches
 				// User password should be upgraded
 				if($sha1_password && sha1($password) === $sha1_password) {
@@ -1610,17 +1610,17 @@ class PageCore {
 						$sql = "UPDATE ".SITE_DB.".user_passwords SET upgrade_password = '', password = '$hashed_password' WHERE id = $password_id";
 						$query->sql($sql);
 					}
-
+					
 				}
-
-
-				// Check real hash
+				
+				
+				// hashed password corresponds to posted password
 				if($hashed_password && password_verify($password, $hashed_password)) {
 
 					// make login query
-					// look for active user with username and password
-					$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND usernames.username='$username'";
-		//			print $sql;
+					// look for active user with verified username and password
+					$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND usernames.verified = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND usernames.username='$username'";
+					// print $sql;
 					if($query->sql($sql)) {
 
 						// add user_id and user_group_id to session
@@ -1671,10 +1671,10 @@ class PageCore {
 
 					// User could not be logged in
 
-					// is the reason, that the user has not been activated yet?
+					// is the reason, that the user has not been verified yet?
 					// make login query and
 					// look for user with status 0, verified = 0, password exists
-					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 0 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND username='$username' AND verified = 0";
+					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND username='$username' AND verified = 0";
 					// print $sql;
 					if($query->sql($sql)) {
 
@@ -1699,7 +1699,7 @@ class PageCore {
 							$email = $query->result(0, "username");
 							$verification_code = $query->result(0, "verification_code");
 
-							// send activation reminder email
+							// send verification reminder email
 							mailer()->send(array(
 								"values" => array(
 									"NICKNAME" => $nickname, 
@@ -1730,33 +1730,40 @@ class PageCore {
 			
 			// is the reason, that the user doesn't have a password yet?
 			// make login query and
-			// look for user withwout password
+			// look for user without password
 			$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames WHERE users.id = usernames.user_id AND usernames.user_id NOT IN (SELECT user_id FROM ".SITE_DB.".user_passwords as passwords) AND usernames.username='$username'";
 //					print $sql;
 			if($query->sql($sql)) {
-
-				// Make sure we have the email username
 				$login_user = $query->result(0);
+				
+				// Make sure we have the email username
 				if($login_user["type"] != "email") {
-
+					
 					// Look for user email
 					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames WHERE users.id = usernames.user_id AND usernames.type='email' AND users.id = ".$login_user["id"];
 					// print "$sql<br />\n";
 					if($query->sql($sql)) {
 						$login_user = $query->result(0);
 					}
-
+					
 				}
-
+				
 				// Did we find user email
 				if($login_user["type"] == "email") {
-
+					
 					$user_id = $query->result(0, "id");
 					$nickname = $query->result(0, "nickname");
 					$email = $query->result(0, "username");
 					$verification_code = $query->result(0, "verification_code");
+					
+				}
+				
+				// has the user not been verified yet?
+				// look for user with status 0, verified = 0
+				$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames WHERE users.status = 0 AND users.id = usernames.user_id AND username='$username' AND verified = 0";
 
-					// send activation reminder email
+				if($query->sql($sql)) {
+					// send verification reminder email
 					mailer()->send(array(
 						"values" => array(
 							"NICKNAME" => $nickname, 
@@ -1765,17 +1772,34 @@ class PageCore {
 						), 
 						"recipients" => $email, 
 						"template" => "signup_reminder"
-					));
-
-
+					));						
+					
 					// Add to user log
 					$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user_id;
 		//			print $sql;
 					$query->sql($sql);
 
-					return ["status" => "NO_PASSWORD", "email" => $email];
+					return ["status" => "NOT_VERIFIED", "email" => $email];
 
 				}
+
+				// has the user been verified and subsequently deactivated?
+				// look for user with status 0, verified = 1
+				$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames WHERE users.status = 0 AND users.id = usernames.user_id AND username='$username' AND verified = 1";
+
+				if($query->sql($sql)) {
+					$this->addLog("Login error: ".$username);
+
+					message()->addMessage("Computer says NO!", array("type" => "error"));
+					return false;
+
+				}
+				
+				// Add to user log
+				$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user_id;
+	//			print $sql;
+				$query->sql($sql);
+				return ["status" => "NO_PASSWORD", "email" => $email];
 
 			}
 

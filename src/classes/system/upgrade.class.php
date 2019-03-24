@@ -296,8 +296,6 @@ class Upgrade extends Model {
 						// drop newsletter column from orginal table
 						$this->process($this->dropColumn(SITE_DB.".user_newsletters", "newsletter"), true);
 
-//						}
-
 					}
 
 

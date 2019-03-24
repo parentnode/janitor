@@ -683,34 +683,10 @@ class UserCore extends Model {
 	}
 
 
-	// Get relevant user data and check verification before enabling user
-	function confirmUser($action) {
+		// Get relevant user data and check verification before enabling user
+	function confirmUsername($username, $verification_code) {
 
 		$query = new Query();
-
-		// For dynamic verification (getting values from POST and SESSION)
-		if(count($action) == 1) {
-
-			// Get posted values to make them available for models
-			$this->getPostedEntities();
-			$verification_code = $this->getProperty("verification_code", "value");
-
-			$user = $this->getUser();
-			// $user_id = $user["id"];
-			$username = $user["email"];
-			
-		}
-
-		// For static verification (values hardcoded in links)
-		// xxx/(email|mobile)/#email|mobile#
-		else if(count($action) == 3) {
-
-			// TODO: Maybe skip type check - it's not super relevant
-			// $type = $action[1];
-			$username = $action[1];
-			$verification_code = $action[2];
-		
-		}
 
 		// only make alterations if not already verified
 		$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 0 AND verification_code = '$verification_code'";
@@ -745,7 +721,7 @@ class UserCore extends Model {
 
 			if($query->sql($sql)) {
 				global $page;
-				$page->addLog("user->confirmUser: user has already been verified ($username)");
+				$page->addLog("user->confirmUsername: user has already been verified ($username)");
 				return array("status" => "USER_VERIFIED");
 			}
 		}
