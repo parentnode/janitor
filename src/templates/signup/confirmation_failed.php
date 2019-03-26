@@ -48,7 +48,7 @@ session()->reset("signup_email");
 
 		<? if($page_item["html"]): ?>
 		<div class="articlebody" itemprop="articleBody">
-			<?= preg_replace("/{type}/", $type, preg_replace("/{username}/", $username, $page_item["html"])) ?>
+			<?= preg_replace("/{username}/", $username, $page_item["html"]) ?>
 		</div>
 		<? endif; ?>
 	</div>
