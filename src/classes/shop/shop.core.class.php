@@ -1082,7 +1082,7 @@ class ShopCore extends Model {
 	
 	
 	// Delete items by itemtype from cart
-	// #controller#/deleteItemtypeFromCart
+	// #controller#/deleteByItemtypeFromCart
 	function deleteByItemtypeFromCart($action) {
 		
 		if(count($action) >= 2) {
