@@ -1079,7 +1079,29 @@ class ShopCore extends Model {
 
 		return false;
 	}
-
+	
+	
+	// Delete itemtypes from cart
+	// #controller#/deleteItemtypeFromCart
+	function deleteItemtypeFromCart($itemtype, $cart_reference) {
+		
+		$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+		
+		if($cart) {
+			
+			$IC = new Items();
+			foreach($cart["items"] as $key => $cart_item) {
+				$existing_item = $IC->getItem(array("id" => $cart_item["item_id"]));
+				if($existing_item["itemtype"] == $itemtype) {
+					$cart = $this->deleteFromCart(array("deleteFromCart", $cart_reference, $cart_item["id"]));
+				}
+			}
+			return $cart;
+		}
+		return false;	
+	}
+		
+		
 	// Empty cart
 	# #controller#/emptyCart
 	function emptyCart($action) {
