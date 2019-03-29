@@ -17,7 +17,7 @@ if($page_item) {
 	<p>Alternatively the email also has a link you can use instead to verify.</p>
 	<p>If you don't want to verify now, you can do so later through the link.</p>
 
-	<?= $model->formStart("confirm", ["class" => "verify_code"]) ?>
+	<?= $model->formStart("/verify/confirm", ["class" => "verify_code"]) ?>
 
 <?	if(message()->hasMessages(array("type" => "error"))): ?>
 		<p class="errormessage">
