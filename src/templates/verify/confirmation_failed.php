@@ -3,7 +3,7 @@ global $action;
 global $model;
 
 $IC = new Items();
-$page_item = $IC->getItem(array("tags" => "page:signup-confirmed", "extend" => array("user" => true, "tags" => true, "mediae" => true)));
+$page_item = $IC->getItem(array("tags" => "page:signup-confirm-failed", "extend" => array("user" => true, "tags" => true, "mediae" => true)));
 if($page_item) {
 	$this->sharingMetaData($page_item);
 }
@@ -18,7 +18,7 @@ $username = session()->value("signup_email");
 session()->reset("signup_email");
 
 ?>
-<div class="scene signup confirmed i:scene">
+<div class="scene signup confirm-failed i:scene">
 
 <? if($page_item && $page_item["status"]): 
 	$media = $IC->sliceMedia($page_item); ?>
@@ -41,7 +41,7 @@ session()->reset("signup_email");
 		<? endif; ?>
 
 
-		<?= $HTML->articleInfo($page_item, "/signup/confirm/receipt", [
+		<?= $HTML->articleInfo($page_item, "/verify/confirm/error", [
 			"media" => $media, 
 		]) ?>
 
@@ -52,13 +52,9 @@ session()->reset("signup_email");
 		</div>
 		<? endif; ?>
 	</div>
-
 <? else:?>
-
-	<h1>Thank you!</h1>
-	<p><em><?= $username ?></em> has been confirmed. Go ahead and <a href="/login">log in</a>.</p>
-
+	<h1>What??</h1>
+	<p><?= $username ?> could not be verified.</p>
 <? endif; ?>
-
 
 </div>
