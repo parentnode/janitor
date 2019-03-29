@@ -41,7 +41,7 @@ session()->reset("signup_email");
 		<? endif; ?>
 
 
-		<?= $HTML->articleInfo($page_item, "/signup/confirm/receipt", [
+		<?= $HTML->articleInfo($page_item, "/verify/confirm/receipt", [
 			"media" => $media, 
 		]) ?>
 
