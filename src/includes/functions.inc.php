@@ -132,11 +132,22 @@ function getPosts($which) {
 		if(isset($_POST[$name])) {
 			$posts[$name] = prepareForDB($_POST[$name]);
 		}
+		else {
+			$posts[$name] = false;
+		}
 	}
 	return $posts;
 }
 
-
+// Special case for passwords - do not sanitize posted values for passwords
+function getPostPassword($which) {
+	if(isset($_POST[$which])) {
+		return $_POST[$which];
+	}
+	else {
+		return false;
+	}
+}
 
 
 /**
@@ -180,7 +191,6 @@ function prepareForDB($string) {
 	else {
 
 		global $mysqli_global;
-
 		$string = stripDisallowed($string);
 		if($mysqli_global) {
 			$string = $mysqli_global->escape_string($string);
@@ -766,6 +776,7 @@ function wkhtmltoPath() {
 }
 
 
+// Shorthand auto initializer for mailer access
 $__mmm = false;
 function mailer() {
 	global $__mmm;
@@ -805,12 +816,12 @@ function payments() {
 /**
 * Converts dd:mm:yyyy hh:mm to yyyy:mm:dd hh:mm:ss
 */
-function mTimestamp($timestamp) {
-	list($date, $time) = explode(" ", $timestamp);
-	list($date, $month, $year) = explode('-', $date);
-	list($hours, $minutes) = explode(':', $time);
-
-	return date("Y-m-d H:i:s", mktime($hours, $minutes, 0, $month, $date, $year));
-}
+// function mTimestamp($timestamp) {
+// 	list($date, $time) = explode(" ", $timestamp);
+// 	list($date, $month, $year) = explode('-', $date);
+// 	list($hours, $minutes) = explode(':', $time);
+//
+// 	return date("Y-m-d H:i:s", mktime($hours, $minutes, 0, $month, $date, $year));
+// }
 
 ?>

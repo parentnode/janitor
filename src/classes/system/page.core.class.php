@@ -1568,7 +1568,7 @@ class PageCore {
 	function logIn() {
 
 		$username = getPost("username");
-		$password = getPost("password");
+		$password = getPostPassword("password");
 
 		if($username && $password) {
 			$query = new Query();

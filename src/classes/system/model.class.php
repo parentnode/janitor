@@ -290,27 +290,27 @@ class Model extends HTML {
 
 					// indicate value is present for file upload
 					if(isset($_FILES[$name])) {
-//						$this->data_entities[$name]["value"] = true;
-//						$this->data_entities[$name]["value"] = $_FILES[$name]["tmp_name"];
 						$this->setProperty($name, "value", $_FILES[$name]["tmp_name"]);
 					}
 					else {
 						$this->setProperty($name, "value", false);
-//						$_FILES[$name]["tmp_name"]
 					}
-				}
 
+				}
+				// Special case for passwords
+				else if($this->getProperty($name, "type") == "password") {
+
+					// Don't sanitize posted passwords
+					$value = getPostPassword($name);
+					$this->setProperty($name, "value", $value);
+
+				}
 				// regular variable
 				else {
+
 					$value = getPost($name);
-//					if($value !== false) {
-//						print $name."=".$value."\n";
-						$this->setProperty($name, "value", $value);
-//						$this->data_entities[$name]["value"] = $value;
-//					}
-					// else {
-					// 	print "should be false:" . $name . "," . ($this->data_entities[$name]["value"] === false) . "\n";
-					// }
+					$this->setProperty($name, "value", $value);
+
 				}
 			}
 		}
