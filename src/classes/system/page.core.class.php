@@ -1644,6 +1644,13 @@ class PageCore {
 						session_regenerate_id(true);
 
 
+						// does this class have loggedIn callback
+						if(method_exists($this, "loggedIn")) {
+							$user_id = session()->value("user_id");
+							$this->loggedIn($user_id);
+						}
+						
+
 						// Special return for ajax logins
 						if(getPost("ajaxlogin")) {
 							$output = new Output();

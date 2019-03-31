@@ -9,7 +9,7 @@ if($page_item) {
 }
 
 ?>
-<div class="scene signup i:signup">
+<div class="scene signup verify i:verify">
 	
 	<h1>Your account has been created!</h1>
 	<h2>We've sent you a verification email</h2>
@@ -35,7 +35,7 @@ if($page_item) {
 
 		<ul class="actions">
 			<?= $model->submit("Verify email", array("class" => "primary", "wrapper" => "li.reset")) ?>
-			<li class="skip"><a href="skip" class="button">Skip</a></li>
+			<li class="skip"><a href="/verify/skip" class="button">Skip</a></li>
 		</ul>
 	<?= $model->formEnd() ?>
 
