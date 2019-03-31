@@ -1361,7 +1361,7 @@ class ShopCore extends Model {
 						mailer()->send(array(
 							"recipients" => SHOP_ORDER_NOTIFIES,
 							"subject" => SITE_URL . " - New order ($order_no) created by: $user_id",
-							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/shop/order/edit/" . $order["id"] . "\n\nOrder content: ".implode(",", $admin_summary),
+							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/user/orders/" . $user_id . "\n\nOrder content: ".implode(",", $admin_summary),
 							// "template" => "system"
 						));
 
