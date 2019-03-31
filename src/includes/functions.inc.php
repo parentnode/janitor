@@ -199,60 +199,27 @@ function prepareForDB($string) {
 * @param string $string
 * @return string
 */
-
 function stripDisallowed($string) {
+
 	// strip tags
 	$allowed_tags = '<a><strong><em><sup><h1><h2><h3><h4><h5><h6><p><label><br><hr><ul><ol><li><dd><dl><dt><span><img><div><table><tr><td><th><code>';
 	$string = strip_tags($string, $allowed_tags);
 
-	// only look through attributes if any tags left
+	// debug(["stripDisallowed", $string]);
+
+	// only look through attributes if any tags are left after initial sanitizing
 	if($string != strip_tags($string)) {
 
-//		print "\nA:".$string."<br>";
-		// create dom from string
-		$dom = new DOMDocument('1.0', 'UTF-8');
+		$dom = DOM()->createDOM($string);
+		if($dom) {
 
-		// some weird <br> issue in PHP DOM
-		// I cannot load document with <br> tags and when I save HTML it automatically replaces all <br /> with <br> which I then again cannot load.
-		$string = htmlspecialchars(preg_replace("/<br>/", "<br />", $string), 32, "UTF-8", true);
+			// debug(["START SAVE", DOM()->saveHTML($dom), "END SAVE"]);
+			// debug($dom->saveHTML());
 
-//		print "3\n".$string."\n";
-// 		print htmlentities($string) ."<br>";
+			DOM()->stripAttributes($dom);
 
-		// loadHTML needs content definition for UTF-8 - it should be enough to state it in the constructor, but it does not work
-		if($dom->loadHTML('<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /></head><body>'.$string.'</body>')) {
-
-			$nodes = $dom->getElementsByTagName('*');
-
-			// loop nodes
-			foreach($nodes as $node) {
-
-				// remember what to remove and remove in the end of each iteration as removing alters the node and thus the loop
-				$remove_attributes = array();
-
-				// loop attributes
-				foreach($node->attributes as $attribute => $attribute_node) {
-
-					// check for allowed attribute
-					if(preg_match("/href|class|width|height|alt/i", $attribute)) {
-
-						// if href, only allow absolute http links (no javascript or other crap)
-						if($attribute == "href" && strpos($attribute_node->value, "http://") !== 0) {
-							$remove_attributes[] = $attribute;
-						}
-					}
-					else {
-						$remove_attributes[] = $attribute;
-					}
-				}
-				// remove identified attributes
-				foreach($remove_attributes as $remove_attribute) {
-					$node->removeAttribute($remove_attribute);
-				}
-			}
-			
-			// remove <content> dummy tag and <br> to <br /> conversion
-			$string = preg_replace("/<br>/", "<br />", strip_tags(trim($dom->saveHTML()), $allowed_tags));
+			// Export HTML and remove any mis-interpreted tags
+			$string = strip_tags(trim($dom->saveHTML()), $allowed_tags);
 //			$string = $dom->saveXML();
 
 		}
@@ -810,14 +777,25 @@ function mailer() {
 }
 
 
+// Shorthand auto initializer for DOM
+$__dom = false;
+function DOM() {
+	global $__dom;
+	if(!$__dom) {
+		include_once("classes/helpers/dom.class.php");
+		$__dom = new DOM();
+	}
+	return $__dom;
+}
 
+
+// Shorthand auto initializer for payment access
 $__ppp = false;
 function payments() {
 	global $__ppp;
 	if(!$__ppp) {
 		include_once("classes/helpers/payments.class.php");
 		$__ppp = new PaymentGateway();
-
 	}
 	return $__ppp;
 }

@@ -337,9 +337,7 @@ class TypeMessage extends Itemtype {
 		if($message && $message["layout"]) {
 			$layout_content = $this->getLayoutContent($message["layout"]);
 
-			include_once("classes/helpers/dom.class.php");
-			$DC = new DOM();
-			$dom_layout = $DC->createDOM($layout_content);
+			$dom_layout = DOM()->createDOM($layout_content);
 
 			// Update title with name from message
 			$DC->innerHTML($DC->getElement($dom_layout, "title"), $message["name"]);
