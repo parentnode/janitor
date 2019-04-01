@@ -19,10 +19,11 @@ class DOM extends DOMElement {
 		$html_string = preg_replace("/<br>/", "<br />", $html_string);
 
 
-		// $string = htmlspecialchars(preg_replace("/<br>/", "<br />", $string), 32, "UTF-8", true);
-
-
-		// convert entities to avoid broken chars - the charset handling of the PHP Domdocuments seems to be a bit indecisive
+		// Double encode any already encoded entity, before encoding all characters (to enable full switch back)
+		// We don't want to encode the "real" HTML, so htmlentities is too much
+		$html_string = preg_replace("/&([#0-9a-zA-Z]{2,6};)/", "&amp;$1", $html_string);
+		// convert entities to avoid broken chars
+		// - the charset handling of the PHP Dom documents seems to be a bit indecisive
 		$html_string = mb_convert_encoding($html_string, "HTML-ENTITIES", "UTF-8");
 
 
@@ -246,6 +247,9 @@ class DOM extends DOMElement {
 		$html = preg_replace("/\<br\>/", "<br />", $html);
 		$html = preg_replace("/%7B/", "{", $html);
 		$html = preg_replace("/%7D/", "}", $html);
+
+		// convert entities back
+		$html = mb_convert_encoding($html, "UTF-8", "HTML-ENTITIES");
 
 		return $html;
 	}
