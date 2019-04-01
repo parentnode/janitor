@@ -1083,17 +1083,16 @@ class ShopCore extends Model {
 	
 	// Delete itemtypes from cart
 	// #controller#/deleteItemtypeFromCart
-	function deleteItemtypeFromCart($itemtype, $cart_reference) {
+	function deleteItemtypeFromCart($itemtype) {
 		
-		$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+		$cart = $this->getCart();
 		
 		if($cart) {
-			
 			$IC = new Items();
 			foreach($cart["items"] as $key => $cart_item) {
 				$existing_item = $IC->getItem(array("id" => $cart_item["item_id"]));
 				if($existing_item["itemtype"] == $itemtype) {
-					$cart = $this->deleteFromCart(array("deleteFromCart", $cart_reference, $cart_item["id"]));
+					$cart = $this->deleteFromCart(array("deleteFromCart", $cart["cart_reference"], $cart_item["id"]));
 				}
 			}
 			return $cart;
