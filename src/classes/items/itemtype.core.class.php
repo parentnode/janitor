@@ -458,6 +458,7 @@ class ItemtypeCore extends Model {
 			foreach($entities as $name => $entity) {
 				if($entity["value"] !== false && !preg_match("/^(files|tags)$/", $entity["type"]) && !preg_match("/^(published_at|status|user_id|htmleditor_file)$/", $name)) {
 
+					// debug(["value", $entity["value"]]);
 					// consider reimplementing files in basic save
 					// it's a bigger question
 					// - are files, tags, prices, comments and ratings all external features or integrated parts of an Item
@@ -480,7 +481,7 @@ class ItemtypeCore extends Model {
 				$query->versionControl($item_id, $values);
 
 				$sql = "UPDATE ".$this->db." SET ".implode(",", $values)." WHERE item_id = ".$item_id;
-				// print $sql;
+				// debug([$sql]);
 				if($query->sql($sql)) {
 
 

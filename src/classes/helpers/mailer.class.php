@@ -203,14 +203,11 @@ class MailGateway {
 			// create text version from HTML
 			if($html && !$text) {
 
-				include_once("classes/helpers/dom.class.php");
-				$DC = new DOM();
-
 				// create DOM object from HTML string
-				$dom = $DC->createDOM($html);
+				$dom = DOM()->createDOM($html);
 
 				// get formatted text string from DOM object
-				$text = $DC->getFormattedTextFromDOM($dom);
+				$text = DOM()->getFormattedTextFromDOM($dom);
 
 				//cleanup
 				$DC = null;
@@ -387,14 +384,11 @@ class MailGateway {
 			// create text version from HTML
 			if($html && !$text) {
 
-				include_once("classes/helpers/dom.class.php");
-				$DC = new DOM();
-
 				// create DOM object from HTML string
-				$dom = $DC->createDOM($html);
+				$dom = DOM()->createDOM($html);
 
 				// get formatted text string from DOM object
-				$text = $DC->getFormattedTextFromDOM($dom);
+				$text = DOM()->getFormattedTextFromDOM($dom);
 
 
 	//			print $text;

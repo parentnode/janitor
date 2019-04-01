@@ -18,6 +18,10 @@ class DOM extends DOMElement {
 		// I cannot load document with <br> tags and when I save HTML it automatically replaces all <br /> with <br> which I then again cannot load.
 		$html_string = preg_replace("/<br>/", "<br />", $html_string);
 
+
+		// $string = htmlspecialchars(preg_replace("/<br>/", "<br />", $string), 32, "UTF-8", true);
+
+
 		// convert entities to avoid broken chars - the charset handling of the PHP Domdocuments seems to be a bit indecisive
 		$html_string = mb_convert_encoding($html_string, "HTML-ENTITIES", "UTF-8");
 
@@ -45,6 +49,10 @@ class DOM extends DOMElement {
 		// loadHTML needs content definition for UTF-8 (a meta tag)
 		// - it should be enough to state it in the constructor, but it does not work
 		if(@$dom->loadHTML($html_string)) {
+
+			// Map head and body tag to dom (similarly to real DOM)
+			$dom->head = $dom->getElementsByTagName("head") ? $dom->getElementsByTagName("head")->item(0) : false;
+			$dom->body = $dom->getElementsByTagName("body") ? $dom->getElementsByTagName("body")->item(0) : false;
 
 			return $dom;
 	
@@ -82,7 +90,7 @@ class DOM extends DOMElement {
 			$identifier = preg_replace("/$tag/", "", $identifier);
 		}
 
-		// get 
+		// get id
 		preg_match("/#([a-zA-Z1-9]+)/", $identifier, $id_match);
 //		print_r($id_match);
 		if($id_match) {
@@ -92,6 +100,7 @@ class DOM extends DOMElement {
 			$identifier = preg_replace("/#$id/", "", $identifier);
 		}
 
+		// get classnames
 		preg_match_all("/\.([a-zA-Z1-9]+)/", $identifier, $class_matches);
 //		print_r($class_matches);
 		if($class_matches) {
@@ -249,6 +258,42 @@ class DOM extends DOMElement {
 			foreach($tags as $tag) {
 				$tag->parentNode->removeChild($tag);
 			}
+		}
+
+	}
+
+	// remove all occurences of attributes from tags in DOM node
+	function stripAttributes($node) {
+
+		$nodes = $node->getElementsByTagName('*');
+
+		// loop nodes
+		foreach($nodes as $node) {
+
+			// remember what to remove and remove in the end of each iteration as removing alters the node and thus the loop
+				
+			$remove_attributes = array();
+			// loop attributes
+			foreach($node->attributes as $attribute => $attribute_node) {
+
+				// check for allowed attribute
+				if(preg_match("/href|class|width|height|alt|charset/i", $attribute)) {
+
+					// if href, only allow absolute http links (no javascript or other crap)
+					// if($attribute == "href" && strpos($attribute_node->value, "http://") !== 0) {
+					if($attribute == "href" && !preg_match("/^((http[s]?\:\/)?\/|mailto\:|tel\:)/", $attribute_node->value, $match)) {
+						$remove_attributes[] = $attribute;
+					}
+				}
+				else {
+					$remove_attributes[] = $attribute;
+				}
+			}
+			// remove identified attributes
+			foreach($remove_attributes as $remove_attribute) {
+				$node->removeAttribute($remove_attribute);
+			}
+
 		}
 
 	}

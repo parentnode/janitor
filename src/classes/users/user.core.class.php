@@ -2516,6 +2516,16 @@ class UserCore extends Model {
 					global $page;
 					$page->addLog("User->cancelMembership: member_id:".$member["id"]);
 
+
+					// send notification email to admin
+					mailer()->send(array(
+						"recipients" => SHOP_ORDER_NOTIFIES,
+						"subject" => SITE_URL . " - Membership cancelled ($user_id)",
+						"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
+						// "template" => "system"
+					));
+
+
 					return true;
 
 				}
@@ -2637,6 +2647,16 @@ class UserCore extends Model {
 
 					global $page;
 					$page->addLog("User->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
+
+
+					// send notification email to admin
+					mailer()->send(array(
+						"recipients" => SHOP_ORDER_NOTIFIES,
+						"subject" => SITE_URL . " - Membership upgraded to ".$item["name"]." ($user_id)",
+						"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
+						// "template" => "system"
+					));
+
 
 					return true;
 				}
