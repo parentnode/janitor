@@ -8,7 +8,7 @@
 *
 */
 
-class ItemsCore extends Model {
+class ItemsCore {
 
 	/**
 	* Init, set varnames, validation rules
@@ -186,7 +186,6 @@ class ItemsCore extends Model {
 			$ratings = false;
 			$comments = false;
 			$subscription_method = false;
-			$departments = false;
 
 			$user = false;
 			$readstate = false;
@@ -205,7 +204,7 @@ class ItemsCore extends Model {
 						case "ratings"               : $ratings                 = $_value; break;
 						case "comments"              : $comments                = $_value; break;
 						case "subscription_method"   : $subscription_method     = $_value; break;
-						case "departments"           : $departments             = $_value; break;
+						
 
 						case "user"                  : $user                    = $_value; break;
 						case "readstate"             : $readstate               = $_value; break;
@@ -266,13 +265,6 @@ class ItemsCore extends Model {
 			if($all || $subscription_method) {
 				$item["subscription_method"] = $this->getSubscriptionMethod(array("item_id" => $item["id"]));
 			}
-
-
-			// add departments (for item)
-			if($all || $departments) {
-				$item["departments"] = $this->getDepartments(array("item_id" => $item["id"]));
-			}
-
 
 			// add user nickname
 			if($all || $user) {
@@ -1381,7 +1373,7 @@ class ItemsCore extends Model {
 		}
 
 		// no matching prices found
-		return false;
+		return array();
 	}
 
 
@@ -1413,60 +1405,6 @@ class ItemsCore extends Model {
 		return false;
 	}
 
-	// get departments for item_id
-	// maintain $_options parameter despite only one option for now (could be more in the future)
-	function getDepartments($_options=false) {
-		$item_id = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "item_id"     : $item_id        = $_value; break;
-				}
-			}
-		}
-
-		$query = new Query();
-
-		if($item_id) {
-
-			$sql = "SELECT * FROM ".UT_ITEM_DEPARTMENT." as department 
-					WHERE department.item_id = $item_id"; 
-
-			if($query->sql($sql)) {
-				return $query->results();
-			}
-			
-		}
-
-		return false;
-	}
-
-	// togle status value on item
-	function togleStatus($_options=false) {
-		$item_id = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "item_id"     : $item_id        = $_value; break;
-				}
-			}
-		}
-
-		$query = new Query();
-
-		if($item_id) {
-			// notice the "!" in the sql. togles the boolean value
-			$sql = "UPDATE ".UT_ITEMS." as items set status = !status WHERE id = $item_id"; 
-			if($query->sql($sql)) {
-				return true;
-			}
-			
-		}
-
-		return false;
-	}
 }
 
 ?>

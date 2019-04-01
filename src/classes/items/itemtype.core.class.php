@@ -443,15 +443,6 @@ class ItemtypeCore extends Model {
 			// get entities for current value
 			$entities = $this->getModel();
 
-			foreach($entities as $name => $entity) {
-				if ((is_int($entity['value']) || is_string($entity['value'])) && strstr($entity['value'],"+++")) {
-					// TODO obfuscatio check
-					$entity['value'] = base64_decode(str_replace("+++","",$entity['value']));
-					$entity['value'] = str_replace("&amp;","&",$entity['value']);
-				}
-				
-			}
-
 			$names = array();
 			$values = array();
 
