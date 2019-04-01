@@ -207,7 +207,7 @@ class MailGateway {
 				$dom = DOM()->createDOM($html);
 
 				// get formatted text string from DOM object
-				$text = $DC->getFormattedTextFromDOM($dom);
+				$text = DOM()->getFormattedTextFromDOM($dom);
 
 				//cleanup
 				$DC = null;
@@ -388,7 +388,7 @@ class MailGateway {
 				$dom = DOM()->createDOM($html);
 
 				// get formatted text string from DOM object
-				$text = $DC->getFormattedTextFromDOM($dom);
+				$text = DOM()->getFormattedTextFromDOM($dom);
 
 
 	//			print $text;
