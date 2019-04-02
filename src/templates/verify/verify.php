@@ -71,7 +71,7 @@ if($page_item) {
 		</fieldset>
 
 		<ul class="actions">
-			<?= $model->submit("Verify email", array("class" => "primary", "wrapper" => "li.reset")) ?>
+			<?= $model->submit("Verify email", array("class" => "primary", "wrapper" => "li.verify")) ?>
 			<li class="skip"><a href="/verify/skip" class="button">Skip</a></li>
 		</ul>
 	<?= $model->formEnd() ?>
