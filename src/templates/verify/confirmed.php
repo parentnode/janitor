@@ -8,12 +8,6 @@ if($page_item) {
 	$this->sharingMetaData($page_item);
 }
 
-// $type = session()->value("signup_type");
-// session()->reset("signup_type");
-
-// $username = session()->value("signup_username");
-// session()->reset("signup_username");
-
 $username = session()->value("signup_email");
 session()->reset("signup_email");
 
