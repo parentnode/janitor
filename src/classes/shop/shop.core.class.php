@@ -1361,6 +1361,7 @@ class ShopCore extends Model {
 							"recipients" => SHOP_ORDER_NOTIFIES,
 							"subject" => SITE_URL . " - New order ($order_no) created by: $user_id",
 							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/user/orders/" . $user_id . "\n\nOrder content: ".implode(",", $admin_summary),
+							"tracking" => false
 							// "template" => "system"
 						));
 
