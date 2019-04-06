@@ -133,7 +133,7 @@ class UserCore extends Model {
 		$this->addToModel("password", array(
 			"type" => "password",
 			"label" => "Password",
-			"hint_message" => "Type your password - must be 8-20 characters",
+			"hint_message" => "Type your password - must be more than 8 characters",
 			"error_message" => "Invalid password"
 		));
 
@@ -141,7 +141,7 @@ class UserCore extends Model {
 		$this->addToModel("new_password", array(
 			"type" => "password",
 			"label" => "New password",
-			"hint_message" => "Type your new password - must be 8-20 characters",
+			"hint_message" => "Type your new password - must be more than 8 characters",
 			"error_message" => "Invalid password"
 		));
 
@@ -158,7 +158,7 @@ class UserCore extends Model {
 		$this->addToModel("old_password", array(
 			"type" => "password",
 			"label" => "Existing password",
-			"hint_message" => "Type your existing password - must be 8-20 characters",
+			"hint_message" => "Type your existing password - must be more than 8 characters",
 			"error_message" => "Invalid password"
 		));
 
