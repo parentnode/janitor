@@ -3,22 +3,16 @@ global $action;
 global $model;
 
 $IC = new Items();
-$page_item = $IC->getItem(array("tags" => "page:signup-confirm-failed", "extend" => array("user" => true, "tags" => true, "mediae" => true)));
+$page_item = $IC->getItem(array("tags" => "page:verify-failed", "extend" => array("user" => true, "tags" => true, "mediae" => true)));
 if($page_item) {
 	$this->sharingMetaData($page_item);
 }
-
-// $type = session()->value("signup_type");
-// session()->reset("signup_type");
-
-// $username = session()->value("signup_username");
-// session()->reset("signup_username");
 
 $username = session()->value("signup_email");
 session()->reset("signup_email");
 
 ?>
-<div class="scene signup confirm-failed i:scene">
+<div class="scene verify failed i:scene">
 
 <? if($page_item && $page_item["status"]): 
 	$media = $IC->sliceMedia($page_item); ?>
