@@ -300,6 +300,7 @@ class SuperUserCore extends User {
 			}
 			else {
 				message()->addMessage("Unpaid orders exists", array("type" => "error"));
+				return array("error" => "unpaid_orders");
 			}
 
 		}

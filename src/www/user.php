@@ -237,6 +237,24 @@ if(is_array($action) && count($action)) {
 
 	}
 
+	
+	else if($page->validateCsrfToken() && preg_match("/^(cancel)$/", $action[0])) {
+		
+		$result = $model->cancel($action);
+		$output = new Output();
+		// Cannot cancel account due to unpaid orders
+		if(isset($result["error"]) && $result["error"] == "unpaid_orders") {
+			$output->screen($result, ["type" => "error"]);
+			exit();
+		}
+		else {
+			$output->screen($result);
+			exit();
+		}
+		
+	}
+
+
 	// Class interface
 	else if($page->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {
 

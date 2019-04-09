@@ -854,7 +854,7 @@ class UserCore extends Model {
 					}
 
 
-					return array("error" => "unpaid_orders");;
+					return array("error" => "unpaid_orders");
 
 				}
 
@@ -1162,6 +1162,8 @@ class UserCore extends Model {
 							}
 
 						}
+						
+						return array("error" => "wrong_password");
 					}
 
 				}
@@ -1238,28 +1240,36 @@ class UserCore extends Model {
 					// insert reset token
 					$sql = "INSERT INTO ".$this->db_password_reset_tokens." VALUES(DEFAULT, $user_id, '$reset_token', '".date("Y-m-d H:i:s")."')";
 					if($query->sql($sql)) {
+						
+						$sql = "SELECT nickname FROM ".$this->db." WHERE id = '$user_id'";
+						
+						if($query->sql($sql)) {
+							
+							// nickname 
+							$nickname = $query->result(0, "nickname");
+						
+							// send email
+							mailer()->send(array(
+								"values" => array(
+									"TOKEN" => $reset_token,
+									"USERNAME" => $username,
+									"NICKNAME" => $nickname
+								),
+								"track_clicks" => false,
+								"recipients" => $email,
+								"template" => "reset_password"
+							));
 
+							// send notification email to admin
+							// TODO: consider disabling this once it has proved itself worthy
+							mailer()->send(array(
+								"subject" => "Password reset requested: " . $email,
+								"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
+								"template" => "system"
+							));
 
-						// send email
-						mailer()->send(array(
-							"values" => array(
-								"TOKEN" => $reset_token,
-								"USERNAME" => $username
-							),
-							"track_clicks" => false,
-							"recipients" => $email,
-							"template" => "reset_password"
-						));
-
-						// send notification email to admin
-						// TODO: consider disabling this once it has proved itself worthy
-						mailer()->send(array(
-							"subject" => "Password reset requested: " . $email,
-							"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
-							"template" => "system"
-						));
-
-						return true;
+							return true;
+						}
 
 					}
 
