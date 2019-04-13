@@ -2,26 +2,177 @@
 Util.Objects["usernames"] = new function() {
 	this.init = function(div) {
 
-//		u.bug("div usernames")
+		// u.bug("div usernames")
+		
 		var form;
-
+		
 		form = u.qs("form.email", div);
 		u.f.init(form);
+		
+		var send_verification_link = u.qs("li.send_verification_link", div);
+		send_verification_link.form = u.qs("form", send_verification_link);
+		send_verification_link.input = send_verification_link.form.lastChild;
 
-		form.updated = function() {
-			u.ac(this.actions["save"], "primary");
+		form.fields.email.saved_email = form.fields.email.val();
+		form.fields.verification_status.saved_status = form.fields.verification_status.val();
+		form.fields.verification_status.current_status = form.fields.verification_status.val();
+
+		var latest_verification_link = u.qs("div.email .send_verification_link p.reminded_at", div);
+		latest_verification_link.date_time = u.qs("span.date_time", latest_verification_link);
+		u.bug('Latest verification link on page load', latest_verification_link.date_time.textContent);
+		if(u.hc(latest_verification_link.date_time, "never")) {
+			u.ass(latest_verification_link, {"display":"none"});
 		}
+
+		// check verification status and disable/enable verification checkbox and 'verification link' button accordingly
+		if (!form.fields.email.saved_email) {
+			form.fields.verification_status.disabled = true;
+			u.ac(send_verification_link.input, "disabled");
+		}
+		else if( form.fields["verification_status"].val()) {
+			u.ac(send_verification_link.input, "disabled");
+		}
+		else {
+			form.fields.verification_status.disabled = false;
+			u.rc(send_verification_link.input, "disabled");
+		}
+
+		form.fields.email.updated = function() {
+			if(this.val() != this.saved_email) {
+				this._form.fields.verification_status.val(0);
+			
+				u.ac(this._form.actions["save"], "primary");
+				u.rc(this._form.actions["save"], "disabled");
+			
+				if(this.val()) {
+					this._form.fields.verification_status.disabled = false;
+				}
+				else {
+					this._form.fields.verification_status.disabled = true;
+				}
+
+			}
+			else {
+				this._form.fields.verification_status.val(this._form.fields.verification_status.current_status);
+				u.ac(this._form.actions["save"], "disabled");
+
+			}
+		}
+
+		form.fields.verification_status.updated = function() {
+			if(this.val() != this.saved_status) {		
+
+				this.current_status = this.val();
+				// u.bug("current verification status ", this.current_status);
+				u.ac(this._form.actions["save"], "primary");
+				u.rc(this._form.actions["save"], "disabled");
+			}
+			else if(this._form.fields.email.val() != this._form.fields.email.saved_email) {
+				this.current_status = this.val();
+				// u.bug("current verification status ", this.current_status);
+				u.ac(this._form.actions["save"], "primary");
+				u.rc(this._form.actions["save"], "disabled");
+			}
+			else {
+				u.ac(this._form.actions["save"], "disabled");
+
+			}
+		}
+
+		
+		send_verification_link.confirmed = function(response) {
+			// u.bug('Verification link', send_verification_link);
+			if(!latest_verification_link) {
+				latest_verification_link = u.qs("div.email .send_verification_link p.reminded_at", div);
+				latest_verification_link.date_time = u.qs("span.date_time", latest_verification_link);
+			}
+			latest_verification_link.date_time.textContent = response.cms_object.reminded_at;
+			u.bug('Latest verification link', latest_verification_link.date_time.textContent);
+
+			u.ass(latest_verification_link, {"display":"block"});
+			
+			// Ensure that reminder is shown when the button has been pressed once
+			u.rc(send_verification_link, "invite");
+			u.rc(send_verification_link.input, "invite");
+			u.ac(send_verification_link, "reminder");
+			u.ac(send_verification_link.input, "reminder");
+			send_verification_link.input.value = "Send reminder";
+			send_verification_link.form[1].value = "signup_reminder";
+			
+		}
+
+		
 		form.submitted = function(iN) {
-
+			if(!latest_verification_link) {
+				latest_verification_link = u.qs("div.email .send_verification_link p span.date_time", div);
+			}
 			this.response = function(response) {
-				page.notify(response);
-
 				if(response.cms_status == "error") {
 					u.f.fieldError(this.fields["email"]);
 				}
 				else {
-					u.rc(this.actions["save"], "primary");
+					
+					
+					this.fields.email.saved_email = this.fields.email.val();
+					this.fields.verification_status.saved_status = this.fields.verification_status.val();
+					u.ac(this.actions["save"], "disabled");
+					
+					u.bug("saved email ", this.fields.email.saved_email);
+					u.bug("response ", response);
+					
+					
+					if(response.cms_object.email_status == "UPDATED") {
+						this.fields.username_id.val(response.cms_object.username_id);
+						// u.bug("saved username_id", this.fields.username_id.val());
+						
+						if(send_verification_link.form.action == "http://janitor.local/janitor/admin/user/sendVerificationLink/") {
+							send_verification_link.form.action += this.fields.username_id.val();
+						}
+						// u.bug("updated action", send_verification_link.form.action);
+
+						if(response.cms_object.verification_status == "VERIFIED") {
+							u.ac(send_verification_link.input, "disabled");
+							u.rc(this.actions["save"], "primary");
+						}
+						else if(response.cms_object.verification_status == "NOT_VERIFIED") {
+							u.rc(send_verification_link.input, "disabled");
+							u.rc(this.actions["save"], "primary");
+						}
+
+					}
+					else if(response.cms_object.email_status == "UNCHANGED") {
+						if(response.cms_object.verification_status == "VERIFIED") {
+							u.ac(send_verification_link.input, "disabled");
+							u.rc(this.actions["save"], "primary");
+						}
+						else if(response.cms_object.verification_status == "NOT_VERIFIED") {
+							u.rc(send_verification_link.input, "disabled");
+							u.rc(this.actions["save"], "primary");
+						}
+
+						// delete 'email unchanged' message
+						response.cms_message.message.shift();
+					}
+					// update username to blank
+					else {
+						// u.bug("Username has been updated to blank", );
+						u.ac(send_verification_link.input, "disabled");
+						u.rc(this.actions["save"], "primary");
+						send_verification_link.form.action = "http://janitor.local/janitor/admin/user/sendVerificationLink/"
+						u.ass(latest_verification_link, {"display":"none"});
+
+						u.rc(send_verification_link, "reminder");
+						u.ac(send_verification_link, "invite");
+						send_verification_link.input.value = "Send invite";
+						send_verification_link.form[1].value = "verify_new_email";
+
+					}
+
+					page.notify(response);
+
+
 				}
+
 			}
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 		}
@@ -163,8 +314,6 @@ Util.Objects["apitoken"] = new function() {
 
 			}
 		}
-
-
 	}
 }
 
@@ -189,7 +338,9 @@ Util.Objects["editAddress"] = new function() {
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 
 		}
+
 	}
+
 }
 
 // userMaillists subscribe+unsubscribe form
@@ -230,9 +381,13 @@ Util.Objects["maillists"] = new function() {
 					}
 
 				}
+
 			}
+
 		}
+
 	}
+
 }
 
 // // Update address
@@ -302,8 +457,8 @@ Util.Objects["accessEdit"] = new function() {
 
 		}
 
-
 	}
+
 }
 
 Util.Objects["flushUserSession"] = new function() {
@@ -333,9 +488,11 @@ Util.Objects["flushUserSession"] = new function() {
 				u.request(this, this.div.flush_url+"/"+this.user_id, {"method":"post", "params" : "csrf-token="+this.div.csrf_token});
 				
 			}
+
 		}
 
 	}
+
 }
 
 
@@ -371,64 +528,97 @@ Util.Objects["newSubscription"] = new function() {
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 
 		}
+
 	}
+
 }
 
 
 
-// unconfirmedAccounts form
-Util.Objects["unconfirmedAccounts"] = new function() {
+// unverifiedUsernames form
+Util.Objects["unverifiedUsernames"] = new function() {
 	this.init = function(div) {
 
-
 		var i, node;
+
+		div.bn_remind_selected = u.qs("li.remind_selected");
+		
+		div.selectionUpdated = function(response) {
+			if(response.length > 0) {
+				u.rc(this.bn_remind_selected.form[2], "disabled");				
+			}
+			else {
+				u.ac(this.bn_remind_selected.form[2], "disabled");
+			}
+
+			this.selected_username_ids = [];
+			
+			
+			for(i = 0; i < response.length; i++) {
+				node = response[i].node;
+				node.username_id = u.cv(node, "username_id");
+				this.selected_username_ids.push(node.username_id);
+			}
+			
+			this.selected_username_ids = this.selected_username_ids.join();
+			this.bn_remind_selected.form.fields.selected_username_ids.val(this.selected_username_ids);
+		}
+
+		
 		// nodes are already available from defaultList
 		for(i = 0; node = div.nodes[i]; i++) {
-
+			
 			node.bn_remind = u.qs("ul.actions li.remind", node);
 			node.bn_remind.node = node;
 
 			node.bn_remind.reminded = function(response) {
+				// u.bug('Testing response', response);
 
 				if(this.parentNode) {
 					this.parentNode.removeChild(this);
 				}
+				if(this.node._checkbox.parentNode) {
+					this.node._checkbox.parentNode.removeChild(this.node._checkbox);
+				}
 				if(response.cms_status == "success") {
 					var reminded_at = u.qs("dd.reminded_at", this.node);
 					var total_reminders = u.qs("dd.total_reminders", this.node);
-
-					reminded_at.innerHTML = response.cms_object[0]["reminded_at"] + " (just now)";
+					
+					reminded_at.innerHTML = response.cms_object["reminded_at"] + " (just now)";
 					u.ac(reminded_at, "system_warning");
-					total_reminders.innerHTML = response.cms_object[0]["total_reminders"];
+					total_reminders.innerHTML = response.cms_object["total_reminders"];
 					u.ac(total_reminders, "system_warning");
 				}
 				else {
 					page.notify({"cms_status":"error", "cms_message":{"error":["Could not send message"]}, "isJSON":true});
 				}
-
+				
 			}
-
+	
 		}
 
 	}
-
+	
 }
 
-// unconfirmedAccountsAll
-Util.Objects["unconfirmedAccountsAll"] = new function() {
+// unverifiedUsernamesSelected
+Util.Objects["unverifiedUsernamesSelected"] = new function() {
 	this.init = function(ul) {
 
-		var bn_remind_all = u.qs("li.remind", ul);
-		bn_remind_all.reminded = function(response) {
-
+		var bn_remind_selected = u.qs("li.remind_selected", ul);
+				
+		bn_remind_selected.reminded = function(response) {
+			
+			var obj;
 			if(response.cms_status == "success") {
-
-				for(i = 0; obj = response.cms_object[i]; i++) {
-
-					node = u.ge("id:" + obj.user_id);
-//					console.log(node);
-					node.bn_remind.reminded({"cms_status":"success", "cms_object":[obj]});
-
+				for(i = 0; i < response.cms_object.length; i++) {
+					obj = response.cms_object[i];
+					// u.bug('Testing obj', obj); 
+					node = u.ge("username_id:" + obj.username_id);
+					if(node) {
+						node.bn_remind.reminded({"cms_status":"success", "cms_object":obj});
+					}
+					
 				}
 
 			}
@@ -436,4 +626,5 @@ Util.Objects["unconfirmedAccountsAll"] = new function() {
 		}
 
 	}
+
 }
