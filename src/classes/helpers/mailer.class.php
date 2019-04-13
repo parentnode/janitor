@@ -219,7 +219,7 @@ class MailGateway {
 			}
 
 
-			// only attmempt sending if recipients are specified
+			// only attempt sending if recipients are specified
 			if($text && $recipients) {
 
 				list($from_email, $from_name) = $this->getSender($from_current_user);
@@ -407,7 +407,7 @@ class MailGateway {
 			}
 
 
-			// only attmempt sending if recipients are specified
+			// only attempt sending if recipients are specified
 			if($text && $recipients) {
 
 				list($from_email, $from_name) = $this->getSender($from_current_user);
