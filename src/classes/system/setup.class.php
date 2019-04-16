@@ -1881,6 +1881,7 @@ class Setup extends Itemtype {
 
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 			$query->checkDbExistence(UT_ITEMS_COMMENTS);
+			$query->checkDbExistence(UT_ITEMS_RATINGS);
 			$query->checkDbExistence(UT_ITEMS_PRICES);
 
 			// navigation requires items - must be run after items

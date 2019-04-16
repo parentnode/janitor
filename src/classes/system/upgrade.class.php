@@ -198,6 +198,9 @@ class Upgrade extends Model {
 			// ITEM COMMENTS
 			$this->process($this->createTableIfMissing(UT_ITEMS_COMMENTS), true);
 
+			// ITEM RATINGS
+			$this->process($this->createTableIfMissing(UT_ITEMS_RATINGS), true);
+
 
 
 			// USER/ITEM

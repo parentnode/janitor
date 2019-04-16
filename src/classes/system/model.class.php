@@ -96,6 +96,12 @@ class Model extends HTML {
 			"hint_message" => "Leave a new comment.",
 			"error_message" => "Comment cannot be empty."
 		));
+		$this->addToModel("item_rating", array(
+			"type" => "integer",
+			"label" => "New rating",
+			"hint_message" => "Leave a your rating.",
+			"error_message" => "Rating cannot be empty."
+		));
 
 
 		$this->addToModel("item_price", array(

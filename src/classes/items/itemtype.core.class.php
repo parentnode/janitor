@@ -1792,6 +1792,103 @@ class ItemtypeCore extends Model {
 
 
 
+	// RATINGS
+
+	// add rating to item
+	// rating is sent in $_POST
+	// /janitor/[admin/]#itemtype#/addRating/#item_id#
+	function addRating($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+			$item_id = $action[1];
+
+			if($this->validateList(array("item_rating"), $item_id)) {
+
+				$user_id = session()->value("user_id");
+				$rating = $this->getProperty("item_rating", "value");
+
+				$sql = "INSERT INTO ".UT_ITEMS_RATINGS." VALUES(DEFAULT, $item_id, $user_id, '$rating', DEFAULT)";
+				// debug($sql);
+				if($query->sql($sql)) {
+					message()->addMessage("Rating added");
+
+					$rating_id = $query->lastInsertId();
+					$IC = new Items();
+					$new_rating = $IC->getRatings(array("rating_id" => $rating_id));
+					$new_rating["created_at"] = date("Y-m-d, H:i", strtotime($new_rating["created_at"]));
+					return $new_rating;
+				}
+
+
+			}
+
+		}
+
+		message()->addMessage("Rating could not be added", array("type" => "error"));
+		return false;
+	}
+
+	// update rating
+	// /janitor/[admin/]#itemtype#/updateRating/#item_id#/#rating_id#
+	function updateRating($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$rating_id = $action[2];
+
+			if($this->validateList(array("item_rating"), $item_id)) {
+
+				$rating = $this->getProperty("item_rating", "value");
+
+				if($query->sql("UPDATE ".UT_ITEMS_RATINGS." SET rating = '$rating' WHERE id = $rating_id AND item_id = $item_id")) {
+					message()->addMessage("Rating updated");
+					return true;
+				}
+
+
+			}
+
+		}
+
+		message()->addMessage("Rating could not be updated", array("type" => "error"));
+		return false;
+	}
+
+	// delete rating
+	// /janitor/[admin/]#itemtype#/deleteRating/#item_id#/#rating_id#
+	// TODO: implement itemtype checks
+ 	function deleteRating($action) {
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+			$item_id = $action[1];
+			$rating_id = $action[2];
+
+			if($query->sql("DELETE FROM ".UT_ITEMS_RATINGS." WHERE item_id = $item_id AND id = $rating_id")) {
+
+				message()->addMessage("Rating deleted");
+				return true;
+			}
+		}
+
+		message()->addMessage("Rating could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+
+
 
 
 	// PRICES
