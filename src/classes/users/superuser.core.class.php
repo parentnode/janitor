@@ -193,116 +193,121 @@ class SuperUserCore extends User {
 			$user_id = $action[1];
 			global $page;
 
-
+			$user = $this->getUsers(["user_id" => $user_id]);
+			// do not attempt to get cancelled or non-existent users
+			if($user && $user["status"] >= 0) {
 			// check for unpaid orders
-			$unpaid_orders = false;
-			if(defined("SITE_SHOP") && SITE_SHOP) {
-				include_once("classes/shop/supershop.class.php");
-				$SC = new SuperShop();
-				$unpaid_orders = $SC->getUnpaidOrders(["user_id" => $user_id]);
-
-			}
-
-
-			// do not allow to cancel users with unpaid orders
-			if(!$unpaid_orders) {
-
-				// WHEN UPDATING - ALSO UPDATE USER CORE VERSION
-				// Update name to "Anonymous" and remove all privileges
-				$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
-				if($query->sql($sql)) {
-
-
-					// delete usernames
-					$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete activation reminders
-					$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete password
-					$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-					// delete password reset tokens
-					$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete addresses
-					$sql = "DELETE FROM ".$this->db_addresses." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete api tokens
-					$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete maillists
-					$sql = "DELETE FROM ".$this->db_maillists." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete readstates
-					$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete membership
-					if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
-						$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-					}
-
-					// delete subscriptions
-					if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
-						$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-					}
-
-
-					// delete carts
-					if(defined("SITE_SHOP") && SITE_SHOP) {
-						$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-
-
-						// we should also delete user account at payment gateway
-						payments()->deleteGatewayUserId($user_id);
-
-						// // TODO: keep updated when more gateways are added
-						// include_once("classes/adapters/stripe.class.php");
-						// $GC = new JanitorStripe();
-						// $payment_methods = $page->paymentMethods();
-						//
-						// foreach($payment_methods as $payment_method) {
-						//
-						// 	if($payment_method["gateway"] == "stripe") {
-						//
-						// 		$GC->deleteCustomer($user_id);
-						//
-						// 	}
-						//
-						// }
-
-					}
-
-					// flush user session when user is deleted
-					$this->flushUserSession(array("flushUserSession", $user_id));
-
-
-					// add to log
-					global $page;
-					$page->addLog("SuperUser->cancel: user_id:$user_id");
-
-
-					message()->addMessage("Account cancelled");
-					return true;
-
+				$unpaid_orders = false;
+				if(defined("SITE_SHOP") && SITE_SHOP) {
+					include_once("classes/shop/supershop.class.php");
+					$SC = new SuperShop();
+					$unpaid_orders = $SC->getUnpaidOrders(["user_id" => $user_id]);
 				}
 
+				// do not allow to cancel users with unpaid orders
+				if(!$unpaid_orders) {
+
+					// WHEN UPDATING - ALSO UPDATE USER CORE VERSION
+					// Update name to "Anonymous" and remove all privileges
+					$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
+					if($query->sql($sql)) {
+
+
+						// delete usernames
+						$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete activation reminders
+						$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete password
+						$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+						// delete password reset tokens
+						$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete addresses
+						$sql = "DELETE FROM ".$this->db_addresses." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete api tokens
+						$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete maillists
+						$sql = "DELETE FROM ".$this->db_maillists." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete readstates
+						$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete membership
+						if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
+							$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+						}
+
+						// delete subscriptions
+						if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
+							$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+						}
+
+
+						// delete carts
+						if(defined("SITE_SHOP") && SITE_SHOP) {
+							$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+
+							// we should also delete user account at payment gateway
+							payments()->deleteGatewayUserId($user_id);
+
+							// // TODO: keep updated when more gateways are added
+							// include_once("classes/adapters/stripe.class.php");
+							// $GC = new JanitorStripe();
+							// $payment_methods = $page->paymentMethods();
+							//
+							// foreach($payment_methods as $payment_method) {
+							//
+							// 	if($payment_method["gateway"] == "stripe") {
+							//
+							// 		$GC->deleteCustomer($user_id);
+							//
+							// 	}
+							//
+							// }
+
+						}
+
+						// flush user session when user is deleted
+						$this->flushUserSession(array("flushUserSession", $user_id));
+
+
+						// add to log
+						global $page;
+						$page->addLog("SuperUser->cancel: user_id:$user_id");
+
+
+						message()->addMessage("Account cancelled");
+						return true;
+
+					}
+
+				}
+				else if($unpaid_orders){
+					message()->addMessage("Unpaid orders exists", array("type" => "error"));
+					return array("error" => "unpaid_orders");
+				}
 			}
 			else {
-				message()->addMessage("Unpaid orders exists", array("type" => "error"));
-				return array("error" => "unpaid_orders");
+				message()->addMessage("User does not exist.", array("type" => "error"));
+				return false;	
 			}
-
+			
 		}
 
 		message()->addMessage("Cancelling user failed", array("type" => "error"));
@@ -504,7 +509,7 @@ class SuperUserCore extends User {
 		}
 
 		// return all users
-		else if(!isset($_options["user_id"]) && !isset($_options["user_id"]) && !isset($_options["user_group_id"]) && !isset($_options["email"]) && !isset($_options["mobile"])) {
+		else if(!isset($_options["user_id"]) && !isset($_options["user_group_id"]) && !isset($_options["email"]) && !isset($_options["mobile"])) {
 			// Exclude Guest user for all-users list
 			if($query->sql("SELECT * FROM ".$this->db." WHERE id != 1 ORDER BY $order")) {
 				 return $query->results();
