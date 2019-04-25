@@ -6,18 +6,16 @@ $project_path = realpath(LOCAL_PATH."/..");
 
 // Get git origin
 $remote_origin = trim(shell_exec("cd '$project_path' && git config --get remote.origin.url"));
-
-
-// Test origins
-// $remote_origin = "https://kaestel:pass@github.com/kaestel/casepoint_dk";
-// $remote_origin = "https://kaestel@github.com/kaestel/casepoint_dk";
-// $remote_origin = "https://github.com/kaestel/casepoint_dk";
-
 $remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin);
+
+// Get branch
+$branch = trim(shell_exec("cd '$project_path' && git rev-parse --abbrev-ref HEAD"));
 
 
 // Check that git has been set up with project credentials file
 $credential_helper = trim(shell_exec("cd '$project_path' && git config --get credential.helper"));
+// debug([$remote_origin, $credential_helper, PRIVATE_FILE_PATH]);
+
 $credential_helper_ready = false;
 if(strpos("store --file ".PRIVATE_FILE_PATH."/.git_credentials", $credential_helper) === 0) {
 	$credential_helper_ready = true;
@@ -33,7 +31,7 @@ if(strpos("store --file ".PRIVATE_FILE_PATH."/.git_credentials", $credential_hel
 
 	<? if($credential_helper_ready): ?>
 
-		<p>Your are about to pull the latest source code from:<br /><?= $remote_origin ?>.</p>
+		<p>Your are about to pull the latest source code from:<br /><?= $remote_origin ?> (<?= $branch ?>).</p>
 
 		<p class="note">
 			If your repository is private, you need to enter your git username and password to 

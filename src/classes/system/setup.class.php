@@ -2183,6 +2183,9 @@ class Setup extends Itemtype {
 			// Remove any existing username:password from remote url
 			$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin);
 
+			// Get branch
+			$branch = trim(shell_exec("cd '$project_path' && git rev-parse --abbrev-ref HEAD"));
+			// debug([$remote_origin, $branch]);
 
 			// Was git username and password sent
 			$git_username = getPost("git_username");
@@ -2211,11 +2214,13 @@ class Setup extends Itemtype {
 			// Update git credentials file to allow pull command to execute without credentials in command-line
 			file_put_contents(PRIVATE_FILE_PATH."/.git_credentials", $credentials);
 
-			$command = "cd '$project_path' && sudo git pull '$remote_origin' && sudo git submodule update";
-//			print $command;
+			$command = "cd '$project_path' && sudo git pull '$remote_origin' '$branch' && sudo git submodule update";
+			// Local test
+			// $command = "cd '$project_path' && git pull '$remote_origin' '$branch' && git submodule update";
+			// debug($command);
 
 			$output = shell_exec($command);
-//			print $output;
+			// debug($output);
 
 
 			// Remove username:password from credential file (storing is temporary on purpose)
