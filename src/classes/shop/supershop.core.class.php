@@ -898,7 +898,7 @@ class SuperShopCore extends Shop {
 		}
 
 		// return all unpaid orders
-		else {
+		else if(!isset($_options["user_id"]) && !isset($_options["item_id"]) && !isset($_options["itemtype"])) {
 
 			$sql = "SELECT * FROM ".$this->db_orders." WHERE payment_status != 2 AND status != 3 ORDER BY id DESC";
 //			print $sql;
