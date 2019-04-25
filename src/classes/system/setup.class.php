@@ -580,7 +580,7 @@ class Setup extends Itemtype {
 
 				$filepath = $path . "/" . $file ;
 
-				print $filepath. " : " . filetype($filepath). " : " . $user . "<br>\n";
+				// print $filepath. " : " . filetype($filepath). " : " . $user . "<br>\n";
 				if(is_dir($filepath)) {
 					if(!$this->recurseFilePermissions($filepath, $user, $group, $permissions)) {
 						return false;
