@@ -128,7 +128,7 @@ if(is_array($action) && count($action)) {
 		
 		$result = $model->setPassword($action);
 		$output = new Output();
-		// Cannot cancel account due to unpaid orders
+		// Old password was not validated successfully. New password was not saved. 
 		if(isset($result["error"]) && $result["error"] == "wrong_password") {
 			$output->screen($result, ["type" => "error"]);
 			exit();
