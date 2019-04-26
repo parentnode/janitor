@@ -690,20 +690,29 @@ class UserCore extends Model {
 	}
 
 
-		// Get relevant user data and check verification before enabling user
+	/**
+	 * Verify and activate user (if user is not already verified).
+	 * Deletes verification reminder log for username.
+	 *
+	 * @param string $username
+	 * @param string $verification_code
+	 * 
+	 * @return int|array|false User id on success. Status code if already verified. False on error. 
+	 */	
 	function confirmUsername($username, $verification_code) {
 
 		$query = new Query();
 
 		// only make alterations if not already verified
-		$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 0 AND verification_code = '$verification_code'";
+		$sql = "SELECT id, user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 0 AND verification_code = '$verification_code'";
 		if($query->sql($sql)) {
 
-			// get user_id from sql query
+			// get user_id and username_id from sql query
 			$user_id = $query->result(0, "user_id");
+			$username_id = $query->result(0, "id");
 
 			// update verification state
-			$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND username = '$username'";
+			$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND id = '$username_id'";
 
 			if($query->sql($sql)) {
 
@@ -711,12 +720,12 @@ class UserCore extends Model {
 				$sql = "UPDATE ".$this->db." SET status = 1 WHERE id = $user_id";
 				if($query->sql($sql)) {
 
-					// delete activation reminder logs (not needed after user has been verified)
+					// delete verification reminder logs (not needed after user has been verified)
 					$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE user_id = $user_id";
 					$query->sql($sql);
 
 					global $page;
-					$page->addLog("User->confirmUser: user_id:$user_id");
+					$page->addLog("User->confirmUsername: user_id:$user_id, username_id:$username_id");
 
 					return $user_id;
 				}
@@ -728,7 +737,7 @@ class UserCore extends Model {
 
 			if($query->sql($sql)) {
 				global $page;
-				$page->addLog("user->confirmUsername: user has already been verified ($username)");
+				$page->addLog("user->confirmUsername: username has already been verified ($username)");
 				return array("status" => "USER_VERIFIED");
 			}
 		}
