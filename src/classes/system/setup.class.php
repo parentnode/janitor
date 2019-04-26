@@ -2006,7 +2006,10 @@ class Setup extends Itemtype {
 					// SET USERNAME
 					unset($_POST);
 					$_POST["email"] = $this->get("account", "account_username");
-					$UC->updateEmail(array("updateEmail", $users[0]["id"]));
+					$username = $UC->updateEmail(array("updateEmail", $users[0]["id"]));
+
+					// VERIFY USERNAME
+					$UC->setVerificationStatus($username["username_id"], $users[0]["id"], 1);
 
 					// SET PASSWORD
 					unset($_POST);
