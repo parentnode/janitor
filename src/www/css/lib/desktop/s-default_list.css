@@ -115,3 +115,11 @@
 #content div.all_items.selectable ul.items > li.all div.range span {display: inline-block; vertical-align: top; font-size: 12px; padding: 0 5px;}
 #content div.all_items.selectable ul.items > li.all div.range > input {width: 30px; height: 14px; margin-top: -4px; font-size: 12px;}
 #content div.all_items.selectable ul.items > li h3 {padding-left: 50px;}
+
+
+/* PAGINATION */
+#content div.pagination {min-height: 28px;}
+#content div.pagination ul {text-align:center; margin-top: 22px;}
+#content div.pagination ul li a {padding: 4px 12px 6px; font-size: 1rem; line-height: 1.2em; background-color: #8c9399; color: #ffffff; border: none; cursor: pointer; border-radius: 3px; text-decoration: none;}
+#content div.pagination ul li {padding: 0 10px 0 0}
+#content div.pagination ul li a.disabled {cursor: default !important; color: #aaaaaa !important; background-color: #eeeeee !important;}
