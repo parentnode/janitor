@@ -536,25 +536,42 @@ class SuperUserCore extends User {
 	// At later point interface and functionality should be expanded to intended level
 
 
-	// get usernames or specific username
+	
+	/**
+	 * Get usernames or specific username
+	 *
+	 * @param array $_options Optional filters
+	 * 		username_id 	int			Returns specific username
+	 * 		user_id 		int			 
+	 * 		type 			string		"email"|"mobile"	Requires user_id. Returns first username of type for user_id.
+	 * @return array|false query result, query results, or false
+	 */
 	function getUsernames($_options) {
 
+		$username_id = false;
 		$user_id = false;
 		$type = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
+					case "username_id"	: $username_id 	= $_value; break;
 					case "user_id"  	: $user_id		= $_value; break;
 					case "type"     	: $type			= $_value; break;
-					case "username_id"	: $username_id 	= $_value; break;
 				}
 			}
 		}
 
 		$query = new Query();
 
-		if($user_id) {
+		if($username_id) {
+			$sql = "SELECT * FROM ".$this->db_usernames." WHERE id = $username_id";
+			if($query->sql($sql)) {
+				return $query->result(0);
+			}
+		}
+
+		else if($user_id) {
 
 			// return first username of type
 			if($type) {
@@ -574,12 +591,7 @@ class SuperUserCore extends User {
 
 		}
 
-		else if($username_id) {
-			$sql = "SELECT * FROM ".$this->db_usernames." WHERE id = $username_id";
-			if($query->sql($sql)) {
-				return $query->result(0);
-			}
-		}
+
 
 		return false;
 	}
@@ -663,6 +675,7 @@ class SuperUserCore extends User {
 	 * @param integer $username_id
 	 * @param integer $user_id
 	 * @param integer $verification_status (1 or 0)
+	 * 
 	 * @return array|false status code or false
 	 */
 	function setVerificationStatus($username_id, $user_id, $verification_status) {
@@ -695,8 +708,17 @@ class SuperUserCore extends User {
 		
 	}
 
-	// Update usernames from posted values
-	// /janitor/admin/user/updateEmail/#user_id#
+	
+	/**
+	 * Update usernames from posted values
+	 * /janitor/admin/user/updateEmail/#user_id#
+	 *
+	 * @param array $action user_id in $action[1]
+	 * @param string email from $_POST
+	 * @param int username_id from $_POST
+	 * 
+	 * @return array|true|false Returns status code indicating whether email was updated/unchanged/already existing. Returns true if email was deleted (updated to blank). False on error.
+	 */
 	function updateEmail($action) {
 
 		// Get posted values to make them available for models
@@ -2480,7 +2502,14 @@ class SuperUserCore extends User {
 
 
 
-
+	/**
+	 * Get all (or a subset of) unverified usernames; 
+	 *
+	 * @param boolean $_options Optional filters
+	 * 		type		string		"email"|"mobile"
+	 * 		user_id		int			
+	 * @return array|false query result or false
+	 */
 	function getUnverifiedUsernames($_options = false) {
 
 		$type = false;
@@ -2525,7 +2554,7 @@ class SuperUserCore extends User {
 		$WHERE[] = "users.id = usernames.user_id";
 		// $WHERE[] = "users.status = 0";
 		$WHERE[] = "usernames.verified = 0";
-		$WHERE[] = "usernames.type = 'email'";
+		// $WHERE[] = "usernames.type = 'email'";
 
 		// join with activation log
 		$LEFTJOIN[] = SITE_DB.".user_log_verification_links as reminders ON usernames.id = reminders.username_id";
@@ -2538,6 +2567,9 @@ class SuperUserCore extends User {
 		if($user_id) {
 			$WHERE[] = "users.id = $user_id";
 			// $LIMIT = 1;
+		}
+		if($type) {
+			$WHERE[] =	"usernames.type = '$type'";
 		}
 
 
@@ -2559,8 +2591,8 @@ class SuperUserCore extends User {
 	 * Send verification link to username_id
 	 * A specfic template can be posted. Default template is signup_reminder.
 	 *
-	 * @param array $action
-	 * @return void
+	 * @param array $action username_id in $action[1]
+	 * @return array|false $verification_status with "verified", "reminded_at", and "total_reminders". False on error.
 	 */
 	function sendVerificationLink($action) {
 
@@ -2617,6 +2649,13 @@ class SuperUserCore extends User {
 		}		
 	}
 	
+	/**
+	 * Send verification links to list of users
+	 *
+	 * @param array $action 
+	 * @param string expects a comma separated string of username_ids from $_POST 
+	 * @return array $verification_statuses with each $verification_status contaning "verified", "reminded_at", "total_reminders", and "username_id".
+	 */
 	function sendVerificationLinks($action) {
 
 		$selected_username_ids = explode(",", getPost("selected_username_ids"));
