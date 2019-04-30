@@ -136,7 +136,7 @@ class MailGateway {
 			// check that recipient seems to be a valid email
 			foreach($temp_recipients as $recipient) {
 				// only use valid recipients
-				if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+				if($recipient && preg_match("/^[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
 					$recipients[] = $recipient;
 				}
 			}
@@ -203,14 +203,11 @@ class MailGateway {
 			// create text version from HTML
 			if($html && !$text) {
 
-				include_once("classes/helpers/dom.class.php");
-				$DC = new DOM();
-
 				// create DOM object from HTML string
-				$dom = $DC->createDOM($html);
+				$dom = DOM()->createDOM($html);
 
 				// get formatted text string from DOM object
-				$text = $DC->getFormattedTextFromDOM($dom);
+				$text = DOM()->getFormattedTextFromDOM($dom);
 
 				//cleanup
 				$DC = null;
@@ -318,7 +315,7 @@ class MailGateway {
 			// check that recipient seems to be a valid email
 			foreach($temp_recipients as $recipient) {
 				// only use valid recipients
-				if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+				if($recipient && preg_match("/^[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
 					$recipients[] = $recipient;
 				}
 			}
@@ -387,14 +384,11 @@ class MailGateway {
 			// create text version from HTML
 			if($html && !$text) {
 
-				include_once("classes/helpers/dom.class.php");
-				$DC = new DOM();
-
 				// create DOM object from HTML string
-				$dom = $DC->createDOM($html);
+				$dom = DOM()->createDOM($html);
 
 				// get formatted text string from DOM object
-				$text = $DC->getFormattedTextFromDOM($dom);
+				$text = DOM()->getFormattedTextFromDOM($dom);
 
 
 	//			print $text;

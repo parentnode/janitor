@@ -133,7 +133,7 @@ class UserCore extends Model {
 		$this->addToModel("password", array(
 			"type" => "password",
 			"label" => "Password",
-			"hint_message" => "Type your password - must be 8-20 characters",
+			"hint_message" => "Type your password - must be more than 8 characters",
 			"error_message" => "Invalid password"
 		));
 
@@ -141,7 +141,7 @@ class UserCore extends Model {
 		$this->addToModel("new_password", array(
 			"type" => "password",
 			"label" => "New password",
-			"hint_message" => "Type your new password - must be 8-20 characters",
+			"hint_message" => "Type your new password - must be more than 8 characters",
 			"error_message" => "Invalid password"
 		));
 
@@ -158,7 +158,7 @@ class UserCore extends Model {
 		$this->addToModel("old_password", array(
 			"type" => "password",
 			"label" => "Existing password",
-			"hint_message" => "Type your existing password - must be 8-20 characters",
+			"hint_message" => "Type your existing password - must be more than 8 characters",
 			"error_message" => "Invalid password"
 		));
 
@@ -168,7 +168,7 @@ class UserCore extends Model {
 			"type" => "string",
 			"label" => "Email or mobile",
 			"autocomplete" => true,
-			"pattern" => "[\w\.\-_]+@[\w\-\.]+\.\w{2,10}|[\+0-9\-\.\s\(\)]{5,18}", 
+			"pattern" => "[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}|[\+0-9\-\.\s\(\)]{5,18}", 
 			"hint_message" => "Use your emailaddress or mobilenumber to log in.", 
 			"error_message" => "The entered value is neither an email or a mobilenumber."
 		));
@@ -870,7 +870,7 @@ class UserCore extends Model {
 					}
 
 
-					return array("error" => "unpaid_orders");;
+					return array("error" => "unpaid_orders");
 
 				}
 
@@ -1215,6 +1215,8 @@ class UserCore extends Model {
 							}
 
 						}
+						
+						return array("error" => "wrong_password");
 					}
 
 				}
@@ -1291,28 +1293,36 @@ class UserCore extends Model {
 					// insert reset token
 					$sql = "INSERT INTO ".$this->db_password_reset_tokens." VALUES(DEFAULT, $user_id, '$reset_token', '".date("Y-m-d H:i:s")."')";
 					if($query->sql($sql)) {
+						
+						$sql = "SELECT nickname FROM ".$this->db." WHERE id = '$user_id'";
+						
+						if($query->sql($sql)) {
+							
+							// nickname 
+							$nickname = $query->result(0, "nickname");
+						
+							// send email
+							mailer()->send(array(
+								"values" => array(
+									"TOKEN" => $reset_token,
+									"USERNAME" => $username,
+									"NICKNAME" => $nickname
+								),
+								"track_clicks" => false,
+								"recipients" => $email,
+								"template" => "reset_password"
+							));
 
+							// send notification email to admin
+							// TODO: consider disabling this once it has proved itself worthy
+							mailer()->send(array(
+								"subject" => "Password reset requested: " . $email,
+								"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
+								"template" => "system"
+							));
 
-						// send email
-						mailer()->send(array(
-							"values" => array(
-								"TOKEN" => $reset_token,
-								"USERNAME" => $username
-							),
-							"track_clicks" => false,
-							"recipients" => $email,
-							"template" => "reset_password"
-						));
-
-						// send notification email to admin
-						// TODO: consider disabling this once it has proved itself worthy
-						mailer()->send(array(
-							"subject" => "Password reset requested: " . $email,
-							"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
-							"template" => "system"
-						));
-
-						return true;
+							return true;
+						}
 
 					}
 
@@ -2569,6 +2579,16 @@ class UserCore extends Model {
 					global $page;
 					$page->addLog("User->cancelMembership: member_id:".$member["id"]);
 
+
+					// send notification email to admin
+					mailer()->send(array(
+						"recipients" => SHOP_ORDER_NOTIFIES,
+						"subject" => SITE_URL . " - Membership cancelled ($user_id)",
+						"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
+						// "template" => "system"
+					));
+
+
 					return true;
 
 				}
@@ -2690,6 +2710,16 @@ class UserCore extends Model {
 
 					global $page;
 					$page->addLog("User->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
+
+
+					// send notification email to admin
+					mailer()->send(array(
+						"recipients" => SHOP_ORDER_NOTIFIES,
+						"subject" => SITE_URL . " - Membership upgraded to ".$item["name"]." ($user_id)",
+						"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
+						// "template" => "system"
+					));
+
 
 					return true;
 				}

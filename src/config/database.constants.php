@@ -22,6 +22,9 @@ define("UT_ITEMS_MEDIAE",               SITE_DB.".items_mediae");               
 // COMMENTS
 define("UT_ITEMS_COMMENTS",             SITE_DB.".items_comments");                    // Items Comments
 
+// RATINGS
+define("UT_ITEMS_RATINGS",              SITE_DB.".items_ratings");                     // Items Ratings
+
 // PRICES
 define("UT_ITEMS_PRICES",               SITE_DB.".items_prices");                      // Items Prices
 

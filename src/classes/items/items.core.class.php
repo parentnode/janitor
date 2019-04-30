@@ -283,9 +283,9 @@ class ItemsCore {
 
 			// TODO: Implement ratings and comments
 			// NOT IMPLEMENTED YET
-			// if($all || $ratings) {
-			//	$item["ratings"] = $this->getRatings(array("item_id" => $item["id"]));
-			// }
+			if($all || $ratings) {
+				$item["ratings"] = $this->getRatings(array("item_id" => $item["id"]));
+			}
 
 			return $item;
 		}
@@ -535,9 +535,6 @@ class ItemsCore {
 
 					case "extend"        : $extend        = $_value; break;
 
-					// Uknown functionality (what is it used for?)
-					// case "count"         : $count         = $_value; break;
-					
 					// TODO: implement date ranges
 
 					// TODO: implement search patterns which can also look in local databases - first experiment made in local device search (type.device.class.php)
@@ -618,8 +615,8 @@ class ItemsCore {
 			$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
 		}
 
-		// tag query
 
+		// tag query
 		if(isset($tags) && is_string($tags)) {
 
 			$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
@@ -688,7 +685,29 @@ class ItemsCore {
 
 		// add item-order specific SQL
 		if(isset($order)) {
-			$ORDER[] = $order;
+
+			// Rating order? 
+			if($order === "rating DESC") {
+
+				$LEFTJOIN[] = UT_ITEMS_RATINGS." as ratings ON ratings.item_id = items.id";
+				$SELECT[] = "SUM(ratings.rating) as total_rating";
+				$ORDER[] = "total_rating DESC";
+
+			}
+			else if($order === "rating ASC") {
+
+				$LEFTJOIN[] = UT_ITEMS_RATINGS." as ratings ON ratings.item_id = items.id";
+				$SELECT[] = "SUM(ratings.rating) as total_rating";
+				$ORDER[] = "total_rating ASC";
+
+			}
+			// Or any kind of order
+			else {
+
+				$ORDER[] = $order;
+
+			}
+
 		}
 
 		$ORDER[] = "items.published_at DESC";
@@ -703,7 +722,7 @@ class ItemsCore {
 		$items = array();
 
 		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit;
-//		print $sql."<br>\n";
+		// debug($sql);
 
 		$query->sql($sql);
 		$items = $query->results();
@@ -977,7 +996,7 @@ class ItemsCore {
 		// previous items
 		// first id in range
 		// last id in range
-		return array("range_items" => $range_items, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "first_sindex" => $first_sindex, "last_sindex" => $last_sindex);
+		return array("range_items" => $range_items, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "first_sindex" => $first_sindex, "last_sindex" => $last_sindex, "total" => count($items));
 	}
 
 
@@ -1259,6 +1278,85 @@ class ItemsCore {
 		return false;
 	}
 
+
+	// get ratings, optionally based on item_id, user_id or rating_id
+	function getRatings($_options=false) {
+
+		$item_id = false;
+		$rating_id = false;
+		$user_id = false;
+		$order = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"     : $item_id        = $_value; break;
+					case "rating_id"   : $rating_id     = $_value; break;
+					case "user_id"     : $user_id        = $_value; break;
+
+					case "order"       : $order          = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+		$ratings = false;
+
+		// Get all comments for item_id
+		if($item_id !== false) {
+
+			$sql = "SELECT ratings.id, ratings.rating, ratings.created_at, users.nickname FROM ".UT_ITEMS_RATINGS." as ratings, ".SITE_DB.".users as users WHERE ratings.item_id = $item_id AND ratings.user_id = users.id".($order ? " ORDER BY $order" : "");
+			if($query->sql($sql)) {
+				$results = $query->results();
+				$ratings["item_id"] = $item_id;
+				$ratings["ratings"] = $results;
+				$total = 0;
+				$lowest = false;
+				$highest = false;
+				foreach($results as $result) {
+					$total += $result["rating"];
+
+					if($lowest === false || intval($result["rating"]) < $lowest) {
+						$lowest = $result["rating"];
+					}
+
+					if($highest === false || $result["rating"] > $highest) {
+						$highest = $result["rating"];
+					}
+				}
+
+				$ratings["lowest"] = $lowest;
+				$ratings["highest"] = $highest;
+				$ratings["average"] = round($total / count($results), 2);
+
+				return $ratings;
+			}
+		}
+		// Get all ratings by user_id and related items
+		else if($user_id !== false) {
+			if($query->sql("SELECT * FROM ".UT_ITEMS_RATINGS." as ratings WHERE user_id = $user_id".($order ? " ORDER BY $order" : ""))) {
+				$ratings = $query->results();
+				foreach($ratings as $index => $rating) {
+					$ratings[$index]["item"] = $this->getItem(array("id" => $rating["item_id"], "extend" => true));
+				}
+				return $ratings;
+			}
+		}
+		// get rating using rating_id
+		else if($rating_id !== false) {
+			if($query->sql("SELECT ratings.id, ratings.rating, ratings.created_at, users.nickname FROM ".UT_ITEMS_RATINGS." as ratings, ".SITE_DB.".users as users WHERE ratings.id = '$rating_id' AND ratings.user_id = users.id")) {
+				return $query->result(0);
+			}
+		}
+		// get all ratings
+		else {
+			if($query->sql("SELECT ratings.id, ratings.rating, ratings.created_at, users.nickname FROM ".UT_ITEMS_RATINGS." as ratings, ".SITE_DB.".users as users WHERE ratings.user_id = users.id" . ($order ? " ORDER BY $order" : " ORDER BY created_at"))) {
+				$ratings = $query->results();
+			}
+		}
+
+		return $ratings;
+	}
 
 
 

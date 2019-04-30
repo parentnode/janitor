@@ -123,6 +123,21 @@ if(is_array($action) && count($action)) {
 			exit();
 		}
 	}
+	
+	else if($page->validateCsrfToken() && preg_match("/^(setPassword)$/", $action[0])  && count($action) == 1) {
+		
+		$result = $model->setPassword($action);
+		$output = new Output();
+		// Old password was not validated successfully. New password was not saved. 
+		if(isset($result["error"]) && $result["error"] == "wrong_password") {
+			$output->screen($result, ["type" => "error"]);
+			exit();
+		}
+		else {
+			$output->screen($result);
+			exit();
+		}
+	}
 
 	// Class interface
 	else if($page->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {

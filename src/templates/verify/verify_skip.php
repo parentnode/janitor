@@ -3,16 +3,14 @@ global $action;
 global $model;
 
 $IC = new Items();
-$page_item = $IC->getItem(array("tags" => "page:verify-confirmed", "extend" => array("user" => true, "tags" => true, "mediae" => true)));
+$page_item = $IC->getItem(array("tags" => "page:verify-skipped", "extend" => array("user" => true, "tags" => true, "mediae" => true)));
 if($page_item) {
 	$this->sharingMetaData($page_item);
 }
 
-$username = session()->value("signup_email");
-session()->reset("signup_email");
 
 ?>
-<div class="scene verify confirmed i:scene">
+<div class="scene signup i:scene">
 
 <? if($page_item && $page_item["status"]): 
 	$media = $IC->sliceMedia($page_item); ?>
@@ -42,17 +40,19 @@ session()->reset("signup_email");
 
 		<? if($page_item["html"]): ?>
 		<div class="articlebody" itemprop="articleBody">
-			<?= preg_replace("/{username}/", $username, $page_item["html"]) ?>
+			<?= $page_item["html"] ?>
 		</div>
 		<? endif; ?>
 	</div>
 
 <? else:?>
 
-	<h1>Thank you!</h1>
-	<p><em><?= $username ?></em> has been confirmed. Go ahead and <a href="/login">log in</a>.</p>
 
-<? endif; ?>
+	<h1>That's cool...</h1>
+	<h2>but don't forget to verify later!</h2>
+	<p>In order to access your account and subscribed services (like newsletters), you'll have to verify your email.</p>
+	<p>If you lost your verification email, you can get a new one by trying to log in.</p>
 
+<? endif ?>
 
 </div>

@@ -1079,7 +1079,28 @@ class ShopCore extends Model {
 
 		return false;
 	}
-
+	
+	
+	// Delete itemtypes from cart
+	// #controller#/deleteItemtypeFromCart
+	function deleteItemtypeFromCart($itemtype) {
+		
+		$cart = $this->getCart();
+		
+		if($cart) {
+			$IC = new Items();
+			foreach($cart["items"] as $key => $cart_item) {
+				$existing_item = $IC->getItem(array("id" => $cart_item["item_id"]));
+				if($existing_item["itemtype"] == $itemtype) {
+					$cart = $this->deleteFromCart(array("deleteFromCart", $cart["cart_reference"], $cart_item["id"]));
+				}
+			}
+			return $cart;
+		}
+		return false;	
+	}
+		
+		
 	// Empty cart
 	# #controller#/emptyCart
 	function emptyCart($action) {
@@ -1339,7 +1360,8 @@ class ShopCore extends Model {
 						mailer()->send(array(
 							"recipients" => SHOP_ORDER_NOTIFIES,
 							"subject" => SITE_URL . " - New order ($order_no) created by: $user_id",
-							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/shop/order/edit/" . $order["id"] . "\n\nOrder content: ".implode(",", $admin_summary),
+							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/user/orders/" . $user_id . "\n\nOrder content: ".implode(",", $admin_summary),
+							"tracking" => false
 							// "template" => "system"
 						));
 

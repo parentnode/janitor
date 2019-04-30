@@ -898,7 +898,7 @@ class SuperShopCore extends Shop {
 		}
 
 		// return all unpaid orders
-		else {
+		else if(!isset($_options["user_id"]) && !isset($_options["item_id"]) && !isset($_options["itemtype"])) {
 
 			$sql = "SELECT * FROM ".$this->db_orders." WHERE payment_status != 2 AND status != 3 ORDER BY id DESC";
 //			print $sql;
@@ -1434,7 +1434,8 @@ class SuperShopCore extends Shop {
 		//				print_r($price);
 
 						$unit_price = $item_price;
-						$unit_vat = $item_price*($price["vatrate"]/100);
+						$unit_vat = $item_price * (1 - (1 / (1 + ($price["vatrate"]/100))));
+
 						$total_price = $unit_price * $quantity;
 						$total_vat = $unit_vat * $quantity;
 

@@ -96,6 +96,12 @@ class Model extends HTML {
 			"hint_message" => "Leave a new comment.",
 			"error_message" => "Comment cannot be empty."
 		));
+		$this->addToModel("item_rating", array(
+			"type" => "integer",
+			"label" => "New rating",
+			"hint_message" => "Leave a your rating.",
+			"error_message" => "Rating cannot be empty."
+		));
 
 
 		$this->addToModel("item_price", array(
@@ -290,27 +296,27 @@ class Model extends HTML {
 
 					// indicate value is present for file upload
 					if(isset($_FILES[$name])) {
-//						$this->data_entities[$name]["value"] = true;
-//						$this->data_entities[$name]["value"] = $_FILES[$name]["tmp_name"];
 						$this->setProperty($name, "value", $_FILES[$name]["tmp_name"]);
 					}
 					else {
 						$this->setProperty($name, "value", false);
-//						$_FILES[$name]["tmp_name"]
 					}
-				}
 
+				}
+				// Special case for passwords
+				else if($this->getProperty($name, "type") == "password") {
+
+					// Don't sanitize posted passwords
+					$value = getPostPassword($name);
+					$this->setProperty($name, "value", $value);
+
+				}
 				// regular variable
 				else {
+
 					$value = getPost($name);
-//					if($value !== false) {
-//						print $name."=".$value."\n";
-						$this->setProperty($name, "value", $value);
-//						$this->data_entities[$name]["value"] = $value;
-//					}
-					// else {
-					// 	print "should be false:" . $name . "," . ($this->data_entities[$name]["value"] === false) . "\n";
-					// }
+					$this->setProperty($name, "value", $value);
+
 				}
 			}
 		}
@@ -974,7 +980,7 @@ class Model extends HTML {
 	function isEmail($name) {
 
 		$value = $this->getProperty($name, "value");
-		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\w\.\-\_]+@[\w-\.]+\.\w{2,10}$");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\w\.\-\_\+]+@[\w-\.]+\.\w{2,10}$");
 
 		if($value && is_string($value) && 
 			(!$pattern || preg_match("/".$pattern."/", $value))

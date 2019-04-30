@@ -3,14 +3,13 @@ global $action;
 global $model;
 
 $IC = new Items();
-$page_item = $IC->getItem(array("tags" => "page:signup", "extend" => array("user" => true, "tags" => true, "mediae" => true)));
+$page_item = $IC->getItem(array("tags" => "page:verify", "extend" => array("user" => true, "tags" => true, "mediae" => true)));
 if($page_item) {
 	$this->sharingMetaData($page_item);
 }
 
-$email = $model->getProperty("email", "value");
 ?>
-<div class="scene signup i:signup">
+<div class="scene verify i:verify">
 
 <? if($page_item && $page_item["status"]): 
 	$media = $IC->sliceMedia($page_item); ?>
@@ -33,7 +32,7 @@ $email = $model->getProperty("email", "value");
 		<? endif; ?>
 
 
-		<?= $HTML->articleInfo($page_item, "/signup", [
+		<?= $HTML->articleInfo($page_item, "/verify/confirm/receipt", [
 			"media" => $media, 
 		]) ?>
 
@@ -44,11 +43,18 @@ $email = $model->getProperty("email", "value");
 		</div>
 		<? endif; ?>
 	</div>
-<? else:?>
-	<h1>Sign up</h1>
-<? endif; ?>
 
-	<?= $model->formStart("save", array("class" => "signup labelstyle:inject")) ?>
+<? else:?>
+
+	<h1>Your account has been created!</h1>
+	<h2>We've sent you a verification email</h2>
+	<p>The email contains a verification code which you can use in the input field below.</p>
+	<p>Alternatively the email also has a link you can use instead to verify.</p>
+	<p>If you don't want to verify now, you can do so later through the link.</p>
+
+<? endif ?>
+
+	<?= $model->formStart("/verify/confirm", ["class" => "verify_code"]) ?>
 
 <?	if(message()->hasMessages(array("type" => "error"))): ?>
 		<p class="errormessage">
@@ -61,14 +67,12 @@ $email = $model->getProperty("email", "value");
 <?	endif; ?>
 
 		<fieldset>
-			<?= $model->input("maillist", array("type" => "hidden", "value" => "curious")); ?>
-			<?= $model->input("email", array("label" => "Your email", "required" => true, "value" => $email, "hint_message" => "Type your email.", "error_message" => "You entered an invalid email.")); ?>
-			<?= $model->input("password", array("hint_message" => "Type your new password - or leave it blank and we'll generate one for you.", "error_message" => "Your password must be more than 8 characters.")); ?>
-			<?= $model->input("terms"); ?>
+			<?= $model->input("verification_code"); ?>
 		</fieldset>
 
 		<ul class="actions">
-			<?= $model->submit("Join", array("class" => "primary", "wrapper" => "li.signup")) ?>
+			<?= $model->submit("Verify email", array("class" => "primary", "wrapper" => "li.verify")) ?>
+			<li class="skip"><a href="/verify/skip" class="button">Skip</a></li>
 		</ul>
 	<?= $model->formEnd() ?>
 
