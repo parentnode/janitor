@@ -540,11 +540,12 @@ class SuperUserCore extends User {
 	/**
 	 * Get usernames or specific username
 	 *
-	 * @param array $_options Optional filters
+	 * @param array $_options Filtering options
 	 * 		username_id 	int			Returns specific username
 	 * 		user_id 		int			 
 	 * 		type 			string		"email"|"mobile"	Requires user_id. Returns first username of type for user_id.
-	 * @return array|false query result, query results, or false
+	 * 
+	 * @return array|false query result (columns: id, user_id, username, type, verified, verification_code), query results, or false
 	 */
 	function getUsernames($_options) {
 
@@ -625,11 +626,11 @@ class SuperUserCore extends User {
 	}
 
 	/**
-	 * Get verification status for user
+	 * Get verification status for username
 	 *
 	 * @param integer $username_id
 	 * @param integer $user_id
-	 * @return array|false Returns array with verification status and number of verification links that have been send. Returns false on error.
+	 * @return array|false Array with verification status and number of verification links that have been send. False on error.
 	 */
 	function getVerificationStatus($username_id, $user_id) {
 		$query = new Query();
@@ -670,7 +671,7 @@ class SuperUserCore extends User {
 	}
 	
 	/**
-	 * Update verification status for user
+	 * Set verification status for username
 	 *
 	 * @param integer $username_id
 	 * @param integer $user_id
@@ -710,12 +711,12 @@ class SuperUserCore extends User {
 
 	
 	/**
-	 * Update usernames from posted values
+	 * Update usernames from posted values. 
+	 * 
+	 * Expects $email and $username_id from $_POST.
 	 * /janitor/admin/user/updateEmail/#user_id#
 	 *
 	 * @param array $action user_id in $action[1]
-	 * @param string email from $_POST
-	 * @param int username_id from $_POST
 	 * 
 	 * @return array|true|false Returns status code indicating whether email was updated/unchanged/already existing. Returns true if email was deleted (updated to blank). False on error.
 	 */
@@ -2505,7 +2506,7 @@ class SuperUserCore extends User {
 	/**
 	 * Get all (or a subset of) unverified usernames; 
 	 *
-	 * @param boolean $_options Optional filters
+	 * @param array $_options Optional filters
 	 * 		type		string		"email"|"mobile"
 	 * 		user_id		int			
 	 * @return array|false query result or false
@@ -2589,9 +2590,9 @@ class SuperUserCore extends User {
 	// /janitor/admin/user/sendVerificationLink/#username_id#	
 	/**
 	 * Send verification link to username_id
-	 * A specfic template can be posted. Default template is signup_reminder.
+	 * A specific template can be posted. Default template is signup_reminder.
 	 *
-	 * @param array $action username_id in $action[1]
+	 * @param array $action username_id in $action[1]	
 	 * @return array|false $verification_status with "verified", "reminded_at", and "total_reminders". False on error.
 	 */
 	function sendVerificationLink($action) {
@@ -2651,10 +2652,12 @@ class SuperUserCore extends User {
 	
 	/**
 	 * Send verification links to list of users
+	 * 
+	 * Expects a comma separated string of username_ids from $_POST
 	 *
 	 * @param array $action 
-	 * @param string expects a comma separated string of username_ids from $_POST 
-	 * @return array $verification_statuses with each $verification_status contaning "verified", "reminded_at", "total_reminders", and "username_id".
+	 * 
+	 * @return array $verification_statuses with each $verification_status containing "verified", "reminded_at", "total_reminders", and "username_id".
 	 */
 	function sendVerificationLinks($action) {
 
