@@ -9,7 +9,7 @@ class HTMLCore {
 
 	/**
 	* Make html tag attribute
-	* Attribute values passed as speparate parameters
+	* Attribute values passed as separate parameters
 	* if value is false, it is not added.
 	* if attribute has no value, empty string is returned
 	* 

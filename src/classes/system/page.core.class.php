@@ -1717,9 +1717,10 @@ class PageCore {
 								"template" => "signup_reminder"
 							));
 
+							$username_id = $this->getUsernameId($email, $user_id);
 
 							// Add to user log
-							$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user_id;
+							$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
 				//			print $sql;
 							$query->sql($sql);
 
@@ -1779,10 +1780,13 @@ class PageCore {
 						), 
 						"recipients" => $email, 
 						"template" => "signup_reminder"
-					));						
+					));				
+					
+					$username_id = $this->getUsernameId($email, $user_id);
+
 					
 					// Add to user log
-					$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user_id;
+					$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
 		//			print $sql;
 					$query->sql($sql);
 
@@ -1801,9 +1805,11 @@ class PageCore {
 					return false;
 
 				}
+
+				$username_id = $this->getUsernameId($email, $user_id);
 				
 				// Add to user log
-				$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user_id;
+				$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
 	//			print $sql;
 				$query->sql($sql);
 				return ["status" => "NO_PASSWORD", "email" => $email];

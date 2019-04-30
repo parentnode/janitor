@@ -912,7 +912,7 @@ class SuperShopCore extends Shop {
 	}
 
 
-	// /#controller#/sendActivationReminder/#order_id#
+	// /#controller#/sendPaymentReminder/#order_id#
 	function sendPaymentReminder($action) {
 
 		$this->getPostedEntities();
@@ -964,8 +964,6 @@ class SuperShopCore extends Shop {
 
 		}
 
-		// get updated user activation data
-//		$users = $this->getUnconfirmedUsers($user_id);
 
 
 		return false;

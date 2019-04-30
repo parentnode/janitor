@@ -19,6 +19,7 @@ if($item && $item["status"] >= 0) {
 	$mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
 	$email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
 
+
 	// get password state
 	$has_password = $model->hasPassword(["user_id" => $user_id]);
 
@@ -69,6 +70,7 @@ if($item && $item["status"] >= 0) {
 			"confirm-value" => "This will anonymise the account. Permanently! Irreversibly!",
 			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
 		)) ?>
+			
 <? 	endif; ?>
 	</ul>
 
@@ -115,26 +117,68 @@ if($item && $item["status"] >= 0) {
 	// do not allow to edit usernames for Anonymous user
 	if($user_id != 1): ?>
 	<div class="usernames i:usernames i:collapseHeader">
-		<h2>Email and Mobile number</h2>
+		<h2>Email and Mobile number</h2>  
 		<p>Your email and mobile number are your unique usernames and can be used for login.</p> 
 
-		<?= $model->formStart("updateEmail/".$user_id, array("class" => "email labelstyle:inject")) ?>
-			<fieldset>
-				<?= $model->input("email", array("value" => stringOr($email))) ?>
-			</fieldset>
-			<ul class="actions">
-				<?= $model->submit("Save", array("name" => "save", "wrapper" => "li.save")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
+		<div class="email">
+			<?= $model->formStart("updateEmail/".$user_id, array("class" => "email labelstyle:inject")) ?>
+				<fieldset>
+					<?	$username_id = $email["id"];?>
+					<?	$current_verification_status = $username_id ? $model->getVerificationStatus($username_id, $user_id) : 0;
+					// print_r ($current_verification_status);
+					?>
+					
+					
+					<?= $model->input("username_id", array("type" => "hidden", "value" => $username_id)) ?>
+					<?= $model->input("email", array("value" => stringOr($email["username"]))) ?>
+					<?= $model->input("verification_status", array(
+						"value" => $current_verification_status["verified"]
+						)) ?>
+				</fieldset>
+				<ul class="actions">
+					<?= $model->submit("Save", array("name" => "save", "wrapper" => "li.save", "class" => "disabled")) ?>
+				</ul>
+			<?= $model->formEnd() ?>
+			<div class="send_verification_link">
+				<ul class="actions send_verification_link">
+					<? if($current_verification_status["total_reminders"] == 0): ?>
+						<?= $JML->oneButtonForm("Send invite", "/janitor/admin/user/sendVerificationLink/".$username_id, array(
+							"wrapper" => "li.send_verification_link.invite",
+							"class" => "send_verification_link invite",
+							"inputs" => [
+								"template" => "verify_new_email"
+							]
+						)) ?>
+					<? else: ?>			
+						<?= $JML->oneButtonForm("Send reminder", "/janitor/admin/user/sendVerificationLink/".$username_id, array(
+							"wrapper" => "li.send_verification_link.reminder",
+							"class" => "send_verification_link reminder",
+							"inputs" => [
+								"template" => "signup_reminder"
+							]
+						)) ?>
+					<? endif;?>
+				</ul>
+				<? if($current_verification_status["reminded_at"]):?>
+				<p class="reminded_at">Reminder sent: <span class="date_time"><?=$current_verification_status["reminded_at"]?></span></p>
+				<? else:?>
+				<p class="reminded_at">Reminder sent: <span class="date_time never">-</span></p>
+				<? endif;?>
+			</div>
+		</div>
 
-		<?= $model->formStart("updateMobile/".$user_id, array("class" => "mobile labelstyle:inject")) ?>
-			<fieldset>
-				<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
-			</fieldset>
-			<ul class="actions">
-				<?= $model->submit("Save", array("name" => "save", "wrapper" => "li.save")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
+		<div class="mobile">
+			<?= $model->formStart("updateMobile/".$user_id, array("class" => "mobile labelstyle:inject")) ?>
+				<fieldset>
+					<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
+				</fieldset>
+				<ul class="actions">
+					<?= $model->submit("Save", array("name" => "save", "wrapper" => "li.save")) ?>
+				</ul>
+			<?= $model->formEnd() ?>
+		</div>
+
+
 
 	</div>
 <? 	endif; ?>

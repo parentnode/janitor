@@ -182,6 +182,13 @@ class UserCore extends Model {
 			"error_message" => "The entered value is not a valid verification code."
 		));
 
+		//verification status
+		$this->addToModel("verification_status", array(
+			"type" => "checkbox",
+			"label" => 'Verified',
+			"hint_message" => "Check to verify the user"
+		));
+
 
 
 		// ADDRESS INFO
@@ -683,20 +690,29 @@ class UserCore extends Model {
 	}
 
 
-		// Get relevant user data and check verification before enabling user
+	/**
+	 * Verify and activate user (if not already verified).
+	 * Deletes verification reminder log for username.
+	 *
+	 * @param string $username
+	 * @param string $verification_code
+	 * 
+	 * @return int|array|false User id on success. Status code if already verified. False on wrong parameters or error. 
+	 */	
 	function confirmUsername($username, $verification_code) {
 
 		$query = new Query();
 
 		// only make alterations if not already verified
-		$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 0 AND verification_code = '$verification_code'";
+		$sql = "SELECT id, user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 0 AND verification_code = '$verification_code'";
 		if($query->sql($sql)) {
 
-			// get user_id from sql query
+			// get user_id and username_id from sql query
 			$user_id = $query->result(0, "user_id");
+			$username_id = $query->result(0, "id");
 
 			// update verification state
-			$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND username = '$username'";
+			$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND id = '$username_id'";
 
 			if($query->sql($sql)) {
 
@@ -704,12 +720,12 @@ class UserCore extends Model {
 				$sql = "UPDATE ".$this->db." SET status = 1 WHERE id = $user_id";
 				if($query->sql($sql)) {
 
-					// delete activation reminder logs (not needed after user has been verified)
-					$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id";
+					// delete verification reminder logs (not needed after username has been verified)
+					$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE username_id = $username_id";
 					$query->sql($sql);
 
 					global $page;
-					$page->addLog("User->confirmUser: user_id:$user_id");
+					$page->addLog("User->confirmUsername: user_id:$user_id, username_id:$username_id");
 
 					return $user_id;
 				}
@@ -721,7 +737,7 @@ class UserCore extends Model {
 
 			if($query->sql($sql)) {
 				global $page;
-				$page->addLog("user->confirmUsername: user has already been verified ($username)");
+				$page->addLog("user->confirmUsername: username has already been verified ($username)");
 				return array("status" => "USER_VERIFIED");
 			}
 		}
@@ -777,7 +793,7 @@ class UserCore extends Model {
 							$query->sql($sql);
 
 							// delete activation reminders
-							$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = ".$user_id;
+							$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE user_id = ".$user_id;
 							$query->sql($sql);
 
 							// delete password
@@ -953,6 +969,7 @@ class UserCore extends Model {
 			// email is sent
 			if($email) {
 
+				$nickname = $current_user["nickname"];
 				$verification_code = randomKey(8);
 
 				// email has not been set before
@@ -961,6 +978,26 @@ class UserCore extends Model {
 					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code', type = 'email', user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
+						
+						// this has been commented out as it is not yet 
+						// possible to create a user that has no email username
+						// verify_new_email is currently phrased as an invitation
+						// which would not fit this situation 
+
+						// // send verification email to user
+						// mailer()->send(array(
+						// 	"values" => array(
+						// 		"NICKNAME" => $nickname, 
+						// 		"EMAIL" => $email, 
+						// 		"VERIFICATION" => $verification_code,
+						// 		"PASSWORD" => $mail_password
+						// 	), 
+						// 	"track_clicks" => false,
+						// 	"recipients" => $email, 
+						// 	"template" => "verify_new_email"
+						// ));
+
+						
 //						message()->addMessage("Email added");
 						return true;
 					}
@@ -972,6 +1009,22 @@ class UserCore extends Model {
 					$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code' WHERE type = 'email' AND user_id = $user_id";
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
+
+
+						// send verification email to user
+						mailer()->send(array(
+							"values" => array(
+								"NICKNAME" => $nickname, 
+								"EMAIL" => $email, 
+								"VERIFICATION" => $verification_code,
+								"PASSWORD" => $mail_password
+							), 
+							"track_clicks" => false,
+							"recipients" => $email, 
+							"template" => "verify_changed_email"
+						));
+
+
 //						message()->addMessage("Email updated");
 						return true;
 					}

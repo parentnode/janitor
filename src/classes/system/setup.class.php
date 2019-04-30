@@ -580,7 +580,7 @@ class Setup extends Itemtype {
 
 				$filepath = $path . "/" . $file ;
 
-//				print $filepath. " : " . filetype($filepath). " : " . $user . "<br>\n";
+				// print $filepath. " : " . filetype($filepath). " : " . $user . "<br>\n";
 				if(is_dir($filepath)) {
 					if(!$this->recurseFilePermissions($filepath, $user, $group, $permissions)) {
 						return false;
@@ -2007,7 +2007,10 @@ class Setup extends Itemtype {
 					// SET USERNAME
 					unset($_POST);
 					$_POST["email"] = $this->get("account", "account_username");
-					$UC->updateEmail(array("updateEmail", $users[0]["id"]));
+					$username = $UC->updateEmail(array("updateEmail", $users[0]["id"]));
+
+					// VERIFY USERNAME
+					$UC->setVerificationStatus($username["username_id"], $users[0]["id"], 1);
 
 					// SET PASSWORD
 					unset($_POST);
