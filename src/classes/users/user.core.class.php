@@ -691,13 +691,13 @@ class UserCore extends Model {
 
 
 	/**
-	 * Verify and activate user (if user is not already verified).
+	 * Verify and activate user (if not already verified).
 	 * Deletes verification reminder log for username.
 	 *
 	 * @param string $username
 	 * @param string $verification_code
 	 * 
-	 * @return int|array|false User id on success. Status code if already verified. False on error. 
+	 * @return int|array|false User id on success. Status code if already verified. False on wrong parameters or error. 
 	 */	
 	function confirmUsername($username, $verification_code) {
 
@@ -720,8 +720,8 @@ class UserCore extends Model {
 				$sql = "UPDATE ".$this->db." SET status = 1 WHERE id = $user_id";
 				if($query->sql($sql)) {
 
-					// delete verification reminder logs (not needed after user has been verified)
-					$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE user_id = $user_id";
+					// delete verification reminder logs (not needed after username has been verified)
+					$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE username_id = $username_id";
 					$query->sql($sql);
 
 					global $page;
