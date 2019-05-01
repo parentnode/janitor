@@ -309,7 +309,7 @@ class ShopCore extends Model {
 			"error_message" => "Invalid card number"
 		));
 
-		// cardnumber
+		// card expiration month
 		$this->addToModel("card_exp_month", array(
 			"type" => "string",
 			"label" => "MM",
@@ -319,7 +319,7 @@ class ShopCore extends Model {
 			"error_message" => "Invalid month"
 		));
 
-		// cardnumber
+		// card expiration year
 		$this->addToModel("card_exp_year", array(
 			"type" => "string",
 			"label" => "YY",
@@ -329,7 +329,7 @@ class ShopCore extends Model {
 			"error_message" => "Invalid year"
 		));
 
-		// cardnumber
+		// card cvc code
 		$this->addToModel("card_cvc", array(
 			"type" => "string",
 			"label" => "CVC",
@@ -346,8 +346,12 @@ class ShopCore extends Model {
 
 
 
-
-	// get next available order number
+	/**
+	 * Get next available order number
+	 * Retries recursively if insertion into db fails.
+	 *
+	 * @return string|false New order number with the format "WEBx" where x is an iterated number. False on error.
+	 */
 	function getNewOrderNumber() {
 
 		$query = new Query();
@@ -1119,8 +1123,15 @@ class ShopCore extends Model {
 	}
 
 
-	// Convert cart to order
-	# /shop/newOrderFromCart
+	
+	/**
+	 * Convert cart to order
+	 * 
+	 * /shop/newOrderFromCart/#cart_reference#
+	 *
+	 * @param array $action
+	 * @return array|false Order object. False on error. 
+	 */
 	function newOrderFromCart($action) {
 //		print "newOrderFromCart";
 
