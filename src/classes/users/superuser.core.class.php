@@ -778,7 +778,7 @@ class SuperUserCore extends User {
 
 				// email has not been set before
 				if(!$current_email) {
-					
+
 					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verification_code = '$verification_code', type = 'email', user_id = $user_id";
 					$query->sql($sql);
 					$username_id = $query->lastInsertId();
@@ -789,13 +789,11 @@ class SuperUserCore extends User {
 					
 					if($query->sql($sql)) {
 						
-							message()->addMessage("Email added");
-							$status = [
-								"email_status" => "UPDATED",
-							];
+						message()->addMessage("Email added");
+						$status = [
+							"email_status" => "UPDATED",
+						];
 					}
-
-
 				}
 				
 				// email is changed
