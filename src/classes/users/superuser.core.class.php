@@ -228,9 +228,9 @@ class SuperUserCore extends User {
 						$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
 						$query->sql($sql);
 
-					// delete activation reminders
-					$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE user_id = ".$user_id;
-					$query->sql($sql);
+						// delete activation reminders
+						$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE user_id = ".$user_id;
+						$query->sql($sql);
 
 						// delete api tokens
 						$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;

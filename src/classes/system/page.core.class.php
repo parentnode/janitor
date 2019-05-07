@@ -1783,6 +1783,7 @@ class PageCore {
 					));				
 					
 					$username_id = $this->getUsernameId($email, $user_id);
+					// print_r($user	name_id);
 
 					
 					// Add to user log
@@ -2083,6 +2084,28 @@ class PageCore {
 				fclose($fp);
 			}
 		}
+	}
+
+	/**
+	 * Get username id
+	 *
+	 * @param string $username
+	 * @param integer $user_id
+	 * 
+	 * @return integer|false
+	 */
+	function getUsernameId($username, $user_id) {
+
+		$query = new Query;
+
+		$sql = "SELECT id FROM ".SITE_DB.".user_usernames WHERE username = '$username' AND user_id = $user_id";
+
+		if($query->sql($sql)) {
+			return $query->result(0)["id"];
+		}
+
+		return false;
+
 	}
 
 }
