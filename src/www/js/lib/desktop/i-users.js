@@ -3,11 +3,15 @@ Util.Objects["usernames"] = new function() {
 	this.init = function(div) {
 
 		// u.bug("div usernames")
-		
+
 		var form;
 		
 		form = u.qs("form.email", div);
 		u.f.init(form);
+
+		var indicators = u.qsa(".indicator", form);
+		u.ass(indicators[0], {"display":"none"});
+		u.ass(indicators[1], {"display":"none"});
 		
 		var send_verification_link = u.qs("li.send_verification_link", div);
 		send_verification_link.form = u.qs("form", send_verification_link);
@@ -19,7 +23,8 @@ Util.Objects["usernames"] = new function() {
 
 		var latest_verification_link = u.qs("div.email .send_verification_link p.reminded_at", div);
 		latest_verification_link.date_time = u.qs("span.date_time", latest_verification_link);
-		u.bug('Latest verification link on page load', latest_verification_link.date_time.textContent);
+		
+		// u.bug('Latest verification link on page load', latest_verification_link.date_time.textContent);
 		if(u.hc(latest_verification_link.date_time, "never")) {
 			u.ass(latest_verification_link, {"display":"none"});
 		}
@@ -87,7 +92,7 @@ Util.Objects["usernames"] = new function() {
 				latest_verification_link.date_time = u.qs("span.date_time", latest_verification_link);
 			}
 			latest_verification_link.date_time.textContent = response.cms_object.reminded_at;
-			u.bug('Latest verification link', latest_verification_link.date_time.textContent);
+			// u.bug('Latest verification link', latest_verification_link.date_time.textContent);
 
 			u.ass(latest_verification_link, {"display":"block"});
 			
@@ -117,15 +122,15 @@ Util.Objects["usernames"] = new function() {
 					this.fields.verification_status.saved_status = this.fields.verification_status.val();
 					u.ac(this.actions["save"], "disabled");
 					
-					u.bug("saved email ", this.fields.email.saved_email);
-					u.bug("response ", response);
+					// u.bug("saved email ", this.fields.email.saved_email);
+					// u.bug("response ", response);
 					
 					
 					if(response.cms_object.email_status == "UPDATED") {
 						this.fields.username_id.val(response.cms_object.username_id);
 						// u.bug("saved username_id", this.fields.username_id.val());
 						
-						if(send_verification_link.form.action == "http://janitor.local/janitor/admin/user/sendVerificationLink/") {
+						if(send_verification_link.form.action == "/janitor/admin/user/sendVerificationLink/") {
 							send_verification_link.form.action += this.fields.username_id.val();
 						}
 						// u.bug("updated action", send_verification_link.form.action);
@@ -158,7 +163,7 @@ Util.Objects["usernames"] = new function() {
 						// u.bug("Username has been updated to blank", );
 						u.ac(send_verification_link.input, "disabled");
 						u.rc(this.actions["save"], "primary");
-						send_verification_link.form.action = "http://janitor.local/janitor/admin/user/sendVerificationLink/"
+						send_verification_link.form.action = "/janitor/admin/user/sendVerificationLink/"
 						u.ass(latest_verification_link, {"display":"none"});
 
 						u.rc(send_verification_link, "reminder");

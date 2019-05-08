@@ -249,6 +249,17 @@ class Upgrade extends Model {
 
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 
+				// VERIFICATION LINKS 
+				$user_log_activation_reminders = $this->tableInfo(SITE_DB.".user_log_activation_reminders");
+				if ($user_log_activation_reminders) {
+					$this->process($this->addColumn($user_log_activation_reminders, "username_id", "int(11) NOT NULL", "user_id"), true);
+					$this->process($this->renameColumn($user_log_activation_reminders, "created_at", "reminded_at"), true);
+
+					$this->process($this->renameTable("user_log_activation_reminders", "user_log_verification_links"), true);
+
+				}
+
+
 
 				# NEWSLETTERS TO MAILLISTS
 

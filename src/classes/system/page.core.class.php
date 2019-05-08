@@ -1802,7 +1802,7 @@ class PageCore {
 				if($query->sql($sql)) {
 					$this->addLog("Login error: ".$username);
 
-					message()->addMessage("Computer says NO!", array("type" => "error"));
+					message()->addMessage("You could not be logged in.", array("type" => "error"));
 					return false;
 
 				}
@@ -1813,6 +1813,8 @@ class PageCore {
 				$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
 	//			print $sql;
 				$query->sql($sql);
+
+				message()->addMessage("The user could not be logged in.", array("type" => "error"));
 				return ["status" => "NO_PASSWORD", "email" => $email];
 
 			}
