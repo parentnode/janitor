@@ -812,7 +812,7 @@ class HTMLCore {
 
 		$_ = "";
 
-		$att_class = $this->attribute("class", $node["classname"], ($node["link"] == $page->url ? "selected": ""));
+		$att_class = $this->attribute("class", $node["classname"], (strpos($page->url, $node["link"]) !== false ? "selected": ""));
 		$att_target = $this->attribute("target", $node["target"]);
 
 		$_ .= '<li'.$att_class.'><a href="'.$node["link"].'"'.$att_target.'>'.$node["name"].'</a></li>';
