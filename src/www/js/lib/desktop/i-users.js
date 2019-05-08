@@ -8,6 +8,10 @@ Util.Objects["usernames"] = new function() {
 		
 		form = u.qs("form.email", div);
 		u.f.init(form);
+
+		var indicators = u.qsa(".indicator", form);
+		u.ass(indicators[0], {"display":"none"});
+		u.ass(indicators[1], {"display":"none"});
 		
 		var send_verification_link = u.qs("li.send_verification_link", div);
 		send_verification_link.form = u.qs("form", send_verification_link);
