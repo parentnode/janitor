@@ -542,7 +542,7 @@ class Upgrade extends Model {
 
 
 			// Upgrade complete
-			print '<li class="done">REPLACMENT COMPLETE</li>';
+			print '<li class="done">REPLACEMENT COMPLETE</li>';
 
 		}
 		catch(Exception $exception) {}
