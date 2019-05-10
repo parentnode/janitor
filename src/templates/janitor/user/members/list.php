@@ -50,7 +50,14 @@ $members = $model->getMembers($options);
 <?		if($members): ?>
 		<ul class="items">
 <?			foreach($members as $member):
-				$email = $model->getUsernames(["user_id" => $member["user"]["id"], "type" => "email"]); ?>
+				$username_email = $model->getUsernames(["user_id" => $member["user"]["id"], "type" => "email"]);
+				if ($username_email) {
+					$email = $username_email["username"]; 
+				}
+				else {
+					$email = "Not available";
+				}
+				?>
 			<li class="item item_id:<?= $member["id"] ?><?= !$member["subscription_id"] ? " cancelled" : "" ?>">
 				<h3><span>#<?= $member["id"] ?></span> <?= $email . ($member["user"]["nickname"] != $email ? (", " . $member["user"]["nickname"]) : "") ?><?= $member["user"]["id"] == session()->value("user_id") ? " (YOU)" : "" ?></h3>
 				

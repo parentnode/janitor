@@ -16,8 +16,20 @@ if($item && $item["status"] >= 0) {
 	$language_options = $model->toOptions($this->languages(), "id", "name");
 
 	// get existing usernames
-	$mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
-	$email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
+	$username_mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
+	if ($username_mobile) {
+		$mobile = $username_mobile["username"]; 
+	}
+	else {
+		$mobile = "Not available";
+	}
+	$username_email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
+	if ($username_email) {
+		$email = $username_email["username"]; 
+	}
+	else {
+		$email = "Not available";
+	}
 
 
 	// get password state
