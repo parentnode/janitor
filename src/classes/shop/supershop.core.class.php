@@ -127,7 +127,7 @@ class SuperShopCore extends Shop {
 					// get user info
 					$cart["user"] = $UC->getUsers(array("user_id" => $cart["user_id"]));
 
-					$username_email = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+					$username_email = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "email"));
 					if ($username_email) {
 						$cart["user"]["email"] = $username_email["username"]; 
 					}
@@ -135,7 +135,7 @@ class SuperShopCore extends Shop {
 						$cart["user"]["email"] = "Not available";
 					}
 
-					$username_mobile = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+					$username_mobile = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "mobile"));
 					if ($username_mobile) {
 						$cart["user"]["mobile"] = $username_mobile["username"]; 
 					}
@@ -229,7 +229,7 @@ class SuperShopCore extends Shop {
 						// get user info
 						$carts[$i]["user"] = $UC->getUsers(array("user_id" => $cart["user_id"]));
 
-						$username_email = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+						$username_email = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "email"));
 						if ($username_email) {
 							$carts[$i]["user"]["email"] = $username_email["username"]; 
 						}
@@ -237,7 +237,7 @@ class SuperShopCore extends Shop {
 							$carts[$i]["user"]["email"] = "Not available";
 						}
 
-						$username_mobile = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+						$username_mobile = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "mobile"));
 						if ($username_mobile) {
 							$carts[$i]["user"]["mobile"] = $username_mobile["username"]; 
 						}
