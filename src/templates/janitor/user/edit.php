@@ -16,8 +16,8 @@ if($item && $item["status"] >= 0) {
 	$language_options = $model->toOptions($this->languages(), "id", "name");
 
 	// get existing usernames
-	$mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
-	$email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
+	$mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"))["username"];
+	$email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"))["username"];
 
 
 	// get password state

@@ -787,7 +787,7 @@ class TypeMessage extends Itemtype {
 						$temp_user = $UC->getUsers(["user_id" => $user_id]);
 						$user["user_id"] = $user_id;
 						$user["nickname"] = $temp_user["nickname"];
-						$user["email"] = $UC->getUsernames(["user_id" => $user_id, "type" => "email"]);
+						$user["email"] = $UC->getUsernames(["user_id" => $user_id, "type" => "email"])["username"];
 
 						$subscribers[] = $user;
 					}
