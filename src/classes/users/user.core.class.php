@@ -2499,7 +2499,7 @@ class UserCore extends Model {
 		return false;
 	}
 
-	// Add membership
+	// Update membership
 	# /#controller#/updateMembership
 	function updateMembership($action) {
 
