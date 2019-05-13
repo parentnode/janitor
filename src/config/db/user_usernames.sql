@@ -5,7 +5,7 @@ CREATE TABLE `SITE_DB`.`user_usernames` (
   `username` varchar(255) NOT NULL,
   `type` varchar(255) NOT NULL,
 
-  `verified` int(11) NOT NULL,
+  `verified` int(11) NOT NULL DEFAULT 0,
   `verification_code` varchar(8) NOT NULL,
 
   PRIMARY KEY (`id`),

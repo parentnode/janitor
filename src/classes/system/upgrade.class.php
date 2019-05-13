@@ -198,6 +198,9 @@ class Upgrade extends Model {
 			// ITEM COMMENTS
 			$this->process($this->createTableIfMissing(UT_ITEMS_COMMENTS), true);
 
+			// ITEM RATINGS
+			$this->process($this->createTableIfMissing(UT_ITEMS_RATINGS), true);
+
 
 
 			// USER/ITEM
@@ -243,8 +246,35 @@ class Upgrade extends Model {
 
 
 			# SIGNUP
-
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
+
+				// VERIFICATION LINKS 
+				$user_log_activation_reminders = $this->tableInfo(SITE_DB.".user_log_activation_reminders");
+				if ($user_log_activation_reminders) {
+					$this->process($this->renameColumn(SITE_DB.".user_log_activation_reminders", "created_at", "reminded_at"), true);
+					$this->process($this->addColumn(SITE_DB.".user_log_activation_reminders", "username_id", "int(11) DEFAULT NULL", "user_id"), true);
+
+					// retrieve username_ids from user_ids and insert them in the new username_id column
+					$query->sql("SELECT user_id FROM ".SITE_DB.".user_log_activation_reminders GROUP BY user_id");
+					$user_ids = $query->results("user_id");
+
+					if($user_ids) {
+						foreach ($user_ids as $user_id) {
+							$query->sql("SELECT id FROM ".SITE_DB.".user_usernames WHERE type = 'email' AND user_id = $user_id");
+							$username_id = $query->result(0, "id");
+							if ($username_id) {
+								$query->sql("UPDATE ".SITE_DB.".user_log_activation_reminders SET username_id = $username_id WHERE user_id = $user_id");
+							}
+							else {
+								$query->sql("DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id");
+							}
+						}
+					}
+
+					$this->process($this->renameTable(SITE_DB.".user_log_activation_reminders", "user_log_verification_links"), true);
+
+				}
+
 
 
 				# NEWSLETTERS TO MAILLISTS
@@ -306,7 +336,7 @@ class Upgrade extends Model {
 					$this->process($this->renameColumn(SITE_DB.".user_maillists", "newsletter_id", "maillist_id"), true);
 
 
-					// Re-applying constaints will be done in syncronization
+					// Re-applying constraints will be done in synchronization
 
 				}
 
@@ -355,7 +385,7 @@ class Upgrade extends Model {
 			$tables = $query->results("tables");
 			if($tables) {
 				foreach($tables as $table) {
-					$this->process($this->syncronizeTable($table));
+					$this->process($this->synchronizeTable($table));
 				}
 			}
 
@@ -511,7 +541,7 @@ class Upgrade extends Model {
 
 
 			// Upgrade complete
-			print '<li class="done">REPLACMENT COMPLETE</li>';
+			print '<li class="done">REPLACEMENT COMPLETE</li>';
 
 		}
 		catch(Exception $exception) {}
@@ -878,9 +908,9 @@ class Upgrade extends Model {
 	}
 
 
-	// Syncronize existing table with matching sql-file
+	// Synchronize existing table with matching sql-file
 	// Will automatically update the current table layouts
-	function syncronizeTable($table) {
+	function synchronizeTable($table) {
 
 //		print "SYNC table:$table<br>\n";
 
@@ -1107,7 +1137,7 @@ class Upgrade extends Model {
 
 			}
 
-			return array("success" => true, "message" => "$table syncronized: OK");
+			return array("success" => true, "message" => "$table synchronized: OK");
 
 		}
 		else {
@@ -1468,7 +1498,8 @@ class Upgrade extends Model {
 
 			// Modify column with full declaration
 			$alter_sql = "ALTER TABLE $db_table MODIFY $name $declaration" . ($first_after === true ? " FIRST" : ($first_after ? " AFTER $first_after" : ""));
-//			print "ALTER TABLE: " . $alter_sql."<br>\n";
+			print "ALTER TABLE: " . $alter_sql."<br>\n";
+			print "#".$query->sql($alter_sql)."#";
 			if($query->sql($alter_sql)) {
 				$message .= ": DONE";
 				$success = true;

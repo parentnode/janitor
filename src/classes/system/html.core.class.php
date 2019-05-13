@@ -9,7 +9,7 @@ class HTMLCore {
 
 	/**
 	* Make html tag attribute
-	* Attribute values passed as speparate parameters
+	* Attribute values passed as separate parameters
 	* if value is false, it is not added.
 	* if attribute has no value, empty string is returned
 	* 
@@ -812,7 +812,7 @@ class HTMLCore {
 
 		$_ = "";
 
-		$att_class = $this->attribute("class", $node["classname"], ($node["link"] == $page->url ? "selected": ""));
+		$att_class = $this->attribute("class", $node["classname"], (strpos($page->url, $node["link"]) !== false ? "selected": ""));
 		$att_target = $this->attribute("target", $node["target"]);
 
 		$_ .= '<li'.$att_class.'><a href="'.$node["link"].'"'.$att_target.'>'.$node["name"].'</a></li>';

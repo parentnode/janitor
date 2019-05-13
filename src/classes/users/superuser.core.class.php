@@ -193,115 +193,121 @@ class SuperUserCore extends User {
 			$user_id = $action[1];
 			global $page;
 
-
+			$user = $this->getUsers(["user_id" => $user_id]);
+			// do not attempt to get cancelled or non-existent users
+			if($user && $user["status"] >= 0) {
 			// check for unpaid orders
-			$unpaid_orders = false;
-			if(defined("SITE_SHOP") && SITE_SHOP) {
-				include_once("classes/shop/supershop.class.php");
-				$SC = new SuperShop();
-				$unpaid_orders = $SC->getUnpaidOrders(["user_id" => $user_id]);
-
-			}
-
-
-			// do not allow to cancel users with unpaid orders
-			if(!$unpaid_orders) {
-
-				// WHEN UPDATING - ALSO UPDATE USER CORE VERSION
-				// Update name to "Anonymous" and remove all privileges
-				$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
-				if($query->sql($sql)) {
-
-
-					// delete usernames
-					$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete activation reminders
-					$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete password
-					$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-					// delete password reset tokens
-					$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete addresses
-					$sql = "DELETE FROM ".$this->db_addresses." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete api tokens
-					$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete maillists
-					$sql = "DELETE FROM ".$this->db_maillists." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete readstates
-					$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
-					$query->sql($sql);
-
-					// delete membership
-					if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
-						$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-					}
-
-					// delete subscriptions
-					if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
-						$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-					}
-
-
-					// delete carts
-					if(defined("SITE_SHOP") && SITE_SHOP) {
-						$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
-						$query->sql($sql);
-
-
-						// we should also delete user account at payment gateway
-						payments()->deleteGatewayUserId($user_id);
-
-						// // TODO: keep updated when more gateways are added
-						// include_once("classes/adapters/stripe.class.php");
-						// $GC = new JanitorStripe();
-						// $payment_methods = $page->paymentMethods();
-						//
-						// foreach($payment_methods as $payment_method) {
-						//
-						// 	if($payment_method["gateway"] == "stripe") {
-						//
-						// 		$GC->deleteCustomer($user_id);
-						//
-						// 	}
-						//
-						// }
-
-					}
-
-					// flush user session when user is deleted
-					$this->flushUserSession(array("flushUserSession", $user_id));
-
-
-					// add to log
-					global $page;
-					$page->addLog("SuperUser->cancel: user_id:$user_id");
-
-
-					message()->addMessage("Account cancelled");
-					return true;
-
+				$unpaid_orders = false;
+				if(defined("SITE_SHOP") && SITE_SHOP) {
+					include_once("classes/shop/supershop.class.php");
+					$SC = new SuperShop();
+					$unpaid_orders = $SC->getUnpaidOrders(["user_id" => $user_id]);
 				}
 
+				// do not allow to cancel users with unpaid orders
+				if(!$unpaid_orders) {
+
+					// WHEN UPDATING - ALSO UPDATE USER CORE VERSION
+					// Update name to "Anonymous" and remove all privileges
+					$sql = "UPDATE ".$this->db." SET status=-1,user_group_id=NULL,nickname='Anonymous',firstname='',lastname='',language=NULL,modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
+					if($query->sql($sql)) {
+
+
+						// delete usernames
+						$sql = "DELETE FROM ".$this->db_usernames." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete activation reminders
+						$sql = "DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete password
+						$sql = "DELETE FROM ".$this->db_passwords." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+						// delete password reset tokens
+						$sql = "DELETE FROM ".$this->db_password_reset_tokens." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete activation reminders
+						$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete api tokens
+						$sql = "DELETE FROM ".$this->db_apitokens." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete maillists
+						$sql = "DELETE FROM ".$this->db_maillists." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete readstates
+						$sql = "DELETE FROM ".$this->db_readstates." WHERE user_id = ".$user_id;
+						$query->sql($sql);
+
+						// delete membership
+						if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
+							$sql = "DELETE FROM ".$this->db_members." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+						}
+
+						// delete subscriptions
+						if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
+							$sql = "DELETE FROM ".$this->db_subscriptions." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+						}
+
+
+						// delete carts
+						if(defined("SITE_SHOP") && SITE_SHOP) {
+							$sql = "DELETE FROM ".$SC->db_carts." WHERE user_id = ".$user_id;
+							$query->sql($sql);
+
+
+							// we should also delete user account at payment gateway
+							payments()->deleteGatewayUserId($user_id);
+
+							// // TODO: keep updated when more gateways are added
+							// include_once("classes/adapters/stripe.class.php");
+							// $GC = new JanitorStripe();
+							// $payment_methods = $page->paymentMethods();
+							//
+							// foreach($payment_methods as $payment_method) {
+							//
+							// 	if($payment_method["gateway"] == "stripe") {
+							//
+							// 		$GC->deleteCustomer($user_id);
+							//
+							// 	}
+							//
+							// }
+
+						}
+
+						// flush user session when user is deleted
+						$this->flushUserSession(array("flushUserSession", $user_id));
+
+
+						// add to log
+						global $page;
+						$page->addLog("SuperUser->cancel: user_id:$user_id");
+
+
+						message()->addMessage("Account cancelled");
+						return true;
+
+					}
+
+				}
+				else if($unpaid_orders){
+					message()->addMessage("Unpaid orders exists", array("type" => "error"));
+					return array("error" => "unpaid_orders");
+				}
 			}
 			else {
-				message()->addMessage("Unpaid orders exists", array("type" => "error"));
+				message()->addMessage("User does not exist.", array("type" => "error"));
+				return false;	
 			}
-
+			
 		}
 
 		message()->addMessage("Cancelling user failed", array("type" => "error"));
@@ -432,6 +438,7 @@ class SuperUserCore extends User {
 	* get all users
 	* Get all users in user_group
 	* Get specific user_id
+	* Get user associated with specific username_id
 	* Get users with email as username
 	* Get users with mobile as username
 	*/
@@ -442,6 +449,7 @@ class SuperUserCore extends User {
 		$user_group_id = false;
 		$order = "status DESC, id DESC";
 
+		$username_id = false;
 		$email = false;
 		$mobile = false;
 
@@ -449,12 +457,13 @@ class SuperUserCore extends User {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "user_group_id"  : $user_group_id    = $_value; break;
-					case "user_id"        : $user_id          = $_value; break;
-					case "order"          : $order            = $_value; break;
+					case "user_group_id"	: $user_group_id	= $_value; break;
+					case "user_id"			: $user_id			= $_value; break;
+					case "order"			: $order			= $_value; break;
 
-					case "email"          : $email            = $_value; break;
-					case "mobile"         : $mobile           = $_value; break;
+					case "username_id"		: $username_id		= $_value; break;	
+					case "email"			: $email			= $_value; break;
+					case "mobile"			: $mobile			= $_value; break;
 				}
 			}
 		}
@@ -483,6 +492,16 @@ class SuperUserCore extends User {
 			}
 		}
 
+		// get user associated with specific username_id
+		else if($username_id) {
+
+			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE id = $username_id";
+//			print $sql;
+			if($query->sql($sql)) {
+				$user = $query->result(0);
+				return $user;			}
+		}
+
 		// get users with email as username
 		else if($email) {
 
@@ -503,7 +522,7 @@ class SuperUserCore extends User {
 		}
 
 		// return all users
-		else if(!isset($_options["user_id"]) && !isset($_options["user_id"]) && !isset($_options["user_group_id"]) && !isset($_options["email"]) && !isset($_options["mobile"])) {
+		else if(!isset($_options["user_id"]) && !isset($_options["user_group_id"]) && !isset($_options["email"]) && !isset($_options["mobile"])) {
 			// Exclude Guest user for all-users list
 			if($query->sql("SELECT * FROM ".$this->db." WHERE id != 1 ORDER BY $order")) {
 				 return $query->results();
@@ -523,30 +542,49 @@ class SuperUserCore extends User {
 	// At later point interface and functionality should be expanded to intended level
 
 
-	// get usernames or specific username
+	
+	/**
+	 * Get usernames or specific username
+	 *
+	 * @param array $_options Filtering options
+	 * 		username_id 	int			Returns specific username
+	 * 		user_id 		int			 
+	 * 		type 			string		"email"|"mobile"	Requires user_id. Returns first username of type for user_id.
+	 * 
+	 * @return array|false query result (columns: id, user_id, username, type, verified, verification_code), query results, or false
+	 */
 	function getUsernames($_options) {
 
+		$username_id = false;
 		$user_id = false;
 		$type = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "user_id"  : $user_id    = $_value; break;
-					case "type"     : $type       = $_value; break;
+					case "username_id"	: $username_id 	= $_value; break;
+					case "user_id"  	: $user_id		= $_value; break;
+					case "type"     	: $type			= $_value; break;
 				}
 			}
 		}
 
 		$query = new Query();
 
-		if($user_id) {
+		if($username_id) {
+			$sql = "SELECT * FROM ".$this->db_usernames." WHERE id = $username_id";
+			if($query->sql($sql)) {
+				return $query->result(0);
+			}
+		}
 
-			// return specific username
+		else if($user_id) {
+
+			// return first username of type
 			if($type) {
 				$sql = "SELECT * FROM ".$this->db_usernames." WHERE user_id = $user_id AND type = '$type'";
 				if($query->sql($sql)) {
-					return $query->result(0, "username");
+					return $query->result(0);
 				}
 				return false;
 			}
@@ -559,6 +597,8 @@ class SuperUserCore extends User {
 			}
 
 		}
+
+
 
 		return false;
 	}
@@ -591,8 +631,101 @@ class SuperUserCore extends User {
 		return false;
 	}
 
-	// Update usernames from posted values
-	// /janitor/admin/user/updateEmail/#user_id#
+	/**
+	 * Get verification status for username
+	 *
+	 * @param integer $username_id
+	 * @param integer $user_id
+	 * @return array|false Array with verification status and number of verification links that have been send. False on error.
+	 */
+	function getVerificationStatus($username_id, $user_id) {
+		$query = new Query();
+
+		$verification_status = [];
+
+		$sql = "SELECT verified FROM ".$this->db_usernames." WHERE user_id = '$user_id' AND id = '$username_id'";	
+		// print $sql;
+		if($query->sql($sql)) {
+			$verification_status["verified"] = $query->result(0, "verified");
+			$verification_status["total_reminders"] = false;
+			$verification_status["reminded_at"] = false;
+
+
+			$sql = "SELECT id, reminded_at FROM ".SITE_DB.".user_log_verification_links WHERE user_id = '$user_id' AND username_id = '$username_id'";
+
+			if($query->sql($sql)) {
+				$result = $query->results();	
+				
+				// count the number of verification links that has been send to the user
+				$verification_status["total_reminders"] = count($result);
+				
+				// find out when the latest reminder was sent
+				$verification_status["reminded_at"] = end($result)["reminded_at"];
+			}
+			else {
+				$verification_status["total_reminders"] = 0;
+			}
+			
+			return $verification_status;
+		
+		}
+
+		// error
+		return false;
+
+
+	}
+	
+	/**
+	 * Set verification status for username
+	 *
+	 * @param integer $username_id
+	 * @param integer $user_id
+	 * @param integer $verification_status (1 or 0)
+	 * 
+	 * @return array|false status code or false
+	 */
+	function setVerificationStatus($username_id, $user_id, $verification_status) {
+
+		$query = new Query();
+
+		if($verification_status == 1) {
+
+			// verify
+			$sql = "UPDATE ".$this->db_usernames." SET verified = 1 WHERE user_id = '$user_id' AND id = '$username_id'";
+			if($query->sql($sql)) {
+				message()->addMessage("Email verified");
+				return array("verification_status" => "VERIFIED");
+			}
+		}
+
+		else if($verification_status == 0) {
+		
+			// unverify
+			$sql = "UPDATE ".$this->db_usernames." SET verified = 0 WHERE user_id = '$user_id' AND id = '$username_id'";
+			if($query->sql($sql)) {
+				message()->addMessage("Email unverified");
+				return array("verification_status" => "NOT_VERIFIED");
+			}
+		}
+
+		//error
+		message()->addMessage("Could not update verification status", array("type" => "error"));
+		return false;
+		
+	}
+
+	
+	/**
+	 * Update usernames from posted values. 
+	 * 
+	 * Expects $email and $username_id from $_POST.
+	 * /janitor/admin/user/updateEmail/#user_id#
+	 *
+	 * @param array $action user_id in $action[1]
+	 * 
+	 * @return array|true|false Returns status code indicating whether email was updated/unchanged/already existing. Returns true if email was deleted (updated to blank). False on error.
+	 */
 	function updateEmail($action) {
 
 		// Get posted values to make them available for models
@@ -600,68 +733,122 @@ class SuperUserCore extends User {
 
 		// does action match expected
 		if(count($action) == 2) {
-
+			
 			$user_id = $action[1];
 			$query = new Query();
-
+			
 			// make sure type tables exist
 			$query->checkDbExistence($this->db_usernames);
-
+			
 			$email = $this->getProperty("email", "value");
-
-			// check if email exists
-			if($this->userExists(array("email" => $email, "user_id" => $user_id))) {
-				message()->addMessage("Email already exists", array("type" => "error"));
-				return false;
-			}
-
-
-			$current_email = $this->getUsernames(array("user_id" => $user_id, "type" => "email"));
-
+			$username_id = getPost("username_id"); 
+			
+			$verification_status = $this->getProperty("verification_status", "value");
+			
+			
+			$current_email = $this->getUsernames(array("username_id" => $username_id))["username"];
+			
 			// email is posted
 			if($email) {
-
+				
 				$verification_code = randomKey(8);
+				
+				$user = $this->getUsers(["user_id" => $user_id]);
+				$nickname = $user["nickname"];
+				
+				
+				// check if email already exists
+				$sql = "SELECT id FROM $this->db_usernames WHERE username = '$email' AND user_id = $user_id".($username_id ? " AND id != $username_id" : "");
+				// print $sql;
+				if($query->sql($sql)) {
+					message()->addMessage("Email already exists for this user", array("type" => "error"));
+					$status = ["email_status" => "ALREADY_EXISTS"];
+					return $status;
+				}
+				else {
+					$sql = "SELECT id FROM $this->db_usernames WHERE username = '$email'".($username_id ? " AND id != $username_id" : "");
+					// print $sql;
+					if($query->sql($sql)) {
+						message()->addMessage("Email is used by another user", array("type" => "error"));
+						$status = ["email_status" => "ALREADY_EXISTS"];
+						return $status;
+					}
+				}
+
 
 				// email has not been set before
 				if(!$current_email) {
 
-					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code', type = 'email', user_id = $user_id";
-	//				print $sql."<br>";
+					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verification_code = '$verification_code', type = 'email', user_id = $user_id";
+					$query->sql($sql);
+					$username_id = $query->lastInsertId();
+					// print "username_id ".$username_id;
+					
+					$sql = "SELECT * FROM $this->db_usernames WHERE username = '$email' AND verification_code = '$verification_code' AND user_id = $user_id";
+					
+					
 					if($query->sql($sql)) {
+						
 						message()->addMessage("Email added");
-						return true;
+						$status = [
+							"email_status" => "UPDATED",
+						];
 					}
 				}
-
+				
 				// email is changed
-				else if($email != $current_email) {
+				else if($email != $current_email) {					
 
-					$sql = "UPDATE $this->db_usernames SET username = '$email', verified = 0, verification_code = '$verification_code' WHERE type = 'email' AND user_id = $user_id";
-	//				print $sql."<br>";
+					$sql = "UPDATE $this->db_usernames SET username = '$email', verification_code = '$verification_code' WHERE id = $username_id AND type = 'email' AND user_id = $user_id";
+					// print $sql."<br>";
+					
 					if($query->sql($sql)) {
-						message()->addMessage("Email updated");
-						return true;
-					}
-				}
 
+						$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE username_id = $username_id AND user_id = $user_id";
+						// print $sql;
+
+						if($query->sql($sql)) {
+								
+							message()->addMessage("Email updated");
+							$status = ["email_status" => "UPDATED"];
+						}
+					}
+				}	
+				
 				// email is NOT changed
 				else if($email == $current_email) {
-
+					
 					message()->addMessage("Email unchanged");
-					return true;
+					$status = ["email_status" => "UNCHANGED"];
+
 				}
+				
+				$status["username_id"] = $username_id;
+				// print $username_id;	
+				
+				// update verification status
+				$result = $this->setVerificationStatus($username_id, $user_id, $verification_status);
+				// print_r($result);
+				if($result && isset($result["verification_status"])) {
+
+					$status["verification_status"] = $result["verification_status"];
+					return $status;
+				}		
 			}
 
 			// email is not posted
-			else if(!$email && $current_email !== false) {
+			else if(!$email) {
 
-				$sql = "DELETE FROM $this->db_usernames WHERE type = 'email' AND user_id = $user_id";
-//				print $sql."<br>";
-				if($query->sql($sql)) {
-					message()->addMessage("Email deleted");
-					return true;
-				}
+				if($current_email) {
+					$sql = "DELETE FROM $this->db_usernames WHERE type = 'email' AND user_id = $user_id";
+	//				print $sql."<br>";
+					if($query->sql($sql)) {
+						message()->addMessage("Email deleted");
+						
+					}
+				}		
+				return true;
+				
 			}
 
 		}
@@ -2325,11 +2512,31 @@ class SuperUserCore extends User {
 
 
 
+	/**
+	 * Get all (or a subset of) unverified usernames; 
+	 *
+	 * @param array $_options Optional filters
+	 * 		type		string		"email"|"mobile"
+	 * 		user_id		int			
+	 * @return array|false query result or false
+	 */
+	function getUnverifiedUsernames($_options = false) {
 
-	function getUnconfirmedUsers($user_id = false) {
+		$type = false;
+		$user_id = false;
+		
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "type"				: $type					= $_value; break;
+					case "user_id"			: $user_id				= $_value; break;
+				}
+			}
+		}
+
 
 		$query = new Query();
-		$query->checkDbExistence(SITE_DB.".user_log_activation_reminders");
+		$query->checkDbExistence(SITE_DB.".user_log_verification_links");
 
 		$SELECT = array();
 		$FROM = array();
@@ -2339,35 +2546,40 @@ class SuperUserCore extends User {
 		$ORDER = array();
 		$HAVING = "";
 		$LIMIT = "";
+		
 
 		$SELECT[] = "users.id as user_id";
+		$SELECT[] = "usernames.id as username_id";
 		$SELECT[] = "usernames.username as username";
 		$SELECT[] = "usernames.verification_code as verification_code";
 		$SELECT[] = "users.nickname as nickname";
 		$SELECT[] = "users.created_at as created_at";
 
-		$SELECT[] = "MAX(reminders.created_at) as reminded_at";
+		$SELECT[] = "MAX(reminders.reminded_at) as reminded_at";
 		$SELECT[] = "COUNT(reminders.id) as total_reminders";
 
-		$FROM[] = $this->db_usernames." as usernames";
 		$FROM[] = $this->db." as users";
+		$FROM[] = $this->db_usernames." as usernames";
 
 		$WHERE[] = "users.id = usernames.user_id";
-		$WHERE[] = "users.status = 0";
+		// $WHERE[] = "users.status = 0";
 		$WHERE[] = "usernames.verified = 0";
-		$WHERE[] = "usernames.type = 'email'";
-		$WHERE[] = "users.status = 0";
+		// $WHERE[] = "usernames.type = 'email'";
 
 		// join with activation log
-		$LEFTJOIN[] = SITE_DB.".user_log_activation_reminders as reminders ON users.id = reminders.user_id";
+		$LEFTJOIN[] = SITE_DB.".user_log_verification_links as reminders ON usernames.id = reminders.username_id";
+	
 
-		$GROUP_BY = "users.id";
+		$GROUP_BY = "usernames.id";
 
 		$ORDER[] = "reminded_at ASC";
 
 		if($user_id) {
 			$WHERE[] = "users.id = $user_id";
-			$LIMIT = 1;
+			// $LIMIT = 1;
+		}
+		if($type) {
+			$WHERE[] =	"usernames.type = '$type'";
 		}
 
 
@@ -2376,66 +2588,100 @@ class SuperUserCore extends User {
 
 		// print $sql;
 		if($query->sql($sql)) {
+			// print_r($query->results()); 
 			return $query->results();
 		}
 
 		return false;
 	}
 	
-	// /janitor/admin/user/sendActivationReminder/[#user_id#]
-	function sendActivationReminder($action) {
+	
+	// /janitor/admin/user/sendVerificationLink/#username_id#	
+	/**
+	 * Send verification link to username_id
+	 * A specific template can be posted. Default template is signup_reminder.
+	 *
+	 * @param array $action username_id in $action[1]	
+	 * @return array|false $verification_status with "verified", "reminded_at", and "total_reminders". False on error.
+	 */
+	function sendVerificationLink($action) {
 
 		$query = new Query();
-		$query->checkDbExistence(SITE_DB.".user_log_activation_reminders");
+		$query->checkDbExistence(SITE_DB.".user_log_verification_links");
 
-
-		$users = false;
-		$user_id = false;
-
-		// user_id passed?
+		$template = (getPost("template") ? : "signup_reminder");
+		
+		// print_r($action);
 		if(count($action) == 2) {
-			$user_id = $action[1];
-		}
+			$username_id = $action[1];
+			$username_row = $this->getUsernames(["username_id" => $username_id]);
+			
+			$username = $username_row["username"];
+			$username_type = $username_row["type"];
+			$username_verification_code = $username_row["verification_code"];
+			$user_id = $username_row["user_id"];
+			$user_info = $this->getUserInfo(["user_id" => $user_id]);
+			
+			if($username_type == "email") {
+				
+				// use current user as sender for this reminder
+				$current_user = $this->getUser();
+				if(
+					mailer()->send(array(
+					"from_current_user" => true,
+					"values" => array(
+						"FROM" => $current_user["nickname"],
+						"NICKNAME" => $user_info["nickname"],
+						"EMAIL" => $username,
+						"VERIFICATION" => $username_verification_code,
+					),
+					"track_clicks" => false,
+					"recipients" => $username,
+					"template" => $template
+					))
+				) { 
+					message()->addMessage("Verification link sent to ".$username);
+					
+					// Add to user log
+					$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
+					// print $sql;
+					$query->sql($sql);
+					$verification_status = $this->getVerificationStatus($username_id, $user_id);
+					// print_r($verification_status); exit;
 
-		$users = $this->getUnconfirmedUsers($user_id);
+					return $verification_status;
+				}
 
-
-		foreach($users as $key => $user) {
-
-//			print "send mail to:" . $user["username"] . "<br>\n";
-			// use current user as sender for this reminder
-			$current_user = $this->getUser();
-//			print_r($)
-
-			mailer()->send(array(
-				"from_current_user" => true,
-				"values" => array(
-					"FROM" => $current_user["nickname"],
-					"NICKNAME" => $user["nickname"],
-					"EMAIL" => $user["username"],
-					"VERIFICATION" => $user["verification_code"],
-				),
-				"track_clicks" => false,
-				"recipients" => $user["username"],
-				"template" => "signup_reminder"
-			));
-
-			message()->addMessage("Reminder sent to ".$user["username"]);
-
-			// Add to user log
-			$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user["user_id"];
-	//		print $sql;
-			$query->sql($sql);
-
-		}
-
-		// get updated user activation data
-		$users = $this->getUnconfirmedUsers($user_id);
-
-
-		return $users;
+				message()->addMessage("Could not send verification link to ".$username, ["type" => "error"]);
+				return false;
+	
+			}
+		}		
 	}
 	
+	/**
+	 * Send verification links to list of users
+	 * 
+	 * Expects a comma separated string of username_ids from $_POST
+	 *
+	 * @param array $action 
+	 * 
+	 * @return array $verification_statuses with each $verification_status containing "verified", "reminded_at", "total_reminders", and "username_id".
+	 */
+	function sendVerificationLinks($action) {
+
+		$selected_username_ids = explode(",", getPost("selected_username_ids"));
+		$verification_statuses = [];
+		
+		foreach ($selected_username_ids as $username_id) {
+			$verification_status = $this->sendVerificationLink(["sendVerificationLink", $username_id]);
+			$verification_status["username_id"] = $username_id;
+			array_push($verification_statuses, $verification_status);
+		}
+		
+		return $verification_statuses;
+
+	}
 
 
 
@@ -2650,7 +2896,7 @@ class SuperUserCore extends User {
 				// get controller access items
 				include($controller);
 
-				// replace Framework path, but add /janitor/admin because that is reprensentative for how they are accessed
+				// replace Framework path, but add /janitor/admin because that is representative for how they are accessed
 				$short_point = str_replace(".php", "", str_replace(FRAMEWORK_PATH."/www", "/janitor/admin", $controller));
 
 				// store information

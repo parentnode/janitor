@@ -118,6 +118,7 @@ function getVar($which) {
 */
 function getPost($which) {
 	if(isset($_POST[$which])) {
+		// debug(["getPost($which)", $_POST[$which]]);
 		return prepareForDB($_POST[$which]);
 	}
 	else {
@@ -142,6 +143,7 @@ function getPosts($which) {
 // Special case for passwords - do not sanitize posted values for passwords
 function getPostPassword($which) {
 	if(isset($_POST[$which])) {
+		// debug(["getPostPassword($which)", $_POST[$which]]);
 		return $_POST[$which];
 	}
 	else {
@@ -173,7 +175,7 @@ function prepareForHTML($string) {
 
 /**
 * Prepare Correcting quotes and removes bad HTML tags and attributes
-* Recursive function for arrays - actual stripping is handled by prepareForDBdo
+* Recursive function for arrays - actual stripping is handled by stripDisallowed
 *
 * @param string $string
 * @return string
@@ -218,6 +220,7 @@ function stripDisallowed($string) {
 	// debug(["stripDisallowed", $string]);
 
 	// only look through attributes if any tags are left after initial sanitizing
+	// This time without any allowed tags
 	if($string != strip_tags($string)) {
 
 		$dom = DOM()->createDOM($string);
@@ -229,14 +232,9 @@ function stripDisallowed($string) {
 			DOM()->stripAttributes($dom);
 
 			// Export HTML and remove any mis-interpreted tags
-			$string = strip_tags(trim($dom->saveHTML()), $allowed_tags);
-//			$string = $dom->saveXML();
+			$string = strip_tags(trim(DOM()->saveHTML($dom)), $allowed_tags);
 
 		}
-
-		// saveHTML encodes entities
-		$string = html_entity_decode($string, ENT_QUOTES, "UTF-8");
-//		print "\nB:".$string."<br>";
 
 	}
 

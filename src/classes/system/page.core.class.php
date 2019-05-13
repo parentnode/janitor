@@ -1717,9 +1717,10 @@ class PageCore {
 								"template" => "signup_reminder"
 							));
 
+							$username_id = $this->getUsernameId($email, $user_id);
 
 							// Add to user log
-							$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user_id;
+							$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
 				//			print $sql;
 							$query->sql($sql);
 
@@ -1779,10 +1780,14 @@ class PageCore {
 						), 
 						"recipients" => $email, 
 						"template" => "signup_reminder"
-					));						
+					));				
+					
+					$username_id = $this->getUsernameId($email, $user_id);
+					// print_r($user	name_id);
+
 					
 					// Add to user log
-					$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user_id;
+					$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
 		//			print $sql;
 					$query->sql($sql);
 
@@ -1797,15 +1802,19 @@ class PageCore {
 				if($query->sql($sql)) {
 					$this->addLog("Login error: ".$username);
 
-					message()->addMessage("Computer says NO!", array("type" => "error"));
+					message()->addMessage("You could not be logged in.", array("type" => "error"));
 					return false;
 
 				}
+
+				$username_id = $this->getUsernameId($email, $user_id);
 				
 				// Add to user log
-				$sql = "INSERT INTO ".SITE_DB.".user_log_activation_reminders SET user_id = ".$user_id;
+				$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
 	//			print $sql;
 				$query->sql($sql);
+
+				message()->addMessage("The user could not be logged in.", array("type" => "error"));
 				return ["status" => "NO_PASSWORD", "email" => $email];
 
 			}
@@ -2077,6 +2086,28 @@ class PageCore {
 				fclose($fp);
 			}
 		}
+	}
+
+	/**
+	 * Get username id
+	 *
+	 * @param string $username
+	 * @param integer $user_id
+	 * 
+	 * @return integer|false
+	 */
+	function getUsernameId($username, $user_id) {
+
+		$query = new Query;
+
+		$sql = "SELECT id FROM ".SITE_DB.".user_usernames WHERE username = '$username' AND user_id = $user_id";
+
+		if($query->sql($sql)) {
+			return $query->result(0)["id"];
+		}
+
+		return false;
+
 	}
 
 }

@@ -309,7 +309,7 @@ class ShopCore extends Model {
 			"error_message" => "Invalid card number"
 		));
 
-		// cardnumber
+		// card expiration month
 		$this->addToModel("card_exp_month", array(
 			"type" => "string",
 			"label" => "MM",
@@ -319,7 +319,7 @@ class ShopCore extends Model {
 			"error_message" => "Invalid month"
 		));
 
-		// cardnumber
+		// card expiration year
 		$this->addToModel("card_exp_year", array(
 			"type" => "string",
 			"label" => "YY",
@@ -329,7 +329,7 @@ class ShopCore extends Model {
 			"error_message" => "Invalid year"
 		));
 
-		// cardnumber
+		// card cvc code
 		$this->addToModel("card_cvc", array(
 			"type" => "string",
 			"label" => "CVC",
@@ -346,8 +346,12 @@ class ShopCore extends Model {
 
 
 
-
-	// get next available order number
+	/**
+	 * Get next available order number
+	 * Retries recursively if insertion into db fails.
+	 *
+	 * @return string|false New order number with the format "WEBx" where x is an iterated number. False on error.
+	 */
 	function getNewOrderNumber() {
 
 		$query = new Query();
@@ -1083,17 +1087,16 @@ class ShopCore extends Model {
 	
 	// Delete itemtypes from cart
 	// #controller#/deleteItemtypeFromCart
-	function deleteItemtypeFromCart($itemtype, $cart_reference) {
+	function deleteItemtypeFromCart($itemtype) {
 		
-		$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+		$cart = $this->getCart();
 		
 		if($cart) {
-			
 			$IC = new Items();
 			foreach($cart["items"] as $key => $cart_item) {
 				$existing_item = $IC->getItem(array("id" => $cart_item["item_id"]));
 				if($existing_item["itemtype"] == $itemtype) {
-					$cart = $this->deleteFromCart(array("deleteFromCart", $cart_reference, $cart_item["id"]));
+					$cart = $this->deleteFromCart(array("deleteFromCart", $cart["cart_reference"], $cart_item["id"]));
 				}
 			}
 			return $cart;
@@ -1120,8 +1123,15 @@ class ShopCore extends Model {
 	}
 
 
-	// Convert cart to order
-	# /shop/newOrderFromCart
+	
+	/**
+	 * Convert cart to order
+	 * 
+	 * /shop/newOrderFromCart/#cart_reference#
+	 *
+	 * @param array $action
+	 * @return array|false Order object. False on error. 
+	 */
 	function newOrderFromCart($action) {
 //		print "newOrderFromCart";
 
@@ -1362,6 +1372,7 @@ class ShopCore extends Model {
 							"recipients" => SHOP_ORDER_NOTIFIES,
 							"subject" => SITE_URL . " - New order ($order_no) created by: $user_id",
 							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/user/orders/" . $user_id . "\n\nOrder content: ".implode(",", $admin_summary),
+							"tracking" => false
 							// "template" => "system"
 						));
 

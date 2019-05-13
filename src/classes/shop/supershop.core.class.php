@@ -126,8 +126,22 @@ class SuperShopCore extends Shop {
 				if($cart["user_id"]) {
 					// get user info
 					$cart["user"] = $UC->getUsers(array("user_id" => $cart["user_id"]));
-					$cart["user"]["email"] = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "email"));
-					$cart["user"]["mobile"] = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "mobile"));
+
+					$username_email = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "email"));
+					if ($username_email) {
+						$cart["user"]["email"] = $username_email["username"]; 
+					}
+					else {
+						$cart["user"]["email"] = "Not available";
+					}
+
+					$username_mobile = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "mobile"));
+					if ($username_mobile) {
+						$cart["user"]["mobile"] = $username_mobile["username"]; 
+					}
+					else {
+						$cart["user"]["mobile"] = "Not available";
+					}
 				}
 
 				return $cart;
@@ -214,8 +228,23 @@ class SuperShopCore extends Shop {
 					if($cart["user_id"]) {
 						// get user info
 						$carts[$i]["user"] = $UC->getUsers(array("user_id" => $cart["user_id"]));
-						$carts[$i]["user"]["email"] = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "email"));
-						$carts[$i]["user"]["mobile"] = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "mobile"));
+
+						$username_email = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "email"));
+						if ($username_email) {
+							$carts[$i]["user"]["email"] = $username_email["username"]; 
+						}
+						else {
+							$carts[$i]["user"]["email"] = "Not available";
+						}
+
+						$username_mobile = $UC->getUsernames(array("user_id" => $cart["user_id"], "type" => "mobile"));
+						if ($username_mobile) {
+							$carts[$i]["user"]["mobile"] = $username_mobile["username"]; 
+						}
+						else {
+							$carts[$i]["user"]["mobile"] = "Not available";
+						}
+						
 					}
 				}
 
@@ -682,8 +711,22 @@ class SuperShopCore extends Shop {
 				if($order["user_id"]) {
 					// get user info
 					$order["user"] = $UC->getUsers(array("user_id" => $order["user_id"]));
-					$order["user"]["email"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
-					$order["user"]["mobile"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+					
+					$username_email = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+					if ($username_email) {
+						$order["user"]["email"] = $username_email["username"]; 
+					}
+					else {
+						$order["user"]["email"] = "Not available";
+					}
+
+					$username_mobile = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+					if ($username_mobile) {
+						$order["user"]["mobile"] = $username_mobile["username"]; 
+					}
+					else {
+						$order["user"]["mobile"] = "Not available";
+					}
 				}
 
 				$order["order_status_text"] = $this->order_statuses[$order["status"]];
@@ -759,8 +802,22 @@ class SuperShopCore extends Shop {
 						if($order["user_id"]) {
 							// get user info
 							$orders[$i]["user"] = $UC->getUsers(array("user_id" => $order["user_id"]));
-							$orders[$i]["user"]["email"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
-							$orders[$i]["user"]["mobile"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+							
+							$username_email = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+							if ($username_email) {
+								$orders[$i]["user"]["email"] = $username_email["username"]; 
+							}
+							else {
+								$orders[$i]["user"]["email"] = "Not available";
+							}
+
+							$username_mobile = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+							if ($username_mobile) {
+								$orders[$i]["user"]["mobile"] = $username_mobile["username"]; 
+							}
+							else {
+								$orders[$i]["user"]["mobile"] = "Not available";
+							}
 						}
 					}
 				}
@@ -786,8 +843,22 @@ class SuperShopCore extends Shop {
 						if($order["user_id"]) {
 							// get user info
 							$orders[$i]["user"] = $UC->getUsers(array("user_id" => $order["user_id"]));
-							$orders[$i]["user"]["email"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
-							$orders[$i]["user"]["mobile"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+							
+							$username_email = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+							if ($username_email) {
+								$orders[$i]["user"]["email"] = $username_email["username"]; 
+							}
+							else {
+								$orders[$i]["user"]["email"] = "Not available";
+							}
+
+							$username_mobile = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+							if ($username_mobile) {
+								$orders[$i]["user"]["mobile"] = $username_mobile["username"]; 
+							}
+							else {
+								$orders[$i]["user"]["mobile"] = "Not available";
+							}
 						}
 					}
 				}
@@ -819,8 +890,22 @@ class SuperShopCore extends Shop {
 					if($order["user_id"]) {
 						// get user info
 						$orders[$i]["user"] = $UC->getUsers(array("user_id" => $order["user_id"]));
-						$orders[$i]["user"]["email"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
-						$orders[$i]["user"]["mobile"] = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+						
+						$username_email = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "email"));
+						if ($username_email) {
+							$orders[$i]["user"]["email"] = $username_email["username"]; 
+						}
+						else {
+							$orders[$i]["user"]["email"] = "Not available";
+						}
+
+						$username_mobile = $UC->getUsernames(array("user_id" => $order["user_id"], "type" => "mobile"));
+						if ($username_mobile) {
+							$orders[$i]["user"]["mobile"] = $username_mobile["username"];
+						}
+						else {
+							$orders[$i]["user"]["mobile"] = "Not available";
+						}
 					}
 				}
 
@@ -898,7 +983,7 @@ class SuperShopCore extends Shop {
 		}
 
 		// return all unpaid orders
-		else {
+		else if(!isset($_options["user_id"]) && !isset($_options["item_id"]) && !isset($_options["itemtype"])) {
 
 			$sql = "SELECT * FROM ".$this->db_orders." WHERE payment_status != 2 AND status != 3 ORDER BY id DESC";
 //			print $sql;
@@ -912,7 +997,7 @@ class SuperShopCore extends Shop {
 	}
 
 
-	// /#controller#/sendActivationReminder/#order_id#
+	// /#controller#/sendPaymentReminder/#order_id#
 	function sendPaymentReminder($action) {
 
 		$this->getPostedEntities();
@@ -964,8 +1049,6 @@ class SuperShopCore extends Shop {
 
 		}
 
-		// get updated user activation data
-//		$users = $this->getUnconfirmedUsers($user_id);
 
 
 		return false;

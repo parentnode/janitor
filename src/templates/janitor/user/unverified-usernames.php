@@ -3,19 +3,24 @@ global $action;
 global $model;
 $query = new Query();
 
-$users = $model->getUnconfirmedUsers();
-
+$users = $model->getUnverifiedUsernames([
+	"type" => "email"
+	]);
 ?>
 <div class="scene i:scene defaultList usersNotVerified">
-	<h1>Unconfirmed accounts</h1>
+	<h1>Unverified usernames</h1>
 
-	<ul class="actions i:unconfirmedAccountsAll">
+	<ul class="actions i:unverifiedUsernamesSelected">
 		<?= $HTML->link("All users", "/janitor/admin/user/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 
-		<?= $JML->oneButtonForm("Send reminder to All", "/janitor/admin/user/sendActivationReminder", array(
-			"wrapper" => "li.remind",
-			"confirm-value" => "This will send an activation reminder email to all unconfirmed accounts!",
-			"success-function" => "reminded"
+		<?= $JML->oneButtonForm("Send reminder to selected", "/janitor/admin/user/sendVerificationLinks", array(
+			"wrapper" => "li.remind_selected",
+			"confirm-value" => "This will send an activation reminder email to all selected unverified usernames!",
+			"success-function" => "reminded",
+			"class" => "disabled",
+			"inputs" => [
+				"selected_username_ids" => ""
+			]
 		)) ?>
 	</ul>
 
@@ -23,12 +28,12 @@ $users = $model->getUnconfirmedUsers();
 		These users did not click the activation link in the welcome email (or otherwise failed to complete verification).
 	</p>
 
-	<div class="all_items orders i:defaultList filters i:unconfirmedAccounts">
+	<div class="all_items orders i:defaultList filters selectable i:unverifiedUsernames">
 		<h2>Users</h2>
 <?		if($users): ?>
 		<ul class="items">
 <?			foreach($users as $user): ?>
-			<li class="item id:<?= $user["user_id"] ?>">
+			<li class="item id:<?= $user["user_id"] ?> username_id:<?= $user["username_id"] ?>">
 				<h3><?= $user["nickname"] ?></h3>
 
 				<dl class="info">
@@ -49,13 +54,15 @@ $users = $model->getUnconfirmedUsers();
 				</dl>
 
 				<ul class="actions">
-					<?= $JML->oneButtonForm("Send reminder", "/janitor/admin/user/sendActivationReminder/".$user["user_id"], array(
+					<?= $JML->oneButtonForm("Send reminder", "/janitor/admin/user/sendVerificationLink/".$user["username_id"], array(
 						"wrapper" => "li.remind",
 						"confirm-value" => "This will send an activation reminder email!",
-						"success-function" => "reminded"
+						"success-function" => "reminded",
 					)) ?>
 					<?= $HTML->link("Edit", "/janitor/admin/user/edit/".$user["user_id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 				</ul>
+
+
 
 			 </li>
 <?			endforeach; ?>

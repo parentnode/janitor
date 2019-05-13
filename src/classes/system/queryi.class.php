@@ -262,6 +262,8 @@ class Query {
 	* @param $new_values Values to be updated to, to check if there are any changes to version
 	*/
 	function versionControl($item_id, $new_values) {
+		// debug(["versionControl"]);
+
 
 		$IC = new Items();
 		$item = $IC->getItem(array("id" => $item_id));
@@ -320,7 +322,12 @@ class Query {
 			$data = array();
 			foreach($item as $name => $value) {
 				if($name != "id") {
-					$data[] = $name."='".prepareForDB($value)."'";
+					if($value) {
+						$data[] = $name."='".prepareForDB($value)."'";
+					}
+					else {
+						$data[] = $name."=DEFAULT";
+					}
 				}
 			}
 
@@ -335,7 +342,7 @@ class Query {
 				if(!$this->sql($sql)) {
 					// insert version data
 					$sql = "INSERT INTO `$db`.`$version_table` SET ".implode(",", $data);
-		//			print $sql;
+					// debug([$sql]);
 					$this->sql($sql);
 				}
 

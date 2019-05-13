@@ -291,6 +291,10 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<ul class="actions">
 			<?= $HTML->link("Pay order", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.pay")) ?>
 		</ul>
+<? else: ?>
+		<ul class="actions">
+			<?= $HTML->link("Add payment to order", "/janitor/admin/shop/order/payment/new/".$order["id"], array("class" => "button primary", "wrapper" => "li.pay")) ?>
+		</ul>
 <? endif; ?>
 
 	</div>
