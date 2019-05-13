@@ -1498,8 +1498,8 @@ class Upgrade extends Model {
 
 			// Modify column with full declaration
 			$alter_sql = "ALTER TABLE $db_table MODIFY $name $declaration" . ($first_after === true ? " FIRST" : ($first_after ? " AFTER $first_after" : ""));
-			print "ALTER TABLE: " . $alter_sql."<br>\n";
-			print "#".$query->sql($alter_sql)."#";
+			// print "ALTER TABLE: " . $alter_sql."<br>\n";
+			// print "#".$query->sql($alter_sql)."#";
 			if($query->sql($alter_sql)) {
 				$message .= ": DONE";
 				$success = true;
