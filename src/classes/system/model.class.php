@@ -320,6 +320,8 @@ class Model extends HTML {
 				}
 			}
 		}
+
+		return true;
 	}
 
 

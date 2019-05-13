@@ -626,9 +626,9 @@ class JanitorHTML {
 		$_ .= '<div class="media single_media '.$variant.' '.$class.' variant:'.$variant.' item_id:'.$item["id"].' format:'.($media ? $media["format"] : "").'"'.$this->jsData().'>';
 		$_ .= '<h2>'.$label.'</h2>';
 
-		$_ .= $model->formStart($this->path."/addSingleMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject"));
+		$_ .= $model->formStart($this->path."/addSingleMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject", "id" => $item["id"]));
 		$_ .= '<fieldset>';
-		$_ .= $model->input($variant, array("value" => $media));
+		$_ .= $model->input($variant, array("value" => $media, "id" => "single_media_".$item["id"]));
 		$_ .= '</fieldset>';
 		$_ .= $model->formEnd();
 

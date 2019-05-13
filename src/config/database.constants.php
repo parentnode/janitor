@@ -33,6 +33,7 @@ define("UT_ITEMS_SUBSCRIPTION_METHOD",  SITE_DB.".items_subscription_method");  
 
 
 
+
 // TAGS
 define("UT_TAG",                        SITE_DB.".tags");                              // Item tags
 define("UT_TAGGINGS",                   SITE_DB.".taggings");                          // Item tags relations

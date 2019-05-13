@@ -204,6 +204,7 @@ class ItemsCore {
 						case "ratings"               : $ratings                 = $_value; break;
 						case "comments"              : $comments                = $_value; break;
 						case "subscription_method"   : $subscription_method     = $_value; break;
+						
 
 						case "user"                  : $user                    = $_value; break;
 						case "readstate"             : $readstate               = $_value; break;
@@ -217,11 +218,16 @@ class ItemsCore {
 
 			// get the specific type data
 			$typeObject = $this->TypeObject($item["itemtype"]);
+			
 			if(method_exists($typeObject, "get")) {
 				$item = array_merge($item, $typeObject->get($item["id"]));
 			}
 			else {
-				$item = array_merge($item, $this->getSimpleType($item["id"], $typeObject));
+				$tmp_simple_item = $this->getSimpleType($item["id"], $typeObject);
+				
+				if(count($tmp_simple_item)) {
+					$item = array_merge($item, $tmp_simple_item);
+				}
 			}
 
 			// add mediae
@@ -259,7 +265,6 @@ class ItemsCore {
 			if($all || $subscription_method) {
 				$item["subscription_method"] = $this->getSubscriptionMethod(array("item_id" => $item["id"]));
 			}
-
 
 			// add user nickname
 			if($all || $user) {
@@ -317,6 +322,7 @@ class ItemsCore {
 		$query = new Query();
 
 		$sql = "SELECT * FROM ".$typeObject->db." WHERE item_id = $item_id";
+
 		if($query->sql($sql)) {
 			$item = $query->result(0);
 			unset($item["id"]);
@@ -609,10 +615,12 @@ class ItemsCore {
 		// }
 
 		if(isset($itemtype)) {
-			$WHERE[] = "items.itemtype = '$itemtype'";
-
 			// add main itemtype table to enable sorting based on local values
-			$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
+			$WHERE[] = "items.itemtype = '$itemtype'";
+			$WHERE[] = "items.id = ".$itemtype.".item_id";
+			$FROM[] = $this->typeObject($itemtype)->db." as ".$itemtype;
+
+//			$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
 		}
 
 
@@ -710,7 +718,7 @@ class ItemsCore {
 
 		}
 
-		$ORDER[] = "items.published_at DESC";
+		$ORDER[] = "items.published_at DESC, items.id";
 
 		if(isset($limit)) {
 			$limit = " LIMIT $limit";
@@ -722,11 +730,9 @@ class ItemsCore {
 		$items = array();
 
 		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $limit;
-		// debug($sql);
 
 		$query->sql($sql);
 		$items = $query->results();
-
 
 		// TODO: consider if this could be integrated in primary query
 		// - but might give issues with flexibility and query load on mixed lists
@@ -1465,7 +1471,7 @@ class ItemsCore {
 		}
 
 		// no matching prices found
-		return false;
+		return array();
 	}
 
 
