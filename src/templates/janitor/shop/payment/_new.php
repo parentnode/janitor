@@ -3,60 +3,14 @@ global $action;
 global $model;
 $IC = new Items();
 
-$order_id = $action[3];
-
-$order = $model->getOrders(array("order_id" => $order_id));
-
-// calculate remaining payment
-$payable_amount = 0;
-// if($order && $order["payment_status"] != 2) {
-if($order) {
-
-	$total_order_price = $model->getTotalOrderPrice($order["id"]);
-
-	$payments = $model->getPayments(["order_id" => $order["id"]]);
-	$total_payments = 0;
-	if($payments) {
-		foreach($payments as $payment) {
-			$total_payments += $payment["payment_amount"];
-		}
-	}
-
-	$payable_amount = $total_order_price["price"]-$total_payments; //formatPrice($total_order_price);
-
-}
-
-// Split payment methods into gateway and manual
-$currency = $this->currencies($order["currency"]);
-$payment_methods = $this->paymentMethods();
-$payment_sources = [];
-$payment_gateways = [];
-foreach($payment_methods as $payment_method) {
-
-//	if($payment_method["classname"] != "disabled") {
-
-		if($payment_method["gateway"]) {
-			$payment_gateways[] = $payment_method;
-		}
-		else {
-			$payment_sources[] = $payment_method;
-		}
-
-//	}
-
-}
-
-
-// get previous reminders
-$payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
+$orders = $model->getOrders(array("status" => $status));
 
 ?>
 <div class="scene i:scene defaultEdit shopView newPayment">
 	<h1>New payment</h1>
-	<h2>Order: <?= $order["order_no"] ?></h2>
 
 	<ul class="actions">
-		<?= $HTML->link("Back to order", "/janitor/admin/shop/order/edit/".$order_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
+		<?= $HTML->link("Back to payments", "/janitor/admin/shop/payment/".$order_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
 <? if($payable_amount <= 0): ?>
@@ -89,42 +43,6 @@ $payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
 			<dd><?= $order["country"] ?></dd>
 		</dl>
 	</div>
-
-
-<? if($payable_amount > 0): ?>
-	<div class="charge i:collapseHeader">
-		<h2>Charge payment now</h2>
-		<p>
-			The payment can be charged directly from the listed payment gateways, if the buttons are active.
-		</p>
-		<p class="note">
-			If the buttons are disabled, it means we don't have sufficient information available to charge the 
-			current client. In that case, you can choose to send a payment reminder to the user (under the reminder section).
-		</p>
-
-		<ul class="actions">
-		<? foreach($payment_gateways as $payment_method): ?>
-			<? if($model->canBeCharged(["user_id" => $order["user_id"], "gateway" => $payment_method["gateway"]])): ?>
-				<?= $JML->oneButtonForm("Charge ".formatPrice(array("price" => $payable_amount, "vat" => 0, "currency" => $order["currency"], "country" => $order["country"]))." from ".$payment_method["name"] . " (".$payment_method["gateway"].")", "/janitor/admin/shop/chargeRemainingOrderPayment", array(
-					"inputs" => array("order_id" => $order["id"], "payment_method" => $payment_method["id"]),
-					"confirm-value" => "Are you sure?",
-					"success-location" => "/janitor/admin/shop/order/edit/".$order_id,
-					"class" => "primary",
-					"name" => "charge",
-					"wrapper" => "li.charge.".$payment_method["classname"],
-				)) ?>
-			<? else: ?>
-				<li class="disabled"><a class="button disabled">Charge <?= formatPrice(array(
-					"price" => $payable_amount, 
-					"vat" => 0, 
-					"currency" => $order["currency"], 
-					"country" => $order["country"]
-				))." from ".$payment_method["name"] . " (".$payment_method["gateway"].")" ?></a></li>
-			<? endif; ?>
-		<? endforeach; ?>
-		</ul>
-	</div>
-<? endif; ?>
 
 	<div class="register i:collapseHeader">
 		<h2>Register received payment</h2>

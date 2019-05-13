@@ -316,6 +316,65 @@ Util.Objects["orderItemsList"] = new function() {
 	}
 }
 
+
+Util.Objects["orderList"] = new function() {
+	this.init = function(div) {
+		u.bug("orderList", div.nodes);
+
+		div.pending_count = u.qs("ul.tab li.pending span", div);
+		div.waiting_count = u.qs("ul.tab li.waiting span", div);
+		div.complete_count = u.qs("ul.tab li.complete span", div);
+		div.cancelled_count = u.qs("ul.tab li.cancelled span", div);
+
+		div.all_count = u.qs("ul.tab li.all span", div);
+
+		var i, node, bn_ship;
+		for(i = 0; i < div.nodes.length; i++) {
+			node = div.nodes[i];
+
+			bn_ship = u.qs("ul.actions li.ship", node);
+			if(bn_ship) {
+				bn_ship.node = node;
+				bn_ship.confirmed = function(response) {
+					console.log("yes", response);
+
+
+
+					if(response.cms_status == "success") {
+
+
+						this.node.transitioned = function() {
+
+							this.transitioned = function() {
+								this.parentNode.removeChild(this);
+
+							}
+
+							u.a.transition(this, "all 0.3s ease-in-out");
+							u.ass(this, {
+								height: 0,
+							});
+						}	
+
+
+						u.a.transition(this.node, "all 0.3s ease-in-out");
+						u.ass(this.node, {
+							opacity: 0,
+							height: this.node.offsetHeight+"px",
+						});
+
+
+
+					}
+				}
+			}
+
+
+		}
+	}
+}
+
+
 //
 // // registerPayment form
 // Util.Objects["registerPayment"] = new function() {

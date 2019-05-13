@@ -7,6 +7,7 @@
 #content .scene.shopList ul.items > li dl.info dt.price {display: none;}
 #content .scene.shopList ul.items > li dl.info dd.price {position: absolute; top: 10px; right: 100px; font-size: 26px;}
 
+#content .scene.shopList ul.items > li.ship dl.info dd.price {right: 180px;}
 
 
 
@@ -126,6 +127,9 @@
 
 /* PAYMENTS */
 #content .scene.paymentList ul.items > li dl.info dd.price {right: 140px;}
+
+#content .scene.newPayment div.notice {background: orange; padding: 25px 0 0; border-bottom: 1px solid #bbbbbb; margin: 0 0 20px;}
+#content .scene.newPayment div.notice p {font-size: 20px; color: #ffffff;}
 
 #content .scene.newPayment div.basics {border-top: 1px solid #bbbbbb;}
 #content .scene.newPayment div.charge,

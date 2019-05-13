@@ -3,8 +3,8 @@ $access_item["/"] = true;
 // SUPER SHOP INTERFACE
 
 $access_item["/registerPayment"] = true;
-$access_item["/payment/new"] = "/registerPayment";
 $access_item["/order/payment/new"] = "/registerPayment";
+$access_item["/payment/new"] = true;
 
 // $access_item["/addCart"] = true;
 // $access_item["/addOrder"] = true;
@@ -123,6 +123,7 @@ if(is_array($action) && count($action)) {
 	else if(preg_match("/^(payment)$/", $action[0])) {
 
 		// LIST/NEW
+		// if(preg_match("/^(list|new)$/", $action[1])) {
 		if(preg_match("/^(list)$/", $action[1])) {
 
 			$page->page(array(
