@@ -37,24 +37,24 @@ session()->value("return_to_orderstatus", $status);
 <? if($model->order_statuses): ?>
 	<ul class="tabs">
 		<? foreach($model->order_statuses as $order_status => $order_status_name): ?>
-		<?= $HTML->link($order_status_name. " (".$model->getOrderCount(array("status" => $order_status)).")", "/janitor/admin/shop/order/list/".$order_status, array("wrapper" => "li".".".superNormalize($order_status_name).(is_numeric($status) && $order_status == $status ? ".selected" : ""))) ?>
+		<?= $HTML->link($order_status_name. " (<span>".$model->getOrderCount(array("status" => $order_status))."</span>)", "/janitor/admin/shop/order/list/".$order_status, array("wrapper" => "li".".".superNormalize($order_status_name).(is_numeric($status) && $order_status == $status ? ".selected" : ""))) ?>
 		<? endforeach; ?>
-		<?= $HTML->link("All (".$model->getOrderCount().")", "/janitor/admin/shop/order/list/all", array("wrapper" => "li".($status === "all" ? ".selected" : ""))) ?>
+		<?= $HTML->link("All (".$model->getOrderCount().")", "/janitor/admin/shop/order/list/all", array("wrapper" => "li.all".($status === "all" ? ".selected" : ""))) ?>
 	</ul>
 <? endif; ?>
 
 
-	<div class="all_items i:defaultList filters">
+	<div class="all_items i:defaultList i:orderList filters">
 		<? if($orders): ?>
 		<ul class="items orders">
 			<? foreach($orders as $order): ?>
-			<li class="item order">
+			<li class="item order<?= ($order["shipping_status"] < 2 && $order["status"] != 3) ? " ship" : ""?>">
 				<h3>
 					<?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)
 				
 					<? if(!isset($order["user"]) || !$order["items"]): ?>
 					- <span class="system_error">INCOMPLETE ORDER</span>
-					<? endif; ?>				
+					<? endif; ?>
 				</h3>
 
 				<dl class="info">
@@ -95,6 +95,20 @@ session()->value("return_to_orderstatus", $status);
 
 				<ul class="actions">
 					<?= $HTML->link(($status < 2 ? "Edit" : "View"), "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
+
+					<? if($order["shipping_status"] < 2 && $order["status"] != 3): ?>
+					<?= $JML->oneButtonForm("Ship order", "/janitor/admin/shop/updateShippingStatus/".$order["id"], array(
+						"inputs" => array("shipped" => 1),
+						"class" => "primary",
+						"wrapper" => "li.ship",
+						"confirm-value" => "Mark order as shipped?",
+
+						// "success-function" => ""
+						// "success-location" => "/janitor/admin/shop/order/edit/".$order["id"]
+
+					)) ?>
+					<? endif; ?>
+
 				</ul>
 			 </li>
 		 	<? endforeach; ?>
