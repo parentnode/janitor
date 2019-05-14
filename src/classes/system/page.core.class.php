@@ -1174,7 +1174,7 @@ class PageCore {
 	/**
 	* Page actions, security check on controller access
 	*
-	* This function is automatically called when controller is accessed and $page is instanciated
+	* This function is automatically called when controller is accessed and $page is instantiated
 	* The actions are validated and made available to the controller if validation is ok
 	*
 	*
