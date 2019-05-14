@@ -135,14 +135,14 @@ if($item && $item["status"] >= 0) {
 		<div class="email">
 			<?= $model->formStart("updateEmail/".$user_id, array("class" => "email labelstyle:inject")) ?>
 				<fieldset>
-					<?	$username_id = $email["id"];?>
+					<?	$username_id = $username_email["id"];?>
 					<?	$current_verification_status = $username_id ? $model->getVerificationStatus($username_id, $user_id) : 0;
 					// print_r ($current_verification_status);
 					?>
 					
 					
 					<?= $model->input("username_id", array("type" => "hidden", "value" => $username_id)) ?>
-					<?= $model->input("email", array("value" => stringOr($email["username"]))) ?>
+					<?= $model->input("email", array("value" => stringOr($username_email["username"]))) ?>
 					<?= $model->input("verification_status", array(
 						"value" => $current_verification_status["verified"]
 						)) ?>
@@ -182,7 +182,7 @@ if($item && $item["status"] >= 0) {
 		<div class="mobile">
 			<?= $model->formStart("updateMobile/".$user_id, array("class" => "mobile labelstyle:inject")) ?>
 				<fieldset>
-					<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
+					<?= $model->input("mobile", array("value" => stringOr($username_mobile["username"]))) ?>
 				</fieldset>
 				<ul class="actions">
 					<?= $model->submit("Save", array("name" => "save", "wrapper" => "li.save")) ?>
