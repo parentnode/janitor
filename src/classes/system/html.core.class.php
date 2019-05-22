@@ -800,6 +800,7 @@ class HTMLCore {
 	function navigationLink($node) {
 
 		global $page;
+
 		if(!preg_match("/^http[s]?\:\/\//", $node["link"]) && !$page->validatePath($node["link"])) {
 			if($node["fallback"] && $page->validatePath($node["fallback"])) {
 				$node["link"] = $node["fallback"];
@@ -812,7 +813,9 @@ class HTMLCore {
 
 		$_ = "";
 
-		$att_class = $this->attribute("class", $node["classname"], (strpos($page->url, $node["link"]) !== false ? "selected": ""));
+		
+
+		$att_class = $this->attribute("class", $node["classname"], $this->selectedNavigation($node["link"]));
 		$att_target = $this->attribute("target", $node["target"]);
 
 		$_ .= '<li'.$att_class.'><a href="'.$node["link"].'"'.$att_target.'>'.$node["name"].'</a></li>';
@@ -820,6 +823,15 @@ class HTMLCore {
 		return $_;
 	}
 
+	function selectedNavigation($link) {
+
+		global $page;
+
+		if($link === $page->url || ($link !== "/" && strpos($page->url, $link) !== false)) {
+			return " selected";
+		}
+		return "";
+	}
 
 	/**
 	* Start a form tag
