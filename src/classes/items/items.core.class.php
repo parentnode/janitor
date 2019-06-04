@@ -51,7 +51,7 @@ class ItemsCore {
 
 	/**
 	* Global getItem
-	* Get item data from items db - does not did any deeper into type object
+	* Get item data from items db - does not dig any deeper into type object
 	*
 	* @param $_options Named Array containing id or sindex to get
 	*/

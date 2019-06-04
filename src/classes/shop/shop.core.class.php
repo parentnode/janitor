@@ -898,10 +898,17 @@ class ShopCore extends Model {
 		return false;
 
 	}
-
-	// Add item to cart
-	# /shop/addToCart
-	// Items and quantity in $_post
+	
+	/**
+	 * ### Add item to cart
+	 * 
+	 * /shop/addToCart
+	 * 
+	 * Item and quantity in $_POST
+	 * 
+	 * @param array $action
+	 * @return array|false Cart object. False on error. 
+	 */
 	function addToCart($action) {
 
 		if(count($action) >= 1) {
@@ -968,6 +975,8 @@ class ShopCore extends Model {
 					$existing_quantity = $existing_item["quantity"];
 					$new_quantity = intval($quantity) + intval($existing_quantity);
 
+
+					// update item quantity
 					$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
 //					print $sql;
 				}
@@ -1125,7 +1134,7 @@ class ShopCore extends Model {
 
 	
 	/**
-	 * Convert cart to order
+	 * ### Convert cart to order
 	 * 
 	 * /shop/newOrderFromCart/#cart_reference#
 	 *
