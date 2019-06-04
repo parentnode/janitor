@@ -1377,6 +1377,20 @@ class ShopCore extends Model {
 						));
 
 
+						// order confirmation mail
+						mailer()->send(array(
+							"recipients" => $user["email"],
+							"values" => array(
+								"NICKNAME" => $user["nickname"], 
+								"ORDER_NO" => $order_no, 
+								"ORDER_PRICE" => $total_order_price["price"] 
+							),
+							"subject" => SITE_URL . " – Thank you for your order!",
+							"tracking" => false,
+							"template" => "order_confirmation"
+						));
+
+
 						global $page;
 						$page->addLog("Shop->newOrderFromCart: order_no:".$order_no);
 
