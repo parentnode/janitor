@@ -394,7 +394,7 @@ class ShopCore extends Model {
 	}
 
 
-	// get next available order number
+	// get next available creditnote number
 	function getNewCreditnoteNumber() {
 
 		$query = new Query();
