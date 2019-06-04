@@ -23,7 +23,7 @@ class ItemtypeCore extends Model {
 
 
 	/**
-	* Chacnge status of Item
+	* Change status of Item
 	* TODO: Implement data validation before allowing enabling 
 	*/
 	# /janitor/[admin/]#itemtype#/status/#item_id#/#new_status#
