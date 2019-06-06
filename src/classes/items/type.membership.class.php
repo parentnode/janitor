@@ -69,9 +69,62 @@ class TypeMembership extends Itemtype {
 
 	}
 
-	function shipped($order_item_id, $order) {
+	function addedToCart($added_item, $cart) {
 
-		// print "\n<br>###$order_item_id### shipped\n<br>";
+		$added_item_id = $added_item["id"];
+		print "\n<br>###$added_item_id### added to cart (membership)\n<br>";
+		// print_r($cart);
+		$SC = new Shop;
+		$IC = new Items;
+		$query = new Query;
+
+		foreach($cart["items"] as $cart_item) {
+			
+			$existing_item = $IC->getItem(["id" => $cart_item["item_id"]]);
+			// debug(["existing item", $existing_item]);
+			// // debug(["added item", $added_item]);
+
+			// another membership type already exists in cart
+			if($existing_item["itemtype"] == "membership" && $existing_item["id"] != $added_item["id"]) {
+
+				// keep the newest membership item
+				$SC->deleteFromCart(["deleteFromCart", $cart["cart_reference"], $existing_item_id]);
+
+			}
+		}
+		
+		// ensure that membership item has quantity of 1
+		$sql = "UPDATE ".SITE_DB.".shop_cart_items SET quantity = 1 WHERE id = ".$added_item["id"]." AND cart_id = ".$cart["id"];
+		// print $sql;
+		$query->sql($sql);
+
+
+
+		global $page;
+		$page->addLog("membership->addedToCart: added_item:".$added_item_id);
+
+	}
+
+	function ordered($order_item, $order) {
+		
+		$order_item_id = $order_item["id"];
+		print "\n<br>###$order_item_id### ordered (membership)\n<br>";
+
+
+
+		global $page;
+		$page->addLog("membership->ordered: order_id:".$order["id"]);
+	}
+
+	function shipped($order_item, $order) {
+
+		$order_item_id = $order_item["id"];		
+		print "\n<br>###$order_item_id### shipped (membership)\n<br>";
+
+
+
+		global $page;
+		$page->addLog("membership->shipped: order_id:".$order["id"]);
 
 	}
 
