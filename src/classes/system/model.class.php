@@ -487,18 +487,28 @@ class Model extends HTML {
 			}
 		}
 		else if($this->getProperty($name, "type") == "email") {
-			if($this->isEmail($name)) {
+			if($this->getProperty($name, "compare_to")) {
+				if($this->compareValue($name)) {
+					return true;
+				}
+			}
+			else if($this->isEmail($name)) {
 				return true;
 			}
 		}
 		else if($this->getProperty($name, "type") == "tel") {
-			if($this->isTelephone($name)) {
+			if($this->getProperty($name, "compare_to")) {
+				if($this->compareValue($name)) {
+					return true;
+				}
+			}
+			else if($this->isTelephone($name)) {
 				return true;
 			}
 		}
 		else if($this->getProperty($name, "type") == "password") {
 			if($this->getProperty($name, "compare_to")) {
-				if($this->comparePassword($name, $this->getProperty($name, "compare_to"))) {
+				if($this->compareValue($name)) {
 					return true;
 				}
 			}
@@ -639,7 +649,7 @@ class Model extends HTML {
 	function isFiles($name) {
 		// print "isFiles:<br>";
 		// print "FILES:\n";
-		// print_r($_FILES);
+	//	print_r($_FILES);
 
 		$value = $this->getProperty($name, "value");
 		$min = $this->getProperty($name, "min");
@@ -650,7 +660,6 @@ class Model extends HTML {
 		$sizes = $this->getProperty($name, "allowed_sizes");
 
 		$uploads = $this->identifyUploads($name);
-
 
 		// print "sizes:".$sizes."\n";
 		// print "uploads:\n";
@@ -730,13 +739,13 @@ class Model extends HTML {
 		$uploads = array();
 
 		// print "input_name:" . $name;
-		// print_r($_FILES);
+//		print_r($_FILES);
 
 		if(isset($_FILES[$name])) {
-//			print_r($_FILES[$name]);
 
 //			if($_FILES[$name]["name"])
 			foreach($_FILES[$name]["name"] as $index => $value) {
+
 				if(!$_FILES[$name]["error"][$index] && file_exists($_FILES[$name]["tmp_name"][$index])) {
 
 					$upload = array();
@@ -865,6 +874,7 @@ class Model extends HTML {
 			(!$max_length || strlen($value) <= $max_length) &&
 			(!$pattern || preg_match("/".$pattern."/", $value))
 		) {
+			
 			$this->setProperty($name, "error", false);
 			return true;
 		}
@@ -941,7 +951,7 @@ class Model extends HTML {
 	function isInteger($name) {
 
 //		print "check is Int<br>";
-
+	
 		$value = $this->getProperty($name, "value");
 		$min = $this->getProperty($name, "min");
 		$max = $this->getProperty($name, "max");
@@ -951,8 +961,8 @@ class Model extends HTML {
 
 //		print ($value || $value === "0") . ", " . (!($value%1)) . ", " . (!$min || $value >= $min) . ", ". (!$max || $value <= $max) . ", " . (!$pattern || preg_match("/".$pattern."/", $value)) . ";";
 
-		if(($value || $value === "0") && !($value%1) && 
-			(!$min || $value >= $min) && 
+		if(($value || $value === "0") && !($value%1) &&
+			(!$min || $value >= $min) &&
 			(!$max || $value <= $max) &&
 			(!$pattern || preg_match("/".$pattern."/", $value))
 		) {
@@ -1101,10 +1111,12 @@ class Model extends HTML {
 		$value = $this->getProperty($name, "value");
 
 		if($value) {
+
 			$this->setProperty($name, "error", false);
 			return true;
 		}
 		else {
+
 			$this->setProperty($name, "error", true);
 			return false;
 		}
@@ -1137,20 +1149,18 @@ class Model extends HTML {
 
 
 	/**
-	* Compare two passwords (to check if password and repeat password are identical)
+	* Compare two values (to check if value and confirm value are identical)
 	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
+	* @param string $name Element identifier
 	* @return bool
-	* TODO: Faulty password validation
 	*/
-	function comparePassword($name) {
+	function compareValue($name) {
 
-		$entity = $this->data_entities[$name];
+		$value = $this->getProperty($name, "value");
+		$compare_to = $this->getProperty($name, "compare_to");
+		$new_value = $this->getProperty($compare_to, "value");
 
-		$repeated_password = $this->obj->vars[$element];
-		$password = $this->obj->vars[$this->getRuleDetails($rule, 0)];
-		if($repeated_password == $password) {
+		if($new_value == $value) {
 			return true;
 		}
 		else {
