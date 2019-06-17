@@ -2008,35 +2008,34 @@ class ItemtypeCore extends Model {
 
 
 		if(count($action) == 2) {
-
 			$query = new Query();
 			$item_id = $action[1];
-
+			
 			if($this->validateList(array("item_subscription_method"), $item_id)) {
-
+				
 				$subscription_method = $this->getProperty("item_subscription_method", "value");
-
+				
 				// insert or update
 				if($subscription_method) {
-
+					
 					$sql = "SELECT id FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
-//					print $sql;
+					//					print $sql;
 					if($query->sql($sql)) {
-				
+						
 						if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE item_id = $item_id")) {
 							message()->addMessage("Subscription method updated");
-
+							
 							$IC = new Items();
 							$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
 							return $subscription_method;
 						}
-					
+						
 					}
 					else {
-
+						
 						$sql = "INSERT INTO ".UT_ITEMS_SUBSCRIPTION_METHOD." VALUES(DEFAULT, $item_id, $subscription_method)";
-//						print $sql;
-
+												print $sql;
+						
 						if($query->sql($sql)) {
 							message()->addMessage("Subscription method added");
 
@@ -2065,6 +2064,12 @@ class ItemtypeCore extends Model {
 		message()->addMessage("Subscription method could not be changed", array("type" => "error"));
 		return false;
 
+	}
+
+	function addedToCart($added_item, $cart) {
+		
+		$added_item_id = $added_item["id"];
+		// print "\n<br>###$added_item_id### added to cart (generic item)\n<br>";
 	}
 
 	function ordered($order_item, $order) {
