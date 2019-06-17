@@ -276,8 +276,9 @@ class ItemsCore {
 
 			// add subscription (for current user)
 			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) && ($all || $subscription)) {
-				$UC = $this->getUserClass();
-				$item["subscription"] = $UC->getSubscriptions(array("item_id" => $item["id"]));
+				include_once("classes/shop/subscription.class.php");
+				$SubscriptionClass = new Subscription;
+				$item["subscription"] = $SubscriptionClass->getSubscriptions(array("item_id" => $item["id"]));
 			}
 
 

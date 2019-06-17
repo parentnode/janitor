@@ -96,6 +96,9 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 		include_once("classes/shop/shop.core.class.php");
 		include_once("classes/shop/shop.class.php");
 
+		include_once("classes/shop/subscription.core.class.php");
+		include_once("classes/shop/subscription.class.php");
+
 	}
 
 }
