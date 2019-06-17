@@ -72,7 +72,7 @@ class TypeMembership extends Itemtype {
 	function addedToCart($added_item, $cart) {
 
 		$added_item_id = $added_item["id"];
-		print "\n<br>###$added_item_id### added to cart (membership)\n<br>";
+		// print "\n<br>###$added_item_id### added to cart (membership)\n<br>";
 		// print_r($cart);
 		$SC = new Shop;
 		$IC = new Items;
@@ -108,7 +108,7 @@ class TypeMembership extends Itemtype {
 	function ordered($order_item, $order) {
 		
 		$order_item_id = $order_item["id"];
-		print "\n<br>###$order_item_id### ordered (membership)\n<br>";
+		// print "\n<br>###$order_item_id### ordered (membership)\n<br>";
 
 
 

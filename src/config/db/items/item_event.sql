@@ -12,6 +12,10 @@ CREATE TABLE `SITE_DB`.`item_event` (
 
   `host` int(11) NULL DEFAULT NULL,
 
+  `accepts_signups` int(11) NOT NULL DEFAULT 0,
+
+  `seats_limit` int(11) DEFAULT NULL,
+
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),
   CONSTRAINT `item_event_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `SITE_DB`.`items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

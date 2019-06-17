@@ -907,34 +907,35 @@ class ShopCore extends Model {
 	 * Item and quantity in $_POST
 	 * 
 	 * @param array $action
-	 * @return array|false Cart object. False on error. 
+	 * @return array|false Cart object. False on error.
 	 */
-	function addToCart($action) {
+		function addToCart($action) {
 
 		if(count($action) >= 1) {
-
-			// Get posted values to make them available for models
-			$this->getPostedEntities();
-
+			
 			$user_id = session()->value("user_id");
-
+			
 			$cart = false;
-
-			// getCart checks for cart_reference in session and cookie or looks for cart for current user ( != 1)
+			// get cart
+			// check for cart_reference in session and cookie, or look for cart for current user ( != 1)
 			$cart = $this->getCart();
+			// get posted values to make them available for models
+			$this->getPostedEntities();
+			
+			// cart exists
 			if($cart) {
 				$cart_reference = $cart["cart_reference"];
 			}
-			// still no cart
-			// then add a new cart
+			
 			else {
+				// add a new cart
 				$cart = $this->addCart(array("addCart"));
-//				print_r($cart);
+				// print_r($cart);
 				
 				$cart_reference = $cart["cart_reference"];
 			}
-
-			// does values validate
+			
+			// cart exists and posted values are valid
 			if($cart && $this->validateList(array("quantity", "item_id"))) {
 
 				$query = new Query();
@@ -942,60 +943,54 @@ class ShopCore extends Model {
 
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
+				$item = $IC->getItem(array("id" => $item_id));
 
+				$price = $this->getPrice($item_id);
+				
+				// item has a price (price can be zero)
+				if ($price !== false) {
 
-				// make sure only one membership exists in cart at any given time
-
-				// is there any items in cart already?
-				if($cart["items"]) {
-
-					// what kind of itemtype is being added
-					$item = $IC->getItem(array("id" => $item_id));
-
-					// if it is a membership, then remove existing memberships from cart
-					if($item["itemtype"] == "membership") {
-
-						foreach($cart["items"] as $key => $cart_item) {
-							$existing_item = $IC->getItem(array("id" => $cart_item["item_id"]));
-							if($existing_item["itemtype"] == "membership") {
-								$cart = $this->deleteFromCart(array("deleteFromCart", $cart_reference, $cart_item["id"]));
-							}
+					// item is already in cart
+					if($cart["items"] && arrayKeyValue($cart["items"], "item_id", $item_id) !== false) {
+						$existing_item_index = arrayKeyValue($cart["items"], "item_id", $item_id);
+	
+	
+						$existing_item = $cart["items"][$existing_item_index];
+						$existing_quantity = $existing_item["quantity"];
+						$new_quantity = intval($quantity) + intval($existing_quantity);
+	
+	
+						// update item quantity
+						$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
+						// print $sql;
+					}
+					else {
+						
+						// insert new cart item
+						$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
+						// print $sql;
+					}
+	
+					if($query->sql($sql)) {
+						
+						// update modified at time
+						$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$cart["id"];
+						$query->sql($sql);
+	
+						$cart = $this->getCart();
+	
+						// add callback to addedToCart
+						$model = $IC->typeObject($item["itemtype"]);
+						if(method_exists($model, "addedToCart")) {
+							$model->addedToCart($item, $cart);
 						}
+	
+						return $cart;
+	
 					}
 				}
+				
 
-
-
-				// check if item is already in cart?
-				if($cart["items"] && arrayKeyValue($cart["items"], "item_id", $item_id) !== false) {
-					$existing_item_index = arrayKeyValue($cart["items"], "item_id", $item_id);
-
-
-					$existing_item = $cart["items"][$existing_item_index];
-					$existing_quantity = $existing_item["quantity"];
-					$new_quantity = intval($quantity) + intval($existing_quantity);
-
-
-					// update item quantity
-					$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
-//					print $sql;
-				}
-				// insert new cart item
-				else {
-
-					$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
-//					print $sql;
-				}
-
-				if($query->sql($sql)) {
-
-					// update modified at time
-					$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$cart["id"];
-					$query->sql($sql);
-
-					return $this->getCart();
-
-				}
 			}
 		}
 		return false;
@@ -1166,6 +1161,8 @@ class ShopCore extends Model {
 //			print $cart_reference ." ==". $cart["cart_reference"];
 			if($cart && $user_id && $cart["items"] && $cart_reference == $cart["cart_reference"]) {
 
+				$user = $UC->getUser();
+
 				// get new order number
 				$order_no = $this->getNewOrderNumber();
 				if($order_no) {
@@ -1256,7 +1253,7 @@ class ShopCore extends Model {
 
 								// get best price for item
 								$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-				//				print_r($price);
+								// print_r("price: ".$price);
 
 								$unit_price = $price["price"];
 								$unit_vat = $price["vat"];
@@ -1264,18 +1261,23 @@ class ShopCore extends Model {
 								$total_vat = $unit_vat * $quantity;
 
 								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-//								print $sql;
+								// print $sql;
 
 
 								// Add item to order
 								if($query->sql($sql)) {
+									
+									// add callback to 'ordered'
+									$model = $IC->typeObject($item["itemtype"]);
+									if(method_exists($model, "ordered")) {
+										$model->ordered($item, $order);
+									}
 
 									// additional tasks
 									$admin_summary[] = $item["name"];
 
-
 									$membership = false;
-
+									
 									// item is membership
 									if(SITE_MEMBERS && $item["itemtype"] == "membership") {
 
@@ -1329,16 +1331,17 @@ class ShopCore extends Model {
 
 //										print_r($subscription);
 										$order["comment"] .= $subscription["item"]["name"] . ($subscription["expires_at"] ? " (" . ($subscription["renewed_at"] ? date("d/m/Y", strtotime($subscription["renewed_at"])) : date("d/m/Y", strtotime($subscription["created_at"]))) ." - ". date("d/m/Y", strtotime($subscription["expires_at"])).")" : "");
-//										print_r($order);
+										print_r($order);
 
+										
 									}
-
+									
 								}
 
 							}
 
 						}
-
+				
 
 						// update cart_reference cookie and session
 						session()->reset("cart_reference");
@@ -1358,6 +1361,20 @@ class ShopCore extends Model {
 						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."' WHERE order_no='$order_no'";
 //						print $sql."<br>\n";
 						$query->sql($sql);
+					
+						
+						// only autoship order if every item should be autoshipped
+						$order["autoship"] = true;
+						foreach($cart["items"] as $cart_item) {
+							if(!isset($item["autoship"]) || !$item["autoship"]) {
+								$order["autoship"] = false;
+							}
+						}
+						if($order["autoship"]) {
+							// update shipping_status to shipped
+							$sql = "UPDATE ".$this->db_orders." SET shipping_status = 2 WHERE order_no='$order_no'";
+							$query->sql($sql);
+						}
 
 
 						// set payment status for 0-prices orders
@@ -1399,6 +1416,7 @@ class ShopCore extends Model {
 							"template" => "order_confirmation"
 						));
 
+						
 
 						global $page;
 						$page->addLog("Shop->newOrderFromCart: order_no:".$order_no);

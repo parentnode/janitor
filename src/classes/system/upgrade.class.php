@@ -1956,52 +1956,51 @@ class Upgrade extends Model {
 		$message = '';
 		$message .= "CHECK DEFAULT VALUE OF $table";
 
-
 		$sql = "SELECT * FROM $db_table";
 		if(!$query->sql($sql)) {
-
+			
 			if(file_exists(LOCAL_PATH."/config/db/default_data/$table.sql")) {
 				$default_data = file_get_contents(LOCAL_PATH."/config/db/default_data/$table.sql");
 			}
 			else if(file_exists(FRAMEWORK_PATH."/config/db/default_data/$table.sql")) {
 				$default_data = file_get_contents(FRAMEWORK_PATH."/config/db/default_data/$table.sql");
 			}
-
+			
 			if($default_data) {
-
+				
 				$default_data = preg_replace("/SITE_DB/", SITE_DB, $default_data);
 				if($query->sql($default_data)) {
-
+					
 					$message .= ": VALUES ADDED";
 					$success = true;
-
+					
 				}
 				else {
-
+					
 					$message .= ": VALUES COULD NOT BE ADDED";
 					$success = false;
-
+					
 				}
-
+				
 			}
 			else {
-
+				
 				$message .= ": NO DEFAULT VALUES";
 				$success = true;
-
+				
 			}
-
+			
 		}
 		else {
-
+			
 			$message .= ": VALUES EXIST";
 			$success = true;
-
+			
 		}
-
+		
 		return array("success" => $success, "message" => $message);
 	}
-
+	
 }
 
 ?>
