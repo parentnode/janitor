@@ -818,17 +818,21 @@ class HTMLCore {
 		$att_class = $this->attribute("class", $node["classname"], $this->selectedNavigation($node["link"]));
 		$att_target = $this->attribute("target", $node["target"]);
 
-		$_ .= '<li'.$att_class.'><a href="'.$node["link"].'"'.$att_target.'>'.$node["name"].'</a></li>';
+		$_ .= '<li'.$att_class.'><a href="'.$node["link"].'"'.$att_target.'>'.$node["name"].'</a></li>'."\n";
 
 		return $_;
 	}
 
+	// is link selected in navigation (or part of path)
 	function selectedNavigation($link) {
 
 		global $page;
 
-		if($link === $page->url || ($link !== "/" && strpos($page->url, $link) !== false)) {
+		if($link === $page->url) {
 			return " selected";
+		}
+		else if($link !== "/" && strpos($page->url, $link) !== false) {
+			return " path";
 		}
 		return "";
 	}
