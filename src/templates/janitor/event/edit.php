@@ -35,6 +35,7 @@ $host_options = $model->toOptions($model->getHosts(), "id", "host");
 			</fieldset>
 
 			<fieldset>
+				<h2>Host</h2>
 				<?= $model->input("host", array("type" => "select", "options" => $host_options, "value" => $item["host"])) ?>
 			</fieldset>
 
