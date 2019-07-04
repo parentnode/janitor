@@ -254,11 +254,18 @@ class Upgrade extends Model {
 					$this->process($this->renameColumn(SITE_DB.".user_log_activation_reminders", "created_at", "reminded_at"), true);
 					$this->process($this->addColumn(SITE_DB.".user_log_activation_reminders", "username_id", "int(11) DEFAULT NULL", "user_id"), true);
 
+
 					// retrieve username_ids from user_ids and insert them in the new username_id column
-					$query->sql("SELECT user_id FROM ".SITE_DB.".user_log_activation_reminders GROUP BY user_id");
+
+					$count = 0;
+					$limit = 5000;
+					$sql = "SELECT user_id FROM ".SITE_DB.".user_log_activation_reminders GROUP BY user_id LIMIT $count, $limit";
+					debug([$sql]);
+					$query->sql($sql);
 					$user_ids = $query->results("user_id");
 
-					if($user_ids) {
+					while($user_ids) {
+
 						foreach ($user_ids as $user_id) {
 							$query->sql("SELECT id FROM ".SITE_DB.".user_usernames WHERE type = 'email' AND user_id = $user_id");
 							$username_id = $query->result(0, "id");
@@ -269,7 +276,35 @@ class Upgrade extends Model {
 								$query->sql("DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id");
 							}
 						}
+
+						$count += $limit;
+
+						$sql = "SELECT user_id FROM ".SITE_DB.".user_log_activation_reminders GROUP BY user_id LIMIT $count, $limit";
+						debug([$sql]);
+						$query->sql($sql);
+						$user_ids = $query->results("user_id");
+
 					}
+					// $user_ids
+					//
+					//
+					//
+					// debug([$sql]);
+					// $query->sql($qsl);
+					// $user_ids = $query->results("user_id");
+					//
+					// if($user_ids) {
+					// 	foreach ($user_ids as $user_id) {
+					// 		$query->sql("SELECT id FROM ".SITE_DB.".user_usernames WHERE type = 'email' AND user_id = $user_id");
+					// 		$username_id = $query->result(0, "id");
+					// 		if ($username_id) {
+					// 			$query->sql("UPDATE ".SITE_DB.".user_log_activation_reminders SET username_id = $username_id WHERE user_id = $user_id");
+					// 		}
+					// 		else {
+					// 			$query->sql("DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id");
+					// 		}
+					// 	}
+					// }
 
 					$this->process($this->renameTable(SITE_DB.".user_log_activation_reminders", "user_log_verification_links"), true);
 
@@ -352,8 +387,16 @@ class Upgrade extends Model {
 			// Add billing_name from user info if not already set
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
 
-				$orders = $SC->getOrders();
-				if($orders) {
+
+				$count = 0;
+				$limit = 5000;
+				$sql = "SELECT id, user_id, billing_name FROM ".SITE_DB.".shop_orders LIMIT $count, $limit";
+				// debug([$sql]);
+				$query->sql($sql);
+				$orders = $query->results();
+
+				while($orders) {
+
 					foreach($orders as $order) {
 
 						if(!$order["billing_name"]) {
@@ -375,7 +418,41 @@ class Upgrade extends Model {
 
 					}
 
+					$count += $limit;
+
+					$sql = "SELECT id, user_id, billing_name FROM ".SITE_DB.".shop_orders LIMIT $count, $limit";
+					// debug([$sql]);
+					$query->sql($sql);
+					$orders = $query->results();
+
+
 				}
+
+
+				// $orders = $SC->getOrders();
+				// if($orders) {
+				// 	foreach($orders as $order) {
+				//
+				// 		if(!$order["billing_name"]) {
+				// 			$user = $UC->getUsers(["user_id" => $order["user_id"]]);
+				//
+				// 			// create base data update sql
+				// 			$sql = "UPDATE ".$SC->db_orders." SET ";
+				//
+				// 			if($user["firstname"] && $user["lastname"]) {
+				// 				$sql .= "billing_name='".prepareForDB($user["firstname"]) ." ". prepareForDB($user["lastname"])."'";
+				// 			}
+				// 			else {
+				// 				$sql .= "billing_name='".prepareForDB($user["nickname"])."'";
+				// 			}
+				//
+				// 			$sql .= " WHERE id=".$order["id"];
+				// 			$query->sql($sql);
+				// 		}
+				//
+				// 	}
+				//
+				// }
 
 			}
 
