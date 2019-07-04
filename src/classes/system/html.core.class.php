@@ -56,9 +56,10 @@ class HTMLCore {
 		}
 
 		$options = $add;
-		
-		foreach($multi_array as $array) {
-			$options[$array[$value_index]] = $array[$text_index];
+		if(is_array($multi_array)) {
+			foreach($multi_array as $array) {
+				$options[$array[$value_index]] = $array[$text_index];
+			}
 		}
 
 		return $options;
