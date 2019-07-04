@@ -195,9 +195,11 @@ Util.Objects["page"] = new function() {
 							for(j = 0; node = section.nodes[j]; j++) {
 								u.ce(node, {"type":"link"});
 
-								// set selected state
-								if(u.hc(node, document.body.className)) {
-									u.ac(node, "selected");
+								// set selected state (now being done backend)
+								// open selected navigation
+								if(u.hc(node, "selected|path")) {
+								// if(u.hc(node, document.body.className)) {
+									// u.ac(node, "selected");
 
 									// make sure current section is open
 									if(!section.is_open) {
@@ -218,10 +220,10 @@ Util.Objects["page"] = new function() {
 
 						u.ce(section, {"type":"link"});
 
-						// set selected state
-						if(u.hc(section, document.body.className)) {
-							u.ac(section, "selected");
-						}
+						// set selected state (Now done in backend)
+						// if(u.hc(section, document.body.className)) {
+						// 	u.ac(section, "selected");
+						// }
 
 					}
 
