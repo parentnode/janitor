@@ -300,9 +300,9 @@ Util.Objects["page"] = new function() {
 								u.ce(node, {"type":"link"});
 
 								// set selected state
-								if(u.hc(node, document.body.className)) {
-									u.ac(node, "selected");
-								}
+								// if(u.hc(node, document.body.className)) {
+								// 	u.ac(node, "selected");
+								// }
 							}
 
 
@@ -355,9 +355,9 @@ Util.Objects["page"] = new function() {
 						u.ce(section, {"type":"link"});
 
 						// set selected state
-						if(u.hc(section, document.body.className)) {
-							u.ac(section, "selected");
-						}
+						// if(u.hc(section, document.body.className)) {
+						// 	u.ac(section, "selected");
+						// }
 
 					}
 
