@@ -28,7 +28,7 @@ else {
 	<ul class="actions">
 		<?= $JML->listNew(array("label" => "New event")) ?>
 		<?= $HTML->link("Event locations", "/janitor/admin/event/locations", array("class" => "button", "wrapper" => "li.locations")) ?>
-		<?= $HTML->link("Event performers", "/janitor/admin/event/performers", array("class" => "button", "wrapper" => "li.performers")) ?>
+		<? //= $HTML->link("Event performers", "/janitor/admin/event/performers", array("class" => "button", "wrapper" => "li.performers")) ?>
 	</ul>
 
 
