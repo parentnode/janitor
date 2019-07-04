@@ -10,7 +10,7 @@ CREATE TABLE `SITE_DB`.`item_event` (
   `starting_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `ending_at` timestamp NULL DEFAULT NULL,
 
-  `host` int(11) NULL DEFAULT NULL,
+  `location` int(11) NULL DEFAULT NULL,
 
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),

@@ -4,14 +4,14 @@ global $IC;
 global $model;
 global $itemtype;
 
-$items = $model->getHosts();
+$items = $model->getLocations();
 
 ?>
-<div class="scene i:scene defaultList <?= $itemtype ?>HostList">
-	<h1>Event hosts</h1>
+<div class="scene i:scene defaultList <?= $itemtype ?>LocationList">
+	<h1>Event locations</h1>
 
 	<ul class="actions">
-		<?= $JML->listNew(array("label" => "New host", "action" => "new_host")) ?>
+		<?= $JML->listNew(array("label" => "New location", "action" => "location-new")) ?>
 		<?= $HTML->link("Events", "/janitor/admin/event/list", array("class" => "button", "wrapper" => "li.events")) ?>
 	</ul>
 
@@ -21,15 +21,15 @@ $items = $model->getHosts();
 
 <?			foreach($items as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
-				<h3><?= strip_tags($item["host"]) ?></h3>
+				<h3><?= strip_tags($item["location"]) ?></h3>
 
 				<?= $JML->listActions($item, array("modify" => array(
 					"status" => false,
 					"edit" => array(
-						"url" => $JML->path."/edit_host/".$item["id"]
+						"url" => $JML->path."/location-edit/".$item["id"]
 					),
 					"delete" => array(
-						"url" => $JML->path."/deleteHost/".$item["id"]
+						"url" => $JML->path."/deleteLocation/".$item["id"]
 					)
 				))) ?>
 			 </li>
@@ -37,7 +37,7 @@ $items = $model->getHosts();
 
 		</ul>
 <?		else: ?>
-		<p>No hosts.</p>
+		<p>No locations.</p>
 <?		endif; ?>
 	</div>
 

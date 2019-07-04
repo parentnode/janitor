@@ -138,6 +138,33 @@ class Upgrade extends Model {
 			}
 
 
+			$item_event_hosts = $this->tableInfo(SITE_DB.".item_event_hosts");
+			if($item_event_hosts) {
+
+				// rename columns
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host", "location"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_address1", "location_address1"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_address2", "location_address2"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_city", "location_city"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_postal", "location_postal"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_country", "location_country"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_googlemaps", "location_googlemaps"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_comment", "location_comment"), true);
+
+				// Rename event hosts to locations
+				$this->process($this->renameTable(SITE_DB.".item_event_hosts", "item_event_locations"));
+
+			}
+
+			$item_events = $this->tableInfo(SITE_DB.".item_event");
+			if($item_events) {
+
+				// rename columns
+				$this->process($this->renameColumn(SITE_DB.".item_event", "host", "location"), true);
+
+			}
+
+
 			// CREATE ANY MISSING SYSTEM TABLES (CRITICAL)
 			$this->process($this->createTableIfMissing(UT_LANGUAGES), true);
 			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);

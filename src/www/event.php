@@ -22,7 +22,7 @@ $page->pageTitle("Events");
 if(is_array($action) && count($action)) {
 
 	// LIST/EDIT/NEW ITEM
-	if(preg_match("/^(list|edit|new|hosts|new_host|edit_host|performers)$/", $action[0])) {
+	if(preg_match("/^(list|edit|new|locations|location-new|location-edit|performers)$/", $action[0])) {
 
 		$page->page(array(
 			"type" => "janitor",

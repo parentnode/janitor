@@ -17,7 +17,7 @@ if($past_events) {
 }
 // get upcoming events
 else {
-	$items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.".starting_at > NOW()", "order" => "status DESC, ".$itemtype.".starting_at ASC", "extend" => array("tags" => true, "mediae" => true)));
+	$items = $IC->getItems(array("itemtype" => $itemtype, "where" => $itemtype.".starting_at > (NOW() - INTERVAL 5 HOUR)", "order" => "status DESC, ".$itemtype.".starting_at ASC", "extend" => array("tags" => true, "mediae" => true)));
 }
 
 
@@ -27,7 +27,7 @@ else {
 
 	<ul class="actions">
 		<?= $JML->listNew(array("label" => "New event")) ?>
-		<?= $HTML->link("Event hosts", "/janitor/admin/event/hosts", array("class" => "button", "wrapper" => "li.hosts")) ?>
+		<?= $HTML->link("Event locations", "/janitor/admin/event/locations", array("class" => "button", "wrapper" => "li.locations")) ?>
 		<?= $HTML->link("Event performers", "/janitor/admin/event/performers", array("class" => "button", "wrapper" => "li.performers")) ?>
 	</ul>
 

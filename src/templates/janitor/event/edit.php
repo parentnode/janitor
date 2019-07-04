@@ -7,7 +7,8 @@ global $itemtype;
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true)));
 
-$host_options = $model->toOptions($model->getHosts(), "id", "host");
+// $location_options = $model->toOptions($model->getLocations(), "id", "location");
+$location_options = $model->toOptions($model->getLocations(), "id", "location", ["add" => ["" => "Select event location"]]);
 
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
@@ -26,17 +27,21 @@ $host_options = $model->toOptions($model->getHosts(), "id", "host");
 				<?= $model->input("name", array("value" => $item["name"])) ?>
 				<?= $model->input("classname", array("value" => $item["classname"])) ?>
 				<?= $model->input("description", array("class" => "autoexpand short", "value" => $item["description"])) ?>
-				<?= $model->inputHTML("html", array("value" => $item["html"])) ?>
 			</fieldset>
 
 			<fieldset>
+				<h2>Time</h2>
 				<?= $model->input("starting_at", array("value" => $item["starting_at"])) ?>
 				<?= $model->input("ending_at", array("value" => $item["ending_at"])) ?>
 			</fieldset>
 
 			<fieldset>
-				<h2>Host</h2>
-				<?= $model->input("host", array("type" => "select", "options" => $host_options, "value" => $item["host"])) ?>
+				<h2>Location</h2>
+				<?= $model->input("location", array("type" => "select", "options" => $location_options, "value" => $item["location"])) ?>
+			</fieldset>
+
+			<fieldset>
+				<?= $model->inputHTML("html", array("value" => $item["html"])) ?>
 			</fieldset>
 
 			<?= $JML->editActions($item) ?>
