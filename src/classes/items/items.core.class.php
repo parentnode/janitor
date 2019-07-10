@@ -1140,7 +1140,9 @@ class ItemsCore {
 
 		$item_id = false;
 		$tag_id = false;
+
 		$tag_context = false;
+
 		$tag_value = false;
 		$order = false;
 
@@ -1156,24 +1158,44 @@ class ItemsCore {
 			}
 		}
 
+
+		// Multiple tag contexts
+		if($tag_context) {
+			$tag_context = preg_split("/,|;/", $tag_context);
+		}
+
+
 		$query = new Query();
 
 		// get tag information for specific item
 		if($item_id) {
 			// does specific tag exists?
 			if($tag_context && $tag_value) {
-				return $query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id");
+				$sql = "SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE";
+				
+				$sql .= " (tags.context = '".implode("' OR tags.context = '", $tag_context) . "')";
+				// $sql .= " tags.context = '$tag_context'
+					
+				$sql .= " AND tags.value = '$tag_value' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id";
+
+				return $query->sql($sql);
 			}
 			// get all tags with context
 			else if($tag_context) {
-				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : "");
+				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE";
+
+				$sql .= " (tags.context = '".implode("' OR tags.context = '", $tag_context) . "')";
+				// " tags.context = '$tag_context'
+					
+				$sql .= " AND tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : "");
 				if($query->sql($sql)) {
 					return $query->results();
 				}
 			}
 			// all tags
 			else {
-				if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : ""))) {
+				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : "");
+				if($query->sql($sql)) {
 					return $query->results();
 				}
 			}
@@ -1183,18 +1205,28 @@ class ItemsCore {
 
 		// get tag and items using tag_id
 		else if($tag_id) {
-			$query->sql("SELECT * FROM ".UT_TAG." as tags WHERE tags.id = '$tag_id'");
+
+			$sql = "SELECT * FROM ".UT_TAG." as tags WHERE tags.id = '$tag_id'";
+			$query->sql($sql);
 			$tag = $query->result(0);
 			
 			$sql = "SELECT item_id as id, itemtype, status FROM ".UT_TAGGINGS." as taggings, ".UT_ITEMS." as items WHERE taggings.tag_id = '$tag_id' AND taggings.item_id = items.id";
-//			print $sql;
 			$query->sql($sql);
 			$tag["items"] = $query->results();
 			return $tag;
 		}
+
 		// get items using tag with context and value
 		else if($tag_context && $tag_value) {
-			$query->sql("SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.context = '$tag_context' AND tags.value = '$tag_value' AND tags.id = taggings.tag_id");
+
+			$sql = "SELECT * FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE";
+
+			$sql .= " (tags.context = '".implode("' OR tags.context = '", $tag_context) . "')";
+			// " tags.context = '$tag_context'
+			
+			$sql .= " AND tags.value = '$tag_value' AND tags.id = taggings.tag_id";
+
+			$query->sql($sql);
 			return $query->results();
 		}
 
@@ -1203,13 +1235,25 @@ class ItemsCore {
 
 		// get all tags with context
 		else if($tag_context) {
-			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags WHERE tags.context = '$tag_context'".($order ? " ORDER BY $order" : ""))) {
+
+			$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags WHERE";
+
+			// Matching contexts
+			$sql .= " (tags.context = '".implode("' OR tags.context = '", $tag_context) . "')";
+
+			// Order
+			$sql .=	($order ? " ORDER BY $order" : "");
+
+			// debug([$sql]);
+			if($query->sql($sql)) {
 				return $query->results();
 			}
 		}
 		// all tags
 		else {
-			if($query->sql("SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG.($order ? " ORDER BY $order" : " ORDER BY tags.context, tags.value"))) {
+
+			$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG.($order ? " ORDER BY $order" : " ORDER BY tags.context, tags.value");
+			if($query->sql($sql)) {
 				return $query->results();
 			}
 		}

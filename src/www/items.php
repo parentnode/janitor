@@ -80,9 +80,15 @@ if($page->validateCsrfToken() && isset($action)) {
 	// }
 	// GET TAGS
 	// Requires just the tags parameter /tags
-	if(count($action) == 1 && $action[0] == "tags") {
+	if(count($action) >= 1 && $action[0] == "tags") {
 
-		$output->screen($IC->getTags());
+		$_options = [];
+
+		if(count($action) == 2) {
+			$_options["context"] = $action[1];
+		}
+
+		$output->screen($IC->getTags($_options));
 		exit();
 	}
 

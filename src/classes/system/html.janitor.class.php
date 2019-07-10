@@ -491,13 +491,27 @@ class JanitorHTML {
 
 	// edit tags form for edit page
 	function editTags($item, $_options = false) {
-		global $model;
+		// global $model;
+
+		$title = "Tags";
+		$class = "i:defaultTags i:collapseHeader";
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "class"             : $class              = $_value; break;
+					case "title"             : $title              = $_value; break;
+
+				}
+			}
+		}
 
 		$_ = '';
-
-		$_ .= '<div class="tags i:defaultTags i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["tags"]).'>';
-		$_ .= '<h2>Tags ('.($item["tags"] ? count($item["tags"]) : 0).')</h2>';
-		$_ .= $this->tagList($item["tags"]);
+		$_ .= '<div class="tags item_id:'.$item["id"].' '.$class.'"'.$this->jsData(["tags"]).'>';
+		$_ .= '<h2>'.$title.' ('.($item["tags"] ? count($item["tags"]) : 0).')</h2>';
+		$_ .= $this->tagList($item["tags"], $_options);
 		$_ .= '</div>';
 
 		return $_;
@@ -769,14 +783,32 @@ class JanitorHTML {
 	}
 
 	// simple tag list
-	function tagList($tags) {
+	function tagList($tags, $_options = false) {
 
 		$_ = '';
 
-		$_ .= '<ul class="tags">';
+
+		$context = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "context"              : $context               = $_value; break;
+
+				}
+			}
+		}
+
+		$_ .= '<ul class="tags" data-context="'.$context.'">';
 		if($tags) {
 			foreach($tags as $tag) {
-				$_ .= '<li class="tag '.$tag["context"].'"><span class="context">'.$tag["context"].'</span>:<span class="value">'.$tag["value"].'</span></li>';
+				if(!$context || (array_search($tag["context"], preg_split("/,|;/", $context)) !== false)) {
+
+					$_ .= '<li class="tag '.$tag["context"].'"><span class="context">'.$tag["context"].'</span>:<span class="value">'.$tag["value"].'</span></li>';
+
+				}
 			}
 		}
 		$_ .= '</ul>';

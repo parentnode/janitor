@@ -16,6 +16,17 @@ Util.Objects["defaultTags"] = new function() {
 		// do we have required info 
 		if(div.csrf_token && div.get_tags_url && div.delete_tag_url && div.add_tag_url) {
 
+
+			div._tags = u.qs("ul.tags", div);
+			if(!div._tags) {
+				div._tags = u.ae(div._tags, "ul", {"class":"tags"});
+			}
+			div._tags.div = div;
+
+
+			// Only get tags with allowed contexts
+			div._tags_context = div._tags.getAttribute("data-context");
+			
 			// tags received
 			div.tagsResponse = function(response) {
 
@@ -31,11 +42,6 @@ Util.Objects["defaultTags"] = new function() {
 				}
 
 				// ensure tag-list existence (or add button cannot be added)
-				this._tags = u.qs("ul.tags", this);
-				if(!this._tags) {
-					this._tags = u.ae(this._tags, "ul", {"class":"tags"});
-				}
-				this._tags.div = this;
 
 
 				// minimum work in first run
@@ -48,7 +54,7 @@ Util.Objects["defaultTags"] = new function() {
 
 			}
 			// get all tags from server
-			u.request(div, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
+			u.request(div, div.get_tags_url + (div._tags_context ? "/"+div._tags_context : ""), {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
 
 		}
 

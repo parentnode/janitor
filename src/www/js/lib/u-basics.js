@@ -506,38 +506,50 @@ u.activateTagging = function(node) {
 		}
 	}
 
+	// Tag context filter
+	node._tags_context = node._tags.getAttribute("data-context");
+
 
 	// loop through all tags and add unused tags to new tags list
 	for(tag in node.data_div.all_tags) {
 
+
 		// tag context
 		context = node.data_div.all_tags[tag].context;
-		// tag value - replace single & with entity or it is not recognized
-		value = node.data_div.all_tags[tag].value.replace(/ & /, " &amp; ");
-		
-		// tag exist on item
-		if(used_tags && used_tags[context] && used_tags[context][value]) {
-			tag_node = used_tags[context][value];
+
+		// Only include allowed contexts
+		if(
+			(!node._tags_context || (context.match(new RegExp("^(" + node._tags_context.split(/,|;/).join("|") + ")$"))))
+		) {
+
+			// tag value - replace single & with entity or it is not recognized
+			value = node.data_div.all_tags[tag].value.replace(/ & /, " &amp; ");
+	
+			// tag exist on item
+			if(used_tags && used_tags[context] && used_tags[context][value]) {
+				tag_node = used_tags[context][value];
+			}
+			// tag is unused
+			// add tag to new tags list
+			else {
+				tag_node = u.ae(node._new_tags, "li", {"class":"tag"});
+				u.ae(tag_node, "span", {"class":"context", "html":context});
+				u.ae(tag_node, document.createTextNode(":"));
+				u.ae(tag_node, "span", {"class":"value", "html":value});
+
+				tag_node._context = context;
+				tag_node._value = value;
+			}
+
+			// add tag id and node reference
+			tag_node._id = node.data_div.all_tags[tag].id;
+			tag_node.node = node;
+
+
+			// activate tag
+			u.activateTag(tag_node);
+
 		}
-		// tag is unused
-		// add tag to new tags list
-		else {
-			tag_node = u.ae(node._new_tags, "li", {"class":"tag"});
-			u.ae(tag_node, "span", {"class":"context", "html":context});
-			u.ae(tag_node, document.createTextNode(":"));
-			u.ae(tag_node, "span", {"class":"value", "html":value});
-
-			tag_node._context = context;
-			tag_node._value = value;
-		}
-
-		// add tag id and node reference
-		tag_node._id = node.data_div.all_tags[tag].id;
-		tag_node.node = node;
-
-
-		// activate tag
-		u.activateTag(tag_node);
 
 	}
 
