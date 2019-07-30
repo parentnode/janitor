@@ -1,6 +1,6 @@
 <?php
 /**
-* @package janitor.subscriptions
+* @package janitor.subscription
 * This file contains simple subscription extensions
 * Meant to allow local subscription additions/overrides
 */

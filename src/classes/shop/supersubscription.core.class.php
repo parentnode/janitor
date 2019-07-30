@@ -5,6 +5,20 @@
 
 class SuperSubscriptionCore extends Subscription {
 
+	/**
+	* Init, set varnames, validation rules
+	*/
+	function __construct() {
+
+		$this->db_members = SITE_DB.".user_members";
+
+
+		parent::__construct(get_class());
+		
+
+
+	}
+
 	function getSubscriptions($_options = false) {
 		$IC = new Items();
 		global $page;
@@ -27,6 +41,8 @@ class SuperSubscriptionCore extends Subscription {
 
 		include_once("classes/shop/supershop.class.php");
 		$SC = new SuperShop();
+		include_once("classes/users/superuser.class.php");
+		$UC = new SuperUser();
 
 		// get specific subscription
 		if($subscription_id !== false) {
@@ -130,7 +146,7 @@ class SuperSubscriptionCore extends Subscription {
 				$subscriptions = $query->results();
 
 				foreach($subscriptions as $i => $subscription) {
-					$subscription[$i]["user"] = $this->getUsers(array("user_id" => $subscription["user_id"]));
+					$subscription[$i]["user"] = $UC->getUsers(array("user_id" => $subscription["user_id"]));
 
 					// get subscription item
 					$subscriptions[$i]["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
@@ -163,255 +179,262 @@ class SuperSubscriptionCore extends Subscription {
 	// will only add paid subscription if order_id is passed
 	// will not add subscription if subscription already exists, but returns existing subscription instead
 	# /#controller#/addSubscription
-	function addSubscription($action) {
+	function addSubscription($item_id, $_options = false) {
 
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
+		$user_id = false;
+		$order_id = false;
+		$payment_method = false;
+		
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					
+					case "user_id"			:	$user_id			= $_value; break;	
+					case "order_id"			:	$order_id			= $_value; break;
+					case "payment_method"	:	$payment_method		= $_value; break;
+				}
+			}
+		}
 
-		// does values validate
-		if(count($action) == 1 && $this->validateList(array("item_id", "user_id"))) {
+		if(!$user_id) {
+			return false;
+		}
 
-			$query = new Query();
-			$IC = new Items();
-			include_once("classes/shop/supershop.class.php");
-			$SC = new SuperShop();
+		$query = new Query();
+		$IC = new Items();
+		include_once("classes/shop/supershop.class.php");
+		$SC = new SuperShop();
+
+		// safety valve
+		// check if subscription already exists (somehow something went wrong)
+		$subscription = $this->getSubscriptions(["item_id" => $item_id, "user_id" => $user_id]);
+		if($subscription) {
+			// forward request to update method
+			return $this->updateSubscription($item_id, $subscription["id"], ["user_id" => $user_id]);
+		}
 
 
-			$user_id = $this->getProperty("user_id", "value");
-			$item_id = $this->getProperty("item_id", "value");
-			$order_id = $this->getProperty("order_id", "value");
-			$payment_method = $this->getProperty("payment_method", "value");
+		// get item prices and subscription method details to create subscription correctly
+		$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
+		if($item) {
 
-			// safety valve
-			// check if subscription already exists (somehow something went wrong)
-			$subscription = $this->getSubscriptions(array("item_id" => $item_id, "user_id" => $user_id));
-			if($subscription) {
-				// forward request to update method
-				return $this->updateSubscription(array("updateSubscription", $user_id, $subscription["id"]));
+
+			// order flag
+			$order = false;
+
+
+			// item has price
+			// then we need an order_id
+			if(SITE_SHOP && $item["prices"]) {
+
+				// no order_id? - don't do anything else
+				if(!$order_id) {
+					return false;
+				}
+
+
+				// check if order_id is valid
+				$order = $SC->getOrders(array("order_id" => $order_id));
+				if(!$order || $order["user_id"] != $user_id) {
+					return false;
+				}
+
 			}
 
 
-			// get item prices and subscription method details to create subscription correctly
-			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
-			if($item) {
+			// does subscription expire
+			$expires_at = false;
+
+			if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
+				$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
+			}
 
 
-				// order flag
-				$order = false;
-
-
-				// item has price
-				// then we need an order_id
-				if(SITE_SHOP && $item["prices"]) {
-
-					// no order_id? - don't do anything else
-					if(!$order_id) {
-						return false;
-					}
-
-
-					// check if order_id is valid
-					$order = $SC->getOrders(array("order_id" => $order_id));
-					if(!$order || $order["user_id"] != $user_id) {
-						return false;
-					}
-
-				}
-
-
-				// does subscription expire
-				$expires_at = false;
-
-				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
-					$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
-				}
-
-
-				$sql = "INSERT INTO ".$this->db_subscriptions." SET user_id = $user_id, item_id = $item_id";
-				if($order_id) {
-					$sql .= ", order_id = $order_id";
-				}
-				if($payment_method) {
-					$sql .= ", payment_method = $payment_method";
-				}
-				if($expires_at) {
-					$sql .= ", expires_at = '$expires_at'";
-				}
+			$sql = "INSERT INTO ".$this->db_subscriptions." SET user_id = $user_id, item_id = $item_id";
+			if($order_id) {
+				$sql .= ", order_id = $order_id";
+			}
+			if($payment_method) {
+				$sql .= ", payment_method = $payment_method";
+			}
+			if($expires_at) {
+				$sql .= ", expires_at = '$expires_at'";
+			}
 
 
 //				print $sql;
-				if($query->sql($sql)) {
+			if($query->sql($sql)) {
 
-					// get new subscription
-					$subscription = $this->getSubscriptions(array("item_id" => $item_id, "user_id" => $user_id));
+				// get new subscription
+				$subscription = $this->getSubscriptions(array("item_id" => $item_id, "user_id" => $user_id));
 
-					// if item is membership - update membership/subscription_id information
-					if($item["itemtype"] == "membership") {
+				// if item is membership - update membership/subscription_id information
+				if($item["itemtype"] == "membership") {
 
-						// add subscription id to post array
-						$_POST["subscription_id"] = $subscription["id"];
-						$_POST["user_id"] = $user_id;
+					// add subscription id to post array
+					$_POST["subscription_id"] = $subscription["id"];
+					$_POST["user_id"] = $user_id;
 
-						// check if membership exists
-						$membership = $this->getMembers(array("user_id" => $user_id));
+					// check if membership exists
+					$membership = $this->getMembers(array("user_id" => $user_id));
 
-						// safety valve
-						// create membership if it does not exist
-						if(!$membership) {
-							$membership = $this->addMembership(array("addMembership"));
-						}
-						// update existing membership
-						else {
-							$membership = $this->updateMembership(array("updateMembership"));
-						}
-
-						// clear post array
-						unset($_POST);
-
+					// safety valve
+					// create membership if it does not exist
+					if(!$membership) {
+						$membership = $this->addMembership(array("addMembership"));
+					}
+					// update existing membership
+					else {
+						$membership = $this->updateMembership(array("updateMembership"));
 					}
 
-					// perform special action on subscribe
+					// clear post array
+					unset($_POST);
+
+				}
+
+				// perform special action on subscribe
+				$model = $IC->typeObject($item["itemtype"]);
+				if(method_exists($model, "subscribed")) {
+					$model->subscribed($subscription);
+				}
+
+				// add to log
+				global $page;
+				$page->addLog("SuperUser->addSubscription: item_id:$item_id, user_id:$user_id");
+
+
+				return $subscription;
+			}
+
+		}
+
+		return false;
+	}
+
+	function updateSubscription($item_id, $subscription_id, $_options = false) {
+
+		$user_id = false;
+		$order_id = false;
+		$payment_method = false;
+		$subscription_upgrade = false;
+		$subscription_renewal = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					
+					case "user_id"					:	$user_id				= $_value; break;
+					case "order_id"					:	$order_id				= $_value; break;
+					case "payment_method"			:	$payment_method			= $_value; break;
+					case "subscription_upgrade"		:	$subscription_upgrade	= $_value; break;
+					case "subscription_renewal"		:	$subscription_renewal	= $_value; break;
+				}
+			}
+		}
+
+		// does values validate
+		$query = new Query();
+		$IC = new Items();
+
+		// get item prices and subscription method details to create subscription correctly
+		$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
+		if($item && $user_id) {
+
+			// get new subscription
+			$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+			$org_item_id = $subscription["item_id"];
+			// does subscription expire
+			$expires_at = false;
+
+			if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
+
+				// if renewal
+				if($subscription_renewal && $subscription["expires_at"]) {
+					$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
+				}
+				// if switch or upgrade from non-expiring membership
+				else if((!$subscription_upgrade || !$subscription["expires_at"])) {
+					$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
+				}
+
+				// upgrade does not change exsisting expires_at
+
+			}
+
+
+			$sql = "UPDATE ".$this->db_subscriptions." SET item_id = $item_id, modified_at=CURRENT_TIMESTAMP";
+			if($order_id) {
+				$sql .= ", order_id = $order_id";
+			}
+			if($payment_method) {
+				$sql .= ", payment_method = $payment_method";
+			}
+			if($expires_at) {
+				$sql .= ", expires_at = '$expires_at'";
+
+				if($subscription_renewal && $subscription["expires_at"]) {
+					$sql .= ", renewed_at = '" . $subscription["expires_at"]."'";
+				}
+				else {
+					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
+				}
+
+			}
+			else if(!$subscription_upgrade) {
+				$sql .= ", expires_at = NULL";
+			}
+
+			$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
+
+
+//				print $sql;
+			if($query->sql($sql)) {
+
+				// if item is membership - update membership/subscription_id information
+				if($item["itemtype"] == "membership") {
+
+					// add subscription id to post array
+					$_POST["subscription_id"] = $subscription_id;
+
+					// check if membership exists
+					$membership = $this->getMembers(array("user_id" => $user_id));
+
+					// safety valve
+					// create membership if it does not exist
+					if(!$membership) {
+						$membership = $this->addMembership(array("addMembership"));
+					}
+					// update existing membership
+					else {
+						$membership = $this->updateMembership(array("updateMembership"));
+					}
+
+					// clear post array
+					unset($_POST);
+
+				}
+
+
+				// add to log
+				global $page;
+				$page->addLog("SuperUser->updateSubscription: subscription_id:$subscription_id, item_id:$item_id, user_id:$user_id");
+
+
+
+				// get new subscription
+				$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+
+
+				// perform special action on subscribe to new item
+				if($item_id != $org_item_id) {
 					$model = $IC->typeObject($item["itemtype"]);
 					if(method_exists($model, "subscribed")) {
 						$model->subscribed($subscription);
 					}
-
-					// add to log
-					global $page;
-					$page->addLog("SuperUser->addSubscription: item_id:$item_id, user_id:$user_id");
-
-
-					return $subscription;
 				}
 
-			}
-
-		}
-
-		return false;
-	}
-
-	// /janitor/admin/user/updateSubscription/#user_id#/#subscription_id#
-	// info i $_POST
-	function updateSubscription($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-		// does values validate
-		if(count($action) == 3) {
-
-			$query = new Query();
-			$IC = new Items();
-
-			$user_id = $action[1];
-			$subscription_id = $action[2];
-			$item_id = $this->getProperty("item_id", "value");
-			$order_id = $this->getProperty("order_id", "value");
-			$payment_method = $this->getProperty("payment_method", "value");
-			$subscription_upgrade = $this->getProperty("subscription_upgrade", "value");
-			$subscription_renewal = $this->getProperty("subscription_renewal", "value");
-
-			// get item prices and subscription method details to create subscription correctly
-			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
-			if($item) {
-
-				// get new subscription
-				$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
-				$org_item_id = $subscription["item_id"];
-				// does subscription expire
-				$expires_at = false;
-
-				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
-
-					// if renewal
-					if($subscription_renewal && $subscription["expires_at"]) {
-						$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
-					}
-					// if switch or upgrade from non-expiring membership
-					else if((!$subscription_upgrade || !$subscription["expires_at"])) {
-						$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
-					}
-
-					// upgrade does not change exsisting expires_at
-
-				}
-
-
-				$sql = "UPDATE ".$this->db_subscriptions." SET item_id = $item_id, modified_at=CURRENT_TIMESTAMP";
-				if($order_id) {
-					$sql .= ", order_id = $order_id";
-				}
-				if($payment_method) {
-					$sql .= ", payment_method = $payment_method";
-				}
-				if($expires_at) {
-					$sql .= ", expires_at = '$expires_at'";
-
-					if($subscription_renewal && $subscription["expires_at"]) {
-						$sql .= ", renewed_at = '" . $subscription["expires_at"]."'";
-					}
-					else {
-						$sql .= ", renewed_at = CURRENT_TIMESTAMP";
-					}
-
-				}
-				else if(!$subscription_upgrade) {
-					$sql .= ", expires_at = NULL";
-				}
-
-				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
-
-
-//				print $sql;
-				if($query->sql($sql)) {
-
-					// if item is membership - update membership/subscription_id information
-					if($item["itemtype"] == "membership") {
-
-						// add subscription id to post array
-						$_POST["subscription_id"] = $subscription_id;
-
-						// check if membership exists
-						$membership = $this->getMembers(array("user_id" => $user_id));
-
-						// safety valve
-						// create membership if it does not exist
-						if(!$membership) {
-							$membership = $this->addMembership(array("addMembership"));
-						}
-						// update existing membership
-						else {
-							$membership = $this->updateMembership(array("updateMembership"));
-						}
-
-						// clear post array
-						unset($_POST);
-
-					}
-
-
-					// add to log
-					global $page;
-					$page->addLog("SuperUser->updateSubscription: subscription_id:$subscription_id, item_id:$item_id, user_id:$user_id");
-
-
-
-					// get new subscription
-					$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
-
-
-					// perform special action on subscribe to new item
-					if($item_id != $org_item_id) {
-						$model = $IC->typeObject($item["itemtype"]);
-						if(method_exists($model, "subscribed")) {
-							$model->subscribed($subscription);
-						}
-					}
-
-					return $subscription;
-
-				}
+				return $subscription;
 
 			}
 
@@ -421,45 +444,54 @@ class SuperSubscriptionCore extends Subscription {
 	}
 
 
-	// /#controller#/deleteSubscription/#user_id#/#subscription_id#
-	function deleteSubscription($action) {
+	function deleteSubscription($subscription_id, $_options = false) {
 
-		// does values validate
-		if(count($action) == 3) {
-			$user_id = $action[1];
-			$subscription_id = $action[2];
+		$user_id = false;
+		
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					
+					case "user_id"			:	$user_id			= $_value; break;	
+				}
+			}
+		}
 
-			$query = new Query();
+		if(!$user_id) {
+			message()->addMessage("No user_id. Subscription could not be deleted.", array("type" => "error"));
+			return false;
+		}
 
-			// check membership dependency
-			$sql = "SELECT id FROM ".$this->db_members." WHERE subscription_id = $subscription_id";
+		$query = new Query();
+
+		// check membership dependency
+		$sql = "SELECT id FROM ".$this->db_members." WHERE subscription_id = $subscription_id";
 //			print $sql;
-			if(!$query->sql($sql)) {
+		if(!$query->sql($sql)) {
 
-				// get item id from subscription, before deleting it
-				$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+			// get item id from subscription, before deleting it
+			$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
 
-				// perform special action on unsubscribe
-				$IC = new Items();
-				$unsubscribed_item = $IC->getItem(array("id" => $subscription["item_id"]));
-				if($unsubscribed_item) {
-					$model = $IC->typeObject($unsubscribed_item["itemtype"]);
-					if(method_exists($model, "unsubscribed")) {
-						$model->unsubscribed($subscription);
-					}
+			// perform special action on unsubscribe
+			$IC = new Items();
+			$unsubscribed_item = $IC->getItem(array("id" => $subscription["item_id"]));
+			if($unsubscribed_item) {
+				$model = $IC->typeObject($unsubscribed_item["itemtype"]);
+				if(method_exists($model, "unsubscribed")) {
+					$model->unsubscribed($subscription);
 				}
+			}
 
-				$sql = "DELETE FROM ".$this->db_subscriptions." WHERE id = $subscription_id AND user_id = $user_id";
+			$sql = "DELETE FROM ".$this->db_subscriptions." WHERE id = $subscription_id AND user_id = $user_id";
 //				print $sql;
-				if($query->sql($sql)) {
+			if($query->sql($sql)) {
 
-					global $page;
-					$page->addLog("SuperUser->deleteSubscription: subscription_id:$subscription_id user_id:$user_id");
+				global $page;
+				$page->addLog("SuperUser->deleteSubscription: subscription_id:$subscription_id user_id:$user_id");
 
 
-					message()->addMessage("Subscription deleted");
-					return true;
-				}
+				message()->addMessage("Subscription deleted");
+				return true;
 			}
 		}
 
@@ -530,14 +562,14 @@ class SuperSubscriptionCore extends Subscription {
 						unset($_POST);
 
 
-						// add item to order
+						// add item to cart and then create order
 						// adding a membership to an order will automatically change the membership to match the new order
 						$_POST["quantity"] = 1;
 						$_POST["item_id"] = $item["id"];
 						$_POST["item_price"] = $price["price"];
 						$_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
 						$_POST["subscription_renewal"] = 1;
-						$cart = $SC->addToCart(["addToOrder", $cart["cart_reference"]]);
+						$cart = $SC->addToCart(["addToCart", $cart["cart_reference"]]);
 						unset($_POST);
 
 						$order = $SC->newOrderFromCart(["newOrderFromCart", $cart["id"], $cart["cart_reference"]]);

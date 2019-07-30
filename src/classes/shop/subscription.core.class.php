@@ -1,6 +1,6 @@
 <?php
 /**
-* @package janitor.subscriptions
+* @package janitor.subscription
 * This file contains simple subscription functionality
 *
 * The Subscription class is supposed to be a minimal interface to Subscription maintenance and the subscription tables
@@ -15,7 +15,7 @@
 *
 */
 
-class SubscriptionCore {
+class SubscriptionCore extends Model {
 
 
 	/**
@@ -23,10 +23,10 @@ class SubscriptionCore {
 	*/
 	function __construct() {
 
-		// parent::__construct(get_class());
 		
 		$this->db_subscriptions = SITE_DB.".user_item_subscriptions";
-
+		
+		parent::__construct(get_class());
 
 	}
 
@@ -432,7 +432,7 @@ class SubscriptionCore {
 	}
 
 
-	function deleteSubscription($subscription_id) {
+	function deleteSubscription($subscription_id, $_options = false) {
 
 		$user_id = session()->value("user_id");
 

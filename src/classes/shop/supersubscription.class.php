@@ -1,7 +1,7 @@
 <?php
 /**
 * @package janitor.subscription
-* Meant to allow local subscription additions/overrides
+* Meant to allow local subscription additions/overrides, with admin privileges
 */
 
 include_once("classes/shop/supersubscription.core.class.php");
