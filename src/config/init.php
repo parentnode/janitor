@@ -84,6 +84,9 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 	include_once("classes/users/user.core.class.php");
 	include_once("classes/users/user.class.php");
 
+	include_once("classes/users/member.core.class.php");
+	include_once("classes/users/member.class.php");
+
 	// now only included for user controller
 	// include_once("classes/users/superuser.class.php");
 

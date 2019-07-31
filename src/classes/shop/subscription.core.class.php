@@ -152,7 +152,8 @@ class SubscriptionCore extends Model {
 		$query = new Query();
 		$IC = new Items();
 		$SC = new Shop; 
-		
+		$MC = new Member();
+
 
 		// safety valve
 		// check if subscription already exists (somehow something went wrong)
@@ -226,16 +227,16 @@ class SubscriptionCore extends Model {
 					$_POST["subscription_id"] = $subscription["id"];
 
 					// check if membership exists
-					$membership = $this->getMembership();
+					$membership = $MC->getMembership();
 
 					// safety valve
 					// create membership if it does not exist
 					if(!$membership) {
-						$membership = $this->addMembership(array("addMembership"));
+						$membership = $MC->addMembership(array("addMembership"));
 					}
 					// update existing membership
 					else {
-						$membership = $this->updateMembership(array("updateMembership"));
+						$membership = $MC->updateMembership(array("updateMembership"));
 					}
 
 					// clear post array
@@ -263,14 +264,7 @@ class SubscriptionCore extends Model {
 
 		}
 		
-		// Get posted values to make them available for models
-		$SC->getPostedEntities();
-		
-		// does values validate
-		if(count($action) == 1 && $SC->validateList(array("item_id"))) {
-			
 
-		}
 
 		return false;
 	}
@@ -391,16 +385,16 @@ class SubscriptionCore extends Model {
 					$_POST["subscription_id"] = $subscription["id"];
 
 					// check if membership exists
-					$membership = $this->getMembership();
+					$membership = $MC->getMembership();
 
 					// safety valve
 					// create membership if it does not exist
 					if(!$membership) {
-						$membership = $this->addMembership(array("addMembership"));
+						$membership = $MC->addMembership(array("addMembership"));
 					}
 					// update existing membership
 					else {
-						$membership = $this->updateMembership(array("updateMembership"));
+						$membership = $MC->updateMembership(array("updateMembership"));
 					}
 
 					// clear post array

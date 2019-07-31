@@ -27,7 +27,7 @@ foreach($memberships as $membership) {
 
 	<div class="item">
 		<h2>Add a new membership</h2>
-		<?= $model->formStart("/janitor/admin/user/addNewhMembership/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/user/addNewMembership/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("item_id", array(
 					"label" => "Select a membership",

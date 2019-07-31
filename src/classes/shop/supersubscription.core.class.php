@@ -531,7 +531,6 @@ class SuperSubscriptionCore extends Subscription {
 				// debug($sql);
 			}
 
-			debug(["hej"]);
 
 			if($query->sql($sql)) {
 				$expired_subscriptions = $query->results();
