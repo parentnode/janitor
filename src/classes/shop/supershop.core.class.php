@@ -1726,195 +1726,195 @@ class SuperShopCore extends Shop {
 
 	// ORDER ITEMS
 
-	# /janitor/admin/shop/addToOrder/#order_id#/
-	// Items and quantity in $_post
-	function addToOrder($action) {
+// 	# /janitor/admin/shop/addToOrder/#order_id#/
+// 	// Items and quantity in $_post
+// 	function addToOrder($action) {
 
-		if(count($action) > 1) {
+// 		if(count($action) > 1) {
 
-			$order_id = $action[1];
-			$order = $this->getOrders(array("order_id" => $order_id));
-
-
-			// Get posted values to make them available for models
-			$this->getPostedEntities();
-
-			// does values validate
-			if($order && $order["status"] == 0 && $this->validateList(array("quantity", "item_id"))) {
-
-				$query = new Query();
-
-				$quantity = $this->getProperty("quantity", "value");
-				$item_id = $this->getProperty("item_id", "value");
-
-//				$item_price = false;
-//				$item_name = false;
-
-				$item_price = $this->getProperty("item_price", "value");
-				$item_name = $this->getProperty("item_name", "value");
-
-				// if($this->validate("item_price") && $this->validate("item_name")) {
-				// }
+// 			$order_id = $action[1];
+// 			$order = $this->getOrders(array("order_id" => $order_id));
 
 
+// 			// Get posted values to make them available for models
+// 			$this->getPostedEntities();
 
-				$IC = new Items();
-				$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
+// 			// does values validate
+// 			if($order && $order["status"] == 0 && $this->validateList(array("quantity", "item_id"))) {
 
-				// print "item:<br>\n";
-				// print_r($item);
+// 				$query = new Query();
 
+// 				$quantity = $this->getProperty("quantity", "value");
+// 				$item_id = $this->getProperty("item_id", "value");
 
-				// only add item if it exists
-				if($item) {
+// //				$item_price = false;
+// //				$item_name = false;
 
-					// custom order item
-					if($item_name && $item_price) {
+// 				$item_price = $this->getProperty("item_price", "value");
+// 				$item_name = $this->getProperty("item_name", "value");
 
-						// get best price for item
-						$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-		//				print_r($price);
-
-						$unit_price = $item_price;
-						$unit_vat = $item_price * (1 - (1 / (1 + ($price["vatrate"]/100))));
-
-						$total_price = $unit_price * $quantity;
-						$total_vat = $unit_vat * $quantity;
-
-						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".$item_name."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-//						print $sql;
-					}
-					// check if item is already in order?
-					else if($order["items"] && arrayKeyValue($order["items"], "item_id", $item_id) !== false) {
-						$existing_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
-
-
-						$existing_item = $order["items"][$existing_item_index];
-						$existing_quantity = $existing_item["quantity"];
-						$new_quantity = intval($quantity) + intval($existing_quantity);
-
-						// get best price for item
-						$price = $this->getPrice($item_id, array("quantity" => $new_quantity, "currency" => $order["currency"], "country" => $order["country"]));
-	//					print_r($price);
-
-						$unit_price = $price["price"];
-						$unit_vat = $price["vat"];
-						$total_price = $unit_price * $new_quantity;
-						$total_vat = $unit_vat * $new_quantity;
-
-						$sql = "UPDATE ".$this->db_order_items." SET quantity=$new_quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$existing_item["id"]." AND order_id = ".$order_id;
-	//					print $sql;
-					}
-					// insert new order item
-					else {
-
-						// get best price for item
-						$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-		//				print_r($price);
-
-						$unit_price = $price["price"];
-						$unit_vat = $price["vat"];
-						$total_price = $unit_price * $quantity;
-						$total_vat = $unit_vat * $quantity;
-
-						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-//						print $sql;				
-					}
-
-
-					if($query->sql($sql)) {
-
-						// update modified at time
-						$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$order_id;
-//						print $sql;
-						$query->sql($sql);
-
-
-						include_once("classes/users/superuser.class.php");
-						$UC = new SuperUser();
-
-
-						$membership = false;
-
-						// item is membership (membership can only be added with relation subscription)
-						if(SITE_MEMBERS && $item["itemtype"] == "membership") {
-
-							// check if user already has membership
-							$membership = $UC->getMembers(array("user_id" => $order["user_id"]));
-
-							// membership does not exist
-							if(!$membership) {
-								// set values for adding membership
-								$_POST["user_id"] = $order["user_id"];
-								// add new membership
-								$membership = $UC->addMembership(array("addMembership"));
-								unset($_POST);
-							}
-
-						}
-
-
-						// subscription method available for item
-						if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
-
-							// set values for updating/creating subscription
-							$_POST["order_id"] = $order["id"];
-							$_POST["item_id"] = $item_id;
-							$_POST["user_id"] = $order["user_id"];
-
-							// if membership variable is not false
-							// it means that membership exists and current type is membership
-							// avoid creating new membership subscription
-							if($membership && $membership["item"]) {
-
-								// get the current membership subscription
-								$subscription = $UC->getSubscriptions(array("item_id" => $membership["item"]["id"], "user_id" => $order["user_id"]));
-							}
-							else {
-
-								// check if subscription already exists
-								$subscription = $UC->getSubscriptions(array("item_id" => $item_id, "user_id" => $order["user_id"]));
-							}
-
-
-							// if subscription is for itemtype=membership
-							// add/updateSubscription will also update subscription_id on membership 
-
-							// update existing subscription
-							if($subscription) {
-								$subscription = $UC->updateSubscription(array("updateSubscription", $order["user_id"], $subscription["id"]));
-							}
-							// add new subscription
-							else {
-								$subscription = $UC->addSubscription(array("addSubscription"));
-							}
-
-							// clean up POST array
-							unset($_POST);
-
-						}
+// 				// if($this->validate("item_price") && $this->validate("item_name")) {
+// 				// }
 
 
 
-						global $page;
-						$page->addLog("SuperShop->addToOrder: order_id:".$order["id"].", item_id:".$item_id);
+// 				$IC = new Items();
+// 				$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
 
-						$this->validateOrder($order_id);
+// 				// print "item:<br>\n";
+// 				// print_r($item);
 
-						message()->addMessage("Item added to order");
-						return $this->getOrders(array("order_id" => $order_id));
 
-					}
+// 				// only add item if it exists
+// 				if($item) {
 
-				}
+// 					// custom order item
+// 					if($item_name && $item_price) {
 
-			}
+// 						// get best price for item
+// 						$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
+// 		//				print_r($price);
 
-		}
+// 						$unit_price = $item_price;
+// 						$unit_vat = $item_price * (1 - (1 / (1 + ($price["vatrate"]/100))));
 
-		message()->addMessage("Item could not be added to order", array("type" => "error"));
-		return false;
-	}
+// 						$total_price = $unit_price * $quantity;
+// 						$total_vat = $unit_vat * $quantity;
+
+// 						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".$item_name."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+// //						print $sql;
+// 					}
+// 					// check if item is already in order?
+// 					else if($order["items"] && arrayKeyValue($order["items"], "item_id", $item_id) !== false) {
+// 						$existing_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
+
+
+// 						$existing_item = $order["items"][$existing_item_index];
+// 						$existing_quantity = $existing_item["quantity"];
+// 						$new_quantity = intval($quantity) + intval($existing_quantity);
+
+// 						// get best price for item
+// 						$price = $this->getPrice($item_id, array("quantity" => $new_quantity, "currency" => $order["currency"], "country" => $order["country"]));
+// 	//					print_r($price);
+
+// 						$unit_price = $price["price"];
+// 						$unit_vat = $price["vat"];
+// 						$total_price = $unit_price * $new_quantity;
+// 						$total_vat = $unit_vat * $new_quantity;
+
+// 						$sql = "UPDATE ".$this->db_order_items." SET quantity=$new_quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$existing_item["id"]." AND order_id = ".$order_id;
+// 	//					print $sql;
+// 					}
+// 					// insert new order item
+// 					else {
+
+// 						// get best price for item
+// 						$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
+// 		//				print_r($price);
+
+// 						$unit_price = $price["price"];
+// 						$unit_vat = $price["vat"];
+// 						$total_price = $unit_price * $quantity;
+// 						$total_vat = $unit_vat * $quantity;
+
+// 						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+// //						print $sql;				
+// 					}
+
+
+// 					if($query->sql($sql)) {
+
+// 						// update modified at time
+// 						$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$order_id;
+// //						print $sql;
+// 						$query->sql($sql);
+
+
+// 						include_once("classes/users/superuser.class.php");
+// 						$UC = new SuperUser();
+
+
+// 						$membership = false;
+
+// 						// item is membership (membership can only be added with relation subscription)
+// 						if(SITE_MEMBERS && $item["itemtype"] == "membership") {
+
+// 							// check if user already has membership
+// 							$membership = $UC->getMembers(array("user_id" => $order["user_id"]));
+
+// 							// membership does not exist
+// 							if(!$membership) {
+// 								// set values for adding membership
+// 								$_POST["user_id"] = $order["user_id"];
+// 								// add new membership
+// 								$membership = $UC->addMembership(array("addMembership"));
+// 								unset($_POST);
+// 							}
+
+// 						}
+
+
+// 						// subscription method available for item
+// 						if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
+
+// 							// set values for updating/creating subscription
+// 							$_POST["order_id"] = $order["id"];
+// 							$_POST["item_id"] = $item_id;
+// 							$_POST["user_id"] = $order["user_id"];
+
+// 							// if membership variable is not false
+// 							// it means that membership exists and current type is membership
+// 							// avoid creating new membership subscription
+// 							if($membership && $membership["item"]) {
+
+// 								// get the current membership subscription
+// 								$subscription = $UC->getSubscriptions(array("item_id" => $membership["item"]["id"], "user_id" => $order["user_id"]));
+// 							}
+// 							else {
+
+// 								// check if subscription already exists
+// 								$subscription = $UC->getSubscriptions(array("item_id" => $item_id, "user_id" => $order["user_id"]));
+// 							}
+
+
+// 							// if subscription is for itemtype=membership
+// 							// add/updateSubscription will also update subscription_id on membership 
+
+// 							// update existing subscription
+// 							if($subscription) {
+// 								$subscription = $UC->updateSubscription(array("updateSubscription", $order["user_id"], $subscription["id"]));
+// 							}
+// 							// add new subscription
+// 							else {
+// 								$subscription = $UC->addSubscription(array("addSubscription"));
+// 							}
+
+// 							// clean up POST array
+// 							unset($_POST);
+
+// 						}
+
+
+
+// 						global $page;
+// 						$page->addLog("SuperShop->addToOrder: order_id:".$order["id"].", item_id:".$item_id);
+
+// 						$this->validateOrder($order_id);
+
+// 						message()->addMessage("Item added to order");
+// 						return $this->getOrders(array("order_id" => $order_id));
+
+// 					}
+
+// 				}
+
+// 			}
+
+// 		}
+
+// 		message()->addMessage("Item could not be added to order", array("type" => "error"));
+// 		return false;
+// 	}
 
 
 
