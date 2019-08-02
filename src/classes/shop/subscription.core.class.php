@@ -217,7 +217,7 @@ class SubscriptionCore extends Model {
 //				print $sql;
 			if($query->sql($sql)) {
 
-				// get new subscription
+				// get created subscription
 				$subscription = $this->getSubscriptions(array("item_id" => $item_id));
 
 				// if item is membership - update membership/subscription_id information
@@ -229,15 +229,15 @@ class SubscriptionCore extends Model {
 					// check if membership exists
 					$membership = $MC->getMembership();
 
-					// safety valve
-					// create membership if it does not exist
-					if(!$membership) {
-						$membership = $MC->addMembership(array("addMembership"));
-					}
-					// update existing membership
-					else {
-						$membership = $MC->updateMembership(array("updateMembership"));
-					}
+					// // safety valve
+					// // create membership if it does not exist
+					// if(!$membership) {
+					// 	$membership = $MC->addMembership(array("addMembership"));
+					// }
+					// // update existing membership
+					// else {
+					// 	$membership = $MC->updateMembership(array("updateMembership"));
+					// }
 
 					// clear post array
 					unset($_POST);
