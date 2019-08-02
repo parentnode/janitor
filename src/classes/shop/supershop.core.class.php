@@ -258,7 +258,7 @@ class SuperShopCore extends Shop {
 
 	// Add a new cart with optional user, currency and country
 	# /janitor/admin/shop/addCart
-	function addCart($action) {
+	function addCart($action, $option = false) {
 		global $page;
 
 		// Get posted values to make them available for models

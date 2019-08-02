@@ -73,7 +73,6 @@ class TypeMembership extends Itemtype {
 
 		$added_item_id = $added_item["id"];
 		// print "\n<br>###$added_item_id### added to cart (membership)\n<br>";
-		// print_r($cart);
 		$SC = new Shop;
 		$IC = new Items;
 		$query = new Query;
@@ -81,14 +80,12 @@ class TypeMembership extends Itemtype {
 		foreach($cart["items"] as $cart_item) {
 			
 			$existing_item = $IC->getItem(["id" => $cart_item["item_id"]]);
-			// debug(["existing item", $existing_item]);
-			// // debug(["added item", $added_item]);
 
 			// another membership type already exists in cart
 			if($existing_item["itemtype"] == "membership" && $existing_item["id"] != $added_item["id"]) {
 
 				// keep the newest membership item
-				$SC->deleteFromCart(["deleteFromCart", $cart["cart_reference"], $existing_item_id]);
+				$SC->deleteFromCart(["deleteFromCart", $cart["cart_reference"], $existing_item["id"]]);
 
 			}
 		}
@@ -106,14 +103,46 @@ class TypeMembership extends Itemtype {
 	}
 
 	function ordered($order_item, $order) {
+
+		include_once("classes/shop/subscription.class.php");
+		$SubscriptionClass = new Subscription();
+		$MC = new Member();
 		
 		$order_item_id = $order_item["id"];
-		// print "\n<br>###$order_item_id### ordered (membership)\n<br>";
+		$order_id = $order["id"];
+		
+		$existing_membership = $MC->getMembership();
+		
+		// safety valve
+		// user already has membership
+		if($existing_membership) {
 
+			if($order_item["subscription_method"]) {
+				
+			}
+			
+			// update membership in stead of adding a new
+			return $MC->updateMembership();
+		}
+		
+		// membership can be subscribed to
+		if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
+			
+			// add subscription
+			$subscription = $SubscriptionClass->addSubscription($order_item_id, ["order_id" => $order_id]);
+			$subscription_id = $subscription["id"];
 
-
+			// add membership
+			$MC->addMembership($order_item_id, ["subscription_id" => $subscription_id]);
+		}
+		else {
+			// add membership without subscription
+			$MC->addMembership($order_item_id);
+		}
+		
 		global $page;
 		$page->addLog("membership->ordered: order_id:".$order["id"]);
+		// print "\n<br>###$order_item_id### ordered (membership)\n<br>";
 	}
 
 	function shipped($order_item, $order) {

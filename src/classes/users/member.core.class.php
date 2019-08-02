@@ -78,47 +78,35 @@ class MemberCore extends Model {
 
 
 	// Add membership
-	# /#controller#/addMembership
-	function addMembership($_options = false) {
+	function addMembership($item_id, $_options = false) {
+		
+		// user already has membership – cancel 
+		// (should have been redirected by TypeMembership::ordered)
+		if($this->getMembership()) {
+			return false;
+		}
 
 		// get current user
 		$user_id = session()->value("user_id");
-
-		$order_id = false;
-		$item_id = false;
+		
+		$subscription_id = false;
 		
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "order_id"			:	$order_id			= $_value; break;
-					case "item_id"			:	$item_id			= $_value; break;
+					case "subscription_id"			:	$subscription_id			= $_value; break;
 				}
 			}
 		}
 
 		$query = new Query();
 
-		// safety valve
-		// does user already have membership
-		$membership = $this->getMembership();
-		if($membership) {
-			return $this->updateMembership(array("updateMembership"));
-		}
-
 		// create new membership
 		$sql = "INSERT INTO ".$this->db_members." SET user_id = $user_id";
 
-		if($item_id && $order_id) {
-			include_once("classes/shop/subscription.class.php");
-			$SubscriptionClass = new Subscription();
-			
-			$subscription = $SubscriptionClass->addSubscription($item_id, ["order_id" => $order_id]);
-			$subscription_id = $subscription["id"];
-			if($subscription) {
-				$sql .= ", subscription_id = $subscription_id";
-			}
+		if($subscription_id) {
+			$sql .= ", subscription_id = $subscription_id";
 		}
-
 
 		// membership successfully created 
 		if($query->sql($sql)) {
@@ -152,18 +140,16 @@ class MemberCore extends Model {
 			}
 		}
 
-		// does values validate
 		$query = new Query();
-		$subscription_id = $this->getProperty("subscription_id", "value");
-
-
 		$sql = "UPDATE ".$this->db_members." SET modified_at = CURRENT_TIMESTAMP";
 
 		// Add subscription id if passed
 		if($subscription_id) {
 
+			$SubscriptionClass = new Subscription();
+
 			// make sure subscription is valid
-			$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+			$subscription = $SubscriptionClass->getSubscriptions(array("subscription_id" => $subscription_id));
 			if($subscription) {
 				$sql .= ", subscription_id = $subscription_id";
 			}
@@ -174,7 +160,7 @@ class MemberCore extends Model {
 		$sql .= " WHERE user_id = $user_id";
 
 
-		// creating sucess
+		// creation success
 		if($query->sql($sql)) {
 
 			$membership = $this->getMembership();
@@ -190,46 +176,41 @@ class MemberCore extends Model {
 
 	// cancel membership
 	// removes subscription_id from membership and deletes related subscription
-	# /#controller#/cancelMembership/#member_id#
-	function cancelMembership($action) {
+	function cancelMembership($member_id) {
 
 		// get current user
 		$user_id = session()->value("user_id");
 
 		// does values validate
-		if(count($action) == 2) {
-			$member_id = $action[1];
-
-			$query = new Query();
-			$member = $this->getMembership();
+		$query = new Query();
+		$member = $this->getMembership();
 //			print_r($member);
 
-			if($member && $member["user_id"] == $user_id) {
+		if($member && $member["user_id"] == $user_id) {
 
-				// set subscription_id to NULL - maintains member in system
-				$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL, modified_at = CURRENT_TIMESTAMP WHERE id = ".$member_id;
-				if($query->sql($sql)) {
+			// set subscription_id to NULL - maintains member in system
+			$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL, modified_at = CURRENT_TIMESTAMP WHERE id = ".$member_id;
+			if($query->sql($sql)) {
+				$SubscriptionClass = new Subscription();
 
-					// delete subscription
-					$this->deleteSubscription(array("deleteSubscription", $member["subscription_id"]));
-
-
-					global $page;
-					$page->addLog("User->cancelMembership: member_id:".$member["id"]);
+				// delete subscription
+				$SubscriptionClass->deleteSubscription($member["subscription_id"]);
 
 
-					// send notification email to admin
-					mailer()->send(array(
-						"recipients" => SHOP_ORDER_NOTIFIES,
-						"subject" => SITE_URL . " - Membership cancelled ($user_id)",
-						"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
-						// "template" => "system"
-					));
+				global $page;
+				$page->addLog("User->cancelMembership: member_id:".$member["id"]);
 
 
-					return true;
+				// send notification email to admin
+				mailer()->send(array(
+					"recipients" => SHOP_ORDER_NOTIFIES,
+					"subject" => SITE_URL . " - Membership cancelled ($user_id)",
+					"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
+					// "template" => "system"
+				));
 
-				}
+
+				return true;
 
 			}
 
@@ -246,42 +227,28 @@ class MemberCore extends Model {
 	// - this requires the ability to add custom order-lines with calculated price
 
 	# /#controller#/switchMembership
-	function switchMembership($action) {
+	function switchMembership($item_id, $_options = false) {
 
 		// get current user
 		$user_id = session()->value("user_id");
 
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
+		$query = new Query();
+		$IC = new Items();
+		$SC = new Shop();
 
+		$member = $this->getMembership();
+		if($member) {
 
-		// does values validate
-		if(count($action) == 1 && $this->validateList(array("item_id"))) {
+			// add item to cart
+			$cart = $SC->addToNewInternalCart($item_id);
 
-			$query = new Query();
-			$IC = new Items();
-			$SC = new Shop();
+			// convert to order
+			// this will call Member::updateMembership via TypeMembership::ordered 
+			$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["cart_reference"]));
 
-			$item_id = $this->getProperty("item_id", "value");
-
-			$member = $this->getMembership();
-			if($member) {
-
-				// add item to cart
-				$_POST["quantity"] = 1;
-				$_POST["item_id"] = $item_id;
-				$cart = $SC->addToCart(array("addToCart"));
-				unset($_POST);
-
-				// convert to order
-				// adding a membership to an order will automatically change the membership
-				$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["cart_reference"]));
-
-				if($order) {
-					return $order;
-				}
+			if($order) {
+				return $order;
 			}
-
 		}
 
 		return false;
