@@ -1999,7 +1999,7 @@ class ItemtypeCore extends Model {
 	// /janitor/[admin/]#itemtype#/updateSubscriptionMethod/#item_id#
 	// subscription method is sent in $_POST
 	// TODO: implement itemtype checks
-	// TODO: also update all existing subscriptions of selected item (if method changes, expriry date changes)
+	// TODO: also update all existing subscriptions of selected item (if method changes, expiry date changes)
  	function updateSubscriptionMethod($action) {
 
 		// Get posted values to make them available for models
