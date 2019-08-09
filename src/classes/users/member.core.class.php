@@ -128,8 +128,9 @@ class MemberCore extends Model {
 
 		// get current user
 		$user_id = session()->value("user_id");
-
+		
 		$subscription_id = false;
+		$SubscriptionClass = new Subscription();
 		
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -143,28 +144,30 @@ class MemberCore extends Model {
 		$query = new Query();
 		$sql = "UPDATE ".$this->db_members." SET modified_at = CURRENT_TIMESTAMP";
 
-		// Add subscription id if passed
+		// new membership has subscription
 		if($subscription_id) {
-
-			$SubscriptionClass = new Subscription();
-
+			
 			// make sure subscription is valid
 			$subscription = $SubscriptionClass->getSubscriptions(array("subscription_id" => $subscription_id));
 			if($subscription) {
 				$sql .= ", subscription_id = $subscription_id";
 			}
+		}
+		// new membership has no subscription
+		else {
+			$sql .= ", subscription_id = NULL";
 
 		}
-
+		
 		// Add condition
 		$sql .= " WHERE user_id = $user_id";
-
-
+		
+		
 		// creation success
 		if($query->sql($sql)) {
-
+			
 			$membership = $this->getMembership();
-
+			
 			global $page;
 			$page->addLog("user->updateMembership: member_id".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
 

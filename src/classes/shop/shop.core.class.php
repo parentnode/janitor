@@ -1287,7 +1287,7 @@ class ShopCore extends Model {
 					$sql .= " WHERE order_no='$order_no'";
 
 //					print $sql;
-					// execute "create order"" query 
+					// execute "create order" query 
 					if($query->sql($sql)) {
 
 

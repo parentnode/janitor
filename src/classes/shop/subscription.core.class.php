@@ -294,6 +294,8 @@ class SubscriptionCore extends Model {
 		$SC = new Shop();
 		$query = new Query();
 		$IC = new Items();
+		$MC = new Member();
+
 		
 		// get item prices and subscription method details to create subscription correctly
 		$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));

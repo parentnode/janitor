@@ -108,36 +108,64 @@ class TypeMembership extends Itemtype {
 		$SubscriptionClass = new Subscription();
 		$MC = new Member();
 		
-		$order_item_id = $order_item["id"];
+		$order_item_id = $order_item["item_id"];
 		$order_id = $order["id"];
 		
 		$existing_membership = $MC->getMembership();
 		
-		// safety valve
 		// user already has membership
 		if($existing_membership) {
 
-			if($order_item["subscription_method"]) {
+			// new membership has a subscription
+			if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
 				
+				// existing membership has a subscription
+				if($existing_membership["subscription_id"]) {
+					
+					// update subscription
+					$subscription_id = $existing_membership["subscription_id"];
+					$subscription = $SubscriptionClass->updateSubscription($order_item_id, $subscription_id, ["order_id" => $order_id]);
+				}
+				else {
+
+					// add subscription
+					$subscription = $SubscriptionClass->addSubscription($order_item_id, ["order_id" => $order_id]);
+				}
+
+				// update membership with subscription_id
+				$subscription_id = $subscription["id"];
+				$MC->updateMembership(["subscription_id" => $subscription_id]);
+			}
+			else {
+				
+				// update membership (subscription_id will become NULL)
+				$membership = $MC->updateMembership();
+
+				// existing membership has subscription
+				if($membership && $existing_membership["subscription_id"]) {
+					$SubscriptionClass->deleteSubscription($existing_membership["subscription_id"]);
+				}
 			}
 			
-			// update membership in stead of adding a new
-			return $MC->updateMembership();
 		}
 		
-		// membership can be subscribed to
-		if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
-			
-			// add subscription
-			$subscription = $SubscriptionClass->addSubscription($order_item_id, ["order_id" => $order_id]);
-			$subscription_id = $subscription["id"];
-
-			// add membership
-			$MC->addMembership($order_item_id, ["subscription_id" => $subscription_id]);
-		}
+		// user is not yet a member
 		else {
-			// add membership without subscription
-			$MC->addMembership($order_item_id);
+
+			// new membership has a subscription
+			if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
+				
+				// add subscription
+				$subscription = $SubscriptionClass->addSubscription($order_item_id, ["order_id" => $order_id]);
+				$subscription_id = $subscription["id"];
+	
+				// add membership
+				$MC->addMembership($order_item_id, ["subscription_id" => $subscription_id]);
+			}
+			else {
+				// add membership without subscription
+				$MC->addMembership($order_item_id);
+			}
 		}
 		
 		global $page;
