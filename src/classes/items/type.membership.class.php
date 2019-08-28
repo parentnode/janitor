@@ -136,6 +136,8 @@ class TypeMembership extends Itemtype {
 				$subscription_id = $subscription["id"];
 				$MC->updateMembership(["subscription_id" => $subscription_id]);
 			}
+			
+			// new membership has no subscription
 			else {
 				
 				// update membership (subscription_id will become NULL)
