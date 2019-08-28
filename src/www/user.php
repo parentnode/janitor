@@ -55,7 +55,7 @@ $access_item["/members"] = true;
 $access_item["/updateMembership"] = "/members";
 $access_item["/switchMembership"] = "/members";
 $access_item["/upgradeMembership"] = "/members";
-$access_item["/addNewhMembership"] = "/members";
+$access_item["/addNewMembership"] = "/members";
 $access_item["/cancelMembership"] = "/members";
 
 

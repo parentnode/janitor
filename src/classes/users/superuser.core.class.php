@@ -1814,8 +1814,8 @@ class SuperUserCore extends User {
 	// change membership type
 	// info in $_POST
 
-	# /#controller#/addNewhMembership/#user_id#
-	function addNewhMembership($action) {
+	# /#controller#/addNewMembership/#user_id#
+	function addNewMembership($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
