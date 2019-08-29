@@ -204,6 +204,8 @@ class SuperSubscriptionCore extends Subscription {
 		$IC = new Items();
 		include_once("classes/shop/supershop.class.php");
 		$SC = new SuperShop();
+		include_once("classes/users/supermember.class.php");
+		$MC = new SuperMember();
 
 		// safety valve
 		// check if subscription already exists (somehow something went wrong)
@@ -276,16 +278,16 @@ class SuperSubscriptionCore extends Subscription {
 					$_POST["user_id"] = $user_id;
 
 					// check if membership exists
-					$membership = $this->getMembers(array("user_id" => $user_id));
+					$membership = $MC->getMemberships(array("user_id" => $user_id));
 
 					// safety valve
 					// create membership if it does not exist
 					if(!$membership) {
-						$membership = $this->addMembership(array("addMembership"));
+						$membership = $MC->addMembership(array("addMembership"));
 					}
 					// update existing membership
 					else {
-						$membership = $this->updateMembership(array("updateMembership"));
+						$membership = $MC->updateMembership(array("updateMembership"));
 					}
 
 					// clear post array
@@ -333,9 +335,11 @@ class SuperSubscriptionCore extends Subscription {
 			}
 		}
 
-		// does values validate
 		$query = new Query();
 		$IC = new Items();
+
+		include_once("classes/users/supermember.class.php");
+		$MC = new SuperMember();
 
 		// get item prices and subscription method details to create subscription correctly
 		$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
@@ -398,16 +402,16 @@ class SuperSubscriptionCore extends Subscription {
 					$_POST["subscription_id"] = $subscription_id;
 
 					// check if membership exists
-					$membership = $this->getMembers(array("user_id" => $user_id));
+					$membership = $MC->getMemberships(array("user_id" => $user_id));
 
 					// safety valve
 					// create membership if it does not exist
 					if(!$membership) {
-						$membership = $this->addMembership(array("addMembership"));
+						$membership = $MC->addMembership(array("addMembership"));
 					}
 					// update existing membership
 					else {
-						$membership = $this->updateMembership(array("updateMembership"));
+						$membership = $MC->updateMembership(array("updateMembership"));
 					}
 
 					// clear post array

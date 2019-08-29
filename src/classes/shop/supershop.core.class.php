@@ -258,11 +258,20 @@ class SuperShopCore extends Shop {
 
 	// Add a new cart with optional user, currency and country
 	# /janitor/admin/shop/addCart
-	function addCart($action, $option = false) {
+	function addCart($action, $_options = false) {
 		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
+
+		$is_internal = false;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "is_internal"			:			$is_internal		= $_value; break;
+				}
+			}
+		}
 
 		// does values validate
 		if(count($action) == 1 && $this->validateList(array("user_id"))) {
@@ -539,6 +548,66 @@ class SuperShopCore extends Shop {
 		return false;
 	}
 
+	/**
+	 * ### Add item to new internal cart
+	 * 
+	 *
+	 * @param int $item_id
+	 * @param int $_options 
+	 * – user_id is mandatory	
+	 * – a quantity can be specified (default is 1)
+	 * 
+	 * @return array|false Cart object. False on error.
+	 */
+	function addToNewInternalCart($item_id, $_options = false) {
+
+		$quantity = 1;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"           : $user_id             = $_value; break;
+					case "quantity"          : $quantity            = $_value; break;
+				}
+			}
+		}
+		
+		
+		$price = $this->getPrice($item_id);
+		// item has a price (price can be zero)
+		if($price !== false) {
+
+			// create new internal cart
+			$_POST["user_id"] = $user_id;
+			$cart = $this->addCart(["addCart"], ["is_internal" => true]);
+			unset($_POST);
+			$cart_reference = $cart["cart_reference"];
+			if($cart) {
+
+				$query = new Query();
+				$IC = new Items();
+				$item = $IC->getItem(array("id" => $item_id));
+				
+				// insert new cart item
+				$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
+				if($query->sql($sql)) {
+
+					// get updated cart
+					$cart = $this->getCarts(["cart_reference" => $cart_reference]);
+	
+					// add callback to addedToCart
+					$model = $IC->typeObject($item["itemtype"]);
+					if(method_exists($model, "addedToCart")) {
+						$model->addedToCart($item, $cart);
+					}
+
+					return $cart;
+				}
+			}
+		}
+		return false;
+	}
+
 	// Update quantity of item in cart
 	# /janitor/admin/shop/updateCartItemQuantity/#cart_reference#/#cart_item_id#
 	// new quantity in $_POST
@@ -770,68 +839,68 @@ class SuperShopCore extends Shop {
 										$model->ordered($item, $order);
 									}
 
-									// additional tasks
-									$admin_summary[] = $item["name"];
+// 									// additional tasks
+// 									$admin_summary[] = $item["name"];
 
-									$membership = false;
+// 									$membership = false;
 									
-									// item is membership
-									if(SITE_MEMBERS && $item["itemtype"] == "membership") {
+// 									// item is membership
+// 									if(SITE_MEMBERS && $item["itemtype"] == "membership") {
 
-										// check if user already has membership
-										$membership = $UC->getMembership();
+// 										// check if user already has membership
+// 										$membership = $UC->getMembership();
 
-										// membership does not exist
-										if(!$membership) {
-											// add new membership
-											$membership = $UC->addMembership(array("addMembership"));
-										}
+// 										// membership does not exist
+// 										if(!$membership) {
+// 											// add new membership
+// 											$membership = $UC->addMembership(array("addMembership"));
+// 										}
 
-									}
+// 									}
 
 
-									// subscription method available for item
-									if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
+// 									// subscription method available for item
+// 									if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
 
-										// set values for updating/creating subscription
-										$_POST["order_id"] = $order["id"];
-										$_POST["item_id"] = $item_id;
+// 										// set values for updating/creating subscription
+// 										$_POST["order_id"] = $order["id"];
+// 										$_POST["item_id"] = $item_id;
 
-										// if membership variable is not false
-										// it means that membership exists and current type is membership
-										// avoid creating new membership subscription
-										if($membership && $membership["item"]) {
+// 										// if membership variable is not false
+// 										// it means that membership exists and current type is membership
+// 										// avoid creating new membership subscription
+// 										if($membership && $membership["item"]) {
 
-											// get the current membership subscription
-											$subscription = $UC->getSubscriptions(array("item_id" => $membership["item"]["id"]));
-										}
-										else {
+// 											// get the current membership subscription
+// 											$subscription = $UC->getSubscriptions(array("item_id" => $membership["item"]["id"]));
+// 										}
+// 										else {
 
-											// check if subscription already exists
-											$subscription = $UC->getSubscriptions(array("item_id" => $item_id));
-										}
+// 											// check if subscription already exists
+// 											$subscription = $UC->getSubscriptions(array("item_id" => $item_id));
+// 										}
 
-										// if subscription is for itemtype=membership
-										// add/updateSubscription will also update subscription_id on membership 
+// 										// if subscription is for itemtype=membership
+// 										// add/updateSubscription will also update subscription_id on membership 
 
-										// update existing subscription
-										if($subscription) {
-											$subscription = $UC->updateSubscription(array("updateSubscription", $subscription["id"]));
-										}
-										// add new subscription
-										else {
-											$subscription = $UC->addSubscription(array("addSubscription"));
-										}
+// 										// update existing subscription
+// 										if($subscription) {
+// 											$subscription = $UC->updateSubscription(array("updateSubscription", $subscription["id"]));
+// 										}
+// 										// add new subscription
+// 										else {
+// 											$subscription = $UC->addSubscription(array("addSubscription"));
+// 										}
 
-										// clean up POST array
-										unset($_POST);
+// 										// clean up POST array
+// 										unset($_POST);
 
-//										print_r($subscription);
-										$order["comment"] .= $subscription["item"]["name"] . ($subscription["expires_at"] ? " (" . ($subscription["renewed_at"] ? date("d/m/Y", strtotime($subscription["renewed_at"])) : date("d/m/Y", strtotime($subscription["created_at"]))) ." - ". date("d/m/Y", strtotime($subscription["expires_at"])).")" : "");
-										print_r($order);
+// //										print_r($subscription);
+// 										$order["comment"] .= $subscription["item"]["name"] . ($subscription["expires_at"] ? " (" . ($subscription["renewed_at"] ? date("d/m/Y", strtotime($subscription["renewed_at"])) : date("d/m/Y", strtotime($subscription["created_at"]))) ." - ". date("d/m/Y", strtotime($subscription["expires_at"])).")" : "");
+// 										print_r($order);
 
 										
-									}
+// 									}
 									
 								}
 

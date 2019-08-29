@@ -1017,10 +1017,20 @@ class ShopCore extends Model {
 	 * 
 	 *
 	 * @param int $item_id
-	 * @param int $quantity – default is 1
+	 * @param int $_options – a quantity can be specified (default is 1)
 	 * @return array|false Cart object. False on error.
 	 */
-	function addToNewInternalCart($item_id, $quantity = 1) {
+	function addToNewInternalCart($item_id, $_options = false) {
+
+		$quantity = 1;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "quantity"          : $quantity            = $_value; break;
+				}
+			}
+		}
 		
 		$price = $this->getPrice($item_id);
 		// item has a price (price can be zero)
