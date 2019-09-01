@@ -185,7 +185,7 @@ Util.Objects["defaultList"] = new function() {
 			// 							else {
 			// 								this.node.parentNode.removeChild(this.node);
 			// 								this.node.div.scrolled();
-			// 								u.sortable(this.node.div.list, {"targets":"items", "draggables":"draggable"});
+			// 								u.sortable(this.node.div.list, {"targets":".items", "draggables":".draggable"});
 			//
 			// 							}
 			// 						}

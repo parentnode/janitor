@@ -6,30 +6,27 @@
 #content .defaultEdit.navigationNodeEdit fieldset h3 {border-top: 1px solid #aaaaaa; font-size: 0.8em; margin: 5px 0 20px; padding-bottom: 10px; padding-top: 7px; text-transform: uppercase;}
 
 
-#content .defaultEdit.navigationEdit .sortable ul.items li ul.items { border-top: 1px solid #dedede; margin-bottom: -1px;}
-#content .defaultEdit.navigationEdit .sortable ul.items > li h3 {padding: 10px 20px 10px 0; display: inline-block; vertical-align: bottom;}
-#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item h3 {margin-left: 30px; padding-left: 40px;}
-#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item li.item h3 {margin-left: 50px;}
-#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item li.item li.item h3 {margin-left: 70px;}
-#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item li.item li.item li h3 {margin-left: 90px;}
-#content .defaultEdit.navigationEdit .sortable ul.items > li.item li.item li.item li.item li.item li.item h3 {margin-left: 110px;}
-#content .defaultEdit.navigationEdit .sortable ul.items > li li h3 {
+#content .scene.navigationEdit .sortable ul.items li ul.items { border-top: 1px solid #dedede; margin-bottom: -1px;}
+#content .scene.navigationEdit .sortable ul.items > li h3 {padding: 15px 20px 15px 0; display: inline-block; vertical-align: bottom;}
+#content .scene.navigationEdit .sortable ul.items > li.item li.item h3 {margin-left: 30px; padding-left: 40px;}
+#content .scene.navigationEdit .sortable ul.items > li.item li.item li.item h3 {margin-left: 50px;}
+#content .scene.navigationEdit .sortable ul.items > li.item li.item li.item li.item h3 {margin-left: 70px;}
+#content .scene.navigationEdit .sortable ul.items > li.item li.item li.item li.item li h3 {margin-left: 90px;}
+#content .scene.navigationEdit .sortable ul.items > li.item li.item li.item li.item li.item li.item h3 {margin-left: 110px;}
+#content .scene.navigationEdit .sortable ul.items > li li h3 {
 	background-image: url(/janitor/admin/img/bg_angle.png);
-	background-position: 23px 10px;
+	background-position: 23px 15px;
 	background-color: transparent;
 	background-repeat: no-repeat;
 }
-#content div.all_items ul.items > li.item:hover {background-color: transparent;}
+#content .scene.navigationEdit div.all_items ul.items li.item {overflow: visible;}
+#content .scene.navigationEdit div.all_items ul.items li.item ul.actions {top: 5px;}
+#content .scene.navigationEdit div.all_items ul.items li.item div.drag {top: 5px;}
 
-#content .defaultEdit.navigationEdit ul.items > li span {padding: 10px 10px 10px 0; display: inline-block; vertical-align: bottom;}
+/* AVOID HOVER ON NESTED LI'S */
+#content .scene.navigationEdit div.all_items ul.items > li.item:hover:not(.shadow) {background-color: transparent;}
 
-#content .defaultEdit.navigationEdit ul.items > li.hover {background: red !important;}
-
-#content .defaultEdit.navigationEdit ul.items > li.dragged {
-	z-index: 3;
-	
-	/*border-top: 1px solid #aaaaaa; border-bottom: 1px solid #aaaaaa;*/
-}
+#content .scene.navigationEdit ul.items > li span {padding: 10px 10px 15px 0; display: inline-block; vertical-align: bottom;}
 #content .defaultEdit.navigationEdit ul.items > li.dragged .drag {background-image: none;}
 
 

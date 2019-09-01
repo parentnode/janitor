@@ -285,7 +285,7 @@ u.defaultFilters = function(div) {
 // SORTABLE
 
 u.defaultSortableList = function(list) {
-	console.log("defaultSortableList");
+	// u.bug("defaultSortableList");
 	list.div.save_order_url = list.div.getAttribute("data-item-order");
 
 	if(list.div.save_order_url && list.div.csrf_token) {
@@ -299,20 +299,22 @@ u.defaultSortableList = function(list) {
 		}
 
 		// apply
-		u.sortable(list, {"targets":"items", "draggables":"draggable"});
+		u.sortable(list, {"targets":".items", "draggables":".draggable"});
 		list.picked = function() {}
 		list.dropped = function() {
-			var order = new Array();
 
-			this.nodes = u.qsa("li.item", this);
-			for(i = 0; node = this.nodes[i]; i++) {
-				order.push(u.cv(node, "item_id"));
-			}
+			// Get node order
+			var order = this.getNodeOrder();
+
 			this.orderResponse = function(response) {
 				// Notify of event
 				page.notify(response);
 			}
-			u.request(this, this.div.save_order_url, {"callback":"orderResponse", "method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
+			u.request(this, this.div.save_order_url, {
+				"callback":"orderResponse", 
+				"method":"post", 
+				"params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")
+			});
 		}
 
 	}
