@@ -45,7 +45,7 @@ class MemberCore extends Model {
 		$SC = new Shop();
 
 
-		// membership with subscription
+		// membership with subscription (active)
 		$sql = "SELECT members.id as id, subscriptions.id as subscription_id, subscriptions.item_id as item_id, subscriptions.order_id as order_id, members.user_id as user_id, members.created_at as created_at, members.modified_at as modified_at, subscriptions.renewed_at as renewed_at, subscriptions.expires_at as expires_at FROM ".$this->db_subscriptions." as subscriptions, ".$this->db_members." as members WHERE members.user_id = $user_id AND members.subscription_id = subscriptions.id LIMIT 1";
 		if($query->sql($sql)) {
 			$membership = $query->result(0);
@@ -59,7 +59,7 @@ class MemberCore extends Model {
 
 			return $membership;
 		}
-		// membership without subscription
+		// membership without subscription (inactive)
 		else {
 			$sql = "SELECT * FROM ".$this->db_members." WHERE user_id = $user_id LIMIT 1";
 			if($query->sql($sql)) {
@@ -85,11 +85,12 @@ class MemberCore extends Model {
 	 * Add membership to current user
 	 *
 	 * @param integer $item_id
-	 * @param array|false $_options – Optional subscription_id 
+	 * @param integer $subscription_id
+	 * @param array|false $_options – Not in use. Exists to maintain compatibility with SuperMember::addMembership. 
 	 * 		
 	 * @return array|false Membership object. False on error. 
 	 */
-	function addMembership($item_id, $_options = false) {
+	function addMembership($item_id, $subscription_id, $_options = false) {
 		
 		// user already has membership – cancel 
 		// (should have been redirected by TypeMembership::ordered)
@@ -99,25 +100,11 @@ class MemberCore extends Model {
 
 		// get current user
 		$user_id = session()->value("user_id");
-		
-		$subscription_id = false;
-		
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "subscription_id"			:	$subscription_id			= $_value; break;
-				}
-			}
-		}
 
 		$query = new Query();
 
 		// create new membership
-		$sql = "INSERT INTO ".$this->db_members." SET user_id = $user_id";
-
-		if($subscription_id) {
-			$sql .= ", subscription_id = $subscription_id";
-		}
+		$sql = "INSERT INTO ".$this->db_members." SET user_id = $user_id, subscription_id = $subscription_id";
 
 		// membership successfully created 
 		if($query->sql($sql)) {
@@ -125,7 +112,7 @@ class MemberCore extends Model {
 			$membership = $this->getMembership();
 
 			global $page;
-			$page->addLog("user->addMembership: member_id:".$membership["id"].", user_id:$user_id");
+			$page->addLog("Member->addMembership: member_id:".$membership["id"].", user_id:$user_id");
 
 			return $membership;
 		}
@@ -137,7 +124,9 @@ class MemberCore extends Model {
 	/**
 	 * Update membership for current user
 	 *
-	 * @param boolean $_options – Optional subscription_id
+	 * @param array|false $_options
+	 * – subscription_id (to be used if reactivaing an inactive membership)
+	 * 
 	 * @return array|false Membership object. False on non-existing membership. False on error. 
 	 */
 	function updateMembership($_options = false) {
@@ -151,6 +140,9 @@ class MemberCore extends Model {
 			$subscription_id = false;
 			$SubscriptionClass = new Subscription();
 			
+			$query = new Query();
+			$sql = "UPDATE ".$this->db_members." SET modified_at = CURRENT_TIMESTAMP";
+			
 			if($_options !== false) {
 				foreach($_options as $_option => $_value) {
 					switch($_option) {
@@ -159,25 +151,17 @@ class MemberCore extends Model {
 					}
 				}
 			}
-	
-			$query = new Query();
-			$sql = "UPDATE ".$this->db_members." SET modified_at = CURRENT_TIMESTAMP";
-	
-			// new membership has subscription
+
 			if($subscription_id) {
 				
-				// make sure subscription is valid
+				// make sure new subscription is valid
 				$subscription = $SubscriptionClass->getSubscriptions(array("subscription_id" => $subscription_id));
 				if($subscription) {
 					$sql .= ", subscription_id = $subscription_id";
 				}
 			}
-			// new membership has no subscription
-			else {
-				$sql .= ", subscription_id = NULL";
-	
-			}
 			
+
 			// Add condition
 			$sql .= " WHERE user_id = $user_id";
 			
@@ -188,7 +172,7 @@ class MemberCore extends Model {
 				$membership = $this->getMembership();
 				
 				global $page;
-				$page->addLog("user->updateMembership: member_id:".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
+				$page->addLog("Member->updateMembership: member_id:".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
 	
 				return $membership;
 			}
@@ -200,17 +184,22 @@ class MemberCore extends Model {
 	}
 
 
-	// cancel membership
-	// removes subscription_id from membership and deletes related subscription
-	function cancelMembership($member_id) {
+	/**
+	 * Cancel membership of current user
+	 * 
+	 * Removes subscription_id from membership and deletes related subscription
+	 *
+	 * @param integer $member_id
+	 * @param false $_options – Not in use. Exists to preserve compatibility with SuperMember::cancelMembership.
+	 * @return boolean
+	 */
+	function cancelMembership($member_id, $_options = false) {
 
 		// get current user
 		$user_id = session()->value("user_id");
 
-		// does values validate
 		$query = new Query();
 		$member = $this->getMembership();
-//			print_r($member);
 
 		if($member && $member["user_id"] == $user_id) {
 
@@ -224,7 +213,7 @@ class MemberCore extends Model {
 
 
 				global $page;
-				$page->addLog("User->cancelMembership: member_id:".$member["id"]);
+				$page->addLog("Member->cancelMembership: member_id:".$member["id"]);
 
 
 				// send notification email to admin
@@ -302,9 +291,9 @@ class MemberCore extends Model {
 		// get current user
 		$user_id = session()->value("user_id");
 
-		// current user has membership
+		// current user has active membership
 		$member = $this->getMembership();
-		if($member) {
+		if($member && $member["subscription_id"]) {
 			
 			$query = new Query();
 			$IC = new Items();
@@ -343,7 +332,7 @@ class MemberCore extends Model {
 						$sql = "UPDATE ".$SC->db_orders." SET comment = 'Membership upgrade'";
 
 						foreach($order as $key => $value) {
-//								print $key . " = " . $value . "<br>\n";
+							//	print $key . " = " . $value . "<br>\n";
 							// filter out order specific values
 							if(!preg_match("/(^order_no$|^id$|status$|^comment$|ed_at$)/", $key) && $value) {
 								$sql .= ", $key = '$value'";
@@ -382,12 +371,11 @@ class MemberCore extends Model {
 								}
 
 								$sql .= " WHERE id = ".$member["subscription_id"];
-//									print $sql."<br>\n";
 
 								if($query->sql($sql)) {
 
 									global $page;
-									$page->addLog("User->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
+									$page->addLog("Member->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
 
 
 									return true;

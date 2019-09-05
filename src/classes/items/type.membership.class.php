@@ -19,55 +19,65 @@ class TypeMembership extends Itemtype {
 
 
 		// Name
-		$this->addToModel("name", array(
+		$this->addToModel("name", [
 			"type" => "string",
 			"label" => "Name",
 			"required" => true,
 			"hint_message" => "Membership name", 
 			"error_message" => "Membership needs a name."
-		));
+		]);
 
 		// Class
-		$this->addToModel("classname", array(
+		$this->addToModel("classname", [
 			"type" => "string",
 			"label" => "CSS Class",
 			"hint_message" => "CSS class for custom styling. If you don't know what this is, just leave it empty"
-		));
+		]);
 
 		// subscribed_message
-		$this->addToModel("subscribed_message_id", array(
+		$this->addToModel("subscribed_message_id", [
 			"type" => "integer",
 			"label" => "Welcome message",
 			"required" => true,
 			"hint_message" => "Select a message to send to users when they subscribe to this membership"
-		));
+		]);
 
 		// Description
-		$this->addToModel("description", array(
+		$this->addToModel("description", [
 			"type" => "text",
 			"label" => "SEO description",
 			"hint_message" => "Write a short description of the membership for SEO.",
 			"error_message" => "A short description without any words? How weird."
-		));
+		]);
 
 		// HTML
-		$this->addToModel("introduction", array(
+		$this->addToModel("introduction", [
 			"type" => "html",
 			"label" => "Introduction for overview",
 			"allowed_tags" => "p,h2,h3,h4,ul",
 			"hint_message" => "Write a short introduction of the membership.",
 			"error_message" => "A short introduction without any words? How weird."
-		));
+		]);
 
 		// HTML
-		$this->addToModel("html", array(
+		$this->addToModel("html", [
 			"type" => "html",
 			"label" => "Full description",
 			"hint_message" => "Write a full description of the membership.",
 			"error_message" => "A full description without any words? How weird."
-		));
+		]);
 
 	}
+
+	function enabling($item) {
+
+		if(!$item["subscription_method"]) {
+
+			message()->addMessage("Can't enable. Membership items must have a subscription method.", ["type" => "error"]);
+			return false;
+		}
+	}
+
 
 	function addedToCart($added_item, $cart) {
 
@@ -104,49 +114,45 @@ class TypeMembership extends Itemtype {
 
 	function ordered($order_item, $order) {
 
-		include_once("classes/shop/subscription.class.php");
-		$SubscriptionClass = new Subscription();
-		$MC = new Member();
+		include_once("classes/shop/supersubscription.class.php");
+		include_once("classes/users/supermember.class.php");
+		$SuperSubscriptionClass = new SuperSubscription();
+		$MC = new SuperMember();
 		
-		$order_item_id = $order_item["item_id"];
+		$order_item_item_id = $order_item["item_id"];
 		$order_id = $order["id"];
+		$user_id = $order["user_id"];
 		
-		$existing_membership = $MC->getMembership();
+		$existing_membership = $MC->getMembers(["user_id" => $user_id]);
 		
-		// user already has membership
+		// user is already member (active or inactive)
 		if($existing_membership) {
 
-			// new membership has a subscription
+			// new membership item has a subscription method
 			if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
 				
-				// existing membership has a subscription
+				// existing membership is active
 				if($existing_membership["subscription_id"]) {
 					
 					// update subscription
 					$subscription_id = $existing_membership["subscription_id"];
-					$subscription = $SubscriptionClass->updateSubscription($order_item_id, $subscription_id, ["order_id" => $order_id]);
+					$subscription = $SuperSubscriptionClass->updateSubscription($order_item_item_id, $subscription_id, ["order_id" => $order_id, "user_id" => $user_id]);
 				}
 				else {
 
 					// add subscription
-					$subscription = $SubscriptionClass->addSubscription($order_item_id, ["order_id" => $order_id]);
+					$subscription = $SuperSubscriptionClass->addSubscription($order_item_item_id, ["order_id" => $order_id, "user_id" => $user_id]);
 				}
 
 				// update membership with subscription_id
 				$subscription_id = $subscription["id"];
-				$MC->updateMembership(["subscription_id" => $subscription_id]);
+				$MC->updateMembership(["user_id" => $user_id, "subscription_id" => $subscription_id]);
 			}
 			
-			// new membership has no subscription
+			// new membership item has no subscription method
 			else {
 				
-				// update membership (subscription_id will become NULL)
-				$membership = $MC->updateMembership();
-
-				// existing membership has subscription
-				if($membership && $existing_membership["subscription_id"]) {
-					$SubscriptionClass->deleteSubscription($existing_membership["subscription_id"]);
-				}
+				return false;
 			}
 			
 		}
@@ -154,31 +160,31 @@ class TypeMembership extends Itemtype {
 		// user is not yet a member
 		else {
 
-			// new membership has a subscription
+			// new membership has a subscription method
 			if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
 				
 				// add subscription
-				$subscription = $SubscriptionClass->addSubscription($order_item_id, ["order_id" => $order_id]);
+				$subscription = $SuperSubscriptionClass->addSubscription($order_item_item_id, ["order_id" => $order_id, "user_id" => $user_id]);
 				$subscription_id = $subscription["id"];
 	
 				// add membership
-				$MC->addMembership($order_item_id, ["subscription_id" => $subscription_id]);
+				$MC->addMembership($order_item_item_id, $subscription_id, ["user_id" => $user_id]);
 			}
 			else {
-				// add membership without subscription
-				$MC->addMembership($order_item_id);
+
+				return false;
 			}
 		}
 		
 		global $page;
 		$page->addLog("membership->ordered: order_id:".$order["id"]);
-		// print "\n<br>###$order_item_id### ordered (membership)\n<br>";
+		// print "\n<br>###$order_item_item_id### ordered (membership)\n<br>";
 	}
 
 	function shipped($order_item, $order) {
 
-		$order_item_id = $order_item["id"];		
-		print "\n<br>###$order_item_id### shipped (membership)\n<br>";
+		$order_item_item_id = $order_item["id"];		
+		print "\n<br>###$order_item_item_id### shipped (membership)\n<br>";
 
 
 
@@ -192,19 +198,24 @@ class TypeMembership extends Itemtype {
 //		print_r($subscription);
 
 		// check for subscription error
-		if($subscription && $subscription["item_id"] && $subscription["user_id"] && $subscription["order"]) {
+		if($subscription && $subscription["item_id"] && $subscription["user_id"]) {
 
 			$item_id = $subscription["item_id"];
 			$user_id = $subscription["user_id"];
-			$order = $subscription["order"];
-			$item_key = arrayKeyValue($order["items"], "item_id", $item_id);
-			$order_item = $order["items"][$item_key];
+			$order_id = NULL;
+			$price = NULL;
+			
+			if(isset($subscription["order"])) {
+				$order = $subscription["order"];
+				$item_key = arrayKeyValue($order["items"], "item_id", $item_id);
+				$order_id = $order["id"];
+				$order_item = $order["items"][$item_key];
+				
+				// variables for email
+				$price = formatPrice(["price" => $order_item["total_price"], "vat" => $order_item["total_vat"],  $order_item["total_price"], "country" => $order["country"], "currency" => $order["currency"]]);
+			}
 
 			$message_id = $subscription["item"]["subscribed_message_id"];
-
-			// variables for email
-			$price = formatPrice(array("price" => $order_item["total_price"], "vat" => $order_item["total_vat"],  $order_item["total_price"], "country" => $order["country"], "currency" => $order["currency"]));
-
 
 			$IC = new Items();
 			$model = $IC->typeObject("message");
@@ -216,7 +227,7 @@ class TypeMembership extends Itemtype {
 			]);
 
 			global $page;
-			$page->addLog("membership->subscribed: item_id:$item_id, user_id:$user_id, order_id:".$order["id"]);
+			$page->addLog("membership->subscribed: item_id:$item_id, user_id:$user_id, order_id:".$order_id);
 
 
 //

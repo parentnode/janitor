@@ -167,30 +167,42 @@ class SubscriptionCore extends Model {
 		
 		// get item prices and subscription method details to create subscription correctly
 		$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
-		if($item) {
+		if($item && $item["subscription_method"]) {
 			
 			
 			// order flag
 			$order = false;
 
 
-			// item has price
-			// then we need an order_id
-			if(SITE_SHOP && $item["prices"]) {
-
-				// no order_id? - don't do anything else
-				if(!$order_id) {
-					return false;
+			if(SITE_SHOP) {
+				
+				// item has price
+				if($item["prices"]) {
+					
+					// no order_id? - don't do anything else
+					if(!$order_id) {
+						return false;
+					}
+	
+					$SC = new Shop();
+					// check if order_id is valid
+					$order = $SC->getOrders(array("order_id" => $order_id));
+					if(!$order) {
+						return false;
+					}
+	
 				}
+				
+				// item has no price (is free)
+				else {
 
-
-				$SC = new Shop();
-				// check if order_id is valid
-				$order = $SC->getOrders(array("order_id" => $order_id));
-				if(!$order) {
-					return false;
+					if($order_id) {
+						
+						// free items can't have orders
+						return false;
+					}
+	
 				}
-
 			}
 
 
@@ -263,8 +275,6 @@ class SubscriptionCore extends Model {
 			}
 
 		}
-		
-
 
 		return false;
 	}
@@ -299,7 +309,7 @@ class SubscriptionCore extends Model {
 		
 		// get item prices and subscription method details to create subscription correctly
 		$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
-		if($item) {
+		if($item && $item["subscription_method"]) {
 			
 			
 			// order flag
@@ -380,29 +390,29 @@ class SubscriptionCore extends Model {
 				// get new subscription
 				$subscription = $this->getSubscriptions(array("item_id" => $item_id));
 
-				// if item is membership - update membership/subscription_id information
-				if($item["itemtype"] == "membership") {
+				// // if item is membership - update membership/subscription_id information
+				// if($item["itemtype"] == "membership") {
 
-					// add subscription id to post array
-					$_POST["subscription_id"] = $subscription["id"];
+				// 	// add subscription id to post array
+				// 	$_POST["subscription_id"] = $subscription["id"];
 
-					// check if membership exists
-					$membership = $MC->getMembership();
+				// 	// check if membership exists
+				// 	$membership = $MC->getMembership();
 
-					// safety valve
-					// create membership if it does not exist
-					if(!$membership) {
-						$membership = $MC->addMembership(array("addMembership"));
-					}
-					// update existing membership
-					else {
-						$membership = $MC->updateMembership(array("updateMembership"));
-					}
+				// 	// safety valve
+				// 	// create membership if it does not exist
+				// 	if(!$membership) {
+				// 		$membership = $MC->addMembership(array("addMembership"));
+				// 	}
+				// 	// update existing membership
+				// 	else {
+				// 		$membership = $MC->updateMembership(array("updateMembership"));
+				// 	}
 
-					// clear post array
-					unset($_POST);
+				// 	// clear post array
+				// 	unset($_POST);
 
-				}
+				// }
 
 				// perform special action on subscribe to new item
 				if($item_id != $org_item_id) {

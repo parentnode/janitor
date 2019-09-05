@@ -218,7 +218,7 @@ class SuperSubscriptionCore extends Subscription {
 
 		// get item prices and subscription method details to create subscription correctly
 		$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
-		if($item) {
+		if($item && $item["subscription_method"]) {
 
 
 			// order flag
@@ -270,30 +270,30 @@ class SuperSubscriptionCore extends Subscription {
 				// get new subscription
 				$subscription = $this->getSubscriptions(array("item_id" => $item_id, "user_id" => $user_id));
 
-				// if item is membership - update membership/subscription_id information
-				if($item["itemtype"] == "membership") {
+				// // if item is membership - update membership/subscription_id information
+				// if($item["itemtype"] == "membership") {
 
-					// add subscription id to post array
-					$_POST["subscription_id"] = $subscription["id"];
-					$_POST["user_id"] = $user_id;
+				// 	// add subscription id to post array
+				// 	$_POST["subscription_id"] = $subscription["id"];
+				// 	$_POST["user_id"] = $user_id;
 
-					// check if membership exists
-					$membership = $MC->getMemberships(array("user_id" => $user_id));
+				// 	// check if membership exists
+				// 	$membership = $MC->getMembers(array("user_id" => $user_id));
 
-					// safety valve
-					// create membership if it does not exist
-					if(!$membership) {
-						$membership = $MC->addMembership(array("addMembership"));
-					}
-					// update existing membership
-					else {
-						$membership = $MC->updateMembership(array("updateMembership"));
-					}
+				// 	// safety valve
+				// 	// create membership if it does not exist
+				// 	if(!$membership) {
+				// 		$membership = $MC->addMembership(array("addMembership"));
+				// 	}
+				// 	// update existing membership
+				// 	else {
+				// 		$membership = $MC->updateMembership(array("updateMembership"));
+				// 	}
 
-					// clear post array
-					unset($_POST);
+				// 	// clear post array
+				// 	unset($_POST);
 
-				}
+				// }
 
 				// perform special action on subscribe
 				$model = $IC->typeObject($item["itemtype"]);
@@ -402,7 +402,7 @@ class SuperSubscriptionCore extends Subscription {
 					$_POST["subscription_id"] = $subscription_id;
 
 					// check if membership exists
-					$membership = $MC->getMemberships(array("user_id" => $user_id));
+					$membership = $MC->getMembers(array("user_id" => $user_id));
 
 					// safety valve
 					// create membership if it does not exist
