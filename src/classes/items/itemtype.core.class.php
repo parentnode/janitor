@@ -35,20 +35,42 @@ class ItemtypeCore extends Model {
 
 			$item_id = $action[1];
 			$status = $action[2];
-
+			
 			$query = new Query();
+			$IC = new Items();
 
-
-			// delete item + itemtype + files
+			$model = $IC->typeObject($this->itemtype);
+			$item = $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
+			
 			if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
-				$query->sql("UPDATE ".UT_ITEMS." SET status = $status WHERE id = $item_id");
+				
+				// add callback to 'enabling', if available
+				if($status === "1" && method_exists($model, "enabling")) {
+					
+					$pre_enable_state = true;
+					$pre_enable_state = $model->enabling($item);
+					if($pre_enable_state === false) {
+						
+						return false;
+					}
+				}
 
+				$query->sql("UPDATE ".UT_ITEMS." SET status = $status WHERE id = $item_id");
 				message()->addMessage("Item ".$this->status_states[$status]);
+				
+				// add callback to 'enabled' and/or 'disabled', if available
+				if($status === "1" && method_exists($model, "enabled")) {
+					$model->enabled($item);
+				}
+				elseif($status === "0" && method_exists($model, "disabled")) {
+					$model->disabled($item);
+				}
+				
 				return true;
 			}
 		}
 
-		message()->addMessage("Item could not be ".$this->status_states[$status], array("type" => "error"));
+		message()->addMessage("Item could not be ".$this->status_states[$status], ["type" => "error"]);
 		return false;
 
 	}
