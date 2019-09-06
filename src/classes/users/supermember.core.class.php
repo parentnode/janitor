@@ -188,7 +188,18 @@ class SuperMemberCore extends Member {
 		return false;
 	}	
 
-	// a shorthand function to get order count for UI
+	
+	/**
+	 * Get member count
+	 * 
+	 * A shorthand function to get order count for UI
+	 * Can return the total member count, or member count for a specific membership type.
+	 *
+	 * @param array|false $_options
+	 * – item_id 
+	 * 
+	 * @return string Member count
+	 */
 	function getMemberCount($_options = false) {
 
 		// get all count of orders with status
@@ -219,6 +230,7 @@ class SuperMemberCore extends Member {
 			if($query->sql($sql)) {
 				return $query->result(0, "member_count");
 			}
+
 		}
 
 		return 0;
@@ -281,48 +293,47 @@ class SuperMemberCore extends Member {
 	}
 
 	
-	// change membership type
-	// info in $_POST
-	# /#controller#/addNewMembership/#user_id#
+	/**
+	 * Add new membership to specified user
+	 * 
+	 * /#controller#/addNewMembership/#user_id#
+	 * info in $_POST
+	 * 
+	 *
+	 * @param array $action
+	 * 
+	 * @return array|false Order object. False on error.
+	 */
 	function addNewMembership($action) {
 
-		// Get posted values to make them available for models
+		// get posted values to make them available for models
 		$this->getPostedEntities();
 
-
-		// does values validate
+		// posted values are valid
 		if(count($action) == 2 && $this->validateList(["item_id"])) {
-
-			$query = new Query();
-			$IC = new Items();
 			
 			include_once("classes/shop/supershop.class.php");
+			include_once("classes/users/superuser.class.php");
+			$query = new Query();
+			$IC = new Items();
+			$UC = new SuperUser();
 			$SC = new SuperShop();
 
 			$user_id = $action[1];
 			$item_id = $this->getProperty("item_id", "value");
 
-			// $member = $this->getMembers(array("user_id" => $user_id));
-			// if($member) {
+			$cart = $SC->addToNewInternalCart($item_id, ["user_id" => $user_id]);
+			$cart_reference = $cart["cart_reference"];
+			$cart_id = $cart["id"];
 
-				$current_user = $this->getUser();
-				$_POST["user_id"] = $user_id;
-				$_POST["order_comment"] = "New membership added by ".$current_user["nickname"];
-				$order = $SC->addOrder(["addOrder"]);
-				unset($_POST);
+			$current_user = $UC->getUser();
+			$_POST["order_comment"] = "New membership added by ".$current_user["nickname"];
+			$order = $SC->newOrderFromCart(["newOrderFromCart", $cart_id, $cart_reference]);
+			unset($_POST);
 
-
-				// add item to order
-				$_POST["quantity"] = 1;
-				$_POST["item_id"] = $item_id;
-				// adding a membership to an order will automatically change the membership
-				$order = $SC->addToOrder(["addToOrder", $order["id"]]);
-				unset($_POST);
-
-				if($order) {
-					return $order;
-				}
-			//}
+			if($order) {
+				return $order;
+			}
 
 		}
 
@@ -410,6 +421,7 @@ class SuperMemberCore extends Member {
 
 		include_once("classes/shop/supersubscription.class.php");
 		$SuperSubscriptionClass = new SuperSubscription();
+		$UC = new SuperUser();
 		$query = new Query();
 
 		$user_id = false;
@@ -421,9 +433,9 @@ class SuperMemberCore extends Member {
 			}
 		}
 
+		$user = $UC->getUsers(["user_id" => $user_id]);
 		$member = $this->getMembers(["user_id" => $user_id]);
-
-		if($member && $member["user_id"] == $user_id) {
+		if($user && $member && $member["user_id"] == $user_id) {
 
 			// set subscription_id to NULL - maintains member in system
 			$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL, modified_at = CURRENT_TIMESTAMP WHERE id = ".$member_id;

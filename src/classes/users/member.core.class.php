@@ -120,6 +120,49 @@ class MemberCore extends Model {
 		return false;
 	}
 
+	/**
+	 * Add new membership to current user
+	 * 
+	 * /#controller#/addNewMembership/
+	 * info in $_POST
+	 * 
+	 *
+	 * @param array $action
+	 * 
+	 * @return array|false Order object. False on error.
+	 */
+	function addNewMembership($action) {
+
+		// get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// posted values are valid
+		if(count($action) == 1 && $this->validateList(["item_id"])) {
+			
+			$query = new Query();
+			$IC = new Items();
+			$UC = new User();
+			$SC = new Shop();
+
+			$item_id = $this->getProperty("item_id", "value");
+
+			$cart = $SC->addToNewInternalCart($item_id);
+			$cart_reference = $cart["cart_reference"];
+
+			$current_user = $UC->getUser();
+			$order = $SC->newOrderFromCart(["newOrderFromCart", $cart_reference]);
+			unset($_POST);
+
+			if($order) {
+				return $order;
+			}
+
+		}
+
+		return false;
+	}
+
+
 
 	/**
 	 * Update membership for current user
