@@ -231,47 +231,53 @@ class MemberCore extends Model {
 	 * Cancel membership of current user
 	 * 
 	 * Removes subscription_id from membership and deletes related subscription
+	 * 
+	 * /#controller#/cancelMembership/#member_id#
 	 *
-	 * @param integer $member_id
-	 * @param false $_options – Not in use. Exists to preserve compatibility with SuperMember::cancelMembership.
+	 * @param false $action
 	 * @return boolean
 	 */
-	function cancelMembership($member_id, $_options = false) {
+	function cancelMembership($action) {
 
 		// get current user
 		$user_id = session()->value("user_id");
 
-		$query = new Query();
-		$member = $this->getMembership();
+		// does values validate
+		if(count($action) == 2) {
+			$member_id = $action[1];
 
-		if($member && $member["user_id"] == $user_id) {
-
-			// set subscription_id to NULL - maintains member in system
-			$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL, modified_at = CURRENT_TIMESTAMP WHERE id = ".$member_id;
-			if($query->sql($sql)) {
-				$SubscriptionClass = new Subscription();
-
-				// delete subscription
-				$SubscriptionClass->deleteSubscription($member["subscription_id"]);
-
-
-				global $page;
-				$page->addLog("Member->cancelMembership: member_id:".$member["id"]);
-
-
-				// send notification email to admin
-				mailer()->send(array(
-					"recipients" => SHOP_ORDER_NOTIFIES,
-					"subject" => SITE_URL . " - Membership cancelled ($user_id)",
-					"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
-					// "template" => "system"
-				));
-
-
-				return true;
-
+			$query = new Query();
+			$member = $this->getMembership();
+	
+			if($member && $member["user_id"] == $user_id) {
+	
+				// set subscription_id to NULL - maintains member in system
+				$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL, modified_at = CURRENT_TIMESTAMP WHERE id = ".$member_id;
+				if($query->sql($sql)) {
+					$SubscriptionClass = new Subscription();
+	
+					// delete subscription
+					$SubscriptionClass->deleteSubscription($member["subscription_id"]);
+	
+	
+					global $page;
+					$page->addLog("Member->cancelMembership: member_id:".$member["id"]);
+	
+	
+					// send notification email to admin
+					mailer()->send(array(
+						"recipients" => SHOP_ORDER_NOTIFIES,
+						"subject" => SITE_URL . " - Membership cancelled ($user_id)",
+						"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
+						// "template" => "system"
+					));
+	
+	
+					return true;
+	
+				}
+	
 			}
-
 		}
 
 		return false;

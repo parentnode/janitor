@@ -411,50 +411,45 @@ class SuperMemberCore extends Member {
 	 * 
 	 * Removes subscription_id from membership and deletes related subscription
 	 *
-	 * @param integer $member_id
-	 * @param array $_options
-	 * - user_id (required)
+	 * /#controller#/cancelMembership/#user_id#/#member_id#
+	 * 
+	 * @param array $array
 	 * 
 	 * @return boolean
 	 */
-	function cancelMembership($member_id, $_options = false) {
+	function cancelMembership($action) {
 
-		include_once("classes/shop/supersubscription.class.php");
-		$SuperSubscriptionClass = new SuperSubscription();
-		$UC = new SuperUser();
-		$query = new Query();
+		// does values validate
+		if(count($action) == 3) {
+			$user_id = $action[1];
+			$member_id = $action[2];
 
-		$user_id = false;
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "user_id"					:	$user_id					= $_value; break;
+			include_once("classes/shop/supersubscription.class.php");
+			$SuperSubscriptionClass = new SuperSubscription();
+			$UC = new SuperUser();
+			$query = new Query();
+	
+			$user = $UC->getUsers(["user_id" => $user_id]);
+			$member = $this->getMembers(["user_id" => $user_id]);
+			if($user && $member && $member["user_id"] == $user_id) {
+	
+				// set subscription_id to NULL - maintains member in system
+				$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL, modified_at = CURRENT_TIMESTAMP WHERE id = ".$member_id;
+				if($query->sql($sql)) {
+	
+					// delete subscription
+					$SuperSubscriptionClass->deleteSubscription(["deleteSubscription", $user_id, $member["subscription_id"]]);
+	
+	
+					global $page;
+					$page->addLog("SuperMember->cancelMembership: member_id:".$member["id"]);
+	
+					message()->addMessage("Membership cancelled");
+					return true;
+	
 				}
 			}
 		}
-
-		$user = $UC->getUsers(["user_id" => $user_id]);
-		$member = $this->getMembers(["user_id" => $user_id]);
-		if($user && $member && $member["user_id"] == $user_id) {
-
-			// set subscription_id to NULL - maintains member in system
-			$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL, modified_at = CURRENT_TIMESTAMP WHERE id = ".$member_id;
-			if($query->sql($sql)) {
-
-				// delete subscription
-				$SuperSubscriptionClass->deleteSubscription(["deleteSubscription", $user_id, $member["subscription_id"]]);
-
-
-				global $page;
-				$page->addLog("SuperMember->cancelMembership: member_id:".$member["id"]);
-
-				message()->addMessage("Membership cancelled");
-				return true;
-
-			}
-
-		}
-
 
 		message()->addMessage("Membership could not be cancelled", ["type" => "error"]);
 		return false;
