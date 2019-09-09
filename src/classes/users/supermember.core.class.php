@@ -461,41 +461,52 @@ class SuperMemberCore extends Member {
 	}
 
 
-	// change membership type
-	// info in $_POST
+	/**
+	 * Switch membership for current user
+	 * 
+	 * /#controller#/switchMembership/#user_id#
+	 * item_id in $_POST
+	 *
+	 * @param array $action
+	 * 
+	 * @return array|false Order object. False on error.
+	 */
+	function switchMembership($action) {
 
-	# /#controller#/switchMembership/#user_id#
-	function switchMembership($item_id, $_options = false) {
+		// get posted values to make them available for models
+		$this->getPostedEntities();
 
-		$query = new Query();
-		$IC = new Items();
-		include_once("classes/shop/supershop.class.php");
-		$SC = new SuperShop();
-		$UC = new SuperUser();
+		
 
-		$user_id = false;
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "user_id"					:	$user_id					= $_value; break;
-				}
-			}
-		}
+		// posted values are valid
+		if(count($action) == 2 && $this->validateList(array("item_id"))) {
 
-		// user exists and has active membership
-		$user = $UC->getUsers(["user_id" => $user_id]);
-		$member = $this->getMembers(["user_id" => $user_id]);
-		if($user && $member && $member["user_id"] == $user_id) {
+			$query = new Query();
+			$IC = new Items();
+			include_once("classes/shop/supershop.class.php");
+			$SC = new SuperShop();
+			$UC = new SuperUser();
 
-			// add item to cart
-			$cart = $SC->addToNewInternalCart($item_id, ["user_id" => $user_id]);
-
-			// convert to order
+			$user_id = $action[1];
+			$item_id = $this->getProperty("item_id", "value");
+	
+			// user exists and has active membership
+			$user = $UC->getUsers(["user_id" => $user_id]);
+			$member = $this->getMembers(["user_id" => $user_id]);
+			if($user && $member && $member["user_id"] == $user_id) {
+	
+				// add item to cart
+				$cart = $SC->addToNewInternalCart($item_id, ["user_id" => $user_id]);
+	
+				// convert to order
+				// this will call Member::updateMembership via TypeMembership::ordered 
 			// this will call Member::updateMembership via TypeMembership::ordered 
-			$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["id"], $cart["cart_reference"]));
-
-			if($order) {
-				return $order;
+				// this will call Member::updateMembership via TypeMembership::ordered 
+				$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["id"], $cart["cart_reference"]));
+	
+				if($order) {
+					return $order;
+				}
 			}
 		}
 

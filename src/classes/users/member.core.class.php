@@ -278,36 +278,56 @@ class MemberCore extends Model {
 	}
 
 
-	// change membership type
-	// info i $_POST
+	
 	// TODO: only changes item_id reference in subscription
 	// - should also calculate cost difference and create new order to pay.
 	// - this requires the ability to add custom order-lines with calculated price
 
-	# /#controller#/switchMembership
-	function switchMembership($item_id, $_options = false) {
+	/**
+	 * Switch membership for current user
+	 * 
+	 * /#controller#/switchMembership
+	 * item_id in $_POST
+	 *
+	 * @param array $action
+	 * 
+	 * @return array|false Order object. False on error.
+	 */
+	function switchMembership($action) {
 
 		// get current user
 		$user_id = session()->value("user_id");
 
-		$query = new Query();
-		$IC = new Items();
-		$SC = new Shop();
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
-		$member = $this->getMembership();
-		if($member) {
+		// posted values are valid
+		if(count($action) == 1 && $this->validateList(array("item_id"))) {
 
-			// add item to cart
-			$cart = $SC->addToNewInternalCart($item_id);
+			$query = new Query();
+			$IC = new Items();
+			$SC = new Shop();
 
-			// convert to order
+			$item_id = $this->getProperty("item_id", "value");
+	
+			$member = $this->getMembership();
+			if($member) {
+	
+				// add item to cart
+				$cart = $SC->addToNewInternalCart($item_id);
+	
+				// convert to order
+				// this will call Member::updateMembership via TypeMembership::ordered 
 			// this will call Member::updateMembership via TypeMembership::ordered 
-			$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["cart_reference"]));
-
-			if($order) {
-				return $order;
+				// this will call Member::updateMembership via TypeMembership::ordered 
+				$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["cart_reference"]));
+	
+				if($order) {
+					return $order;
+				}
 			}
 		}
+
 
 		return false;
 	}
