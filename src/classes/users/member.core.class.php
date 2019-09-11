@@ -124,9 +124,8 @@ class MemberCore extends Model {
 	 * Add new membership to current user
 	 * 
 	 * /#controller#/addNewMembership/
-	 * info in $_POST
+	 * item_id in $_POST
 	 * 
-	 *
 	 * @param array $action
 	 * 
 	 * @return array|false Order object. False on error.
@@ -136,7 +135,7 @@ class MemberCore extends Model {
 		// get posted values to make them available for models
 		$this->getPostedEntities();
 
-		// posted values are valid
+		// values are valid
 		if(count($action) == 1 && $this->validateList(["item_id"])) {
 			
 			$query = new Query();
@@ -234,7 +233,7 @@ class MemberCore extends Model {
 	 * 
 	 * /#controller#/cancelMembership/#member_id#
 	 *
-	 * @param false $action
+	 * @param array $action
 	 * @return boolean
 	 */
 	function cancelMembership($action) {
@@ -307,7 +306,7 @@ class MemberCore extends Model {
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		// posted values are valid
+		// values are valid
 		if(count($action) == 1 && $this->validateList(array("item_id"))) {
 
 			$query = new Query();
@@ -323,8 +322,6 @@ class MemberCore extends Model {
 				$cart = $SC->addToNewInternalCart($item_id);
 	
 				// convert to order
-				// this will call Member::updateMembership via TypeMembership::ordered 
-			// this will call Member::updateMembership via TypeMembership::ordered 
 				// this will call Member::updateMembership via TypeMembership::ordered 
 				$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["cart_reference"]));
 	
@@ -363,7 +360,7 @@ class MemberCore extends Model {
 		$this->getPostedEntities();
 
 
-		// posted values are valid
+		// values are valid
 		if(count($action) == 1 && $this->validateList(array("item_id"))) {
 			
 			$query = new Query();

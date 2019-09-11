@@ -545,7 +545,7 @@ class SuperShopCore extends Shop {
 	 *
 	 * @param int $item_id
 	 * @param int $_options 
-	 * – user_id is mandatory	
+	 * – user_id is required	
 	 * – a quantity can be specified (default is 1)
 	 * 
 	 * @return array|false Cart object. False on error.

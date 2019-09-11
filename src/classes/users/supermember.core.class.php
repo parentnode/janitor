@@ -309,7 +309,7 @@ class SuperMemberCore extends Member {
 		// get posted values to make them available for models
 		$this->getPostedEntities();
 
-		// posted values are valid
+		// values are valid
 		if(count($action) == 2 && $this->validateList(["item_id"])) {
 			
 			include_once("classes/shop/supershop.class.php");
@@ -473,7 +473,7 @@ class SuperMemberCore extends Member {
 
 		
 
-		// posted values are valid
+		// values are valid
 		if(count($action) == 2 && $this->validateList(array("item_id"))) {
 
 			$query = new Query();
@@ -494,8 +494,6 @@ class SuperMemberCore extends Member {
 				$cart = $SC->addToNewInternalCart($item_id, ["user_id" => $user_id]);
 	
 				// convert to order
-				// this will call Member::updateMembership via TypeMembership::ordered 
-			// this will call Member::updateMembership via TypeMembership::ordered 
 				// this will call Member::updateMembership via TypeMembership::ordered 
 				$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["id"], $cart["cart_reference"]));
 	
@@ -529,7 +527,7 @@ class SuperMemberCore extends Member {
 		// get posted values to make them available for models
 		$this->getPostedEntities();
 
-		// posted values are valid
+		// values are valid
 		if(count($action) == 2 && $this->validateList(array("item_id"))) {
 
 			include_once("classes/shop/supershop.class.php");

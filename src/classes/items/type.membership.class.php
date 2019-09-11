@@ -195,7 +195,6 @@ class TypeMembership extends Itemtype {
 
 	// user subscribed to an item
 	function subscribed($subscription) {
-//		print_r($subscription);
 
 		// check for subscription error
 		if($subscription && $subscription["item_id"] && $subscription["user_id"]) {
