@@ -274,39 +274,7 @@ class UserCore extends Model {
 		));
 
 
-		// order id
-		$this->addToModel("order_id", array(
-			"type" => "integer",
-			"label" => "Order",
-			"hint_message" => "Order ID",
-			"error_message" => "Invalid order"
-		));
-		// membership
-		$this->addToModel("subscription_id", array(
-			"type" => "string",
-			"label" => "Membership",
-			"required" => true,
-			"hint_message" => "Please select a membership",
-			"error_message" => "Please select a membership"
-		));
-		// subscription item
-		$this->addToModel("payment_method", array(
-			"type" => "string",
-			"label" => "Payment method",
-			"required" => true,
-			"hint_message" => "Please select a payment method",
-			"error_message" => "Please select a payment method"
-		));
-		// Upgrade subscription switch
-		$this->addToModel("subscription_upgrade", array(
-			"type" => "boolean",
-			"required" => true
-		));
-		// Renew subscription switch
-		$this->addToModel("subscription_renewal", array(
-			"type" => "boolean",
-			"required" => true
-		));
+		
 
 
 	}
