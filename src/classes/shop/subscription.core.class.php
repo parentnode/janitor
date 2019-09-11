@@ -26,6 +26,56 @@ class SubscriptionCore extends Model {
 		
 		$this->db_subscriptions = SITE_DB.".user_item_subscriptions";
 		
+		// order id
+		$this->addToModel("order_id", array(
+			"type" => "integer",
+			"label" => "Order",
+			"hint_message" => "Order ID",
+			"error_message" => "Invalid order"
+		));
+		// subscription_id
+		$this->addToModel("subscription_id", array(
+			"type" => "string",
+			"label" => "Membership",
+			"required" => true,
+			"hint_message" => "Please select a membership",
+			"error_message" => "Please select a membership"
+		));
+		// payment_method
+		$this->addToModel("payment_method", array(
+			"type" => "string",
+			"label" => "Payment method",
+			"required" => true,
+			"hint_message" => "Please select a payment method",
+			"error_message" => "Please select a payment method"
+		));
+		// Upgrade subscription switch
+		$this->addToModel("subscription_upgrade", array(
+			"type" => "boolean",
+			"required" => true
+		));
+		// Renew subscription switch
+		$this->addToModel("subscription_renewal", array(
+			"type" => "boolean",
+			"required" => true
+		));
+		// expiration date
+		$this->addToModel("expires_at", array(
+			"type" => "datetime",
+			"label" => "Expiration date (yyyy-mm-dd hh:mm)",
+			"hint_message" => "Expiration date of the item.", 
+			"error_message" => "Datetime must be of format (yyyy-mm-dd hh:mm)"
+		));
+		// custom price
+		$this->addToModel("custom_price", array(
+			"type" => "string",
+			"label" => "Custom price (overrides default item price)",
+			"pattern" => "[0-9,]+",
+			"class" => "custom_price",
+			"hint_message" => "State the custom price INCLUDING VAT, using comma (,) as decimal point.",
+			"error_message" => "Invalid price"
+		));
+		
 		parent::__construct(get_class());
 
 	}
