@@ -2098,22 +2098,24 @@ class ItemtypeCore extends Model {
 		$order_item_id = $order_item["id"];
 		print "\n<br>###$order_item_id### ordered (generic item)\n<br>";
 
-		
+		include_once("classes/shop/supersubscription.class.php");
+		$SuperSubscriptionClass = new SuperSubscription();
 		$IC = new Items();
-		$UC = new User();
 
 		// order item can be subscribed to
 		if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
-			$user = $UC->getUser();
-			$subscription = $UC->getSubscriptions(array("item_id" => $order_item_id));
+			$subscription = $SuperSubscriptionClass->getSubscriptions(array("item_id" => $order_item_id));
 
 			// user already subscribes to item
 			if($subscription) {
 
 				// update existing subscription
-				// $subscription = $SuperSubscriptionClass->updateSubscription($order["id"], $subscription["id"], $user["id"], $order_item);
+				// callback to subscribed if item_id changes
+				$_POST["order_id"] = $order["id"];
+				$_POST["item_id"] = $order_item_id;
+				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $user["id"], $subscription["id"]]);
+				unset($_POST);
 
-				// callback to subscribed if item_id(or is it subscription_id ?) changes
 			}
 			
 			else {
