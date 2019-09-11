@@ -258,20 +258,11 @@ class SuperShopCore extends Shop {
 
 	// Add a new cart with optional user, currency and country
 	# /janitor/admin/shop/addCart
-	function addCart($action, $_options = false) {
+	function addCart($action) {
 		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
-
-		$is_internal = false;
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "is_internal"			:			$is_internal		= $_value; break;
-				}
-			}
-		}
 
 		// does values validate
 		if(count($action) == 1 && $this->validateList(array("user_id"))) {
@@ -486,7 +477,7 @@ class SuperShopCore extends Shop {
 			// get posted values to make them available for models
 			$this->getPostedEntities();
 
-			// cart exists and posted values are valid
+			// cart exists and values are valid
 			if($cart && $this->validateList(array("quantity", "item_id"))) {
 
 				$query = new Query();

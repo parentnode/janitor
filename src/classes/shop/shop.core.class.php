@@ -752,36 +752,34 @@ class ShopCore extends Model {
 	}
 
 
-	// Add a new cart with optional user, currency and country
-	// an is_internal flag can be passed via $_options to avoid saving cart_reference in session and cookie
-	# /shop/addCart
-	function addCart($action, $_options = false) {
+	/**
+	 * Add a new cart with optional user, currency and country
+	 * 
+	 * /shop/addCart
+	 * An optional is_internal flag can be passed via $_POST to avoid saving cart_reference in session and cookie
+	 *
+	 * @param array $action
+	 * @return array|false Cart object. False on error.
+	 */
+	function addCart($action) {
 		global $page;
 
 		// get posted values to make them available for models
 		$this->getPostedEntities();
 
 		$user_id = session()->value("user_id");
-		$is_internal = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "is_internal"			:			$is_internal		= $_value; break;
-				}
-			}
-		}
-
-		// posted values are valid
+		
+		// values are valid
 		if(count($action) == 1 && $user_id) {
-
+			
 			$query = new Query();
-
+			
 			$currency = $this->getProperty("currency", "value");
 			$country = $this->getProperty("country", "value");
-
+			
 			$billing_address_id = $this->getProperty("billing_address_id", "value");
 			$delivery_address_id = $this->getProperty("delivery_address_id", "value");
+			$is_internal = $this->getProperty("is_internal", "value");
 
 
 			// set user_id to default (NULL) if not passed
@@ -951,7 +949,7 @@ class ShopCore extends Model {
 				$cart_reference = $cart["cart_reference"];
 			}
 			
-			// cart exists and posted values are valid
+			// cart exists and values are valid
 			if($cart && $this->validateList(array("quantity", "item_id"))) {
 
 				$query = new Query();
@@ -1037,7 +1035,9 @@ class ShopCore extends Model {
 		if($price !== false) {
 
 			// create new internal cart
-			$cart = $this->addCart(["addCart"], ["is_internal" => true]);
+			$_POST["is_internal"] = true;
+			$cart = $this->addCart(["addCart"]);
+			unset($_POST);
 			$cart_reference = $cart["cart_reference"];
 			if($cart) {
 
