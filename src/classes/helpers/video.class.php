@@ -454,8 +454,8 @@ class Video {
 				}
 
 				if($matches) {
-					$video_info["width"] = $matches["width"];
-					$video_info["height"] = $matches["height"];
+					$video_info["width"] = intval($matches["width"]);
+					$video_info["height"] = intval($matches["height"]);
 					$video_info["codec"] = $matches["codec"];
 					$video_info["format"] = $matches["format"];
 					$video_info["fps"] = $matches["fps"];
