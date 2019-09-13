@@ -9,14 +9,13 @@ $segments_config = array(
 	"www" => array(
 	
 		// fallback to something similar to detector-v2
-		"desktop_edge"  => "desktop",
 		"desktop"       => "desktop",
 
 		"desktop_ie11"  => "desktop_ie",
 		"desktop_ie10"  => "desktop_ie",
 		"desktop_ie9"   => "desktop_ie",
 
-		"smartphone"    => "mobile_touch",
+		"smartphone"    => "smartphone",
 
 		"desktop_light" => "desktop_light",
 		"tv"            => "desktop_light",
@@ -27,22 +26,20 @@ $segments_config = array(
 		"mobile"        => "mobile",
 		"mobile_light"  => "mobile_light",
 
-		"seo"           => "basic"
+		"seo"           => "seo"
 	),
 	"janitor" => array(
 
-		"desktop_edge"  => "desktop",
-		"desktop_ie11"  => "desktop",
-		"desktop_ie10"  => "desktop",
 		"desktop"       => "desktop",
-
+		"tablet"        => "desktop",
 		"smartphone"    => "smartphone",
 
-		"desktop_light" => "unsupported",
+		"desktop_ie11"  => "unsupported",
+		"desktop_ie10"  => "unsupported",
 		"desktop_ie9"   => "unsupported",
+		"desktop_light" => "unsupported",
 		"tv"            => "unsupported",
-		"tablet"        => "desktop",
-		"tablet_light"  => "desktop",
+		"tablet_light"  => "unsupported",
 		"mobile"        => "unsupported",
 		"mobile_light"  => "unsupported",
 		"seo"           => "unsupported"
@@ -50,33 +47,32 @@ $segments_config = array(
 	),
 	"login" => array(
 	
-		"desktop_edge"  => "desktop",
-		"desktop_ie11"  => "desktop",
-		"desktop_ie10"  => "desktop",
 		"desktop"       => "desktop",
-
+		"tablet"        => "desktop",
 		"smartphone"    => "smartphone",
 
+		"desktop_ie11"  => "unsupported",
+		"desktop_ie10"  => "unsupported",
+		"desktop_ie9"   => "unsupported",
 		"desktop_light" => "unsupported",
 		"tv"            => "unsupported",
-		"tablet"        => "desktop",
-		"tablet_light"  => "desktop",
+		"tablet_light"  => "unsupported",
 		"mobile"        => "unsupported",
 		"mobile_light"  => "unsupported",
 		"seo"           => "unsupported"
 	),
 	"setup" => array(
 	
-		"desktop_edge"  => "desktop",
-		"desktop_ie11"  => "desktop",
-		"desktop_ie10"  => "desktop",
 		"desktop"       => "desktop",
 
-		"smartphone"    => "unsupported",
+		"desktop_ie11"  => "unsupported",
+		"desktop_ie10"  => "unsupported",
+		"desktop_ie9"   => "unsupported",
 		"desktop_light" => "unsupported",
 		"tv"            => "unsupported",
 		"tablet"        => "unsupported",
 		"tablet_light"  => "unsupported",
+		"smartphone"    => "unsupported",
 		"mobile"        => "unsupported",
 		"mobile_light"  => "unsupported",
 		"seo"           => "unsupported"
