@@ -575,13 +575,21 @@ function encodeEmoji($string, $system) {
 function mimetypeToExtension($mimetype) {
 	$extensions = array(
 		"image/gif" => "gif", 
-		"image/jpeg" => "jpg", 
+		"image/jpeg" => "jpg",
+		"image/jpg" => "jpg",
 		"image/png" => "png",
+
+		"audio/mpeg" => "mp3",
+		"audio/x-wav" => "wav",
+		"audio/x-aac" => "aac",
+
+		"video/mp4" => "mp4",
+		"video/quicktime" => "mov",
+
 		"application/pdf" => "pdf",
 		"application/zip" => "zip",
-		"audio/mpeg" => "mp3",
-		"video/mp4" => "mp4",
-		"video/quicktime" => "mov"
+		
+		"text/plain" => "txt"
 	);
 
 	if(isset($extensions[$mimetype])) {
