@@ -20,18 +20,23 @@ class Model extends HTML {
 
 		// Default values
 
+		// Default type
 		$this->data_defaults["type"] = "string";
 
-		// files
-		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,pdf";
+		// Default files settings
+		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,mp3,pdf,zip";
 
-		// html
+		// Default html setting
 		$this->data_defaults["allowed_tags"] = "p,h1,h2,h3,h4,h5,h6,code,ul,download";
+		$this->data_defaults["file_add"] = $this->path."/addHTMLFile";
+		$this->data_defaults["file_delete"] = $this->path."/deleteHTMLFile";
+		$this->data_defaults["media_add"] = $this->path."/addHTMLMedia";
+		$this->data_defaults["media_delete"] = $this->path."/deleteHTMLMedia";
 
 
-		global $page;
-
-		// TODO: maybe these standard settings should be in Core Itemtype
+		// TODO:
+		// COMMENT: Some of these standard settings could be in Core Itemtype – at least the strictly item related ones
+		// COMMENT: They are not (yet), because it is annoying to look in two different places to get an overview of predefined entities
 		// define default models (Janitor model allows these element on all itemtypes)
 		// optimized for backend implementation
 
@@ -74,6 +79,7 @@ class Model extends HTML {
 		$this->addToModel("mediae", array(
 			"type" => "files",
 			"label" => "Add media here",
+			"max" => 20,
 			"allowed_formats" => "png,jpg,mp4",
 			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
 			"error_message" => "Media does not fit requirements."
@@ -84,7 +90,7 @@ class Model extends HTML {
 			"label" => "Add media here",
 			"max" => 1,
 			"allowed_formats" => "png,jpg,mp4",
-			"hint_message" => "Add images or videos here. Use png, jpg or mp4 in 960x540.",
+			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
 			"error_message" => "Media does not fit requirements."
 		));
 
@@ -155,9 +161,9 @@ class Model extends HTML {
 
 		$this->addToModel("item_ownership", array(
 			"type" => "integer",
-			"label" => "Subscription method",
-			"hint_message" => "Choose subscription renewal period.",
-			"error_message" => "Subscription method error."
+			"label" => "Item owner",
+			"hint_message" => "Choose new owner for item.",
+			"error_message" => "A valid new owner must be selected"
 		));
 
 	}
