@@ -546,7 +546,7 @@ class SubscriptionCore extends Model {
 	}
 
 
-	// calculate expery date for subscription
+	// calculate expiry date for subscription
 	// TODO: enable more flexible duration "settings"
 	function calculateSubscriptionExpiry($duration, $start_time = false) {
 //		print "calculateSubscriptionExpiry:" . $duration;
