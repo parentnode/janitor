@@ -213,7 +213,7 @@ class SuperSubscriptionCore extends Subscription {
 			if($subscription) {
 				// forward request to update method
 				$_POST["item_id"] = $item_id;
-				$result = $this->updateSubscription(["updateSubscription", $user_id, $subscription["id"]]);
+				$result = $this->updateSubscription(["updateSubscription", $subscription["id"]]);
 				unset($_POST);
 				return $result;
 			}
@@ -321,8 +321,8 @@ class SuperSubscriptionCore extends Subscription {
 	 * Update subscription for specified user
 	 *
 	 * @param array $action
-	 * /janitor/admin/user/updateSubscription/#user_id#/#subscription_id#
-	 * optional in $_POST: item_id, order_id, payment_method, subscription_upgrade, subscription_renewal
+	 * /janitor/admin/user/updateSubscription/#subscription_id#
+	 * optional in $_POST: item_id, expires_at, custom_price, order_id, payment_method, subscription_upgrade, subscription_renewal
 	 * 
 	 * @return array|false Subscription object. False on error.
 	 */
@@ -332,15 +332,14 @@ class SuperSubscriptionCore extends Subscription {
 		$this->getPostedEntities();
 
 		// values are valid
-		if(count($action) == 3) {
+		if(count($action) == 2) {
 
 			include_once("classes/users/supermember.class.php");
 			$MC = new SuperMember();
 			$query = new Query();
 			$IC = new Items();
 
-			$user_id = $action[1];
-			$subscription_id = $action[2];
+			$subscription_id = $action[1];
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
