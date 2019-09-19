@@ -347,16 +347,10 @@ class SuperSubscriptionCore extends Subscription {
 			$subscription_renewal = $this->getProperty("subscription_renewal", "value");
 			$expires_at = $this->getProperty("expires_at", "value");
 			$custom_price = $this->getProperty("custom_price", "value");
-			
 
-			// expiry date
-			// custom price
-			// payment method
-			// order_id - fixes for human error
-			// subscription_renewal -> renewed callback
-
-			// get original subscription
+			// get original subscription and user_id
 			$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
+			$user_id = $subscription["user_id"];
 			
 			// get original item_id and use as fallback
 			$org_item_id = $subscription["item_id"];
@@ -368,7 +362,7 @@ class SuperSubscriptionCore extends Subscription {
 			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
 			if($item && $user_id) {
 	
-				// item will create a renewable subscription
+				// item will create/update a renewable subscription
 				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
 
 					// expiration date for subscription is not directly specified and must be calculated
@@ -399,21 +393,18 @@ class SuperSubscriptionCore extends Subscription {
 				}
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
-	
-					if($subscription_renewal && $subscription["expires_at"]) {
-						$sql .= ", renewed_at = '" . $subscription["expires_at"]."'";
-					}
-					else {
-						$sql .= ", renewed_at = CURRENT_TIMESTAMP";
-					}
-	
 				}
 				else if(!$subscription_upgrade) {
 					$sql .= ", expires_at = NULL";
 				}
+				if($subscription_renewal && $subscription["expires_at"]) {
+					$sql .= ", renewed_at = '" . $subscription["expires_at"]."'";
+				}
+				else if($subscription_renewal) {
+					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
+				}
 	
 				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
-	
 	
 				if($query->sql($sql)) {
 	
@@ -463,7 +454,7 @@ class SuperSubscriptionCore extends Subscription {
 					if($subscription_renewal) {
 						$model = $IC->typeObject($item["itemtype"]);
 						if(method_exists($model, "subscription_renewed")) {
-							$model->subscribed($subscription);
+							$model->subscription_renewed($subscription);
 						}
 					}
 	
@@ -623,7 +614,6 @@ class SuperSubscriptionCore extends Subscription {
 								"message" => "SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"],
 								"template" => "system"
 							));
-
 
 							$page->addLog("SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
 
