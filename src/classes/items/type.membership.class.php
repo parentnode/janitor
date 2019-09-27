@@ -136,12 +136,20 @@ class TypeMembership extends Itemtype {
 					
 					// update subscription
 					$subscription_id = $existing_membership["subscription_id"];
-					$subscription = $SuperSubscriptionClass->updateSubscription($order_item_item_id, $subscription_id, ["order_id" => $order_id, "user_id" => $user_id]);
+					$_POST["item_id"] = $order_item_item_id;
+					$_POST["user_id"] = $user_id;
+					$_POST["order_id"] = $order_id;
+					$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription_id]);
+					unset($_POST);
 				}
 				else {
 
 					// add subscription
-					$subscription = $SuperSubscriptionClass->addSubscription($order_item_item_id, ["order_id" => $order_id, "user_id" => $user_id]);
+					$_POST["item_id"] = $order_item_item_id;
+					$_POST["user_id"] = $user_id;
+					$_POST["order_id"] = $order_id;
+					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
+					unset($_POST);
 				}
 
 				// update membership with subscription_id
@@ -164,8 +172,12 @@ class TypeMembership extends Itemtype {
 			if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
 				
 				// add subscription
-				$subscription = $SuperSubscriptionClass->addSubscription($order_item_item_id, ["order_id" => $order_id, "user_id" => $user_id]);
+				$_POST["item_id"] = $order_item_item_id;
+				$_POST["user_id"] = $user_id;
+				$_POST["order_id"] = $order_id;
+				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 				$subscription_id = $subscription["id"];
+				unset($_POST);
 	
 				// add membership
 				$MC->addMembership($order_item_item_id, $subscription_id, ["user_id" => $user_id]);

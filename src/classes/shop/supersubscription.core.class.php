@@ -318,11 +318,18 @@ class SuperSubscriptionCore extends Subscription {
 	}
 
 	/**
-	 * Update subscription for specified user
+	 * Update subscription
 	 *
 	 * @param array $action
 	 * /janitor/admin/user/updateSubscription/#subscription_id#
-	 * optional in $_POST: item_id, expires_at, custom_price, order_id, payment_method, subscription_upgrade, subscription_renewal
+	 * 
+	 * optional parameters in $_POST: 
+	 * – item_id (item must have a subscription_method. If passed without an order_id, it will create an orderless subscription)
+	 * – expires_at
+	 * – custom_price
+	 * — order_id
+	 * – payment_method
+	 * – subscription_renewal (boolean)
 	 * 
 	 * @return array|false Subscription object. False on error.
 	 */
@@ -343,7 +350,6 @@ class SuperSubscriptionCore extends Subscription {
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
-			$subscription_upgrade = $this->getProperty("subscription_upgrade", "value");
 			$subscription_renewal = $this->getProperty("subscription_renewal", "value");
 			$expires_at = $this->getProperty("expires_at", "value");
 			$custom_price = $this->getProperty("custom_price", "value");
@@ -358,34 +364,89 @@ class SuperSubscriptionCore extends Subscription {
 				$item_id = $org_item_id;
 			}
 
+			
+			
 			// get item prices and subscription method details to create subscription correctly
 			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
-			if($item && $user_id) {
-	
-				// item will create/update a renewable subscription
-				if($item["subscription_method"] && $item["subscription_method"]["duration"]) {
+			
+			// item and user_id are valid
+			if($user_id && $item && $item["subscription_method"] && $item["subscription_method"]["duration"]) {
+				
+				// order_id was passed
+				if($order_id) {
 
-					// expiration date for subscription is not directly specified and must be calculated
-					if(!$expires_at) {
+					// item has no price
+					// or item already has order_id
+					if(!$item["prices"] || $subscription["order_id"]) {
 						
-						// if renewal
-						if($subscription_renewal && $subscription["expires_at"]) {
+						// a priceless item and an order cannot be combined in a subscription
+						// cannot overwrite existing order
+						return false;
+					}
+
+				}
+				// item_id was passed but order_id was not
+				elseif($item_id != $org_item_id) {
+
+					// item has no price
+					if(!$item["prices"]) {
+						
+						// empty order_id to delete existing order_id
+						$order_id = 'NULL';
+					}
+					// item has a price
+					else {
+
+						// cannot update to paid subscription without order_id
+						return false;
+					}
+					
+				}
+				
+				// special handling of eternal subscriptions
+				if($subscription["expires_at"] === NULL) {
+					
+					if($subscription_renewal || $expires_at) {
+					
+						// cannot renew eternal subscription
+						// cannot set expiration date for eternal subscription
+						return false;
+					}
+				}
+
+				// expiration date for new subscription is not directly specified and must be calculated
+				if(!$expires_at) {
+					
+					// current subscription has an expiration date
+					if($subscription["expires_at"]) {
+						
+						// current expiration date should be kept
+						if(!$subscription_renewal) {
+							
+							$expires_at = $subscription["expires_at"];
+						}
+						// current expiration date should be renewed 
+						else {
+							
+							// calculate new expiration date, counting from current expiration date
 							$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
 						}
-						// if switch or if upgrade from non-expiring membership
-						else if((!$subscription_upgrade || !$subscription["expires_at"])) {
+					}
+					// current subscription never expires
+					else {
+						
+						// new subscription will expire at some point
+						if($item["subscription_method"]["duration"] != "*") {
+
+							// calculate new expiration date, counting from current time
 							$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
 						}
 					}
-
-
-					// upgrade does not change existing expires_at
-
+					
 				}
 	
-	
 				$sql = "UPDATE ".$this->db_subscriptions." SET item_id = $item_id, modified_at=CURRENT_TIMESTAMP";
-				if($order_id) {
+				if($order_id || $order_id === 'NULL') {
 					$sql .= ", order_id = $order_id";
 				}
 				if($payment_method) {
@@ -394,7 +455,7 @@ class SuperSubscriptionCore extends Subscription {
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
 				}
-				else if(!$subscription_upgrade) {
+				else {
 					$sql .= ", expires_at = NULL";
 				}
 				if($subscription_renewal && $subscription["expires_at"]) {

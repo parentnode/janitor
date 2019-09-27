@@ -323,16 +323,20 @@ class SuperMemberCore extends Member {
 			$item_id = $this->getProperty("item_id", "value");
 
 			$cart = $SC->addToNewInternalCart($item_id, ["user_id" => $user_id]);
-			$cart_reference = $cart["cart_reference"];
-			$cart_id = $cart["id"];
-
-			$current_user = $UC->getUser();
-			$_POST["order_comment"] = "New membership added by ".$current_user["nickname"];
-			$order = $SC->newOrderFromCart(["newOrderFromCart", $cart_id, $cart_reference]);
-			unset($_POST);
-
-			if($order) {
-				return $order;
+			
+			if($cart) {
+				
+				$cart_reference = $cart["cart_reference"];
+				$cart_id = $cart["id"];
+	
+				$current_user = $UC->getUser();
+				$_POST["order_comment"] = "New membership added by ".$current_user["nickname"];
+				$order = $SC->newOrderFromCart(["newOrderFromCart", $cart_id, $cart_reference]);
+				unset($_POST);
+	
+				if($order) {
+					return $order;
+				}
 			}
 
 		}
