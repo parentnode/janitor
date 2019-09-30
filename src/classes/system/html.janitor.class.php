@@ -489,6 +489,24 @@ class JanitorHTML {
 		return $_;
 	}
 
+	// edit sindex form for edit page (Currently only showing sindex)
+	function editSindex($item, $_options = false) {
+		global $page;
+		global $model;
+
+		$_ = '';
+
+
+		$_ .= '<div class="sindex i:collapseHeader item_id:'.$item["id"].'">';
+		$_ .= '<h2>sindex</h2>';
+		// $_ .= $model->output("sindex", ["value" => $item["sindex"]]);
+		$_ .= '<p class="sindex">'.$item["sindex"]."</p>";
+		$_ .= '</div>';
+
+		return $_;
+	}
+
+
 	// edit tags form for edit page
 	function editTags($item, $_options = false) {
 		// global $model;
