@@ -5,7 +5,7 @@ include_once("includes/functions.inc.php");
 class Video {
 
 
-	function convert($input_file, $output_file, $options = false) {
+	function convert($input_file, $output_file, $_options = false) {
 
 		$fs = new FileSystem();
 
@@ -21,20 +21,20 @@ class Video {
 
 		$max_pixels = 0;
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "width"             : $output_width       = $value; break;
-					case "height"            : $output_height      = $value; break;
-					case "format"            : $output_format      = $value; break;
-					case "bitrate"           : $output_bitrate     = $value; break;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "width"             : $output_width       = $_value; break;
+					case "height"            : $output_height      = $_value; break;
+					case "format"            : $output_format      = $_value; break;
+					case "bitrate"           : $output_bitrate     = $_value; break;
 
-					case "allow_conversion"  : $allow_conversion   = $value; break;
-					case "allow_cropping"    : $allow_cropping     = $value; break;
-					case "allow_stretching"  : $allow_stretching   = $value; break;
-					case "allow_padding"     : $allow_padding      = $value; break;
+					case "allow_conversion"  : $allow_conversion   = $_value; break;
+					case "allow_cropping"    : $allow_cropping     = $_value; break;
+					case "allow_stretching"  : $allow_stretching   = $_value; break;
+					case "allow_padding"     : $allow_padding      = $_value; break;
 
-					case "max_pixels"        : $max_pixels         = $value; break;
+					case "max_pixels"        : $max_pixels         = $_value; break;
 				}
 			}
 		}
