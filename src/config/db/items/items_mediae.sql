@@ -4,7 +4,7 @@ CREATE TABLE `SITE_DB`.`items_mediae` (
 
   `name` varchar(255) NOT NULL,
   `format` varchar(5) NOT NULL,
-  `variant` varchar(13) NOT NULL,
+  `variant` varchar(40) NOT NULL,
   `width` int(11) DEFAULT NULL,
   `height` int(11) DEFAULT NULL,
   `filesize` int(11) DEFAULT NULL,
