@@ -1369,8 +1369,8 @@ class ItemsCore {
 					}
 				}
 
-				$ratings["lowest"] = $lowest;
-				$ratings["highest"] = $highest;
+				$ratings["lowest"] = intval($lowest);
+				$ratings["highest"] = intval($highest);
 				$ratings["average"] = round($total / count($results), 2);
 
 				return $ratings;
