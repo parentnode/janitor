@@ -93,6 +93,7 @@ class ItemtypeCore extends Model {
 	*/
 	# /janitor/[admin/]#itemtype#/delete/#item_id#
 	function delete($action) {
+		global $page;
 
 		if(count($action) == 2) {
 
@@ -103,7 +104,7 @@ class ItemtypeCore extends Model {
 
 			// delete item + itemtype + files
 			$sql = "SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'";
-//			print $sql;
+			// debug([$sql]);
 			if($query->sql($sql)) {
 
 				// EXPERIMENTAL: include pre/post functions to all itemtype.core functions to make extendability better
@@ -118,7 +119,7 @@ class ItemtypeCore extends Model {
 				if($pre_delete_state) {
 
 					$sql = "DELETE FROM ".UT_ITEMS." WHERE id = $item_id";
-//					print $sql;
+					// debug([$sql]);
 					if($query->sql($sql)) {
 						
 						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
@@ -132,6 +133,8 @@ class ItemtypeCore extends Model {
 							$this->deleted($item_id);
 						}
 
+						// add log
+						$page->addLog("ItemType->delete ($item_id)");
 
 						return true;
 					}
