@@ -408,7 +408,7 @@ class SubscriptionCore extends Model {
 						$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
 					}
 					
-					// upgrade does not change exsisting expires_at
+					// upgrade does not change existing expires_at
 					
 				}
 	
