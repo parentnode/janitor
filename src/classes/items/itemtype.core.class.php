@@ -163,18 +163,44 @@ class ItemtypeCore extends Model {
 		// check for existence
 		// update if sindex does not exist for other item already
 		$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE sindex = '$sindex' AND id != $item_id";
-		// print $sql."<br>\n";
+		// debug([$sql]);
 
+		// If "clean" sindex is available, then always prioritize that
+		// (It always makes sense to use the cleanest possible sindex, as that is what you would typically hope for)
 		if(array_search($sindex, $excluded) === false && !$query->sql($sql)) {
+
 			$sql = "UPDATE ".UT_ITEMS." SET sindex = '$sindex' WHERE id = $item_id";
-			// print $sql."<br>\n";
+			// debug([$sql]);
 
 			$query->sql($sql);
-		}
 
-		// find best match incremental sindex
-		// lower value is considered better
+			return $sindex;
+		}
+		// Find the best sindex option
 		else {
+
+			// Is current sindex already a numeric increment of sindex, then don't change it
+			// (It is confusing if sindex' change for no obvious reason)
+			$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE id = $item_id";
+			if($query->sql($sql)) {
+
+				$current_sindex = $query->result(0, "sindex");
+
+				// Does sindex exist and is it in fact a numeric increment
+				if($current_sindex && strpos($current_sindex, $sindex) !== false && is_numeric(str_replace($sindex."-", "", $current_sindex))) {
+
+					// Nothing to be done
+					return $sindex;
+				}
+
+			}
+
+
+
+
+			// find best match incremental sindex
+			// lower value is considered better
+
 
 			// Add this sindex to excluded options (to prevent endless loops)
 			array_push($excluded, $sindex);
@@ -186,7 +212,7 @@ class ItemtypeCore extends Model {
 
 			// find all existing incremental versions of this sindex
 			$sql = "SELECT id, sindex FROM ".UT_ITEMS." WHERE sindex REGEXP '^".$sindex."[-]?[0-9]+$' ORDER BY LENGTH(sindex) DESC, sindex DESC";
-			// print $sql . "<br>\n";
+			// debug([$sql]);
 
 			$query->sql($sql);
 			$existing_sindexes = $query->results();
@@ -234,7 +260,7 @@ class ItemtypeCore extends Model {
 						if($matches && is_numeric($matches[1])) {
 
 							// incremental value and position matches
-							if($matches && is_numeric($matches[1]) && $matches[1] == $next_i) {
+							if($matches[1] == $next_i) {
 
 								$next_i++;
 
