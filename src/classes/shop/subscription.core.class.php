@@ -619,9 +619,19 @@ class SubscriptionCore extends Model {
 		// annually
 		if($duration == "annually") {
 
-			$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp), date("j", $timestamp), date("Y", $timestamp)+1));
-		}
+			// check whether it's February 29th in a leap year
+			if(date("L") && date("m") == 02 && date("d") == 29) {
+				
+				// expire on February 28th next year
+				$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp), date("j", $timestamp)-1, date("Y", $timestamp)+1));
+			}
+			else {
+				
+				// expire same day next year
+				$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp), date("j", $timestamp), date("Y", $timestamp)+1));
+			}
 
+		}
 		// monthly
 		else if($duration == "monthly") {
 
