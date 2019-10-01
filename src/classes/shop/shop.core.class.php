@@ -1341,69 +1341,6 @@ class ShopCore extends Model {
 									if(method_exists($model, "ordered")) {
 										$model->ordered($item, $order);
 									}
-
-// 									// additional tasks
-// 									$admin_summary[] = $item["name"];
-
-// 									$membership = false;
-									
-// 									// item is membership
-// 									if(SITE_MEMBERS && $item["itemtype"] == "membership") {
-
-// 										// check if user already has membership
-// 										$membership = $UC->getMembership();
-
-// 										// membership does not exist
-// 										if(!$membership) {
-// 											// add new membership
-// 											$membership = $UC->addMembership(array("addMembership"));
-// 										}
-
-// 									}
-
-
-// 									// subscription method available for item
-// 									if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
-
-// 										// set values for updating/creating subscription
-// 										$_POST["order_id"] = $order["id"];
-// 										$_POST["item_id"] = $item_id;
-
-// 										// if membership variable is not false
-// 										// it means that membership exists and current type is membership
-// 										// avoid creating new membership subscription
-// 										if($membership && $membership["item"]) {
-
-// 											// get the current membership subscription
-// 											$subscription = $UC->getSubscriptions(array("item_id" => $membership["item"]["id"]));
-// 										}
-// 										else {
-
-// 											// check if subscription already exists
-// 											$subscription = $UC->getSubscriptions(array("item_id" => $item_id));
-// 										}
-
-// 										// if subscription is for itemtype=membership
-// 										// add/updateSubscription will also update subscription_id on membership 
-
-// 										// update existing subscription
-// 										if($subscription) {
-// 											$subscription = $UC->updateSubscription(array("updateSubscription", $subscription["id"]));
-// 										}
-// 										// add new subscription
-// 										else {
-// 											$subscription = $UC->addSubscription(array("addSubscription"));
-// 										}
-
-// 										// clean up POST array
-// 										unset($_POST);
-
-// //										print_r($subscription);
-// 										$order["comment"] .= $subscription["item"]["name"] . ($subscription["expires_at"] ? " (" . ($subscription["renewed_at"] ? date("d/m/Y", strtotime($subscription["renewed_at"])) : date("d/m/Y", strtotime($subscription["created_at"]))) ." - ". date("d/m/Y", strtotime($subscription["expires_at"])).")" : "");
-// 										print_r($order);
-
-										
-// 									}
 									
 								}
 

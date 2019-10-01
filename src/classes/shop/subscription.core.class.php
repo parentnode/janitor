@@ -293,16 +293,6 @@ class SubscriptionCore extends Model {
 						// check if membership exists
 						$membership = $MC->getMembership();
 	
-						// // safety valve
-						// // create membership if it does not exist
-						// if(!$membership) {
-						// 	$membership = $MC->addMembership(array("addMembership"));
-						// }
-						// // update existing membership
-						// else {
-						// 	$membership = $MC->updateMembership(array("updateMembership"));
-						// }
-	
 						// clear post array
 						unset($_POST);
 	
@@ -485,32 +475,7 @@ class SubscriptionCore extends Model {
 	
 				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
 	
-				if($query->sql($sql)) {
-	
-					// // if item is membership - update membership/subscription_id information
-					// if($item["itemtype"] == "membership") {
-	
-					// 	// add subscription id to post array
-					// 	$_POST["subscription_id"] = $subscription_id;
-	
-					// 	// check if membership exists
-					// 	$membership = $MC->getMembers(array("user_id" => $user_id));
-	
-					// 	// safety valve
-					// 	// create membership if it does not exist
-					// 	if(!$membership) {
-					// 		$membership = $MC->addMembership(array("addMembership"));
-					// 	}
-					// 	// update existing membership
-					// 	else {
-					// 		$membership = $MC->updateMembership(array("updateMembership"));
-					// 	}
-	
-					// 	// clear post array
-					// 	unset($_POST);
-	
-					// }
-	
+				if($query->sql($sql)) {	
 	
 					// add to log
 					global $page;

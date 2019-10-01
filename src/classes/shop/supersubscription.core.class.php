@@ -271,31 +271,6 @@ class SuperSubscriptionCore extends Subscription {
 					// get new subscription
 					$subscription = $this->getSubscriptions(array("item_id" => $item_id, "user_id" => $user_id));
 	
-					// // if item is membership - update membership/subscription_id information
-					// if($item["itemtype"] == "membership") {
-	
-					// 	// add subscription id to post array
-					// 	$_POST["subscription_id"] = $subscription["id"];
-					// 	$_POST["user_id"] = $user_id;
-	
-					// 	// check if membership exists
-					// 	$membership = $MC->getMembers(array("user_id" => $user_id));
-	
-					// 	// safety valve
-					// 	// create membership if it does not exist
-					// 	if(!$membership) {
-					// 		$membership = $MC->addMembership(array("addMembership"));
-					// 	}
-					// 	// update existing membership
-					// 	else {
-					// 		$membership = $MC->updateMembership(array("updateMembership"));
-					// 	}
-	
-					// 	// clear post array
-					// 	unset($_POST);
-	
-					// }
-	
 					// perform special action on subscribe
 					$model = $IC->typeObject($item["itemtype"]);
 					if(method_exists($model, "subscribed")) {
@@ -468,31 +443,6 @@ class SuperSubscriptionCore extends Subscription {
 				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
 	
 				if($query->sql($sql)) {
-	
-					// // if item is membership - update membership/subscription_id information
-					// if($item["itemtype"] == "membership") {
-	
-					// 	// add subscription id to post array
-					// 	$_POST["subscription_id"] = $subscription_id;
-	
-					// 	// check if membership exists
-					// 	$membership = $MC->getMembers(array("user_id" => $user_id));
-	
-					// 	// safety valve
-					// 	// create membership if it does not exist
-					// 	if(!$membership) {
-					// 		$membership = $MC->addMembership(array("addMembership"));
-					// 	}
-					// 	// update existing membership
-					// 	else {
-					// 		$membership = $MC->updateMembership(array("updateMembership"));
-					// 	}
-	
-					// 	// clear post array
-					// 	unset($_POST);
-	
-					// }
-	
 	
 					// add to log
 					global $page;
