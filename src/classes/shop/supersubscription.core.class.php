@@ -651,7 +651,7 @@ class SuperSubscriptionCore extends Subscription {
 						$_POST["item_price"] = $price["price"];
 						$_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
 						$_POST["subscription_renewal"] = 1;
-						$cart = $SC->addToCart(["addToCart", $cart["cart_reference"]]);
+						$cart = $SC->addToNewInternalCart(["addToNewInternalCart", $cart["cart_reference"]]);
 						unset($_POST);
 
 						// $cart = $SC->addToNewInternalCart($item["id"], ["quantity" => 1]);
