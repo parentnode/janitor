@@ -380,8 +380,8 @@ class SubscriptionCore extends Model {
 			// item and user_id are valid
 			if($user_id && $item && $item["subscription_method"] && $item["subscription_method"]["duration"]) {
 				
-				// order_id was passed
-				if($order_id) {
+				// order_id was passed but item_id was not
+				if($order_id && $item_id == $org_item_id) {
 
 					// item has no price
 					// or item already has order_id
@@ -394,7 +394,7 @@ class SubscriptionCore extends Model {
 
 				}
 				// item_id was passed but order_id was not
-				elseif($item_id != $org_item_id) {
+				elseif($item_id != $org_item_id && !$order_id) {
 
 					// item has no price
 					if(!$item["prices"]) {
