@@ -563,14 +563,13 @@ class SuperShopCore extends Shop {
 			}
 		}
 		
-		
 		$price = $this->getPrice($item_id);
-		// item has a price (price can be zero)
-		if($price !== false) {
+		// user_id was passed and item has a price (price can be zero)
+		if($user_id && $price !== false) {
 
 			// create new internal cart
 			$_POST["user_id"] = $user_id;
-			$cart = $this->addCart(["addCart"], ["is_internal" => true]);
+			$cart = $this->addCart(["addCart"]);
 			unset($_POST);
 			$cart_reference = $cart["cart_reference"];
 			if($cart) {
@@ -1421,6 +1420,10 @@ class SuperShopCore extends Shop {
 
 			include_once("classes/users/superuser.class.php");
 			$UC = new SuperUser();
+			include_once("classes/users/supermember.class.php");
+			$MC = new SuperMember();
+			include_once("classes/shop/supersubscription.class.php");
+			$SuperSubscriptionClass = new SuperSubscription();
 
 			$order_id = $action[1];
 			$user_id = $action[2];
@@ -1448,13 +1451,13 @@ class SuperShopCore extends Shop {
 								$membership = $query->result(0);
 
 								// cancel membership - also deletes related subscription
-								$UC->cancelMembership(array("cancelMembership", $membership["user_id"], $membership["id"]));
+								$MC->cancelMembership(array("cancelMembership", $membership["user_id"], $membership["id"]));
 							}
 							// regular subscription
 							else {
 
 								// delete subscription
-								$UC->deleteSubscription(array("deleteSubscription", $subscription["user_id"], $subscription["id"]));
+								$SuperSubscriptionClass->deleteSubscription(array("deleteSubscription", $subscription["user_id"], $subscription["id"]));
 							}
 						}
 
