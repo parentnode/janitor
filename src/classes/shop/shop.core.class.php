@@ -824,17 +824,18 @@ class ShopCore extends Model {
 //			print $sql;
 			if($query->sql($sql)) {
 
-				// cart is ordinary
-				if(!$is_internal) {
-
-					// make sure cart reference is set for user
-					session()->value("cart_reference", $cart_reference);
-	
-					// add cookie for user
-					setcookie("cart_reference", $cart_reference, time()+60*60*24*60, "/");
-	
+				// cart is internal
+				if($is_internal) {
+					
+					return $this->getCarts(["cart_reference" => $cart_reference]);
 				}
 
+				// make sure cart reference is set for user
+				session()->value("cart_reference", $cart_reference);
+
+				// add cookie for user
+				setcookie("cart_reference", $cart_reference, time()+60*60*24*60, "/");
+				
 				// return cart object
 				return $this->getCart();
 				
