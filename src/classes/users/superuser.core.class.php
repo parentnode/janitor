@@ -335,7 +335,9 @@ class SuperUserCore extends User {
 
 			$membership = false;
 			if(defined("SITE_MEMBERS") && SITE_MEMBERS) {
-				$membership = $this->getMembers(["user_id" => $user_id]);
+				include_once("classes/users/supermember.class.php");
+				$MC = new SuperMember();
+				$membership = $MC->getMembers(["user_id" => $user_id]);
 			}
 
 
