@@ -256,7 +256,7 @@ class MemberCore extends Model {
 					$SubscriptionClass = new Subscription();
 	
 					// delete subscription
-					$SubscriptionClass->deleteSubscription($member["subscription_id"]);
+					$SubscriptionClass->deleteSubscription(["deleteSubscription", $member["subscription_id"]]);
 	
 	
 					global $page;
