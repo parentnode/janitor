@@ -6,6 +6,8 @@ global $model;
 $user_id = session()->value("user_id");
 $IC = new Items();
 $SC = new Shop();
+include_once("classes/shop/subscription.class.php");
+$SubscriptionClass = new Subscription();
 
 // get current user
 $item = $model->getUser();
@@ -14,7 +16,7 @@ $subscriptions = false;
 
 if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 
-	$subscriptions = $model->getSubscriptions();
+	$subscriptions = $SubscriptionClass->getSubscriptions();
 }
 
 ?>

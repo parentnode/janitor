@@ -3,11 +3,12 @@ global $action;
 global $model;
 $IC = new Items();
 $SC = new Shop();
+$MC = new Member();
 
 $user_id = session()->value("user_id");
 
 $user = $model->getUser();
-$member = $model->getMembership();
+$member = $MC->getMembership();
 $current_membership_price = $SC->getPrice($member["item_id"]);
 
 $memberships = $IC->getItems(array("itemtype" => "membership", "status" => 1, "extend" => array("subscription_method" => true, "prices" => true)));

@@ -2,12 +2,16 @@
 global $action;
 global $model;
 $SC = new Shop();
+include_once("classes/users/supermember.class.php");
+$MC = new SuperMember();
+include_once("classes/shop/subscription.class.php");
+$SubscriptionClass = new Subscription();
 
 $user_id = $action[2];
 
 
 $user = $model->getUsers(array("user_id" => $user_id));
-$membership = $model->getMembers(array("user_id" => $user_id));
+$membership = $MC->getMembers(array("user_id" => $user_id));
 
 
 // Order history
@@ -21,7 +25,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 
 // FOR TESTING EMAIL SENDING
-// $subscription = $model->getSubscriptions(array("subscription_id" => $membership["subscription_id"]));
+// $subscription = $SubscriptionClass->getSubscriptions(array("subscription_id" => $membership["subscription_id"]));
 // $IC = new Items();
 // $mem = $IC->typeObject("membership");
 // $mem->subscribed($subscription);
@@ -47,7 +51,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		<h2>Membership details</h2>
 
 		<? if($membership["subscription_id"]):
-			$subscription = $model->getSubscriptions(array("subscription_id" => $membership["subscription_id"])); ?>
+			$subscription = $SubscriptionClass->getSubscriptions(array("subscription_id" => $membership["subscription_id"])); ?>
 		<h3><span>#<?= $membership["id"] ?></span> - <?= $membership["item"]["name"] ?></h3>
 		<? else: ?>
 		<h3><span>#<?= $membership["id"] ?></span> - Inactive membership</h3>

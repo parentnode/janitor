@@ -2,13 +2,15 @@
 global $action;
 global $model;
 $IC = new Items();
+include_once("classes/shop/subscription.class.php");
+$SubscriptionClass = new Subscription();
 
 
 $user_id = $action[2];
 $user = $model->getUsers(array("user_id" => $user_id));
 
 $subscription_id = $action[3];
-$subscription = $model->getSubscriptions(array("subscription_id" => $subscription_id, "extend" => array("prices" => true, "subscription_method" => true)));
+$subscription = $SubscriptionClass->getSubscriptions(array("subscription_id" => $subscription_id, "extend" => array("prices" => true, "subscription_method" => true)));
 
 $payment_methods = $this->paymentMethods();
 $payment_method_options = $model->toOptions($payment_methods, "id", "name");

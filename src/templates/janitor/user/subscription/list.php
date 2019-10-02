@@ -2,13 +2,15 @@
 global $action;
 global $model;
 $SC = new Shop();
+include_once("classes/shop/subscription.class.php");
+$SubscriptionClass = new Subscription();
 
 
 $user_id = $action[2];
 
 
 $user = $model->getUsers(array("user_id" => $user_id));
-$subscriptions = $model->getSubscriptions(array("user_id" => $user_id));
+$subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_id));
 
 ?>
 <div class="scene i:scene defaultList userSubscriptions">

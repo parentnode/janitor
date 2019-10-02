@@ -3,6 +3,8 @@ global $action;
 global $model;
 $IC = new Items();
 $SC = new Shop();
+include_once("classes/users/supermember.class.php");
+$MC = new SuperMember();
 
 $memberships = $IC->getItems(array("itemtype" => "membership", "extend" => true));
 //print_r($memberships);
@@ -25,7 +27,7 @@ else if(count($action) == 2 && $memberships) {
 // session()->value("return_to_memberlist", $membership_id);
 
 
-$members = $model->getMembers($options);
+$members = $MC->getMembers($options);
 //print_r($members);
 ?>
 <div class="scene i:scene defaultList memberList">
@@ -39,9 +41,9 @@ $members = $model->getMembers($options);
 <?	if($memberships): ?>
 	<ul class="tabs">
 <?		foreach($memberships as $membership): ?>
-		<?= $HTML->link($membership["name"]. " (".$model->getMemberCount(array("item_id" => $membership["id"])).")", "/janitor/admin/user/members/list/".$membership["id"], array("wrapper" => "li.".($membership["id"] == $membership_id ? "selected" : ""))) ?>
+		<?= $HTML->link($membership["name"]. " (".$MC->getMemberCount(array("item_id" => $membership["id"])).")", "/janitor/admin/user/members/list/".$membership["id"], array("wrapper" => "li.".($membership["id"] == $membership_id ? "selected" : ""))) ?>
 <?		endforeach; ?>
-		<?= $HTML->link("All (".$model->getMemberCount().")", "/janitor/admin/user/members/list/0", array("wrapper" => "li.".($options === false ? "selected" : ""))) ?>
+		<?= $HTML->link("All (".$MC->getMemberCount().")", "/janitor/admin/user/members/list/0", array("wrapper" => "li.".($options === false ? "selected" : ""))) ?>
 	</ul>
 <?	endif; ?>
 

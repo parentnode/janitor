@@ -1481,8 +1481,10 @@ class JanitorHTML {
 		if($page->validatePath("/janitor/admin/user/members/list")) {
 
 			include_once("classes/users/superuser.class.php");
+			include_once("classes/users/supermember.class.php");
 			$model = new SuperUser();
 			$IC = new Items();
+			$MC = new SuperMember();
 
 			$memberships = $IC->getItems(array("itemtype" => "membership", "status" => 1, "extend" => true));
 
@@ -1496,7 +1498,7 @@ class JanitorHTML {
 					$_ .= '<li class="'.superNormalize($membership["name"]).'">';
 					$_ .= '<h3>';
 					$_ .= '<a href="/janitor/admin/user/members/list/'.$membership["id"].'">'.$membership["name"].'</a> ';
-					$_ .= '<span class="count">'.$model->getMemberCount(array("item_id" => $membership["id"])).'</span>';
+					$_ .= '<span class="count">'.$MC->getMemberCount(array("item_id" => $membership["id"])).'</span>';
 					$_ .= '<h3>';
 					$_ .= '</li>';
 				}

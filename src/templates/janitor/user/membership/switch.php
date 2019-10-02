@@ -3,13 +3,15 @@ global $action;
 global $model;
 $IC = new Items();
 $SC = new Shop();
+include_once("classes/users/supermember.class.php");
+$MC = new SuperMember();
 
 
 $user_id = $action[2];
 
 
 $user = $model->getUsers(array("user_id" => $user_id));
-$member = $model->getMembers(array("user_id" => $user_id));
+$member = $MC->getMembers(array("user_id" => $user_id));
 
 $memberships = $IC->getItems(array("itemtype" => "membership", "status" => 1, "extend" => array("subscription_method" => true, "prices" => true)));
 
