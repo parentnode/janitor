@@ -340,6 +340,12 @@ class ShopCore extends Model {
 		));
 
 
+		// is_internal flag for cart
+		$this->addToModel("is_internal", [
+			"type" => "boolean",
+		]);
+
+
 		parent::__construct();
 	}
 
