@@ -281,7 +281,7 @@ class ItemsCore {
 			}
 
 
-			// TODO: Implement ratings and comments
+			// TODO: Implement ratings
 			// NOT IMPLEMENTED YET
 			if($all || $ratings) {
 				$item["ratings"] = $this->getRatings(array("item_id" => $item["id"]));
@@ -910,7 +910,7 @@ class ItemsCore {
 
 		// if there is no sindex to start from
 		// lists the latest N posts
-		if(!$sindex) {
+		if(!$sindex || !$this->getIdFromSindex($sindex)) {
 
 			// simply add limit to items query
 			$pattern["limit"] = $limit;
@@ -980,10 +980,10 @@ class ItemsCore {
 		}
 
 		// find indexes and ids for next/prev
-		$first_id = (isset($range_items) && isset($range_items[0])) ? $range_items[0]["id"] : false;
-		$first_sindex = (isset($range_items) && isset($range_items[0])) ? $range_items[0]["sindex"] : false;
-		$last_id = (isset($range_items) && isset($range_items[count($range_items)-1])) ? $range_items[count($range_items)-1]["id"] : false;
-		$last_sindex = (isset($range_items) && isset($range_items[count($range_items)-1])) ? $range_items[count($range_items)-1]["sindex"] : false;
+		$first_id = (isset($range_items) && $range_items && isset($range_items[0])) ? $range_items[0]["id"] : false;
+		$first_sindex = (isset($range_items) && $range_items && isset($range_items[0])) ? $range_items[0]["sindex"] : false;
+		$last_id = (isset($range_items) && $range_items && isset($range_items[count($range_items)-1])) ? $range_items[count($range_items)-1]["id"] : false;
+		$last_sindex = (isset($range_items) && $range_items && isset($range_items[count($range_items)-1])) ? $range_items[count($range_items)-1]["sindex"] : false;
 
 		// look for next/prev item availability
 		$next = $last_id ? $this->getNext($last_id, array("items" => $items, "count" => $limit)) : false;
@@ -1067,32 +1067,88 @@ class ItemsCore {
 	}
 
 
-	// find media with matching variant or simply first media
-	// removes media from media stack (to make it easier to loop through remaining media later)
-	function sliceMedia(&$item, $variant=false) {
+	// find media with matching variant or simply first media (png/jpg/gif)
+	// Does not modify item[mediae] array
+	function getFirstMedia($item, $variant=false) {
 
 		$media = false;
 
-		if(!$variant && isset($item["mediae"]) && $item["mediae"]) {
-			$media = array_shift($item["mediae"]);
+		// No variant, use first media
+		if(!$variant) {
+			if(isset($item["mediae"]) && $item["mediae"]) {
+				foreach($item["mediae"] as $m) {
+					if(preg_match("/^(png|gif|jpg)$/", $m["format"])) {
+						$media = $m;
+						break;
+					}
+				}
+			}
 		}
-		else if(isset($item[$variant])) {
-
-			$media = $item[$variant];
-			unset($item[$variant]);
+		// Find specific variant
+		else if(isset($item["mediae"]) && $item["mediae"] && isset($item["mediae"][$variant])) {
+			$media = $item["mediae"][$variant];
 		}
+		// Find first of specific variant mediae
 		else if(isset($item["mediae"]) && $item["mediae"]) {
-			foreach($item["mediae"] as $index => $media_item) {
-				if($index == $variant) {
-
-					$media = $item["mediae"][$variant];
-					unset($item["mediae"][$variant]);
+			foreach($item["mediae"] as $m) {
+				if(preg_match("/^".$variant."-/", $m["variant"]) && preg_match("/^(png|gif|jpg)$/", $m["format"])) {
+					$media = $m;
+					break;
 				}
 			}
 		}
 
 		return $media;
 	}
+
+	// find media with matching variant or simply first media
+	// removes media from media stack (to make it easier to loop through remaining media later)
+	function sliceMediae(&$item, $variant="mediae") {
+
+		$media = false;
+
+		// Find specific variant
+		if(isset($item["mediae"]) && $item["mediae"] && isset($item["mediae"][$variant])) {
+			$media = $item["mediae"][$variant];
+			unset($item["mediae"][$variant]);
+		}
+		// Find first of specific variant mediae
+		else if(isset($item["mediae"]) && $item["mediae"]) {
+			foreach($item["mediae"] as $m) {
+				if(preg_match("/^".$variant."-/", $m["variant"]) && preg_match("/^(png|gif|jpg)$/", $m["format"])) {
+					$media = $m;
+					unset($item["mediae"][$m["variant"]]);
+					break;
+				}
+			}
+		}
+
+		return $media;
+	}
+
+	// Filter mediae array by variants
+	function filterMediae($item, $variant = "mediae") {
+
+		$mediae = [];
+
+		// Is variant specific
+		if(isset($item["mediae"]) && $item["mediae"] && isset($item["mediae"][$variant])) {
+			$media = $item["mediae"][$variant];
+			return [$media];
+		}
+		// Look for variant collection mediae
+		else if(isset($item["mediae"]) && $item["mediae"]) {
+			foreach($item["mediae"] as $media) {
+				if(preg_match("/^".$variant."-/", $media["variant"])) {
+					array_push($mediae, $media);
+				}
+			}
+		}
+
+		return $mediae;
+	}
+
+
 
 
 	// OWNER
