@@ -40,25 +40,31 @@ class ItemtypeCore extends Model {
 
 
 			// delete item + itemtype + files
-			if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
+			if(isset($this->status_states[$status]) && $query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
 				$query->sql("UPDATE ".UT_ITEMS." SET status = $status WHERE id = $item_id");
 
 				message()->addMessage("Item ".$this->status_states[$status]);
+
+				// add log
+				$page->addLog("ItemType->status ($item_id, $status)");
+
+
 				return true;
 			}
 		}
 
-		message()->addMessage("Item could not be ".$this->status_states[$status], array("type" => "error"));
+		
+		message()->addMessage("Item status could not be changed", array("type" => "error"));
 		return false;
 
 	}
 
 	/**
-	* Chacnge status of Item
-	* TODO: Implement data validation before allowing enabling 
+	* Change owner of Item
 	*/
-	# /§controller#/#itemtype#/owner/#item_id#/#new_owner#
+	# /§controller#/#itemtype#/owner/#item_id#
 	function owner($action) {
+		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -73,12 +79,23 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 
 
-			// delete item + itemtype + files
-			if($query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
+			// Update item owner
+			if(
+				$query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")
+					&&
+				$query->sql("SELECT id FROM ".SITE_DB.".users WHERE id = $new_owner")
+				
+			) {
+
 				$sql = "UPDATE ".UT_ITEMS." SET user_id = $new_owner WHERE id = $item_id";
 				$query->sql($sql);
 
 				message()->addMessage("Item owner updated");
+
+
+				// add log
+				$page->addLog("ItemType->owner ($item_id, $new_owner)");
+
 				return true;
 			}
 		}

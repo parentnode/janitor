@@ -460,8 +460,12 @@ class HTMLCore {
 					// add brackets for file input - backend is designed to handle files in array, even if there is just one
 					$att_name = $this->attribute("name", $name . "[]");
 
+					// Create accept attribute
+					$allowed_formats = $this->getProperty($name, "allowed_formats");
+					$att_accept = $this->attribute("accept", $allowed_formats ? ".".implode(",.", explode(",", $allowed_formats)) : "");
+
 					// Create file-input
-					$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_multiple.' />';
+					$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_multiple.$att_accept.' />';
 
 					// List files belonging to this input
 					$_ .= '<ul class="filelist">';
