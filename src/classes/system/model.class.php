@@ -730,7 +730,7 @@ class Model extends HTML {
 	// - audio
 	// - other
 	function identifyUploads($name) {
-		// debug(["identifyUploads: $name"]);
+		// debug(["identifyUploads: $name", $_FILES]);
 
 		$uploads = array();
 
