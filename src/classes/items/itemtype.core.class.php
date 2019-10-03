@@ -805,6 +805,7 @@ class ItemtypeCore extends Model {
 					unset($_POST);
 
 
+					message()->resetMessages();
 					message()->addMessage("Item duplicated");
 
 					// get and return new device (id will be used to redirect to new item page)
@@ -816,7 +817,8 @@ class ItemtypeCore extends Model {
 			}
 
 		}
-
+		
+		message()->resetMessages();
 		message()->addMessage("Item could not be duplicated", ["type" => "error"]);
 		return false;
 	}
