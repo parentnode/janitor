@@ -892,9 +892,46 @@ class SuperShopCore extends Shop {
 		return false;
 	}
 
+	/**
+	 * Update order comment
+	 * 
+	 * /janitor/admin/shop/updateOrder/#order_id#
+	 * Required in $_POST: order_comment
+	 *
+	 * @return array Order object. False on error.
+	 */
+	function updateOrderComment($action) {
 
+		// get posted values to make them available for models
+		$this->getPostedEntities();
 
-			
+		// values are valid
+		if(count($action) == 2 && $this->validateList(["order_comment"])) {
+
+			$query = new Query();
+
+			$order_id = $action[1];
+			$order = $this->getOrders(array("order_id" => $order_id));
+
+			// order is still pending
+			if($order && $order["status"] == 0) {
+				
+				$order_comment = $this->getProperty("order_comment", "value");
+
+				// update order comment
+				$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP, comment='$order_comment' WHERE id=$order_id";
+				if($query->sql($sql)) {
+
+					message()->addMessage("Order comment updated");
+					return $this->getOrders(array("order_id" => $order_id));
+				}
+			}
+		}
+
+		message()->addMessage("Order comment could not be updated", array("type" => "error"));
+		return false;
+
+	}
 
 
 
