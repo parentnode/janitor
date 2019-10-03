@@ -1520,7 +1520,7 @@ class SuperShopCore extends Shop {
 			$this->deleteCreditnoteNumber($creditnote_no);
 		}
 
-		message()->addMessage("Order could not cancelled", array("type" => "error"));
+		message()->addMessage("Order could not be cancelled", array("type" => "error"));
 		return false;
 	}
 
