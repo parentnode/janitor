@@ -6,11 +6,12 @@ Util.Objects["defaultSubscriptionmethod"] = new function() {
 		// CMS interaction urls
 		div.csrf_token = div.getAttribute("data-csrf-token");
 
-		// add tag form
+		// add form
 		div._sm_form = u.qs("form", div);
 		div._sm_change_div = u.qs("div.change_subscription_method", div);
 
-		div._sm_setting = u.qs("dl.settings dd.subscription_method", div);
+		// add status indicator
+		div._sm_setting = u.qs("dl.info dd.subscription_method", div);
 
 
 		if(div._sm_form) {
@@ -37,7 +38,7 @@ Util.Objects["defaultSubscriptionmethod"] = new function() {
 
 
 
-			// new comment submitted
+			// new subscription method submitted
 			div._sm_form.submitted = function(iN) {
 
 				this.response = function(response) {
