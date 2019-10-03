@@ -706,6 +706,7 @@ class SuperShopCore extends Shop {
 		// REST parameters are valid
 		if(count($action) == 3) {
 
+			include_once("classes/users/superuser.class.php");
 			$query = new Query();
 			$UC = new SuperUser();
 			$IC = new Items();
