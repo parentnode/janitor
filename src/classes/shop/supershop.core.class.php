@@ -1470,9 +1470,11 @@ class SuperShopCore extends Shop {
 			$order = $this->getOrders(array("order_id" => $order_id));
 			if($order && ($order["status"] == 0 || $order["status"] == 1)) {
 
-//				print_r($creditnote_no);
+				// create credit note
+				$creditnote_no = $this->getNewCreditnoteNumber(["order_id" => $order_id]);
 
 				// map order to new credit note no
+				$sql = "UPDATE ".$this->db_cancelled_orders." SET order_id = $order_id WHERE creditnote_no = '".$creditnote_no."'";
 				if($query->sql($sql)) {
 
 					// get all subscriptions related to order
