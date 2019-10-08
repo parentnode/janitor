@@ -357,7 +357,7 @@ class SuperMemberCore extends Member {
 	function updateMembership($_options = false) {
 		
 		include_once("classes/shop/supersubscription.class.php");
-		$SuperSubscriptionClass = new Subscription();
+		$SuperSubscriptionClass = new SuperSubscription();
 		$query = new Query();
 		
 		$user_id = false;
@@ -379,10 +379,11 @@ class SuperMemberCore extends Member {
 			
 			// Add subscription id if passed
 			if($subscription_id) {
-				
+
 				// make sure subscription is valid
 				$subscription = $SuperSubscriptionClass->getSubscriptions(["subscription_id" => $subscription_id, "user_id" => $user_id]);
 				if($subscription && $subscription["user_id"] == $user_id) {
+					
 					$sql .= ", subscription_id = $subscription_id";
 				}
 				
@@ -430,6 +431,7 @@ class SuperMemberCore extends Member {
 
 			include_once("classes/shop/supersubscription.class.php");
 			$SuperSubscriptionClass = new SuperSubscription();
+			include_once("classes/users/superuser.class.php");
 			$UC = new SuperUser();
 			$query = new Query();
 	
@@ -484,12 +486,13 @@ class SuperMemberCore extends Member {
 			$IC = new Items();
 			include_once("classes/shop/supershop.class.php");
 			$SC = new SuperShop();
+			include_once("classes/users/superuser.class.php");
 			$UC = new SuperUser();
 
 			$user_id = $action[1];
 			$item_id = $this->getProperty("item_id", "value");
 	
-			// user exists and has active membership
+			// user exists and has membership
 			$user = $UC->getUsers(["user_id" => $user_id]);
 			$member = $this->getMembers(["user_id" => $user_id]);
 			if($user && $member && $member["user_id"] == $user_id) {
@@ -536,6 +539,7 @@ class SuperMemberCore extends Member {
 
 			include_once("classes/shop/supershop.class.php");
 			include_once("classes/shop/supersubscription.class.php");
+			include_once("classes/users/superuser.class.php");
 			$SC = new SuperShop();
 			$UC = new SuperUser();
 			$SuperSubscriptionClass = new SuperSubscription();

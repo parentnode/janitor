@@ -367,11 +367,11 @@ class SuperShopCore extends Shop {
 				$currency = $this->getProperty("currency", "value");
 				$country = $this->getProperty("country", "value");
 
-
-
 				$billing_address_id = $this->getProperty("billing_address_id", "value");
 				$delivery_address_id = $this->getProperty("delivery_address_id", "value");
 
+				// create base data update sql
+				$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP";
 
 				// update currency
 				if($currency) {
@@ -896,10 +896,12 @@ class SuperShopCore extends Shop {
 	/**
 	 * Update order comment
 	 * 
+	 * @param array $action
+	 * 
 	 * /janitor/admin/shop/updateOrder/#order_id#
 	 * Required in $_POST: order_comment
 	 *
-	 * @return array Order object. False on error.
+	 * @return array|false Order object. False on error.
 	 */
 	function updateOrderComment($action) {
 
@@ -1556,7 +1558,7 @@ class SuperShopCore extends Shop {
 			$order_id = $action[1];
 			$user_id = $action[2];
 
-			// check overstatus
+			// check order status
 			$order = $this->getOrders(array("order_id" => $order_id));
 			if($order && ($order["status"] == 0 || $order["status"] == 1)) {
 
@@ -1593,6 +1595,8 @@ class SuperShopCore extends Shop {
 
 					}
 
+					// update order status and create credit note
+					$sql = "UPDATE ".$this->db_orders." SET status = 3 WHERE id = ".$order_id." AND user_id = ".$user_id;
 					if($query->sql($sql)) {
 
  						global $page;

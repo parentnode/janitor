@@ -142,6 +142,7 @@ class TypeMembership extends Itemtype {
 					$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription_id]);
 					unset($_POST);
 				}
+				// existing membership is inactive
 				else {
 
 					// add subscription
@@ -196,9 +197,6 @@ class TypeMembership extends Itemtype {
 	function shipped($order_item, $order) {
 
 		$order_item_item_id = $order_item["id"];		
-		print "\n<br>###$order_item_item_id### shipped (membership)\n<br>";
-
-
 
 		global $page;
 		$page->addLog("membership->shipped: order_id:".$order["id"]);
