@@ -934,6 +934,96 @@ class SuperShopCore extends Shop {
 
 	}
 
+	/**
+	 * Update order addresses (billing- or delivery-)
+	 *
+	 * /janitor/admin/shop/updateOrderAddresses/#order_id#
+	 * 
+	 * @param array $action
+	 * @return array|false Order object. False on error.
+	 */
+	function updateOrderAddresses($action) {
+
+		// get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// values are valid
+		if(count($action) == 2) {
+			
+			$query = new Query();
+			include_once("classes/users/superuser.class.php");
+			$UC = new SuperUser();
+
+			$order_id = $action[1];
+			$order = $this->getOrders(array("order_id" => $order_id));
+
+			// order is still pending
+			if($order && $order["status"] == 0) {
+
+				$delivery_address_id = $this->getProperty("delivery_address_id", "value");
+				$billing_address_id = $this->getProperty("billing_address_id", "value");
+
+				// create base data update sql
+				$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP";
+
+				// add delivery address
+				if($delivery_address_id) {
+					$delivery_address = $UC->getAddresses(array("address_id" => $delivery_address_id));
+					if($delivery_address) {
+						$sql .= ", delivery_name='".prepareForDB($delivery_address["address_name"])."'";
+						$sql .= ", delivery_att='".prepareForDB($delivery_address["att"])."'";
+						$sql .= ", delivery_address1='".prepareForDB($delivery_address["address1"])."'";
+						$sql .= ", delivery_address2='".prepareForDB($delivery_address["address2"])."'";
+						$sql .= ", delivery_city='".prepareForDB($delivery_address["city"])."'";
+						$sql .= ", delivery_postal='".prepareForDB($delivery_address["postal"])."'";
+						$sql .= ", delivery_state='".prepareForDB($delivery_address["state"])."'";
+						$sql .= ", delivery_country='".prepareForDB($delivery_address["country"])."'";
+					}
+				}
+
+				// add billing address
+				if($billing_address_id) {
+					$billing_address = $UC->getAddresses(array("address_id" => $billing_address_id));
+					if($billing_address) {
+						$sql .= ", billing_name='".prepareForDB($billing_address["address_name"])."'";
+						$sql .= ", billing_att='".prepareForDB($billing_address["att"])."'";
+						$sql .= ", billing_address1='".prepareForDB($billing_address["address1"])."'";
+						$sql .= ", billing_address2='".prepareForDB($billing_address["address2"])."'";
+						$sql .= ", billing_city='".prepareForDB($billing_address["city"])."'";
+						$sql .= ", billing_postal='".prepareForDB($billing_address["postal"])."'";
+						$sql .= ", billing_state='".prepareForDB($billing_address["state"])."'";
+						$sql .= ", billing_country='".prepareForDB($billing_address["country"])."'";
+					}
+				}
+				
+				// finalize sql
+				$sql .= " WHERE id=$order_id";
+				
+				if($query->sql($sql)) {
+
+					if($billing_address_id && $billing_address) {
+						message()->addMessage("Billing Address updated");
+					}
+					if($delivery_address_id && $delivery_address) {
+						message()->addMessage("Delivery Address updated");
+					}
+					
+					return $this->getOrders(array("order_id" => $order_id));
+				}
+			}
+		}
+
+		if($billing_address_id && $billing_address) {
+			message()->addMessage("Billing Address could not be updated", ["type" => "error"]);
+		}
+		if($delivery_address_id && $delivery_address) {
+			message()->addMessage("Delivery Address could not be updated", ["type" => "error"]);
+		}
+		
+		return false;
+
+	}
+
 
 
 	/**
@@ -1505,7 +1595,7 @@ class SuperShopCore extends Shop {
 
 					if($query->sql($sql)) {
 
-
+ 						global $page;
 						$page->addLog("SuperShop->cancelOrder: $order_id ($user_id)");
 
 						message()->addMessage("Order cancelled");
