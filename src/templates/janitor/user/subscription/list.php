@@ -94,7 +94,7 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 						"static" => true
 					)) ?>
 				<? else: ?>
-					<?= $HTML->link("View", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
+					<?= $HTML->link("View", "/janitor/admin/member/view/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 				<? endif; ?>
 				</ul>
 

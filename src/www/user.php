@@ -50,15 +50,6 @@ $access_item["/readstates"] = "/content";
 $access_item["/membership"] = "/content";
 
 
-// MEMBERS INTERFACE
-$access_item["/members"] = true;
-$access_item["/updateMembership"] = "/members";
-$access_item["/switchMembership"] = "/members";
-$access_item["/upgradeMembership"] = "/members";
-$access_item["/addNewMembership"] = "/members";
-$access_item["/cancelMembership"] = "/members";
-
-
 // ACCESS INTERFACE
 $access_item["/access"] = true;
 $access_item["/updateAccess"] = "/access";
@@ -150,21 +141,6 @@ if(is_array($action) && count($action)) {
 		}
 	}
 
-	// MEMBERSHIP
-	else if(preg_match("/^(membership)$/", $action[0]) && count($action) > 1) {
-
-		// MEMBER LIST/EDIT
-		if(preg_match("/^(view|upgrade|switch|cancel|add)$/", $action[1])) {
-
-			$page->page(array(
-				"type" => "janitor",
-				"page_title" => "Membership",
-				"templates" => "janitor/user/membership/".$action[1].".php"
-			));
-			exit();
-		}
-	}
-
 	// CONTENT/ORDERS/MAILLIST OVERVIEW
 	else if(preg_match("/^(content|orders|maillists)$/", $action[0]) && count($action) > 1) {
 		$page->page(array(
@@ -173,22 +149,6 @@ if(is_array($action) && count($action)) {
 			"templates" => "janitor/user/".$action[0].".php"
 		));
 		exit();
-	}
-
-	// MEMBERS
-	else if(preg_match("/^(members)$/", $action[0]) && count($action) > 1) {
-
-		// MEMBER LIST/EDIT
-		if(preg_match("/^(list|edit)$/", $action[1])) {
-
-			$page->page(array(
-				"type" => "janitor",
-				"body_class" => "members", 
-				"page_title" => "Members",
-				"templates" => "janitor/user/members/".$action[1].".php"
-			));
-			exit();
-		}
 	}
 
 

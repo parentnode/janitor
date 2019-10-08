@@ -2,16 +2,16 @@
 global $action;
 global $model;
 $SC = new Shop();
-include_once("classes/users/supermember.class.php");
-$MC = new SuperMember();
+include_once("classes/users/superuser.class.php");
+$UC = new SuperUser();
 include_once("classes/shop/subscription.class.php");
 $SubscriptionClass = new Subscription();
 
-$user_id = $action[2];
+$user_id = $action[1];
 
 
-$user = $model->getUsers(array("user_id" => $user_id));
-$membership = $MC->getMembers(array("user_id" => $user_id));
+$user = $UC->getUsers(array("user_id" => $user_id));
+$membership = $model->getMembers(array("user_id" => $user_id));
 
 
 // Order history
@@ -38,7 +38,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	<ul class="actions">
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$user["user_group_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
 	<? if($membership): ?>
-		<?= $HTML->link("Members", "/janitor/admin/user/members/list/".$membership["item_id"], array("class" => "button", "wrapper" => "li.members")); ?>
+		<?= $HTML->link("Members", "/janitor/admin/member/list/".$membership["item_id"], array("class" => "button", "wrapper" => "li.members")); ?>
 	<? endif; ?>
 	</ul>
 
@@ -176,7 +176,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 				- cancel the existing membership subscription and add a new one, starting today.
 			</p>
 			<ul class="actions">
-				<?= $HTML->link("New membership", "/janitor/admin/user/membership/switch/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
+				<?= $HTML->link("New membership", "/janitor/admin/member/switch/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
 			</ul>
 		</div>
 
@@ -187,7 +187,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 				- adds an order for the price difference and maintains the current renewal cyclus.
 			</p>
 			<ul class="actions">
-				<?= $HTML->link("Upgrade membership", "/janitor/admin/user/membership/upgrade/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
+				<?= $HTML->link("Upgrade membership", "/janitor/admin/member/upgrade/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
 			</ul>
 		</div>
 		<? endif; ?>
@@ -203,11 +203,11 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		</p>
 
 		<ul class="actions">
-			<?= $JML->oneButtonForm("Cancel membership", "/janitor/admin/user/cancelMembership/".$user_id."/".$membership["id"], array(
+			<?= $JML->oneButtonForm("Cancel membership", "/janitor/admin/member/cancelMembership/".$user_id."/".$membership["id"], array(
 				"confirm-value" => "Confirm cancellation",
 				"wrapper" => "li.cancel",
 				"class" => "secondary",
-				"success-location" => "/janitor/admin/user/membership/view/".$user_id
+				"success-location" => "/janitor/admin/member/view/".$user_id
 			)) ?>
 		</ul>
 
@@ -225,7 +225,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	<div class="add i:collapseHeader">
 		<h2>Add membership</h2>
 		<ul class="actions">
-			<?= $HTML->link("Add membership", "/janitor/admin/user/membership/add/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
+			<?= $HTML->link("Add membership", "/janitor/admin/member/add/".$user_id, array("class" => "button", "wrapper" => "li.edit")) ?>
 		</ul>
 	</div>
 

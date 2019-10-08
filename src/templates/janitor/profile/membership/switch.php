@@ -33,7 +33,7 @@ foreach($memberships as $membership) {
 
 	<div class="item">
 		<h2>Switch to a new membership</h2>
-		<?= $model->formStart("/janitor/admin/profile/switchMembership", array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/profile/membership/switchMembership", array("class" => "i:defaultNew labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("item_id", array(
 					"label" => "Select a new membership",

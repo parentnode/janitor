@@ -33,7 +33,7 @@ foreach($memberships as $membership) {
 <? if(count($membership_options)): ?>
 	<div class="item">
 		<h2>Upgrade your existing membership</h2>
-		<?= $model->formStart("/janitor/admin/profile/upgradeMembership", array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/profile/membership/upgradeMembership", array("class" => "i:defaultNew labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("item_id", array(
 					"label" => "Select a new membership",

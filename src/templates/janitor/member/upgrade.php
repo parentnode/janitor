@@ -3,13 +3,13 @@ global $action;
 global $model;
 $IC = new Items();
 $SC = new Shop();
-include_once("classes/users/supermember.class.php");
-$MC = new SuperMember();
+include_once("classes/users/superuser.class.php");
+$UC = new SuperUser();
 
-$user_id = $action[2];
+$user_id = $action[1];
 
-$user = $model->getUsers(array("user_id" => $user_id));
-$member = $MC->getMembers(array("user_id" => $user_id));
+$user = $UC->getUsers(array("user_id" => $user_id));
+$member = $model->getMembers(array("user_id" => $user_id));
 $current_membership_price = $SC->getPrice($member["item_id"]);
 
 $memberships = $IC->getItems(array("itemtype" => "membership", "status" => 1, "extend" => array("subscription_method" => true, "prices" => true)));
@@ -28,13 +28,13 @@ foreach($memberships as $membership) {
 	<h2><?= $user["nickname"] ?> / <?= $member["item"]["name"] ?></h2>
 
 	<ul class="actions">
-		<?= $HTML->link("Back", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button", "wrapper" => "li.membership")); ?>
+		<?= $HTML->link("Back", "/janitor/admin/member/view/".$user_id, array("class" => "button", "wrapper" => "li.membership")); ?>
 	</ul>
 
 <? if(count($membership_options)): ?>
 	<div class="item">
 		<h2>Upgrade your existing membership</h2>
-		<?= $model->formStart("/janitor/admin/user/upgradeMembership/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/member/upgradeMembership/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("item_id", array(
 					"label" => "Select a new membership",
@@ -50,7 +50,7 @@ foreach($memberships as $membership) {
 			</p>
 
 			<ul class="actions">
-				<?= $model->link("Cancel", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->link("Cancel", "/janitor/admin/member/view/".$user_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.update")) ?>
 			</ul>
 		<?= $model->formEnd() ?>

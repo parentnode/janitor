@@ -35,7 +35,7 @@ endif; ?>
 					<?= $HTML->link("Memberships", "/janitor/admin/membership/list", array("wrapper" => "li.membership")) ?>
 					<? endif; ?>
 
-					<?= $HTML->link("Members", "/janitor/admin/user/members/list", array("wrapper" => "li.members")) ?>
+					<?= $HTML->link("Members", "/janitor/admin/member/list", array("wrapper" => "li.members")) ?>
 				</ul>
 			</li>
 <? endif; ?>
