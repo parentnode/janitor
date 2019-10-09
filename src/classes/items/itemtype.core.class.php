@@ -28,6 +28,7 @@ class ItemtypeCore extends Model {
 	*/
 	# /janitor/[admin/]#itemtype#/status/#item_id#/#new_status#
 	function status($action) {
+		global $page;
 
 		if(count($action) == 3) {
 
@@ -809,7 +810,7 @@ class ItemtypeCore extends Model {
 							if($model->getProperty($property, "type") === "html") {
 
 								// Look for media div's
-								preg_match_all("/\<div class\=\"(media|file) item_id\:[\d]+ variant\:HTML-[A-Za-z0-9]+ name/", $value, $mediae_matches);
+								preg_match_all("/\<div class\=\"(media|file) item_id\:[\d]+ variant\:HTMLEDITOR-[A-Za-z0-9\-_]+ name/", $value, $mediae_matches);
 								if($mediae_matches) {
 
 									// Loop over media div's
@@ -817,7 +818,7 @@ class ItemtypeCore extends Model {
 
 										// debug($media_match);
 
-										preg_match("/(file|media) item_id\:([\d]+) variant\:(HTML-[A-Za-z0-9]+)/", $media_match, $media_details);
+										preg_match("/(file|media) item_id\:([\d]+) variant\:(HTMLEDITOR-[A-Za-z0-9\-_]+)/", $media_match, $media_details);
 										if($media_details) {
 											// Get item_id and variant for each embedded media
 											list(,$type, $old_item_id, $old_variant) = $media_details;
@@ -829,7 +830,7 @@ class ItemtypeCore extends Model {
 												$media = $query->result(0);
 
 
-												$new_variant = "HTML-".randomKey(8);
+												$new_variant = "HTMLEDITOR-".$property."-".randomKey(8);
 
 
 												// Create insert statement
@@ -1061,47 +1062,65 @@ class ItemtypeCore extends Model {
 	// MEDIA 
 
 
-
 	// custom function to add media
-	// /janitor/[admin/]#itemtype#/addMedia/#item_id#
-	// TODO: implement itemtype checks
+	// /#controller#/addMedia/#item_id#/#variant#
 	function addMedia($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
 
-		if(count($action) == 2) {
+		if(count($action) == 3) {
 
 			$query = new Query();
 			$item_id = $action[1];
+			$variant = $action[2];
 
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
-			if($this->validateList(array("mediae"), $item_id)) {
-				$uploads = $this->upload($item_id, array("input_name" => "mediae", "auto_add_variant" => true));
-				if($uploads) {
 
-					$return_values = array();
+			// Attempt to upload (upload will validate input)
+			$uploads = $this->upload($item_id, [
+				"input_name" => $variant, 
+				"auto_add_variant" => true
+			]);
 
-					foreach($uploads as $upload) {
-						$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$upload["name"]."', '".$upload["format"]."', '".$upload["variant"]."', '".$upload["width"]."', '".$upload["height"]."', '".$upload["filesize"]."', 0)");
+			// Successful upload
+			if($uploads) {
 
-						$return_values[] = array(
-							"item_id" => $item_id, 
-							"media_id" => $query->lastInsertId(), 
-							"name" => $upload["name"], 
-							"variant" => $upload["variant"], 
-							"format" => $upload["format"], 
-							"width" => $upload["width"], 
-							"height" => $upload["height"],
-							"filesize" => $upload["filesize"]
-						);
-					}
+				$return_values = array();
 
-					return $return_values;
+				foreach($uploads as $upload) {
+
+					$name = $upload["name"];
+					$variant = $upload["variant"];
+					$format = $upload["format"];
+					$width = $upload["width"];
+					$height = $upload["height"];
+					$filesize = $upload["filesize"];
+
+					// Add new assets
+					// $query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$upload["name"]."', '".$upload["format"]."', '".$upload["variant"]."', '".$upload["width"]."', '".$upload["height"]."', '".$upload["filesize"]."', 0)");
+					$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', ".($width ? "'$width'" : "DEFAULT").", ".($height ? "'$height'" : "DEFAULT").", '$filesize', 0)");
+
+					// return upload data in standard mediae array
+					$return_values[$upload["variant"]] = array(
+						"id" => $query->lastInsertId(), 
+						"item_id" => $item_id, 
+						"name" => $upload["name"], 
+						"variant" => $upload["variant"], 
+						"format" => $upload["format"], 
+						"width" => $upload["width"], 
+						"height" => $upload["height"],
+						"filesize" => $upload["filesize"]
+					);
+
 				}
+
+				// return upload data
+				return ["mediae" => $return_values];
 			}
+
 		}
 
 		return false;
@@ -1109,8 +1128,7 @@ class ItemtypeCore extends Model {
 
 
 	// custom function to add single media
-	// /janitor/[admin/]#itemtype#/addSingleMedia/#item_id#/#variant#
-	// TODO: implement itemtype checks
+	// /#controller#/addSingleMedia/#item_id#/#variant#
 	function addSingleMedia($action) {
 
 		// Get posted values to make them available for models
@@ -1125,33 +1143,39 @@ class ItemtypeCore extends Model {
 
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
-			// Image main_media
-			if($this->validateList(array($variant), $item_id)) {
-				$uploads = $this->upload($item_id, array("input_name" => $variant, "variant" => $variant));
-				if($uploads) {
+			// Attempt to upload (upload will validate input)
+			$uploads = $this->upload($item_id, [
+				"input_name" => $variant
+			]);
 
-					$name = $uploads[0]["name"];
-					$variant = $uploads[0]["variant"];
-					$format = $uploads[0]["format"];
-					$width = isset($uploads[0]["width"]) ? $uploads[0]["width"] : 0;
-					$height = isset($uploads[0]["height"]) ? $uploads[0]["height"] : 0;
-					$filesize = $uploads[0]["filesize"];
+			// Successful upload
+			if($uploads) {
 
-					$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$variant."'");
-					$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$name."', '".$format."', '".$variant."', '".$width."', '".$height."', '".$filesize."', 0)");
+				$name = $uploads[0]["name"];
+				$variant = $uploads[0]["variant"];
+				$format = $uploads[0]["format"];
+				$width = $uploads[0]["width"];
+				$height = $uploads[0]["height"];
+				$filesize = $uploads[0]["filesize"];
 
-					return array(
-						"item_id" => $item_id, 
-						"media_id" => $query->lastInsertId(), 
-						"name" => $name,
-						"variant" => $variant, 
-						"format" => $format, 
-						"width" => $width,
-						"height" => $height,
-						"filesize" => $filesize
-					);
-				}
+				// Replace assets
+				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '$variant'");
+				$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', ".($width ? "'$width'" : "DEFAULT").", ".($height ? "'$height'" : "DEFAULT").", '$filesize', 0)");
+
+				// return upload data in standard mediae array
+				return ["mediae" => [$variant => [
+					"id" => $query->lastInsertId(), 
+					"item_id" => $item_id, 
+					"name" => $name,
+					"variant" => $variant, 
+					"format" => $format, 
+					"width" => $width,
+					"height" => $height,
+					"filesize" => $filesize
+				]]];
+
 			}
+
 		}
 
 		return false;
@@ -1161,6 +1185,7 @@ class ItemtypeCore extends Model {
 	// delete image - 3 parameters exactly
 	// /janitor/[admin/]#itemtype#/deleteImage/#item_id#/#variant#
 	// TODO: implement itemtype checks
+	// DEBATE: PROS/CONS of itemtype checks
 	function deleteMedia($action) {
 
 		if(count($action) == 3) {
@@ -1178,7 +1203,7 @@ class ItemtypeCore extends Model {
 				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
 				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
 
-				message()->addMessage("Media deleted in model");
+				message()->addMessage("Media deleted");
 				return true;
 			}
 		}
@@ -1186,7 +1211,6 @@ class ItemtypeCore extends Model {
 		message()->addMessage("Media could not be deleted", array("type" => "error"));
 		return false;
 	}
-
 
 
 	// Update media name
@@ -1247,26 +1271,15 @@ class ItemtypeCore extends Model {
 	// upload to item_id/variant
 	// checks content of $_FILES, looks for uploaded file where type matches $type and uploads
 	// supports video, audio, image, pdf
-	function upload($item_id, $_options) {
+	function upload($item_id, $_options = false) {
 
-		$fs = new FileSystem();
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
 
-		$_input_name = "files";               // input name to check for files (default is files)
-
-		$_variant = false;                    // variantname to save files under
-		$proportion = false;                  // specific proportion for images and videos
-		$width = false;                       // specific file width for images and videos
-		$height = false;                      // specific file height for images and videos
-
-		$min_height = false;                  // specific file min-height for images and videos
-		$max_height = false;                  // specific file max-height for images and videos
-		$min_width = false;                   // specific file min-width for images and videos
-		$max_width = false;                   // specific file max-width for images and videos
-
-		$min_bitrate = false;                 // specific file max-height for images and videos
-
-		$formats = false;                     // jpg,png,git,mov,mp4,pdf,etc
+		// Default values
+		$input_name = "mediae";               // input name to check for files (default is mediae)
+		$variant = false;                     // variantname to save files under
 
 		$auto_add_variant = false;            // automatically add variant-key for each file
 
@@ -1274,218 +1287,95 @@ class ItemtypeCore extends Model {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "input_name"          : $_input_name          = $_value; break;
 
-					case "variant"             : $_variant             = $_value; break;
-					case "proportion"          : $proportion           = $_value; break;
-					case "width"               : $width                = $_value; break;
-					case "height"              : $height               = $_value; break;
-					case "min_width"           : $min_width            = $_value; break;
-					case "min_height"          : $min_height           = $_value; break;
-					case "max_width"           : $max_width            = $_value; break;
-					case "max_height"          : $max_height           = $_value; break;
+					case "input_name"          : $input_name          = $_value; break;
+					case "variant"             : $variant             = $_value; break;
 
-					case "formats"             : $formats              = $_value; break;
-
-					case "auto_add_variant"    : $auto_add_variant     = $_value; break;
+					case "auto_add_variant"    : $auto_add_variant    = $_value; break;
 				}
 			}
 		}
 
+
+		// create return array
 		$uploads = array();
 
-		// print "files:<br>";
-		// print_r($_FILES);
-		// print "post:<br>";
-		// print_r($_POST);
+
+		// Validate input
+		if($this->validateList([$input_name], $item_id)) {
+			// debug(["validated", $_FILES[$input_name]]);
+
+			$fs = new FileSystem();
+
+			// Get upload information
+			$identified_uploads = $this->identifyUploads($input_name);
 
 
-		if(isset($_FILES[$_input_name])) {
-//			print "input_name:" . $_input_name;
-//			print_r($_FILES[$_input_name]);
+			foreach($identified_uploads as $upload) {
 
-			foreach($_FILES[$_input_name]["name"] as $index => $value) {
-				if(!$_FILES[$_input_name]["error"][$index] && file_exists($_FILES[$_input_name]["tmp_name"][$index])) {
-
-					$upload = array();
-					$upload["name"] = $value;
-
-					$extension = false;
-					$temp_file = $_FILES[$_input_name]["tmp_name"][$index];
-					$temp_type = $_FILES[$_input_name]["type"][$index];
-					$temp_extension = mimetypeToExtension($temp_type);
-
-					$upload["filesize"] = filesize($temp_file);
-					$upload["format"] = $temp_extension;
-					$upload["type"] = $temp_type;
+				// define variant value
+				if($auto_add_variant) {
+					$variant = $input_name . "-" . randomKey(8);
+					$upload["variant"] = $variant;
+				}
+				else if($variant) {
+					$upload["variant"] = $variant;
+				}
+				// default variant to input_name if variant was not passed
+				else {
+					$variant = $input_name;
+					$upload["variant"] = $variant;
+				}
 
 
-					// File type check is deprecated and moved to model validation
-					// Consider doing check still - but in different way
-					// specify considerations and validation flow
-					
-					// print "#".$filegroup.", ".$temp_type.", match:".preg_match("/".$filegroup."/", $temp_type)."#";
-					// if(preg_match("/".$filegroup."/", $temp_type)) {
+				// if format was identified and type indicates special support
+				if($upload["format"] && preg_match("/video\/|audio\/|image\/|\/pdf|\/zip/", $upload["type"])) {
 
-					// is uploaded format acceptable?
-					if(($upload["format"] && (preg_match("/".$upload["format"]."/", $formats)) || !$formats)) {
+					$output_file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$upload["format"];
 
-						// define variant value
-						if($auto_add_variant) {
-							$upload["variant"] = randomKey(8);
-							$variant = "/".$upload["variant"];
-						}
-						else if($_variant) {
-							$upload["variant"] = $_variant;
-							$variant = "/".$upload["variant"];
-						}
-						else {
-							$variant = "";
-							$upload["variant"] = $_variant;
-						}
+					$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
 
-//						print_r($upload);
+					$fs->makeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+					copy($upload["file"], $output_file);
+					unlink($upload["file"]);
 
+					// Add to return array
+					$uploads[] = $upload;
 
-//						print "correct group:" . $filegroup . ", " . $temp_type . ", " . $variant;
-
-						// video upload
-						if(preg_match("/video/", $temp_type)) {
-
-							include_once("classes/helpers/video.class.php");
-							$Video = new Video();
-
-							// check if we can get relevant info about movie
-							$info = $Video->info($temp_file);
-							if($info) {
-
-								// TODO: add bitrate detection
-								// TODO: add duration detection
-								$upload["width"] = $info["width"];
-								$upload["height"] = $info["height"];
-
-								if(
-									(!$proportion || round($proportion, 2) == round($upload["width"] / $upload["height"], 2)) &&
-									(!$width || $width == $upload["width"]) &&
-									(!$height || $height == $upload["height"]) &&
-									(!$min_width || $min_width <= $upload["width"]) &&
-									(!$min_height || $min_height <= $upload["height"]) &&
-									(!$max_width || $max_width >= $upload["width"]) &&
-									(!$max_height || $max_height >= $upload["height"])
-								) {
-
-									$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
-
-	//								print $output_file . "<br>";
-									$fs->removeDirRecursively(dirname($output_file));
-									$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-									$fs->makeDirRecursively(dirname($output_file));
-
-									copy($temp_file, $output_file);
-									$upload["file"] = $output_file;
-									$uploads[] = $upload;
-									unlink($temp_file);
-
-									message()->addMessage("Video uploaded (".$upload["name"].")");
-								}
-							}
-
-						}
-						// audio upload
-						else if(preg_match("/audio/", $temp_type)) {
-
-							include_once("classes/helpers/audio.class.php");
-							$Audio = new Audio();
-
-							// check if we can get relevant info about audio file
- 							$info = $Audio->info($temp_file);
- 							if($info) {
-
-								// TODO: add bitrate detection
-								// TODO: add duration detection
-
- 								$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/mp3";
-// 
-// 								print $output_file . "<br>";
- 								$fs->removeDirRecursively(dirname($output_file));
- 								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
- 								$fs->makeDirRecursively(dirname($output_file));
-
-								copy($temp_file, $output_file);
-								$upload["file"] = $output_file;
-								$uploads[] = $upload;
-								unlink($temp_file);
-
-								message()->addMessage("Audio uploaded (".$upload["name"].")");
-							}
-
-						}
-						// image upload
-						else if(preg_match("/image/", $temp_type)) {
-
-							$image = new Imagick($temp_file);
-
-							// check if we can get relevant info about image
-							$info = $image->getImageFormat();
-							if($info) {
-
-								$upload["width"] = $image->getImageWidth();
-								$upload["height"] = $image->getImageHeight();
-
-								if(
-									(!$proportion || round($proportion, 2) == round($upload["width"] / $upload["height"], 2)) &&
-									(!$width || $width == $upload["width"]) &&
-									(!$height || $height == $upload["height"]) &&
-									(!$min_width || $min_width <= $upload["width"]) &&
-									(!$min_height || $min_height <= $upload["height"]) &&
-									(!$max_width || $max_width >= $upload["width"]) &&
-									(!$max_height || $max_height >= $upload["height"])
-								) {
-
-									$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
-
-//									print $output_file . "<br>";
-									$fs->removeDirRecursively(dirname($output_file));
-									$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-									$fs->makeDirRecursively(dirname($output_file));
-
-									copy($temp_file, $output_file);
-									$upload["file"] = $output_file;
-									$uploads[] = $upload;
-									unlink($temp_file);
-
-									message()->addMessage("Image uploaded (".$upload["name"].")");
-								}
-							}
-						}
-						// pdf upload
-						else if(preg_match("/pdf/", $temp_type)) {
-
-							$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["format"];
-
-							$fs->removeDirRecursively(dirname($output_file));
-							$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-							$fs->makeDirRecursively(dirname($output_file));
-
-							copy($temp_file, $output_file);
-							$upload["file"] = $output_file;
-							$uploads[] = $upload;
-							unlink($temp_file);
-
-							message()->addMessage("PDF uploaded (".$upload["name"].")");
-
-						}
-
-					}
-					// else {
-					// 	message()->addMessage("Format is not supported (".$upload["name"].")", array("type" => "error"));
-					// }
+					message()->addMessage(strtoupper($upload["format"]) . " uploaded (".$upload["name"].")");
 
 				}
-				// // file error
-				// else {
-				// 	message()->addMessage("Unknown file problem", array("type" => "error"));
-				// }
+
+				// Unknown filetype – zip it
+				else {
+
+					$output_file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/zip";
+
+					$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+
+					$fs->makeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+
+					$zip = new ZipArchive();
+					$zip->open($output_file, ZipArchive::CREATE);
+					$zip->addFile($upload["file"], $upload["name"]);
+					$zip->close();
+
+					unlink($upload["file"]);
+
+					// Update properties, which might have changed
+					$upload["format"] = "zip";
+					$upload["filesize"] = filesize($output_file);
+					$upload["name"] = $upload["name"].".zip";
+
+					// Add to return array
+					$uploads[] = $upload;
+
+					message()->addMessage("File uploaded and zipped (".$upload["name"].")");
+
+				}
+
 			}
 
 		}
@@ -1497,7 +1387,6 @@ class ItemtypeCore extends Model {
 
 
 	// HTML EDITOR
-
 
 
 	// custom function to add html media
@@ -1512,18 +1401,28 @@ class ItemtypeCore extends Model {
 
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
-//			$variant = stringOr(getPost("variant"), "HTML-".randomKey(8));
+
+			// Get name of related HTML input
+			$input_name = getPost("input-name");
 
 
-			// Image single_media
-			$uploads = $this->upload($item_id, array("input_name" => "htmleditor_media", "variant" => "HTML-".randomKey(8)));
+			// Upload media
+			$uploads = $this->upload($item_id, [
+				"input_name" => "htmleditor_media", 
+				"variant" => "HTMLEDITOR-".$input_name."-".randomKey(8)
+			]);
+
+			// Successful upload
 			if($uploads) {
-				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
-				$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)");
+				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'";
+				$query->sql($sql);
+
+				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)";
+				$query->sql($sql);
 
 				return array(
+					"id" => $query->lastInsertId(), 
 					"item_id" => $item_id, 
-					"media_id" => $query->lastInsertId(), 
 					"name" => $uploads[0]["name"], 
 					"variant" => $uploads[0]["variant"], 
 					"format" => $uploads[0]["format"], 
@@ -1578,14 +1477,25 @@ class ItemtypeCore extends Model {
 
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
-//			$variant = stringOr(getPost("variant"), "HTML-".randomKey(8));
+
+			// Get name of related HTML input
+			$input_name = getPost("input-name");
 
 
-			// Image single_media
-			$uploads = $this->uploadHTMLFile($item_id, array("input_name" => "htmleditor_file"));
+			// Upload media
+			$uploads = $this->upload($item_id, [
+				"input_name" => "htmleditor_file", 
+				"variant" => "HTMLEDITOR-".$input_name."-".randomKey(8)
+			]);
+
+			// Successful upload
 			if($uploads) {
+
+				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'";
 				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
-				$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '0', '0', '".$uploads[0]["filesize"]."', 0)");
+
+				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', ".($uploads[0]["width"] ? "'".$uploads[0]["width"]."'" : "NULL").", ".($uploads[0]["height"] ? "'".$uploads[0]["height"]."'" : "NULL") . ", '".$uploads[0]["filesize"]."', 0)";
+				$query->sql($sql);
 
 				return array(
 					"item_id" => $item_id, 
@@ -1627,187 +1537,6 @@ class ItemtypeCore extends Model {
 		message()->addMessage("File could not be deleted", array("type" => "error"));
 		return false;
 	}
-
-
-	// Upload handler for HTML editor
-	// Downloadable file - Uploads PDF and ZIP directly, ZIPs everything else
-	function uploadHTMLFile($item_id, $_options) {
-
-		$fs = new FileSystem();
-
-
-		$_input_name = "files";               // input name to check for files (default is files)
-
-		$_variant = false;                    // variantname to save files under
-		$formats = false;                     // jpg,png,git,mov,mp4,pdf,etc
-		$auto_add_variant = true;            // automatically add variant-key for each file
-
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "input_name"          : $_input_name          = $_value; break;
-
-					case "variant"             : $_variant             = $_value; break;
-					case "formats"             : $formats              = $_value; break;
-
-					case "auto_add_variant"    : $auto_add_variant     = $_value; break;
-				}
-			}
-		}
-
-		$uploads = array();
-
-//		print "files:<br>";
-//		print_r($_FILES);
-		// print "post:<br>";
-		// print_r($_POST);
-
-
-		if(isset($_FILES[$_input_name])) {
-			// print "input_name:" . $_input_name;
-			// print_r($_FILES[$_input_name]);
-
-			if(!$_FILES[$_input_name]["error"] && file_exists($_FILES[$_input_name]["tmp_name"])) {
-
-				$upload = array();
-				$upload["name"] = $_FILES[$_input_name]["name"];
-
-				$extension = false;
-				$temp_file = $_FILES[$_input_name]["tmp_name"];
-				$temp_type = $_FILES[$_input_name]["type"];
-//				$temp_extension = mimetypeToExtension($temp_type);
-				$upload["type"] = $temp_type;
-
-				// define variant value
-				if($auto_add_variant) {
-					$upload["variant"] = "HTML-".randomKey(8);
-					$variant = "/".$upload["variant"];
-				}
-				else if($_variant) {
-					$upload["variant"] = $_variant;
-					$variant = "/".$upload["variant"];
-				}
-				else {
-					$variant = "";
-					$upload["variant"] = $_variant;
-				}
-
-				// pdf upload
-				if(preg_match("/pdf/", $temp_type)) {
-
-					$upload["format"] = "pdf";
-
-					$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
-					$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40)).".pdf";
-					
-
-					$fs->removeDirRecursively(dirname($output_file));
-					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-
-					$fs->makeDirRecursively(dirname($output_file));
-					$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-
-					copy($temp_file, $output_file);
-					copy($temp_file, $public_file);
-
-					$upload["name"] = basename($public_file);
-					$upload["filesize"] = filesize($public_file);
-					$upload["file"] = $output_file;
-					$uploads[] = $upload;
-
-					unlink($temp_file);
-//						unlink($output_file);
-
-					message()->addMessage("PDF uploaded (".$upload["name"].")");
-
-				}
-				// zip upload
-				else if(preg_match("/zip/", $temp_type)) {
-
-					$upload["format"] = "zip";
-
-					$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"];
-					$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40)).".zip";
-					
-
-					$fs->removeDirRecursively(dirname($output_file));
-					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-
-					$fs->makeDirRecursively(dirname($output_file));
-					$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-
-					copy($temp_file, $output_file);
-					copy($temp_file, $public_file);
-
-					$upload["name"] = basename($public_file);
-					$upload["filesize"] = filesize($public_file);
-					$upload["file"] = $output_file;
-					$uploads[] = $upload;
-
-					unlink($temp_file);
-//						unlink($output_file);
-
-					message()->addMessage("ZIP uploaded (".$upload["name"].")");
-
-				}
-				// not PDF or ZIP, zip it for download
-				else {
-
-					$upload["format"] = "zip";
-
-					$output_file = PRIVATE_FILE_PATH."/".$item_id.$variant."/".$upload["name"] ;
-					$zip_name = superNormalize(substr(preg_replace("/\.[a-zA-Z1-9]{3,4}$/", "", $upload["name"]), 0, 40));
-					$public_file = PUBLIC_FILE_PATH."/".$item_id.$variant."/".$zip_name.".zip";
-
-					// Replace uploaded file with zipped result to avoid having different file formats for PUBLIC and PRIVATE folders
-					$private_file_zipped = PRIVATE_FILE_PATH."/".$item_id.$variant."/zip";
-
-					$fs->removeDirRecursively(dirname($output_file));
-					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-
-					$fs->makeDirRecursively(dirname($output_file));
-					$fs->makeDirRecursively(PUBLIC_FILE_PATH."/".$item_id.$variant);
-
-					
-					copy($temp_file, $output_file);
-
-//					print "create new zip:" . $zip_file . "<br>";
-
-					$zip = new ZipArchive();
-					$zip->open($public_file, ZipArchive::CREATE);
-					$zip->addFile($output_file, basename($output_file));
-					$zip->close();
-
-
-					// Replace private file with zipped version
-					copy($public_file, $private_file_zipped);
-					unlink($output_file);
-
-
-					$upload["filesize"] = filesize($public_file);
-					$upload["file"] = $public_file;
-					$upload["name"] = basename($public_file);
-					$uploads[] = $upload;
-
-					unlink($temp_file);
-//						unlink($output_file);
-
-					message()->addMessage("File uploaded (".$upload["name"].")");
-
-				}
-
-			}
-			// file group error
-			else {
-				message()->addMessage("File problem (".$upload["name"].")");
-			}
-
-		}
-
-		return $uploads;
-	}
-
 
 
 
