@@ -19,39 +19,12 @@ class JanitorHTML {
 	// Add $_options to functions when extension is needed
 
 
+	// provide media info as classvars for JS
+	function jsMedia($item, $variant=false) {
 
-	// find media with matching variant or simply first media
-	// removes media from media stack (to make it easier to loop through remaining media later)
-	function getMedia(&$item, $variant=false) {
+		$IC = new Items();
+		$media = $IC->getFirstMedia($item, $variant);
 
-		$media = false;
-
-		if(!$variant && isset($item["mediae"]) && $item["mediae"]) {
-			$media = array_shift($item["mediae"]);
-		}
-		else if(isset($item[$variant])) {
-
-			$media = $item[$variant];
-			unset($item[$variant]);
-		}
-		else if(isset($item["mediae"]) && $item["mediae"]) {
-			foreach($item["mediae"] as $index => $media_item) {
-				if($index == $variant) {
-
-					$media = $item["mediae"][$variant];
-					unset($item["mediae"][$variant]);
-				}
-			}
-		}
-
-		return $media;
-	}
-
-	// provide media info for JS
-	function jsMedia(&$item, $variant=false) {
-
-		$media = $this->getMedia($item, $variant);
-		
 		return $media ? (" format:".$media["format"]." variant:".$media["variant"]) : "";
 	}
 
@@ -535,99 +508,14 @@ class JanitorHTML {
 		return $_;
 	}
 
-	// edit media form for edit page
-	function editMedia($item, $_options = false) {
+	// edit mediae (multiple media) form for edit page
+	function editMediae($item, $_options = false) {
 		global $model;
 
 
-		$type = "mediae";
+		$variant = "mediae";
 		$label = "Media";
-		$class = "i:addMedia i:collapseHeader";
-
-		// overwrite defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "type"              : $type               = $_value; break;
-					case "label"             : $label              = $_value; break;
-					case "class"             : $class              = $_value; break;
-				}
-			}
-		}
-
-		$_ = '';
-
-		$_ .= '<div class="media '.$type.' '.$class.' sortable item_id:'.$item["id"].'"'.$this->jsData().'>';
-		$_ .= '<h2>'.$label.'</h2>';
-		$_ .= $model->formStart($this->path."/addMedia/".$item["id"], array("class" => "upload labelstyle:inject"));
-		$_ .= '<fieldset>';
-		$_ .= $model->input("mediae");
-		$_ .= '</fieldset>';
-
-		$_ .= '<ul class="actions">';
-		$_ .= $model->submit("Add image", array("class" => "primary", "wrapper" => "li.save"));
-		$_ .= '</ul>';
-		$_ .= $model->formEnd();
-
-		$_ .= '<ul class="mediae">';
-
-		
-		if($item["mediae"]) {
-			foreach($item["mediae"] as $variant => $media) {
-
-				if($type == "mediae") {
-
-					if(preg_match("/^(jpg|png)$/", $media["format"])) {
-						$_ .= '<li class="media image variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].' width:'.$media["width"].' height:'.$media["height"].'">';
-						$_ .= '<a href="/images/'.$item["id"].'/'.$variant.'/x150.'.$media["format"].'">'.$media["name"].'</a>';
-					}
-					else if(preg_match("/^(mp3|ogv)$/", $media["format"])) {
-						$_ .= '<li class="media audio variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].'">';
-						$_ .= '<a href="/audios/'.$item["id"].'/'.$variant.'/128.'.$media["format"].'">'.$media["name"].'</a>';
-					}
-					else if(preg_match("/^(mp4|mov)$/", $media["format"])) {
-						$_ .= '<li class="media video variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].' width:'.$media["width"].' height:'.$media["height"].'">';
-						$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/x150.'.$media["format"].'">'.$media["name"].'</a>';
-					}
-					$_ .= '<p>'.$media["name"].'</p>';
-					$_ .= '</li>';
-
-				}
-				else if($type == "variant") {
-
-					if(preg_match("/^(jpg|png)$/", $media["format"])) {
-						$_ .= '<li class="media image variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].' width:'.$media["width"].' height:'.$media["height"].'">';
-						$_ .= '<a href="/images/'.$item["id"].'/'.$variant.'/x150.'.$media["format"].'">'.$variant.'</a>';
-					}
-					else if(preg_match("/^(mp3|ogv)$/", $media["format"])) {
-						$_ .= '<li class="media audio variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].'">';
-						$_ .= '<a href="/audios/'.$item["id"].'/'.$variant.'/128.'.$media["format"].'">'.$variant.'</a>';
-					}
-					else if(preg_match("/^(mp4|mov)$/", $media["format"])) {
-						$_ .= '<li class="media video variant:'.$variant.' media_id:'.$media["id"].' format:'.$media["format"].' width:'.$media["width"].' height:'.$media["height"].'">';
-						$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/x150.'.$media["format"].'">'.$variant.'</a>';
-					}
-					$_ .= '<p>'.$variant.'</p>';
-					$_ .= '</li>';
-				}
-			}
-		}
-
-		$_ .= '</ul>';
-		$_ .= '</div>';
-
-		return $_;
-	}
-
-	// edit single media form for edit page
-	function editSingleMedia(&$item, $_options = false) {
-		global $model;
-
-		$variant = "single_media";
-		$label = "Single media";
-		$class = "";
-		$init_class = "i:addMediaSingle i:collapseHeader";
+		$class = "media i:addMedia i:collapseHeader";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -637,47 +525,75 @@ class JanitorHTML {
 					case "variant"           : $variant            = $_value; break;
 					case "label"             : $label              = $_value; break;
 					case "class"             : $class              = $_value; break;
-					case "init_class"        : $init_class         = $_value; break;
 				}
 			}
 		}
 
-		if(!preg_match("/i:[a-z]+/", $class)) {
-			$class = $class." ".$init_class;
-		}
+		$IC = new Items();
+		$file_input_value = $IC->filterMediae($item, $variant);
 
-		// get media
-		$media = $this->getMedia($item, $variant);
-		// if($media) {
-		// 	$class_input = "uploaded";
-		// }
 
 		$_ = '';
 
+		$_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' sortable item_id:'.$item["id"].'"'.$this->jsData(["media"]).'>';
+
+		$_ .= '<h2>'.$label.' ('.count($file_input_value).')</h2>';
+		$_ .= $model->formStart($this->path."/addMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject"));
+		$_ .= '<fieldset>';
+		$_ .= $model->input($variant, ["value" => $file_input_value]);
+		$_ .= '</fieldset>';
+
+		$_ .= '<ul class="actions">';
+		$_ .= $model->submit("Add mediae", array("class" => "primary", "wrapper" => "li.save"));
+		$_ .= '</ul>';
+		$_ .= $model->formEnd();
+
+		$_ .= '</div>';
+
+		return $_;
+	}
+
+	// edit single media form for edit page
+	function editSingleMedia($item, $_options = false) {
+		global $model;
+
+
+		$variant = "single_media";
+		$label = "Single media";
+		$class = "media single_media i:addMediaSingle i:collapseHeader";
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "variant"           : $variant            = $_value; break;
+					case "label"             : $label              = $_value; break;
+					case "class"             : $class              = $_value; break;
+				}
+			}
+		}
+
+		// check if value exists
+		$IC = new Items();
+		$file_input_value = $IC->filterMediae($item, $variant);
+
+
+		$_ = "";
+
 		// default view
-		$_ .= '<div class="media single_media '.$variant.' '.$class.' variant:'.$variant.' item_id:'.$item["id"].' format:'.($media ? $media["format"] : "").'"'.$this->jsData().'>';
+		$_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' item_id:'.$item["id"].'"'.$this->jsData(["media"]).'>';
 		$_ .= '<h2>'.$label.'</h2>';
 
 		$_ .= $model->formStart($this->path."/addSingleMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject"));
 		$_ .= '<fieldset>';
-		$_ .= $model->input($variant, array("value" => $media));
+		$_ .= $model->input($variant, array("value" => $file_input_value));
 		$_ .= '</fieldset>';
-		$_ .= $model->formEnd();
 
-		if($media) {
-			$_ .= '<div class="file">';
-			if(preg_match("/^(jpg|png)$/", $media["format"])) {
-				$_ .= '<a href="/images/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'">'.$media["name"].'</a>';
-			}
-			else if(preg_match("/^(mp3|ogv)$/", $media["format"])) {
-				$_ .= '<a href="/audios/'.$item["id"].'/'.$variant.'/128.'.$media["format"].'">'.$media["name"].'</a>';
-			}
-			else if(preg_match("/^(mp4|mov)$/", $media["format"])) {
-				$_ .= '<a href="/videos/'.$item["id"].'/'.$variant.'/480x.'.$media["format"].'">'.$media["name"].'</a>';
-			}
-			$_ .= '<p>'.$media["name"].'</p>';
-			$_ .= '</div>';
-		}
+		$_ .= '<ul class="actions">';
+		$_ .= $model->submit("Add media", array("class" => "primary", "wrapper" => "li.save"));
+		$_ .= '</ul>';
+		$_ .= $model->formEnd();
 
 		$_ .= '</div>';
 
@@ -899,7 +815,7 @@ class JanitorHTML {
 	// 	$IC = new Items();
 	//
 	// 	$_ = '';
-	// 	$_ .= '<div class="todos i:defaultTodos item_id:'.$item["id"].'"'.$this->jsData().'>';
+	// 	$_ .= '<div class="todos i:defaultTodos item_id:'.$item["id"].'"'.$this->jsData(["todos]).'>';
 	// 	$_ .= '<h2>TODOs</h2>';
 	//
 	// 	$todo_tag = $IC->getTags(array("item_id" => $item["item_id"], "context" => "todo"));
@@ -941,7 +857,7 @@ class JanitorHTML {
 		$IC = new Items();
 
 		$_ = '';
-		$_ .= '<div class="qnas i:defaultQnas item_id:'.$item["id"].'"'.$this->jsData().'>';
+		$_ .= '<div class="qnas i:defaultQnas item_id:'.$item["id"].'"'.$this->jsData(["qna"]).'>';
 		$_ .= '<h2>Questions and Answers</h2>';
 
 
