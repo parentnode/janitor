@@ -486,13 +486,11 @@ class ItemtypeCore extends Model {
 //		print $sql."<br>\n";
 
 		// save root item
-		$query->sql($sql);
-		$item_id = $query->lastInsertId();
-
-		if($item_id) {
+		if($query->sql($sql)) {
 
 			// return new item
-			return $item_id;
+			return $query->lastInsertId();
+
 		}
 		return false;
 	}
@@ -619,10 +617,16 @@ class ItemtypeCore extends Model {
 						$this->updated($item_id);
 					}
 
+
+					// Add message
+					message()->addMessage("Item updated");
+
 					// add log
 					$page->addLog("ItemType->update ($item_id)");
-					
-					return $item;
+
+					$IC = new Items();
+					return $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
+
 				}
 			}
 
@@ -634,37 +638,65 @@ class ItemtypeCore extends Model {
 
 	// update root item
 	function updateItem($item_id) {
-//		print "update item<br>";
+		// debug(["update item"]);
 
 		$query = new Query();
 
 		// is published_at valid?
 		if($this->validateList(array("published_at"))) {
 			$sql = "UPDATE ".UT_ITEMS." SET published_at='".toTimestamp($this->getProperty("published_at", "value"))."' WHERE id = $item_id";
-//			print $sql;
+			// debug([$sql]);
 			$query->sql($sql);
 		}
 		else {
 			return false;
 		}
 
-		// updating user id?
-		$user_id = $this->getProperty("user_id", "value");
-		if($user_id && $this->validateList(array("user_id"))) {
-			$sql = "UPDATE ".UT_ITEMS." SET user_id=$user_id WHERE id = $item_id";
-			$query->sql($sql);
-		}
 
-//		$published_at = $this->validateList(array("published_at")) ? $this->getProperty("published_at", "value") : "CURRENT_TIMESTAMP"; 
-//		$published_at = getPost("published_at") ? toTimestamp(getPost("published_at")) : false;
+		// // updating user id?
+		// $user_id = $this->getProperty("user_id", "value");
+		// if($user_id && $this->validateList(array("user_id"))) {
+		// 	$sql = "UPDATE ".UT_ITEMS." SET user_id=$user_id WHERE id = $item_id";
+		// 	$query->sql($sql);
+		// }
 
-		// create item
+		// Update modified_at
 		$sql = "UPDATE ".UT_ITEMS." SET modified_at=CURRENT_TIMESTAMP WHERE id = $item_id";
-//			print $sql;
 		$query->sql($sql);
 
 		return true;
 	}
+
+	// Update item order
+	// /janitor/[admin/]#itemtype#/updateOrder (order comma-separated in POST)
+	// TODO: implement itemtype checks
+	function updateOrder($action) {
+
+		$order_list = getPost("order");
+		if(count($action) == 1 && $order_list) {
+
+			$query = new Query();
+			$order = explode(",", $order_list);
+
+			for($i = 0; $i < count($order); $i++) {
+				$item_id = $order[$i];
+				$sql = "UPDATE ".$this->db." SET position = ".($i+1)." WHERE item_id = ".$item_id;
+				$query->sql($sql);
+			}
+
+			message()->addMessage("Order updated");
+			return true;
+		}
+
+		message()->addMessage("Order could not be updated - please refresh your browser", array("type" => "error"));
+		return false;
+
+	}
+
+
+
+
+	// DUPLICATE
 
 
 	// Duplicate item
@@ -917,37 +949,9 @@ class ItemtypeCore extends Model {
 	}
 
 
-	// Update item order
-	// /janitor/[admin/]#itemtype#/updateOrder (order comma-separated in POST)
-	// TODO: implement itemtype checks
-	function updateOrder($action) {
-
-		$order_list = getPost("order");
-		if(count($action) == 1 && $order_list) {
-
-			$query = new Query();
-			$order = explode(",", $order_list);
-
-			for($i = 0; $i < count($order); $i++) {
-				$item_id = $order[$i];
-				$sql = "UPDATE ".$this->db." SET position = ".($i+1)." WHERE item_id = ".$item_id;
-				$query->sql($sql);
-			}
-
-			message()->addMessage("Order updated");
-			return true;
-		}
-
-		message()->addMessage("Order could not be updated - please refresh your browser", array("type" => "error"));
-		return false;
-
-	}
-
-
 
 
 	// TAGS
-
 
 
 	// addTag and deleteTag differ slightly in implementations
