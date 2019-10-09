@@ -613,9 +613,9 @@ function toTimestamp($timestamp) {
 
 	$hours = isset($parts[3]) && $parts[3] ? $parts[3] : date("G", time());
 	$minutes = isset($parts[4]) && $parts[4] ? $parts[4] : date("i", time());
-	$seconds = isset($parts[5]) && $parts[5] ? $parts[5] : date("s", time());
+	$seconds = isset($parts[5]) && $parts[5] ? $parts[5] : 0;
 	
-//	print $date ."#" . $month . "#" . $year . "#" . $hours . "#" . $minutes . "#" . $seconds . "<br>";
+	// print $timestamp . " = " . $date ."#" . $month . "#" . $year . "#" . $hours . "#" . $minutes . "#" . $seconds . " => " . date("Y-m-d H:i:s", mktime($hours, $minutes, $seconds, $month, $date, $year)) . "<br>";
 	
 	return date("Y-m-d H:i:s", mktime($hours, $minutes, $seconds, $month, $date, $year));
 }
