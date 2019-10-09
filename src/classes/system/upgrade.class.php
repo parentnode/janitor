@@ -65,7 +65,6 @@ class Upgrade extends Model {
 		try {
 
 			if(!$model->readWriteTest()) {
-			
 				$result["message"] = "<p>You need to allow Apache to modify files in your project folder.<br />Run this command in your terminal to continue:</p>";
 				$result["message"] .= "<code>sudo chown -R ".$model->get("system", "apache_user").":".$model->get("system", "deploy_user")." ".PROJECT_PATH."</code>";
 				$result["success"] = false;
@@ -74,10 +73,8 @@ class Upgrade extends Model {
 
 
 
-			// TODO: Pull the latest Janitor version
-			// Requires some sort of reload to continue upgrade on updated codebase
 
-
+			// CODE JANITOR SYNTAX UPDATE
 
 			// Updating controller code syntax to work with PHP7
 			$fs = new FileSystem();
@@ -89,7 +86,7 @@ class Upgrade extends Model {
 				if($file) {
 
 					if(preg_match("/->\\\$action\[[0-9]+\]/", $file, $matches)) {
-						// replace with valid syntax 
+						// replace with valid syntax
 						$file = preg_replace("/->\\\$action\[([0-9]+)\]/", "->{\\\$action[$1]}", $file);
 						// save file
 						if(@file_put_contents($controller, $file)) {
@@ -110,6 +107,69 @@ class Upgrade extends Model {
 			$file = null;
 			$controller = null;
 			$controllers = null;
+
+
+			// get all php files in theme
+			$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php"]);
+			foreach($php_files as $php_file) {
+
+				$is_code_altered = false;
+				$code_lines = file($php_file);
+				foreach($code_lines as $line_no => $line) {
+
+					// Change page->mail to mailer()->send
+					if(preg_match("/[\$](page|this)\-\>mail\(/", $line)) {
+
+						$line = preg_replace("/[\$](page|this)\-\>mail\(/", "mailer()->send(", $line);
+						if($code_lines[$line_no] != $line) {
+
+							$code_lines[$line_no] = $line;
+							$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (mail) IN " . $php_file . " in line " . ($line_no+1)]);
+							$is_code_altered = true;
+
+
+//							print '<li class="notice">'.</li>';
+						}
+						else {
+							$this->process(["success" => false, "message" => "FOUND OLD CODE (mail) IN " . $php_file . " in line " . ($line_no+1)], true);
+//							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
+
+						}
+
+					}
+
+					// Change ->sliceMedia( to ->sliceMediae(
+					if(preg_match("/\-\>sliceMedia\(/", $line)) {
+						$line = preg_replace("/\-\>sliceMedia\(/", "->sliceMediae(", $line);
+						if($code_lines[$line_no] !== $line) {
+
+							$code_lines[$line_no] = $line;
+							$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (sliceMedia) IN " . $php_file . " in line " . ($line_no+1)]);
+							$is_code_altered = true;
+
+
+//							print '<li class="notice">'.</li>';
+						}
+						else {
+							$this->process(["success" => false, "message" => "FOUND OLD CODE (sliceMedia) IN " . $php_file . " in line " . ($line_no+1)], true);
+//							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
+
+						}
+
+					}
+
+				}
+
+				// Should we write
+				if($is_code_altered) {
+					file_put_contents($php_file, implode("", $code_lines));
+				}
+
+			}
+//			print_r($php_files);
+
+
+
 
 
 
@@ -228,6 +288,209 @@ class Upgrade extends Model {
 			// ITEM RATINGS
 			$this->process($this->createTableIfMissing(UT_ITEMS_RATINGS), true);
 
+			// ITEM MEDIAE
+			$this->process($this->createTableIfMissing(UT_ITEMS_MEDIAE), true);
+
+			
+			// Update mediae tables with extended variant names
+			// - cross-reference stored mediae with HTML-value – does all "HTML" mediae exist in HTML-text
+			// - fix "free-text" name classVars (containing spaces)
+			$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE;
+			// debug([$sql]);
+			if($query->sql($sql)) {
+				$mediae = $query->results();
+
+				// debug([$mediae]);
+
+				foreach($mediae as $media) {
+
+					// debug(["CHECKING:" . $media["variant"]]);
+
+					// Get related item
+					$item = $IC->getItem(["id" => $media["item_id"], "extend" => true]);
+
+					// Get model for related item
+					$item_model = $IC->typeObject($item["itemtype"]);
+					$model_entities = $item_model->getModel();
+					// debug([$model_entities]);
+
+
+					// OLD HTML editor media
+					if(preg_match("/^HTML\-/", $media["variant"])) {
+
+						$found = false;
+						// debug([$item]);
+
+						// Look for HTML inputs to check values for media occurence
+						foreach($item as $name => $value) {
+
+							if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
+
+								// Is variant used in this HTML input (item can have several HTML inputs)
+								if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
+
+									$new_variant = "HTMLEDITOR-".$name."-".randomKey(8);
+									$new_value = str_replace($media["variant"], $new_variant, $value);
+									$new_value = str_replace($media["name"], urlencode($media["name"]), $new_value);
+									$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
+									// debug([$sql]);
+									if($query->sql($sql)) {
+
+										$sql = "UPDATE ".$item_model->db." SET $name = '$new_value' WHERE item_id = ".$media["item_id"];
+										// debug([$sql]);
+										if($query->sql($sql)) {
+
+											$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
+											$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+											$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+										}
+									}
+
+									$found = true;
+
+								}
+
+							}
+
+						}
+
+						// Media not found – must be a leftover – clean up
+						if(!$found) {
+
+							$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
+							// debug([$sql]);
+							if($query->sql($sql)) {
+								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+
+								$this->process(array("success" => true, "message" => "Deleted HTML media remnant: " . $media["id"]), true);
+								$media = false;
+							}
+
+						}
+
+					}
+					// Regular media
+					else if(!preg_match("/^HTMLEDITOR\-/", $media["variant"])) {
+
+						$found = false;
+						$file_inputs = [];
+						
+						// Look for HTML inputs to check values for media occurence
+						foreach($model_entities as $name => $value) {
+
+							// Entity name matches variant
+							if(isset($model_entities[$name]) && ($name === $media["variant"] || preg_match("/^".$name."\-/", $media["variant"]))) {
+
+								$found = true;
+
+							}
+
+						}
+						
+						if(!$found) {
+
+							// If not found, then assign media to mediae input
+							$new_variant = "mediae-".randomKey(8);
+							$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
+							// debug([$sql]);
+
+							if($query->sql($sql)) {
+
+								// Copy to new location and remove old
+								$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
+								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+
+								$this->process(array("success" => true, "message" => "Assign media to mediae-variant: " . $media["id"]), true);
+
+							}
+
+						}
+
+					}
+					// UPDATED HTML media – CHECK for leftovers (deleted mediea, that wasn't deleted properly)
+					else if(preg_match("/^HTMLEDITOR\-/", $media["variant"])) {
+
+						$found = false;
+						// debug([$item]);
+
+						// Look for HTML inputs to check values for media occurence
+						foreach($item as $name => $value) {
+
+							if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
+
+								// Is variant used in this HTML input (item can have several HTML inputs)
+								if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
+
+									// $new_variant = "HTMLEDITOR-".$name."-".randomKey(8);
+									// $new_value = str_replace($media["variant"], $new_variant, $value);
+									// $new_value = str_replace($media["name"], urlencode($media["name"]), $new_value);
+									// $sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
+									// // debug([$sql]);
+									// if($query->sql($sql)) {
+									//
+									// 	$sql = "UPDATE ".$item_model->db." SET $name = '$new_value' WHERE item_id = ".$media["item_id"];
+									// 	// debug([$sql]);
+									// 	if($query->sql($sql)) {
+									//
+									// 		$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
+									// 		$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+									// 		$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+									// 	}
+									// }
+
+									$found = true;
+
+								}
+
+							}
+
+						}
+
+						// Media not found – must be a leftover – clean up
+						if(!$found) {
+
+							// debug(["SHOULD DELETE:" . $media["variant"]]);
+							$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
+							// debug([$sql]);
+							if($query->sql($sql)) {
+								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+
+								$this->process(array("success" => true, "message" => "Deleted HTMLEDITOR media remnant: " . $media["id"]), true);
+								$media = false;
+							}
+
+
+						}
+						// else {
+						// 	debug(["SHOULD KEEP:" . $media["id"] . ", " . $media["variant"]]);
+						//
+						// }
+					}
+
+
+					// ADJUST 0 WIDTH AND HEIGHT VALUES TO DEFAULT (NULL)
+					if($media && !$media["width"] || !$media["height"]) {
+
+						// SHOULD NOT HAVE WIDTH/HEIGHT
+						if(!preg_match("/^(jpg|png|gif|mp4|mov)$/", $media["format"])) {
+							$query->sql("UPDATE ".UT_ITEMS_MEDIAE." SET width = DEFAULT, height = DEFAULT WHERE id = ".$media["id"]);
+						}
+
+						// DATA / TYPE MISMATCH
+						else {
+							$this->process(["message" => "Media property mismatch (missing width or height on media_id: ".$media["id"].")", "success" => false], true);
+						}
+
+					}
+
+				}
+
+				$this->process(["message" => "Media updated", "success" => true]);
+			}
+
 
 
 			// USER/ITEM
@@ -287,7 +550,7 @@ class Upgrade extends Model {
 					$count = 0;
 					$limit = 5000;
 					$sql = "SELECT user_id FROM ".SITE_DB.".user_log_activation_reminders GROUP BY user_id LIMIT $count, $limit";
-					debug([$sql]);
+					// debug([$sql]);
 					$query->sql($sql);
 					$user_ids = $query->results("user_id");
 
@@ -307,7 +570,7 @@ class Upgrade extends Model {
 						$count += $limit;
 
 						$sql = "SELECT user_id FROM ".SITE_DB.".user_log_activation_reminders GROUP BY user_id LIMIT $count, $limit";
-						debug([$sql]);
+						// debug([$sql]);
 						$query->sql($sql);
 						$user_ids = $query->results("user_id");
 
@@ -535,46 +798,6 @@ class Upgrade extends Model {
 
 
 
-			// CODE SYNTAX JANITOR
-			// get all php files in theme
-			$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php"]);
-			foreach($php_files as $php_file) {
-
-				$is_code_altered = false;
-				$code_lines = file($php_file);
-				foreach($code_lines as $line_no => $line) {
-
-					if(preg_match("/[\$](page|this)\-\>mail\(/", $line)) {
-
-						$new_code_line = preg_replace("/[\$](page|this)\-\>mail\(/", "mailer()->send(", $line);
-						if($code_lines[$line_no] != $new_code_line) {
-
-							$code_lines[$line_no] = $new_code_line;
-							$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE IN " . $php_file . " in line " . ($line_no+1)]);
-							$is_code_altered = true;
-
-
-//							print '<li class="notice">'.</li>';
-						}
-						else {
-							$this->process(["success" => false, "message" => "FOUND OLD CODE IN " . $php_file . " in line " . ($line_no+1)], true);
-//							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
-							
-						}
-
-					}
-
-				}
-
-				// Should we write
-				if($is_code_altered) {
-					file_put_contents($php_file, implode("", $code_lines));
-				}
-
-			}
-//			print_r($php_files);
-
-			
 
 
 			// set file permissions
