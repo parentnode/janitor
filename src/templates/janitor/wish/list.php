@@ -64,7 +64,7 @@ session()->reset("return_to_wishlist");
 
 	<div class="wishes">
 		<h2>All wishes</h2>
-		<div class="all_items i:defaultList taggable filters images width:100"<?= $JML->jsData() ?>>
+		<div class="all_items i:defaultList taggable filters images width:100"<?= $JML->jsData(["tags", "search"]) ?>>
 	<?		if($wishes): ?>
 			<ul class="items">
 	<?			foreach($wishes as $item): ?>

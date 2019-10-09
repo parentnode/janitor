@@ -38,7 +38,7 @@ else {
 	</ul>
 
 
-	<div class="all_items i:defaultList taggable filters"<?= $JML->jsData() ?>>
+	<div class="all_items i:defaultList taggable filters"<?= $JML->jsData(["tags", "search"]) ?>>
 <?		if($items): ?>
 		<ul class="items">
 

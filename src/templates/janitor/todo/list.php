@@ -95,7 +95,7 @@ session()->reset("return_to_todolist");
 		</ul>
 		<? endif; ?>
 
-		<div class="all_items i:defaultList taggable filters"<?= $JML->jsData() ?>>
+		<div class="all_items i:defaultList taggable filters"<?= $JML->jsData(["tags", "search"]) ?>>
 	<?		if($todos): ?>
 			<ul class="items">
 	<?			foreach($todos as $item): ?>

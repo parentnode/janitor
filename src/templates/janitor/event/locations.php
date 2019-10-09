@@ -15,7 +15,7 @@ $items = $model->getLocations();
 		<?= $HTML->link("Events", "/janitor/admin/event/list", array("class" => "button", "wrapper" => "li.events")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList filters"<?= $JML->jsData() ?>>
+	<div class="all_items i:defaultList filters"<?= $JML->jsData(["search"]) ?>>
 <?		if($items): ?>
 		<ul class="items">
 

@@ -42,7 +42,7 @@ foreach($static_mail_templates_framework as $template_path) {
 	</ul>
 	<p>Select the message you want to send.</p>
 
-	<div class="all_items i:defaultList dynamic taggable filters"<?= $JML->jsData() ?>>
+	<div class="all_items i:defaultList dynamic taggable filters"<?= $JML->jsData(["tags", "search"]) ?>>
 <?		if($items): ?>
 		<ul class="items">
 <?			foreach($items as $item): ?>

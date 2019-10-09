@@ -13,7 +13,7 @@ $navigations = $model->getNavigations(array("levels" => 0));
 	</ul>
 
 
-	<div class="all_items i:defaultList filters"<?= $JML->jsData() ?>>
+	<div class="all_items i:defaultList filters"<?= $JML->jsData(["search"]) ?>>
 <?		if($navigations): ?>
 		<ul class="items">
 <?			foreach($navigations as $item): ?>

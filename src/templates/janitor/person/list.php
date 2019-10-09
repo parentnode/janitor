@@ -13,7 +13,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC, 
 		<?= $JML->listNew(array("label" => "New person")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList taggable filters sortable images width:100"<?= $JML->jsData() ?>>
+	<div class="all_items i:defaultList taggable filters sortable images width:100"<?= $JML->jsData(["order", "tags", "search"]) ?>>
 <?		if($items): ?>
 		<ul class="items">
 <?			foreach($items as $item): ?>

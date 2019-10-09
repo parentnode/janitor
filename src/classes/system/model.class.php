@@ -426,11 +426,12 @@ class Model extends HTML {
 			}
 		}
 
-		// else if($this->getProperty($name, "type") == "location") {
-		// 	if($this->isLocation($name)) {
-		// 		return true;
-		// 	}
-		// }
+		else if($this->getProperty($name, "type") == "location") {
+			// No composite validation for location (should look at location, longitude and latitude)
+			if($this->isString($name)) {
+				return true;
+			}
+		}
 		// else if($this->getProperty($name, "type") == "prices") {
 		// 	if($this->isPrices($name)) {
 		// 		return true;
@@ -1137,23 +1138,6 @@ class Model extends HTML {
 
 
 
-	// /**
-	// * Check if GeoLocation is entered correctly
-	// *
-	// * @param string $name Entity name
-	// * @return bool
-	// *
-	// * TODO: faulty geolocation validation -
-	// */
-	// function isLocation($name) {
-	//
-	//
-	// 	$entity = $this->data_entities[$name];
-	//
-	//
-	// 	return true;
-	//
-	// }
 
 	// // TODO: Faulty price validation
 	// function isPrices($name) {

@@ -24,7 +24,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 				<?= $model->input("name", array("value" => $item["name"])) ?>
 				<?= $model->input("description", array("class" => "autoexpand short", "value" => $item["description"])) ?>
 
-				<?= $model->inputHTML("html", array("value" => $item["html"])) ?>
+				<?= $model->input("html", array("value" => $item["html"])) ?>
  
 				<?= $model->input("job_title", array("value" => $item["job_title"])) ?>
 				<?= $model->input("email", array("value" => $item["email"])) ?>
