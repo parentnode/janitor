@@ -174,14 +174,14 @@ Util.Objects["editNavigationNode"] = new function() {
 // //				u.bug("autosave execute")
 //
 //
-// 				for(name in this.fields) {
-// 					if(this.fields[name].field) {
+// 				for(name in this.inputs) {
+// 					if(this.inputs[name].field) {
 //
 // 						// field has not been used yet
-// 						if(!this.fields[name].used) {
+// 						if(!this.inputs[name].used) {
 //
 // 							// check for required and value
-// 							if(u.hc(this.fields[name].field, "required") && !this.fields[name].val()) {
+// 							if(u.hc(this.inputs[name].field, "required") && !this.inputs[name].val()) {
 //
 // 								// cannot save due to missing values - keep trying
 // //								page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
@@ -191,7 +191,7 @@ Util.Objects["editNavigationNode"] = new function() {
 // 						}
 // 						// do actual validation
 // 						else {
-// 							u.f.validate(this.fields[name]);
+// 							u.f.validate(this.inputs[name]);
 // 						}
 // 					}
 // 				}

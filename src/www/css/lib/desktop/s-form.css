@@ -28,7 +28,10 @@ div.field.short textarea {height: 40px;}
 div.field textarea.autoexpand {width: 366px; padding: 6px 6px 2px; overflow: hidden;}
 
 /* PSEUDO LABEL - FAKE PLACEHOLDER FOR INTERGER AND NUMBER INPUTS */
-div.field .pseudolabel {position: absolute; font-size: 1.077rem; display: inline-block; padding: 8px 6px; z-index: 2;}
+div.field .pseudolabel {z-index: 2; display: none; position: absolute; font-size: 1.077rem; padding: 4px 5px; margin: 4px 2px; background-color: #ffffff;}
+div.field input.default ~ .pseudolabel {display: inline-block;}
+
+
 
 div.field.paragraph label {display: inline-block; vertical-align: top; line-height: 1.38em;} 
 div.field.paragraph label:after {content: ":";}
@@ -72,14 +75,17 @@ div.field input[type="number"]::-webkit-outer-spin-button {margin: 0;
 
 
 /* FILES */
-div.field.files {border: 3px dashed #dedede; width: 374px; display: inline-block; vertical-align: top; border-radius: 5px; position: relative; padding: 0; margin: 2px 30px 20px;}
-div.field.files input[type="file"] {opacity: 0; width: 374px; border: none; height: 60px; margin: 0; padding: 0;
-	/* IE HACK */
+div.field.files {padding: 0; margin: 0 28px 10px;}
+div.field.files input[type="file"] {z-index: 10; opacity: 0; position: absolute; top: 0; left: 0; width: 384px; border: none; height: 60px; margin: 0; padding: 0; height: 100%; position: absolute; top: 0; left: 0;
+	/*
+	IE HACK to resize file input size (currently disabled)
 	font-size: 130px;
+	*/
 }
-div.field.files label {display: block; position: absolute; width: 120px; left: 50%; padding: 1px 4px 3px; margin: 20px 0 0 -60px; text-align: center; border-radius: 6px; background: #dedede;}
-div.field.files.loading label {display: none;}
-div.field.files.loading {background: transparent url(/janitor/admin/img/gx_loader.gif) no-repeat center center;}
+div.field.files ul.filelist {border: 3px dashed #dedede; width: 378px; text-align: center; display: block; border-radius: 5px; position: relative; padding: 20px 0; margin: 0; overflow: hidden;}
+div.field.files ul.filelist li {box-sizing: border-box; display: block; padding: 2px 0 2px; font-size: 13px; line-height: 17px; text-align: center;}
+div.field.files ul.filelist li.new {font-weight: bold;}
+div.field.files ul.filelist li.label {display: inline-block; padding: 1px 10px 3px; margin-bottom: 5px; border-radius: 6px; background: #dedede;}
 
 
 /* LOCATION */
@@ -121,14 +127,13 @@ div.field.radiobuttons.focus input,
 div.field.checkbox.focus input,
 div.field.boolean.focus input {margin: 1px 10px 0 3px; border: none;}
 
+/* FOCUS - FILES */
+div.field.files.focus ul.filelist {border-color: #c8e183;}
+div.field.files.focus ul.filelist li.label {background-color: #c8e183;}
+
 /* FOCUS - LOCATION */
 div.field.location.focus input {margin: 2px; border: 1px solid #dcdcdc;}
 div.field.location.focus input.focus {margin: 0; border: 3px solid #5c5c5c;}
-
-/* FOCUS - FILES */
-div.field.files.focus {border-color: #c8e183;}
-div.field.files.focus input[type="file"] {margin: 0; border: none;}
-div.field.files.focus label {background-color: #c8e183;}
 
 
 /* DEFAULT STATE - BEFORE TEXT IS MODIFIED */
@@ -152,7 +157,7 @@ div.field.checkbox .indicator,
 div.field.boolean .indicator {top: -5px;}
 
 /* FILES */
-div.field.files .indicator {left: 387px; top: -1px;}
+div.field.files .indicator {left: 392px; top: 0px;}
 
 
 /* CORRECT */
@@ -173,7 +178,6 @@ div.field.error textarea {border: 3px solid #f8c9bb;}
 	}
 }
 
-div.field.error .pseudolabel {padding: 10px 8px;}
 
 /* ERROR - RADIOBUTTONS + CHECKBOX */
 div.field.radiobuttons.error input,
@@ -185,7 +189,7 @@ div.field.location.error input {margin: 2px; border: 1px solid #dcdcdc;}
 div.field.location.error input.error {margin: 0; border: 3px solid #f8c9bb;}
 
 /* ERROR - FILES */
-div.field.files.error {border-color: #f8c9bb;}
+div.field.files.error ul.filelist {border-color: #f8c9bb;}
 
 
 
@@ -327,6 +331,8 @@ div.field.hover div.hint+div.error {border-top-left-radius: 0; border-top-right-
 /* HTML VIEWER AND EDITOR */
 #content .field.html .viewer {display: none;}
 #content .field.html .editor {/*width: 382px;*/ width: 482px; position: relative; z-index: 3;}
+#content .field.html .editor .indicator {left: 490px;}
+
 
 /* EDITOR OPTIONS */
 #content .field.html ul.options {height: 40px; display: block; vertical-align: top; width: 30px; position: relative; z-index: 1; padding: 0;}

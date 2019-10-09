@@ -215,7 +215,7 @@ u.defaultFilters = function(div) {
 	u.f.init(div._filter.form);
 	div._filter.form.div = div;
 
-	div._filter._input = div._filter.form.fields["filter"];
+	div._filter.input = div._filter.form.inputs["filter"];
 
 	div._filter.form.updated = function() {
 
@@ -244,7 +244,7 @@ u.defaultFilters = function(div) {
 	div._filter.filterItems = function() {
 
 		var i, node;
-		var query = this._input.val().toLowerCase();
+		var query = this.input.val().toLowerCase();
 		if(this.current_filter != query+","+this.selected_tags.join(",")) {
 
 			this.current_filter = query + "," + this.selected_tags.join(",");
@@ -382,6 +382,8 @@ u.activateTagging = function(node) {
 		node._tag_options = u.ae(node, "div", {"class":"tagoptions"});
 	}
 
+	// Tag context filter
+	node._tags_context = node._tags.getAttribute("data-context");
 
 	// create add tag form
 	node._tag_form = u.f.addForm(node._tag_options, {"action": node.data_div.add_tag_url});
@@ -390,7 +392,15 @@ u.activateTagging = function(node) {
 	// add fieldset
 	var fieldset = u.f.addFieldset(node._tag_form);
 	// add input field
-	u.f.addField(fieldset, {"name":"tags", "value":"", "id":"tag_input_"+node._item_id, "label":"Tag", "hint_message":"Type to filter existing tags or add a new tag", "error_message":"Tag must conform to tag value: context:value", "pattern":"[^$]+\:[^$]+"});
+	u.f.addField(fieldset, {
+		"name":"tags", 
+		"value":"", 
+		"id":"tag_input_"+node._item_id, 
+		"label":"Tag", 
+		"hint_message":"Type to filter existing tags or add a new tag", 
+		"error_message":"Tag must conform to tag value: context:value", 
+		"pattern":(node._tags_context ? "^("+node._tags_context.split(/,|;/).join("|")+")\:[^$]+" : "[^$]+\:[^$]+")
+	});
 	// add submit button
 	u.f.addAction(node._tag_form, {"class":"button primary", "value":"Add new tag"});
 
@@ -399,7 +409,7 @@ u.activateTagging = function(node) {
 	node._tag_form.node = node;
 
 	// filter tags when typing
-	node._tag_form.fields["tags"].updated = function() {
+	node._tag_form.inputs["tags"].updated = function() {
 
 		// only filter if new tags list exists
 		if(this._form.node._new_tags) {
@@ -429,9 +439,9 @@ u.activateTagging = function(node) {
 			if(response.cms_status == "success") {
 
 				// clear tag field and update filtering
-				this.fields["tags"].val("");
-				this.fields["tags"].updated();
-				this.fields["tags"].focus();
+				this.inputs["tags"].val("");
+				this.inputs["tags"].updated();
+				this.inputs["tags"].focus();
 
 
 				// shorter reference
@@ -481,7 +491,7 @@ u.activateTagging = function(node) {
 		u.request(this, this.action+"/"+this.node._item_id, {"method":"post", "params" : u.f.getParams(this)});
 	}
 	// add focus to tag field
-	node._tag_form.fields["tags"].focus();
+	node._tag_form.inputs["tags"].focus();
 
 
 	// add list with available tag options
@@ -508,8 +518,6 @@ u.activateTagging = function(node) {
 		}
 	}
 
-	// Tag context filter
-	node._tags_context = node._tags.getAttribute("data-context");
 
 
 	// loop through all tags and add unused tags to new tags list

@@ -97,6 +97,8 @@
 #content div.all_items.sortable.videos ul.items > li.item ul.tags,
 #content div.all_items.sortable.videos ul.items > li.item dl {padding-left: 55px;}
 
+#content div.all_items.sortable ul.items > li.item.dragged {background-color: #ffffff;}
+#content div.all_items.sortable ul.items > li.item.shadow {opacity: 0.8; z-index: 100;}
 
 
 /* SORTABLE LIST WITH IMAGE, AUDIO OR VIDEO */

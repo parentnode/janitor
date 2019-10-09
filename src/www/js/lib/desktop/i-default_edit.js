@@ -7,6 +7,9 @@ Util.Objects["defaultEdit"] = new function() {
 		var form = u.qs("form", div);
 		form.div = div;
 
+		form.h2_name = u.qs("#content .scene > h2.name");
+		form.p_sindex = u.qs("#content .scene div.sindex p.sindex");
+
 
 		var autosave_setting = u.cv(div, "autosave");
 		if(autosave_setting == "off") {
@@ -27,11 +30,28 @@ Util.Objects["defaultEdit"] = new function() {
 //				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
 
 				// notifier will kill autosave if necessary (if login is required)
-				// could happen if user log off in other tab
+				// could happen if user logs off in other tab
 				page.notify(response);
 
+				// Update any potential filelists
+				u.f.updateFilelistStatus(this, response);
+
+
+				// Update values typically shown in edit page
+				if(response && response.cms_object) {
+
+					if(response.cms_object.name && this.h2_name) {
+						this.h2_name.innerHTML = response.cms_object.name;
+					}
+
+					if(response.cms_object.sindex && this.p_sindex) {
+						this.p_sindex.innerHTML = response.cms_object.sindex;
+					}
+
+				}
+
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 		}
 
@@ -59,14 +79,14 @@ Util.Objects["defaultEdit"] = new function() {
 //				u.bug("autosave execute")
 
 
-				for(name in this.fields) {
-					if(this.fields[name].field) {
+				for(name in this.inputs) {
+					if(this.inputs[name].field) {
 
 						// field has not been used yet
-						if(!this.fields[name].used) {
+						if(!this.inputs[name].used) {
 
 							// check for required and value
-							if(u.hc(this.fields[name].field, "required") && !this.fields[name].val()) {
+							if(u.hc(this.inputs[name].field, "required") && !this.inputs[name].val()) {
 
 								// cannot save due to missing values - keep trying
 //								page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
@@ -76,7 +96,7 @@ Util.Objects["defaultEdit"] = new function() {
 						}
 						// do actual validation
 						else {
-							u.f.validate(this.fields[name]);
+							u.f.validate(this.inputs[name]);
 						}
 					}
 				}
@@ -135,7 +155,7 @@ Util.Objects["newSystemMessage"] = new function() {
 
 		u.f.init(form);
 
-		form.fields["recipients"].keyup = function(event) {
+		form.inputs["recipients"].keyup = function(event) {
 
 			var recipients = this.val().replace(/,/g, ";").split(";");
 			var fieldsets = u.qsa("fieldset.values", this._form);
@@ -185,7 +205,7 @@ Util.Objects["newSystemMessage"] = new function() {
 			}
 
 		}
-		u.e.addEvent(form.fields["recipients"], "keyup", form.fields["recipients"].keyup);
+		u.e.addEvent(form.inputs["recipients"], "keyup", form.inputs["recipients"].keyup);
 
 
 		form.submitted = function(iN) {
@@ -212,7 +232,7 @@ Util.Objects["newSystemMessage"] = new function() {
 				page.notify(response);
 
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+			u.request(this, this.action, {"method":"post", "data" : this.getData({"format":"formdata"})});
 
 		}
 
@@ -234,7 +254,7 @@ Util.Objects["sendMessage"] = new function() {
 		form.submitted = function(iN) {
 
 			// recipients or maillist_id must be filled out
-			if(this.fields["recipients"].val() || this.fields["maillist_id"].val() || this.fields["user_id"].val()) {
+			if(this.inputs["recipients"].val() || this.inputs["maillist_id"].val() || this.inputs["user_id"].val()) {
 
 				// save message before sending mail
 				this.div_message_form.submit();
@@ -280,8 +300,8 @@ Util.Objects["sendMessage"] = new function() {
 			}
 			else {
 				
-				u.f.fieldError(this.fields["recipients"]);
-				u.f.fieldError(this.fields["maillist_id"]);
+				u.f.fieldError(this.inputs["recipients"]);
+				u.f.fieldError(this.inputs["maillist_id"]);
 
 			}
 

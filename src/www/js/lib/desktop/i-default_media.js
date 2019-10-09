@@ -5,484 +5,260 @@ Util.Objects["addMedia"] = new function() {
 
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
-		div.media_list = u.qs("ul.mediae", div);
 
+
+		// base media info
 		div.item_id = u.cv(div, "item_id");
+		div.variant = u.cv(div, "variant");
 
 
 		u.f.init(div.form);
 
 
-		div.csrf_token = div.form.fields["csrf-token"].val();
+		div.csrf_token = div.form.inputs["csrf-token"].val();
 		div.delete_url = div.getAttribute("data-media-delete");
 		div.update_name_url = div.getAttribute("data-media-name");
 		div.save_order_url = div.getAttribute("data-media-order");
 
 
+		// Create easy reference to file input
+		div.media_input = div.form.inputs[div.variant+"[]"];
+		div.filelist = div.media_input.field.filelist;
+		div.previewlist = u.ae(div, "ul", {class:"previewlist"});
+		div.previewlist.div = div;
 
-		div.form.file_input = u.qs("input[type=file]", div.form);
-		div.form.file_input.div = div;
-		div.form.file_input.changed = function() {
-			this.form.submit();
+
+		// Submit on change
+		div.form.changed = function() {
+			this.submit();
 		}
 
 		// upload form submitted
 		div.form.submitted = function() {
 
-			u.ac(this.file_input.field, "loading");
-			u.rc(this.file_input.field, "focus");
+			this.div.media_input.blur();
+			// Enter loading state
+			u.ac(this.div.media_input.field, "loading");
 
-			var form_data = new FormData(this);
+
 			this.response = function(response) {
 				page.notify(response);
 
 				// inject/update image if everything went well
 				if(response.cms_status == "success" && response.cms_object) {
 
-					var i, media, node, image;
-					for(i = 0; media = response.cms_object[i]; i++) {
+					// Update file list status
+					u.f.updateFilelistStatus(this, response);
 
-						if(u.hc(this.div, "variant")) {
-							var existing_variant = u.ge("variant:"+media.variant);
-							if(existing_variant) {
-								existing_variant.parentNode.removeChild(existing_variant);
-							}
-						}
-
-						var node = u.ie(this.div.media_list, "li", {"class":"media"});
-
-						node.div = this.div;
-						node.media_list = this.div.media_list;
-						node.media_format = media.format;
-						node.media_variant = media.variant;
-						
-						u.ac(node, "format:"+media.format);
-						u.ac(node, "variant:"+media.variant);
-						u.ac(node, "media_id:"+media.media_id);
-
-						// inject preview
-						this.div.addPreview(node);
-
-						// update media name (preview makes sure name container is available)
-						if(u.hc(this.div, "variant")) {
-							node.media_name.innerHTML = media.variant;
-						}
-						else {
-							node.media_name.innerHTML = media.name;
-						}
-
-						this.div.adjustMediaName(node);
-
-						// add update form for image name
-						if(!u.hc(this.div, "variant") && this.div.update_name_url) {
-							this.div.addUpdateNameForm(node);
-						}
-
-					}
-
-					if(this.div.save_order_url) {
-						u.sortable(this.div.media_list);
-					}
-				}
-
-				u.rc(this.file_input.field, "loading");
-				this.file_input.val("");
-			}
-			u.request(this, this.action, {"method":"post", "params":form_data});
-		}
-
-
-		// add delete form
-		div.addDeleteForm = function(node) {
-
-			if(!node.delete_form) {
-				node.delete_form = u.f.addForm(node, {"action":this.delete_url+"/"+this.item_id+"/"+u.cv(node, "variant"), "class":"delete"});
-				node.delete_form.node = node;
-				u.ae(node.delete_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
-
-				var bn_delete = u.f.addAction(node.delete_form, {"class":"button delete"});
-
-				node.delete_form.deleted = function() {
-					this.node.parentNode.removeChild(this.node);
-
-					if(u.hc(this.node.div, "sortable")) {
-						u.sortable(this.node.div.media_list, {"targets":"mediae", "draggables":"media"});
-					}
-
-					this.node.delete_form = null;
-				}
-				u.o.deleteMedia.init(node.delete_form);
-			}
-		}
-
-		// add delete form
-		div.addUpdateNameForm = function(node) {
-
-			node.media_name.node = node;
-
-			// enable edit state
-			u.ce(node.media_name);
-			// eliminate dragging if sorting is also enable
-			node.media_name.inputStarted = function(event) {
-				u.e.kill(event);
-				this.node.media_list._sorting_disabled = true;
-			}
-			node.media_name.clicked = function(event) {
-				u.ac(this.node, "edit");
-
-				var input = this.node.update_name_form.fields["name"];
-				var field = input.field;
-
-				input.focus();
-
-				// set specific input width to match image
-				var f_w = field.offsetWidth;
-				var f_p_l = parseInt(u.gcs(field, "padding-left"));
-				var f_p_r = parseInt(u.gcs(field, "padding-right"));
-				var i_p_l = parseInt(u.gcs(input, "padding-left"));
-				var i_p_r = parseInt(u.gcs(input, "padding-right"));
-				var i_m_l = parseInt(u.gcs(input, "margin-left"));
-				var i_m_r = parseInt(u.gcs(input, "margin-right"));
-				var i_b_l = parseInt(u.gcs(input, "border-left-width"));
-				var i_b_r = parseInt(u.gcs(input, "border-right-width"));
-				u.as(input, "width", (f_w - f_p_l - f_p_r - i_p_l - i_p_r - i_m_l - i_m_r - i_b_l - i_b_r)+"px");
-
-			}
-
-			// add update form
-			node.update_name_form = u.f.addForm(node, {"action":this.update_name_url+"/"+this.item_id+"/"+u.cv(node, "variant"), "class":"edit"});
-			node.update_name_form.node = node;
-			var field = u.ae(node.update_name_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
-			var field = u.f.addField(node.update_name_form, {"type":"string","name":"name", "value":node.media_name.innerHTML});
-
-			// init form
-			u.f.init(node.update_name_form);
-
-			// submit on blur
-			node.update_name_form.fields["name"].blurred = function() {
-				u.bug("blurred")
-				this.form.updateName();
-			}
-
-			// do nothing on submit - it is handled on blur
-			node.update_name_form.submitted = function() {}
-
-			// update name
-			node.update_name_form.updateName = function() {
-
-				u.rc(this.node, "edit");
-				this.node.media_list._sorting_disabled = false;
-
-				// submit new image name
-				this.response = function(response) {
-
-					page.notify(response);
-
-					// inject/update image if everything went well
-					if(response.cms_status == "success" && response.cms_object) {
-						this.node.media_name.innerHTML = this.fields["name"].val();
-					}
-					else {
-						this.fields["name"].val(this.node.media_name.innerHTML);
-					}
+					// update preview
+					this.div.updatePreviews();
 
 				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+
+				// Leave loading state
+				u.rc(this.div.media_input.field, "loading");
+				// Reset file queue
+				this.div.media_input.val("");
 
 			}
+			u.request(this, this.action, {"method":"post", "data":this.getData()});
+
 		}
 
 
 		// set media type for form
 		// previews are different for different types
 		// add preview based on current media format
-		div.addPreview = function(node) {
+		div.updatePreviews = function() {
 
-			// remove existing image
-			if(node.image) {
-				node.image.parentNode.removeChild(node.image);
-				node.image = null;
-			}
-			// remove existing video
-			if(node.video) {
-				node.video.parentNode.removeChild(node.video);
-				node.video = null;
-			}
+			// Look for something to preview
+			var nodes = u.qsa("li.uploaded,li.new", this.filelist);
+			if(nodes) {
 
+				var i, node, li;
+				for(i = 0; i < nodes.length; i++) {
 
-			// set media type
-			node.is_image = node.media_format.match(/jpg|png|gif/i);
-			node.is_audio = node.media_format.match(/mp3|ogg/i);
-			node.is_video = node.media_format.match(/mov|mp4|ogv|3gp/i);
-			node.is_zip = node.media_format.match(/zip/i);
-			node.is_pdf = node.media_format.match(/pdf/i);
+					node = nodes[i];
+
+					// Only do something if node doesn't already have preview
+					if(!node.li_preview) {
 
 
-			// file div available
-			// if(!node.media_file && node.media_format) {
-			// 	node.media_file = u.ae(node, "div", {"class":"file"});
-			// }
+						// Get base properties
+						node.media_format = u.cv(node, "format");
+						node.media_variant = u.cv(node, "variant");
+						node.media_id = u.cv(node, "media_id");
+						node.media_name = node.innerHTML;
+						node.div = this;
 
-			if(node.media_format) {
 
-				// media play button
-				node.bn_player = u.qs("a", node);
-				if(!node.bn_player) {
-					node.bn_player = u.ie(node, "a");
+						node.li_preview = u.ae(this.previewlist, "li", {class: "preview media_id:" + node.media_id});
+						node.preview = u.ae(node.li_preview, "div", {class: "preview " + node.media_format});
+						node.preview.node = node;
+
+
+						// set media type
+						if(node.media_format.match(/^(jpg|png|gif)$/i)) {
+
+							this.addImagePreview(node);
+						}
+						else if(node.media_format.match(/^(mp3|ogg|wav|aac)$/i)) {
+					
+							this.addAudioPreview(node);
+						}
+						else if(node.media_format.match(/^(mov|mp4|ogv|3gp)$/i)) {
+
+							this.addVideoPreview(node);
+						}
+						else if(node.media_format.match(/^zip$/i)) {
+					
+							this.addZipPreview(node);
+						}
+						else if(node.media_format.match(/^pdf$/i)) {
+
+							this.addPdfPreview(node);
+						}
+
+
+						// Add rename form
+						u.addRenameMediaForm(div, node);
+
+						// Add delete form
+						u.addDeleteMediaForm(div, node);
+
+
+						// Callback on successful delete
+						node.delete_form.deleted = function(response) {
+
+							// Remove from filelist
+							this.node.div.filelist.removeChild(this.node);
+
+							// Remove from preview list
+							this.node.div.previewlist.removeChild(this.node.li_preview);
+
+							// Update uploaded_files list
+							this.node.div.media_input.field.uploaded_files = u.qsa("li.uploaded", this.node.div.filelist);
+
+							// Update sortable
+							if(fun(this.node.div.previewlist.updateDraggables)) {
+								this.node.div.previewlist.updateDraggables();
+							}
+
+						}
+
+					}
+					// Maintain order
+					else {
+						u.ae(this.previewlist, node.li_preview);
+					}
+
 				}
-				node.bn_player.node = node;
-				u.ce(node.bn_player);
 
-
-				// media name
-				node.media_name = u.qs("p", node);
-				if(!node.media_name) {
-					node.media_name = u.ae(node, "p");
-				}
-				node.media_name.node = node;
 			}
 
-
-			u.rc(node, "image|audio|video|pdf|zip");
-
-
-			// inject previews
-			if(node.is_audio) {
-				u.ac(node, "audio");
-				this.addAudioPreview(node);
-			}
-			else if(node.is_video) {
-				u.ac(node, "video");
-				this.addVideoPreview(node);
-			}
-			else if(node.is_image) {
-				u.ac(node, "image");
-				this.addImagePreview(node);
-			}
-			else if(node.is_pdf) {
-				u.ac(node, "pdf");
-				this.addPdfPreview(node);
-			}
-			else if(node.is_zip) {
-				u.ac(node, "zip");
-				this.addZipPreview(node);
+			// Update sortable
+			if(fun(this.previewlist.updateDraggables)) {
+				this.previewlist.updateDraggables();
 			}
 
 		}
 
 
-		div.adjustMediaName = function(node) {
-			// u.bug("adjust media name:", node, node.media_name);
+		// IMAGE preview
+		div.addImagePreview = function(node) {
 
-			// adjust media name width
-			if(node.media_name) {
+			// Get additional image properties
+			node.media_width = u.cv(node, "width");
+			node.media_height = u.cv(node, "height");
 
-				// Set p width to match li
-				var n_w = node.offsetWidth;
-				var p_p_l = parseInt(u.gcs(node.media_name, "padding-left"));
-				var p_p_r = parseInt(u.gcs(node.media_name, "padding-right"));
-				u.as(node.media_name, "width", (n_w - p_p_l - p_p_r)+"px");
 
-			}
+			// Adjust preview height
+			u.ass(node.preview, {
+				"width": ((node.preview.offsetHeight/node.media_height) * node.media_width) + "px",
+				"backgroundImage": "url(/images/"+this.item_id+"/"+node.media_variant+"/x"+node.preview.offsetHeight+"."+node.media_format+"?"+u.randomString(4)+")"
+			});
 
 		}
-
-		// add image container (if needed)
-		div.addImage = function(node) {
-
-			if(!node.image && node.media_format) {
-				node.image = u.ae(node, "img");
-
-				var proportion = u.cv(node, "width")/u.cv(node, "height");
-
-				u.as(node.image, "width", (node.offsetHeight*proportion)+"px");
-				u.as(node.image, "height", node.offsetHeight+"px");
-			}
-		}
-
-		// add video container (if needed)
-		div.addVideo = function(node) {
-
-			if(!page.videoplayer) {
-				page.videoplayer = u.videoPlayer();
-			}
-
-			if(!node.video && node.media_format) {
-				node.video = u.ae(node, page.videoplayer);
-
-				var proportion = u.cv(node, "width")/u.cv(node, "height");
-
-				u.as(node.video, "width", (node.offsetHeight*proportion)+"px");
-				u.as(node.video, "height", node.offsetHeight+"px");
-			}
-		}
-
 
 		// PDF preview
 		div.addPdfPreview = function(node) {
 
-			// add image if it does not exist and format is available
-			this.addImage(node);
+			// Adjust preview height
+			u.ass(node.preview, {
+				"backgroundImage": "url(/images/0/pdf/30x.png)"
+			});
 
-			if(node.media_format) {
-
-				this.addDeleteForm(node);
-				node.image.src = "/images/0/pdf/x"+node.offsetHeight+".png?"+u.randomString(4);
-			}
 		}
 
 		// ZIP preview
 		div.addZipPreview = function(node) {
 
-			// add image if it does not exist and format is available
-			this.addImage(node);
+			// Adjust preview height
+			u.ass(node.preview, {
+				"backgroundImage": "url(/images/0/zip/30x.png)"
+			});
 
-			if(node.media_format) {
-
-				this.addDeleteForm(node);
-				node.image.src = "/images/0/zip/x"+node.offsetHeight+".png?"+u.randomString(4);
-			}
-		}
-
-		// IMAGE preview
-		div.addImagePreview = function(node) {
-
-			// add image if it does not exist and format is available
-			this.addImage(node);
-
-			if(node.media_format) {
-
-				this.addDeleteForm(node);
-
-				node.loaded = function(queue) {
-					this.image.src = queue[0].image.src;
-
-					this.div.adjustMediaName(this);
-					
-				}
-				u.preloader(node, ["/images/"+this.item_id+"/"+node.media_variant+"/x"+node.offsetHeight+"."+node.media_format+"?"+u.randomString(4)]);
-			}
 		}
 
 		// AUDIO preview
 		div.addAudioPreview = function(node) {
 
-			// TODO: add mp3 file "preview"-bg
+			// enable playback
+			node.preview.audio_url = "/audios/"+this.item_id+"/"+node.media_variant+"/128."+node.media_format+"?"+u.randomString(4);
 
-			// make sure we have audioplayer available
-			if(!page.audioplayer) {
-				page.audioplayer = u.audioPlayer();
-			}
+			// Add play button
+			u.addPlayMedia(this, node);
 
-			// if media format is available
-			if(node.media_format) {
-
-				this.addDeleteForm(node);
-
-				node.bn_player.url = "/audios/"+this.item_id+"/"+node.media_variant+"/128."+node.media_format+"?"+u.randomString(4);
-				node.bn_player.inputStarted = function(event) {
-					u.e.kill(event);
-					this.node.media_list._sorting_disabled = true;
-				}
-				node.bn_player.clicked = function(event) {
-					if(!u.hc(this, "playing")) {
-						page.audioplayer.loadAndPlay(this.url);
-						u.ac(this, "playing");
-					}
-					else {
-						page.audioplayer.stop();
-						u.rc(this, "playing");
-					}
-
-					this.node.media_list._sorting_disabled = false;
-				}
-			}
 		}
 
 		// VIDEO preview
 		div.addVideoPreview = function(node) {
 
-			// TODO: add video file "preview"-bg
-			this.addVideo(node);
+			// Get additional image properties
+			node.media_width = u.cv(node, "width");
+			node.media_height = u.cv(node, "height");
 
-			// if media format is available
-			if(node.media_format) {
-
-				this.addDeleteForm(node);
-
-				node.bn_player.url = "/videos/"+this.item_id+"/"+node.media_variant+"/x"+node.offsetHeight+"."+node.media_format+"?"+u.randomString(4);
-				node.bn_player.inputStarted = function(event) {
-					u.e.kill(event);
-					this.node.media_list._sorting_disabled = true;
-				}
-				node.bn_player.clicked = function(event) {
-					if(!u.hc(this, "playing")) {
-						this.node.video.loadAndPlay(this.url);
-						u.ac(this, "playing");
-					}
-					else {
-						this.node.video.stop();
-						u.rc(this, "playing");
-					}
-
-					this.node.media_list._sorting_disabled = false;
-				}
-			}
-		}
+			// Adjust preview height
+			u.ass(node.preview, {
+				"width": ((node.preview.offsetHeight/node.media_height) * node.media_width) + "px",
+			});
 
 
+			// enable playback
+			node.preview.video_url = "/videos/"+this.item_id+"/"+node.media_variant+"/"+this.filelist.offsetWidth+"x."+node.media_format+"?"+u.randomString(4);
 
-		// image list exists?
-		if(!div.media_list) {
-			u.ae(div, "ul", {"class":"mediae"});
-		}
-
-		// get media list nodes
-		div.media_list.nodes = u.qsa("li.media", div.media_list);
-		div.media_list.div = div;
-
-		// inject delete forms in existing media list
-		var i, node;
-		for(i = 0; node = div.media_list.nodes[i]; i++) {
-
-			node.div = div;
-			node.media_list = div.media_list;
-			node.image = u.qs("img", node);
-
-			node.media_variant = u.cv(node, "variant");
-			node.media_format = u.cv(node, "format");
-
-			div.addPreview(node);
-
-			div.adjustMediaName(node);
-
-			// add update form for image name
-			if(!u.hc(div, "variant") && div.update_name_url) {
-				div.addUpdateNameForm(node);
-			}
-
+			// Add play button
+			u.addPlayMedia(this, node);
 
 		}
+
+
+
+		div.updatePreviews();
 
 
 		// sortable list
-		if(!u.hc(div, "variant") && u.hc(div, "sortable") && div.media_list && div.save_order_url) {
+		if(u.hc(div, "sortable") && div.save_order_url) {
 
-			u.sortable(div.media_list, {"targets":"mediae", "draggables":"media"});
-			div.media_list.picked = function() {}
-			div.media_list.dropped = function() {
-				var order = new Array();
-				this.nodes = u.qsa("li.media", this);
-				for(i = 0; node = this.nodes[i]; i++) {
-					order.push(u.cv(node, "media_id"));
-				}
+			u.sortable(div.previewlist);
+
+			div.previewlist.picked = function(event) {}
+			div.previewlist.dropped = function(event) {
+
+				// Get node order
+				var order = this.getNodeOrder({class_var:"media_id"});
+
 				this.response = function(response) {
 					// Notify of event
 					page.notify(response);
 				}
-				u.request(this, this.div.save_order_url+"/"+this.div.item_id, {"method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
+				u.request(this, this.div.save_order_url+"/"+this.div.item_id, {
+					"method":"post", 
+					"data":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")
+				});
 			}
 		}
+		// no save url
 		else {
 			u.rc(div, "sortable");
 		}
@@ -490,402 +266,377 @@ Util.Objects["addMedia"] = new function() {
 	}
 }
 
-// default delete form
-Util.Objects["deleteMedia"] = new function() {
-	this.init = function(form) {
-		// u.bug("deleteMedia init:", form);
-
-		u.f.init(form);
-
-		var bn_delete = u.qs("input.delete", form);
-		if(bn_delete) {
-
-			bn_delete.org_value = bn_delete.value;
-
-			u.e.click(bn_delete);
-			bn_delete.restore = function(event) {
-				this.value = this.org_value;
-				u.rc(this, "confirm");
-			}
-
-			bn_delete.inputStarted = function(event) {
-				u.e.kill(event);
-			}
-
-			bn_delete.clicked = function(event) {
-				u.e.kill(event);
-
-				// first click
-				if(!u.hc(this, "confirm")) {
-					u.ac(this, "confirm");
-					this.value = "Confirm";
-					this.t_confirm = u.t.setTimer(this, this.restore, 3000);
-				}
-				// confirm click
-				else {
-					u.t.resetTimer(this.t_confirm);
-
-					this.response = function(response) {
-						page.notify(response);
-
-						if(response.cms_status == "success") {
-							// check for constraint error preventing row from actually being deleted
-							if(response.cms_object && response.cms_object.constraint_error) {
-								this.value = this.org_value;
-								u.ac(this, "disabled");
-							}
-							else {
-								// look for callback method on form
-								if(typeof(this.form.deleted) == "function") {
-									this.form.deleted();
-								}
-								else {
-									location.reload();
-								}
-							}
-						}
-						else {
-							this.restore();
-						}
-					}
-					u.request(this, this.form.action, {"method":"post", "params" : u.f.getParams(this.form)});
-				}
-			}
-		}
-
-	}
-}
-
-
-
 // Add images form
 Util.Objects["addMediaSingle"] = new function() {
 	this.init = function(div) {
+		// u.bug("addMediaSingle init:", div);
 
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
 
 		// base media info
 		div.item_id = u.cv(div, "item_id");
-		div.media_variant = u.cv(div, "variant");
-		div.media_format = u.cv(div, "format");
-		div.media_file = u.qs("div.file", div);
-
-
-		// get media size for image and video previews
-		div.media_input = u.qs("input[type=file]", div.form);
-		div.media_input_width = div.media_input.offsetWidth+10;
-		div.media_input_height = Math.round(div.media_input_width / (div.media_input.offsetWidth/(div.media_input.offsetHeight+6)));
-
-
-
-		// set media type for form
-		// previews are different for different types
-		// add preview based on current media format
-		div.addPreview = function() {
-
-			// remove existing image
-			if(this.image) {
-				this.image.parentNode.removeChild(this.image);
-				this.image = null;
-			}
-			// remove existing video
-			if(this.video) {
-				this.video.parentNode.removeChild(this.video);
-				this.video = null;
-			}
-
-
-			// set media type
-			this.is_image = this.media_format.match(/jpg|png|gif/i);
-			this.is_audio = this.media_format.match(/mp3|ogg/i);
-			this.is_video = this.media_format.match(/mov|mp4|ogv|3gp/i);
-			this.is_zip = this.media_format.match(/zip/i);
-			this.is_pdf = this.media_format.match(/pdf/i);
-
-
-			// file div available
-			if(!this.media_file && this.media_format) {
-				this.media_file = u.ae(this, "div", {"class":"file"});
-			}
-
-			if(this.media_file) {
-				this.media_file.div = this;
-
-
-				// media play button
-				this.bn_player = u.qs("a", this.media_file);
-				if(!this.bn_player) {
-					this.bn_player = u.ie(this.media_file, "a");
-				}
-				this.bn_player.div = this;
-				u.ce(this.bn_player);
-
-
-				// media name
-				this.media_name = u.qs("p", this.media_file);
-				if(!this.media_name) {
-					this.media_name = u.ae(this.media_file, "p");
-				}
-				this.media_name.div = this;
-			}
-
-
-			u.rc(this, "image|audio|video|pdf|zip");
-
-
-			// inject previews
-			if(this.is_audio) {
-				u.ac(this, "audio");
-				this.addAudioPreview();
-			}
-			else if(this.is_video) {
-				u.ac(this, "video");
-				this.addVideoPreview();
-			}
-			else if(this.is_image) {
-				u.ac(this, "image");
-				this.addImagePreview();
-			}
-			else if(this.is_pdf) {
-				u.ac(this, "pdf");
-				this.addPdfPreview();
-			}
-			else if(this.is_zip) {
-				u.ac(this, "zip");
-				this.addZipPreview();
-			}
-		}
-
-		// add image container (if needed)
-		div.addImage = function() {
-
-			if(!this.image && this.media_format) {
-				this.image = u.ae(this, "img");
-				u.as(this.image, "width", div.media_input_width+"px");
-				u.as(this.image, "height", div.media_input_height+"px");
-			}
-			if(this.media_file) {
-				u.as(this.media_file, "top",( this.image.offsetTop + this.image.offsetHeight - this.media_file.offsetHeight) + "px");
-			}
-		}
-
-		// add video container (if needed)
-		div.addVideo = function() {
-
-			if(!page.videoplayer) {
-				page.videoplayer = u.videoPlayer();
-			}
-
-			if(!this.video && this.media_format) {
-				this.video = u.ae(this, page.videoplayer);
-				u.as(this.video, "width", div.media_input_width+"px");
-				u.as(this.video, "height", div.media_input_height+"px");
-			}
-			if(this.media_file) {
-				u.as(this.media_file, "top",( this.video.offsetTop + this.video.offsetHeight - this.media_file.offsetHeight) + "px");
-			}
-		}
-
+		div.variant = u.cv(div, "variant");
 
 
 		u.f.init(div.form);
 
 
-		div.csrf_token = div.form.fields["csrf-token"].val();
+		div.csrf_token = div.form.inputs["csrf-token"].val();
 		div.delete_url = div.getAttribute("data-media-delete");
+		div.update_name_url = div.getAttribute("data-media-name");
 
 
-		div.form.file_input = u.qs("input[type=file]", div.form);
-		div.form.file_input.div = div;
-		div.form.file_input.changed = function() {
-			this.form.submit();
+		// Create easy reference to file input
+		div.media_input = div.form.inputs[div.variant+"[]"];
+		div.filelist = div.media_input.field.filelist;
+
+		// Submit on change
+		div.form.changed = function() {
+			this.submit();
 		}
 
+		// Handle upload
 		div.form.submitted = function() {
 
-			u.ac(this.file_input.field, "loading");
-			u.rc(this.file_input.field, "focus");
-
-				// hide existing image while waiting for response
-			if(this.div.image) {
-				u.as(this.div.image, "display", "none");
-			}
-			if(this.div.video) {
-				u.as(this.div.video, "display", "none");
-			}
-			if(this.div.media_file) {
-				u.as(this.div.media_file, "display", "none");
-			}
+			this.div.media_input.blur();
+			// Enter loading state
+			u.ac(this.div.media_input.field, "loading");
 
 
-			var form_data = new FormData(this);
+			// hide existing preview while waiting for response
+			if(this.div.preview) {
+				u.as(this.div.preview, "display", "none");
+			}
+
 			this.response = function(response) {
 				page.notify(response);
-
-				// show existing previews (will be updated sutomatically if response is valid)
-				if(this.div.image) {
-					u.as(this.div.image, "display", "block");
-				}
-				if(this.div.video) {
-					u.as(this.div.video, "display", "block");
-				}
-				if(this.div.media_file) {
-					u.as(this.div.media_file, "display", "block");
-				}
-
 
 				// inject/update preview if everything went well
 				if(response.cms_status == "success" && response.cms_object) {
 
-					this.div.media_format = response.cms_object.format;
+					// Update file list status
+					u.f.updateFilelistStatus(this, response);
 
-					u.rc(this.div, "format:[a-z]*");
-					u.ac(this.div, "format:"+this.div.media_format);
+					// update preview
+					this.div.updatePreview();
 
-					// inject preview
-					this.div.addPreview();
-
-					// update media name (preview makes sure name container is available)
-					this.div.media_name.innerHTML = response.cms_object.name;
 				}
 
-				u.rc(this.file_input.field, "loading");
-				this.file_input.val("");
+				// Leave loading state
+				u.rc(this.div.media_input.field, "loading");
+				// Reset file queue
+				this.div.media_input.val("");
+
 			}
-			u.request(this, this.action, {"method":"post", "params":form_data});
-		}
-
-		// add delete form
-		div.addDeleteForm = function() {
-
-			if(!this.delete_form) {
-				this.delete_form = u.f.addForm(this, {"action":this.delete_url+"/"+this.item_id+"/"+this.media_variant, "class":"delete"});
-				this.delete_form.div = this;
-				u.ae(this.delete_form, "input", {"type":"hidden", "name":"csrf-token", "value":this.csrf_token});
-				this.bn_delete = u.f.addAction(this.delete_form, {"class":"button delete"});
-
-				this.delete_form.deleted = function() {
-
-					if(this.div.video) {
-						this.div.video.parentNode.removeChild(this.div.video);
-						this.div.video = false;
-					}
-					if(this.div.image) {
-						this.div.image.parentNode.removeChild(this.div.image);
-						this.div.image = false;
-					}
-					if(this.div.media_file) {
-						this.div.media_file.parentNode.removeChild(this.div.media_file);
-						this.div.media_file = false;
-					}
-
-					// remove delete_form
-					this.parentNode.removeChild(this);
-					this.div.delete_form = null;
-				}
-				u.o.deleteMedia.init(this.delete_form);
-			}
+			u.request(this, this.action, {"method":"post", "data":this.getData()});
 		}
 
 
+		// set media type for form
+		// previews are different for different types
+		// add preview based on current media format
+		div.updatePreview = function() {
+
+			// remove existing preview
+			if(this.preview) {
+				this.preview.parentNode.removeChild(this.preview);
+				delete this.preview;
+			}
+
+			// Look for something to preview
+			var node = u.qs("li.uploaded", this.filelist);
+			if(node) {
+
+
+				// Get base properties
+				node.media_format = u.cv(node, "format");
+				node.media_variant = u.cv(node, "variant");
+				node.media_name = node.innerHTML;
+				node.div = this;
+
+				// Create preview node
+				node.preview = u.ae(this, "div", {class: "preview " + node.media_format});
+				node.preview.node = node;
+				// map current preview to div
+				this.preview = node.preview;
+
+				// Adjust preview width
+				u.ass(node.preview, {
+					"width": this.filelist.offsetWidth + "px"
+				});
+
+
+				// set media type
+				if(node.media_format.match(/^(jpg|png|gif)$/i)) {
+
+					this.addImagePreview(node);
+				}
+				else if(node.media_format.match(/^(mp3|ogg|wav|aac)$/i)) {
+					
+					this.addAudioPreview(node);
+				}
+				else if(node.media_format.match(/^(mov|mp4|ogv|3gp)$/i)) {
+
+					this.addVideoPreview(node);
+				}
+				else if(node.media_format.match(/^zip$/i)) {
+					
+					this.addZipPreview(node);
+				}
+				else if(node.media_format.match(/^pdf$/i)) {
+
+					this.addPdfPreview(node);
+				}
+
+
+				// Add rename form
+				u.addRenameMediaForm(div, node);
+
+				// Add delete form
+				u.addDeleteMediaForm(div, node);
+
+				// Callback on successful delete
+				node.delete_form.deleted = function(response) {
+
+					// Reset uploaded files list
+					this.node.div.media_input.field.uploaded_files = false;
+
+					// Force validation
+					this.node.div.media_input.val("");
+
+					// Update preview
+					this.node.div.updatePreview();
+
+				}
+
+			}
+
+		}
+
+
+		// IMAGE preview
+		div.addImagePreview = function(node) {
+
+			// Get additional image properties
+			node.media_width = u.cv(node, "width");
+			node.media_height = u.cv(node, "height");
+
+			// Adjust preview height
+			u.ass(node.preview, {
+				"height": ((this.filelist.offsetWidth/node.media_width) * node.media_height) + "px",
+				"backgroundImage": "url(/images/"+this.item_id+"/"+node.media_variant+"/"+this.filelist.offsetWidth+"x."+node.media_format+"?"+u.randomString(4)+")"
+			});
+
+		}
 
 		// PDF preview
-		div.addPdfPreview = function() {
+		div.addPdfPreview = function(node) {
 
-			// add image if it does not exist and format is available
-			this.addImage();
+			// Adjust preview height
+			u.ass(node.preview, {
+				"backgroundImage": "url(/images/0/pdf/30x.png)"
+			});
 
-			if(this.media_format) {
-
-				this.addDeleteForm();
-				this.image.src = "/images/0/pdf/x"+this.media_input_height+".png?"+u.randomString(4);
-			}
 		}
 
 		// ZIP preview
-		div.addZipPreview = function() {
+		div.addZipPreview = function(node) {
 
-			// add image if it does not exist and format is available
-			this.addImage();
+			// Adjust preview height
+			u.ass(node.preview, {
+				"backgroundImage": "url(/images/0/zip/30x.png)"
+			});
 
-			if(this.media_format) {
-
-				this.addDeleteForm();
-				this.image.src = "/images/0/zip/x"+this.media_input_height+".png?"+u.randomString(4);
-			}
-		}
-
-		// IMAGE preview
-		div.addImagePreview = function() {
-
-			// add image if it does not exist and format is available
-			this.addImage();
-
-			if(this.media_format) {
-
-				this.addDeleteForm();
-				this.image.src = "/images/"+this.item_id+"/"+this.media_variant+"/x"+this.media_input_height+"."+this.media_format+"?"+u.randomString(4);
-			}
 		}
 
 		// AUDIO preview
-		div.addAudioPreview = function() {
+		div.addAudioPreview = function(node) {
 
-			// TODO: add mp3 file "preview"-bg
+			// enable playback
+			node.preview.audio_url = "/audios/"+this.item_id+"/"+node.media_variant+"/128."+node.media_format+"?"+u.randomString(4);
 
-			// make sure we have audioplayer available
-			if(!page.audioplayer) {
-				page.audioplayer = u.audioPlayer();
-			}
+			// Add play button
+			u.addPlayMedia(this, node);
 
-			// if media format is available
-			if(this.media_format) {
-
-				this.addDeleteForm();
-
-				this.bn_player.url = "/audios/"+this.item_id+"/"+this.media_variant+"/128."+this.media_format+"?"+u.randomString(4);
-				this.bn_player.clicked = function(event) {
-					if(!u.hc(this, "playing")) {
-						page.audioplayer.loadAndPlay(this.url);
-						u.ac(this, "playing");
-					}
-					else {
-						page.audioplayer.stop();
-						u.rc(this, "playing");
-					}
-				}
-			}
 		}
 
 		// VIDEO preview
-		div.addVideoPreview = function() {
+		div.addVideoPreview = function(node) {
 
-			// TODO: add video file "preview"-bg
-			this.addVideo();
+			// Get additional image properties
+			node.media_width = u.cv(node, "width");
+			node.media_height = u.cv(node, "height");
 
-			// if media format is available
-			if(this.media_format) {
+			// Adjust preview height
+			u.ass(node.preview, {
+				"height": ((this.filelist.offsetWidth/node.media_width) * node.media_height) + "px"
+			});
 
-				this.addDeleteForm();
 
-				this.bn_player.url = "/videos/"+this.item_id+"/"+this.media_variant+"/x"+this.media_input_height+"."+this.media_format+"?"+u.randomString(4);
-				this.bn_player.clicked = function(event) {
-					if(!u.hc(this, "playing")) {
-						this.div.video.loadAndPlay(this.url);
-						u.ac(this, "playing");
-					}
-					else {
-						this.div.video.stop();
-						u.rc(this, "playing");
-					}
-				}
-			}
+			// enable playback
+			node.preview.video_url = "/videos/"+this.item_id+"/"+node.media_variant+"/"+this.filelist.offsetWidth+"x."+node.media_format+"?"+u.randomString(4);
+
+			// Add play button
+			u.addPlayMedia(this, node);
+
 		}
 
 
 		// add start preview
-		div.addPreview();
+		div.updatePreview();
 
 	}
 }
+
+// add play form
+u.addPlayMedia = function(div, node) {
+
+	// Create play button
+	node.bn_play = u.ae(node.preview, "div", {"class":"play"});
+	node.bn_play.preview = node.preview;
+
+	u.ce(node.bn_play);
+	node.bn_play.clicked = function(event) {
+		if(!this.player) {
+			this.player = this.preview.audio_url ? u.audioPlayer() : u.videoPlayer();
+			this.player.bn_play = this;
+			this.player.ended = function() {
+				// remove player
+				u.rc(this.bn_play, "playing");
+
+				delete this.parentNode.player;
+				this.parentNode.removeChild(this);
+			}
+		}
+
+		// inject player
+		u.ae(this.preview, this.player);
+
+
+		if(!u.hc(this, "playing")) {
+			this.player.loadAndPlay(this.preview.audio_url ? this.preview.audio_url : this.preview.video_url);
+			u.ac(this, "playing");
+		}
+		else {
+			this.player.stop();
+			u.rc(this, "playing");
+
+			// remove player
+			this.preview.removeChild(this.player);
+			delete this.player;
+		}
+	}
+}
+
+// add delete form
+u.addDeleteMediaForm = function(div, node) {
+
+	// Create delete form
+	node.delete_form = u.f.addForm(node.preview, {
+		"action":div.delete_url+"/"+div.item_id+"/"+node.media_variant, 
+		"class":"delete"
+	});
+	node.delete_form.node = node;
+
+	// Add csrf-token
+	u.f.addField(node.delete_form, {
+		"type":"hidden",
+		"name":"csrf-token", 
+		"value":div.csrf_token
+	});
+	// Add button
+	u.f.addAction(node.delete_form, {
+		"class":"button delete"
+	});
+
+	// Add oneButtonForm properties
+	node.delete_form.setAttribute("data-confirm-value", "Confirm");
+	node.delete_form.setAttribute("data-success-function", "deleted");
+
+	// Initialize oneButtonForm
+	u.o.oneButtonForm.init(node.delete_form);
+
+}
+
+// add delete form
+u.addRenameMediaForm = function(div, node) {
+
+	// add update form
+	node.update_name_form = u.f.addForm(node.preview, {
+		"action":div.update_name_url+"/"+div.item_id+"/"+node.media_variant, 
+		"class":"edit"
+	});
+	node.update_name_form.node = node;
+
+	// Add csrf-token
+	u.f.addField(node.update_name_form, {
+		"type":"hidden",
+		"name":"csrf-token", 
+		"value":div.csrf_token
+	});
+	// Add name input
+	u.f.addField(node.update_name_form, {
+		"type":"string",
+		"name":"name", 
+		"value":node.media_name, 
+		"required":true
+	});
+
+	// init form
+	u.f.init(node.update_name_form);
+
+	// enable editing activation on whole update form
+	u.ce(node.update_name_form);
+
+	// eliminate dragging if sorting is also enable
+	node.update_name_form.inputStarted = function(event) {
+		if(!u.hc(this.node.preview, "edit")) {
+
+			u.e.kill(event);
+		}
+
+	}
+	// Enter edit state
+	node.update_name_form.clicked = function(event) {
+		u.ac(this.node.preview, "edit");
+
+		this.inputs["name"].focus();
+	}
+
+	// submit on blur
+	node.update_name_form.inputs["name"].blurred = function() {
+
+		// Update if input validates
+		if(this.is_correct) {
+			this._form.updateName();
+		}
+	}
+
+	// submit is handled on blur
+	node.update_name_form.submitted = function() {
+
+		this.inputs["name"].blur();
+	}
+
+	// update name
+	node.update_name_form.updateName = function() {
+
+		u.rc(this.node.preview, "edit");
+
+		// submit new image name
+		this.response = function(response) {
+
+			page.notify(response);
+
+			// reset media name back to starting value if something went wrong
+			if(response.cms_status !== "success") {
+				this.inputs["name"].val(this.node.media_name);
+			}
+
+		}
+		u.request(this, this.action, {"method":this.method, "data":this.getData()});
+
+	}
+}
+

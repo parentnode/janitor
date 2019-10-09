@@ -19,25 +19,25 @@ Util.Objects["defaultPrices"] = new function() {
 
 			u.f.init(div._prices_form);
 
-			div._prices_form.fields["item_price_type"].changed = function() {
+			div._prices_form.inputs["item_price_type"].changed = function() {
 
 				if(this.val() == "bulk") {
-					u.ac(this._form.fields["item_price_quantity"].field, "required");
-					u.ass(this._form.fields["item_price_quantity"].field, {
+					u.ac(this._form.inputs["item_price_quantity"].field, "required");
+					u.ass(this._form.inputs["item_price_quantity"].field, {
 						"display":"inline-block"
 					})
 				}
 				else {
-					u.rc(this._form.fields["item_price_quantity"].field, "required");
-					u.ass(this._form.fields["item_price_quantity"].field, {
+					u.rc(this._form.inputs["item_price_quantity"].field, "required");
+					u.ass(this._form.inputs["item_price_quantity"].field, {
 						"display":"none"
 					})
 				}
 			}
 
 			// make sure quantity is shown if type is already bulk
-			if(div._prices_form.fields["item_price_type"].val() == "bulk") {
-				u.ass(div._prices_form.fields["item_price_quantity"].field, {
+			if(div._prices_form.inputs["item_price_type"].val() == "bulk") {
+				u.ass(div._prices_form.inputs["item_price_quantity"].field, {
 					"display":"inline-block"
 				})
 			}

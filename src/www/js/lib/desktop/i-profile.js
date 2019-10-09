@@ -51,11 +51,11 @@ Util.Objects["usernamesProfile"] = new function() {
 
 				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Email already exists"]});
-					u.f.fieldError(this.fields["email"]);
+					u.f.fieldError(this.inputs["email"]);
 				}
 				else if(response.cms_status == "error") {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Email could not be updated"]});
-					u.f.fieldError(this.fields["email"]);
+					u.f.fieldError(this.inputs["email"]);
 				}
 				else {
 					u.rc(this.actions["save"], "primary");
@@ -79,11 +79,11 @@ Util.Objects["usernamesProfile"] = new function() {
 
 				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Mobile already exists"]});
-					u.f.fieldError(this.fields["mobile"]);
+					u.f.fieldError(this.inputs["mobile"]);
 				}
 				else if(response.cms_status == "error") {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Mobile could not be updated"]});
-					u.f.fieldError(this.fields["mobile"]);
+					u.f.fieldError(this.inputs["mobile"]);
 				}
 				else {
 					u.rc(this.actions["save"], "primary");
@@ -143,8 +143,8 @@ Util.Objects["passwordProfile"] = new function() {
 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
 
 			this.reset();
-//			this.fields["new_password"].val("");
-//			this.fields["old_password"].val("");
+//			this.inputs["new_password"].val("");
+//			this.inputs["old_password"].val("");
 
 		}
 
@@ -312,7 +312,7 @@ Util.Objects["cancellationProfile"] = new function() {
 			div.form.actions["cancelaccount"].confirm_value = "Cancelling you account cannot be undone. OK?";
 			div.form.actions["cancelaccount"].submit_value = "Confirm";
 
-			div.form.fields["password"].updated = function() {
+			div.form.inputs["password"].updated = function() {
 				u.bug("typing password")
 				u.t.resetTimer(this._form.t_confirm);
 
