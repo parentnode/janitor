@@ -327,6 +327,7 @@ class ItemtypeCore extends Model {
 
 	// SAVE
 
+
 	# /janitor/[admin/]#itemtype#/save
 	# /#controller#/save
 	function save($action) {
@@ -352,37 +353,70 @@ class ItemtypeCore extends Model {
 				$names = array();
 				$values = array();
 
+				$files_inputs = array();
+
 				foreach($entities as $name => $entity) {
-					if($entity["value"] !== false && !preg_match("/^(files|tags)$/", $entity["type"]) && !preg_match("/^(published_at|status|htmleditor_file)$/", $name)) {
+					if($entity["value"] !== false && !preg_match("/^(published_at|status|htmleditor_file|htmleditor_media)$/", $name)) {
 
-						// consider reimplementing files in basic save
-						// it's a bigger question
-						// - are files, tags, prices, comments and ratings all external features or integrated parts of an Item
+						if(!preg_match("/^(files|tags)$/", $entity["type"])) {
 
-						$names[] = $name;
+							$names[] = $name;
 
-						// if value is posted
-						if($entity["value"]) {
-							$values[] = $name."='".$entity["value"]."'";
+							// if value is posted
+							if($entity["value"]) {
+								$values[] = $name."='".$entity["value"]."'";
+							}
+							// no value is posted – reset to default value
+							else {
+								$values[] = $name."=DEFAULT";
+							}
+
 						}
-						// no value is posted – reset to default value
-						else {
-							$values[] = $name."=DEFAULT";
+						// Store files input names for processing after main data update
+						else if(preg_match("/^files$/", $entity["type"])) {
+
+							array_push($files_inputs, $name);
 						}
 
 					}
+
 				}
 
 				if($values) {
 
 					$sql = "INSERT INTO ".$this->db." SET id = DEFAULT,item_id = $item_id," . implode(",", $values);
-//					print $sql;
+					// debug([$sql]);
 
 					if($query->sql($sql)) {
 
 						// item cannot be enabled without datacheck
 						// use internal check to ensure datacheck
 						$this->status(array("status", $item_id, getPost("status")));
+
+
+						// implementing files, tags, comments etc in basic save?
+						// it's a bigger question
+						// - are files, tags, prices, comments and ratings all external features or integrated parts of an Item
+						// - They are integrated parts but only files can added on creation
+
+						// Only files can be included in a save
+
+						// Saving files
+						if($files_inputs) {
+							foreach($files_inputs as $files_input) {
+								$files_max_count = $this->getProperty($files_input, "max");
+
+								if(!$files_max_count || $files_max_count === 1) {
+
+									$this->addSingleMedia(["addSingleMedia", $item_id, $files_input]);
+								}
+								else {
+
+									$this->addMedia(["addMedia", $item_id, $files_input]);
+								}
+							}
+						}
+
 
 						// look for local sindex method 
 						// implement sindexBase function in your itemtype class to use special sindexes
@@ -396,23 +430,22 @@ class ItemtypeCore extends Model {
 						$this->sindex($sindex, $item_id);
 
 
-						message()->addMessage("Item saved");
-						// return current item
-						$IC = new Items();
-
-
 						// itemtype post save handler?
 						// TODO: Consider if failed postSave should have consequences
 						if(method_exists($this, "saved")) {
 							$this->saved($item_id);
 						}
 
+
+						// Add message
+						message()->addMessage("Item saved");
+
 						// add log
 						$page->addLog("ItemType->save ($item_id)");
 
 						// return selected data array
+						$IC = new Items();
 						return $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
-
 					}
 				}
 			}
@@ -469,11 +502,10 @@ class ItemtypeCore extends Model {
 	// UPDATE
 
 
-
 	/**
 	* Update item type
 	*/
-	# /janitor/[admin/]#itemtype#/update/#item_id#
+	# /#controller#/update/#item_id#
 	// TODO: implement itemtype checks
 	function update($action) {
 		global $page;
@@ -495,51 +527,89 @@ class ItemtypeCore extends Model {
 			$names = array();
 			$values = array();
 
+			$files_inputs = array();
+
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && !preg_match("/^(files|tags)$/", $entity["type"]) && !preg_match("/^(published_at|status|user_id|htmleditor_file)$/", $name)) {
+				if($entity["value"] !== false && !preg_match("/^(published_at|status|user_id|htmleditor_file|htmleditor_media)$/", $name)) {
 
-					// debug(["value", $entity["value"]]);
-					// consider reimplementing files in basic save
-					// it's a bigger question
-					// - are files, tags, prices, comments and ratings all external features or integrated parts of an Item
+					if(!preg_match("/^(files|tags)$/", $entity["type"])) {
 
-					$names[] = $name;
-					// if value is posted 
-					if($entity["value"]) {
-						$values[] = $name."='".$entity["value"]."'";
+						$names[] = $name;
+
+						// if value is posted 
+						if($entity["value"]) {
+							$values[] = $name."='".$entity["value"]."'";
+						}
+
+						// no value is posted – reset to default value
+						else {
+							$values[] = $name."=DEFAULT";
+						}
+
 					}
-					// no value is posted – reset to default value
-					else {
-						$values[] = $name."=DEFAULT";
+					// Store files input names for processing after main data update
+					else if(preg_match("/^files$/", $entity["type"])) {
+						array_push($files_inputs, $name);
 					}
+
 				}
+
 			}
 
 			if($this->validateList($names, $item_id) && $this->updateItem($item_id)) {
 
+
 				// add existing data to version-control-table
 				$query->versionControl($item_id, $values);
 
+
+				// Update values
 				$sql = "UPDATE ".$this->db." SET ".implode(",", $values)." WHERE item_id = ".$item_id;
 				// debug([$sql]);
 				if($query->sql($sql)) {
 
 
-					$IC = new Items();
-					$item = $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
+					// implementing files, tags, comments etc in basic save?
+					// it's a bigger question
+					// - are files, tags, prices, comments and ratings all external features or integrated parts of an Item
+					// - They are integrated parts but only files can added on creation
 
+					// Only files can be included in a save
+
+					// Saving files
+					if($files_inputs) {
+
+						foreach($files_inputs as $files_input) {
+							$files_max_count = $this->getProperty($files_input, "max");
+
+							if(!$files_max_count || $files_max_count === 1) {
+
+								$this->addSingleMedia(["addSingleMedia", $item_id, $files_input]);
+							}
+							else {
+
+								$this->addMedia(["addMedia", $item_id, $files_input]);
+							}
+						}
+					}
+
+
+					$sindex = false;
 					// look for local sindex method 
 					// implement sindexBase function in your itemtype class to use special sindexes
 					if(method_exists($this, "sindexBase")) {
 						$sindex = $this->sindexBase($item_id);
 					}
-					else {
-						$sindex = $item["name"];
+					// Use name as default
+					else if(array_search("name", $names) !== false) {
+						$sindex = $entities["name"]["value"];
 					}
-					// create sindex
-					$item["sindex"] = $this->sindex($sindex, $item_id);
 
-					message()->addMessage("Item updated");
+					// create new sindex
+					if($sindex) {
+						$this->sindex($sindex, $item_id);
+					}
+
 
 					// itemtype post update handler?
 					// TODO: Consider if failed postSave should have consequences
