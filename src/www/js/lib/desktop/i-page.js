@@ -69,7 +69,7 @@ Util.Objects["page"] = new function() {
 
 		// Page is ready - called from several places, evaluates when page is ready to be shown
 		page.ready = function() {
-			u.bug("page ready");
+			// u.bug("page ready");
 
 			// page is ready to be shown - only initalize if not already shown
 			if(!this.is_ready) {
