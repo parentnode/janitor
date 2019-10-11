@@ -80,9 +80,17 @@ class SubscriptionCore extends Model {
 
 	}
 
-	// get subscription info for specific subscription 
-	// (can be used to check if user has subscription or not)
-	// get subscription for user
+	/**
+	 * Get subscriptions for current user
+	 * 
+	 * Passing no parameters in $_options will return all the current user's subscriptions
+	 *
+	 * @param array|false $_options
+	 * - item_id – get specific subscription for current user (can be used to check if user has subscription or not)
+	 * - subscription_id – get subscription by subscription_id
+	 * 
+	 * @return array|false One or several subscription objects. False on error.
+	 */
 	function getSubscriptions($_options = false) {
 
 		global $page;
@@ -568,6 +576,15 @@ class SubscriptionCore extends Model {
 
 	// calculate expiry date for subscription
 	// TODO: enable more flexible duration "settings"
+	/**
+	 * Calculate expiry date for subscription
+	 * 
+	 * @todo enable more flexible duration "settings"
+	 *
+	 * @param string $duration – "annually", "monthly", or "weekly"
+	 * @param string|false $start_time
+	 * @return string|false Formatted time stamp. False on error.
+	 */
 	function calculateSubscriptionExpiry($duration, $start_time = false) {
 //		print "calculateSubscriptionExpiry:" . $duration;
 

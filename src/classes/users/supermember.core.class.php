@@ -14,7 +14,18 @@ class SuperMemberCore extends Member {
 
 	}
 
-	// get members (by user_id, member_id, item_id or all)
+	/**
+	 * Get members (by user_id, member_id, item_id or all)
+	 *
+	 * Passing no parameters in $_options will return all members, including cancelled members
+	 * 
+	 * @param array|false $_options
+	 * - user_id – get member object for user_id
+	 * - member_id – get specific member object
+	 * - membership item_id – get all members with specific membership
+	 * 
+	 * @return array|false One or several membership objects. False on error.
+	 */
 	function getMembers($_options = false) {
 		$IC = new Items();
 

@@ -19,6 +19,18 @@ class SuperSubscriptionCore extends Subscription {
 
 	}
 
+	/**
+	 * Get subscriptions for specified user
+	 * 
+	 * Passing no parameters in $_options will return all subscriptions
+	 *
+	 * @param array|false $_options
+	 * - user_id – get all subscriptions for specified user. If combined with item id: get specific subscription for specific user.
+	 * - item_id – get all subscriptions for specified item. 
+	 * - subscription_id – get subscription by subscription_id
+	 * 
+	 * @return array|false One or several subscription objects. False on error.
+	 */
 	function getSubscriptions($_options = false) {
 		$IC = new Items();
 		global $page;
