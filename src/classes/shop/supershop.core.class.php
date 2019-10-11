@@ -898,7 +898,7 @@ class SuperShopCore extends Shop {
 	 * 
 	 * @param array $action
 	 * 
-	 * /janitor/admin/shop/updateOrder/#order_id#
+	 * /janitor/admin/shop/updateOrderComment/#order_id#
 	 * Required in $_POST: order_comment
 	 *
 	 * @return array|false Order object. False on error.
