@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.3-janitor Copyright 2019 https://manipulator.parentnode.dk
-js-merged @ 2019-10-11 16:01:02
+js-merged @ 2019-10-11 22:38:57
 */
 
 /*seg_smartphone_include.js*/
@@ -172,7 +172,6 @@ Util.Animation = u.a = new function() {
 		return this._support3d;
 	}
 	this.transition = function(node, transition, callback) {
-		u.bug("add transition:", node, transition, callback);
 		try {
 			var duration = transition.match(/[0-9.]+[ms]+/g);
 			if(duration) {
@@ -2906,7 +2905,7 @@ Util.Form = u.f = new function() {
 				}
 				if(value && value.length) {
 					for(i = 0; i < value.length; i++) {
-						files.push(value[i].name.substring(value[i].name.lastIndexOf(".")));
+						files.push(value[i].name.substring(value[i].name.lastIndexOf(".")).toLowerCase());
 					}
 				}
 				if(
@@ -4643,7 +4642,7 @@ u.f.textEditor = function(field) {
 			"label":"url", 
 			"name":"url", 
 			"value":a.href.replace(location.protocol + "//" + document.domain, ""), 
-			"pattern":"((http[s]?:\\/)?\\/|mailto:|tel:)[^$]+",
+			"pattern":"(http[s]?:\\/\\/|mailto:|tel:)[^$]+|\/[^$]*",
 			"error_message":"Must start with /, http:// or https://, mailto: or tel:"
 		});
 		var input_target = u.f.addField(fieldset, {
@@ -6446,7 +6445,7 @@ Util.validateResponse = function(HTTPRequest){
 /*u-scrollto.js*/
 u.scrollTo = function(node, _options) {
 	node._callback_scroll_to = "scrolledTo";
-	node._callback_scroll_cancelled = "scrolledToCancelled";
+	node._callback_scroll_cancelled = "scrollToCancelled";
 	var offset_y = 0;
 	var offset_x = 0;
 	var scroll_to_x = 0;
