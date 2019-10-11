@@ -1422,6 +1422,7 @@ class ShopCore extends Model {
 							"values" => array(
 								"NICKNAME" => $user["nickname"], 
 								"ORDER_NO" => $order_no, 
+								"ORDER_ID" => $order["id"], 
 								"ORDER_PRICE" => $total_order_price["price"] 
 							),
 							"subject" => SITE_URL . " – Thank you for your order!",

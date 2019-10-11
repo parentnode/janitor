@@ -961,7 +961,7 @@ class SuperShopCore extends Shop {
 
 			// order is still pending
 			if($order && $order["status"] == 0) {
-
+				
 				$delivery_address_id = $this->getProperty("delivery_address_id", "value");
 				$billing_address_id = $this->getProperty("billing_address_id", "value");
 
@@ -1421,6 +1421,7 @@ class SuperShopCore extends Shop {
 						"FROM" => $current_user["nickname"],
 						"NICKNAME" => $order["user"]["nickname"],
 						"ORDER_NO" => $order["order_no"],
+						"ORDER_ID" => $order["id"],
 						"ORDER_PRICE" => formatPrice($total_order_price),
 					),
 					"recipients" => $order["user"]["email"],
