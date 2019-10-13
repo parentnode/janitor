@@ -9,6 +9,7 @@ header("Content-type: text/html; charset=UTF-8");
 error_reporting(E_ALL);
 
 
+// Define current version
 define("VERSION", "0.7.8");
 
 

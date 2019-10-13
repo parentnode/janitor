@@ -78,7 +78,7 @@ class Upgrade extends Model {
 
 			// Updating controller code syntax to work with PHP7
 			$fs = new FileSystem();
-			$controllers = $fs->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
+			$controllers = $fs->files(LOCAL_PATH."/www", ["allow_extensions" => "php", "include_tempfiles" => true]);
 			$file = "";
 			foreach($controllers as $controller) {
 
@@ -110,7 +110,7 @@ class Upgrade extends Model {
 
 
 			// get all php files in theme
-			$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php"]);
+			$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 			foreach($php_files as $php_file) {
 
 				$is_code_altered = false;
@@ -152,6 +152,24 @@ class Upgrade extends Model {
 						}
 						else {
 							$this->process(["success" => false, "message" => "FOUND OLD CODE (sliceMedia) IN " . $php_file . " in line " . ($line_no+1)], true);
+//							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
+
+						}
+
+					}
+
+					// Change JML->editMedia( to JML->editMediae(
+					if(preg_match("/JML\-\>editMedia\(/", $line)) {
+						$line = preg_replace("/JML\-\>editMedia\(/", "JML->editMediae(", $line);
+						if($code_lines[$line_no] !== $line) {
+
+							$code_lines[$line_no] = $line;
+							$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (JML->editMedia) IN " . $php_file . " in line " . ($line_no+1)]);
+							$is_code_altered = true;
+
+						}
+						else {
+							$this->process(["success" => false, "message" => "FOUND OLD CODE (JML->editMedia) IN " . $php_file . " in line " . ($line_no+1)], true);
 //							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
 
 						}
@@ -422,23 +440,6 @@ class Upgrade extends Model {
 
 								// Is variant used in this HTML input (item can have several HTML inputs)
 								if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
-
-									// $new_variant = "HTMLEDITOR-".$name."-".randomKey(8);
-									// $new_value = str_replace($media["variant"], $new_variant, $value);
-									// $new_value = str_replace($media["name"], urlencode($media["name"]), $new_value);
-									// $sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
-									// // debug([$sql]);
-									// if($query->sql($sql)) {
-									//
-									// 	$sql = "UPDATE ".$item_model->db." SET $name = '$new_value' WHERE item_id = ".$media["item_id"];
-									// 	// debug([$sql]);
-									// 	if($query->sql($sql)) {
-									//
-									// 		$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
-									// 		$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-									// 		$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-									// 	}
-									// }
 
 									$found = true;
 
