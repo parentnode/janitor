@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.3-janitor Copyright 2019 https://manipulator.parentnode.dk
-js-merged @ 2019-10-11 22:38:56
+js-merged @ 2019-10-13 18:55:06
 */
 
 /*seg_desktop_include.js*/
@@ -5074,7 +5074,7 @@ Util.Form.location = function(field) {
 	field.lat_input.blurred = field.lon_input.blurred = function() {
 		this.field.t_hide_map = u.t.setTimer(this.field, this.field.hideMap, 800);
 	}
-	field.bn_geolocation = u.ae(field, "div", {"class":"geolocation"});
+	field.bn_geolocation = u.ae(field, "div", {"class":"geolocation", "title":"Select current location"});
 	field.bn_geolocation.field = field;
 	u.ce(field.bn_geolocation);
 	field.bn_geolocation.clicked = function() {
@@ -5960,7 +5960,7 @@ u.navigation = function(_options) {
 	}
 	window._man_nav_path = window._man_nav_path ? window._man_nav_path : u.h.getCleanUrl(location.href, 1);
 	navigation_node._navigate = function(url) {
-		url = u.h.getCleanUrl(url);
+		var clean_url = u.h.getCleanUrl(url);
 		u.stats.pageView(url);
 		if(
 			!window._man_nav_path || 
@@ -5968,15 +5968,15 @@ u.navigation = function(_options) {
 			(u.h.popstate && window._man_nav_path != u.h.getCleanUrl(location.href, 1))
 		) {
 			if(this.cN && fun(this.cN.navigate)) {
-				this.cN.navigate(url);
+				this.cN.navigate(clean_url, url);
 			}
 		}
 		else {
 			if(this.cN.scene && this.cN.scene.parentNode && fun(this.cN.scene.navigate)) {
-				this.cN.scene.navigate(url);
+				this.cN.scene.navigate(clean_url, url);
 			}
 			else if(this.cN && fun(this.cN.navigate)) {
-				this.cN.navigate(url);
+				this.cN.navigate(clean_url, url);
 			}
 		}
 		if(!u.h.popstate) {
