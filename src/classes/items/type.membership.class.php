@@ -100,10 +100,18 @@ class TypeMembership extends Itemtype {
 			}
 		}
 		
-		// ensure that membership item has quantity of 1
-		$sql = "UPDATE ".SITE_DB.".shop_cart_items SET quantity = 1 WHERE id = ".$added_item["id"]." AND cart_id = ".$cart["id"];
-		// print $sql;
-		$query->sql($sql);
+		// check quantity
+		$sql = "SELECT quantity FROM ".SITE_DB.".shop_cart_items WHERE item_id = ".$added_item["id"]." AND cart_id = ".$cart["id"];
+		if($query->sql($sql) && $query->result(0, "quantity") > 1) {
+
+			// ensure that membership item has quantity of 1 
+			$sql = "UPDATE ".SITE_DB.".shop_cart_items SET quantity = 1 WHERE item_id = ".$added_item["id"]." AND cart_id = ".$cart["id"];
+			// print $sql;
+			$query->sql($sql);
+
+			message()->addMessage("Can't update quantity. A Membership can only have a quantity of 1.", ["type" => "error"]);
+		}  
+		
 
 
 

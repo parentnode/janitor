@@ -1119,6 +1119,12 @@ class ShopCore extends Model {
 						$item["total_price_formatted"] = formatPrice($item["total_price"], array("vat" => true));
 						$item["total_cart_price"] = $this->getTotalCartPrice($cart["id"]);
 						$item["total_cart_price_formatted"] = formatPrice($item["total_cart_price"]);
+
+						// add callback to addedToCart
+						$model = $IC->typeObject($item["itemtype"]);
+						if(method_exists($model, "addedToCart")) {
+							$model->addedToCart($item, $cart);
+						}
  
 						return $item;
 
