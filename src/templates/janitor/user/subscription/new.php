@@ -2,6 +2,8 @@
 global $action;
 global $model;
 $IC = new Items();
+include_once("classes/shop/subscription.class.php");
+$SubscriptionClass = new Subscription();
 
 
 $user_id = $action[2];
@@ -11,7 +13,7 @@ $item_id = false;
 $selected_item = false;
 
 $items = $IC->getItems(array("order" => "itemtype", "extend" => array("subscription_method" => true, "prices" => true)));
-$subscriptions = $model->getSubscriptions(array("user_id" => $user_id));
+$subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_id));
 
 //print_r($items);
 //print_r($subscriptions);

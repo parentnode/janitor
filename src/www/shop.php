@@ -6,10 +6,6 @@ $access_item["/registerPayment"] = true;
 $access_item["/order/payment/new"] = "/registerPayment";
 $access_item["/payment/new"] = true;
 
-// $access_item["/addCart"] = true;
-// $access_item["/addOrder"] = true;
-// $access_item["/addToOrder"] =
-
 if(isset($read_access) && $read_access) {
 	return;
 }

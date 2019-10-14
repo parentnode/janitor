@@ -340,6 +340,12 @@ class ShopCore extends Model {
 		));
 
 
+		// is_internal flag for cart
+		$this->addToModel("is_internal", [
+			"type" => "boolean",
+		]);
+
+
 		parent::__construct();
 	}
 
@@ -394,7 +400,7 @@ class ShopCore extends Model {
 	}
 
 
-	// get next available order number
+	// get next available creditnote number
 	function getNewCreditnoteNumber() {
 
 		$query = new Query();
@@ -752,26 +758,34 @@ class ShopCore extends Model {
 	}
 
 
-	// Add a new cart with optional user, currency and country
-	# /shop/addCart
+	/**
+	 * Add a new cart with optional user, currency and country
+	 * 
+	 * /shop/addCart
+	 * An optional is_internal flag can be passed via $_POST to avoid saving cart_reference in session and cookie
+	 *
+	 * @param array $action
+	 * @return array|false Cart object. False on error.
+	 */
 	function addCart($action) {
 		global $page;
 
-		// Get posted values to make them available for models
+		// get posted values to make them available for models
 		$this->getPostedEntities();
 
 		$user_id = session()->value("user_id");
-
-		// does values validate
+		
+		// values are valid
 		if(count($action) == 1 && $user_id) {
-
+			
 			$query = new Query();
-
+			
 			$currency = $this->getProperty("currency", "value");
 			$country = $this->getProperty("country", "value");
-
+			
 			$billing_address_id = $this->getProperty("billing_address_id", "value");
 			$delivery_address_id = $this->getProperty("delivery_address_id", "value");
+			$is_internal = $this->getProperty("is_internal", "value");
 
 
 			// set user_id to default (NULL) if not passed
@@ -810,14 +824,21 @@ class ShopCore extends Model {
 //			print $sql;
 			if($query->sql($sql)) {
 
+				// cart is internal
+				if($is_internal) {
+					
+					return $this->getCarts(["cart_reference" => $cart_reference]);
+				}
+
 				// make sure cart reference is set for user
 				session()->value("cart_reference", $cart_reference);
 
-				// Add cookie for user
+				// add cookie for user
 				setcookie("cart_reference", $cart_reference, time()+60*60*24*60, "/");
-
+				
+				// return cart object
 				return $this->getCart();
-
+				
 			}
 		}
 
@@ -898,36 +919,44 @@ class ShopCore extends Model {
 		return false;
 
 	}
-
-	// Add item to cart
-	# /shop/addToCart
-	// Items and quantity in $_post
-	function addToCart($action) {
+	
+	/**
+	 * ### Add item to cart
+	 * 
+	 * /shop/addToCart
+	 * 
+	 * Item and quantity in $_POST
+	 * 
+	 * @param array $action
+	 * @return array|false Cart object. False on error.
+	 */
+		function addToCart($action) {
 
 		if(count($action) >= 1) {
-
-			// Get posted values to make them available for models
-			$this->getPostedEntities();
-
+			
 			$user_id = session()->value("user_id");
-
+			
 			$cart = false;
-
-			// getCart checks for cart_reference in session and cookie or looks for cart for current user ( != 1)
+			// get cart
+			// check for cart_reference in session and cookie, or look for cart for current user ( != 1)
 			$cart = $this->getCart();
+			// get posted values to make them available for models
+			$this->getPostedEntities();
+			
+			// cart exists
 			if($cart) {
 				$cart_reference = $cart["cart_reference"];
 			}
-			// still no cart
-			// then add a new cart
+			
 			else {
+				// add a new cart
 				$cart = $this->addCart(array("addCart"));
-//				print_r($cart);
+				// print_r($cart);
 				
 				$cart_reference = $cart["cart_reference"];
 			}
-
-			// does values validate
+			
+			// cart exists and values are valid
 			if($cart && $this->validateList(array("quantity", "item_id"))) {
 
 				$query = new Query();
@@ -935,57 +964,108 @@ class ShopCore extends Model {
 
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
+				$item = $IC->getItem(array("id" => $item_id));
 
+				$price = $this->getPrice($item_id);
+				
+				// item has a price (price can be zero)
+				if ($price !== false) {
 
-				// make sure only one membership exists in cart at any given time
-
-				// is there any items in cart already?
-				if($cart["items"]) {
-
-					// what kind of itemtype is being added
-					$item = $IC->getItem(array("id" => $item_id));
-
-					// if it is a membership, then remove existing memberships from cart
-					if($item["itemtype"] == "membership") {
-
-						foreach($cart["items"] as $key => $cart_item) {
-							$existing_item = $IC->getItem(array("id" => $cart_item["item_id"]));
-							if($existing_item["itemtype"] == "membership") {
-								$cart = $this->deleteFromCart(array("deleteFromCart", $cart_reference, $cart_item["id"]));
-							}
+					// item is already in cart
+					if($cart["items"] && arrayKeyValue($cart["items"], "item_id", $item_id) !== false) {
+						$existing_item_index = arrayKeyValue($cart["items"], "item_id", $item_id);
+	
+	
+						$existing_item = $cart["items"][$existing_item_index];
+						$existing_quantity = $existing_item["quantity"];
+						$new_quantity = intval($quantity) + intval($existing_quantity);
+	
+	
+						// update item quantity
+						$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
+						// print $sql;
+					}
+					else {
+						
+						// insert new cart item
+						$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
+						// print $sql;
+					}
+	
+					if($query->sql($sql)) {
+						
+						// update modified at time
+						$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$cart["id"];
+						$query->sql($sql);
+	
+						$cart = $this->getCart();
+	
+						// add callback to addedToCart
+						$model = $IC->typeObject($item["itemtype"]);
+						if(method_exists($model, "addedToCart")) {
+							$model->addedToCart($item, $cart);
 						}
+	
+						return $cart;
+	
 					}
 				}
+				
 
+			}
+		}
+		return false;
+	}
 
+	/**
+	 * ### Add item to new internal cart
+	 * 
+	 *
+	 * @param int $item_id
+	 * @param int $_options – a quantity can be specified (default is 1)
+	 * @return array|false Cart object. False on error.
+	 */
+	function addToNewInternalCart($item_id, $_options = false) {
 
-				// check if item is already in cart?
-				if($cart["items"] && arrayKeyValue($cart["items"], "item_id", $item_id) !== false) {
-					$existing_item_index = arrayKeyValue($cart["items"], "item_id", $item_id);
+		$quantity = 1;
 
-
-					$existing_item = $cart["items"][$existing_item_index];
-					$existing_quantity = $existing_item["quantity"];
-					$new_quantity = intval($quantity) + intval($existing_quantity);
-
-					$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
-//					print $sql;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "quantity"          : $quantity            = $_value; break;
 				}
+			}
+		}
+		
+		$price = $this->getPrice($item_id);
+		// item has a price (price can be zero)
+		if($price !== false) {
+
+			// create new internal cart
+			$_POST["is_internal"] = true;
+			$cart = $this->addCart(["addCart"]);
+			unset($_POST);
+			$cart_reference = $cart["cart_reference"];
+			if($cart) {
+
+				$query = new Query();
+				$IC = new Items();
+				$item = $IC->getItem(array("id" => $item_id));
+				
 				// insert new cart item
-				else {
-
-					$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
-//					print $sql;
-				}
-
+				$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
 				if($query->sql($sql)) {
 
-					// update modified at time
-					$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$cart["id"];
-					$query->sql($sql);
+					// get updated cart
+					$cart = $this->getCarts(["cart_reference" => $cart_reference]);
+	
+					// add callback to addedToCart
+					$model = $IC->typeObject($item["itemtype"]);
+					if(method_exists($model, "addedToCart")) {
+						$model->addedToCart($item, $cart);
+					}
 
-					return $this->getCart();
-
+					return $cart;
 				}
 			}
 		}
@@ -1039,6 +1119,12 @@ class ShopCore extends Model {
 						$item["total_price_formatted"] = formatPrice($item["total_price"], array("vat" => true));
 						$item["total_cart_price"] = $this->getTotalCartPrice($cart["id"]);
 						$item["total_cart_price_formatted"] = formatPrice($item["total_cart_price"]);
+
+						// add callback to addedToCart
+						$model = $IC->typeObject($item["itemtype"]);
+						if(method_exists($model, "addedToCart")) {
+							$model->addedToCart($item, $cart);
+						}
  
 						return $item;
 
@@ -1125,7 +1211,7 @@ class ShopCore extends Model {
 
 	
 	/**
-	 * Convert cart to order
+	 * ### Convert cart to order
 	 * 
 	 * /shop/newOrderFromCart/#cart_reference#
 	 *
@@ -1156,6 +1242,8 @@ class ShopCore extends Model {
 			// and enforce a sanity check by matching cart far with REST param
 //			print $cart_reference ." ==". $cart["cart_reference"];
 			if($cart && $user_id && $cart["items"] && $cart_reference == $cart["cart_reference"]) {
+
+				$user = $UC->getUser();
 
 				// get new order number
 				$order_no = $this->getNewOrderNumber();
@@ -1222,7 +1310,7 @@ class ShopCore extends Model {
 					$sql .= " WHERE order_no='$order_no'";
 
 //					print $sql;
-					// execute "create order"" query 
+					// execute "create order" query 
 					if($query->sql($sql)) {
 
 
@@ -1247,7 +1335,7 @@ class ShopCore extends Model {
 
 								// get best price for item
 								$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-				//				print_r($price);
+								// print_r("price: ".$price);
 
 								$unit_price = $price["price"];
 								$unit_vat = $price["vat"];
@@ -1255,81 +1343,24 @@ class ShopCore extends Model {
 								$total_vat = $unit_vat * $quantity;
 
 								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-//								print $sql;
+								// print $sql;
 
 
 								// Add item to order
 								if($query->sql($sql)) {
-
-									// additional tasks
-									$admin_summary[] = $item["name"];
-
-
-									$membership = false;
-
-									// item is membership
-									if(SITE_MEMBERS && $item["itemtype"] == "membership") {
-
-										// check if user already has membership
-										$membership = $UC->getMembership();
-
-										// membership does not exist
-										if(!$membership) {
-											// add new membership
-											$membership = $UC->addMembership(array("addMembership"));
-										}
-
+									
+									// add callback to 'ordered'
+									$model = $IC->typeObject($item["itemtype"]);
+									if(method_exists($model, "ordered")) {
+										$model->ordered($item, $order);
 									}
-
-
-									// subscription method available for item
-									if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
-
-										// set values for updating/creating subscription
-										$_POST["order_id"] = $order["id"];
-										$_POST["item_id"] = $item_id;
-
-										// if membership variable is not false
-										// it means that membership exists and current type is membership
-										// avoid creating new membership subscription
-										if($membership && $membership["item"]) {
-
-											// get the current membership subscription
-											$subscription = $UC->getSubscriptions(array("item_id" => $membership["item"]["id"]));
-										}
-										else {
-
-											// check if subscription already exists
-											$subscription = $UC->getSubscriptions(array("item_id" => $item_id));
-										}
-
-										// if subscription is for itemtype=membership
-										// add/updateSubscription will also update subscription_id on membership 
-
-										// update existing subscription
-										if($subscription) {
-											$subscription = $UC->updateSubscription(array("updateSubscription", $subscription["id"]));
-										}
-										// add new subscription
-										else {
-											$subscription = $UC->addSubscription(array("addSubscription"));
-										}
-
-										// clean up POST array
-										unset($_POST);
-
-//										print_r($subscription);
-										$order["comment"] .= $subscription["item"]["name"] . ($subscription["expires_at"] ? " (" . ($subscription["renewed_at"] ? date("d/m/Y", strtotime($subscription["renewed_at"])) : date("d/m/Y", strtotime($subscription["created_at"]))) ." - ". date("d/m/Y", strtotime($subscription["expires_at"])).")" : "");
-//										print_r($order);
-
-									}
-
+									
 								}
 
 							}
 
 						}
-
+				
 
 						// update cart_reference cookie and session
 						session()->reset("cart_reference");
@@ -1349,6 +1380,20 @@ class ShopCore extends Model {
 						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."' WHERE order_no='$order_no'";
 //						print $sql."<br>\n";
 						$query->sql($sql);
+					
+						
+						// only autoship order if every item should be autoshipped
+						$order["autoship"] = true;
+						foreach($cart["items"] as $cart_item) {
+							if(!isset($item["autoship"]) || !$item["autoship"]) {
+								$order["autoship"] = false;
+							}
+						}
+						if($order["autoship"]) {
+							// update shipping_status to shipped
+							$sql = "UPDATE ".$this->db_orders." SET shipping_status = 2 WHERE order_no='$order_no'";
+							$query->sql($sql);
+						}
 
 
 						// set payment status for 0-prices orders
@@ -1376,6 +1421,22 @@ class ShopCore extends Model {
 							// "template" => "system"
 						));
 
+
+						// order confirmation mail
+						mailer()->send(array(
+							"recipients" => $user["email"],
+							"values" => array(
+								"NICKNAME" => $user["nickname"], 
+								"ORDER_NO" => $order_no, 
+								"ORDER_ID" => $order["id"], 
+								"ORDER_PRICE" => $total_order_price["price"] 
+							),
+							"subject" => SITE_URL . " – Thank you for your order!",
+							"tracking" => false,
+							"template" => "order_confirmation"
+						));
+
+						
 
 						global $page;
 						$page->addLog("Shop->newOrderFromCart: order_no:".$order_no);

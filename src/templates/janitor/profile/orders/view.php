@@ -237,7 +237,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<?= $HTML->link("Your orders", "/janitor/admin/profile/orders/list", array("class" => "button", "wrapper" => "li.list")) ?>
 	</ul>
 
-	<h1>It seems you have lost your way.</h1>
+	<h3>It seems you have lost your way.</h3>
 <? endif; ?>
 
 </div>

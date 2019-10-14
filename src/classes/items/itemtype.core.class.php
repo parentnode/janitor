@@ -23,7 +23,7 @@ class ItemtypeCore extends Model {
 
 
 	/**
-	* Chacnge status of Item
+	* Change status of Item
 	* TODO: Implement data validation before allowing enabling 
 	*/
 	# /janitor/[admin/]#itemtype#/status/#item_id#/#new_status#
@@ -36,20 +36,39 @@ class ItemtypeCore extends Model {
 
 			$item_id = $action[1];
 			$status = $action[2];
-
+			
 			$query = new Query();
+			$IC = new Items();
 
-
+			$model = $IC->typeObject($this->itemtype);
+			$item = $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
+			
 			// delete item + itemtype + files
 			if(isset($this->status_states[$status]) && $query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
+			
+				// add callback to 'enabling', if available
+				if($status === "1" && method_exists($model, "enabling")) {
+					
+					$pre_enable_state = true;
+					$pre_enable_state = $model->enabling($item);
+					if($pre_enable_state === false) {
+						
+						return false;
+					}
+				}
+
+
 				$query->sql("UPDATE ".UT_ITEMS." SET status = $status WHERE id = $item_id");
-
 				message()->addMessage("Item ".$this->status_states[$status]);
-
-				// add log
-				$page->addLog("ItemType->status ($item_id, $status)");
-
-
+				
+				// add callback to 'enabled' and/or 'disabled', if available
+				if($status === "1" && method_exists($model, "enabled")) {
+					$model->enabled($item);
+				}
+				elseif($status === "0" && method_exists($model, "disabled")) {
+					$model->disabled($item);
+				}
+				
 				return true;
 			}
 		}
@@ -932,6 +951,7 @@ class ItemtypeCore extends Model {
 					unset($_POST);
 
 
+					message()->resetMessages();
 					message()->addMessage("Item duplicated");
 
 					// get and return new device (id will be used to redirect to new item page)
@@ -943,7 +963,8 @@ class ItemtypeCore extends Model {
 			}
 
 		}
-
+		
+		message()->resetMessages();
 		message()->addMessage("Item could not be duplicated", ["type" => "error"]);
 		return false;
 	}
@@ -1798,10 +1819,10 @@ class ItemtypeCore extends Model {
 
 				$sql = "INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', $vatrate, '$type', $quantity)";
 				// debug($sql);
-
+				
 				if($query->sql($sql)) {
 					message()->addMessage("Price added");
-
+					
 					$price_id = $query->lastInsertId();
 					$IC = new Items();
 					$new_price = $IC->getPrices(array("price_id" => $price_id));
@@ -1813,7 +1834,6 @@ class ItemtypeCore extends Model {
 			}
 
 		}
-
 		message()->addMessage("Price could not be added", array("type" => "error"));
 		return false;
 
@@ -1849,7 +1869,7 @@ class ItemtypeCore extends Model {
 	// /janitor/[admin/]#itemtype#/updateSubscriptionMethod/#item_id#
 	// subscription method is sent in $_POST
 	// TODO: implement itemtype checks
-	// TODO: also update all existing subscriptions of selected item (if method changes, expriry date changes)
+	// TODO: also update all existing subscriptions of selected item (if method changes, expiry date changes)
  	function updateSubscriptionMethod($action) {
 
 		// Get posted values to make them available for models
@@ -1857,35 +1877,34 @@ class ItemtypeCore extends Model {
 
 
 		if(count($action) == 2) {
-
 			$query = new Query();
 			$item_id = $action[1];
-
+			
 			if($this->validateList(array("item_subscription_method"), $item_id)) {
-
+				
 				$subscription_method = $this->getProperty("item_subscription_method", "value");
-
+				
 				// insert or update
 				if($subscription_method) {
-
+					
 					$sql = "SELECT id FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
-//					print $sql;
+					//					print $sql;
 					if($query->sql($sql)) {
-				
+						
 						if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE item_id = $item_id")) {
 							message()->addMessage("Subscription method updated");
-
+							
 							$IC = new Items();
 							$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
 							return $subscription_method;
 						}
-					
+						
 					}
 					else {
-
+						
 						$sql = "INSERT INTO ".UT_ITEMS_SUBSCRIPTION_METHOD." VALUES(DEFAULT, $item_id, $subscription_method)";
-//						print $sql;
-
+						// print $sql;
+						
 						if($query->sql($sql)) {
 							message()->addMessage("Subscription method added");
 
@@ -1913,6 +1932,60 @@ class ItemtypeCore extends Model {
 
 		message()->addMessage("Subscription method could not be changed", array("type" => "error"));
 		return false;
+
+	}
+
+	function addedToCart($added_item, $cart) {
+		
+		$added_item_id = $added_item["id"];
+		// print "\n<br>###$added_item_id### added to cart (generic item)\n<br>";
+	}
+
+	function ordered($order_item, $order) {
+
+		$order_item_id = $order_item["id"];
+		print "\n<br>###$order_item_id### ordered (generic item)\n<br>";
+
+		include_once("classes/shop/supersubscription.class.php");
+		$SuperSubscriptionClass = new SuperSubscription();
+		$IC = new Items();
+
+		// order item can be subscribed to
+		if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
+			$subscription = $SuperSubscriptionClass->getSubscriptions(array("item_id" => $order_item_id));
+
+			// user already subscribes to item
+			if($subscription) {
+
+				// update existing subscription
+				// callback to subscribed if item_id changes
+				$_POST["order_id"] = $order["id"];
+				$_POST["item_id"] = $order_item_id;
+				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $user["id"], $subscription["id"]]);
+				unset($_POST);
+
+			}
+			
+			else {
+				// add new subscription
+				// $subscription = $SuperSubscriptionClass->addSubscription($order["id"], $user["id"], $order_item);
+
+				// add callback to 'subscribed'
+				$model = $IC->typeObject($item["itemtype"]);
+				if(method_exists($model, "subscribed")) {
+					$model->subscribed($order_item, $order);
+				}
+ 				
+			}
+		}
+
+		// print_r($order_item);
+
+	}
+
+	function subscribed($subscription) {
+		
+		// print "\n<br>###$subscription["item_id"]### subscribed\n<br>";
 
 	}
 

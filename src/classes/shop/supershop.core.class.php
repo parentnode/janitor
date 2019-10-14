@@ -322,6 +322,29 @@ class SuperShopCore extends Shop {
 		return false;
 	}
 
+	// Empty cart
+	# #controller#/emptyCart/#cart_reference#
+	function emptyCart($action) {
+
+		if(count($action) == 2) {
+
+			$cart_reference = $action[1];
+	
+			$cart = $this->getCarts(["cart_reference" => $cart_reference]);
+			if($cart) {
+				if($cart["items"]) {
+					foreach($cart["items"] as $cart_item) {
+						$this->deleteFromCart(array("deleteFromCart", $cart["cart_reference"], $cart_item["id"]));
+					}
+				}
+	
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	// Update cart
 	# /janitor/admin/shop/updateCart/#cart_reference#
 	function updateCart($action) {
@@ -344,7 +367,6 @@ class SuperShopCore extends Shop {
 				$currency = $this->getProperty("currency", "value");
 				$country = $this->getProperty("country", "value");
 
-
 				$billing_address_id = $this->getProperty("billing_address_id", "value");
 				$delivery_address_id = $this->getProperty("delivery_address_id", "value");
 
@@ -353,7 +375,6 @@ class SuperShopCore extends Shop {
 
 				// update currency
 				if($currency) {
-					$sql .= ", currency='$currency'";
 				}
 
 				// update country
@@ -432,58 +453,148 @@ class SuperShopCore extends Shop {
 	// Add item to cart
 	# /janitor/admin/shop/addToCart/#cart_reference#/
 	// Items and quantity in $_post
+	
+	/**
+	 * ### Add item to cart
+	 * 
+	 * /janitor/admin/shop/addToCart/#cart_reference#/
+	 *
+	 * Item and quantity in $_POST
+	 * 
+	 * @param array $action
+	 * @return array|false Cart object. False on error. 
+	 */
 	function addToCart($action) {
 
 		if(count($action) > 1) {
 
 			$cart_reference = $action[1];
+			
+			// get cart
 			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+			// print_r($cart);
 
-			// Get posted values to make them available for models
+			// get posted values to make them available for models
 			$this->getPostedEntities();
 
-			// does values validate
+			// cart exists and values are valid
 			if($cart && $this->validateList(array("quantity", "item_id"))) {
 
 				$query = new Query();
+				$IC = new Items();
 
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
+				$item = $IC->getItem(array("id" => $item_id));
 
+				$price = $this->getPrice($item_id);
 
-				// check if item is already in cart?
-				if($cart["items"] && arrayKeyValue($cart["items"], "item_id", $item_id) !== false) {
-					$existing_item_index = arrayKeyValue($cart["items"], "item_id", $item_id);
+				// item has a price (price can be zero)
+				if ($price !== false) {
 
-
-					$existing_item = $cart["items"][$existing_item_index];
-					$existing_quantity = $existing_item["quantity"];
-					$new_quantity = intval($quantity) + intval($existing_quantity);
-
-					$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
-//					print $sql;
+					// item is already in cart
+					if($cart["items"] && arrayKeyValue($cart["items"], "item_id", $item_id) !== false) {
+						$existing_item_index = arrayKeyValue($cart["items"], "item_id", $item_id);
+	
+	
+						$existing_item = $cart["items"][$existing_item_index];
+						$existing_quantity = $existing_item["quantity"];
+						$new_quantity = intval($quantity) + intval($existing_quantity);
+	
+						// update item quantity
+						$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
+	//					print $sql;
+					}
+					else {
+						
+						// insert new cart item
+						$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
+		//				print $sql;	
+					}
+	
+					if($query->sql($sql)) {
+	
+						// update modified at time
+						$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$cart["id"];
+						$query->sql($sql);
+	
+						$cart = $this->getCarts(array("cart_id" => $cart["id"]));
+	
+						// add callback to addedToCart
+						$model = $IC->typeObject($item["itemtype"]);
+						if(method_exists($model, "addedToCart")) {
+							$model->addedToCart($item, $cart);
+						}
+	
+						message()->addMessage("Item added to cart");
+						return $cart;
+	
+					}
 				}
-				// insert new cart item
-				else {
 
-					$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
-	//				print $sql;	
-				}
-
-				if($query->sql($sql)) {
-
-					// update modified at time
-					$sql = "UPDATE ".$this->db_carts." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$cart["id"];
-					$query->sql($sql);
-
-					message()->addMessage("Item added to cart");
-					return $this->getCarts(array("cart_id" => $cart["id"]));
-
-				}
 			}
 		}
 
 		message()->addMessage("Item could not be added to cart", array("type" => "error"));
+		return false;
+	}
+
+	/**
+	 * ### Add item to new internal cart
+	 * 
+	 *
+	 * @param int $item_id
+	 * @param int $_options 
+	 * – user_id is required	
+	 * – a quantity can be specified (default is 1)
+	 * 
+	 * @return array|false Cart object. False on error.
+	 */
+	function addToNewInternalCart($item_id, $_options = false) {
+
+		$quantity = 1;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"           : $user_id             = $_value; break;
+					case "quantity"          : $quantity            = $_value; break;
+				}
+			}
+		}
+		
+		$price = $this->getPrice($item_id);
+		// user_id was passed and item has a price (price can be zero)
+		if($user_id && $price !== false) {
+
+			// create new internal cart
+			$_POST["user_id"] = $user_id;
+			$cart = $this->addCart(["addCart"]);
+			unset($_POST);
+			$cart_reference = $cart["cart_reference"];
+			if($cart) {
+
+				$query = new Query();
+				$IC = new Items();
+				$item = $IC->getItem(array("id" => $item_id));
+				
+				// insert new cart item
+				$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
+				if($query->sql($sql)) {
+
+					// get updated cart
+					$cart = $this->getCarts(["cart_reference" => $cart_reference]);
+	
+					// add callback to addedToCart
+					$model = $IC->typeObject($item["itemtype"]);
+					if(method_exists($model, "addedToCart")) {
+						$model->addedToCart($item, $cart);
+					}
+
+					return $cart;
+				}
+			}
+		}
 		return false;
 	}
 
@@ -535,6 +646,12 @@ class SuperShopCore extends Shop {
 						$item["total_price_formatted"] = formatPrice($item["total_price"], array("vat" => true));
 						$item["total_cart_price"] = $this->getTotalCartPrice($cart["id"]);
 						$item["total_cart_price_formatted"] = formatPrice($item["total_cart_price"]);
+
+						// add callback to addedToCart
+						$model = $IC->typeObject($item["itemtype"]);
+						if(method_exists($model, "addedToCart")) {
+							$model->addedToCart($item, $cart);
+						}
  
 						message()->addMessage("Item quantity updated");
 						return $item;
@@ -589,51 +706,331 @@ class SuperShopCore extends Shop {
 	# /janitor/admin/shop/newOrderFromCart/#card_id#/#cart_reference#
 	function newOrderFromCart($action) {
 
-		// Get posted values to make them available for models
+		// get posted values to make them available for models
 		$this->getPostedEntities();
 
-		// does values validate
+		// REST parameters are valid
 		if(count($action) == 3) {
 
+			include_once("classes/users/superuser.class.php");
 			$query = new Query();
-
+			$UC = new SuperUser();
+			$IC = new Items();
 
 			$cart_id = $action[1];
 			$cart_reference = $action[2];
 			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
+			// debug([$cart]);
 
-			if($cart && $cart["user_id"] && $cart["items"]) {
+			// cart is registered and has content
+			if($cart && $cart["user_id"] && $cart["items"] && $cart_reference == $cart["cart_reference"]) {
+				$user_id = $cart["user_id"];
+				$user = $UC->getUsers(["user_id" => $user_id]);
+				// debug(["user", $user]);
+				
+				// get new order number
+				$order_no = $this->getNewOrderNumber();
+				if($order_no) {
+					
+					// get data from cart
+					$currency = $cart["currency"];
+					$country = $cart["country"];
 
-				$_POST["user_id"] = $cart["user_id"];
-				$_POST["country"] = $cart["country"];
-				$_POST["currency"] = $cart["currency"];
-				$_POST["delivery_address_id"] = $cart["delivery_address_id"];
-				$_POST["billing_address_id"] = $cart["billing_address_id"];
+					$delivery_address_id = $cart["delivery_address_id"];
+					$delivery_address = false;
+					$billing_address_id = $cart["billing_address_id"];
+					$billing_address = false;
 
-				$order = $this->addOrder(array("addOrder"));
-				unset($_POST);
+					// create base data update sql
+					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency'";
+					// print $sql."<br />\n";
 
-				foreach($cart["items"] as $cart_item) {
-					$_POST["quantity"] = $cart_item["quantity"];
-					$_POST["item_id"] = $cart_item["item_id"];
+					if($delivery_address_id) {
+						// add delivery address
+						$delivery_address = $UC->getAddresses(array("address_id" => $delivery_address_id));
+						if($delivery_address) {
+							$sql .= ", delivery_name='".prepareForDB($delivery_address["address_name"])."'";
+							$sql .= ", delivery_att='".prepareForDB($delivery_address["att"])."'";
+							$sql .= ", delivery_address1='".prepareForDB($delivery_address["address1"])."'";
+							$sql .= ", delivery_address2='".prepareForDB($delivery_address["address2"])."'";
+							$sql .= ", delivery_city='".prepareForDB($delivery_address["city"])."'";
+							$sql .= ", delivery_postal='".prepareForDB($delivery_address["postal"])."'";
+							$sql .= ", delivery_state='".prepareForDB($delivery_address["state"])."'";
+							$sql .= ", delivery_country='".prepareForDB($delivery_address["country"])."'";
+						}
+					}
 
-					$this->addToOrder(array("addOrder", $order["id"]));
-					unset($_POST);
+					if($billing_address_id) {
+						// add billing address
+						$billing_address = $UC->getAddresses(array("address_id" => $billing_address_id));
+						if($billing_address) {
+							$sql .= ", billing_name='".prepareForDB($billing_address["address_name"])."'";
+							$sql .= ", billing_att='".prepareForDB($billing_address["att"])."'";
+							$sql .= ", billing_address1='".prepareForDB($billing_address["address1"])."'";
+							$sql .= ", billing_address2='".prepareForDB($billing_address["address2"])."'";
+							$sql .= ", billing_city='".prepareForDB($billing_address["city"])."'";
+							$sql .= ", billing_postal='".prepareForDB($billing_address["postal"])."'";
+							$sql .= ", billing_state='".prepareForDB($billing_address["state"])."'";
+							$sql .= ", billing_country='".prepareForDB($billing_address["country"])."'";
+						}
+					}
+
+					// no billing info is provided
+					if(!$billing_address) {
+						// use available account info
+						$user = $UC->getUsers(["user_id" => $user_id]);
+						if($user["firstname"] && $user["lastname"]) {
+							$sql .= ", billing_name='".prepareForDB($user["firstname"])." ".prepareForDB($user["lastname"])."'";
+						}
+						else {
+							$sql .= ", billing_name='".prepareForDB($user["nickname"])."'";
+						}
+					}
+
+
+					// finalize sql
+					$sql .= " WHERE order_no='$order_no'";
+//					print $sql;
+
+
+					// order creation was successful
+					if($query->sql($sql)) {
+
+						// get the new order
+						$order = $this->getOrders(array("order_no" => $order_no));
+
+						$admin_summary = [];
+//						print "items";
+//						print_r($cart["items"]);
+
+						// add the items from the cart
+						foreach($cart["items"] as $cart_item) {
+
+							$quantity = $cart_item["quantity"];
+							$item_id = $cart_item["item_id"];
+
+							// get item details
+							$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
+
+							if($item) {
+
+								// get best price for item
+								$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
+								// print_r("price: ".$price);
+
+								$unit_price = $price["price"];
+								$unit_vat = $price["vat"];
+								$total_price = $unit_price * $quantity;
+								$total_vat = $unit_vat * $quantity;
+
+								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+								// print $sql;
+
+
+								// Add item to order
+								if($query->sql($sql)) {
+									
+									// add callback to 'ordered'
+									$model = $IC->typeObject($item["itemtype"]);
+									if(method_exists($model, "ordered")) {
+										$model->ordered($item, $order);
+									}
+
+								}
+
+							}
+							
+						}
+						
+						$this->validateOrder($order["id"]);
+
+
+						// Update order comment
+						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."' WHERE order_no='$order_no'";
+//						print $sql."<br>\n";
+						$query->sql($sql);
+					
+						
+						// only autoship order if every item should be autoshipped
+						$order["autoship"] = true;
+						foreach($cart["items"] as $cart_item) {
+							if(!isset($item["autoship"]) || !$item["autoship"]) {
+								$order["autoship"] = false;
+							}
+						}
+						if($order["autoship"]) {
+							// update shipping_status to shipped
+							$sql = "UPDATE ".$this->db_orders." SET shipping_status = 2 WHERE order_no='$order_no'";
+							$query->sql($sql);
+						}
+
+
+						// set payment status for 0-priced orders
+
+						$order = $this->getOrders(array("order_no" => $order_no));
+						$total_order_price = $this->getTotalOrderPrice($order["id"]);
+						if($total_order_price["price"] === 0) {
+							$query->sql($sql);
+						}
+
+
+
+						// delete cart
+						$sql = "DELETE FROM $this->db_carts WHERE id = ".$cart["id"]." AND cart_reference = '".$cart["cart_reference"]."'";
+			//			print $sql;
+						$query->sql($sql);
+
+						global $page;
+						$page->addLog("SuperShop->newOrderFromCart: order_no:".$order_no);
+
+
+						return $this->getOrders(array("order_no" => $order_no));
+
+					}
 				}
 
-				$this->deleteCart(array("deleteCart", $cart_id, $cart_reference));
+				// order creation failed, remove unused order number
+				$this->deleteOrderNumber($order_no);
 
-				message()->addMessage("Cart converted to order");
-				return $order;
+			}
 
+		}
+
+		return false;
+	}
+
+	/**
+	 * Update order comment
+	 * 
+	 * @param array $action
+	 * 
+	 * /janitor/admin/shop/updateOrderComment/#order_id#
+	 * Required in $_POST: order_comment
+	 *
+	 * @return array|false Order object. False on error.
+	 */
+	function updateOrderComment($action) {
+
+		// get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// values are valid
+		if(count($action) == 2 && $this->validateList(["order_comment"])) {
+
+			$query = new Query();
+
+			$order_id = $action[1];
+			$order = $this->getOrders(array("order_id" => $order_id));
+
+			// order is still pending
+			if($order && $order["status"] == 0) {
+				
+				$order_comment = $this->getProperty("order_comment", "value");
+
+				// update order comment
+				$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP, comment='$order_comment' WHERE id=$order_id";
+				if($query->sql($sql)) {
+
+					message()->addMessage("Order comment updated");
+					return $this->getOrders(array("order_id" => $order_id));
+				}
 			}
 		}
 
-		message()->addMessage("Cart could not be converted to order", array("type" => "error"));
+		message()->addMessage("Order comment could not be updated", array("type" => "error"));
 		return false;
 
 	}
 
+	/**
+	 * Update order addresses (billing- or delivery-)
+	 *
+	 * /janitor/admin/shop/updateOrderAddresses/#order_id#
+	 * 
+	 * @param array $action
+	 * @return array|false Order object. False on error.
+	 */
+	function updateOrderAddresses($action) {
+
+		// get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// values are valid
+		if(count($action) == 2) {
+			
+			$query = new Query();
+			include_once("classes/users/superuser.class.php");
+			$UC = new SuperUser();
+
+			$order_id = $action[1];
+			$order = $this->getOrders(array("order_id" => $order_id));
+
+			// order is still pending
+			if($order && $order["status"] == 0) {
+				
+				$delivery_address_id = $this->getProperty("delivery_address_id", "value");
+				$billing_address_id = $this->getProperty("billing_address_id", "value");
+
+				// create base data update sql
+				$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP";
+
+				// add delivery address
+				if($delivery_address_id) {
+					$delivery_address = $UC->getAddresses(array("address_id" => $delivery_address_id));
+					if($delivery_address) {
+						$sql .= ", delivery_name='".prepareForDB($delivery_address["address_name"])."'";
+						$sql .= ", delivery_att='".prepareForDB($delivery_address["att"])."'";
+						$sql .= ", delivery_address1='".prepareForDB($delivery_address["address1"])."'";
+						$sql .= ", delivery_address2='".prepareForDB($delivery_address["address2"])."'";
+						$sql .= ", delivery_city='".prepareForDB($delivery_address["city"])."'";
+						$sql .= ", delivery_postal='".prepareForDB($delivery_address["postal"])."'";
+						$sql .= ", delivery_state='".prepareForDB($delivery_address["state"])."'";
+						$sql .= ", delivery_country='".prepareForDB($delivery_address["country"])."'";
+					}
+				}
+
+				// add billing address
+				if($billing_address_id) {
+					$billing_address = $UC->getAddresses(array("address_id" => $billing_address_id));
+					if($billing_address) {
+						$sql .= ", billing_name='".prepareForDB($billing_address["address_name"])."'";
+						$sql .= ", billing_att='".prepareForDB($billing_address["att"])."'";
+						$sql .= ", billing_address1='".prepareForDB($billing_address["address1"])."'";
+						$sql .= ", billing_address2='".prepareForDB($billing_address["address2"])."'";
+						$sql .= ", billing_city='".prepareForDB($billing_address["city"])."'";
+						$sql .= ", billing_postal='".prepareForDB($billing_address["postal"])."'";
+						$sql .= ", billing_state='".prepareForDB($billing_address["state"])."'";
+						$sql .= ", billing_country='".prepareForDB($billing_address["country"])."'";
+					}
+				}
+				
+				// finalize sql
+				$sql .= " WHERE id=$order_id";
+				
+				if($query->sql($sql)) {
+
+					if($billing_address_id && $billing_address) {
+						message()->addMessage("Billing Address updated");
+					}
+					if($delivery_address_id && $delivery_address) {
+						message()->addMessage("Delivery Address updated");
+					}
+					
+					return $this->getOrders(array("order_id" => $order_id));
+				}
+			}
+		}
+
+		if($billing_address_id && $billing_address) {
+			message()->addMessage("Billing Address could not be updated", ["type" => "error"]);
+		}
+		if($delivery_address_id && $delivery_address) {
+			message()->addMessage("Delivery Address could not be updated", ["type" => "error"]);
+		}
+		
+		return false;
+
+	}
 
 
 
@@ -1030,6 +1427,7 @@ class SuperShopCore extends Shop {
 						"FROM" => $current_user["nickname"],
 						"NICKNAME" => $order["user"]["nickname"],
 						"ORDER_NO" => $order["order_no"],
+						"ORDER_ID" => $order["id"],
 						"ORDER_PRICE" => formatPrice($total_order_price),
 					),
 					"recipients" => $order["user"]["email"],
@@ -1116,246 +1514,6 @@ class SuperShopCore extends Shop {
 	}
 
 
-	// add a new order for specified user
-	# /janitor/admin/shop/addOrder
-	function addOrder($action) {
-		global $page;
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-		// does values validate
-		if(count($action) == 1 && $this->validateList(array("user_id"))) {
-
-			$query = new Query();
-
-
-			include_once("classes/users/superuser.class.php");
-			$UC = new SuperUser();
-
-
-			// get new order number
-			$order_no = $this->getNewOrderNumber();
-			if($order_no) {
-
-				$user_id = $this->getProperty("user_id", "value");
-				$currency = $this->getProperty("currency", "value");
-				$country = $this->getProperty("country", "value");
-
-				$delivery_address_id = $this->getProperty("delivery_address_id", "value");
-				$delivery_address = false;
-				$billing_address_id = $this->getProperty("billing_address_id", "value");
-				$billing_address = false;
-
-				$order_comment = $this->getProperty("order_comment", "value");
-
-
-				// set default currency if not passed
-				if(!$currency) {
-					$currency = $page->currency();
-				}
-
-				// set default country if not passed
-				if(!$country) {
-					$country = $page->country();
-				}
-
-
-				// create base data update sql
-				$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency'";
-
-
-				// add delivery address
-				if($delivery_address_id) {
-					$delivery_address = $UC->getAddresses(array("address_id" => $delivery_address_id));
-					if($delivery_address) {
-						$sql .= ", delivery_name='".prepareForDB($delivery_address["address_name"])."'";
-						$sql .= ", delivery_att='".prepareForDB($delivery_address["att"])."'";
-						$sql .= ", delivery_address1='".prepareForDB($delivery_address["address1"])."'";
-						$sql .= ", delivery_address2='".prepareForDB($delivery_address["address2"])."'";
-						$sql .= ", delivery_city='".prepareForDB($delivery_address["city"])."'";
-						$sql .= ", delivery_postal='".prepareForDB($delivery_address["postal"])."'";
-						$sql .= ", delivery_state='".prepareForDB($delivery_address["state"])."'";
-						$sql .= ", delivery_country='".prepareForDB($delivery_address["country"])."'";
-					}
-				}
-
-				// add billing address
-				if($billing_address_id) {
-					$billing_address = $UC->getAddresses(array("address_id" => $billing_address_id));
-					if($billing_address) {
-						$sql .= ", billing_name='".prepareForDB($billing_address["address_name"])."'";
-						$sql .= ", billing_att='".prepareForDB($billing_address["att"])."'";
-						$sql .= ", billing_address1='".prepareForDB($billing_address["address1"])."'";
-						$sql .= ", billing_address2='".prepareForDB($billing_address["address2"])."'";
-						$sql .= ", billing_city='".prepareForDB($billing_address["city"])."'";
-						$sql .= ", billing_postal='".prepareForDB($billing_address["postal"])."'";
-						$sql .= ", billing_state='".prepareForDB($billing_address["state"])."'";
-						$sql .= ", billing_country='".prepareForDB($billing_address["country"])."'";
-					}
-				}
-
-				// use account info, if no billing info is provided
-				if(!$billing_address) {
-					$user = $UC->getUsers(["user_id" => $user_id]);
-					if($user["firstname"] && $user["lastname"]) {
-						$sql .= ", billing_name='".prepareForDB($user["firstname"])." ".prepareForDB($user["lastname"])."'";
-					}
-					else {
-						$sql .= ", billing_name='".prepareForDB($user["nickname"])."'";
-					}
-				}
-
-
-				// add order comment
-				if($order_comment) {
-					$sql .= ", comment='$order_comment'";
-				}
-
-
-				// finalize sql
-				$sql .= " WHERE order_no='$order_no'";
-
-//				print $sql;
-				if($query->sql($sql)) {
-
-					$page->addLog("SuperShop->addOrder: user_id:".$user_id.", order_no:".$order_no);
-
-					message()->addMessage("Order added");
-					return $this->getOrders(array("order_no" => $order_no));
-				}
-			}
-
-			// order creation failed, remove unused order number
-			$this->deleteOrderNumber($order_no);
-
-		}
-
-		message()->addMessage("Order could not be added", array("type" => "error"));
-		return false;
-	}
-
-	// Update order
-	# /janitor/admin/shop/updateOrder/#order_id#
-	function updateOrder($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-		// does values validate
-		if(count($action) == 2) {
-
-			$query = new Query();
-
-
-			include_once("classes/users/superuser.class.php");
-			$UC = new SuperUser();
-
-
-			$order_id = $action[1];
-
-			$order = $this->getOrders(array("order_id" => $order_id));
-
-			if($order && $order["status"] == 0) {
-
-				$currency = $this->getProperty("currency", "value");
-				$country = $this->getProperty("country", "value");
-
-				$delivery_address_id = $this->getProperty("delivery_address_id", "value");
-				$billing_address_id = $this->getProperty("billing_address_id", "value");
-
-				$order_comment = $this->getProperty("order_comment", "value");
-
-				// create base data update sql
-				$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP";
-
-				// update currency
-				if($currency) {
-					$sql .= ", currency='$currency'";
-				}
-
-				// update country
-				if($country) {
-					$sql .= ", country='$country'";
-				}
-
-				// add delivery address
-				if($delivery_address_id) {
-					$delivery_address = $UC->getAddresses(array("address_id" => $delivery_address_id));
-					if($delivery_address) {
-						$sql .= ", delivery_name='".prepareForDB($delivery_address["address_name"])."'";
-						$sql .= ", delivery_att='".prepareForDB($delivery_address["att"])."'";
-						$sql .= ", delivery_address1='".prepareForDB($delivery_address["address1"])."'";
-						$sql .= ", delivery_address2='".prepareForDB($delivery_address["address2"])."'";
-						$sql .= ", delivery_city='".prepareForDB($delivery_address["city"])."'";
-						$sql .= ", delivery_postal='".prepareForDB($delivery_address["postal"])."'";
-						$sql .= ", delivery_state='".prepareForDB($delivery_address["state"])."'";
-						$sql .= ", delivery_country='".prepareForDB($delivery_address["country"])."'";
-					}
-				}
-
-				// add billing address
-				if($billing_address_id) {
-					$billing_address = $UC->getAddresses(array("address_id" => $billing_address_id));
-					if($billing_address) {
-						$sql .= ", billing_name='".prepareForDB($billing_address["address_name"])."'";
-						$sql .= ", billing_att='".prepareForDB($billing_address["att"])."'";
-						$sql .= ", billing_address1='".prepareForDB($billing_address["address1"])."'";
-						$sql .= ", billing_address2='".prepareForDB($billing_address["address2"])."'";
-						$sql .= ", billing_city='".prepareForDB($billing_address["city"])."'";
-						$sql .= ", billing_postal='".prepareForDB($billing_address["postal"])."'";
-						$sql .= ", billing_state='".prepareForDB($billing_address["state"])."'";
-						$sql .= ", billing_country='".prepareForDB($billing_address["country"])."'";
-					}
-				}
-
-				// add order comment
-				if($order_comment) {
-					$sql .= ", comment='$order_comment'";
-				}
-
-
-				// finalize sql
-				$sql .= " WHERE id=$order_id";
-
-//				print $sql;
-				if($query->sql($sql)) {
-
-					// if country or currency was changed, price should be updated
-					if($country || $currency) {
-
-						// update order items price for new currency and country
-						$updated_order = $this->getOrders(array("order_id" => $order_id));
-						if($updated_order["items"]) {
-							foreach($updated_order["items"] as $order_item) {
-								// get best price for item
-								$price = $this->getPrice($order_item["item_id"], array("quantity" => $order_item["quantity"], "currency" => $updated_order["currency"], "country" => $updated_order["country"]));
-								if($price) {
-									$unit_price = $price["price"];
-									$unit_vat = $price["vat"];
-									$total_price = $unit_price * $order_item["quantity"];
-									$total_vat = $unit_vat * $order_item["quantity"];
-
-									$sql = "UPDATE ".$this->db_order_items." SET unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$order_item["id"]." AND order_id = ".$order_id;
-				//					print $sql;
-									$query->sql($sql);
-								}
-							}
-						}
-					}
-
-					message()->addMessage("Order updated");
-					return $this->getOrders(array("order_id" => $order_id));
-				}
-
-			}
-		}
-
-		message()->addMessage("Order could not be updated", array("type" => "error"));
-		return false;
-
-	}
-
 	// Delete order (only allowed if ststus is still 0)
 	# /janitor/admin/shop/deleteOrder/#order_id#/#user_id#
 	function deleteOrder($action) {
@@ -1399,17 +1557,20 @@ class SuperShopCore extends Shop {
 
 			include_once("classes/users/superuser.class.php");
 			$UC = new SuperUser();
+			include_once("classes/users/supermember.class.php");
+			$MC = new SuperMember();
+			include_once("classes/shop/supersubscription.class.php");
+			$SuperSubscriptionClass = new SuperSubscription();
 
 			$order_id = $action[1];
 			$user_id = $action[2];
 
-			// check overstatus
+			// check order status
 			$order = $this->getOrders(array("order_id" => $order_id));
 			if($order && ($order["status"] == 0 || $order["status"] == 1)) {
 
-				// create creditnote
+				// create credit note
 				$creditnote_no = $this->getNewCreditnoteNumber(["order_id" => $order_id]);
-//				print_r($creditnote_no);
 
 				// map order to new credit note no
 				$sql = "UPDATE ".$this->db_cancelled_orders." SET order_id = $order_id WHERE creditnote_no = '".$creditnote_no."'";
@@ -1429,23 +1590,23 @@ class SuperShopCore extends Shop {
 								$membership = $query->result(0);
 
 								// cancel membership - also deletes related subscription
-								$UC->cancelMembership(array("cancelMembership", $membership["user_id"], $membership["id"]));
+								$MC->cancelMembership(array("cancelMembership", $membership["user_id"], $membership["id"]));
 							}
 							// regular subscription
 							else {
 
 								// delete subscription
-								$UC->deleteSubscription(array("deleteSubscription", $subscription["user_id"], $subscription["id"]));
+								$SuperSubscriptionClass->deleteSubscription(array("deleteSubscription", $subscription["user_id"], $subscription["id"]));
 							}
 						}
+
 					}
 
 					// update order status and create credit note
 					$sql = "UPDATE ".$this->db_orders." SET status = 3 WHERE id = ".$order_id." AND user_id = ".$user_id;
 					if($query->sql($sql)) {
 
-
-						global $page;
+ 						global $page;
 						$page->addLog("SuperShop->cancelOrder: $order_id ($user_id)");
 
 						message()->addMessage("Order cancelled");
@@ -1460,207 +1621,9 @@ class SuperShopCore extends Shop {
 			$this->deleteCreditnoteNumber($creditnote_no);
 		}
 
-		message()->addMessage("Order could not cancelled", array("type" => "error"));
+		message()->addMessage("Order could not be cancelled", array("type" => "error"));
 		return false;
 	}
-
-
-
-
-	// ORDER ITEMS
-
-	# /janitor/admin/shop/addToOrder/#order_id#/
-	// Items and quantity in $_post
-	function addToOrder($action) {
-
-		if(count($action) > 1) {
-
-			$order_id = $action[1];
-			$order = $this->getOrders(array("order_id" => $order_id));
-
-
-			// Get posted values to make them available for models
-			$this->getPostedEntities();
-
-			// does values validate
-			if($order && $order["status"] == 0 && $this->validateList(array("quantity", "item_id"))) {
-
-				$query = new Query();
-
-				$quantity = $this->getProperty("quantity", "value");
-				$item_id = $this->getProperty("item_id", "value");
-
-//				$item_price = false;
-//				$item_name = false;
-
-				$item_price = $this->getProperty("item_price", "value");
-				$item_name = $this->getProperty("item_name", "value");
-
-				// if($this->validate("item_price") && $this->validate("item_name")) {
-				// }
-
-
-
-				$IC = new Items();
-				$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
-
-				// print "item:<br>\n";
-				// print_r($item);
-
-
-				// only add item if it exists
-				if($item) {
-
-					// custom order item
-					if($item_name && $item_price) {
-
-						// get best price for item
-						$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-		//				print_r($price);
-
-						$unit_price = $item_price;
-						$unit_vat = $item_price * (1 - (1 / (1 + ($price["vatrate"]/100))));
-
-						$total_price = $unit_price * $quantity;
-						$total_vat = $unit_vat * $quantity;
-
-						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".$item_name."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-//						print $sql;
-					}
-					// check if item is already in order?
-					else if($order["items"] && arrayKeyValue($order["items"], "item_id", $item_id) !== false) {
-						$existing_item_index = arrayKeyValue($order["items"], "item_id", $item_id);
-
-
-						$existing_item = $order["items"][$existing_item_index];
-						$existing_quantity = $existing_item["quantity"];
-						$new_quantity = intval($quantity) + intval($existing_quantity);
-
-						// get best price for item
-						$price = $this->getPrice($item_id, array("quantity" => $new_quantity, "currency" => $order["currency"], "country" => $order["country"]));
-	//					print_r($price);
-
-						$unit_price = $price["price"];
-						$unit_vat = $price["vat"];
-						$total_price = $unit_price * $new_quantity;
-						$total_vat = $unit_vat * $new_quantity;
-
-						$sql = "UPDATE ".$this->db_order_items." SET quantity=$new_quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat WHERE id = ".$existing_item["id"]." AND order_id = ".$order_id;
-	//					print $sql;
-					}
-					// insert new order item
-					else {
-
-						// get best price for item
-						$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-		//				print_r($price);
-
-						$unit_price = $price["price"];
-						$unit_vat = $price["vat"];
-						$total_price = $unit_price * $quantity;
-						$total_vat = $unit_vat * $quantity;
-
-						$sql = "INSERT INTO ".$this->db_order_items." SET order_id=$order_id, item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-//						print $sql;				
-					}
-
-
-					if($query->sql($sql)) {
-
-						// update modified at time
-						$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP WHERE id = ".$order_id;
-//						print $sql;
-						$query->sql($sql);
-
-
-						include_once("classes/users/superuser.class.php");
-						$UC = new SuperUser();
-
-
-						$membership = false;
-
-						// item is membership (membership can only be added with relation subscription)
-						if(SITE_MEMBERS && $item["itemtype"] == "membership") {
-
-							// check if user already has membership
-							$membership = $UC->getMembers(array("user_id" => $order["user_id"]));
-
-							// membership does not exist
-							if(!$membership) {
-								// set values for adding membership
-								$_POST["user_id"] = $order["user_id"];
-								// add new membership
-								$membership = $UC->addMembership(array("addMembership"));
-								unset($_POST);
-							}
-
-						}
-
-
-						// subscription method available for item
-						if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
-
-							// set values for updating/creating subscription
-							$_POST["order_id"] = $order["id"];
-							$_POST["item_id"] = $item_id;
-							$_POST["user_id"] = $order["user_id"];
-
-							// if membership variable is not false
-							// it means that membership exists and current type is membership
-							// avoid creating new membership subscription
-							if($membership && $membership["item"]) {
-
-								// get the current membership subscription
-								$subscription = $UC->getSubscriptions(array("item_id" => $membership["item"]["id"], "user_id" => $order["user_id"]));
-							}
-							else {
-
-								// check if subscription already exists
-								$subscription = $UC->getSubscriptions(array("item_id" => $item_id, "user_id" => $order["user_id"]));
-							}
-
-
-							// if subscription is for itemtype=membership
-							// add/updateSubscription will also update subscription_id on membership 
-
-							// update existing subscription
-							if($subscription) {
-								$subscription = $UC->updateSubscription(array("updateSubscription", $order["user_id"], $subscription["id"]));
-							}
-							// add new subscription
-							else {
-								$subscription = $UC->addSubscription(array("addSubscription"));
-							}
-
-							// clean up POST array
-							unset($_POST);
-
-						}
-
-
-
-						global $page;
-						$page->addLog("SuperShop->addToOrder: order_id:".$order["id"].", item_id:".$item_id);
-
-						$this->validateOrder($order_id);
-
-						message()->addMessage("Item added to order");
-						return $this->getOrders(array("order_id" => $order_id));
-
-					}
-
-				}
-
-			}
-
-		}
-
-		message()->addMessage("Item could not be added to order", array("type" => "error"));
-		return false;
-	}
-
-
-
 
 
 	// update shipping status for order or item
@@ -2081,46 +2044,6 @@ class SuperShopCore extends Shop {
 			}
 
 		}
-
-//
-// 				if($payment_method["gateway"] == "stripe") {
-//
-// 					include_once("classes/adapters/stripe.class.php");
-// 					$GC = new JanitorStripe();
-//
-// 					$customer_id = $GC->getCustomerId($order["user_id"]);
-//
-// 					if($customer_id) {
-// //						print "should charge $payment_amount from ".$payment_method["gateway"];
-//
-// 						$custom_order = $order;
-// 						$custom_order["total_price"]["price"] = $payment_amount;
-//
-// 						// if partially paid already, add custom description to charge
-// 						if($total_payments) {
-// 							$custom_order["custom_description"] = $order["order_no"] . ", " . $order["comment"] . " (partial)";
-// 						}
-//
-// 						if($GC->chargeCustomer($custom_order, $customer_id)) {
-//
-// 							message()->addMessage("Payment charged sucessfully.");
-// 							return true;
-//
-// 						}
-//
-// 					}
-// 					else {
-//
-// 						message()->addMessage("User does not have Stripe account.", array("type" => "error"));
-// 						return false;
-//
-// 					}
-//
-// 				}
-//
-// 			}
-//
-// 		}
 
 		message()->addMessage("Payment could not be charged", array("type" => "error"));
 		return false;

@@ -99,27 +99,6 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 	<div class="basics i:collapseHeader">
 		<h2>Details</h2>
 
-		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
-			<fieldset>
-				<?= $model->input("country", array(
-					"type" => "select",
-					"options" => $model->toOptions($this->countries(), "id", "name"),
-					"value" => $order["country"]
-				)) ?>
-				<?= $model->input("currency", array(
-					"type" => "select",
-					"options" => $model->toOptions($this->currencies(), "id", "name"),
-					"value" => $order["currency"]
-				)) ?>
-			</fieldset>
-
-			<ul class="actions">
-				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
-			</ul>
-		<?= $model->formEnd() ?>
-		<? endif; ?>
-
 		<dl class="info">
 			<dt>Order No.</dt>
 			<dd><?= $order["order_no"] ?></dd>
@@ -155,7 +134,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 	<div class="comment i:collapseHeader">
 		<h2>Comment</h2>
 		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrderComment/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("order_comment", array("value" => $order["comment"])) ?>
 			</fieldset>
@@ -303,7 +282,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<h2>Delivery</h2>
 
 		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrderAddresses/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("delivery_address_id", array(
 					"type" => "select",
@@ -339,7 +318,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<h2>Billing</h2>
 
 		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrder/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrderAddresses/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("billing_address_id", array(
 					"type" => "select",
