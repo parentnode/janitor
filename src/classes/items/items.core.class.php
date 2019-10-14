@@ -324,7 +324,7 @@ class ItemsCore {
 
 			return $item;
 		}
-		return false;
+		return [];
 	}
 
 
