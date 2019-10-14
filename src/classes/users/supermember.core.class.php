@@ -251,6 +251,7 @@ class SuperMemberCore extends Member {
 	 * Add membership
 	 *
 	 * @param integer $item_id
+	 * @param integer $subscription_id
 	 * @param array|false $_options 
 	 * – user_id (required)
 	 * 
@@ -423,7 +424,7 @@ class SuperMemberCore extends Member {
 
 
 	/**
-	 * Cancel membership of specified user
+	 * Cancel membership for specified user
 	 * 
 	 * Removes subscription_id from membership and deletes related subscription
 	 *

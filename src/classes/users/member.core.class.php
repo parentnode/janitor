@@ -167,7 +167,7 @@ class MemberCore extends Model {
 	 * Update membership for current user
 	 *
 	 * @param array|false $_options
-	 * – subscription_id (to be used if reactivaing an inactive membership)
+	 * – subscription_id (to be used if reactivating an inactive membership)
 	 * 
 	 * @return array|false Membership object. False on non-existing membership. False on error. 
 	 */
@@ -345,7 +345,7 @@ class MemberCore extends Model {
 	 * /#controller#/upgradeMembership
 	 * item_id in $_POST
 	 *
-	 * @param array $array
+	 * @param array $action
 	 * 
 	 * @return boolean True on successful upgrade. False on error.
 	 * 
