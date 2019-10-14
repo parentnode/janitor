@@ -30,7 +30,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 	</div>
 
 
-	<?= $JML->editMedia($item) ?>
+	<?= $JML->editMediae($item) ?>
 
 	<?= $JML->editTags($item) ?>
 

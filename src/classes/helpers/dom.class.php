@@ -281,7 +281,7 @@ class DOM extends DOMElement {
 			foreach($node->attributes as $attribute => $attribute_node) {
 
 				// check for allowed attribute
-				if(preg_match("/href|class|width|height|alt|charset/i", $attribute)) {
+				if(preg_match("/href|class|width|height|alt|charset|target/i", $attribute)) {
 
 					// if href, only allow absolute http links (no javascript or other crap)
 					// if($attribute == "href" && strpos($attribute_node->value, "http://") !== 0) {

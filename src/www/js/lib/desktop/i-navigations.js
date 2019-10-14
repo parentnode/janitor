@@ -50,21 +50,18 @@ Util.Objects["navigationNodes"] = new function() {
 			div.list.updateNodeStructure = function() {
 				u.bug("updateNodeStructure");
 
-				var structure = this.getStructure();
+				var structure = this.getNodeRelations();
 
+				u.bug(structure);
 				this.response = function(response) {
 					page.notify(response);
 				}
-				u.request(this, this.update_order_url, {"method":"post", "params":"csrf-token="+this.csrf_token+"&structure="+JSON.stringify(structure)});
+				u.request(this, this.update_order_url, {"method":"post", "data":"csrf-token="+this.csrf_token+"&structure="+JSON.stringify(structure)});
 
 
 				var i, node;
 				this.nodes = u.qsa("li.item", this);
 				for(i = 0; node = this.nodes[i]; i++) {
-
-					// update delete button states
-//					var = u.qs("li.delete", node);
-					u.bug("look for children")
 
 					// disable delete buttons for nodes with children
 					var child_nodes = u.qs("ul.items li.item", node);
@@ -75,10 +72,11 @@ Util.Objects["navigationNodes"] = new function() {
 					else {
 						u.rc(bn_delete_input, "disabled");
 					}
+
 				}
 			}
 
-			u.sortable(div.list, {"allow_nesting":true, "targets":"items", "draggables":"draggable"});
+			u.sortable(div.list, {"allow_nesting":true, "targets":".items", "draggables":".draggable"});
 
 		}
 
@@ -176,14 +174,14 @@ Util.Objects["editNavigationNode"] = new function() {
 // //				u.bug("autosave execute")
 //
 //
-// 				for(name in this.fields) {
-// 					if(this.fields[name].field) {
+// 				for(name in this.inputs) {
+// 					if(this.inputs[name].field) {
 //
 // 						// field has not been used yet
-// 						if(!this.fields[name].used) {
+// 						if(!this.inputs[name].used) {
 //
 // 							// check for required and value
-// 							if(u.hc(this.fields[name].field, "required") && !this.fields[name].val()) {
+// 							if(u.hc(this.inputs[name].field, "required") && !this.inputs[name].val()) {
 //
 // 								// cannot save due to missing values - keep trying
 // //								page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
@@ -193,7 +191,7 @@ Util.Objects["editNavigationNode"] = new function() {
 // 						}
 // 						// do actual validation
 // 						else {
-// 							u.f.validate(this.fields[name]);
+// 							u.f.validate(this.inputs[name]);
 // 						}
 // 					}
 // 				}

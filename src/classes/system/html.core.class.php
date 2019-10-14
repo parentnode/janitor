@@ -1,10 +1,20 @@
 <?php
 /**
 * This file contains HTML-element output functions
-* TODO: Implement html.core (this) and let new html.class be the one developers can add customized inputs to
-*
 */
 class HTMLCore {
+
+
+	function __construct() {
+
+		// current controller path
+		$this->path = preg_replace("/\.php$/", "", $_SERVER["SCRIPT_NAME"]);
+
+	}
+
+
+	// Fill-in, to allow HTML methods to work seemlessly with Model
+	function getProperty($name, $property) {return false;}
 
 
 	/**
@@ -36,11 +46,16 @@ class HTMLCore {
 
 
 	/**
-	* Convert multidimentional array to options array
+	* Convert multi dimensional array to options array
 	*
 	* Objects are typically contained in array of arrays, while selects need simple named array
 	* This function facilitates the conversion between the two types
-	* TODO: Documentation needed
+	*
+	* @param Array $multi_array Multi dimensional Array with datasets
+	* @param String $value_index Key of Value to use as option-value
+	* @param String $text_index Key of Value to use as option-text
+	* @param Array $_options Settings for input
+	* @return Array with key/value pair for options
 	*/
 	function toOptions($multi_array, $value_index, $text_index, $_options = false) {
 
@@ -56,31 +71,101 @@ class HTMLCore {
 		}
 
 		$options = $add;
-		
-		foreach($multi_array as $array) {
-			$options[$array[$value_index]] = $array[$text_index];
+		if(is_array($multi_array)) {
+			foreach($multi_array as $array) {
+				$options[$array[$value_index]] = $array[$text_index];
+			}
 		}
 
 		return $options;
 	}
 
 
+
 	/**
-	* WHAT TO DO ABOUT CUSTOM FIELDS
-	* Is it separate fields or one field with two inputs? 
-	* It gets complicated, what are pros and cons
-	* Consider thoroughly before adding a more fields
-	* TODO: consider moving custom fields to their own function - would provide better overview and better performance
+	* Start a form tag
 	*
-	* When building model, pros:
-	* - declare only one input
+	* Will only happen if $action is valid
 	*
-	* When building model, cons:
-	* - less flexibily in organizing HTML
-	* - new variables to set name and value
+	* @param String $action Action value for form
+	* @param Array $_options Settings for form
+	* @return String Start Form element HTML
+	*/
+	function formStart($action, $_options = false) {
+		global $page;
+
+		// relative paths are allowed for ease of use
+		// construct absolute path using current controller path
+		if(!preg_match("/^\//", $action)) {
+			$action = $this->path."/".$action;
+		}
+
+		if(!$page->validatePath($action)) {
+			return "";
+		}
+
+		// indicate form state
+		$this->valid_form_started = true;
+
+		// default values
+		$class = false;
+		$id = false;
+		$method = "post";
+		$target = false;
+		$enctype = "application/x-www-form-urlencoded";
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "class"         : $class          = $_value; break;
+					case "id"            : $id             = $_value; break;
+
+					case "target"        : $target         = $_value; break;
+
+					case "method"        : $method         = $_value; break;
+					case "enctype"       : $enctype        = $_value; break;
+				}
+			}
+		}
+
+		$_ = "";
+
+		$att_id = $this->attribute("id", $id);
+		$att_class = $this->attribute("class", $class);
+		$att_target = $this->attribute("target", $target);
+		$att_method = $this->attribute("method", $method);
+		$att_action = $this->attribute("action", $action);
+		$att_enctype = $this->attribute("enctype", $enctype);
+
+		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.$att_enctype.'>'."\n";
+		$_ .= '<input type="hidden" name="csrf-token" value="'.session()->value("csrf").'" />'."\n";
+
+
+		return $_;
+	}
+
+
+	/**
+	* End a form tag
 	*
+	* Will only happen if Form has been started
 	*
-	* Basic input elements
+	* @return String End Form element HTML
+	*/
+	function formEnd() {
+
+		if(isset($this->valid_form_started) && $this->valid_form_started) {
+			$this->valid_form_started = false;
+			return '</form>'."\n";
+		}
+
+	}
+
+
+	/**
+	* Generate HTML for input field
 	*
 	* INPUT TYPES:
 	* - string
@@ -96,11 +181,13 @@ class HTMLCore {
 	* - integer
 	* - text
 	* - files
+	* - html
 	*
-	*
-	* @return string Input element
+	* @param String $name Name of entity or input
+	* @param Array $_options Settings for input
+	* @return String Input element HTML
 	*/
-	function input($name = false, $_options = false) {
+	function input($name, $_options = false) {
 
 		// form security
 		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
@@ -133,7 +220,17 @@ class HTMLCore {
 		$pattern = $this->getProperty($name, "pattern");
 
 		// Compare password with other input
-		$compare_to = $this->getProperty($name, "compare_to");
+		$compare_to = $this->getProperty($name, "compare_to"); 
+ 
+ 
+		// tags for HTML editor
+		$allowed_tags = $this->getProperty($name, "allowed_tags");
+
+		$file_add = $this->getProperty($name, "file_add");
+		$file_delete = $this->getProperty($name, "file_delete");
+		$media_add = $this->getProperty($name, "media_add");
+		$media_delete = $this->getProperty($name, "media_delete");
+
 
 		// visual feedback
 		$hint_message = $this->getProperty($name, "hint_message");
@@ -167,6 +264,14 @@ class HTMLCore {
 					case "error_message"   : $error_message    = $_value; break;
 					case "hint_message"    : $hint_message     = $_value; break;
 
+
+					// HTML specific
+					case "allowed_tags"    : $allowed_tags     = $_value; break;
+					case "file_add"        : $file_add         = $_value; break;
+					case "file_delete"     : $file_delete      = $_value; break;
+					case "media_add"       : $media_add        = $_value; break;
+					case "media_delete"    : $media_delete     = $_value; break;
+
 				}
 			}
 		}
@@ -180,46 +285,83 @@ class HTMLCore {
 		$att_id = $this->attribute("id", $for);
 		$att_name = $this->attribute("name", $name);
 
-		// restrictions
+
+		// Basic restrictions
 		$att_disabled = $disabled ? $this->attribute("disabled", "disabled") : '';
 		$att_readonly = $readonly ? $this->attribute("readonly", "readonly") : '';
 		$att_autocomplete = ($autocomplete || $autocomplete == "on") ? $this->attribute("autocomplete", "on") : $this->attribute("autocomplete", "off");
 
-		// combine classname for field
-		$att_class = $this->attribute("class", "field", $type, $class, ($required ? "required" : ""), ($disabled ? "disabled" : ""), ($readonly ? "readonly" : ""), ($min ? "min:".$min : ""), ($max ? "max:".$max : ""));
 
-		// attribute strips value for slashes etc - cannot be used for patterns
+		// Combine classname for field
+		$att_class = $this->attribute("class", 
+			"field", 
+			$type, 
+			$class, 
+			($required ? "required" : ""), 
+			($disabled ? "disabled" : ""), 
+			($readonly ? "readonly" : ""),
+
+			// Url encode min and max values (can be timestamps)
+			($min ? "min:".rawurlencode($min) : ""), 
+			($max ? "max:".rawurlencode($max) : ""), 
+
+			// Add multiple class for multiple file selects (mostly for CSS targeting)
+			(preg_match("/^files$/", $type) && $max && $max > 1 ? "multiple" : ""),
+			
+			// Allowed tag for HTML field
+			(preg_match("/^html$/", $type) ? "tags:".$allowed_tags : "")
+		);
+
+
+		// Special data properties for HTML field
+		if($type === "html") {
+
+			global $page;
+
+			// Paths for saving and deleting files
+			$att_file_add = $this->attribute("data-file-add", $page->validPath($file_add));
+			$att_file_delete = $this->attribute("data-file-delete", $page->validPath($file_delete));
+			$att_media_add = $this->attribute("data-media-add", $page->validPath($media_add));
+			$att_media_delete = $this->attribute("data-media-delete", $page->validPath($media_delete));
+
+		}
+
+		// Attribute strips value for slashes etc - cannot be used for pattern regex
 		$att_pattern = $pattern ? ' pattern="'.$pattern.'"' : '';
 
-		// multiple selects/files
+
+		// Multiple files (will only be applied to file input – but could also be used for multiple selects if implemented)
 		$att_multiple = $this->attribute("multiple", ($max && $max > 1 ? "multiple" : ""));
 
 
-		// hidden field
-		if($type == "hidden") {
+		// Hidden field – Keep it short
+		if($type === "hidden") {
 			$att_value = $this->attribute("value", $value);
 			return '<input type="hidden"'.$att_name.$att_id.$att_value.' />';
 		}
 
 
-		$_ .= '<div'.$att_class.'>';
+		// Create field div
+		$_ .= '<div'.$att_class.($type === "html" ? ($att_file_add.$att_file_delete.$att_media_add.$att_media_delete) : "").'>';
+
 
 			// CHECKBOX/BOOLEAN
 			// checkboxes have label after input
-			if($type == "checkbox" || $type == "boolean") {
+			if($type === "checkbox" || $type == "boolean") {
 				$att_value = $this->attribute("value", "1");
 				$att_name = $this->attribute("name", $name);
 				$att_checked = $this->attribute("checked", ($value ? "checked" : ""));
 
 				// fallback hidden input so checkbox always sends value (even when not checked)
 				$_ .= '<input type="hidden"'.$att_name.' value="0" />';
-				$_ .= '<input type="checkbox"'.$att_name.$att_id.$att_value.$att_checked.$att_disabled.$att_readonly.$att_pattern.' />';
+				$_ .= '<input type="checkbox"'.$att_name.$att_id.$att_value.$att_checked.$att_disabled.$att_readonly.' />';
 
 				// LABEL after input
 				$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
 			}
+
 			// RADIOBUTTONS
-			else if($type == "radiobuttons") {
+			else if($type === "radiobuttons") {
 
 				// LABEL
 				$_ .= '<label>'.$label.'</label>';
@@ -246,7 +388,7 @@ class HTMLCore {
 
 
 				// DATE
-				if($type == "date") {
+				if($type === "date") {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("max", $max);
 					$att_min = $this->attribute("min", $min);
@@ -255,7 +397,7 @@ class HTMLCore {
 				}
 
 				// DATETIME
-				else if($type == "datetime") {
+				else if($type === "datetime") {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("max", $max);
 					$att_min = $this->attribute("min", $min);
@@ -264,7 +406,7 @@ class HTMLCore {
 				}
 
 				// EMAIL
-				else if($type == "email") {
+				else if($type === "email") {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
@@ -274,7 +416,7 @@ class HTMLCore {
 				}
 
 				// TEL
-				else if($type == "tel") {
+				else if($type === "tel") {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
@@ -284,7 +426,7 @@ class HTMLCore {
 				}
 
 				// PASSWORD
-				else if($type == "password") {
+				else if($type === "password") {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
@@ -294,16 +436,17 @@ class HTMLCore {
 				}
 
 				// STRING
-				else if($type == "string") {
+				else if($type === "string") {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("minlength", $min);
+					$att_compare_to = $this->attribute("data-compare-to", $compare_to);
 
-					$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="text"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.$att_compare_to.' />';
 				}
 
 				// NUMBER OR INTEGER
-				else if($type == "number" || $type == "integer") {
+				else if($type === "number" || $type === "integer") {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("max", $max);
 					$att_min = $this->attribute("min", $min);
@@ -312,25 +455,39 @@ class HTMLCore {
 				}
 
 				// FILES
-				else if($type == "files") {
+				else if($type === "files") {
 
 					// add brackets for file input - backend is designed to handle files in array, even if there is just one
 					$att_name = $this->attribute("name", $name . "[]");
-					$att_class_value = $this->attribute("class", $value ? "uploaded" : "");
 
-					$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_pattern.$att_multiple.$att_class_value.' />';
+					// Create accept attribute
+					$allowed_formats = $this->getProperty($name, "allowed_formats");
+					$att_accept = $this->attribute("accept", $allowed_formats ? ".".implode(",.", explode(",", $allowed_formats)) : "");
+
+					// Create file-input
+					$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_multiple.$att_accept.' />';
+
+					// List files belonging to this input
+					$_ .= '<ul class="filelist">';
+					if($value) {
+						foreach($value as $selected_file) {
+							$_ .= '<li class="uploaded media_id:'.$selected_file["id"].' variant:'.$selected_file["variant"].' format:'.$selected_file["format"].' width:'.$selected_file["width"].' height:'.$selected_file["height"].'">'.$selected_file["name"].'</li>';
+						}
+					}
+					$_ .= '</ul>';
+
 				}
 
 				// TEXT
-				else if($type == "text") {
+				else if($type === "text") {
 					$att_max = $this->attribute("maxlength", $max);
 					$att_min = $this->attribute("minlength", $min);
 
-					$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.'>'.$value.'</textarea>';
+					$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.'>'.$value.'</textarea>';
 				}
 
 				// SELECT
-				else if($type == "select") {
+				else if($type === "select") {
 
 					$_ .= '<select'.$att_name.$att_id.$att_disabled.$att_readonly.'>';
 					foreach($options as $select_option => $select_value) {
@@ -339,6 +496,13 @@ class HTMLCore {
 					$_ .= '</select>';
 				}
 
+				// HTML
+				else if($type === "html") {
+
+					$_ .= '<textarea'.$att_name.$att_id.'>'.htmlentities($value, ENT_COMPAT, "UTF-8").'</textarea>';
+
+
+				}
 			}
 
 
@@ -363,38 +527,36 @@ class HTMLCore {
 	}
 
 
-
 	/**
-	* SPECIAL INPUTS
-	* TODO: maybe put these in itemtype.class or html.class 
-	* - consider whether they are a set of the Core HTML functionality
+	* Output input like element, but with p or ul instead of input or select
+	*
+	* @param String $name Name of entity or input
+	* @param Array $_options Settings for input
+	* @return String Field element HTML
 	*/
+	function output($name, $_options = false) {
 
-	// html
-	function inputHTML($name, $_options = false) {
+		// form security
+		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
+			return "";
+		}
 
 		// Get default settings from model first
 
 		// label
 		$label = $this->getProperty($name, "label");
+
+		// type, value and options
+		$type = $this->getProperty($name, "type");
 		$value = $this->getProperty($name, "value");
+		$options = $this->getProperty($name, "options");
 
 		// frontend stuff
 		$class = $this->getProperty($name, "class");
 		$id = $this->getProperty($name, "id");
 
-		// tags for HTML editor
-		$allowed_tags = $this->getProperty($name, "allowed_tags");
-
 		// visual feedback
 		$hint_message = $this->getProperty($name, "hint_message");
-		$error_message = $this->getProperty($name, "error_message");
-
-
-		$file_add = $this->getProperty($name, "file_add");
-		$file_delete = $this->getProperty($name, "file_delete");
-		$media_add = $this->getProperty($name, "media_add");
-		$media_delete = $this->getProperty($name, "media_delete");
 
 
 		// overwrite model/defaults
@@ -403,82 +565,413 @@ class HTMLCore {
 				switch($_option) {
 
 					case "label"           : $label            = $_value; break;
+					case "type"            : $type             = $_value; break;
 					case "value"           : $value            = $_value; break;
+					case "options"         : $options          = $_value; break;
 
 					case "class"           : $class            = $_value; break;
 					case "id"              : $id               = $_value; break;
 
-					case "allowed_tags"    : $allowed_tags     = $_value; break;
-
-					case "error_message"   : $error_message    = $_value; break;
 					case "hint_message"    : $hint_message     = $_value; break;
 
-					case "file_add"        : $file_add         = $_value; break;
-					case "file_delete"     : $file_delete      = $_value; break;
-
-					case "media_add"       : $media_add        = $_value; break;
-					case "media_delete"    : $media_delete     = $_value; break;
 				}
 			}
 		}
 
-
 		// Start generating HTML
+
 		$_ = '';
 
 
-		$for = stringOr($id, "input_".$name);
-		$att_id = $this->attribute("id", $for);
+		$att_id = $this->attribute("id", $id);
 		$att_name = $this->attribute("name", $name);
 
-		$att_class = $this->attribute("class", "field", "html", $class, "tags:".$allowed_tags);
-
-		// get default paths if not specif
-		global $page;
-		if(!$file_add) {
-			$file_add = $page->validPath($this->path."/addHTMLFile");
-		}
-		if(!$file_delete) {
-			$file_delete = $page->validPath($this->path."/deleteHTMLFile");
-		}
-		if(!$media_add) {
-			$media_add = $page->validPath($this->path."/addHTMLMedia");
-		}
-		if(!$media_delete) {
-			$media_delete = $page->validPath($this->path."/deleteHTMLMedia");
-		}
-
-		// paths for saving and deleting files
-		$att_file_add = $this->attribute("data-file-add", $file_add);
-		$att_file_delete = $this->attribute("data-file-delete", $file_delete);
-		$att_media_add = $this->attribute("data-media-add", $media_add);
-		$att_media_delete = $this->attribute("data-media-delete", $media_delete);
-
-//		print $att_file_add . "," . $att_file_delete;
-//		$att_html_item_id = $this->attribute("data-item_id", $_options["item_id"]);
+		// combine classname for field
+		$att_class = $this->attribute("class", "field", $type, $class);
+		$att_value = $this->attribute("value", $value);
 
 
-		$_ .= '<div'.$att_class.$att_file_add.$att_file_delete.$att_media_add.$att_media_delete.'>';
+		$_ .= '<div'.$att_class.'>';
+			$_ .= '<input type="hidden"'.$att_name.$att_id.$att_value.' />';
 
-			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
-			// entity values in textarea will be interpreted, so double encode them
-			$_ .= '<textarea'.$att_name.$att_id.'>'.htmlentities($value, ENT_COMPAT, "UTF-8").'</textarea>';
+			$_ .= '<label>'.$label.'</label>';
 
-			// Hint and error message
-			if($hint_message || $error_message) {
+			// list
+			if($type == "list") {
+
+				$_ .= '<ul'.$att_id.'>';
+				foreach($options as $li_option => $li_value) {
+					$_ .= '<li class="'.($value == $li_option ? ' selected' : '').'>'.$li_value.'</li>';
+				}
+				$_ .= '</ul>';
+
+			}
+			// paragraph
+			else {
+
+				$_ .= '<p'.$att_id.'>'.$value.'</p>';
+
+			}
+
+
+			// HINT MESSAGE
+			if($hint_message) {
 				$_ .= '<div'.$this->attribute("class", "help").'>';
-				if($hint_message) {
 					$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
-				}
-				if($error_message) {
-					$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
-				}
 				$_ .= '</div>';
 			}
 
+
 		$_ .= '</div>'."\n";
 
+
 		return $_;
+	}
+
+
+	/**
+	* Basic input type="button" element
+	*
+	* @param String $value Name of input
+	* @param Array $_options Settings for button
+	* @return string Input element
+	*/
+	function button($value, $_options = false) {
+
+		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
+			return "";
+		}
+
+		$type = "button";
+		$name = false;
+		$class = false;
+
+		$wrapper = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "type"          : $type           = $_value; break;
+					case "name"          : $name           = $_value; break;
+
+					case "class"         : $class          = $_value; break;
+
+					case "wrapper"       : $wrapper        = $_value; break;
+				}
+			}
+		}
+
+		$_ = "";
+
+		$att_value = $this->attribute("value", $value);
+		$att_type = $this->attribute("type", $type);
+		$att_class = $this->attribute("class", "button", $class);
+		$att_name = $this->attribute("name", $name);
+
+		$att_wrap_id = "";
+		$att_wrap_class = "";
+
+		if($wrapper) {
+			// with class or id
+			if(preg_match("/([a-z]+)[\.#]+/", $wrapper, $node_match)) {
+//				print_r($node_match);
+
+				$wrap_node = $node_match[1];
+
+				if(preg_match("/#([a-zA-Z0-9_]+)/", $wrapper, $id_match)) {
+//					print_r($id_match);
+					$att_wrap_id = $this->attribute("id", $id_match[1]);
+				}
+				if(preg_match_all("/\.([a-zA-Z0-9_\:]+)/", $wrapper, $class_matches)) {
+//					print_r($class_matches);
+					$att_wrap_class = $this->attribute("class", implode(" ", $class_matches[1]));
+				}
+			}
+			else {
+				$wrap_node = $wrapper;
+			}
+	
+			$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id.'>';
+	
+		}
+
+		$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.' />';
+
+		if($wrapper) {
+			$_ .= '</'.$wrap_node.'>'."\n";
+		}
+
+		return $_;
+	}
+
+	/**
+	* Basic input type="submit" element
+	*
+	* @param String $value Name of input
+	* @param Array $_options Settings for button
+	* @return String Input element
+	*/
+	function submit($value, $_options = false) {
+
+		$_options["type"] = "submit";
+		return $this->button($value, $_options);
+
+	}
+
+
+
+	// OTHER HTML GENERATING FUNCTIONS
+
+
+	/**
+	* Create a simple A HREF link with access validation
+	*
+	* @param $value String text value for A-tag
+	* @param $action String HREF value to be validated
+	* @param $_options Array of optional settings
+	* @return String HTML element as string
+	*/
+	function link($value, $action, $_options = false) {
+
+		global $page;
+		if(!$page->validatePath($action)) {
+			return "";
+		}
+
+		$class = false;
+		$id = false;
+		$target = false;
+
+		$wrapper = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "class"         : $class          = $_value; break;
+					case "id"            : $id             = $_value; break;
+
+					case "target"        : $target         = $_value; break;
+
+					case "wrapper"       : $wrapper        = $_value; break;
+				}
+			}
+		}
+
+		$_ = "";
+
+		$att_id = $this->attribute("id", $id);
+		$att_class = $this->attribute("class", $class);
+		$att_target = $this->attribute("target", $target);
+
+		$att_wrap_id = "";
+		$att_wrap_class = "";
+
+		if($wrapper) {
+			// with class or id
+			if(preg_match("/([a-z]+)[\.#]+/", $wrapper, $node_match)) {
+
+				$wrap_node = $node_match[1];
+
+				if(preg_match("/#([a-zA-Z0-9_]+)/", $wrapper, $id_match)) {
+					$att_wrap_id = $this->attribute("id", $id_match[1]);
+				}
+				if(preg_match_all("/\.([a-zA-Z0-9_\:]+)/", $wrapper, $class_matches)) {
+					$att_wrap_class = $this->attribute("class", implode(" ", $class_matches[1]));
+				}
+			}
+			else {
+				$wrap_node = $wrapper;
+			}
+	
+			$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id.'>';
+	
+		}
+
+		$_ .= '<a href="'.$action.'"'.$att_id.$att_class.$att_target.'>'.$value.'</a>';
+
+		if($wrapper) {
+			$_ .= '</'.$wrap_node.'>'."\n";
+		}
+
+		return $_;
+	}
+
+
+	/**
+	* Create a simple A HREF link with access validation
+	*
+	* @param $node Array Navigation node data array
+	* @return String HTML element as string
+	*/
+	function navigationLink($node) {
+
+		global $page;
+
+		if(!preg_match("/^http[s]?\:\/\//", $node["link"]) && !$page->validatePath($node["link"])) {
+			if($node["fallback"] && $page->validatePath($node["fallback"])) {
+				$node["link"] = $node["fallback"];
+			} 
+			else {
+				return "";
+			}
+		}
+
+
+		$_ = "";
+
+		$att_class = $this->attribute("class", $node["classname"], $this->selectedNavigation($node["link"]));
+		$att_target = $this->attribute("target", $node["target"]);
+
+		$_ .= '<li'.$att_class.'><a href="'.$node["link"].'"'.$att_target.'>'.$node["name"].'</a></li>'."\n";
+
+		return $_;
+	}
+
+
+	/**
+	* is link selected in navigation (or part of path)
+	*
+	* @param String $link Link to check against current path
+	* @return String " selected" is link matches, " path" if link is part of current path or empty string
+	*/
+	function selectedNavigation($link) {
+
+		global $page;
+
+		if($link === $page->url) {
+			return " selected";
+		}
+		else if($link && $link !== "/" && strpos($page->url, $link) !== false) {
+			return " path";
+		}
+		return "";
+	}
+
+
+
+
+	// SPECIAL INPUTS
+
+	/**
+	* TODO: maybe put these in itemtype.class or html.class 
+	* - consider whether they are a set of the Core HTML functionality
+	*/
+	// html
+	// DEPRECATED: Forward to input method for fallback compatibility
+	function inputHTML($name, $_options = false) {
+
+		return $this->input($name, $_options);
+
+// 		// Get default settings from model first
+//
+// 		// label
+// 		$label = $this->getProperty($name, "label");
+// 		$value = $this->getProperty($name, "value");
+//
+// 		// frontend stuff
+// 		$class = $this->getProperty($name, "class");
+// 		$id = $this->getProperty($name, "id");
+//
+// 		// tags for HTML editor
+// 		$allowed_tags = $this->getProperty($name, "allowed_tags");
+//
+// 		// visual feedback
+// 		$hint_message = $this->getProperty($name, "hint_message");
+// 		$error_message = $this->getProperty($name, "error_message");
+//
+//
+// 		$file_add = $this->getProperty($name, "file_add");
+// 		$file_delete = $this->getProperty($name, "file_delete");
+// 		$media_add = $this->getProperty($name, "media_add");
+// 		$media_delete = $this->getProperty($name, "media_delete");
+//
+//
+// 		// overwrite model/defaults
+// 		if($_options !== false) {
+// 			foreach($_options as $_option => $_value) {
+// 				switch($_option) {
+//
+// 					case "label"           : $label            = $_value; break;
+// 					case "value"           : $value            = $_value; break;
+//
+// 					case "class"           : $class            = $_value; break;
+// 					case "id"              : $id               = $_value; break;
+//
+// 					case "allowed_tags"    : $allowed_tags     = $_value; break;
+//
+// 					case "error_message"   : $error_message    = $_value; break;
+// 					case "hint_message"    : $hint_message     = $_value; break;
+//
+// 					case "file_add"        : $file_add         = $_value; break;
+// 					case "file_delete"     : $file_delete      = $_value; break;
+//
+// 					case "media_add"       : $media_add        = $_value; break;
+// 					case "media_delete"    : $media_delete     = $_value; break;
+// 				}
+// 			}
+// 		}
+//
+//
+// 		// Start generating HTML
+// 		$_ = '';
+//
+//
+// 		$for = stringOr($id, "input_".$name);
+// 		$att_id = $this->attribute("id", $for);
+// 		$att_name = $this->attribute("name", $name);
+//
+// 		$att_class = $this->attribute("class", "field", "html", $class, "tags:".$allowed_tags);
+//
+// 		// get default paths if not specif
+// 		global $page;
+// 		if(!$file_add) {
+// 			$file_add = $page->validPath($this->path."/addHTMLFile");
+// 		}
+// 		if(!$file_delete) {
+// 			$file_delete = $page->validPath($this->path."/deleteHTMLFile");
+// 		}
+// 		if(!$media_add) {
+// 			$media_add = $page->validPath($this->path."/addHTMLMedia");
+// 		}
+// 		if(!$media_delete) {
+// 			$media_delete = $page->validPath($this->path."/deleteHTMLMedia");
+// 		}
+//
+// 		// paths for saving and deleting files
+// 		$att_file_add = $this->attribute("data-file-add", $file_add);
+// 		$att_file_delete = $this->attribute("data-file-delete", $file_delete);
+// 		$att_media_add = $this->attribute("data-media-add", $media_add);
+// 		$att_media_delete = $this->attribute("data-media-delete", $media_delete);
+//
+// //		print $att_file_add . "," . $att_file_delete;
+// //		$att_html_item_id = $this->attribute("data-item_id", $_options["item_id"]);
+//
+//
+// 		$_ .= '<div'.$att_class.$att_file_add.$att_file_delete.$att_media_add.$att_media_delete.'>';
+//
+// 			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
+// 			// entity values in textarea will be interpreted, so double encode them
+// 			$_ .= '<textarea'.$att_name.$att_id.'>'.htmlentities($value, ENT_COMPAT, "UTF-8").'</textarea>';
+//
+// 			// Hint and error message
+// 			if($hint_message || $error_message) {
+// 				$_ .= '<div'.$this->attribute("class", "help").'>';
+// 				if($hint_message) {
+// 					$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
+// 				}
+// 				if($error_message) {
+// 					$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
+// 				}
+// 				$_ .= '</div>';
+// 			}
+//
+// 		$_ .= '</div>'."\n";
+//
+// 		return $_;
 	}
 
 
@@ -607,400 +1100,6 @@ class HTMLCore {
 
 		return $_;
 	}
-
-
-	/**
-	*
-	* @return string Field element
-	*/
-	function output($name = false, $_options = false) {
-
-		// form security
-		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
-			return "";
-		}
-
-		// Get default settings from model first
-
-		// label
-		$label = $this->getProperty($name, "label");
-
-		// type, value and options
-		$type = $this->getProperty($name, "type");
-		$value = $this->getProperty($name, "value");
-		$options = $this->getProperty($name, "options");
-
-		// frontend stuff
-		$class = $this->getProperty($name, "class");
-		$id = $this->getProperty($name, "id");
-
-		// visual feedback
-		$hint_message = $this->getProperty($name, "hint_message");
-
-
-		// overwrite model/defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "label"           : $label            = $_value; break;
-					case "type"            : $type             = $_value; break;
-					case "value"           : $value            = $_value; break;
-					case "options"         : $options          = $_value; break;
-
-					case "class"           : $class            = $_value; break;
-					case "id"              : $id               = $_value; break;
-
-					case "hint_message"    : $hint_message     = $_value; break;
-
-				}
-			}
-		}
-
-		// Start generating HTML
-
-		$_ = '';
-
-
-		$att_id = $this->attribute("id", $id);
-		$att_name = $this->attribute("name", $name);
-
-		// combine classname for field
-		$att_class = $this->attribute("class", "field", $type, $class);
-		$att_value = $this->attribute("value", $value);
-
-
-		$_ .= '<div'.$att_class.'>';
-			$_ .= '<input type="hidden"'.$att_name.$att_id.$att_value.' />';
-
-			$_ .= '<label>'.$label.'</label>';
-
-			// list
-			if($type == "list") {
-
-				$_ .= '<ul'.$att_id.'>';
-				foreach($options as $li_option => $li_value) {
-					$_ .= '<li class="'.($value == $li_option ? ' selected' : '').'>'.$li_value.'</li>';
-				}
-				$_ .= '</ul>';
-
-			}
-			// paragraph
-			else {
-
-				$_ .= '<p'.$att_id.'>'.$value.'</p>';
-
-			}
-
-
-			// HINT MESSAGE
-			if($hint_message) {
-				$_ .= '<div'.$this->attribute("class", "help").'>';
-					$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
-				$_ .= '</div>';
-			}
-
-
-		$_ .= '</div>'."\n";
-
-
-		return $_;
-	}
-
-
-
-	// OTHER HTML GENERATING FUNCTIONS
-
-
-	/**
-	* Create a simple A HREF link with access validation
-	*
-	* @param $value String text value for A-tag
-	* @param $action String HREF value to be validated
-	* @param $_options Array of optional settings
-	*/
-	function link($value, $action, $_options = false) {
-
-		global $page;
-		if(!$page->validatePath($action)) {
-			return "";
-		}
-
-		$class = false;
-		$id = false;
-		$target = false;
-
-		$wrapper = false;
-
-		// overwrite defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "class"         : $class          = $_value; break;
-					case "id"            : $id             = $_value; break;
-
-					case "target"        : $target         = $_value; break;
-
-					case "wrapper"       : $wrapper        = $_value; break;
-				}
-			}
-		}
-
-		$_ = "";
-
-		$att_id = $this->attribute("id", $id);
-		$att_class = $this->attribute("class", $class);
-		$att_target = $this->attribute("target", $target);
-
-		$att_wrap_id = "";
-		$att_wrap_class = "";
-
-		if($wrapper) {
-			// with class or id
-			if(preg_match("/([a-z]+)[\.#]+/", $wrapper, $node_match)) {
-//				print_r($node_match);
-
-				$wrap_node = $node_match[1];
-
-				if(preg_match("/#([a-zA-Z0-9_]+)/", $wrapper, $id_match)) {
-//					print_r($id_match);
-					$att_wrap_id = $this->attribute("id", $id_match[1]);
-				}
-				if(preg_match_all("/\.([a-zA-Z0-9_\:]+)/", $wrapper, $class_matches)) {
-//					print_r($class_matches);
-
-					$att_wrap_class = $this->attribute("class", implode(" ", $class_matches[1]));
-				}
-			}
-			else {
-				$wrap_node = $wrapper;
-			}
-	
-			$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id.'>';
-	
-		}
-
-		$_ .= '<a href="'.$action.'"'.$att_id.$att_class.$att_target.'>'.$value.'</a>';
-
-		if($wrapper) {
-			$_ .= '</'.$wrap_node.'>'."\n";
-		}
-
-		return $_;
-	}
-
-	/**
-	* Create a simple A HREF link with access validation
-	*
-	* @param $value String text value for A-tag
-	* @param $action String HREF value to be validated
-	* @param $_options Array of optional settings
-	*/
-	function navigationLink($node) {
-
-		global $page;
-
-		if(!preg_match("/^http[s]?\:\/\//", $node["link"]) && !$page->validatePath($node["link"])) {
-			if($node["fallback"] && $page->validatePath($node["fallback"])) {
-				$node["link"] = $node["fallback"];
-			} 
-			else {
-				return "";
-			}
-		}
-
-
-		$_ = "";
-
-		
-
-		$att_class = $this->attribute("class", $node["classname"], $this->selectedNavigation($node["link"]));
-		$att_target = $this->attribute("target", $node["target"]);
-
-		$_ .= '<li'.$att_class.'><a href="'.$node["link"].'"'.$att_target.'>'.$node["name"].'</a></li>';
-
-		return $_;
-	}
-
-	function selectedNavigation($link) {
-
-		global $page;
-
-		if($link === $page->url || ($link !== "/" && strpos($page->url, $link) !== false)) {
-			return " selected";
-		}
-		return "";
-	}
-
-	/**
-	* Start a form tag
-	*
-	* Will only happen if $action is valid
-	* TODO: Documentation needed
-	*/
-	function formStart($action, $_options = false) {
-		global $page;
-
-		// relative paths are allowed for ease of use
-		// construct absolute path using current controller path
-		if(!preg_match("/^\//", $action)) {
-			$action = $this->path."/".$action;
-		}
-
-		if(!$page->validatePath($action)) {
-			return "";
-		}
-
-		// indicate form state
-		$this->valid_form_started = true;
-
-		// default values
-		$class = false;
-		$id = false;
-		$method = "post";
-		$target = false;
-		$enctype = "application/x-www-form-urlencoded";
-
-		// overwrite defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "class"         : $class          = $_value; break;
-					case "id"            : $id             = $_value; break;
-
-					case "target"        : $target         = $_value; break;
-
-					case "method"        : $method         = $_value; break;
-					case "enctype"       : $enctype        = $_value; break;
-				}
-			}
-		}
-
-		$_ = "";
-
-		$att_id = $this->attribute("id", $id);
-		$att_class = $this->attribute("class", $class);
-		$att_target = $this->attribute("target", $target);
-		$att_method = $this->attribute("method", $method);
-		$att_action = $this->attribute("action", $action);
-		$att_enctype = $this->attribute("enctype", $enctype);
-
-		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.$att_enctype.'>'."\n";
-		$_ .= '<input type="hidden" name="csrf-token" value="'.session()->value("csrf").'" />'."\n";
-
-
-		return $_;
-	}
-
-	/**
-	* End a form tag
-	*
-	* Will only happen if Form has been started
-	* TODO: Documentation needed
-	*/
-	function formEnd() {
-
-		if(isset($this->valid_form_started) && $this->valid_form_started) {
-			$this->valid_form_started = false;
-			return '</form>'."\n";
-		}
-
-	}
-
-
-	/**
-	* Basic input type="button" element
-	*
-	* @return string Input element
-	*/
-	function button($value = false, $_options = false) {
-
-		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
-			return "";
-		}
-
-		$type = "button";
-		$name = false;
-		$class = false;
-
-		$wrapper = false;
-
-		// overwrite defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "type"          : $type           = $_value; break;
-					case "name"          : $name           = $_value; break;
-
-					case "class"         : $class          = $_value; break;
-
-					case "wrapper"       : $wrapper        = $_value; break;
-				}
-			}
-		}
-
-		$_ = "";
-
-		$att_value = $this->attribute("value", $value);
-		$att_type = $this->attribute("type", $type);
-		$att_class = $this->attribute("class", "button", $class);
-		$att_name = $this->attribute("name", $name);
-
-		$att_wrap_id = "";
-		$att_wrap_class = "";
-
-		if($wrapper) {
-			// with class or id
-			if(preg_match("/([a-z]+)[\.#]+/", $wrapper, $node_match)) {
-//				print_r($node_match);
-
-				$wrap_node = $node_match[1];
-
-				if(preg_match("/#([a-zA-Z0-9_]+)/", $wrapper, $id_match)) {
-//					print_r($id_match);
-					$att_wrap_id = $this->attribute("id", $id_match[1]);
-				}
-				if(preg_match_all("/\.([a-zA-Z0-9_\:]+)/", $wrapper, $class_matches)) {
-//					print_r($class_matches);
-					$att_wrap_class = $this->attribute("class", implode(" ", $class_matches[1]));
-				}
-			}
-			else {
-				$wrap_node = $wrapper;
-			}
-	
-			$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id.'>';
-	
-		}
-
-		$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.' />';
-
-		if($wrapper) {
-			$_ .= '</'.$wrap_node.'>'."\n";
-		}
-
-		return $_;
-	}
-
-	/**
-	* Basic input type="submit" element
-	*
-	* @return string Input element
-	*/
-	function submit($value = false, $_options = false) {
-
-		$_options["type"] = "submit";
-		return $this->button($value, $_options);
-
-	}
-
-
-
-
-	// HTML snippets
 
 
 

@@ -53,4 +53,5 @@ body.tags #navigation .tags a,
 body.user #navigation .user a,
 body.logs #navigation .logs a,
 body.usergroup #navigation .user a,*/
-#navigation li.selected a {padding-left: 35px; color: #ffffff;}
+#navigation li.selected a {padding-left: 0px; color: #ffffff;}
+#navigation li.selected a:before {content: "●"; display: inline-block; width: 20px; text-align: center;}

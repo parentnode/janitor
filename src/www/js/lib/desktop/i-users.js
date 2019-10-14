@@ -17,9 +17,9 @@ Util.Objects["usernames"] = new function() {
 		send_verification_link.form = u.qs("form", send_verification_link);
 		send_verification_link.input = send_verification_link.form.lastChild;
 
-		form.fields.email.saved_email = form.fields.email.val();
-		form.fields.verification_status.saved_status = form.fields.verification_status.val();
-		form.fields.verification_status.current_status = form.fields.verification_status.val();
+		form.inputs.email.saved_email = form.inputs.email.val();
+		form.inputs.verification_status.saved_status = form.inputs.verification_status.val();
+		form.inputs.verification_status.current_status = form.inputs.verification_status.val();
 
 		var latest_verification_link = u.qs("div.email .send_verification_link p.reminded_at", div);
 		latest_verification_link.date_time = u.qs("span.date_time", latest_verification_link);
@@ -30,41 +30,41 @@ Util.Objects["usernames"] = new function() {
 		}
 
 		// check verification status and disable/enable verification checkbox and 'verification link' button accordingly
-		if (!form.fields.email.saved_email) {
-			form.fields.verification_status.disabled = true;
+		if (!form.inputs.email.saved_email) {
+			form.inputs.verification_status.disabled = true;
 			u.ac(send_verification_link.input, "disabled");
 		}
-		else if( form.fields["verification_status"].val()) {
+		else if( form.inputs["verification_status"].val()) {
 			u.ac(send_verification_link.input, "disabled");
 		}
 		else {
-			form.fields.verification_status.disabled = false;
+			form.inputs.verification_status.disabled = false;
 			u.rc(send_verification_link.input, "disabled");
 		}
 
-		form.fields.email.updated = function() {
+		form.inputs.email.updated = function() {
 			if(this.val() != this.saved_email) {
-				this._form.fields.verification_status.val(0);
+				this._form.inputs.verification_status.val(0);
 			
 				u.ac(this._form.actions["save"], "primary");
 				u.rc(this._form.actions["save"], "disabled");
 			
 				if(this.val()) {
-					this._form.fields.verification_status.disabled = false;
+					this._form.inputs.verification_status.disabled = false;
 				}
 				else {
-					this._form.fields.verification_status.disabled = true;
+					this._form.inputs.verification_status.disabled = true;
 				}
 
 			}
 			else {
-				this._form.fields.verification_status.val(this._form.fields.verification_status.current_status);
+				this._form.inputs.verification_status.val(this._form.inputs.verification_status.current_status);
 				u.ac(this._form.actions["save"], "disabled");
 
 			}
 		}
 
-		form.fields.verification_status.updated = function() {
+		form.inputs.verification_status.updated = function() {
 			if(this.val() != this.saved_status) {		
 
 				this.current_status = this.val();
@@ -72,7 +72,7 @@ Util.Objects["usernames"] = new function() {
 				u.ac(this._form.actions["save"], "primary");
 				u.rc(this._form.actions["save"], "disabled");
 			}
-			else if(this._form.fields.email.val() != this._form.fields.email.saved_email) {
+			else if(this._form.inputs.email.val() != this._form.inputs.email.saved_email) {
 				this.current_status = this.val();
 				// u.bug("current verification status ", this.current_status);
 				u.ac(this._form.actions["save"], "primary");
@@ -113,25 +113,25 @@ Util.Objects["usernames"] = new function() {
 			}
 			this.response = function(response) {
 				if(response.cms_status == "error") {
-					u.f.fieldError(this.fields["email"]);
+					u.f.fieldError(this.inputs["email"]);
 				}
 				else {
 					
 					
-					this.fields.email.saved_email = this.fields.email.val();
-					this.fields.verification_status.saved_status = this.fields.verification_status.val();
+					this.inputs.email.saved_email = this.inputs.email.val();
+					this.inputs.verification_status.saved_status = this.inputs.verification_status.val();
 					u.ac(this.actions["save"], "disabled");
 					
-					// u.bug("saved email ", this.fields.email.saved_email);
+					// u.bug("saved email ", this.inputs.email.saved_email);
 					// u.bug("response ", response);
 					
 					
 					if(response.cms_object.email_status == "UPDATED") {
-						this.fields.username_id.val(response.cms_object.username_id);
-						// u.bug("saved username_id", this.fields.username_id.val());
+						this.inputs.username_id.val(response.cms_object.username_id);
+						// u.bug("saved username_id", this.inputs.username_id.val());
 						
 						if(send_verification_link.form.action == "/janitor/admin/user/sendVerificationLink/") {
-							send_verification_link.form.action += this.fields.username_id.val();
+							send_verification_link.form.action += this.inputs.username_id.val();
 						}
 						// u.bug("updated action", send_verification_link.form.action);
 
@@ -194,7 +194,7 @@ Util.Objects["usernames"] = new function() {
 				page.notify(response);
 
 				if(response.cms_status == "error") {
-					u.f.fieldError(this.fields["mobile"]);
+					u.f.fieldError(this.inputs["mobile"]);
 				}
 				else {
 					u.rc(this.actions["save"], "primary");
@@ -509,7 +509,7 @@ Util.Objects["newSubscription"] = new function() {
 
 		u.bug("init")
 
-		form.fields["item_id"].changed = function() {
+		form.inputs["item_id"].changed = function() {
 
 			location.href = location.href.replace(/new\/([\d]+).+/, "new/$1") + "/" + this.val();
 			
@@ -566,7 +566,7 @@ Util.Objects["unverifiedUsernames"] = new function() {
 			}
 			
 			this.selected_username_ids = this.selected_username_ids.join();
-			this.bn_remind_selected.form.fields.selected_username_ids.val(this.selected_username_ids);
+			this.bn_remind_selected.form.inputs.selected_username_ids.val(this.selected_username_ids);
 		}
 
 		

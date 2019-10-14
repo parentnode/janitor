@@ -45,6 +45,7 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 
 #content .scene.eventList ul.items > li.past {background: #dddddd;}
 
+#content .scene.eventEdit fieldset h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 20px 0 0px;}
 
 
 /* MESSAGE */

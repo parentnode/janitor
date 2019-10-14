@@ -1,4 +1,4 @@
-#notifications {z-index: 1001; position: fixed; right: 0; top: 0; border-left: 1px solid #888888; border-bottom: 1px solid #888888; background-color: #b0b0b0; max-width: 300px;}
+#notifications {z-index: 1001; position: fixed; left: 50%; margin-left: -100px; top: 0; border-left: 1px solid #888888; border-right: 1px solid #888888; border-bottom: 1px solid #888888; background-color: #b0b0b0; width: 200px;}
 #notifications div {padding: 10px 65px 10px 15px;}
 
 #notifications .notice {color: #333333;}

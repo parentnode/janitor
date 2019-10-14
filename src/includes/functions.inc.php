@@ -575,13 +575,21 @@ function encodeEmoji($string, $system) {
 function mimetypeToExtension($mimetype) {
 	$extensions = array(
 		"image/gif" => "gif", 
-		"image/jpeg" => "jpg", 
+		"image/jpeg" => "jpg",
+		"image/jpg" => "jpg",
 		"image/png" => "png",
+
+		"audio/mpeg" => "mp3",
+		"audio/x-wav" => "wav",
+		"audio/x-aac" => "aac",
+
+		"video/mp4" => "mp4",
+		"video/quicktime" => "mov",
+
 		"application/pdf" => "pdf",
 		"application/zip" => "zip",
-		"audio/mpeg" => "mp3",
-		"video/mp4" => "mp4",
-		"video/quicktime" => "mov"
+		
+		"text/plain" => "txt"
 	);
 
 	if(isset($extensions[$mimetype])) {
@@ -605,9 +613,9 @@ function toTimestamp($timestamp) {
 
 	$hours = isset($parts[3]) && $parts[3] ? $parts[3] : date("G", time());
 	$minutes = isset($parts[4]) && $parts[4] ? $parts[4] : date("i", time());
-	$seconds = isset($parts[5]) && $parts[5] ? $parts[5] : date("s", time());
+	$seconds = isset($parts[5]) && $parts[5] ? $parts[5] : 0;
 	
-//	print $date ."#" . $month . "#" . $year . "#" . $hours . "#" . $minutes . "#" . $seconds . "<br>";
+	// print $timestamp . " = " . $date ."#" . $month . "#" . $year . "#" . $hours . "#" . $minutes . "#" . $seconds . " => " . date("Y-m-d H:i:s", mktime($hours, $minutes, $seconds, $month, $date, $year)) . "<br>";
 	
 	return date("Y-m-d H:i:s", mktime($hours, $minutes, $seconds, $month, $date, $year));
 }

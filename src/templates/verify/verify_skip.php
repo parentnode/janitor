@@ -13,7 +13,7 @@ if($page_item) {
 <div class="scene signup i:scene">
 
 <? if($page_item && $page_item["status"]): 
-	$media = $IC->sliceMedia($page_item); ?>
+	$media = $IC->sliceMediae($page_item); ?>
 	<div class="article i:article id:<?= $page_item["item_id"] ?>" itemscope itemtype="http://schema.org/Article">
 
 		<? if($media): ?>
@@ -51,7 +51,7 @@ if($page_item) {
 	<h1>That's cool...</h1>
 	<h2>but don't forget to verify later!</h2>
 	<p>In order to access your account and subscribed services (like newsletters), you'll have to verify your email.</p>
-	<p>If you lost your verification email, you can get a new one by trying to log in.</p>
+	<p>If you lost your verification email, you can get a new one by trying to <a href="/login">log in</a>.</p>
 
 <? endif ?>
 

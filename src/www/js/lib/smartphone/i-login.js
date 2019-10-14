@@ -33,7 +33,7 @@ Util.Objects["login"] = new function() {
 			this._form = u.qs("form", this);
 			u.f.init(this._form);
 
-			this._form.fields["username"].focus();
+			this._form.inputs["username"].focus();
 
 			page.resized();
 		}

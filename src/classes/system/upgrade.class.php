@@ -65,7 +65,6 @@ class Upgrade extends Model {
 		try {
 
 			if(!$model->readWriteTest()) {
-			
 				$result["message"] = "<p>You need to allow Apache to modify files in your project folder.<br />Run this command in your terminal to continue:</p>";
 				$result["message"] .= "<code>sudo chown -R ".$model->get("system", "apache_user").":".$model->get("system", "deploy_user")." ".PROJECT_PATH."</code>";
 				$result["success"] = false;
@@ -74,14 +73,12 @@ class Upgrade extends Model {
 
 
 
-			// TODO: Pull the latest Janitor version
-			// Requires some sort of reload to continue upgrade on updated codebase
 
-
+			// CODE JANITOR SYNTAX UPDATE
 
 			// Updating controller code syntax to work with PHP7
 			$fs = new FileSystem();
-			$controllers = $fs->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
+			$controllers = $fs->files(LOCAL_PATH."/www", ["allow_extensions" => "php", "include_tempfiles" => true]);
 			$file = "";
 			foreach($controllers as $controller) {
 
@@ -89,7 +86,7 @@ class Upgrade extends Model {
 				if($file) {
 
 					if(preg_match("/->\\\$action\[[0-9]+\]/", $file, $matches)) {
-						// replace with valid syntax 
+						// replace with valid syntax
 						$file = preg_replace("/->\\\$action\[([0-9]+)\]/", "->{\\\$action[$1]}", $file);
 						// save file
 						if(@file_put_contents($controller, $file)) {
@@ -110,6 +107,87 @@ class Upgrade extends Model {
 			$file = null;
 			$controller = null;
 			$controllers = null;
+
+
+			// get all php files in theme
+			$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+			foreach($php_files as $php_file) {
+
+				$is_code_altered = false;
+				$code_lines = file($php_file);
+				foreach($code_lines as $line_no => $line) {
+
+					// Change page->mail to mailer()->send
+					if(preg_match("/[\$](page|this)\-\>mail\(/", $line)) {
+
+						$line = preg_replace("/[\$](page|this)\-\>mail\(/", "mailer()->send(", $line);
+						if($code_lines[$line_no] != $line) {
+
+							$code_lines[$line_no] = $line;
+							$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (mail) IN " . $php_file . " in line " . ($line_no+1)]);
+							$is_code_altered = true;
+
+
+//							print '<li class="notice">'.</li>';
+						}
+						else {
+							$this->process(["success" => false, "message" => "FOUND OLD CODE (mail) IN " . $php_file . " in line " . ($line_no+1)], true);
+//							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
+
+						}
+
+					}
+
+					// Change ->sliceMedia( to ->sliceMediae(
+					if(preg_match("/\-\>sliceMedia\(/", $line)) {
+						$line = preg_replace("/\-\>sliceMedia\(/", "->sliceMediae(", $line);
+						if($code_lines[$line_no] !== $line) {
+
+							$code_lines[$line_no] = $line;
+							$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (sliceMedia) IN " . $php_file . " in line " . ($line_no+1)]);
+							$is_code_altered = true;
+
+
+//							print '<li class="notice">'.</li>';
+						}
+						else {
+							$this->process(["success" => false, "message" => "FOUND OLD CODE (sliceMedia) IN " . $php_file . " in line " . ($line_no+1)], true);
+//							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
+
+						}
+
+					}
+
+					// Change JML->editMedia( to JML->editMediae(
+					if(preg_match("/JML\-\>editMedia\(/", $line)) {
+						$line = preg_replace("/JML\-\>editMedia\(/", "JML->editMediae(", $line);
+						if($code_lines[$line_no] !== $line) {
+
+							$code_lines[$line_no] = $line;
+							$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (JML->editMedia) IN " . $php_file . " in line " . ($line_no+1)]);
+							$is_code_altered = true;
+
+						}
+						else {
+							$this->process(["success" => false, "message" => "FOUND OLD CODE (JML->editMedia) IN " . $php_file . " in line " . ($line_no+1)], true);
+//							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
+
+						}
+
+					}
+
+				}
+
+				// Should we write
+				if($is_code_altered) {
+					file_put_contents($php_file, implode("", $code_lines));
+				}
+
+			}
+//			print_r($php_files);
+
+
+
 
 
 
@@ -135,6 +213,33 @@ class Upgrade extends Model {
 			// Update newsletters to maillists
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 				$this->process($this->renameTable(SITE_DB.".system_newsletters", "system_maillists"));
+			}
+
+
+			$item_event_hosts = $this->tableInfo(SITE_DB.".item_event_hosts");
+			if($item_event_hosts) {
+
+				// rename columns
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host", "location"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_address1", "location_address1"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_address2", "location_address2"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_city", "location_city"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_postal", "location_postal"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_country", "location_country"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_googlemaps", "location_googlemaps"), true);
+				$this->process($this->renameColumn(SITE_DB.".item_event_hosts", "host_comment", "location_comment"), true);
+
+				// Rename event hosts to locations
+				$this->process($this->renameTable(SITE_DB.".item_event_hosts", "item_event_locations"));
+
+			}
+
+			$item_events = $this->tableInfo(SITE_DB.".item_event");
+			if($item_events) {
+
+				// rename columns
+				$this->process($this->renameColumn(SITE_DB.".item_event", "host", "location"), true);
+
 			}
 
 
@@ -201,6 +306,192 @@ class Upgrade extends Model {
 			// ITEM RATINGS
 			$this->process($this->createTableIfMissing(UT_ITEMS_RATINGS), true);
 
+			// ITEM MEDIAE
+			$this->process($this->createTableIfMissing(UT_ITEMS_MEDIAE), true);
+
+			
+			// Update mediae tables with extended variant names
+			// - cross-reference stored mediae with HTML-value – does all "HTML" mediae exist in HTML-text
+			// - fix "free-text" name classVars (containing spaces)
+			$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE;
+			// debug([$sql]);
+			if($query->sql($sql)) {
+				$mediae = $query->results();
+
+				// debug([$mediae]);
+
+				foreach($mediae as $media) {
+
+					// debug(["CHECKING:" . $media["variant"]]);
+
+					// Get related item
+					$item = $IC->getItem(["id" => $media["item_id"], "extend" => true]);
+
+					// Get model for related item
+					$item_model = $IC->typeObject($item["itemtype"]);
+					$model_entities = $item_model->getModel();
+					// debug([$model_entities]);
+
+
+					// OLD HTML editor media
+					if(preg_match("/^HTML\-/", $media["variant"])) {
+
+						$found = false;
+						// debug([$item]);
+
+						// Look for HTML inputs to check values for media occurence
+						foreach($item as $name => $value) {
+
+							if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
+
+								// Is variant used in this HTML input (item can have several HTML inputs)
+								if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
+
+									$new_variant = "HTMLEDITOR-".$name."-".randomKey(8);
+									$new_value = str_replace($media["variant"], $new_variant, $value);
+									$new_value = str_replace($media["name"], urlencode($media["name"]), $new_value);
+									$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
+									// debug([$sql]);
+									if($query->sql($sql)) {
+
+										$sql = "UPDATE ".$item_model->db." SET $name = '$new_value' WHERE item_id = ".$media["item_id"];
+										// debug([$sql]);
+										if($query->sql($sql)) {
+
+											$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
+											$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+											$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+										}
+									}
+
+									$found = true;
+
+								}
+
+							}
+
+						}
+
+						// Media not found – must be a leftover – clean up
+						if(!$found) {
+
+							$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
+							// debug([$sql]);
+							if($query->sql($sql)) {
+								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+
+								$this->process(array("success" => true, "message" => "Deleted HTML media remnant: " . $media["id"]), true);
+								$media = false;
+							}
+
+						}
+
+					}
+					// Regular media
+					else if(!preg_match("/^HTMLEDITOR\-/", $media["variant"])) {
+
+						$found = false;
+						$file_inputs = [];
+						
+						// Look for HTML inputs to check values for media occurence
+						foreach($model_entities as $name => $value) {
+
+							// Entity name matches variant
+							if(isset($model_entities[$name]) && ($name === $media["variant"] || preg_match("/^".$name."\-/", $media["variant"]))) {
+
+								$found = true;
+
+							}
+
+						}
+						
+						if(!$found) {
+
+							// If not found, then assign media to mediae input
+							$new_variant = "mediae-".randomKey(8);
+							$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
+							// debug([$sql]);
+
+							if($query->sql($sql)) {
+
+								// Copy to new location and remove old
+								$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
+								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+
+								$this->process(array("success" => true, "message" => "Assign media to mediae-variant: " . $media["id"]), true);
+
+							}
+
+						}
+
+					}
+					// UPDATED HTML media – CHECK for leftovers (deleted mediea, that wasn't deleted properly)
+					else if(preg_match("/^HTMLEDITOR\-/", $media["variant"])) {
+
+						$found = false;
+						// debug([$item]);
+
+						// Look for HTML inputs to check values for media occurence
+						foreach($item as $name => $value) {
+
+							if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
+
+								// Is variant used in this HTML input (item can have several HTML inputs)
+								if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
+
+									$found = true;
+
+								}
+
+							}
+
+						}
+
+						// Media not found – must be a leftover – clean up
+						if(!$found) {
+
+							// debug(["SHOULD DELETE:" . $media["variant"]]);
+							$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
+							// debug([$sql]);
+							if($query->sql($sql)) {
+								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+
+								$this->process(array("success" => true, "message" => "Deleted HTMLEDITOR media remnant: " . $media["id"]), true);
+								$media = false;
+							}
+
+
+						}
+						// else {
+						// 	debug(["SHOULD KEEP:" . $media["id"] . ", " . $media["variant"]]);
+						//
+						// }
+					}
+
+
+					// ADJUST 0 WIDTH AND HEIGHT VALUES TO DEFAULT (NULL)
+					if($media && !$media["width"] || !$media["height"]) {
+
+						// SHOULD NOT HAVE WIDTH/HEIGHT
+						if(!preg_match("/^(jpg|png|gif|mp4|mov)$/", $media["format"])) {
+							$query->sql("UPDATE ".UT_ITEMS_MEDIAE." SET width = DEFAULT, height = DEFAULT WHERE id = ".$media["id"]);
+						}
+
+						// DATA / TYPE MISMATCH
+						else {
+							$this->process(["message" => "Media property mismatch (missing width or height on media_id: ".$media["id"].")", "success" => false], true);
+						}
+
+					}
+
+				}
+
+				$this->process(["message" => "Media updated", "success" => true]);
+			}
+
 
 
 			// USER/ITEM
@@ -254,11 +545,18 @@ class Upgrade extends Model {
 					$this->process($this->renameColumn(SITE_DB.".user_log_activation_reminders", "created_at", "reminded_at"), true);
 					$this->process($this->addColumn(SITE_DB.".user_log_activation_reminders", "username_id", "int(11) DEFAULT NULL", "user_id"), true);
 
+
 					// retrieve username_ids from user_ids and insert them in the new username_id column
-					$query->sql("SELECT user_id FROM ".SITE_DB.".user_log_activation_reminders GROUP BY user_id");
+
+					$count = 0;
+					$limit = 5000;
+					$sql = "SELECT user_id FROM ".SITE_DB.".user_log_activation_reminders GROUP BY user_id LIMIT $count, $limit";
+					// debug([$sql]);
+					$query->sql($sql);
 					$user_ids = $query->results("user_id");
 
-					if($user_ids) {
+					while($user_ids) {
+
 						foreach ($user_ids as $user_id) {
 							$query->sql("SELECT id FROM ".SITE_DB.".user_usernames WHERE type = 'email' AND user_id = $user_id");
 							$username_id = $query->result(0, "id");
@@ -269,7 +567,35 @@ class Upgrade extends Model {
 								$query->sql("DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id");
 							}
 						}
+
+						$count += $limit;
+
+						$sql = "SELECT user_id FROM ".SITE_DB.".user_log_activation_reminders GROUP BY user_id LIMIT $count, $limit";
+						// debug([$sql]);
+						$query->sql($sql);
+						$user_ids = $query->results("user_id");
+
 					}
+					// $user_ids
+					//
+					//
+					//
+					// debug([$sql]);
+					// $query->sql($qsl);
+					// $user_ids = $query->results("user_id");
+					//
+					// if($user_ids) {
+					// 	foreach ($user_ids as $user_id) {
+					// 		$query->sql("SELECT id FROM ".SITE_DB.".user_usernames WHERE type = 'email' AND user_id = $user_id");
+					// 		$username_id = $query->result(0, "id");
+					// 		if ($username_id) {
+					// 			$query->sql("UPDATE ".SITE_DB.".user_log_activation_reminders SET username_id = $username_id WHERE user_id = $user_id");
+					// 		}
+					// 		else {
+					// 			$query->sql("DELETE FROM ".SITE_DB.".user_log_activation_reminders WHERE user_id = $user_id");
+					// 		}
+					// 	}
+					// }
 
 					$this->process($this->renameTable(SITE_DB.".user_log_activation_reminders", "user_log_verification_links"), true);
 
@@ -352,8 +678,16 @@ class Upgrade extends Model {
 			// Add billing_name from user info if not already set
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
 
-				$orders = $SC->getOrders();
-				if($orders) {
+
+				$count = 0;
+				$limit = 5000;
+				$sql = "SELECT id, user_id, billing_name FROM ".SITE_DB.".shop_orders LIMIT $count, $limit";
+				// debug([$sql]);
+				$query->sql($sql);
+				$orders = $query->results();
+
+				while($orders) {
+
 					foreach($orders as $order) {
 
 						if(!$order["billing_name"]) {
@@ -375,7 +709,41 @@ class Upgrade extends Model {
 
 					}
 
+					$count += $limit;
+
+					$sql = "SELECT id, user_id, billing_name FROM ".SITE_DB.".shop_orders LIMIT $count, $limit";
+					// debug([$sql]);
+					$query->sql($sql);
+					$orders = $query->results();
+
+
 				}
+
+
+				// $orders = $SC->getOrders();
+				// if($orders) {
+				// 	foreach($orders as $order) {
+				//
+				// 		if(!$order["billing_name"]) {
+				// 			$user = $UC->getUsers(["user_id" => $order["user_id"]]);
+				//
+				// 			// create base data update sql
+				// 			$sql = "UPDATE ".$SC->db_orders." SET ";
+				//
+				// 			if($user["firstname"] && $user["lastname"]) {
+				// 				$sql .= "billing_name='".prepareForDB($user["firstname"]) ." ". prepareForDB($user["lastname"])."'";
+				// 			}
+				// 			else {
+				// 				$sql .= "billing_name='".prepareForDB($user["nickname"])."'";
+				// 			}
+				//
+				// 			$sql .= " WHERE id=".$order["id"];
+				// 			$query->sql($sql);
+				// 		}
+				//
+				// 	}
+				//
+				// }
 
 			}
 
@@ -431,46 +799,6 @@ class Upgrade extends Model {
 
 
 
-			// CODE SYNTAX JANITOR
-			// get all php files in theme
-			$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php"]);
-			foreach($php_files as $php_file) {
-
-				$is_code_altered = false;
-				$code_lines = file($php_file);
-				foreach($code_lines as $line_no => $line) {
-
-					if(preg_match("/[\$](page|this)\-\>mail\(/", $line)) {
-
-						$new_code_line = preg_replace("/[\$](page|this)\-\>mail\(/", "mailer()->send(", $line);
-						if($code_lines[$line_no] != $new_code_line) {
-
-							$code_lines[$line_no] = $new_code_line;
-							$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE IN " . $php_file . " in line " . ($line_no+1)]);
-							$is_code_altered = true;
-
-
-//							print '<li class="notice">'.</li>';
-						}
-						else {
-							$this->process(["success" => false, "message" => "FOUND OLD CODE IN " . $php_file . " in line " . ($line_no+1)], true);
-//							print '<li class="error">'."FOUND OLD CODE IN " . $php_file . ' in line '.($line_no+1).'</li>';
-							
-						}
-
-					}
-
-				}
-
-				// Should we write
-				if($is_code_altered) {
-					file_put_contents($php_file, implode("", $code_lines));
-				}
-
-			}
-//			print_r($php_files);
-
-			
 
 
 			// set file permissions

@@ -20,18 +20,23 @@ class Model extends HTML {
 
 		// Default values
 
+		// Default type
 		$this->data_defaults["type"] = "string";
 
-		// files
-		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,pdf";
+		// Default files settings
+		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,mp3,pdf,zip";
 
-		// html
+		// Default html setting
 		$this->data_defaults["allowed_tags"] = "p,h1,h2,h3,h4,h5,h6,code,ul,download";
+		$this->data_defaults["file_add"] = $this->path."/addHTMLFile";
+		$this->data_defaults["file_delete"] = $this->path."/deleteHTMLFile";
+		$this->data_defaults["media_add"] = $this->path."/addHTMLMedia";
+		$this->data_defaults["media_delete"] = $this->path."/deleteHTMLMedia";
 
 
-		global $page;
-
-		// TODO: maybe these standard settings should be in Core Itemtype
+		// TODO:
+		// COMMENT: Some of these standard settings could be in Core Itemtype – at least the strictly item related ones
+		// COMMENT: They are not (yet), because it is annoying to look in two different places to get an overview of predefined entities
 		// define default models (Janitor model allows these element on all itemtypes)
 		// optimized for backend implementation
 
@@ -74,6 +79,7 @@ class Model extends HTML {
 		$this->addToModel("mediae", array(
 			"type" => "files",
 			"label" => "Add media here",
+			"max" => 20,
 			"allowed_formats" => "png,jpg,mp4",
 			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
 			"error_message" => "Media does not fit requirements."
@@ -84,7 +90,7 @@ class Model extends HTML {
 			"label" => "Add media here",
 			"max" => 1,
 			"allowed_formats" => "png,jpg,mp4",
-			"hint_message" => "Add images or videos here. Use png, jpg or mp4 in 960x540.",
+			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
 			"error_message" => "Media does not fit requirements."
 		));
 
@@ -155,69 +161,20 @@ class Model extends HTML {
 
 		$this->addToModel("item_ownership", array(
 			"type" => "integer",
-			"label" => "Subscription method",
-			"hint_message" => "Choose subscription renewal period.",
-			"error_message" => "Subscription method error."
+			"label" => "Item owner",
+			"hint_message" => "Choose new owner for item.",
+			"error_message" => "A valid new owner must be selected"
 		));
 
 	}
 
 
 	/**
-	* Validation types
-	* optional => validation will be ignored if value is empty
-	*
-	* text => var has to contain text (or number)
-	* optional extra arguments:
-	* 1: minimum length
-	* 2: maximum length
-	*
-	* num => var has to be a number
-	* optional extra arguments:
-	* 1: minimum value
-	* 2: maximum value
-	*
-	* file => checking $_FILES[$element]["name"] and $_FILES[$element]["error"]
-	* no extra arguments:
-	*
-	* image => checking $_FILES[$element]["name"] and $_FILES[$element]["error"]
-	* optional extra arguments:
-	* 1: width
-	* 2: height
-	*
-	* email => var has to be valid formatted email
-	* optional extra arguments:
-	* 1: database to check for other appearances of value
-	* 2: separate existance error message
-	*
-	* pwr => (password repeat) var has to be equal to pw
-	* required extra arguments:
-	* 1: password
-	*
-	* arr => var has to be an array
-	* optional extra arguments:
-	* 1: minimum length
-	*
-	* unik => var has to be unik value
-	* required extra arguments:
-	* 1: database to check for other appearances of value
-	* 2: database field to check for other appearances of value (optional, default = element name)
-	*
-	* date => var has to be valid date DD[.-/]MM[.-/][YY]YY
-	* optional extra arguments:
-	* 1: after timestamp
-	* 2: before timestamp
-	*
-	* timestamp => var has to be valid timestamp DD[.-/]MM[.-/][YY]YY hh:mm
-	* optional extra arguments:
-	* 1: after timestamp
-	* 2: before timestamp
+	* All entity to current model
+	* See documentation for full options overview
 	*/
 	function addToModel($name, $_options = false) {
-
-		// print "addToModel:".$name."<br>\n";
-		// print_r($_options);
-
+		// debug(["addToModel: $name", $_options]);
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -242,22 +199,25 @@ class Model extends HTML {
 					case "min"                   : $this->setProperty($name, "min",                  $_value); break;
 					case "max"                   : $this->setProperty($name, "max",                  $_value); break;
 
+
+					case "min_width"             : $this->setProperty($name, "min_width",            $_value); break;
+					case "min_height"            : $this->setProperty($name, "min_height",           $_value); break;
+
+
 					case "allowed_formats"       : $this->setProperty($name, "allowed_formats",      $_value); break;
 					case "allowed_proportions"   : $this->setProperty($name, "allowed_proportions",  $_value); break;
 					case "allowed_sizes"         : $this->setProperty($name, "allowed_sizes",        $_value); break;
 
+
 					case "allowed_tags"          : $this->setProperty($name, "allowed_tags",         $_value); break;
+					case "media_add"             : $this->setProperty($name, "media_add",            $_value); break;
+					case "media_delete"          : $this->setProperty($name, "media_delete",         $_value); break;
+					case "file_add"              : $this->setProperty($name, "file_add",             $_value); break;
+					case "file_delete"           : $this->setProperty($name, "file_delete",          $_value); break;
 
-					case "is_before"             : $this->setProperty($name, "is_before",            $_value); break;
-					case "is_after"              : $this->setProperty($name, "is_after",             $_value); break;
-
-					case "must_match"            : $this->setProperty($name, "must_match",           $_value); break;
 
 					case "error_message"         : $this->setProperty($name, "error_message",        $_value); break;
 					case "hint_message"          : $this->setProperty($name, "hint_message",         $_value); break;
-
-					case "file_add"              : $this->setProperty($name, "file_add",             $_value); break;
-					case "file_delete"           : $this->setProperty($name, "file_delete",          $_value); break;
 
 				}
 			}
@@ -266,16 +226,39 @@ class Model extends HTML {
 	}
 
 
+	/**
+	* Get model for current itemtype
+	*/
 	function getModel() {
 		return $this->data_entities;
 	}
 
-	function getModelNames() {
-		$names = false;
-		foreach($this->data_entities as $name) {
-			$names[] = $name;
+
+	/**
+	* Set property value
+	*
+	* @param string $name Name of property
+	* @param string $property Property to set value of
+	* @param string|array $value Value to be assigned
+	*/
+	function setProperty($name, $property, $value) {
+		$this->data_entities[$name][$property] = $value;
+	}
+
+	/**
+	* Get value of property from model entity
+	* Fall back to default value or false
+	*
+	* @param string $name Name of property
+	* @param string $property Property to get value of
+	* @return string Value of $property on $name or default property from the data_defaults array – or false if none of the above
+	*/
+	function getProperty($name, $property) {
+		if(isset($this->data_entities[$name][$property])) {
+			return $this->data_entities[$name][$property];
 		}
-		return $names;
+
+		return isset($this->data_defaults[$property]) ? $this->data_defaults[$property] : false;
 	}
 
 	/**
@@ -318,118 +301,22 @@ class Model extends HTML {
 					$this->setProperty($name, "value", $value);
 
 				}
-			}
-		}
-	}
 
-
-	/**
-	* Set property value
-	*
-	* TODO: Documentation required
-	*/
-	function setProperty($name, $property, $value) {
-		$this->data_entities[$name][$property] = $value;
-	}
-
-	/**
-	* Get property from model
-	* Fall back to default value or false
-	*
-	* TODO: Documentation required
-	*/
-	function getProperty($name, $property) {
-		if(isset($this->data_entities[$name][$property])) {
-			return $this->data_entities[$name][$property];
-		}
-
-		return isset($this->data_defaults[$property]) ? $this->data_defaults[$property] : false;
-	}
-
-	/**
-	* Execute defined validation rules for all elements (rules defined in data object)
-	*
-	* @param string Optional elements to skip can be passed as parameters
-	* @return bool
-	*/
-	function validateAll($execpt = false, $item_id = false) {
-		$this->data_errors = array();
-
-//		print "<p>";
-//		print_r($this->data_entities);
-		if(count($this->data_entities)) {
-
-			foreach($this->data_entities as $name => $entity) {
-
-				if(!$execpt || array_search($name, $execpt) === false) {
-//					print "validationg name: $name<br>";
-
-					if(!$this->validate($name, $item_id)) {
-//						print "error:<br>";
-						$this->data_errors[$name] = true;
-					}
-				}
-			}
-		}
-//		print "</p>";
-
-		// prepare values to be returned to screen if errors exist
-		if(count($this->data_errors)) {
-			foreach($this->data_entities as $name => $entity) {
-				if($this->getProperty($name, "value") !== false) {
-					$this->setProperty($name, "value", prepareForHTML($this->getProperty($name, "value")));
-				}
-			}
-			return false;
-		}
-		else {
-			return true;
-		}
-	}
-
-	/**
-	* Execute defined validation rules for listed elements (rules defined in data object)
-	*
-	* @param string Elements to validate
-	* @return bool
-	*/
-	function validateList($list = false, $item_id = false) {
-		$this->data_errors = array();
-
-//		print_r($this->data_entities);
-		foreach($list as $name) {
-			if(isset($this->data_entities[$name])) {
-				if(!$this->validate($name, $item_id)) {
-					$this->data_errors[$name] = true;
-				}
 			}
 		}
 
-		// prepare values to be returned to screen if errors exist
-		if(count($this->data_errors)) {
-			foreach($this->data_entities as $name => $entity) {
-				if($this->getProperty($name, "value") !== false) {
-					$this->setProperty($name, "value", prepareForHTML($this->getProperty($name, "value")));
-				}
-			}
-			return false;
-		}
-		else {
-			return true;
-		}
 	}
+
 
 	/**
 	* Execute validation rule (rules defined in data object)
 	*
 	* @param String $Element Element to validate
-	* @param Integer $item_id Optional item_id to check aganist (in case of uniqueness)
+	* @param Integer $item_id Optional item_id to check against (in case of uniqueness)
 	* @return bool
-	*
-	* TODO: some validation rules are not done!
 	*/
 	function validate($name, $item_id = false) {
-//		print "validate:".$name.", ".$this->getProperty($name, "type").", ".$this->getProperty($name, "value")."\n";
+		// debug(["validate:".$name, $this->getProperty($name, "type"), $this->getProperty($name, "value")]);
 
 		// check uniqueness
 		if($this->getProperty($name, "unique")) {
@@ -445,16 +332,27 @@ class Model extends HTML {
 		// if value is not empty - it needs to be validated even for optional entities
 		// NOTO: Also work with unchecked checkboxes, where value is 0 (MAK 2019-01-25 – check for unforseen consequences)
 		// if(!$this->getProperty($name, "required") && $this->getProperty($name, "value") == "") {
+
+		// compare_to value is relavant even on empty fields
+		$compare_to = $this->getProperty($name, "compare_to");
+
+		// Pre validation (is full validation needed)
 		if(!$this->getProperty($name, "required") && 
 			(
-				$this->getProperty($name, "value") == "" 
+				$this->getProperty($name, "value") === "" 
 				|| 
+				$this->getProperty($name, "value") === false 
+				||
 				// Special case for checkbox
 				(
 					$this->getProperty($name, "type") == "checkbox"
 					&& 
 					$this->getProperty($name, "value") === "0"
 				)
+			)
+			&&
+			(
+				!$compare_to || $this->getProperty($name, "value") == $this->getProperty($compare_to, "value")
 			)
 		) {
 			return true;
@@ -503,12 +401,7 @@ class Model extends HTML {
 			}
 		}
 		else if($this->getProperty($name, "type") == "password") {
-			if($this->getProperty($name, "compare_to")) {
-				if($this->comparePassword($name, $this->getProperty($name, "compare_to"))) {
-					return true;
-				}
-			}
-			else if($this->isString($name)) {
+			if($this->isPassword($name)) {
 				return true;
 			}
 		}
@@ -532,17 +425,19 @@ class Model extends HTML {
 				return true;
 			}
 		}
-		else if($this->getProperty($name, "type") == "location") {
-			if($this->isLocation($name)) {
-				return true;
-			}
-		}
 
-		else if($this->getProperty($name, "type") == "prices") {
-			if($this->isPrices($name)) {
+		else if($this->getProperty($name, "type") == "location") {
+			// No composite validation for location (should look at location, longitude and latitude)
+			if($this->isString($name)) {
 				return true;
 			}
 		}
+		// else if($this->getProperty($name, "type") == "prices") {
+		// 	if($this->isPrices($name)) {
+		// 		return true;
+		// 	}
+		// }
+
 		else if($this->getProperty($name, "type") == "tag") {
 			if($this->isTag($name)) {
 				return true;
@@ -562,29 +457,102 @@ class Model extends HTML {
 
 		// either type was not found or validation failed
 		$error_message = $this->getProperty($name, "error_message");
-		$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occured";
+		$error_message = $error_message && $error_message != "*" ? $error_message : "An unknown validation error occurred";
 		message()->addMessage($error_message, array("type" => "error"));
 		return false;
 	}
 
 
+
 	/**
-	* Check for other existance of value
+	* Execute defined validation rules for all elements (rules defined in data object)
 	*
-	* @param string $name Element identifier
+	* @param string Optional elements to skip can be passed as parameters
+	* @return bool
+	*/
+	function validateAll($execpt = false, $item_id = false) {
+		$this->data_errors = array();
+
+		// debug([$this->data_entities]);
+		if(count($this->data_entities)) {
+
+			foreach($this->data_entities as $name => $entity) {
+
+				if(!$execpt || array_search($name, $execpt) === false) {
+					// debug(["validating name: $name"]);
+
+					if(!$this->validate($name, $item_id)) {
+
+						// debug(["error: $name"]);
+						$this->data_errors[$name] = true;
+					}
+				}
+			}
+		}
+
+		// prepare values to be returned to screen if errors exist
+		if(count($this->data_errors)) {
+			foreach($this->data_entities as $name => $entity) {
+				if($this->getProperty($name, "value") !== false) {
+					$this->setProperty($name, "value", prepareForHTML($this->getProperty($name, "value")));
+				}
+			}
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	/**
+	* Execute defined validation rules for listed elements (rules defined in data object)
+	*
+	* @param string Element names to validate
+	* @return bool
+	*/
+	function validateList($list, $item_id = false) {
+		$this->data_errors = array();
+
+		// debug([$this->data_entities]);
+		foreach($list as $name) {
+			if(isset($this->data_entities[$name])) {
+				if(!$this->validate($name, $item_id)) {
+					$this->data_errors[$name] = true;
+				}
+			}
+		}
+
+		// prepare values to be returned to screen if errors exist
+		if(count($this->data_errors)) {
+			foreach($this->data_entities as $name => $entity) {
+				if($this->getProperty($name, "value") !== false) {
+					$this->setProperty($name, "value", prepareForHTML($this->getProperty($name, "value")));
+				}
+			}
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+
+
+	/**
+	* Check for other existence of value
+	*
+	* @param string $name Entity name
 	* @param Integer $item_id current item_id
 	* @return bool
 	*/
 	function isUnique($name, $item_id) {
 
 		$value = $this->getProperty($name, "value");
-		$db = $this->getProperty($name, "unique");
+		$db_table = $this->getProperty($name, "unique");
 
 		$query = new Query();
-		$sql = "SELECT id FROM ".$db." WHERE $name = '".$value."'".($item_id ? " AND item_id != ".$item_id : "");
-		if($item_id) {
-			
-		}
+		$sql = "SELECT id FROM ".$db_table." WHERE $name = '".$value."'".($item_id ? " AND item_id != ".$item_id : "");
+
 		// does other value exist
 		if($query->sql($sql)) {
 			$this->setProperty($name, "error", true);
@@ -598,7 +566,7 @@ class Model extends HTML {
 	/**
 	* Check if user_id is valid user
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isUser($name) {
@@ -618,7 +586,7 @@ class Model extends HTML {
 	/**
 	* Check if item_id is valid Item
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isItem($name) {
@@ -635,40 +603,45 @@ class Model extends HTML {
 		return true;
 	}
 
-
 	/**
 	* Is file valid?
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isFiles($name) {
-		// print "isFiles:<br>";
-		// print "FILES:\n";
-		// print_r($_FILES);
 
 		$value = $this->getProperty($name, "value");
+
+		// file count
 		$min = $this->getProperty($name, "min");
 		$max = $this->getProperty($name, "max");
 
+		// file formats
 		$formats = $this->getProperty($name, "allowed_formats");
+
+		// Image/Video minimum size requirements
+		$min_width = $this->getProperty($name, "min_width");
+		$min_height = $this->getProperty($name, "min_height");
+
 		$proportions = $this->getProperty($name, "allowed_proportions");
 		$sizes = $this->getProperty($name, "allowed_sizes");
 
+		// Get upload information
 		$uploads = $this->identifyUploads($name);
-
-
-		// print "sizes:".$sizes."\n";
-		// print "uploads:\n";
-		// print_r($uploads);
 
 		if(
 			$uploads &&
-			(!$min || count($value) >= $min) && 
-			(!$max || count($value) <= $max) &&
-			(!$proportions || $this->proportionTest($uploads, $proportions)) &&
-			(!$sizes || $this->sizeTest($uploads, $sizes)) &&
-			(!$formats || $this->formatTest($uploads, $formats))
+			(!$min || count($uploads) >= $min) && 
+			// Max defaults to one file on file inputs
+			((!$max && count($uploads) <= 1)|| count($uploads) <= $max) &&
+
+			(!$min_width || $this->filesMinWidthTest($uploads, $min_width)) &&
+			(!$min_height || $this->filesMinHeightTest($uploads, $min_height)) &&
+
+			(!$proportions || $proportions === "*" || $this->filesProportionTest($uploads, $proportions)) &&
+			(!$sizes || $sizes === "*" || $this->fileSizeTest($uploads, $sizes)) &&
+			(!$formats || $formats === "*" || $this->fileFormatTest($uploads, $formats))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -677,20 +650,45 @@ class Model extends HTML {
 			$this->setProperty($name, "error", true);
 			return false;
 		}
+	}
 
+	// isFiles helper
+	// test minimum width
+	function filesMinWidthTest($uploads, $min_width) {
+
+		foreach($uploads as $upload) {
+			// if uploaded width is not sufficient
+			if(!isset($upload["width"]) || $upload["width"] < $min_width) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	// isFiles helper
+	// test minimum height
+	function filesMinHeightTest($uploads, $min_height) {
+
+		foreach($uploads as $upload) {
+			// if uploaded height is not sufficient
+			if(!isset($upload["height"]) || $upload["height"] < $min_height) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	// isFiles helper
 	// test if proportions are valid
-	function proportionTest($uploads, $proportions) {
+	function filesProportionTest($uploads, $proportions) {
 
 		$proportion_array = explode(",", $proportions);
 		foreach($proportion_array as $i => $proportion) {
-			$proportion_array[$i] = round($proportion, 2);
+			$proportion_array[$i] = $proportion;
 		}
 		foreach($uploads as $upload) {
+			// if uploaded proportion is not allowed
 			if(!isset($upload["proportion"]) || array_search($upload["proportion"], $proportion_array) === false) {
-//				print "bad proportion";
 				return false;
 			}
 		}
@@ -699,12 +697,12 @@ class Model extends HTML {
 
 	// isFiles helper
 	// test if sizes are valid
-	function sizeTest($uploads, $sizes) {
+	function fileSizeTest($uploads, $sizes) {
 
 		$size_array = explode(",", $sizes);
 		foreach($uploads as $upload) {
+			// if uploaded size is not allowed
 			if(!isset($upload["width"]) || !isset($upload["height"]) || array_search($upload["width"]."x".$upload["height"], $size_array) === false) {
-//				print "bad size";
 				return false;
 			}
 		}
@@ -713,12 +711,12 @@ class Model extends HTML {
 
 	// isFiles helper
 	// test if formats are valid
-	function formatTest($uploads, $formats) {
+	function fileFormatTest($uploads, $formats) {
 
 		$format_array = explode(",", $formats);
 		foreach($uploads as $upload) {
+			// if uploaded format is not allowed
 			if(array_search($upload["format"], $format_array) === false) {
-//				print "bad format:".$upload["format"]."<br>\n";
 				return false;
 			}
 		}
@@ -727,136 +725,123 @@ class Model extends HTML {
 
 	// isFiles helper
 	// upload identification helper
-	// supports identification of:
+	// supports identification in these groups:
 	// - image
 	// - video
 	// - audio
+	// - other
 	function identifyUploads($name) {
+		// debug(["identifyUploads: $name", $_FILES]);
 
 		$uploads = array();
 
-		// print "input_name:" . $name;
-		// print_r($_FILES);
-
 		if(isset($_FILES[$name])) {
-//			print_r($_FILES[$name]);
 
-//			if($_FILES[$name]["name"])
 			foreach($_FILES[$name]["name"] as $index => $value) {
 				if(!$_FILES[$name]["error"][$index] && file_exists($_FILES[$name]["tmp_name"][$index])) {
 
+					$file = $_FILES[$name]["tmp_name"][$index];
+
 					$upload = array();
 					$upload["name"] = $value;
+					$upload["type"] = $_FILES[$name]["type"][$index];
+					$upload["format"] = mimetypeToExtension($upload["type"]);
+					$upload["filesize"] = filesize($file);
+					$upload["file"] = $file;
 
-					$temp_file = $_FILES[$name]["tmp_name"][$index];
-					$temp_type = $_FILES[$name]["type"][$index];
-					$temp_extension = mimetypeToExtension($temp_type);
+					// Width and height will be set below for uploads where it exists (movie/images)
+					$upload["width"] = "";
+					$upload["height"] = "";
 
 
-					// video upload (mp4)
-					if(preg_match("/video/", $temp_type)) {
+					// video upload (mp4/mov)
+					// extract more properties
+					if(preg_match("/video\//", $upload["type"])) {
 
 						include_once("classes/helpers/video.class.php");
 						$Video = new Video();
 
 						// check if we can get relevant info about movie
-						$info = $Video->info($temp_file);
+						$info = $Video->info($file);
 						if($info) {
 
-							// TODO: add extension to Video Class
 							// TODO: add better bitrate detection to Video Class
 							// TODO: add duration
 							// $upload["bitrate"] = $info["bitrate"];
-							$upload["type"] = "movie";
-							$upload["filesize"] = filesize($temp_file);
-							$upload["format"] = $temp_extension;
+
 							$upload["width"] = $info["width"];
 							$upload["height"] = $info["height"];
-							$upload["proportion"] = round($upload["width"] / $upload["height"], 2);
+							$upload["proportion"] = round($upload["width"] / $upload["height"], 4);
+
 							$uploads[] = $upload;
 						}
 
 					}
 
-					// audio upload (mp3)
-					else if(preg_match("/audio/", $temp_type)) {
+					// audio upload (mp3/wav/aac)
+					// extract more properties
+					else if(preg_match("/audio\//", $upload["type"])) {
 
 						include_once("classes/helpers/audio.class.php");
 						$Audio = new Audio();
 
  						// check if we can get relevant info about audio
-						$info = $Audio->info($temp_file);
+						$info = $Audio->info($file);
 						if($info) {
-//							print_r($info);
 
 							// TODO: add bitrate detection
 							// TODO: add duration
 							// $upload["bitrate"] = $info["bitrate"];
-							$upload["type"] = "audio";
-							$upload["filesize"] = filesize($temp_file);
-							$upload["format"] = $temp_extension;
+
 							$uploads[] = $upload;
 						}
 
 					}
 
 					// image upload (gif/png/jpg)
-					else if(preg_match("/image/", $temp_type)) {
+					// extract more properties
+					else if(preg_match("/image\//", $upload["type"])) {
 
-						$image = new Imagick($temp_file);
+						// Create Imagick object from file
+						$image = new Imagick($file);
 
  						// check if we can get relevant info about image
 						$info = $image->getImageFormat();
 						if($info) {
 
-							$upload["type"] = "image";
-							$upload["filesize"] = filesize($temp_file);
-							$upload["format"] = $temp_extension;
+							// TODO: add dpi detection
+
 							$upload["width"] = $image->getImageWidth();
 							$upload["height"] = $image->getImageHeight();
-							$upload["proportion"] = round($upload["width"] / $upload["height"], 2);
-							$uploads[] = $upload;
+							$upload["proportion"] = round($upload["width"] / $upload["height"], 4);
 
+							$uploads[] = $upload;
 						}
+
 					}
 
-					// application upload (pdf/zip)
-					else if(preg_match("/application/", $temp_type)) {
+					// ALL OTHER UPLOADS (pdf/zip/etc)
+					else {
 
-						// PDF
-						if($temp_extension == "pdf") {
+						// No additional properties to add
 
-							$upload["type"] = "pdf";
-							$upload["filesize"] = filesize($temp_file);
-							$upload["format"] = $temp_extension;
-							$uploads[] = $upload;
+						$uploads[] = $upload;
 
-						}
-						// ZIP
-						else if($temp_extension == "zip") {
-
-							$upload["type"] = "zip";
-							$upload["filesize"] = filesize($temp_file);
-							$upload["format"] = $temp_extension;
-							$uploads[] = $upload;
-
-						}
 					}
+
 				}
+
 			}
 
 		}
 
 		return $uploads;
-
 	}
-
-
 
 	/**
 	* Is string string?
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isString($name) {
@@ -865,11 +850,13 @@ class Model extends HTML {
 		$min_length = $this->getProperty($name, "min");
 		$max_length = $this->getProperty($name, "max");
 		$pattern = $this->getProperty($name, "pattern");
+		$compare_to = $this->getProperty($name, "compare_to");
 
 		if(($value || $value === "0") && is_string($value) && 
 			(!$min_length || strlen($value) >= $min_length) && 
 			(!$max_length || strlen($value) <= $max_length) &&
-			(!$pattern || preg_match("/".$pattern."/", $value))
+			(!$pattern || preg_match("/^".$pattern."$/", $value)) &&
+			(!$compare_to || $value == $this->getProperty($compare_to, "value"))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -884,7 +871,7 @@ class Model extends HTML {
 	/**
 	* Is string string?
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isHTML($name) {
@@ -894,12 +881,13 @@ class Model extends HTML {
 		$max_length = $this->getProperty($name, "max");
 
 		// remove all HTML tags
-		$value = strip_tags($value);
+		$stripped_value = strip_tags($value);
 
 		if(
-			($value || $value === "0") && is_string($value) && 
-			(!$min_length || strlen($value) >= $min_length) && 
-			(!$max_length || strlen($value) <= $max_length)
+			$stripped_value != $value &&
+			($stripped_value || $stripped_value === "0") && is_string($stripped_value) && 
+			(!$min_length || strlen($stripped_value) >= $min_length) && 
+			(!$max_length || strlen($stripped_value) <= $max_length)
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -914,7 +902,7 @@ class Model extends HTML {
 	/**
 	* Is string numeric?
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isNumber($name) {
@@ -924,10 +912,10 @@ class Model extends HTML {
 		$max = $this->getProperty($name, "max");
 		$pattern = $this->getProperty($name, "pattern");
 
-		if(($value || $value === "0") && !($value%1) && 
+		if(($value || $value === "0") && is_numeric($value) && 
 			(!$min || $value >= $min) && 
 			(!$max || $value <= $max) &&
-			(!$pattern || preg_match("/".$pattern."/", $value))
+			(!$pattern || preg_match("/^".$pattern."$/", $value))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -941,26 +929,20 @@ class Model extends HTML {
 	/**
 	* Is string integer?
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isInteger($name) {
-
-//		print "check is Int<br>";
 
 		$value = $this->getProperty($name, "value");
 		$min = $this->getProperty($name, "min");
 		$max = $this->getProperty($name, "max");
 		$pattern = $this->getProperty($name, "pattern");
 
-//		print $name.",".$value."<br>";
-
-//		print ($value || $value === "0") . ", " . (!($value%1)) . ", " . (!$min || $value >= $min) . ", ". (!$max || $value <= $max) . ", " . (!$pattern || preg_match("/".$pattern."/", $value)) . ";";
-
-		if(($value || $value === "0") && !($value%1) && 
+		if(($value || $value === "0") && is_numeric($value) && !fmod($value, 1) && 
 			(!$min || $value >= $min) && 
 			(!$max || $value <= $max) &&
-			(!$pattern || preg_match("/".$pattern."/", $value))
+			(!$pattern || preg_match("/^".$pattern."$/", $value))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -974,16 +956,18 @@ class Model extends HTML {
 	/**
 	* Check if email is correctly formatted
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isEmail($name) {
 
 		$value = $this->getProperty($name, "value");
 		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\w\.\-\_\+]+@[\w-\.]+\.\w{2,10}$");
+		$compare_to = $this->getProperty($name, "compare_to");
 
 		if($value && is_string($value) && 
-			(!$pattern || preg_match("/".$pattern."/", $value))
+			(!$pattern || preg_match("/^".$pattern."$/", $value)) &&
+			(!$compare_to || $value == $this->getProperty($compare_to, "value"))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -998,16 +982,18 @@ class Model extends HTML {
 	/**
 	* Check if phonenumber is correctly formatted
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isTelephone($name) {
 
 		$value = $this->getProperty($name, "value");
-		$pattern = stringOr($this->getProperty($name, "pattern"), "^([\+0-9\-\.\s\(\)]){5,18}$");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "([\+0-9\-\.\s\(\)]){5,18}");
+		$compare_to = $this->getProperty($name, "compare_to");
 
 		if($value && is_string($value) && 
-			(!$pattern || preg_match("/".$pattern."/", $value))
+			(!$pattern || preg_match("/^".$pattern."$/", $value)) &&
+			(!$compare_to || $value == $this->getProperty($compare_to, "value"))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -1018,20 +1004,51 @@ class Model extends HTML {
 		}
 	}
 
+
+	/**
+	* Is password valid?
+	*
+	* @param string $name ent identifier
+	* @return bool
+	*/
+	function isPassword($name) {
+
+		$value = $this->getProperty($name, "value");
+		$min_length = $this->getProperty($name, "min");
+		$max_length = $this->getProperty($name, "max");
+		$pattern = $this->getProperty($name, "pattern");
+		$compare_to = $this->getProperty($name, "compare_to");
+
+		if(($value || $value === "0") && is_string($value) && 
+			(!$min_length || strlen($value) >= $min_length) && 
+			(!$max_length || strlen($value) <= $max_length) &&
+			(!$pattern || preg_match("/^".$pattern."$/", $value)) &&
+			(!$compare_to || $value == $this->getProperty($compare_to, "value"))
+		) {
+			$this->setProperty($name, "error", false);
+			return true;
+		}
+		else {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+	}
+
+
 	/**
 	* Check if tag is correctly formatted
 	* Tag can be tag id or new tag string
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isTag($name) {
 
 		$value = $this->getProperty($name, "value");
-		$pattern = stringOr($this->getProperty($name, "pattern"), "^[a-z]+:.+$");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "[a-z]+:.+");
 
 		if($value && 
-			(is_numeric($value) || (!$pattern || preg_match("/".$pattern."/", $value)))
+			(is_numeric($value) || (!$pattern || preg_match("/^".$pattern."$/", $value)))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -1045,20 +1062,21 @@ class Model extends HTML {
 	/**
 	* Check if datetime is entered correctly
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isDatetime($name) {
 
 		$value = $this->getProperty($name, "value");
-		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\d]{4}-[\d]{2}-[\d]{2} [0-9]{1,2}[:-]{1}[0-9]{2}[0-9:-]*$");
-		$is_before = $this->getProperty($name, "is_before");
-		$is_after = $this->getProperty($name, "is_after");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "[\d]{4}-[\d]{2}-[\d]{2} [0-9]{1,2}[:-]{1}[0-9]{2}[0-9:-]*");
+		$after = $this->getProperty($name, "min");
+		$before = $this->getProperty($name, "max");
 
 		if($value && 
-			(!$is_before || strtotime(toTimestamp($value)) < strtotime(toTimestamp($is_before))) && 
-			(!$is_after || strtotime(toTimestamp($value)) > strtotime(toTimestamp($is_before))) &&
-			(!$pattern || preg_match("/".$pattern."/", $value))
+			(!$before || strtotime(toTimestamp($value)) <= strtotime(toTimestamp($before))) && 
+			(!$after || strtotime(toTimestamp($value)) >= strtotime(toTimestamp($after))) &&
+
+			(!$pattern || preg_match("/^".$pattern."$/", $value))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -1072,20 +1090,21 @@ class Model extends HTML {
 	/**
 	* Check if date is entered correctly
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isDate($name) {
 
 		$value = $this->getProperty($name, "value");
-		$pattern = stringOr($this->getProperty($name, "pattern"), "^[\d]{4}-[\d]{2}-[\d]{2}[0-9\-\/ \:]*$");
-		$is_before = $this->getProperty($name, "is_before");
-		$is_after = $this->getProperty($name, "is_after");
+		$pattern = stringOr($this->getProperty($name, "pattern"), "[\d]{4}-[\d]{2}-[\d]{2}[0-9\-\/ \:]*");
+		$after = $this->getProperty($name, "min");
+		$before = $this->getProperty($name, "max");
 
 		if($value && 
-			(!$is_before || strtotime(toTimestamp($value)) < strtotime(toTimestamp($is_before))) && 
-			(!$is_after || strtotime(toTimestamp($value)) > strtotime(toTimestamp($is_before))) &&
-			(!$pattern || preg_match("/".$pattern."/", $value))
+			(!$before || strtotime(toTimestamp($value)) <= strtotime(toTimestamp($before))) && 
+			(!$after || strtotime(toTimestamp($value)) >= strtotime(toTimestamp($after))) &&
+
+			(!$pattern || preg_match("/^".$pattern."$/", $value))
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -1099,13 +1118,14 @@ class Model extends HTML {
 	/**
 	* Check if checkbox/radiobutton is checked
 	*
-	* @param string $name Element identifier
+	* @param string $name Entity name
 	* @return bool
 	*/
 	function isChecked($name) {
 
 		$value = $this->getProperty($name, "value");
 
+		// "0" not accepted as valid answer (flowover from checkbox where "0" means not checked)
 		if($value) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -1116,60 +1136,16 @@ class Model extends HTML {
 		}
 	}
 
-	/**
-	* Check if GeoLocation is entered correctly
-	*
-	* @param string $name Element identifier
-	* @return bool
-	*
-	* TODO: faulty geolocation validation - 
-	*/
-	function isLocation($name) {
-
-
-		$entity = $this->data_entities[$name];
-
-
-		return true;
-
-	}
 
 
 
+	// // TODO: Faulty price validation
+	// function isPrices($name) {
+	// 	$entity = $this->data_entities[$name];
+	//
+	// 	return true;
+	// }
 
-
-
-	// NOT UPDATED VALIDATION
-
-
-	/**
-	* Compare two passwords (to check if password and repeat password are identical)
-	*
-	* @param string $element Element identifier
-	* @param array $rule Rule array
-	* @return bool
-	* TODO: Faulty password validation
-	*/
-	function comparePassword($name) {
-
-		$entity = $this->data_entities[$name];
-
-		$repeated_password = $this->obj->vars[$element];
-		$password = $this->obj->vars[$this->getRuleDetails($rule, 0)];
-		if($repeated_password == $password) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-
-	// TODO: Faulty price validation
-	function isPrices($name) {
-		$entity = $this->data_entities[$name];
-
-		return true;
-	}
 
 }
 

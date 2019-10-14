@@ -285,7 +285,7 @@ Util.Objects["mail"] = new function() {
 
 			u.f.init(form);
 
-			var options = form.fields["mail_type"].options;
+			var options = form.inputs["mail_type"].options;
 			form.div_options = [];
 
 			// index option divs
@@ -296,7 +296,7 @@ Util.Objects["mail"] = new function() {
 			}
 
 			form.updateView = function() {
-				var selected = this.fields["mail_type"].val();
+				var selected = this.inputs["mail_type"].val();
 				var i, field;
 
 
@@ -321,7 +321,7 @@ Util.Objects["mail"] = new function() {
 			}
 			form.updateView();
 
-			form.fields["mail_type"].updated = function() {
+			form.inputs["mail_type"].updated = function() {
 //				console.log("mailtype:" + this.val());
 				this._form.updateView();
 			}
@@ -421,7 +421,7 @@ Util.Objects["payment"] = new function() {
 
 			u.f.init(form);
 
-			var options = form.fields["payment_type"].options;
+			var options = form.inputs["payment_type"].options;
 			form.div_options = [];
 
 			// index option divs
@@ -432,7 +432,7 @@ Util.Objects["payment"] = new function() {
 			}
 
 			form.updateView = function() {
-				var selected = this.fields["payment_type"].val();
+				var selected = this.inputs["payment_type"].val();
 				var i, field;
 
 
@@ -457,7 +457,7 @@ Util.Objects["payment"] = new function() {
 			}
 			form.updateView();
 
-			form.fields["payment_type"].updated = function() {
+			form.inputs["payment_type"].updated = function() {
 //				console.log("mailtype:" + this.val());
 				this._form.updateView();
 			}

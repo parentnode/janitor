@@ -150,8 +150,12 @@ Util.Objects["defaultList"] = new function() {
 							else {
 								this.node.parentNode.removeChild(this.node);
 								this.node.div.scrolled();
+
 								// will only apply if items has draggable classes
-								u.sortable(this.node.div.list, {"targets":"items", "draggables":"draggable"});
+								if(fun(this.node.div.list.updateDraggables)) {
+									this.node.div.list.updateDraggables();
+								}
+								// u.sortable(this.node.div.list, {"targets":".items", "draggables":".draggable"});
 							}
 						}
 					}

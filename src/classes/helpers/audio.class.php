@@ -4,17 +4,17 @@ include_once("classes/helpers/filesystem.class.php");
 class Audio {
 
 
-	function convert($input_file, $output_file, $options = false) {
+	function convert($input_file, $output_file, $_options = false) {
 
 		$fs = new FileSystem();
 		$output_format = false;
 		$output_bitrate = 128;
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
-					case "format"      : $output_format = $value; break;
-					case "bitrate"     : $output_bitrate = $value; break;
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "format"      : $output_format = $_value; break;
+					case "bitrate"     : $output_bitrate = $_value; break;
 				}
 			}
 		}

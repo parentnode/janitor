@@ -215,7 +215,7 @@ u.defaultFilters = function(div) {
 	u.f.init(div._filter.form);
 	div._filter.form.div = div;
 
-	div._filter._input = div._filter.form.fields["filter"];
+	div._filter.input = div._filter.form.inputs["filter"];
 
 	div._filter.form.updated = function() {
 
@@ -244,7 +244,7 @@ u.defaultFilters = function(div) {
 	div._filter.filterItems = function() {
 
 		var i, node;
-		var query = this._input.val().toLowerCase();
+		var query = this.input.val().toLowerCase();
 		if(this.current_filter != query+","+this.selected_tags.join(",")) {
 
 			this.current_filter = query + "," + this.selected_tags.join(",");
@@ -285,7 +285,7 @@ u.defaultFilters = function(div) {
 // SORTABLE
 
 u.defaultSortableList = function(list) {
-	console.log("defaultSortableList");
+	// u.bug("defaultSortableList");
 	list.div.save_order_url = list.div.getAttribute("data-item-order");
 
 	if(list.div.save_order_url && list.div.csrf_token) {
@@ -299,20 +299,22 @@ u.defaultSortableList = function(list) {
 		}
 
 		// apply
-		u.sortable(list, {"targets":"items", "draggables":"draggable"});
+		u.sortable(list, {"targets":".items", "draggables":".draggable"});
 		list.picked = function() {}
 		list.dropped = function() {
-			var order = new Array();
 
-			this.nodes = u.qsa("li.item", this);
-			for(i = 0; node = this.nodes[i]; i++) {
-				order.push(u.cv(node, "item_id"));
-			}
+			// Get node order
+			var order = this.getNodeOrder();
+
 			this.orderResponse = function(response) {
 				// Notify of event
 				page.notify(response);
 			}
-			u.request(this, this.div.save_order_url, {"callback":"orderResponse", "method":"post", "params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")});
+			u.request(this, this.div.save_order_url, {
+				"callback":"orderResponse", 
+				"method":"post", 
+				"params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")
+			});
 		}
 
 	}
@@ -380,6 +382,8 @@ u.activateTagging = function(node) {
 		node._tag_options = u.ae(node, "div", {"class":"tagoptions"});
 	}
 
+	// Tag context filter
+	node._tags_context = node._tags.getAttribute("data-context");
 
 	// create add tag form
 	node._tag_form = u.f.addForm(node._tag_options, {"action": node.data_div.add_tag_url});
@@ -388,7 +392,15 @@ u.activateTagging = function(node) {
 	// add fieldset
 	var fieldset = u.f.addFieldset(node._tag_form);
 	// add input field
-	u.f.addField(fieldset, {"name":"tags", "value":"", "id":"tag_input_"+node._item_id, "label":"Tag", "hint_message":"Type to filter existing tags or add a new tag", "error_message":"Tag must conform to tag value: context:value", "pattern":"[^$]+\:[^$]+"});
+	u.f.addField(fieldset, {
+		"name":"tags", 
+		"value":"", 
+		"id":"tag_input_"+node._item_id, 
+		"label":"Tag", 
+		"hint_message":"Type to filter existing tags or add a new tag", 
+		"error_message":"Tag must conform to tag value: context:value", 
+		"pattern":(node._tags_context ? "^("+node._tags_context.split(/,|;/).join("|")+")\:[^$]+" : "[^$]+\:[^$]+")
+	});
 	// add submit button
 	u.f.addAction(node._tag_form, {"class":"button primary", "value":"Add new tag"});
 
@@ -397,7 +409,7 @@ u.activateTagging = function(node) {
 	node._tag_form.node = node;
 
 	// filter tags when typing
-	node._tag_form.fields["tags"].updated = function() {
+	node._tag_form.inputs["tags"].updated = function() {
 
 		// only filter if new tags list exists
 		if(this._form.node._new_tags) {
@@ -427,9 +439,9 @@ u.activateTagging = function(node) {
 			if(response.cms_status == "success") {
 
 				// clear tag field and update filtering
-				this.fields["tags"].val("");
-				this.fields["tags"].updated();
-				this.fields["tags"].focus();
+				this.inputs["tags"].val("");
+				this.inputs["tags"].updated();
+				this.inputs["tags"].focus();
 
 
 				// shorter reference
@@ -479,7 +491,7 @@ u.activateTagging = function(node) {
 		u.request(this, this.action+"/"+this.node._item_id, {"method":"post", "params" : u.f.getParams(this)});
 	}
 	// add focus to tag field
-	node._tag_form.fields["tags"].focus();
+	node._tag_form.inputs["tags"].focus();
 
 
 	// add list with available tag options
@@ -507,37 +519,47 @@ u.activateTagging = function(node) {
 	}
 
 
+
 	// loop through all tags and add unused tags to new tags list
 	for(tag in node.data_div.all_tags) {
 
+
 		// tag context
 		context = node.data_div.all_tags[tag].context;
-		// tag value - replace single & with entity or it is not recognized
-		value = node.data_div.all_tags[tag].value.replace(/ & /, " &amp; ");
-		
-		// tag exist on item
-		if(used_tags && used_tags[context] && used_tags[context][value]) {
-			tag_node = used_tags[context][value];
+
+		// Only include allowed contexts
+		if(
+			(!node._tags_context || (context.match(new RegExp("^(" + node._tags_context.split(/,|;/).join("|") + ")$"))))
+		) {
+
+			// tag value - replace single & with entity or it is not recognized
+			value = node.data_div.all_tags[tag].value.replace(/ & /, " &amp; ");
+	
+			// tag exist on item
+			if(used_tags && used_tags[context] && used_tags[context][value]) {
+				tag_node = used_tags[context][value];
+			}
+			// tag is unused
+			// add tag to new tags list
+			else {
+				tag_node = u.ae(node._new_tags, "li", {"class":"tag"});
+				u.ae(tag_node, "span", {"class":"context", "html":context});
+				u.ae(tag_node, document.createTextNode(":"));
+				u.ae(tag_node, "span", {"class":"value", "html":value});
+
+				tag_node._context = context;
+				tag_node._value = value;
+			}
+
+			// add tag id and node reference
+			tag_node._id = node.data_div.all_tags[tag].id;
+			tag_node.node = node;
+
+
+			// activate tag
+			u.activateTag(tag_node);
+
 		}
-		// tag is unused
-		// add tag to new tags list
-		else {
-			tag_node = u.ae(node._new_tags, "li", {"class":"tag"});
-			u.ae(tag_node, "span", {"class":"context", "html":context});
-			u.ae(tag_node, document.createTextNode(":"));
-			u.ae(tag_node, "span", {"class":"value", "html":value});
-
-			tag_node._context = context;
-			tag_node._value = value;
-		}
-
-		// add tag id and node reference
-		tag_node._id = node.data_div.all_tags[tag].id;
-		tag_node.node = node;
-
-
-		// activate tag
-		u.activateTag(tag_node);
 
 	}
 

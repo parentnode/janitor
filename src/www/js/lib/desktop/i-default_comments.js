@@ -41,7 +41,7 @@ Util.Objects["defaultComments"] = new function() {
 						this.div.initComment(comment_li);
 
 						// reset form input
-						this.fields["item_comment"].val("");
+						this.inputs["item_comment"].val("");
 
 					}
 				}
@@ -89,7 +89,7 @@ Util.Objects["defaultComments"] = new function() {
 
 								if(response.cms_status == "success") {
 
-									u.qs("p.comment", this.node).innerHTML = this.fields["item_comment"].val();
+									u.qs("p.comment", this.node).innerHTML = this.inputs["item_comment"].val();
 									this.parentNode.removeChild(this);
 								}
 							}

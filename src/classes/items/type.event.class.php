@@ -16,7 +16,7 @@ class TypeEvent extends Itemtype {
 
 		// itemtype database
 		$this->db = SITE_DB.".item_event";
-		$this->db_hosts = SITE_DB.".item_event_hosts";
+		$this->db_locations = SITE_DB.".item_event_locations";
 		$this->db_performers = SITE_DB.".item_event_performers";
 
 
@@ -70,74 +70,74 @@ class TypeEvent extends Itemtype {
 		));
 
 
-		// Host
-		$this->addToModel("host", array(
+		// Location
+		$this->addToModel("location", array(
 			"type" => "string",
-			"label" => "Host",
+			"label" => "Location",
 			"required" => true,
-			"hint_message" => "Name of the host.",
-			"error_message" => "You need to enter a valid host name."
+			"hint_message" => "Name of the location.",
+			"error_message" => "You need to enter a valid location name."
 		));
-		// Host address 1
-		$this->addToModel("host_address1", array(
+		// Location address 1
+		$this->addToModel("location_address1", array(
 			"type" => "string",
 			"label" => "Streetname and number",
 			"required" => true,
 			"hint_message" => "Streetname and number.",
 			"error_message" => "You need to enter a valid streetname and number."
 		));
-		// Host address 2
-		$this->addToModel("host_address2", array(
+		// Location address 2
+		$this->addToModel("location_address2", array(
 			"type" => "string",
 			"label" => "Additional address info",
 			"hint_message" => "Additional address info.",
 			"error_message" => "Invalid address"
 		));
-		// Host city
-		$this->addToModel("host_city", array(
+		// Location city
+		$this->addToModel("location_city", array(
 			"type" => "string",
 			"label" => "City",
 			"required" => true,
 			"hint_message" => "Write your city",
 			"error_message" => "Invalid city"
 		));
-		// Host postal code
-		$this->addToModel("host_postal", array(
+		// Location postal code
+		$this->addToModel("location_postal", array(
 			"type" => "string",
 			"label" => "Postal code",
 			"required" => true,
 			"hint_message" => "Postalcode of your city",
 			"error_message" => "Invalid postal code"
 		));
-		// Host country
-		$this->addToModel("host_country", array(
+		// Location country
+		$this->addToModel("location_country", array(
 			"type" => "string",
 			"label" => "Country",
 			"required" => true,
 			"hint_message" => "Country",
 			"error_message" => "Invalid country"
 		));
-		// Host google maps link
-		$this->addToModel("host_googlemaps", array(
+		// Location google maps link
+		$this->addToModel("location_googlemaps", array(
 			"type" => "string",
 			"label" => "Link to Google Maps",
 			"pattern" => "http[s]?:\/\/[^$]+",
 			"hint_message" => "Link to Google Maps",
 			"error_message" => "Invalid link"
 		));
-		// Host comment
-		$this->addToModel("host_comment", array(
+		// Location comment
+		$this->addToModel("location_comment", array(
 			"type" => "text",
-			"label" => "Host comment",
+			"label" => "Location comment",
 			"hint_message" => "Directions or other comments.",
-			"error_message" => "Host comment error."
+			"error_message" => "Location comment error."
 		));
 
 	}
 
 
-	// get all hosts
-	function getHosts($_options = false) {
+	// get all locations
+	function getLocations($_options = false) {
 
 		$name = false;
 		$id = false;
@@ -154,22 +154,22 @@ class TypeEvent extends Itemtype {
 		}
 
 		$query = new Query();
-		$query->checkDbExistence($this->db_hosts);
+		$query->checkDbExistence($this->db_locations);
 
 
-		// get host by id
+		// get location by id
 		if($id) {
 
-			$sql = "SELECT * FROM ".$this->db_hosts." WHERE id = ".$id;
+			$sql = "SELECT * FROM ".$this->db_locations." WHERE id = ".$id;
 			if($query->sql($sql)) {
 				return $query->result(0);
 			}
 
 		}
-		// get host by name
+		// get location by name
 		else if($name) {
 
-			$sql = "SELECT * FROM ".$this->db_hosts." WHERE name = '".$name."'";
+			$sql = "SELECT * FROM ".$this->db_locations." WHERE name = '".$name."'";
 			if($query->sql($sql)) {
 				return $query->result(0);
 			}
@@ -177,7 +177,7 @@ class TypeEvent extends Itemtype {
 		}
 		else {
 
-			$sql = "SELECT * FROM ".$this->db_hosts." ORDER BY host";
+			$sql = "SELECT * FROM ".$this->db_locations." ORDER BY location";
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -189,57 +189,57 @@ class TypeEvent extends Itemtype {
 
 	// CMS 
 
-	// create a new host
-	// /janitor/admin/events/addHost (values in POST)
-	function addHost($action) {
+	// create a new location
+	// /janitor/admin/events/addLocation (values in POST)
+	function addLocation($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if(count($action) == 1 && $this->validateList(array("host","host_address1","host_postal","host_city","host_country"))) {
+		if(count($action) == 1 && $this->validateList(array("location","location_address1","location_postal","location_city","location_country"))) {
 
 			$query = new Query();
 
 			// make sure type tables exist
-			$query->checkDbExistence($this->db_hosts);
+			$query->checkDbExistence($this->db_locations);
 
 			$entities = $this->getModel();
 			$names = array();
 			$values = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && preg_match("/^(host|host_address1|host_address2|host_city|host_postal|host_country|host_googlemaps|host_comment)$/", $name)) {
+				if($entity["value"] !== false && preg_match("/^(location|location_address1|location_address2|location_city|location_postal|location_country|location_googlemaps|location_comment)$/", $name)) {
 					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
 				}
 			}
 
 			if($values) {
-				$sql = "INSERT INTO ".$this->db_hosts." SET " . implode(",", $values);
+				$sql = "INSERT INTO ".$this->db_locations." SET " . implode(",", $values);
 //				print $sql;
 
 				if($query->sql($sql)) {
-					message()->addMessage("Host created");
+					message()->addMessage("Location created");
 					return true;
 				}
 			}
 		}
 
-		message()->addMessage("Host could not be saved", array("type" => "error"));
+		message()->addMessage("Location could not be saved", array("type" => "error"));
 		return false;
 	}
 
 
 	// update an address
-	// /janitor/admin/event/updateHost/#host_id# (values in POST)
-	function updateHost($action) {
+	// /janitor/admin/event/updateLocation/#location_id# (values in POST)
+	function updateLocation($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
 		if(count($action) == 2) {
 			$query = new Query();
-			$host_id = $action[1];
+			$location_id = $action[1];
 
 			$entities = $this->getModel();
 			$names = array();
@@ -253,34 +253,34 @@ class TypeEvent extends Itemtype {
 			}
 
 			if($values) {
-				$sql = "UPDATE ".$this->db_hosts." SET ".implode(",", $values).",modified_at=CURRENT_TIMESTAMP WHERE id = ".$host_id;
+				$sql = "UPDATE ".$this->db_locations." SET ".implode(",", $values).",modified_at=CURRENT_TIMESTAMP WHERE id = ".$location_id;
 //				print $sql;
 			}
 
 			if(!$values || $query->sql($sql)) {
-				message()->addMessage("Host updated");
+				message()->addMessage("Location updated");
 				return true;
 			}
 
 		}
 
-		message()->addMessage("Host could not be updated", array("type" => "error"));
+		message()->addMessage("Location could not be updated", array("type" => "error"));
 		return false;
 	}
 
-	// Delete host
-	// /janitor/admin/event/deleteHost/#host_id#
-	function deleteHost($action) {
+	// Delete location
+	// /janitor/admin/event/deleteLocation/#location_id#
+	function deleteLocation($action) {
 
-		$host_id = $action[1];
+		$location_id = $action[1];
 		
 		if(count($action) == 2) {
 			$query = new Query();
 
-			$sql = "DELETE FROM $this->db_hosts WHERE id = ".$host_id;
+			$sql = "DELETE FROM $this->db_locations WHERE id = ".$location_id;
 //			print $sql;
 			if($query->sql($sql)) {
-				message()->addMessage("Host deleted");
+				message()->addMessage("Location deleted");
 				return true;
 			}
 

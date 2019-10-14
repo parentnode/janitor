@@ -47,6 +47,6 @@ $return_to_wishlist = session()->value("return_to_wishlist");
 
 	<?= $JML->editTags($item) ?>
 
-	<?= $JML->editMedia($item) ?>
+	<?= $JML->editMediae($item) ?>
 
 </div>
