@@ -13,16 +13,27 @@ Util.Objects["usernames"] = new function() {
 		u.ass(indicators[0], {"display":"none"});
 		u.ass(indicators[1], {"display":"none"});
 		
+		var latest_verification_link = u.qs("div.email .send_verification_link p.reminded_at", div);
+		latest_verification_link.date_time = u.qs("span.date_time", latest_verification_link);
+
+		// check if reminder button is present (may be missing due too insufficient permissions)
 		var send_verification_link = u.qs("li.send_verification_link", div);
-		send_verification_link.form = u.qs("form", send_verification_link);
-		send_verification_link.input = send_verification_link.form.lastChild;
+		if(send_verification_link) {
+
+			send_verification_link.form = u.qs("form", send_verification_link);
+			send_verification_link.input = send_verification_link.form.lastChild;
+		}
+		else {
+
+			// if no reminder button, hide latest reminder
+			u.as(latest_verification_link, "display", "none");
+		}
+			
 
 		form.inputs.email.saved_email = form.inputs.email.val();
 		form.inputs.verification_status.saved_status = form.inputs.verification_status.val();
 		form.inputs.verification_status.current_status = form.inputs.verification_status.val();
 
-		var latest_verification_link = u.qs("div.email .send_verification_link p.reminded_at", div);
-		latest_verification_link.date_time = u.qs("span.date_time", latest_verification_link);
 		
 		// u.bug('Latest verification link on page load', latest_verification_link.date_time.textContent);
 		if(u.hc(latest_verification_link.date_time, "never")) {
@@ -32,14 +43,24 @@ Util.Objects["usernames"] = new function() {
 		// check verification status and disable/enable verification checkbox and 'verification link' button accordingly
 		if (!form.inputs.email.saved_email) {
 			form.inputs.verification_status.disabled = true;
-			u.ac(send_verification_link.input, "disabled");
+			
+			if(send_verification_link) {
+				
+				u.ac(send_verification_link.input, "disabled");
+			}
 		}
 		else if( form.inputs["verification_status"].val()) {
-			u.ac(send_verification_link.input, "disabled");
+			if(send_verification_link) {
+
+				u.ac(send_verification_link.input, "disabled");
+			}
 		}
 		else {
 			form.inputs.verification_status.disabled = false;
-			u.rc(send_verification_link.input, "disabled");
+			if(send_verification_link) {
+
+				u.rc(send_verification_link.input, "disabled");
+			}
 		}
 
 		form.inputs.email.updated = function() {
@@ -85,25 +106,28 @@ Util.Objects["usernames"] = new function() {
 		}
 
 		
-		send_verification_link.confirmed = function(response) {
-			// u.bug('Verification link', send_verification_link);
-			if(!latest_verification_link) {
-				latest_verification_link = u.qs("div.email .send_verification_link p.reminded_at", div);
-				latest_verification_link.date_time = u.qs("span.date_time", latest_verification_link);
-			}
-			latest_verification_link.date_time.textContent = response.cms_object.reminded_at;
-			// u.bug('Latest verification link', latest_verification_link.date_time.textContent);
+		if(send_verification_link) {
 
-			u.ass(latest_verification_link, {"display":"block"});
-			
-			// Ensure that reminder is shown when the button has been pressed once
-			u.rc(send_verification_link, "invite");
-			u.rc(send_verification_link.input, "invite");
-			u.ac(send_verification_link, "reminder");
-			u.ac(send_verification_link.input, "reminder");
-			send_verification_link.input.value = "Send reminder";
-			send_verification_link.form[1].value = "signup_reminder";
-			
+			send_verification_link.confirmed = function(response) {
+				// u.bug('Verification link', send_verification_link);
+				if(!latest_verification_link) {
+					latest_verification_link = u.qs("div.email .send_verification_link p.reminded_at", div);
+					latest_verification_link.date_time = u.qs("span.date_time", latest_verification_link);
+				}
+				latest_verification_link.date_time.textContent = response.cms_object.reminded_at;
+				// u.bug('Latest verification link', latest_verification_link.date_time.textContent);
+	
+				u.ass(latest_verification_link, {"display":"block"});
+				
+				// Ensure that reminder is shown when the button has been pressed once
+				u.rc(send_verification_link, "invite");
+				u.rc(send_verification_link.input, "invite");
+				u.ac(send_verification_link, "reminder");
+				u.ac(send_verification_link.input, "reminder");
+				send_verification_link.input.value = "Send reminder";
+				send_verification_link.form[1].value = "signup_reminder";
+				
+			}
 		}
 
 		
