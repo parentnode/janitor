@@ -289,6 +289,19 @@ class TypeEvent extends Itemtype {
 		return false;
 	}
 
+	function ordered($order_item, $order) {
+
+		$order_item_id = $order_item["id"];
+		// print "\n<br>###$order_item_id### ordered (event item)\n<br>";
+
+	}
+
+	function subscribed($subscription) {
+		
+		// print "\n<br>###$subscription["item_id"]### subscribed\n<br>";
+
+	}
+
 
 
 

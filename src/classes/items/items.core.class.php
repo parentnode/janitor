@@ -51,7 +51,7 @@ class ItemsCore {
 
 	/**
 	* Global getItem
-	* Get item data from items db - does not did any deeper into type object
+	* Get item data from items db - does not dig any deeper into type object
 	*
 	* @param $_options Named Array containing id or sindex to get
 	*/
@@ -276,8 +276,9 @@ class ItemsCore {
 
 			// add subscription (for current user)
 			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) && ($all || $subscription)) {
-				$UC = $this->getUserClass();
-				$item["subscription"] = $UC->getSubscriptions(array("item_id" => $item["id"]));
+				include_once("classes/shop/subscription.class.php");
+				$SubscriptionClass = new Subscription;
+				$item["subscription"] = $SubscriptionClass->getSubscriptions(array("item_id" => $item["id"]));
 			}
 
 
@@ -323,7 +324,7 @@ class ItemsCore {
 
 			return $item;
 		}
-		return false;
+		return [];
 	}
 
 

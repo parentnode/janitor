@@ -772,6 +772,8 @@ class TypeMessage extends Itemtype {
 
 					include_once("classes/users/superuser.class.php");
 					$UC = new SuperUser();
+					include_once("classes/users/supermember.class.php");
+					$MC = new SuperMember();
 
 					// get recipients from maillist_id
 					if($maillist_id) {
@@ -856,7 +858,7 @@ class TypeMessage extends Itemtype {
 
 						// MEMBERSHIP DATA
 						if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP|MEMBERSHIP_PRICE|ORDER_NO/", implode(",", $needed_values))) {
-							$member = $UC->getMembers(["user_id" => $subscriber["user_id"]]);
+							$member = $MC->getMembers(["user_id" => $subscriber["user_id"]]);
 
 							if(array_search("MEMBER_ID", $needed_values) !== false) {
 								$user_values["MEMBER_ID"] = $member && $member["id"] ? $member["id"] : "N/A";

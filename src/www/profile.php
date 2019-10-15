@@ -22,10 +22,7 @@ $access_item["/membership"] = true;
 $access_item["/switchMembership"] = "/membership";
 $access_item["/upgradeMembership"] = "/membership";
 $access_item["/cancelMembership"] = "/membership";
-
-
-$access_item["/addMembership"] = true;
-
+$access_item["/addMembership"] = "/membership";
 
 
 if(isset($read_access) && $read_access) {
@@ -57,7 +54,7 @@ if(is_array($action) && count($action)) {
 		exit();
 	}
 
-	// ADDRESS
+	// ORDERS
 	else if(preg_match("/^(orders)$/", $action[0]) && count($action) >= 2) {
 
 		// SUBSCRIPTIONS LIST
@@ -112,8 +109,8 @@ if(is_array($action) && count($action)) {
 	// MEMBERSHIP
 	else if(preg_match("/^(membership)$/", $action[0]) && count($action) > 1) {
 
-		// MEMBER LIST/EDIT
-		if(preg_match("/^(view|upgrade|switch)$/", $action[1])) {
+		// MEMBER VIEW/UPGRADE/SWITCH/ADD
+		if(preg_match("/^(view|upgrade|switch|add)$/", $action[1])) {
 
 			$page->page(array(
 				"type" => "janitor",
@@ -121,6 +118,23 @@ if(is_array($action) && count($action)) {
 				"templates" => "janitor/profile/membership/".$action[1].".php"
 			));
 			exit();
+		}
+
+		// Member class interface
+		else if($page->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[1])) {
+
+			// change model to Member
+			$model = new Member();
+			// remove "membership" element from action
+			array_shift($action);
+			
+			// check if custom function exists on Member class
+			if($model && method_exists($model, $action[0])) {
+
+				$output = new Output();
+				$output->screen($model->{$action[0]}($action));
+				exit();
+			}
 		}
 	}
 	

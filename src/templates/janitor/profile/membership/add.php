@@ -3,10 +3,11 @@ global $action;
 global $model;
 $IC = new Items();
 $SC = new Shop();
+include_once("classes/users/user.class.php");
+$UC = new User();
 
-
-$user_id = $action[2];
-$user = $model->getUsers(array("user_id" => $user_id));
+$user_id = session()->value("user_id");
+$user = $UC->getUser();
 
 $memberships = $IC->getItems(array("itemtype" => "membership", "extend" => array("subscription_method" => true, "prices" => true)));
 
@@ -22,12 +23,12 @@ foreach($memberships as $membership) {
 	<h2><?= $user["nickname"] ?></h2>
 
 	<ul class="actions">
-		<?= $HTML->link("Back", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button", "wrapper" => "li.membership")); ?>
+		<?= $HTML->link("Back", "/janitor/admin/profile/membership/view/", array("class" => "button", "wrapper" => "li.membership")); ?>
 	</ul>
 
 	<div class="item">
 		<h2>Add a new membership</h2>
-		<?= $model->formStart("/janitor/admin/user/addNewhMembership/".$user_id, array("class" => "i:defaultNew labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/profile/membership/addNewMembership/", array("class" => "i:defaultNew labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("item_id", array(
 					"label" => "Select a membership",
@@ -39,7 +40,7 @@ foreach($memberships as $membership) {
 			<p>This will add a membership and an order – and a subscription if required by the selected membership.</p>
 
 			<ul class="actions">
-				<?= $model->link("Cancel", "/janitor/admin/user/membership/view/".$user_id, array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->link("Cancel", "/janitor/admin/profile/membership/view/", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 				<?= $model->submit("Add", array("class" => "primary key:s", "wrapper" => "li.update")) ?>
 			</ul>
 		<?= $model->formEnd() ?>

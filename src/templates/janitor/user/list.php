@@ -35,7 +35,7 @@ $users = $model->getUsers($options);
 	<ul class="actions">
 		<?= $HTML->link("New user", "/janitor/admin/user/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
-		<?= $HTML->link("Members", "/janitor/admin/user/members/list", array("class" => "button", "wrapper" => "li.member")) ?>
+		<?= $HTML->link("Members", "/janitor/admin/member/list", array("class" => "button", "wrapper" => "li.member")) ?>
 		<?= $HTML->link("Unverified usernames", "/janitor/admin/user/unverified-usernames", array("class" => "button", "wrapper" => "li.unverified_usernames")) ?>
 		<?= $HTML->link("Online users", "/janitor/admin/user/online", array("class" => "button", "wrapper" => "li.online")) ?>
 	</ul>
