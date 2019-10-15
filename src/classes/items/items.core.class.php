@@ -990,13 +990,26 @@ class ItemsCore {
 		$prev = $first_id ? $this->getPrev($first_id, array("items" => $items, "count" => $limit)) : false;
 
 
+		$total_count = count($items);
+
+		// Include page count and current page number
+		$page_count = ceil($total_count / $limit);
+		if($first_id) {
+			$current_position = arrayKeyValue($items, "id", $first_id);
+			$current_page = floor($current_position / $limit)+1;
+		}
+		else if($last_id) {
+			$current_position = arrayKeyValue($items, "id", $last_id);
+			$current_page = floor($current_position / $limit)+1;
+		}
+
 		// return all pagination info
 		// range_items = list of items in specified range
 		// next items
 		// previous items
 		// first id in range
 		// last id in range
-		return array("range_items" => $range_items, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "first_sindex" => $first_sindex, "last_sindex" => $last_sindex, "total" => count($items));
+		return array("range_items" => $range_items, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "first_sindex" => $first_sindex, "last_sindex" => $last_sindex, "total" => $total_count, "page_count" => $page_count, "current_page" => $current_page);
 	}
 
 
