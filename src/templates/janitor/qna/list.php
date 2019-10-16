@@ -4,7 +4,7 @@ global $IC;
 global $model;
 global $itemtype;
 
-$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status DESC, qna.answer ASC", "extend" => array("tags" => true)));
+$items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position DESC", "extend" => array("tags" => true)));
 ?>
 <div class="scene i:scene defaultList <?= $itemtype ?>List">
 	<h1>Questions and Answers</h1>
@@ -13,7 +13,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "items.status D
 		<?= $JML->listNew(array("label" => "New question")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList taggable filters"<?= $JML->jsData(["tags", "search"]) ?>>
+	<div class="all_items i:defaultList taggable sortable filters"<?= $JML->jsData(["order", "tags", "search"]) ?>>
 <?		if($items): ?>
 		<ul class="items">
 <?			foreach($items as $item): ?>
