@@ -48,6 +48,7 @@ class TypeQna extends Itemtype {
 		$this->addToModel("answer", array(
 			"type" => "html",
 			"label" => "Answer",
+			"allowed_tags" => "h3,h4,p,ul,ol,jpg,png,download",
 			"hint_message" => "Be precise and make it easy to understand.",
 			"error_message" => "Answer must be filled out."
 		));
