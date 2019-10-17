@@ -1429,9 +1429,9 @@ class ShopCore extends Model {
 								"NICKNAME" => $user["nickname"], 
 								"ORDER_NO" => $order_no, 
 								"ORDER_ID" => $order["id"], 
-								"ORDER_PRICE" => $total_order_price["price"] 
+								"ORDER_PRICE" => formatPrice($total_order_price) 
 							),
-							"subject" => SITE_URL . " – Thank you for your order!",
+							// "subject" => SITE_URL . " – Thank you for your order!",
 							"tracking" => false,
 							"template" => "order_confirmation"
 						));
