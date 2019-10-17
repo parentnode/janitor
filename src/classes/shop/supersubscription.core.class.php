@@ -282,17 +282,16 @@ class SuperSubscriptionCore extends Subscription {
 	
 					// get new subscription
 					$subscription = $this->getSubscriptions(array("item_id" => $item_id, "user_id" => $user_id));
+
+					// add to log
+					global $page;
+					$page->addLog("SuperUser->addSubscription: item_id:$item_id, user_id:$user_id");
 	
 					// perform special action on subscribe
 					$model = $IC->typeObject($item["itemtype"]);
 					if(method_exists($model, "subscribed")) {
 						$model->subscribed($subscription);
 					}
-	
-					// add to log
-					global $page;
-					$page->addLog("SuperUser->addSubscription: item_id:$item_id, user_id:$user_id");
-	
 	
 					return $subscription;
 				}

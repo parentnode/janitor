@@ -187,7 +187,7 @@ class SubscriptionCore extends Model {
 
 
 	/**
-	 * Add subscription to current user
+	 * Add subscription to item for current user
 	 * 
 	 * will only add paid subscription if order_id is passed
 	 * will not add subscription if subscription already exists, but returns existing subscription instead
@@ -195,7 +195,7 @@ class SubscriptionCore extends Model {
 	 * @param array $action
 	 * /#controller#/addSubscription
 	 * required in $_POST: item_id 
-	 * optional in $_POST: payment_method, order_id
+	 * optional in $_POST: payment_method (currently not used), order_id
 	 * 
 	 * @return array|false Subscription object. False on error.
 	 */
@@ -341,10 +341,10 @@ class SubscriptionCore extends Model {
 	 * optional parameters in $_POST: 
 	 * – item_id (item must have a subscription_method. If passed without an order_id, it will create an orderless subscription)
 	 * – expires_at
-	 * – custom_price
 	 * — order_id
-	 * – payment_method
 	 * – subscription_renewal (boolean)
+	 * – custom_price (not currently used)
+	 * – payment_method (not currently used)
 	 * 
 	 * @return array|false Subscription object. False on error.
 	 */
@@ -583,7 +583,7 @@ class SubscriptionCore extends Model {
 	 *
 	 * @param string $duration – "annually", "monthly", or "weekly"
 	 * @param string|false $start_time
-	 * @return string|false Formatted time stamp. False on error.
+	 * @return string|false Formatted timestamp. False on error.
 	 */
 	function calculateSubscriptionExpiry($duration, $start_time = false) {
 //		print "calculateSubscriptionExpiry:" . $duration;

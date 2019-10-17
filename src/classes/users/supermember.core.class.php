@@ -20,9 +20,9 @@ class SuperMemberCore extends Member {
 	 * Passing no parameters in $_options will return all members, including cancelled members
 	 * 
 	 * @param array|false $_options
-	 * - user_id – get member object for user_id
-	 * - member_id – get specific member object
-	 * - membership item_id – get all members with specific membership
+	 * * user_id – get member object for user_id
+	 * * member_id – get specific member object
+	 * * item_id – get all members with specific membership
 	 * 
 	 * @return array|false One or several membership objects. False on error.
 	 */

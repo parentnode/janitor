@@ -211,7 +211,7 @@ class TypeMembership extends Itemtype {
 
 	}
 
-	// user subscribed to an item
+	// user subscribed to a membership item
 	function subscribed($subscription) {
 
 		// check for subscription error
