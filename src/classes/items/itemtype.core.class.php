@@ -1941,46 +1941,44 @@ class ItemtypeCore extends Model {
 		// print "\n<br>###$added_item_id### added to cart (generic item)\n<br>";
 	}
 
-	function ordered($order_item, $order) {
-
-		$order_item_id = $order_item["id"];
-		print "\n<br>###$order_item_id### ordered (generic item)\n<br>";
+	function ordered($order_item, $order){
+		session()->value("test_item_ordered_callback", true);
 
 		include_once("classes/shop/supersubscription.class.php");
 		$SuperSubscriptionClass = new SuperSubscription();
-		$IC = new Items();
 
 		// order item can be subscribed to
 		if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
-			$subscription = $SuperSubscriptionClass->getSubscriptions(array("item_id" => $order_item_id));
+			
+			$order_item_item_id = $order_item["item_id"];
+			$order_id = $order["id"];
+			$user_id = $order["user_id"];
+			
+			$subscription = $SuperSubscriptionClass->getSubscriptions(array("item_id" => $order_item_item_id));
 
 			// user already subscribes to item
 			if($subscription) {
 
 				// update existing subscription
-				// callback to subscribed if item_id changes
+				// makes callback to 'subscribed' if item_id changes
 				$_POST["order_id"] = $order["id"];
 				$_POST["item_id"] = $order_item_id;
-				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $user["id"], $subscription["id"]]);
+				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $user_id, $subscription["id"]]);
 				unset($_POST);
 
 			}
 			
 			else {
 				// add new subscription
-				// $subscription = $SuperSubscriptionClass->addSubscription($order["id"], $user["id"], $order_item);
+				// makes callback to 'subscribed'
+				$_POST["item_id"] = $order_item_item_id;
+				$_POST["user_id"] = $user_id;
+				$_POST["order_id"] = $order_id;
+				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
+				unset($_POST);
 
-				// add callback to 'subscribed'
-				$model = $IC->typeObject($item["itemtype"]);
-				if(method_exists($model, "subscribed")) {
-					$model->subscribed($order_item, $order);
-				}
- 				
 			}
 		}
-
-		// print_r($order_item);
-
 	}
 
 	function subscribed($subscription) {
