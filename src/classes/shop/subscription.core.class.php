@@ -54,11 +54,6 @@ class SubscriptionCore extends Model {
 			"type" => "boolean",
 			"required" => true
 		));
-		// Renew subscription switch
-		$this->addToModel("subscription_renewal", array(
-			"type" => "boolean",
-			"required" => true
-		));
 		// expiration date
 		$this->addToModel("expires_at", array(
 			"type" => "datetime",
@@ -342,7 +337,6 @@ class SubscriptionCore extends Model {
 	 * – item_id (item must have a subscription_method. If passed without an order_id, it will create an orderless subscription)
 	 * – expires_at
 	 * — order_id
-	 * – subscription_renewal (boolean)
 	 * – custom_price (not currently used)
 	 * – payment_method (not currently used)
 	 * 
@@ -368,7 +362,6 @@ class SubscriptionCore extends Model {
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
-			$subscription_renewal = $this->getProperty("subscription_renewal", "value");
 			$expires_at = $this->getProperty("expires_at", "value");
 			$custom_price = $this->getProperty("custom_price", "value");
 
@@ -422,9 +415,8 @@ class SubscriptionCore extends Model {
 				// special handling of eternal subscriptions
 				if($subscription["expires_at"] === NULL) {
 					
-					if($subscription_renewal || $expires_at) {
+					if($expires_at) {
 					
-						// cannot renew eternal subscription
 						// cannot set expiration date for eternal subscription
 						return false;
 					}
@@ -436,17 +428,8 @@ class SubscriptionCore extends Model {
 					// current subscription has an expiration date
 					if($subscription["expires_at"]) {
 						
-						// current expiration date should be kept
-						if(!$subscription_renewal) {
-							
-							$expires_at = $subscription["expires_at"];
-						}
-						// current expiration date should be renewed 
-						else {
-							
-							// calculate new expiration date, counting from current expiration date
-							$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
-						}
+						$expires_at = $subscription["expires_at"];
+						
 					}
 					// current subscription never expires
 					else {
@@ -474,12 +457,6 @@ class SubscriptionCore extends Model {
 				else {
 					$sql .= ", expires_at = NULL";
 				}
-				if($subscription_renewal && $subscription["expires_at"]) {
-					$sql .= ", renewed_at = '" . $subscription["expires_at"]."'";
-				}
-				else if($subscription_renewal) {
-					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
-				}
 	
 				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
 	
@@ -502,14 +479,6 @@ class SubscriptionCore extends Model {
 						}
 					}
 
-					// callback 'renewed' on renewal
-					if($subscription_renewal) {
-						$model = $IC->typeObject($item["itemtype"]);
-						if(method_exists($model, "subscription_renewed")) {
-							$model->subscription_renewed($subscription);
-						}
-					}
-	
 					return $subscription;
 	
 				}
