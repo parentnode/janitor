@@ -544,9 +544,16 @@ class SuperSubscriptionCore extends Subscription {
 	}
 
 
-	// TODO: needed for subscription renewal very soon
-	// run by cron job - run after midnight to update subscriptions
-	// #controller#/renewSubscriptions[/#user_id#]
+	/**
+	 * Renew subscriptions for specific user or all users
+	 * 
+	 * Run by cron job – run after midnight to update subscriptions
+	 * 
+	 * @param array $action
+	 * #controller#/renewSubscriptions[/#user_id#]
+	 * 
+	 * @return boolean True on success. False on error.
+	 */
 	function renewSubscriptions($action) {
 
 
