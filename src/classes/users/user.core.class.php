@@ -987,7 +987,7 @@ class UserCore extends Model {
 								"NICKNAME" => $nickname, 
 								"EMAIL" => $email, 
 								"VERIFICATION" => $verification_code,
-								"PASSWORD" => $mail_password
+								// "PASSWORD" => $mail_password
 							), 
 							"track_clicks" => false,
 							"recipients" => $email, 
