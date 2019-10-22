@@ -54,6 +54,11 @@ class SubscriptionCore extends Model {
 			"type" => "boolean",
 			"required" => true
 		));
+		// Renew subscription switch
+		$this->addToModel("subscription_renewal", array(
+			"type" => "boolean",
+			"required" => true
+		));
 		// expiration date
 		$this->addToModel("expires_at", array(
 			"type" => "datetime",
