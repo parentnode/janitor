@@ -282,9 +282,11 @@ class UserCore extends Model {
 
 
 	/**
-	* Get current user
-	*
-	*/
+	 * Get current user
+	 *
+	 * 
+	 * @return array|false
+	 */
 	function getUser() {
 
 		// default values
