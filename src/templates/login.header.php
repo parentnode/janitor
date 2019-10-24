@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<!-- (c) & (p) think.dk 2002-2017 -->
+	<!-- (c) & (p) think.dk 2002-2019 -->
 	<!-- For detailed copyright license, see /terms -->
 	<!-- If you want to use or contribute to this code, Visit https://parentnode.dk -->
 	<title>Janitor login</title>
