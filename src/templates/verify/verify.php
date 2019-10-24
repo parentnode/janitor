@@ -12,7 +12,7 @@ if($page_item) {
 <div class="scene verify i:verify">
 
 <? if($page_item && $page_item["status"]): 
-	$media = $IC->sliceMediae($page_item); ?>
+	$media = $IC->sliceMediae($page_item, "single_media"); ?>
 	<div class="article i:article id:<?= $page_item["item_id"] ?>" itemscope itemtype="http://schema.org/Article">
 
 		<? if($media): ?>
