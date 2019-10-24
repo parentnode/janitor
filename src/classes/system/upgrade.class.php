@@ -318,6 +318,9 @@ class Upgrade extends Model {
 			if($query->sql($sql)) {
 				$mediae = $query->results();
 
+				// Ensure items_mediae variant definition has been updated to fit the new variant names
+				$this->synchronizeTable("items_mediae");
+
 				// debug([$mediae]);
 
 				foreach($mediae as $media) {
@@ -1240,7 +1243,7 @@ class Upgrade extends Model {
 	// Will automatically update the current table layouts
 	function synchronizeTable($table) {
 
-//		print "SYNC table:$table<br>\n";
+		// print "SYNC table:$table<br>\n";
 
 		// Deal with versions-tables
 		if(preg_match("/_versions$/", $table)) {
@@ -1291,9 +1294,10 @@ class Upgrade extends Model {
 		}
 		else {
 
-//			print "REAL TABLE<br>\n";
 
 			$sql_file = $this->getSQLFile($table);
+			// debug(["REAL TABLE", $sql_file]);
+
 			if($sql_file) {
 				$sql_file_content = file_get_contents($sql_file);
 
@@ -1305,7 +1309,7 @@ class Upgrade extends Model {
 			}
 		}
 
-
+		// debug([$sql_file_content, $reference_info]);
 		// do we have sufficient info
 		if($sql_file && $reference_info) {
 
