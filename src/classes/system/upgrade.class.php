@@ -357,7 +357,7 @@ class Upgrade extends Model {
 									// debug([$sql]);
 									if($query->sql($sql)) {
 
-										$sql = "UPDATE ".$item_model->db." SET $name = '$new_value' WHERE item_id = ".$media["item_id"];
+										$sql = "UPDATE ".$item_model->db." SET $name = '".preg_replace("/'/", "\'", $new_value)."' WHERE item_id = ".$media["item_id"];
 										// debug([$sql]);
 										if($query->sql($sql)) {
 
@@ -414,11 +414,12 @@ class Upgrade extends Model {
 							// If not found, then assign media to mediae input
 							$new_variant = "mediae-".randomKey(8);
 							$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
-							// debug([$sql]);
+							// debug([$sql, $query->sql($sql)]);
 
 							if($query->sql($sql)) {
 
 								// Copy to new location and remove old
+								// debug([PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant]);
 								$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
 								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
