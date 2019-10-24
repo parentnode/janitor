@@ -1016,6 +1016,7 @@ class ItemsCore {
 
 		// Include page count and current page number
 		$page_count = ceil($total_count / $limit);
+		$current_page = false;
 		if($first_id) {
 			$current_position = arrayKeyValue($items, "id", $first_id);
 			$current_page = floor($current_position / $limit)+1;
