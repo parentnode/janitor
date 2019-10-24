@@ -4,7 +4,7 @@
 #content ul.tags li.add {padding: 4px 4px 6px; cursor: pointer; width: 13px; text-align: center;}
 #content ul.tags li.add:hover {background-color: #64ad8e;}
 #content ul.tags li span {font-size: 11px; line-height: 1em; color: #ffffff;}
-#content ul.tags li span.context {text-transform: uppercase;}
+#content ul.tags li span.context {text-transform: lowercase;}
 #content ul.tags li span.context:after {content: ":";}
 #content ul.tags li span.value {}
 #content ul.tags li.add {font-size: 11px; background-color: #dedede;}

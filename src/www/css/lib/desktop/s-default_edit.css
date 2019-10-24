@@ -54,7 +54,7 @@
 #content .scene.defaultEdit > div.media form.upload {text-align: left; position: relative; z-index: 2;}
 #content .scene.defaultEdit > div.media form.upload .actions {display: none;}
 
-#content .scene.defaultEdit > div.media form.upload div.field.files ul.filelist li.label {margin: 0; display: inline-block;}
+#content .scene.defaultEdit > div.media form.upload div.field.files ul.filelist li.label {margin-bottom: 0; display: inline-block;}
 #content .scene.defaultEdit > div.media form.upload div.field.files.loading ul.filelist {
 	background: transparent url(/janitor/admin/img/gx_loader.gif) no-repeat center center;
 }
