@@ -865,9 +865,30 @@ class ItemsCore {
 	}
 
 
-	// Paginate items list
-	// split up into smaller fragments and return information required to
-	// create meaningful pagination
+	/**
+	 * Paginate a list of items
+	 * 
+	 * Splits a list of items into smaller fragments and returns information required to create meaningful pagination
+	 *
+	 * @param array $_options
+	 * * pattern – array of options to be sent to Item::getItems, which returns the items to be paginated
+	 * * limit – maximal number of items per page. Default: 5.
+	 * * sindex – if passed without the direction parameter, the pagination will start with the associated item
+	 * * direction – can be passed in combination with the sindex parameter
+	 * * * "next" – pagination will start with the item that comes *after* the item with the specified sindex. 
+	 * * * "prev" – pagination will show the items that come immediately *before* the item with the specified sindex.
+	 * 
+	 * @todo implement id as a parameter
+	 * 
+	 * @return array
+	 * * range_items (list of items in specified range)
+	 * * next items
+	 * * previous items
+	 * * first id in range
+	 * * last id in range
+	 * * first s_index in range
+	 * * last s_index in range
+	 */
 	function paginate($_options) {
 
 		$range_items = false;
