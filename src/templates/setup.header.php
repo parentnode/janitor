@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<!-- (c) & (p) think.dk 2002-2017 -->
+	<!-- (c) & (p) think.dk 2002-2019 -->
 	<!-- For detailed copyright license, see /terms -->
 	<!-- If you want to use or contribute to this code, Visit https://parentnode.dk -->
 	<title>Janitor setup</title>
@@ -13,8 +13,8 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
-	<link type="text/css" rel="stylesheet" media="all" href="/janitor/admin/css/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.css" />
-	<script type="text/javascript" src="/janitor/admin/js/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.js"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/janitor/admin/css/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.css?rev=0.7.9" />
+	<script type="text/javascript" src="/janitor/admin/js/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.js?rev=0.7.9"></script>
 </head>
 
 <body<?= $HTML->attribute("class", $this->bodyClass()) ?>>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<!-- (c) & (p) think.dk 2002-2017 -->
+	<!-- (c) & (p) think.dk 2002-2019 -->
 	<!-- For detailed copyright license, see /terms -->
 	<!-- If you want to use or contribute to this code, Visit https://parentnode.dk -->
 	<title>Janitor login</title>
@@ -17,8 +17,8 @@
 	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/lib/seg_<?= $this->segment(array("type" => "login")) ?>_include.css" />
 	<script type="text/javascript" src="/janitor/js/lib/seg_<?= $this->segment(array("type" => "login")) ?>_include.js"></script>
 <? } else { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/seg_<?= $this->segment(array("type" => "login")) ?>.css" />
-	<script type="text/javascript" src="/janitor/js/seg_<?= $this->segment(array("type" => "login")) ?>.js"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/seg_<?= $this->segment(array("type" => "login")) ?>.css?rev=0.7.9" />
+	<script type="text/javascript" src="/janitor/js/seg_<?= $this->segment(array("type" => "login")) ?>.js?rev=0.7.9"></script>
 <? } ?>
 </head>
 

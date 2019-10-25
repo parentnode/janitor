@@ -74,6 +74,7 @@ class ItemsCore {
 
 					case "tags"      : $tags           = $_value; break;
 					case "itemtype"  : $itemtype       = $_value; break;
+					case "status"    : $status         = $_value; break;
 
 					case "extend"    : $extend         = $_value; break;
 				}
@@ -84,10 +85,10 @@ class ItemsCore {
 		$query = new Query();
 		$sql = false;
 		if($id) {
-			$sql = "SELECT * FROM ".UT_ITEMS." WHERE id = '$id'";
+			$sql = "SELECT * FROM ".UT_ITEMS." WHERE id = '$id'" . (isset($status) ? " AND status = $status" : "");
 		}
 		else if($sindex) {
-			$sql = "SELECT * FROM ".UT_ITEMS." WHERE sindex = '$sindex'";
+			$sql = "SELECT * FROM ".UT_ITEMS." WHERE sindex = '$sindex'" . (isset($status) ? " AND status = $status" : "");
 		}
 		else if($tags) {
 			
@@ -111,6 +112,10 @@ class ItemsCore {
 		 	$FROM[] = UT_ITEMS." as items";
 
 			$WHERE[] = "items.status = 1";
+
+			if(isset($status)) {
+				$WHERE[] = "items.status = $status";
+			}
 
 			if($itemtype) {
 				$WHERE[] = "items.itemtype = '$itemtype'";
