@@ -309,7 +309,7 @@ Util.Objects["cancellationProfile"] = new function() {
 	//		console.log(div.form.actions["cancelaccount"]);
 
 			div.form.actions["cancelaccount"].org_value = div.form.actions["cancelaccount"].value;
-			div.form.actions["cancelaccount"].confirm_value = "Cancelling you account cannot be undone. OK?";
+			div.form.actions["cancelaccount"].confirm_value = "Cancelling your account cannot be undone. OK?";
 			div.form.actions["cancelaccount"].submit_value = "Confirm";
 
 			div.form.inputs["password"].updated = function() {
