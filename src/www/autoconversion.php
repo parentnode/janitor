@@ -68,7 +68,7 @@ function conversionFailed($reason) {
 	if($id && !file_exists(PRIVATE_FILE_PATH."/$id")) {
 		$reason .= "<br /><br />ID does not exist: ".$id;
 	}
-	else if($id && $variant && !file_exists(PRIVATE_FILE_PATH."/$id$variant")) {
+	else if($id && $variant && !file_exists(PRIVATE_FILE_PATH."/$id/$variant")) {
 		$reason .= "<br /><br />Variant does not exist: ".$variant;
 	}
 	
@@ -112,6 +112,33 @@ function conversionFailed($reason) {
 }
 
 
+function checkVariantRedirects($id, $variant) {
+	// debug(["checkVariantRedirects", $id, $variant]);
+
+	if(file_exists(LOCAL_PATH."/config/mediae_variant_redirects.php")) {
+		include("config/mediae_variant_redirects.php");
+		// debug([$mediae_redirects]);
+
+		if(
+			isset($mediae_redirects) && 
+			is_array($mediae_redirects) && 
+			isset($mediae_redirects[$id]) && 
+			is_array($mediae_redirects[$id]) && 
+			isset($mediae_redirects[$id][$variant]) &&
+			$mediae_redirects[$id][$variant]
+		) {
+			$redirect_url = str_replace($variant, $mediae_redirects[$id][$variant], $_SERVER["REQUEST_URI"]);
+
+			// debug([$redirect_url]);
+			header("Location: " . $redirect_url, true, 301);
+			exit();
+		}
+	}
+
+}
+
+
+// Starting values
 $id = false;
 $variant = "";
 
@@ -132,7 +159,7 @@ if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?
 		$width = $matches["width"];
 		$height = $matches["height"];
 		$format = $matches["format"];
-		$variant = "/".$matches["variant"];
+		$variant = $matches["variant"];
 
 		//	print "request:" . $request_type . " id:" . $id . " width:" . $width . " height:" . $height ." format:". $format ." variant:".$variant."<br>";
 
@@ -142,29 +169,30 @@ if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+)\/(?
 		
 	}
 }
+// DEPRECATED – ALL MEDIA HAS VARIANT NOW
 // IMAGE (without variant)
 // /images/{id}/{width}x.{format}
 // /images/{id}/x{height}.{format}
 // VIDEO
 // /videos/{id}/{width}x{height}.{format}
-else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*)\.(?P<format>\w{3,4})/i", $_SERVER["REQUEST_URI"], $matches)) {
-	$request_type = $matches["request_type"];
-
-	if($request_type == "images" || $request_type == "videos") {
-
-		$id = $matches["id"];
-		$width = $matches["width"];
-		$height = $matches["height"];
-		$format = $matches["format"];
-
-		//	print "request:" . $request_type . " id:" . $id . " width:" . $width . " height:" . $height ." format:". $format ." variant:".$variant."<br>";
-
-
-		// max size detection (2000x2000 or similar amount of pixels)
-		$max_pixels = 4000000;
-
-	}
-}
+// else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<width>\d*)x(?P<height>\d*)\.(?P<format>\w{3,4})/i", $_SERVER["REQUEST_URI"], $matches)) {
+// 	$request_type = $matches["request_type"];
+//
+// 	if($request_type == "images" || $request_type == "videos") {
+//
+// 		$id = $matches["id"];
+// 		$width = $matches["width"];
+// 		$height = $matches["height"];
+// 		$format = $matches["format"];
+//
+// 		//	print "request:" . $request_type . " id:" . $id . " width:" . $width . " height:" . $height ." format:". $format ." variant:".$variant."<br>";
+//
+//
+// 		// max size detection (2000x2000 or similar amount of pixels)
+// 		$max_pixels = 4000000;
+//
+// 	}
+// }
 
 // AUDIO
 // AUDIO WITH VARIANT
@@ -177,32 +205,42 @@ else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<variant>[^\/]+
 		$id = $matches["id"];
 		$bitrate = $matches["bitrate"];
 		$format = $matches["format"];
-		$variant = "/".$matches["variant"];
+		$variant = $matches["variant"];
 
 		//	print "request:" . $request_type . " id:" . $id . " bitrate:" . $bitrate ." format:". $format ." variant:".$variant."<br>";
 	}
 }
-// /audios/{id}/{bitrate}.{format}
-else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d+)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
-	$request_type = $matches["request_type"];
+// DEPRECATED – ALL MEDIA HAS VARIANT NOW
+// // /audios/{id}/{bitrate}.{format}
+// else if(preg_match("/\/(?P<request_type>\w+)\/(?P<id>[^\/]+)\/(?P<bitrate>\d+)\.(?P<format>\w{3})/i", $_SERVER["REQUEST_URI"], $matches)) {
+// 	$request_type = $matches["request_type"];
+//
+// 	if($request_type == "audios") {
+//
+// 		$id = $matches["id"];
+// 		$bitrate = $matches["bitrate"];
+// 		$format = $matches["format"];
+//
+// 		// TODO: implement bitrate control in audio class first
+// 		// $max_bitrate = 320;
+//
+// 		//	print "request:" . $request_type . " id:" . $id . " bitrate:" . $bitrate ." format:". $format ." variant:".$variant."<br>";
+// 	}
+// }
 
-	if($request_type == "audios") {
 
-		$id = $matches["id"];
-		$bitrate = $matches["bitrate"];
-		$format = $matches["format"];
+// Check for potential variant redirects
+if($id === false || !file_exists(PRIVATE_FILE_PATH."/$id/$variant")) {
 
-		// TODO: implement bitrate control in audio class first
-		// $max_bitrate = 320;
+	checkVariantRedirects($id, $variant);
 
-		//	print "request:" . $request_type . " id:" . $id . " bitrate:" . $bitrate ." format:". $format ." variant:".$variant."<br>";
-	}
 }
 
-// ERROR - MISSING ID - STOP IMMEDIATELY
+// ERROR - MISSING ID/Variant - stop
 // id can be 0, but not false
-if($id === false || !file_exists(PRIVATE_FILE_PATH."/$id$variant")) {
+if($id === false || !file_exists(PRIVATE_FILE_PATH."/$id/$variant")) {
 //	print "missing info";
+
 	conversionFailed("Missing or bad path info - request ignored");
 }
 
@@ -218,34 +256,34 @@ if($request_type == "images" && ($width || $height) && ($format == "jpg" || $for
 
 	// jpg, and source is available
 	if($format == "jpg" && file_exists(PRIVATE_FILE_PATH."/$id$variant/jpg")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/jpg";
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/jpg";
 	}
 	// png, and source is available
-	else if($format == "png" && file_exists(PRIVATE_FILE_PATH."/$id$variant/png")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/png";
+	else if($format == "png" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/png")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/png";
 	}
 	// gif, and source is available
-	else if($format == "gif" && file_exists(PRIVATE_FILE_PATH."/$id$variant/gif")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/gif";
+	else if($format == "gif" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/gif")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/gif";
 	}
 	// jpg available
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/jpg")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/jpg";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/jpg")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/jpg";
 	}
 	// png available
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/png")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/png";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/png")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/png";
 	}
 	// gif available
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/gif")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/gif";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/gif")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/gif";
 	}
 	// no valid source available
 	else {
 		conversionFailed("no valid source available");
 	}
 
-	$output_file = PUBLIC_FILE_PATH."/".$id.$variant."/".$width."x".$height.".".$format;
+	$output_file = PUBLIC_FILE_PATH."/".$id."/".$variant."/".$width."x".$height.".".$format;
 
 //	print $input_file . ":" . $output_file . "<br>";
 
@@ -256,7 +294,7 @@ if($request_type == "images" && ($width || $height) && ($format == "jpg" || $for
 		$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
 
 		// redirect to new image
-		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format, true, 307);
+		header("Location: /".$request_type."/".$id."/".$variant."/".$width."x".$height.".".$format, true, 307);
 		exit();
 
 	}
@@ -276,51 +314,51 @@ else if($request_type == "videos" && ($width || $height) && ($format == "mp4" ||
 	// check for sources
 
 	// mov, and source is available
-	if($format == "mov" && file_exists(PRIVATE_FILE_PATH."/$id$variant/mov")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/mov";
+	if($format == "mov" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/mov")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/mov";
 	}
 	// mp4, and source is available
-	else if($format == "mp4" && file_exists(PRIVATE_FILE_PATH."/$id$variant/mp4")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp4";
+	else if($format == "mp4" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/mp4")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/mp4";
 	}
 	// webm, and source is available
-	else if($format == "webm" && file_exists(PRIVATE_FILE_PATH."/$id$variant/webm")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/webm";
+	else if($format == "webm" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/webm")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/webm";
 	}
 	// ogv, and source is available
-	else if($format == "ogv" && file_exists(PRIVATE_FILE_PATH."/$id$variant/ogv")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogv";
+	else if($format == "ogv" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/ogv")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/ogv";
 	}
 	// 3gp, and source is available
-	else if($format == "3gp" && file_exists(PRIVATE_FILE_PATH."/$id$variant/3gp")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/3gp";
+	else if($format == "3gp" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/3gp")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/3gp";
 	}
 	// mov available
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mov")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/mov";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/mov")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/mov";
 	}
 	// mp4 available
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp4")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp4";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/mp4")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/mp4";
 	}
 	// webm available
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/webm")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/webm";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/webm")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/webm";
 	}
 	// ogv available
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogv")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogv";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/ogv")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/ogv";
 	}
 	// 3gp available
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/3gp")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/3gp";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/3gp")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/3gp";
 	}
 	// no valid source available
 	else {
 		conversionFailed("no valid source available");
 	}
 
-	$output_file = PUBLIC_FILE_PATH."/".$id.$variant."/".$width."x".$height.".".$format;
+	$output_file = PUBLIC_FILE_PATH."/".$id."/".$variant."/".$width."x".$height.".".$format;
 
 
 	// scale image (will autoconvert)
@@ -330,7 +368,7 @@ else if($request_type == "videos" && ($width || $height) && ($format == "mp4" ||
 		$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
 
 		// redirect to new image
-		header("Location: /".$request_type."/".$id.$variant."/".$width."x".$height.".".$format, true, 307);
+		header("Location: /".$request_type."/".$id."/".$variant."/".$width."x".$height.".".$format, true, 307);
 		exit();
 
 	}
@@ -347,31 +385,31 @@ else if($request_type == "audios" && $bitrate && ($format == "mp3" || $format ==
 	$Audio = new Audio();
 
 	// mp3, and source is available
-	if($format == "mp3" && file_exists(PRIVATE_FILE_PATH."/$id$variant/mp3")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp3";
+	if($format == "mp3" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/mp3")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/mp3";
 	}
 	// ogg, and source is available
-	else if($format == "ogg" && file_exists(PRIVATE_FILE_PATH."/$id$variant/ogg")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogg";
+	else if($format == "ogg" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/ogg")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/ogg";
 	}
 	// wav, and source is available
-	else if($format == "wav" && file_exists(PRIVATE_FILE_PATH."/$id$variant/wav")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/wav";
+	else if($format == "wav" && file_exists(PRIVATE_FILE_PATH."/$id/$variant/wav")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/wav";
 	}
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/mp3")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/mp3";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/mp3")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/mp3";
 	}
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/ogg")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/ogg";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/ogg")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/ogg";
 	}
-	else if(file_exists(PRIVATE_FILE_PATH."/$id$variant/wav")) {
-		$input_file = PRIVATE_FILE_PATH."/$id$variant/wav";
+	else if(file_exists(PRIVATE_FILE_PATH."/$id/$variant/wav")) {
+		$input_file = PRIVATE_FILE_PATH."/$id/$variant/wav";
 	}
 	else {
 		conversionFailed("no valid source available");
 	}
 
-	$output_file = PUBLIC_FILE_PATH."/".$id.$variant."/".$bitrate.".".$format;
+	$output_file = PUBLIC_FILE_PATH."/".$id."/".$variant."/".$bitrate.".".$format;
 
 
 	// scale image (will autoconvert)
@@ -382,7 +420,7 @@ else if($request_type == "audios" && $bitrate && ($format == "mp3" || $format ==
 		// collect log autoconvertion for bundled notification
 		$page->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
 
-		header("Location: /".$request_type."/".$id.$variant."/".$bitrate.".".$format, true, 307);
+		header("Location: /".$request_type."/".$id."/".$variant."/".$bitrate.".".$format, true, 307);
 		exit();
 
 	}
