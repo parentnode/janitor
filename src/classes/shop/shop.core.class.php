@@ -1349,6 +1349,8 @@ class ShopCore extends Model {
 								// Add item to order
 								if($query->sql($sql)) {
 									
+									$admin_summary[] = $item["name"];
+
 									// add callback to 'ordered'
 									$model = $IC->typeObject($item["itemtype"]);
 									if(method_exists($model, "ordered")) {

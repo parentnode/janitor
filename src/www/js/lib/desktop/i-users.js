@@ -137,7 +137,7 @@ Util.Objects["usernames"] = new function() {
 			}
 			this.response = function(response) {
 				if(response.cms_status == "error") {
-					u.f.fieldError(this.inputs["email"]);
+					u.f.inputHasError(this.inputs["email"]);
 				}
 				else {
 					
@@ -218,7 +218,7 @@ Util.Objects["usernames"] = new function() {
 				page.notify(response);
 
 				if(response.cms_status == "error") {
-					u.f.fieldError(this.inputs["mobile"]);
+					u.f.inputHasError(this.inputs["mobile"]);
 				}
 				else {
 					u.rc(this.actions["save"], "primary");
