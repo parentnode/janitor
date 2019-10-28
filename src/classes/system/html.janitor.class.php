@@ -1463,7 +1463,7 @@ class JanitorHTML {
 			
 					$_ .= '<li class="'.superNormalize($membership["name"]).'">';
 					$_ .= '<h3>';
-					$_ .= '<a href="/janitor/admin/user/members/list/'.$membership["id"].'">'.$membership["name"].'</a> ';
+					$_ .= '<a href="/janitor/admin/member/list/'.$membership["id"].'">'.$membership["name"].'</a> ';
 					$_ .= '<span class="count">'.$MC->getMemberCount(array("item_id" => $membership["id"])).'</span>';
 					$_ .= '<h3>';
 					$_ .= '</li>';
