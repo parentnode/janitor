@@ -51,11 +51,11 @@ Util.Objects["usernamesProfile"] = new function() {
 
 				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Email already exists"]});
-					u.f.fieldError(this.inputs["email"]);
+					u.f.inputHasError(this.inputs["email"]);
 				}
 				else if(response.cms_status == "error") {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Email could not be updated"]});
-					u.f.fieldError(this.inputs["email"]);
+					u.f.inputHasError(this.inputs["email"]);
 				}
 				else {
 					u.rc(this.actions["save"], "primary");
@@ -79,11 +79,11 @@ Util.Objects["usernamesProfile"] = new function() {
 
 				if(response.cms_object && response.cms_object.status == "USER_EXISTS") {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Mobile already exists"]});
-					u.f.fieldError(this.inputs["mobile"]);
+					u.f.inputHasError(this.inputs["mobile"]);
 				}
 				else if(response.cms_status == "error") {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":["Mobile could not be updated"]});
-					u.f.fieldError(this.inputs["mobile"]);
+					u.f.inputHasError(this.inputs["mobile"]);
 				}
 				else {
 					u.rc(this.actions["save"], "primary");

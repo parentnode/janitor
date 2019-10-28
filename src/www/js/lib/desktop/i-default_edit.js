@@ -300,8 +300,8 @@ Util.Objects["sendMessage"] = new function() {
 			}
 			else {
 				
-				u.f.fieldError(this.inputs["recipients"]);
-				u.f.fieldError(this.inputs["maillist_id"]);
+				u.f.inputHasError(this.inputs["recipients"]);
+				u.f.inputHasError(this.inputs["maillist_id"]);
 
 			}
 
