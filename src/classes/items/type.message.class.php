@@ -707,7 +707,7 @@ class TypeMessage extends Itemtype {
 			$IC = new Items();
 			$message = $IC->getItem(["id" => $item_id, "extend" => true]);
 
-			if($message) {
+			if($message && $message["itemtype"] == "message") {
 
 				// print_r($message);
 
@@ -813,7 +813,7 @@ class TypeMessage extends Itemtype {
 						// Temp user values placeholder
 						$user_values = [];
 
-						// Add message key to user values (to create massage viewer on website)
+						// Add message key to user values (to create message viewer on website)
 						$user_values["MESSAGE_TOKEN"] = randomKey(30);
 						// Only set maillist id if message was sent to maillist
 						$user_values["MAILLIST_ID"] = $maillist_id ? $maillist_id : 0;
