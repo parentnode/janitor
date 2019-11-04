@@ -38,6 +38,7 @@ class TypePerson extends Itemtype {
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "Full description",
+			"allowed_tags" => "p,h3",
 			"hint_message" => "Write a full description of the Person.",
 			"error_message" => "A full description without any words? How weird."
 		));
@@ -67,10 +68,10 @@ class TypePerson extends Itemtype {
 		$this->addToModel("single_media", array(
 			"type" => "files",
 			"label" => "Drag Image here",
-			"allowed_sizes" => "960x540",
+			"allowed_sizes" => "500x500",
 			"allowed_formats" => "png,jpg,mp4",
 			"max" => 1,
-			"hint_message" => "Add single image by dragging it here. PNG, JPG, MP4 allowed in 960x540.",
+			"hint_message" => "Add single image by dragging it here. PNG, JPG, MP4 allowed in 500x500.",
 			"error_message" => "Image does not fit requirements."
 		));
 
