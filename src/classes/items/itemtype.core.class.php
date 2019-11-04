@@ -1942,7 +1942,6 @@ class ItemtypeCore extends Model {
 	}
 
 	function ordered($order_item, $order){
-		session()->value("test_item_ordered_callback", true);
 
 		include_once("classes/shop/supersubscription.class.php");
 		$SuperSubscriptionClass = new SuperSubscription();
@@ -1954,7 +1953,7 @@ class ItemtypeCore extends Model {
 			$order_id = $order["id"];
 			$user_id = $order["user_id"];
 			
-			$subscription = $SuperSubscriptionClass->getSubscriptions(array("item_id" => $order_item_item_id));
+			$subscription = $SuperSubscriptionClass->getSubscriptions(array("user_id" => $user_id, "item_id" => $order_item_item_id));
 
 			// user already subscribes to item
 			if($subscription) {
@@ -1962,8 +1961,8 @@ class ItemtypeCore extends Model {
 				// update existing subscription
 				// makes callback to 'subscribed' if item_id changes
 				$_POST["order_id"] = $order["id"];
-				$_POST["item_id"] = $order_item_id;
-				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $user_id, $subscription["id"]]);
+				$_POST["item_id"] = $order_item_item_id;
+				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription["id"]]);
 				unset($_POST);
 
 			}

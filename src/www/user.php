@@ -192,8 +192,11 @@ if(is_array($action) && count($action)) {
 	// Class interface
 	else if(preg_match("/^renewSubscriptions$/", $action[0])) {
 
+		include_once("classes/shop/supersubscription.class.php");
+		$SuperSubscriptionClass = new SuperSubscription();
+
 		$output = new Output();
-		$output->screen($model->renewSubscriptions($action));
+		$output->screen($SuperSubscriptionClass->renewSubscriptions($action));
 		exit();
 
 	}
