@@ -2,8 +2,8 @@
 global $action;
 global $model;
 $SC = new Shop();
-include_once("classes/shop/subscription.class.php");
-$SubscriptionClass = new Subscription();
+include_once("classes/shop/supersubscription.class.php");
+$SubscriptionClass = new SuperSubscription();
 
 
 $user_id = $action[2];

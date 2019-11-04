@@ -410,7 +410,7 @@ class SuperMemberCore extends Member {
 				
 				
 				global $page;
-				$page->addLog("SuperMember->updateMembership: member_id".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
+				$page->addLog("SuperMember->updateMembership: member_id:".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
 				
 				$membership = $this->getMembers(["user_id" => $user_id]);
 				return $membership;
