@@ -52,7 +52,6 @@ class System extends Model {
 
 			$maillist = $this->getProperty("maillist", "value");
 
-			// already signed up (to avoid faulty double entries)
 			$sql = "SELECT * FROM UT_MAILLISTS WHERE name = '$maillist'";
 			if(!$query->sql($sql)) {
 				$sql = "INSERT INTO ".UT_MAILLISTS." SET name='$maillist'";
