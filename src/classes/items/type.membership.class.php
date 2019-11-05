@@ -95,7 +95,7 @@ class TypeMembership extends Itemtype {
 			if($existing_item["itemtype"] == "membership" && $existing_item["id"] != $added_item["id"]) {
 
 				// keep the newest membership item
-				$SC->deleteFromCart(["deleteFromCart", $cart["cart_reference"], $existing_item["id"]]);
+				$SC->deleteFromCart(["deleteFromCart", $cart["cart_reference"], $cart_item["id"]]);
 
 			}
 		}
