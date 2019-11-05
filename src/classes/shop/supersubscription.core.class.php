@@ -362,11 +362,9 @@ class SuperSubscriptionCore extends Subscription {
 				if($order_id && $item_id == $org_item_id) {
 
 					// item has no price
-					// or item already has order_id
-					if(!$item["prices"] || $subscription["order_id"]) {
+					if(!$item["prices"]) {
 						
 						// a priceless item and an order cannot be combined in a subscription
-						// cannot overwrite existing order for original item
 						return false;
 					}
 
@@ -600,33 +598,32 @@ class SuperSubscriptionCore extends Subscription {
 						$new_expiry = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
 						$price = $SC->getPrice($item["item_id"], array("quantity" => 1));
 
-						// add order
-						$_POST["user_id"] = $subscription["user_id"];
-						if($item["itemtype"] == "membership") {
-							$_POST["order_comment"] = "Membership renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
-						}
-						else {
-							$_POST["order_comment"] = "Subscription renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
-						}
-						$cart = $SC->addCart(["addCart"]);
-						unset($_POST);
-
-
+						
 						// add item to cart and then create order
-						// adding a membership to an order will automatically change the membership to match the new order
-						$_POST["quantity"] = 1;
-						$_POST["item_id"] = $item["id"];
-						$_POST["item_price"] = $price["price"];
-						$_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
+						// TODO: implement custom_item_name
+						// $_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
+						
+						$cart = $SC->addToNewInternalCart($item["id"], [
+							"user_id" => $subscription["user_id"], 
+							// "custom_item_name" => $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")"
+						]);
+							
+						// pass subscription_renewal flag for use in updateSubscription
 						$_POST["subscription_renewal"] = 1;
-						$cart = $SC->addToNewInternalCart(["addToNewInternalCart", $cart["cart_reference"]]);
-						unset($_POST);
-
-						// $cart = $SC->addToNewInternalCart($item["id"], ["quantity" => 1]);
 						$order = $SC->newOrderFromCart(["newOrderFromCart", $cart["id"], $cart["cart_reference"]]);
-
-
+						unset($_POST);
+						
 						if($order) {
+							
+							// update order comment
+							if($item["itemtype"] == "membership") {
+								$_POST["order_comment"] = "Membership renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
+							}
+							else {
+								$_POST["order_comment"] = "Subscription renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
+							}							
+							$SC->updateOrderComment(["updateOrderComment", $order["id"]])	;
+							unset($_POST);
 
 
 							// CONSIDER: if payment method is stripe and we have the stripe customer_id, then charge the order directly
