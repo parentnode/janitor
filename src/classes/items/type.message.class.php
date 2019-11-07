@@ -751,11 +751,17 @@ class TypeMessage extends Itemtype {
 
 							if($values) {
 								if(isset($values[$recipient])) {
+
 									$recipient_values[$recipient] = $values[$recipient];
 								}
-								else if(!is_array($values[reset($values)])) {
+								// else if(!is_array($values[reset($values)])) {
+								// 	$recipient_values[$recipient] = $values;
+								// }
+								else {
+
 									$recipient_values[$recipient] = $values;
 								}
+								
 
 							}
 						}
@@ -887,7 +893,7 @@ class TypeMessage extends Itemtype {
 									$user_values["MEMBERSHIP_PRICE"] = formatPrice($price);
 								}
 								else {
-									$user_values["MEMBERSHIP_PRICE"] = formatPrice(["price" => 0]);
+									$user_values["MEMBERSHIP_PRICE"] = formatPrice(["price" => 0, "currency" => defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK"]);
 								}
 
 							}
