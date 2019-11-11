@@ -126,8 +126,11 @@ class TypeMembership extends Itemtype {
 		include_once("classes/users/supermember.class.php");
 		$SuperSubscriptionClass = new SuperSubscription();
 		$MC = new SuperMember();
+		$IC = new Items();
+
+		$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
+		$item_id = $order_item["item_id"];
 		
-		$order_item_item_id = $order_item["item_id"];
 		$order_id = $order["id"];
 		$user_id = $order["user_id"];
 		
@@ -137,14 +140,14 @@ class TypeMembership extends Itemtype {
 		if($existing_membership) {
 
 			// new membership item has a subscription method
-			if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
+			if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
 				
 				// existing membership is active
 				if($existing_membership["subscription_id"]) {
 					
 					// update subscription
 					$subscription_id = $existing_membership["subscription_id"];
-					$_POST["item_id"] = $order_item_item_id;
+					$_POST["item_id"] = $item_id;
 					$_POST["user_id"] = $user_id;
 					$_POST["order_id"] = $order_id;
 					$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription_id]);
@@ -154,7 +157,7 @@ class TypeMembership extends Itemtype {
 				else {
 
 					// add subscription
-					$_POST["item_id"] = $order_item_item_id;
+					$_POST["item_id"] = $item_id;
 					$_POST["user_id"] = $user_id;
 					$_POST["order_id"] = $order_id;
 					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
@@ -178,10 +181,10 @@ class TypeMembership extends Itemtype {
 		else {
 
 			// new membership has a subscription method
-			if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
+			if(SITE_SUBSCRIPTIONS && isset($item["subscription_method"]) && $item["subscription_method"]) {
 				
 				// add subscription
-				$_POST["item_id"] = $order_item_item_id;
+				$_POST["item_id"] = $item_id;
 				$_POST["user_id"] = $user_id;
 				$_POST["order_id"] = $order_id;
 				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
@@ -189,7 +192,7 @@ class TypeMembership extends Itemtype {
 				unset($_POST);
 	
 				// add membership
-				$MC->addMembership($order_item_item_id, $subscription_id, ["user_id" => $user_id]);
+				$MC->addMembership($item_id, $subscription_id, ["user_id" => $user_id]);
 			}
 			else {
 
@@ -199,12 +202,12 @@ class TypeMembership extends Itemtype {
 		
 		global $page;
 		$page->addLog("membership->ordered: order_id:".$order["id"]);
-		// print "\n<br>###$order_item_item_id### ordered (membership)\n<br>";
+		// print "\n<br>###$item_id### ordered (membership)\n<br>";
 	}
 
 	function shipped($order_item, $order) {
 
-		$order_item_item_id = $order_item["id"];		
+		$item_id = $order_item["item_id"];		
 
 		global $page;
 		$page->addLog("membership->shipped: order_id:".$order["id"]);
@@ -229,7 +232,7 @@ class TypeMembership extends Itemtype {
 				$order_item = $order["items"][$item_key];
 				
 				// variables for email
-				$price = formatPrice(["price" => $order_item["total_price"], "vat" => $order_item["total_vat"],  $order_item["total_price"], "country" => $order["country"], "currency" => $order["currency"]]);
+				$price = formatPrice(["price" => $order_item["total_price"], "vat" => $order_item["total_vat"],  "country" => $order["country"], "currency" => $order["currency"]]);
 			}
 
 			$message_id = $subscription["item"]["subscribed_message_id"];
@@ -240,7 +243,7 @@ class TypeMembership extends Itemtype {
 			$model->sendMessage([
 				"item_id" => $message_id, 
 				"user_id" => $user_id, 
-				"values" => ["PRICE" => $price]
+				"values" => ["MEMBERSHIP_PRICE" => $price]
 			]);
 
 			global $page;

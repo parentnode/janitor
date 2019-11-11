@@ -810,7 +810,7 @@ class SuperShopCore extends Shop {
 							$item_id = $cart_item["item_id"];
 
 							// get item details
-							$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
+							$item = $IC->getItem(["id" => $item_id, "extend" => true]);
 
 							if($item) {
 
@@ -829,11 +829,18 @@ class SuperShopCore extends Shop {
 
 								// Add item to order
 								if($query->sql($sql)) {
-									
-									// add callback to 'ordered'
-									$model = $IC->typeObject($item["itemtype"]);
-									if(method_exists($model, "ordered")) {
-										$model->ordered($item, $order);
+									$order_item_id = $query->lastInsertId();
+
+									// get order_item
+									$sql = "SELECT * FROM ".$this->db_order_items." WHERE id = $order_item_id";
+									if($query->sql($sql)) {
+										$order_item = $query->result(0);
+										
+										// add callback to 'ordered'
+										$model = $IC->typeObject($item["itemtype"]);
+										if(method_exists($model, "ordered")) {
+											$model->ordered($order_item, $order);
+										}
 									}
 
 								}

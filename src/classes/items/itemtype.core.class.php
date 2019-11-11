@@ -1945,15 +1945,18 @@ class ItemtypeCore extends Model {
 
 		include_once("classes/shop/supersubscription.class.php");
 		$SuperSubscriptionClass = new SuperSubscription();
+		$IC = new Items();
+
+		$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
+		$item_id = $order_item["item_id"];
 
 		// order item can be subscribed to
-		if(SITE_SUBSCRIPTIONS && $order_item["subscription_method"]) {
+		if(SITE_SUBSCRIPTIONS && isset($item["subscription_method"]) && $item["subscription_method"]) {
 			
-			$order_item_item_id = $order_item["item_id"];
 			$order_id = $order["id"];
 			$user_id = $order["user_id"];
 			
-			$subscription = $SuperSubscriptionClass->getSubscriptions(array("user_id" => $user_id, "item_id" => $order_item_item_id));
+			$subscription = $SuperSubscriptionClass->getSubscriptions(array("user_id" => $user_id, "item_id" => $item_id));
 
 			// user already subscribes to item
 			if($subscription) {
@@ -1961,7 +1964,7 @@ class ItemtypeCore extends Model {
 				// update existing subscription
 				// makes callback to 'subscribed' if item_id changes
 				$_POST["order_id"] = $order["id"];
-				$_POST["item_id"] = $order_item_item_id;
+				$_POST["item_id"] = $item_id;
 				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription["id"]]);
 				unset($_POST);
 
@@ -1970,7 +1973,7 @@ class ItemtypeCore extends Model {
 			else {
 				// add new subscription
 				// makes callback to 'subscribed'
-				$_POST["item_id"] = $order_item_item_id;
+				$_POST["item_id"] = $item_id;
 				$_POST["user_id"] = $user_id;
 				$_POST["order_id"] = $order_id;
 				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
