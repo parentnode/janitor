@@ -477,7 +477,7 @@ class Upgrade extends Model {
 
 
 					// ADJUST 0 WIDTH AND HEIGHT VALUES TO DEFAULT (NULL)
-					if($media && !$media["width"] || !$media["height"]) {
+					if(!$media["width"] || !$media["height"]) {
 
 						// SHOULD NOT HAVE WIDTH/HEIGHT
 						if(!preg_match("/^(jpg|png|gif|mp4|mov)$/", $media["format"])) {
@@ -488,6 +488,59 @@ class Upgrade extends Model {
 						else {
 							$this->process(["message" => "Media property mismatch (missing width or height on media_id: ".$media["id"].")", "success" => false], true);
 						}
+
+					}
+
+					// Rename previously uncompress files (downloadable files)
+					$files = $fs->files(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					if($files && (!file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"]) || count($files) > 1)) {
+						if(count($files) > 1) {
+							$this->process(["message" => "MULTIPLE PRIVATE FILES FOR media_id: ".$media["id"]." - SOMETHING IS WRONG)", "success" => false], true);
+						}
+						else {
+							$file = array_pop($files);
+
+							// zip, pdf, jpg, gif, png file
+							if(preg_match("/\.(zip|pdf|png|gif|jpg)$/", $file, $match)) {
+
+								// Rename
+								if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
+									unlink($file);
+
+									// Just rename
+									$this->process(["success" => true, "message" => "RENAMED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
+								}
+								// Rename failed
+								else {
+									$this->process(["success" => false, "message" => "FAILED RENAMING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
+								}
+
+							}
+							else {
+
+								// Zip file as "zip"
+								$zip = new ZipArchive();
+								$zip->open(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip", ZipArchive::CREATE);
+								$zip->addFile($file, basename($file));
+								$zip->close();
+
+								if(file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip")) {
+									unlink($file);
+									$this->process(["success" => true, "message" => "REPACKAGED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> zip"], true);
+								}
+								else {
+									$this->process(["success" => false, "message" => "FAILED REPACKAGING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)], true);
+								}
+
+							}
+
+						}
+
+					}
+					// Missing file
+					else if(!$files) {
+
+						$this->process(["success" => false, "message" => "NOT FOUND - PRIVATE FILE MISSING: media_id: ".$media["id"]], false);
 
 					}
 

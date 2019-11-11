@@ -35,6 +35,7 @@ class PageCore {
 	public $page_title;
 	public $page_description;
 	public $page_image;
+	public $page_type;
 
 	public $body_class;
 	public $content_class;
@@ -144,12 +145,16 @@ class PageCore {
 			$title_index = "name";
 			$image_index = "mediae";
 
+			$og_type = "article";
+
 			if($_options !== false) {
 				foreach($_options as $_option => $_value) {
 					switch($_option) {
-						case "description"       : $description_index = $_value; break;
-						case "title"             : $title_index = $_value; break;
-						case "image"             : $image_index = $_value; break;
+						case "description"       : $description_index    = $_value; break;
+						case "title"             : $title_index          = $_value; break;
+						case "image"             : $image_index          = $_value; break;
+
+						case "type"              : $og_type              = $_value; break;
 					}
 				}
 			}
@@ -198,6 +203,9 @@ class PageCore {
 				}
 			}
 
+			// Set type
+			$this->pageType($og_type);
+
 		}
 		else {
 
@@ -207,6 +215,7 @@ class PageCore {
 			$_ .= '<meta property="og:description" content="'.$this->pageDescription().'" />';
 			$_ .= '<meta property="og:image" content="'.SITE_URL.$this->pageImage().'" />';
 			$_ .= '<meta property="og:url" content="'.SITE_URL.$this->url.'" />';
+			$_ .= '<meta property="og:type" content="'.$this->pageType().'" />';
 
 			return $_;
 		}
@@ -294,6 +303,31 @@ class PageCore {
 
 			// last resort favicon
 			return "/favicon.png";
+		}
+	}
+
+	/**
+	* Get/set page type
+	*
+	* - fallback to website
+	*
+	* @return String page type
+	*/
+	function pageType($value = false) {
+
+		// set title
+		if($value !== false) {
+			$this->page_type = $value;
+		}
+		// get title
+		else {
+			// if title already set
+			if($this->page_type) {
+				return $this->page_type;
+			}
+
+			// last resort - use constant
+			return "website";
 		}
 	}
 
