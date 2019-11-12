@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.3-janitor Copyright 2019 https://manipulator.parentnode.dk
-js-merged @ 2019-11-05 01:26:55
+js-merged @ 2019-11-12 10:38:05
 */
 
 /*seg_desktop_include.js*/
@@ -3748,11 +3748,12 @@ u.f.textEditor = function(field) {
 			input_classname.tag = tag;
 			u.ac(tag.bn_classname, "open");
 			u.f.init(form);
-			input_classname._input.focus();
-			input_classname._input.blurred = function() {
+			input_classname.input.focus();
+			input_classname.input.blurred = function() {
 				this.field.tag._classname = this.val();
 				this.field.tag.bn_classname.removeChild(this._form);
 				u.rc(this.field.tag.bn_classname, "open");
+				this.field.tag.field.update();
 			}
 		}
 	}
