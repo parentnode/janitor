@@ -1329,7 +1329,7 @@ class ShopCore extends Model {
 							$item_id = $cart_item["item_id"];
 
 							// get item details
-							$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true)));
+							$item = $IC->getItem(["id" => $item_id, "extend" => true]);
 
 							if($item) {
 
@@ -1348,13 +1348,20 @@ class ShopCore extends Model {
 
 								// Add item to order
 								if($query->sql($sql)) {
+									$order_item_id = $query->lastInsertId();
 									
 									$admin_summary[] = $item["name"];
 
-									// add callback to 'ordered'
-									$model = $IC->typeObject($item["itemtype"]);
-									if(method_exists($model, "ordered")) {
-										$model->ordered($item, $order);
+									// get order_item
+									$sql = "SELECT * FROM ".$this->db_order_items." WHERE id = $order_item_id";
+									if($query->sql($sql)) {
+										$order_item = $query->result(0);
+
+										// add callback to 'ordered'
+										$model = $IC->typeObject($item["itemtype"]);
+										if(method_exists($model, "ordered")) {
+											$model->ordered($order_item, $order);
+										}
 									}
 									
 								}
@@ -1380,7 +1387,6 @@ class ShopCore extends Model {
 
 						// Update order comment
 						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."' WHERE order_no='$order_no'";
-//						print $sql."<br>\n";
 						$query->sql($sql);
 					
 						
@@ -1410,7 +1416,6 @@ class ShopCore extends Model {
 
 						// delete cart
 						$sql = "DELETE FROM $this->db_carts WHERE id = ".$cart["id"]." AND cart_reference = '".$cart["cart_reference"]."'";
-			//			print $sql;
 						$query->sql($sql);
 
 

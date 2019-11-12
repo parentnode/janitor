@@ -751,11 +751,17 @@ class TypeMessage extends Itemtype {
 
 							if($values) {
 								if(isset($values[$recipient])) {
+
 									$recipient_values[$recipient] = $values[$recipient];
 								}
-								else if(!is_array($values[reset($values)])) {
+								// else if(!is_array($values[reset($values)])) {
+								// 	$recipient_values[$recipient] = $values;
+								// }
+								else {
+
 									$recipient_values[$recipient] = $values;
 								}
+								
 
 							}
 						}
@@ -887,7 +893,7 @@ class TypeMessage extends Itemtype {
 									$user_values["MEMBERSHIP_PRICE"] = formatPrice($price);
 								}
 								else {
-									$user_values["MEMBERSHIP_PRICE"] = formatPrice(["price" => 0]);
+									$user_values["MEMBERSHIP_PRICE"] = formatPrice(["price" => 0, "currency" => defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK"]);
 								}
 
 							}
@@ -901,13 +907,17 @@ class TypeMessage extends Itemtype {
 						$recipients[] = $subscriber["email"];
 
 						// Values were also passed directly for this user
-						// Merge specific user values and let passed specific values take priority
 						if(isset($values[$subscriber["email"]])) {
+							
+							// Merge passed specific values into specific user values and let passed specific values take priority
 							$recipient_values[$subscriber["email"]] = array_merge($user_values, $values[$subscriber["email"]]);
 						}
-						// Merge specific user values and let passed general values take priority
-						// Make sure $values only contain one set of data (look at content of first element)
+
+						// The content of the first element of the passed values is not an array 
+						// (making sure that $values only contain one set of data) 
 						else if($values && reset($values) && !is_array($values[key($values)])) {
+							
+							// Merge passed general values into specific user values and let passed general values take priority
 							$recipient_values[$subscriber["email"]] = array_merge($user_values, $values);
 						}
 						// no passed values matching
