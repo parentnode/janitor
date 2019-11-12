@@ -1294,6 +1294,7 @@ class SuperUserCore extends User {
 			}
 		}
 
+		return [];
 	}
 
 
