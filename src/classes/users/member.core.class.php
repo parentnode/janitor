@@ -268,7 +268,7 @@ class MemberCore extends Model {
 						"recipients" => SHOP_ORDER_NOTIFIES,
 						"subject" => SITE_URL . " - Membership cancelled ($user_id)",
 						"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
-						// "template" => "system"
+						"tracking" => false
 					));
 	
 	
