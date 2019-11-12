@@ -1613,6 +1613,18 @@ class SuperShopCore extends Shop {
 					$sql = "UPDATE ".$this->db_orders." SET status = 3 WHERE id = ".$order_id." AND user_id = ".$user_id;
 					if($query->sql($sql)) {
 
+						foreach($order["items"] as $order_item) {
+
+							// get item and itemtype
+							$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => true]);
+							$model = $IC->typeObject($item["itemtype"]);
+
+							// add callback to 'order_cancelled'
+							if(method_exists($model, "order_cancelled")) {
+								$model->order_cancelled($order_item, $order);
+							}
+						}
+
  						global $page;
 						$page->addLog("SuperShop->cancelOrder: $order_id ($user_id)");
 
