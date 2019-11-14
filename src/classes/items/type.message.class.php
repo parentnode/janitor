@@ -677,6 +677,8 @@ class TypeMessage extends Itemtype {
 		// Message item id
 		$item_id = false;
 
+		$attachments = [];
+
 		$values = [];
 		$from_current_user = false;
 
@@ -690,6 +692,8 @@ class TypeMessage extends Itemtype {
 					case "user_id"                : $user_id                = $_value; break;
 
 					case "item_id"                : $item_id                = $_value; break;
+
+					case "attachments"            : $attachments            = $_value; break;
 
 					case "from_current_user"      : $from_current_user      = $_value; break;
 					case "values"                 : $values                 = $_value; break;
@@ -944,7 +948,7 @@ class TypeMessage extends Itemtype {
 					// print_r($recipients);
 					// print_r($recipient_values);
 
-					if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "subject" => $message["name"], "html" => $html, "tracking" => true])) {
+					if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "subject" => $message["name"], "html" => $html, "tracking" => true, "attachments" => $attachments])) {
 
 						global $page;
 						$page->addLog("TypeMessage->sendMessage: user_id:".session()->value("user_id").", item_id:".$item_id.", " . ($maillist_id ? "maillist_id:".$maillist_id : "recipients:".implode(";", $recipients)));
