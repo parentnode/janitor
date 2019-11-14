@@ -10,11 +10,13 @@ class PDF {
 		$fs = new FileSystem();
 
 		$output_format = "A4";
+		$javascript_delay = 1000;
 
 		if($options !== false) {
 			foreach($options as $option => $value) {
 				switch($option) {
-					case "format"            : $output_format      = $value; break;
+					case "format"            : $output_format         = $value; break;
+					case "delay"             : $javascript_delay      = $value; break;
 				}
 			}
 		}
@@ -22,7 +24,7 @@ class PDF {
 		$wkhtmlto_path = wkhtmltoPath();
 
 //		$command = "$wkhtmlto_path -s $output_format $input_file $output_file";
-		$command = "$wkhtmlto_path -s $output_format --javascript-delay 1000 --no-stop-slow-scripts --enable-javascript --debug-javascript $input_file $output_file";
+		$command = "$wkhtmlto_path -s $output_format --javascript-delay $javascript_delay --no-stop-slow-scripts --enable-javascript $input_file $output_file";
 		// print "command:".$command."<br>\n";
 
 		// Generate the image
