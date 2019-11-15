@@ -1759,7 +1759,7 @@ class PageCore {
 							$query->sql($sql);
 
 
-							message()->addMessage("User has not been verified yet – did you forget to activate your account?", array("type" => "error"));
+							message()->addMessage("User has not been verified yet – did you forget to activate your account? We just sent you a new verification email in case the other one got lost.", array("type" => "error"));
 							return ["status" => "NOT_VERIFIED", "email" => $email];
 
 						}
