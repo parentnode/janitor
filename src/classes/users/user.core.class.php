@@ -572,10 +572,12 @@ class UserCore extends Model {
 
 							// maillist subscription sent as string?
 							$maillist = getPost("maillist");
-							if($maillist) {
+							$maillist_name = getPost("maillist_name");
+							if($maillist && $maillist_name) {
+
 								// check if maillist exists
 								$maillists = $page->maillists();
-								$maillist_match = arrayKeyValue($maillists, "name", $maillist);
+								$maillist_match = arrayKeyValue($maillists, "name", $maillist_name);
 								if($maillist_match !== false) {
 									$maillist_id = $maillists[$maillist_match]["id"];
 									$_POST["maillist_id"] = $maillist_id;
