@@ -103,6 +103,22 @@ class ShopCore extends Model {
 		));
 
 
+		// custom values for cart items
+		$this->addToModel("custom_name", array(
+			"type" => "string",
+			"label" => "Custom name",
+			"required" => true,
+			"hint_message" => "Custom name for cart item.", 
+			"error_message" => "The name must be a string."
+		));
+		$this->addToModel("custom_price", array(
+			"type" => "integer",
+			"label" => "Custom price",
+			"required" => true,
+			"hint_message" => "Custom price for cart item", 
+			"error_message" => "Price must be a number."
+		));
+
 
 		// Nickname
 		$this->addToModel("billing_name", array(
@@ -962,6 +978,8 @@ class ShopCore extends Model {
 				$query = new Query();
 				$IC = new Items();
 
+				$custom_name = $this->getProperty("custom_name", "value");
+				$custom_price = $this->getProperty("custom_price", "value");
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
 				$item = $IC->getItem(array("id" => $item_id));
@@ -971,25 +989,55 @@ class ShopCore extends Model {
 				// item has a price (price can be zero)
 				if ($price !== false) {
 
-					// item is already in cart
-					if($cart["items"] && arrayKeyValue($cart["items"], "item_id", $item_id) !== false) {
-						$existing_item_index = arrayKeyValue($cart["items"], "item_id", $item_id);
-	
-	
-						$existing_item = $cart["items"][$existing_item_index];
+					// use custom price if available
+					if($custom_price) {
+						$price["price"] = $custom_price;
+
+						$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
+						$price["price_without_vat"] = $custom_price_without_vat;
+						$price["vat"] = $custom_price - $custom_price_without_vat;
+					}
+					
+					// look in cart to see if the added item is already there
+					if ($custom_price && $custom_name) {
+
+						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price, "custom_name" => $custom_name]);
+					}
+					else if($custom_price) {
+
+						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price]);
+					}
+					else if($custom_name) {
+						
+						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_name" => $custom_name]);
+					}
+					else {
+						
+						$existing_item = $this->getCartItem($cart_reference, $item_id);
+					}
+
+					// added item is already in cart
+					if($existing_item) {
+						
 						$existing_quantity = $existing_item["quantity"];
 						$new_quantity = intval($quantity) + intval($existing_quantity);
 	
-	
 						// update item quantity
 						$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
-						// print $sql;
+	//					print $sql;
 					}
 					else {
 						
 						// insert new cart item
 						$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
-						// print $sql;
+
+						if($custom_price) {
+							$sql .= ", custom_price=$custom_price";
+						}
+						if($custom_name) {
+							$sql .= ", custom_name='".$custom_name."'";
+						}
+						// print $sql;	
 					}
 	
 					if($query->sql($sql)) {
@@ -1070,6 +1118,68 @@ class ShopCore extends Model {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * ### Get cart item from cart
+	 *
+	 * Passing no optional parameters will get cart_item without any custom values 
+	 * 
+	 * @param string $cart_reference
+	 * @param integer $item_id
+	 * @param array|false $_options – can be freely combined
+	 * * custom_price (integer) get item with the specified custom_price
+	 * * custom_name (string) get item with the specified custom_name
+	 * 
+	 * @return array|false Cart item object. False if no match is found. False on error.
+	 */
+	function getCartItem($cart_reference, $item_id, $_options = false) {
+
+		$cart = $this->getCarts(["cart_reference" => $cart_reference]);
+		$custom_price = false;
+		$standard_price = false;
+		$custom_name = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "custom_price"            : $custom_price            = $_value; break;
+					case "custom_name"             : $custom_name             = $_value; break;
+				}
+			}
+		}
+
+		foreach ($cart["items"] as $cart_item) {
+
+			if($cart_item["item_id"] == $item_id) {
+
+				if($custom_price && $custom_name) {
+					if(isset($cart_item["custom_price"]) && isset($cart_item["custom_name"]) && $cart_item["custom_price"] == $custom_price && $cart_item["custom_name"] == $custom_name) {
+						return $cart_item;
+					}
+				}
+				else if($custom_price) {
+					if(isset($cart_item["custom_price"]) && !isset($cart_item["custom_name"]) && $cart_item["custom_price"] == $custom_price) {
+						return $cart_item;
+					}
+				}
+				else if($custom_name) {
+					if(isset($cart_item["custom_name"]) && !isset($cart_item["custom_price"]) && $cart_item["custom_name"] == $custom_name) {
+						return $cart_item;
+					}
+				}
+				else {
+					if(!isset($cart_item["custom_price"]) && !isset($cart_item["custom_name"])) {
+						return $cart_item;
+					}
+				}
+				
+			}
+			
+		}
+		
+		return false;
+
 	}
 
 	// Update quantity of item in cart
@@ -1293,9 +1403,10 @@ class ShopCore extends Model {
 						}
 					}
 
-					// use account info, if no billing info is provided
+					// no billing info is provided
 					if(!$billing_address) {
 
+						// use available account info
 						$user = $UC->getUser();
 						if($user["firstname"] && $user["lastname"]) {
 							$sql .= ", billing_name='".prepareForDB($user["firstname"])." ".prepareForDB($user["lastname"])."'";
@@ -1337,12 +1448,30 @@ class ShopCore extends Model {
 								$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
 								// print_r("price: ".$price);
 
+								// use custom price if available
+								if(isset($cart_item["custom_price"]) && $cart_item["custom_price"]) {
+									$custom_price = $cart_item["custom_price"];
+									
+									$price["price"] = $custom_price;
+									$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
+									$price["price_without_vat"] = $custom_price_without_vat;
+									$price["vat"] = $custom_price - $custom_price_without_vat;
+								}
+
 								$unit_price = $price["price"];
 								$unit_vat = $price["vat"];
 								$total_price = $unit_price * $quantity;
 								$total_vat = $unit_vat * $quantity;
 
-								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+								// use custom name for cart item if available
+								if(isset($cart_item["custom_name"]) && $cart_item["custom_name"]) {
+									$item_name = $cart_item["custom_name"];
+								}
+								else {
+									$item_name = $item["name"];
+								}
+
+								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item_name)."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
 								// print $sql;
 
 
@@ -1350,7 +1479,7 @@ class ShopCore extends Model {
 								if($query->sql($sql)) {
 									$order_item_id = $query->lastInsertId();
 									
-									$admin_summary[] = $item["name"];
+									$admin_summary[] = $item_name;
 
 									// get order_item
 									$sql = "SELECT * FROM ".$this->db_order_items." WHERE id = $order_item_id";
