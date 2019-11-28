@@ -140,7 +140,7 @@ class Model extends HTML {
 			"label" => "Price type",
 			"class" => "type",
 			"required" => true,
-			"hint_message" => "Standard price, Special price, Bulk price. Select the type of price.",
+			"hint_message" => "Select the type of price.",
 			"error_message" => "Price type error."
 		));
 		$this->addToModel("item_price_quantity", array(

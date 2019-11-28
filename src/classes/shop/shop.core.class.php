@@ -532,6 +532,9 @@ class ShopCore extends Model {
 	function getPrice($item_id, $_options = false) {
 		global $page;
 		$IC = new Items();
+		$MC = new Member();
+
+		$user_id = session()->value("user_id");
 
 		$quantity = false;
 		$currency = false;
@@ -564,21 +567,30 @@ class ShopCore extends Model {
 
 		if($prices) {
 
-			$offer = arrayKeyValue($prices, "type", "offer");
+			$offer = arrayKeyValue($prices, "name", "offer");
 			if($offer !== false) {
-				$offer_price = $prices[arrayKeyValue($prices, "type", "offer")];
+				$offer_price = $prices[arrayKeyValue($prices, "name", "offer")];
 			}
 
-			$default = arrayKeyValue($prices, "type", "default");
+			$default = arrayKeyValue($prices, "name", "default");
 			if($default !== false) {
 
-				$default_price = $prices[arrayKeyValue($prices, "type", "default")];
+				$default_price = $prices[arrayKeyValue($prices, "name", "default")];
 			}
 
-			if($quantity && arrayKeyValue($prices, "type", "bulk") !== false) {
+			$membership = $MC->getMembership();
+			$matching_membership_price_index = arrayKeyValue($prices, "name", $membership["item"]["name"]);
+			if($user_id != 1 && $membership && $membership["item"]["status"] == 1 && $matching_membership_price_index !== false) {
+
+				$membership_price = $prices[$matching_membership_price_index];
+			}
+
+
+
+			if($quantity && arrayKeyValue($prices, "name", "bulk") !== false) {
 				$current_best_price = false;
 				foreach($prices as $price) {
-					if($price["type"] == "bulk" && $quantity >= $price["quantity"]) {
+					if($price["name"] == "bulk" && $quantity >= $price["quantity"]) {
 						$bulk_price = $price;
 					}
 				} 
@@ -594,6 +606,10 @@ class ShopCore extends Model {
 
 			if(isset($bulk_price) && (!isset($return_price) || $return_price["price"] > $bulk_price["price"])) {
 				$return_price = $bulk_price;
+			}
+			
+			if(isset($membership_price) && (!isset($return_price) || $return_price["price"] > $membership_price["price"])) {
+				$return_price = $membership_price;
 			}
 			
 

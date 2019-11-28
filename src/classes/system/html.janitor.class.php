@@ -630,13 +630,18 @@ class JanitorHTML {
 	function editPrices($item, $_options = false) {
 		global $model;
 		global $page;
+		$query = new Query();
 
 		$currency_options = $model->toOptions($page->currencies(), "id", "id");
 		$default_currency = $page->currency();
 
 		$vatrate_options = $model->toOptions($page->vatrates(), "id", "name");
 
-		$type_options = array("default" => "Standard price", "offer" => "Special offer", "bulk" => "Bulk price");
+		$type_options = $model->toOptions($page->price_types(), "id", "description");
+
+
+		
+
 
 		$_ = '';
 
@@ -790,9 +795,9 @@ class JanitorHTML {
 						$_ .= '<li class="price">'.formatPrice($price, array("vat" => true)).'</li>';
 //						$_ .= '<li class="currency">'. $price["currency"].'</li>';
 						$_ .= '<li class="vatrate">'.$price["vatrate"].'% VAT</li>';
-						if($price["type"] == "offer"):
+						if($price["name"] == "offer"):
 							$_ .= '<li class="offer">Special offer</li>';
-						elseif($price["type"] == "bulk"):
+						elseif($price["name"] == "bulk"):
 							$_ .= '<li class="bulk">Bulk price for '.$price["quantity"].' items</li>';
 						endif;
 					$_ .= '</ul>';

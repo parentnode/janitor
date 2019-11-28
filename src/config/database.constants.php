@@ -6,6 +6,7 @@ define("UT_COUNTRIES",                  SITE_DB.".system_countries");           
 
 define("UT_CURRENCIES",                 SITE_DB.".system_currencies");                 // Currencies
 define("UT_VATRATES",                   SITE_DB.".system_vatrates");                   // Vatrates
+define("UT_PRICE_TYPES",                SITE_DB.".system_price_types");                // Price types
 
 define("UT_PAYMENT_METHODS",            SITE_DB.".system_payment_methods");            // Payment methods
 define("UT_SUBSCRIPTION_METHODS",       SITE_DB.".system_subscription_methods");       // Subscription methods

@@ -21,7 +21,7 @@ Util.Objects["defaultPrices"] = new function() {
 
 			div._prices_form.inputs["item_price_type"].changed = function() {
 
-				if(this.val() == "bulk") {
+				if(this.val() == 3) {
 					u.ac(this._form.inputs["item_price_quantity"].field, "required");
 					u.ass(this._form.inputs["item_price_quantity"].field, {
 						"display":"inline-block"
@@ -36,14 +36,14 @@ Util.Objects["defaultPrices"] = new function() {
 			}
 
 			// make sure quantity is shown if type is already bulk
-			if(div._prices_form.inputs["item_price_type"].val() == "bulk") {
+			if(div._prices_form.inputs["item_price_type"].val() == 3) {
 				u.ass(div._prices_form.inputs["item_price_quantity"].field, {
 					"display":"inline-block"
 				})
 			}
 
 
-			// new comment submitted
+			// new price submitted
 			div._prices_form.submitted = function(iN) {
 
 				this.response = function(response) {
@@ -55,11 +55,14 @@ Util.Objects["defaultPrices"] = new function() {
 						var info = u.ae(price_li, "ul", {"class":"info"});
 						u.ae(info, "li", {"class":"price", "html":response.cms_object["formatted_price"]});
 						u.ae(info, "li", {"class":"vatrate", "html":response.cms_object["vatrate"]+"%"});
-						if(response.cms_object["type"] == "offer") {
+						if(response.cms_object["name"] == "offer") {
 							u.ae(info, "li", {"class":"offer", "html":"Special offer"});
 						}
-						else if(response.cms_object["type"] == "bulk") {
+						else if(response.cms_object["name"] == "bulk") {
 							u.ae(info, "li", {"class":"bulk", "html":"Bulk price for "+response.cms_object["quantity"] + " items"});
+						}
+						else if(response.cms_object["name"] != "default") {
+							u.ae(info, "li", {"class":"custom_price", "html":response.cms_object["description"]});
 						}
 
 						this.div.initPrice(price_li);
@@ -80,7 +83,7 @@ Util.Objects["defaultPrices"] = new function() {
 
 		div._prices_list = u.qs("ul.prices", div);
 
-		// add edit+delete form to comment
+		// add delete form to price
 		div.initPrice = function(node) {
 
 			node.div = this;
@@ -142,7 +145,7 @@ Util.Objects["defaultPrices"] = new function() {
 		}
 
 
-		// initalize existing comments
+		// initalize existing prices
 		div.prices = u.qsa("li.pricedetails", div._prices_list);
 		var i, node;
 		for(i = 0; node = div.prices[i]; i++) {

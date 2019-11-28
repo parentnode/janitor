@@ -834,6 +834,41 @@ class PageCore {
 		}
 	}
 
+	/**
+	* Get array of available price_types
+	* Optional get details for specific price_type
+	*
+	* @return Array of price_types or array of price_type details
+	*/
+	function price_types($id = false) {
+
+		if(!cache()->value("price_types")) {
+
+			$query = new Query();
+			$query->sql("SELECT * FROM ".UT_PRICE_TYPES);
+			cache()->value("price_types", $query->results());
+		}
+
+		// looking for specific price_type details
+		if($id !== false) {
+			$price_types = cache()->value("price_types");
+			$key = arrayKeyValue($price_types, "id", $id);
+			if($key !== false) {
+				return $price_types[$key];
+			}
+			// invalid price_type requested
+			else {
+				return false;
+			}
+		}
+		// return complete array of price_types
+		else {
+			return cache()->value("price_types");
+		}
+	}
+	
+
+
 
 	/**
 	* Get array of available subscription methods
