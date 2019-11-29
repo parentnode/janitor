@@ -1358,16 +1358,30 @@ class ShopCore extends Model {
 			$IC = new Items();
 
 			$cart_reference = $action[1];
+			$received_cart = $this->getCarts(["cart_reference" => $cart_reference]);
 
 			// you can never create a cart for someone else, so ignore cart user_id
 			$user_id = session()->value("user_id");
 
 			$cart = $this->getCart();
 
+			// user cart matches cart received via REST
+			if($cart["cart_reference"] == $cart_reference) {
+				$cart_match = true;
+			}
+			// received cart is an internal cart
+			else if($received_cart["user_id"] == $user_id) {
+				$cart_match = true;
+				$cart = $received_cart;
+			}			
+			// cart mismatch
+			else {
+				$cart_match = false;
+			}
+
 			// is cart registered and has content
-			// and enforce a sanity check by matching cart far with REST param
 //			print $cart_reference ." ==". $cart["cart_reference"];
-			if($cart && $user_id && $cart["items"] && $cart_reference == $cart["cart_reference"]) {
+			if($cart && $user_id && $cart["items"] && $cart_match) {
 
 				$user = $UC->getUser();
 
