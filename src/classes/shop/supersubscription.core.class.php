@@ -605,7 +605,7 @@ class SuperSubscriptionCore extends Subscription {
 						
 						$cart = $SC->addToNewInternalCart($item["id"], [
 							"user_id" => $subscription["user_id"], 
-							// "custom_item_name" => $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")"
+							"custom_name" => $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")"
 						]);
 							
 						// pass subscription_renewal flag for use in updateSubscription
@@ -622,7 +622,7 @@ class SuperSubscriptionCore extends Subscription {
 							else {
 								$_POST["order_comment"] = "Subscription renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
 							}							
-							$SC->updateOrderComment(["updateOrderComment", $order["id"]])	;
+							$order = $SC->updateOrderComment(["updateOrderComment", $order["id"]])	;
 							unset($_POST);
 
 
