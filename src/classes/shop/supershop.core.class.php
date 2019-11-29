@@ -588,12 +588,18 @@ class SuperShopCore extends Shop {
 	function addToNewInternalCart($item_id, $_options = false) {
 
 		$quantity = 1;
+		$custom_name = false;
+		$custom_price = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "user_id"           : $user_id             = $_value; break;
 					case "quantity"          : $quantity            = $_value; break;
+
+					case "custom_name"       : $custom_name         = $_value; break;
+					case "custom_price"      : $custom_price        = $_value; break;
+
 				}
 			}
 		}
@@ -601,6 +607,15 @@ class SuperShopCore extends Shop {
 		$price = $this->getPrice($item_id);
 		// user_id was passed and item has a price (price can be zero)
 		if($user_id && $price !== false) {
+
+			// use custom price if available
+			if($custom_price) {
+				$price["price"] = $custom_price;
+
+				$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
+				$price["price_without_vat"] = $custom_price_without_vat;
+				$price["vat"] = $custom_price - $custom_price_without_vat;
+			}
 
 			// create new internal cart
 			$_POST["user_id"] = $user_id;
@@ -615,6 +630,14 @@ class SuperShopCore extends Shop {
 				
 				// insert new cart item
 				$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
+
+				if($custom_price) {
+					$sql .= ", custom_price=$custom_price";
+				}
+				if($custom_name) {
+					$sql .= ", custom_name='".$custom_name."'";
+				}
+
 				if($query->sql($sql)) {
 
 					// get updated cart
