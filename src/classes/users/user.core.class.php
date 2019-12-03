@@ -1867,25 +1867,45 @@ class UserCore extends Model {
 
 	// User has accepted terms
 	// Add to database
-	function acceptedTerms() {
+	function acceptedTerms($_options = false) {
 
 		$query = new Query();
 		$user_id = session()->value("user_id");
+		$name = "terms";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "name"        : $name          = $_value; break;
+				}
+			}
+		}
 
 		$query->checkDbExistence(SITE_DB.".user_log_agreements");
-		$sql = "INSERT INTO ".SITE_DB.".user_log_agreements SET user_id = $user_id, name = 'terms'";
+		$sql = "INSERT INTO ".SITE_DB.".user_log_agreements SET user_id = $user_id, name = '$name'";
 		$query->sql($sql);
 
 	}
 	
 	// Check if user has accepted terms
-	function hasAcceptedTerms() {
+	function hasAcceptedTerms($_options = false) {
 
 		$query = new Query();
 		$user_id = session()->value("user_id");
+		$name = "terms";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "name"        : $name          = $_value; break;
+				}
+			}
+		}
 
 		$query->checkDbExistence(SITE_DB.".user_log_agreements");
-		$sql = "SELECT user_id FROM ".SITE_DB.".user_log_agreements WHERE user_id = $user_id";
+		$sql = "SELECT user_id FROM ".SITE_DB.".user_log_agreements WHERE user_id = $user_id AND name = '$name'";
 		if($query->sql($sql)) {
 			return true;
 		}
