@@ -1540,6 +1540,7 @@ class ShopCore extends Model {
 										// add callback to 'ordered'
 										$model = $IC->typeObject($item["itemtype"]);
 										if(method_exists($model, "ordered")) {
+
 											$model->ordered($order_item, $order);
 										}
 									}
