@@ -762,6 +762,7 @@ class SuperShopCore extends Shop {
 
 	// Convert cart to order
 	# /janitor/admin/shop/newOrderFromCart/#card_id#/#cart_reference#
+	// order comment in $_POST
 	function newOrderFromCart($action) {
 
 		// get posted values to make them available for models
@@ -774,6 +775,8 @@ class SuperShopCore extends Shop {
 			$query = new Query();
 			$UC = new SuperUser();
 			$IC = new Items();
+
+			$order_comment = $this->getProperty("order_comment", "value");
 
 			$cart_id = $action[1];
 			$cart_reference = $action[2];
@@ -858,7 +861,6 @@ class SuperShopCore extends Shop {
 						// get the new order
 						$order = $this->getOrders(array("order_no" => $order_no));
 
-						$admin_summary = [];
 //						print "items";
 //						print_r($cart["items"]);
 
@@ -929,10 +931,11 @@ class SuperShopCore extends Shop {
 						$this->validateOrder($order["id"]);
 
 
-						// Update order comment
-						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."' WHERE order_no='$order_no'";
-//						print $sql."<br>\n";
-						$query->sql($sql);
+						if($order_comment) {
+							
+							$sql = "UPDATE ".$this->db_orders." SET comment = '".$order_comment."' WHERE order_no='$order_no'";
+							$query->sql($sql);
+						}
 					
 						
 						// only autoship order if every item should be autoshipped

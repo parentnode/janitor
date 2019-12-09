@@ -1378,6 +1378,8 @@ class ShopCore extends Model {
 			$UC = new User();
 			$IC = new Items();
 
+			$order_comment = $this->getProperty("order_comment", "value");
+
 			$cart_reference = $action[1];
 			$received_cart = $this->getCarts(["cart_reference" => $cart_reference]);
 
@@ -1565,11 +1567,11 @@ class ShopCore extends Model {
 						// Add cookie for user
 						setcookie("order_no", $order_no, time()+60*60*24*60, "/");
 
-
-						// Update order comment
-						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."' WHERE order_no='$order_no'";
-						$query->sql($sql);
-					
+						if($order_comment) {
+							
+							$sql = "UPDATE ".$this->db_orders." SET comment = '".$order_comment."' WHERE order_no='$order_no'";
+							$query->sql($sql);
+						}
 						
 						// only autoship order if every item should be autoshipped
 						$order["autoship"] = true;
