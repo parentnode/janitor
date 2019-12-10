@@ -159,9 +159,11 @@ class ItemsCore {
 
 	/**
 	* Get ID of item based on sindex
+	* DEPRECATED
 	*/
 	function getIdFromSindex($sindex) {
 
+		print "DEPRECATED";
 		$query = new Query();
 		$sql = "SELECT id FROM ".UT_ITEMS." WHERE sindex = '$sindex'";
 		if($query->sql($sql)) {
