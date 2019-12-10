@@ -697,14 +697,16 @@ class ItemsCore {
 
 				$LEFTJOIN[] = UT_ITEMS_RATINGS." as ratings ON ratings.item_id = items.id";
 				$SELECT[] = "SUM(ratings.rating) as total_rating";
-				$ORDER[] = "total_rating DESC";
+				$SELECT[] = "AVG(ratings.rating) as average_rating";
+				$ORDER[] = "average_rating DESC";
 
 			}
 			else if($order === "rating ASC") {
 
 				$LEFTJOIN[] = UT_ITEMS_RATINGS." as ratings ON ratings.item_id = items.id";
 				$SELECT[] = "SUM(ratings.rating) as total_rating";
-				$ORDER[] = "total_rating ASC";
+				$SELECT[] = "AVG(ratings.rating) as average_rating";
+				$ORDER[] = "average_rating ASC";
 
 			}
 			// Or any kind of order
