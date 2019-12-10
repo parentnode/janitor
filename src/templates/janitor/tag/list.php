@@ -4,10 +4,6 @@ global $model;
 
 $tags = $model->getTags();
 
-$IC = new Items();
-$IC->getItems(array("tags" => "brand:Google"));
-
-//print_r($tags);
 ?>
 <div class="scene i:scene defaultList tagList">
 	<h1>Tags</h1>
