@@ -2149,6 +2149,45 @@ class SuperShopCore extends Shop {
 
 	}
 
+	// Process gateway data
+	function processOrderPayment($action) {
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		// does values validate
+		if(count($action) == 4 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
+
+			$order_no = $action[1];
+			$gateway = $action[2];
+
+			$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
+			$card_exp_month = $this->getProperty("card_exp_month", "value");
+			$card_exp_year = $this->getProperty("card_exp_year", "value");
+			$card_cvc = $this->getProperty("card_cvc", "value");
+
+
+			if($order_no) {
+				$order = $this->getOrders(array("order_no" => $order_no));
+
+				if($order && $order["payment_status"] !== 2) {
+
+					$order["total_price"] = $this->getTotalOrderPrice($order["id"]);
+
+					return payments()->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+
+				}
+
+			}
+
+		}
+
+		return false;
+
+	}
 
 }
 
