@@ -203,7 +203,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		</p>
 
 		<ul class="actions">
-			<?= $JML->oneButtonForm("Cancel membership", "/janitor/admin/member/cancelMembership/".$user_id."/".$membership["id"], array(
+			<?= $HTML->oneButtonForm("Cancel membership", "/janitor/admin/member/cancelMembership/".$user_id."/".$membership["id"], array(
 				"confirm-value" => "Confirm cancellation",
 				"wrapper" => "li.cancel",
 				"class" => "secondary",

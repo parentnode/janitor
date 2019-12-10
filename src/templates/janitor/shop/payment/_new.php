@@ -90,7 +90,7 @@ $orders = $model->getOrders(array("status" => $status));
 		</p>
 
 		<ul class="actions">
-			<?= $JML->oneButtonForm("Send payment reminder", "/janitor/admin/shop/sendPaymentReminder", array(
+			<?= $HTML->oneButtonForm("Send payment reminder", "/janitor/admin/shop/sendPaymentReminder", array(
 				"inputs" => array("order_id" => $order["id"]),
 				"confirm-value" => "Are you sure?",
 				"success-location" => "/janitor/admin/shop/order/edit/".$order_id,

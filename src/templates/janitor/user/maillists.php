@@ -37,11 +37,11 @@ $user_maillists = $model->getMaillists(array("user_id" => $user_id));
 <?			foreach($all_maillists as $maillist): ?>
 			<li class="<?= arrayKeyValue($user_maillists, "maillist_id", $maillist["id"]) !== false ? "subscribed" : "" ?>">
 				<ul class="actions">
-					<?= $JML->oneButtonForm("Unsubscribe", "/janitor/admin/user/deleteMaillist/".$user_id."/".$maillist["id"], array(
+					<?= $HTML->oneButtonForm("Unsubscribe", "/janitor/admin/user/deleteMaillist/".$user_id."/".$maillist["id"], array(
 						"confirm-value" => false,
 						"wrapper" => "li.unsubscribe"
 					)) ?>
-					<?= $JML->oneButtonForm("Subscribe", "/janitor/admin/user/addMaillist/".$user_id, array(
+					<?= $HTML->oneButtonForm("Subscribe", "/janitor/admin/user/addMaillist/".$user_id, array(
 						"confirm-value" => false,
 						"wrapper" => "li.subscribe",
 						"class" => "primary",

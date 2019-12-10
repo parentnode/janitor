@@ -28,7 +28,7 @@ session()->value("return_to_wishlist", $item_id);
 	<ul class="actions i:defaultEditActions">
 		<?= $model->link("Back to overview", "/janitor/admin/wish/list", array("class" => "button", "wrapper" => "li.cancel")); ?>
 		<?= $model->link("New wish", "/janitor/admin/wish/new", array("class" => "button primary", "wrapper" => "li.new")); ?>
-		<?= $JML->oneButtonForm("Delete wishlist", "/janitor/admin/wishlist/delete/".$item["id"], array(
+		<?= $model->oneButtonForm("Delete wishlist", "/janitor/admin/wishlist/delete/".$item["id"], array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/wish/list"
 		)) ?>
@@ -67,7 +67,7 @@ session()->value("return_to_wishlist", $item_id);
 	<?		if($ordered_wishes): ?>
 			<ul class="items">
 				<? foreach($ordered_wishes as $item): ?>
-				<li class="item item_id:<?= $item["id"] ?><?= $JML->jsMedia($item) ?>">
+				<li class="item item_id:<?= $item["id"] ?><?= $HTML->jsMedia($item) ?>">
 					<div class="drag"></div>
 					<h3><?= $item["name"] ?></h3>
 					<dl class="info">
@@ -77,7 +77,7 @@ session()->value("return_to_wishlist", $item_id);
 
 					<ul class="actions">
 						<?= $model->link("Edit", "/janitor/admin/wish/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")); ?>
-						<?= $JML->oneButtonForm("Delete", "/janitor/admin/wish/delete/".$item["id"], array(
+						<?= $model->oneButtonForm("Delete", "/janitor/admin/wish/delete/".$item["id"], array(
 							"js" => true,
 							"wrapper" => "li.delete",
 							"static" => true

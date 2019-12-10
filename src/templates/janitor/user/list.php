@@ -71,7 +71,7 @@ $users = $model->getUsers($options);
 <? if($item["status"] != -1): ?>
 					<?= $HTML->link("Edit", "/janitor/admin/user/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 <? 	if($item["id"] != 1): ?>
-					<? //= $JML->oneButtonForm("Delete", "/janitor/admin/user/delete/".$item["id"], array(
+					<? //= $HTML->oneButtonForm("Delete", "/janitor/admin/user/delete/".$item["id"], array(
 					//	"js" => true,
 					//	"wrapper" => "li.delete",
 					//	"static" => true
