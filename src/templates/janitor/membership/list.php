@@ -15,7 +15,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC, 
 		<?= $JML->listNew(array("label" => "New membership type")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList sortable filters"<?= $JML->jsData(["order", "search"]) ?>>
+	<div class="all_items i:defaultList sortable filters"<?= $HTML->jsData(["order", "search"]) ?>>
 <?		if($items): ?>
 		<ul class="items">
 

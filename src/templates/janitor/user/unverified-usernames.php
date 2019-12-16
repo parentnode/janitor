@@ -13,7 +13,7 @@ $users = $model->getUnverifiedUsernames([
 	<ul class="actions i:unverifiedUsernamesSelected">
 		<?= $HTML->link("All users", "/janitor/admin/user/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 
-		<?= $JML->oneButtonForm("Send reminder to selected", "/janitor/admin/user/sendVerificationLinks", array(
+		<?= $HTML->oneButtonForm("Send reminder to selected", "/janitor/admin/user/sendVerificationLinks", array(
 			"wrapper" => "li.remind_selected",
 			"confirm-value" => "This will send an activation reminder email to all selected unverified usernames!",
 			"success-function" => "reminded",
@@ -54,7 +54,7 @@ $users = $model->getUnverifiedUsernames([
 				</dl>
 
 				<ul class="actions">
-					<?= $JML->oneButtonForm("Send reminder", "/janitor/admin/user/sendVerificationLink/".$user["username_id"], array(
+					<?= $HTML->oneButtonForm("Send reminder", "/janitor/admin/user/sendVerificationLink/".$user["username_id"], array(
 						"wrapper" => "li.remind",
 						"confirm-value" => "This will send an activation reminder email!",
 						"success-function" => "reminded",

@@ -65,7 +65,7 @@ if($item && $item["status"] >= 0) {
 <? 
 	// do not allow to delete Anonymous user
 	if($user_id != 1): ?>
-		<?= $JML->oneButtonForm("Delete account", "/janitor/admin/user/delete/".$user_id, array(
+		<?= $HTML->oneButtonForm("Delete account", "/janitor/admin/user/delete/".$user_id, array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
 		)) ?>
@@ -77,7 +77,7 @@ if($item && $item["status"] >= 0) {
 <? 
 	// or Anonymous user
 	elseif($user_id != 1): ?>
-		<?= $JML->oneButtonForm("Cancel account", "/janitor/admin/user/cancel/".$user_id, array(
+		<?= $HTML->oneButtonForm("Cancel account", "/janitor/admin/user/cancel/".$user_id, array(
 			"wrapper" => "li.cancel",
 			"confirm-value" => "This will anonymise the account. Permanently! Irreversibly!",
 			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
@@ -154,7 +154,7 @@ if($item && $item["status"] >= 0) {
 			<div class="send_verification_link">
 				<ul class="actions send_verification_link">
 					<? if($current_verification_status["total_reminders"] == 0): ?>
-						<?= $JML->oneButtonForm("Send invite", "/janitor/admin/user/sendVerificationLink/".$username_id, array(
+						<?= $HTML->oneButtonForm("Send invite", "/janitor/admin/user/sendVerificationLink/".$username_id, array(
 							"wrapper" => "li.send_verification_link.invite",
 							"class" => "send_verification_link invite",
 							"inputs" => [
@@ -162,7 +162,7 @@ if($item && $item["status"] >= 0) {
 							]
 						)) ?>
 					<? else: ?>			
-						<?= $JML->oneButtonForm("Send reminder", "/janitor/admin/user/sendVerificationLink/".$username_id, array(
+						<?= $HTML->oneButtonForm("Send reminder", "/janitor/admin/user/sendVerificationLink/".$username_id, array(
 							"wrapper" => "li.send_verification_link.reminder",
 							"class" => "send_verification_link reminder",
 							"inputs" => [

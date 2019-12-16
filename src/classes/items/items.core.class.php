@@ -159,9 +159,11 @@ class ItemsCore {
 
 	/**
 	* Get ID of item based on sindex
+	* DEPRECATED
 	*/
 	function getIdFromSindex($sindex) {
 
+		print "DEPRECATED";
 		$query = new Query();
 		$sql = "SELECT id FROM ".UT_ITEMS." WHERE sindex = '$sindex'";
 		if($query->sql($sql)) {
@@ -170,7 +172,6 @@ class ItemsCore {
 
 		return false;
 	}
-
 
 
 	/**
@@ -697,14 +698,16 @@ class ItemsCore {
 
 				$LEFTJOIN[] = UT_ITEMS_RATINGS." as ratings ON ratings.item_id = items.id";
 				$SELECT[] = "SUM(ratings.rating) as total_rating";
-				$ORDER[] = "total_rating DESC";
+				$SELECT[] = "AVG(ratings.rating) as average_rating";
+				$ORDER[] = "average_rating DESC";
 
 			}
 			else if($order === "rating ASC") {
 
 				$LEFTJOIN[] = UT_ITEMS_RATINGS." as ratings ON ratings.item_id = items.id";
 				$SELECT[] = "SUM(ratings.rating) as total_rating";
-				$ORDER[] = "total_rating ASC";
+				$SELECT[] = "AVG(ratings.rating) as average_rating";
+				$ORDER[] = "average_rating ASC";
 
 			}
 			// Or any kind of order
@@ -758,24 +761,42 @@ class ItemsCore {
 	*
 	* @param $item_id item_id to get next from
 	*/
-	function getNext($item_id, $_options=false) {
+	function getNext($item_id, $_options = false) {
 
 		$items = false;
-		$count = 1;
+		$limit = 1;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
+
 					case "items"   : $items    = $_value; break;
-					case "count"   : $count    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
+
 				}
 			}
 		}
 
+		// debug(["getNext", $item_id, $_options]);
+
+
+		// avoid extending all items
+		$extend = false;
+		// but save extend values to extend final range_items
+		if(isset($_options["extend"])) {
+			$extend = $_options["extend"];
+			unset($_options["extend"]);
+		}
+
+
 		// get items if they have not been passed as argument
 		if($items === false) {
+			if(isset($_options["limit"])) {
+				unset($_options["limit"]);
+			}
 			$items = $this->getItems($_options);
 		}
+
 
 		// filtering variables
 		$next_items = array();
@@ -795,16 +816,23 @@ class ItemsCore {
 				$next_items[] = $items[$i];
 
 				// end when enough items have been collected
-				if($counted == $count) {
+				if($counted == $limit) {
 					break;
 				}
 			}
 
 			// found starting point
-			else if($item_id == $items[$i]["id"]) {
+			else if($item_id === $items[$i]["id"]) {
 				$item_found = true;
 			}
 		}
+
+
+		// Extend previous items before returning them
+		if($next_items && $extend) {
+			$next_items = $this->extendItems($next_items, $extend);
+		}
+
 
 		// return set of next items
 		return $next_items;
@@ -817,26 +845,41 @@ class ItemsCore {
 	* or receive query syntax to perform getItems request on it own
 	* TODO: This implementation is far from performance optimized, but works - consider alternate implementations
 	*/
-	function getPrev($item_id, $_options=false) {
+	function getPrev($item_id, $_options = false) {
 
 		$items = false;
-		$count = 1;
+		$limit = 1;
+
+		// Other getItems patters properties may also be passed
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "items"   : $items    = $_value; break;
-					case "count"   : $count    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
 				}
 			}
 		}
 
+
+		// avoid extending all items
+		$extend = false;
+		// but save extend values to extend final range_items
+		if(isset($_options["extend"])) {
+			$extend = $_options["extend"];
+			unset($_options["extend"]);
+		}
+
+
 		// get items if they have not been passed as argument
 		if($items === false) {
+			if(isset($_options["limit"])) {
+				unset($_options["limit"]);
+			}
 			$items = $this->getItems($_options);
 		}
 
-		
+
 		// filtering variables
 		$prev_items = array();
 		$item_found = false;
@@ -854,16 +897,23 @@ class ItemsCore {
 				array_unshift($prev_items, $items[$i]);
 
 				// end when enough items have been collected
-				if($counted == $count) {
+				if($counted == $limit) {
 					break;
 				}
 			}
 
 			// found starting point
-			else if($item_id == $items[$i]["id"]) {
+			else if($item_id === $items[$i]["id"]) {
 				$item_found = true;
 			}
 		}
+
+
+		// Extend previous items before returning them
+		if($prev_items && $extend) {
+			$prev_items = $this->extendItems($prev_items, $extend);
+		}
+
 
 		// return set of prev items
 		return $prev_items;
@@ -896,17 +946,37 @@ class ItemsCore {
 	 */
 	function paginate($_options) {
 
+		// Items selected for this pagination range
 		$range_items = false;
 
-		$direction = false;
-		$id = false;
+
+		// Start range_items from iten - item_id or sindex - Default false
+		$item_id = false;
 		$sindex = false;
+
+		// next: Next in order
+		// prev: Previous in order
+		// - Default next
+		// Can only be used in conjunction with item_id or sindex
+		$direction = "next";
+
+		// include sindex or item_id in match
+		// - Default true
+		// Can only be used in conjunction with item_id or sindex
+		$include = true;
+
+
+		// Start range_items from page – Default false
+		$page = false;
+
+
+
+		// Search and extend pattern for range_items / pagination
 		$pattern = false;
 
+		// Limit for range_items - Default 5
+		$limit = 20;
 
-		$limit = 5;
-
-		$extend = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -914,84 +984,125 @@ class ItemsCore {
 					case "pattern"              : $pattern         = $_value; break;
 
 					case "limit"                : $limit           = $_value; break;
+
 					case "sindex"               : $sindex          = $_value; break;
-					case "id"                   : $id              = $_value; break;
+					case "item_id"              : $item_id         = $_value; break;
+
+					case "page"                 : $page            = $_value; break;
 
 					case "direction"            : $direction       = $_value; break;
+					case "include"              : $include         = $_value; break;
 				}
 			}
 		}
 
+
+
 		
-		// avoid extending all items
+		// avoid extending all items initially
 		// but save extend values to extend final range_items
+		$extend = false;
 		if(isset($pattern["extend"])) {
 			$extend = $pattern["extend"];
 			unset($pattern["extend"]);
 		}
 
 
-		// get all items as base for pagination
+
+		// If invalid item_id or sindex has been passed, consider it as if no sindex or item_id was passed
+		// Test item_id
+		if($item_id) {
+
+			$index_item = $this->getItem(["id" => $item_id]);
+			if(!$index_item) {
+				$item_id = false;
+			}
+
+		}
+		// Test sindex – and convert to item_id if found
+		else if($sindex) {
+
+			$index_item = $this->getItem(["sindex" => $sindex]);
+			if($index_item) {
+				$item_id = $index_item["id"];
+			}
+			else {
+				$item_id = false;
+			}
+
+		}
+
+
+		// get all items sorted as base for pagination
 		$items = $this->getItems($pattern);
 
 
-		// if there is no sindex to start from
-		// lists the latest N posts
-		if(!$sindex || !$this->getIdFromSindex($sindex)) {
+
+		// if there is no item_id or page to start from beginning
+		// Select first N posts
+		// if(!$page && (!$item_id || !$this->getItem(["id" => $item_id])) && (!$sindex || !$this->getItem(["sindex" => $sindex]))) {
+		if(!$page && !$item_id) {
 
 			// simply add limit to items query
 			$pattern["limit"] = $limit;
 			$range_items = $this->getItems($pattern);
 
 		}
+		// Starting point exists
+		else {
 
-		// range_items should be based on sindex
-		else if($sindex) {
+			// item_id marks pagination point
+			if($item_id) {
 
-			// get the item_id based on sindex
-			$item_id = $this->getIdFromSindex($sindex);
+				if($direction == "prev") {
 
-			// Lists the next N posts _after_ sindex (not including)
-			if($direction == "next") {
+					// Include index item (specified by passed sindex or item_id)
+					if($include) {
 
-				$range_items = $this->getNext($item_id, array("items" => $items, "count" => $limit));
-			}
-			// Lists the prev N posts _before_ sindex (not including)
-			else if($direction == "prev") {
+						$range_items = $this->getPrev($item_id, ["items" => $items, "limit" => $limit-1]);
+						array_push($range_items, $index_item);
+					}
+					// Get prev N from item_id (not including index item)
+					else {
 
-				$range_items = $this->getPrev($item_id, array("items" => $items, "count" => $limit));
-			}
-
-			// No direction indicated
-			// Lists the next N posts _starting_ with sindex
-			else {
-
-				// filtering variables
-				$item_found = false;
-				$counted = 0;
-
-				// loop through all items, looking for starting point
-				for($i = 0; $i < count($items); $i++) {
-
-					// found starting point
-					if($item_id == $items[$i]["id"]) {
-						$item_found = true;
+						$range_items = $this->getPrev($item_id, ["items" => $items, "limit" => $limit]);
 					}
 
-					// wait until we find starting point
-					if($item_found) {
+				}
+				// Default direction is next
+				else {
 
-						// keep an eye on counter
-						$counted++;
+					// Include index item (specified by passed sindex or item_id)
+					if($include) {
 
-						// add to next scope
-						$range_items[] = $items[$i];
+						// Reduce limit to make room
+						$range_items = $this->getNext($item_id, ["items" => $items, "limit" => $limit-1]);
+						array_unshift($range_items, $index_item);
 
-						// end when enough items have been collected
-						if($counted == $limit) {
-							break;
-						}
 					}
+					// Get next N from item_id (not including index item)
+					else {
+
+						$range_items = $this->getNext($item_id, ["items" => $items, "limit" => $limit]);
+					}
+
+				}
+
+			}
+			// page marks pagination point
+			else if($page) {
+
+				$start_index = ($page-1) * $limit;
+				if(count($items) >= $start_index) {
+
+					// Find item_id of first element of page 
+					$index_item = $items[$start_index];
+
+					// Include index item (specified by passed sindex or item_id)
+					// Reduce limit to make room
+					// (for page based pagination it doesn't make sense to exclude item)
+					$range_items = $this->getNext($index_item["id"], ["items" => $items, "limit" => $limit-1]);
+					array_unshift($range_items, $index_item);
 
 				}
 
@@ -999,42 +1110,62 @@ class ItemsCore {
 
 		}
 
+
 		// Should range items be extended, then do it now
 		if($range_items && $extend) {
-			foreach($range_items as $i => $item) {
-				$range_items[$i] = $this->extendItem($item, $extend);
-			}
+			$range_items = $this->extendItems($range_items, $extend);
 		}
 
-		// find indexes and ids for next/prev
-		$first_id = (isset($range_items) && $range_items && isset($range_items[0])) ? $range_items[0]["id"] : false;
-		$first_sindex = (isset($range_items) && $range_items && isset($range_items[0])) ? $range_items[0]["sindex"] : false;
-		$last_id = (isset($range_items) && $range_items && isset($range_items[count($range_items)-1])) ? $range_items[count($range_items)-1]["id"] : false;
-		$last_sindex = (isset($range_items) && $range_items && isset($range_items[count($range_items)-1])) ? $range_items[count($range_items)-1]["sindex"] : false;
 
-		// look for next/prev item availability
-		$next = $last_id ? $this->getNext($last_id, array("items" => $items, "count" => $limit)) : false;
-		$prev = $first_id ? $this->getPrev($first_id, array("items" => $items, "count" => $limit)) : false;
-
-
+		// Page information
 		$total_count = count($items);
 
 		// Include page count and current page number
-		$page_count = ceil($total_count / $limit);
+		$page_count = intval(ceil($total_count / $limit));
 		$current_page = false;
-		if($first_id) {
-			$current_position = arrayKeyValue($items, "id", $first_id);
-			$current_page = floor($current_position / $limit)+1;
+
+		$first_id = false;
+		$first_sindex = false;
+		$last_id = false;
+		$last_sindex = false;
+		$prev = false;
+		$next = false;
+
+
+		if($range_items) {
+
+			if(isset($range_items[0])) {
+
+				$first_id = $range_items[0]["id"];
+				$first_sindex = $range_items[0]["sindex"];
+
+				$prev = $this->getPrev($first_id, ["items" => $items, "limit" => 1, "extend" => $extend]);
+				if($prev) {
+					$prev = $prev[0];
+				}
+
+				// If there is a first id, then there must be a last id (which might be the same, though)
+				$last_id = $range_items[count($range_items)-1]["id"];
+				$last_sindex = $range_items[count($range_items)-1]["sindex"];
+
+				$next = $this->getNext($last_id, ["items" => $items, "limit" => 1, "extend" => $extend]);
+				if($next) {
+					$next = $next[0];
+				}
+
+				// Locate first_id in page stack
+				$current_position = arrayKeyValue($items, "id", $first_id);
+				$current_page = intval(floor($current_position / $limit)+1);
+
+			}
+
 		}
-		else if($last_id) {
-			$current_position = arrayKeyValue($items, "id", $last_id);
-			$current_page = floor($current_position / $limit)+1;
-		}
+
 
 		// return all pagination info
 		// range_items = list of items in specified range
-		// next items
-		// previous items
+		// next item
+		// previous item
 		// first id in range
 		// last id in range
 		return array("range_items" => $range_items, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "first_sindex" => $first_sindex, "last_sindex" => $last_sindex, "total" => $total_count, "page_count" => $page_count, "current_page" => $current_page);

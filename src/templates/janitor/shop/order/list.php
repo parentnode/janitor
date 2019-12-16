@@ -97,7 +97,7 @@ session()->value("return_to_orderstatus", $status);
 					<?= $HTML->link(($status < 2 ? "Edit" : "View"), "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
 
 					<? if($order["shipping_status"] < 2 && $order["status"] != 3): ?>
-					<?= $JML->oneButtonForm("Ship order", "/janitor/admin/shop/updateShippingStatus/".$order["id"], array(
+					<?= $HTML->oneButtonForm("Ship order", "/janitor/admin/shop/updateShippingStatus/".$order["id"], array(
 						"inputs" => array("shipped" => 1),
 						"class" => "primary",
 						"wrapper" => "li.ship",

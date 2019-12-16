@@ -529,8 +529,8 @@ class UserCore extends Model {
 								mailer()->send(array(
 									"subject" => SITE_URL . " - New User: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
-									"tracking" => false
-									// "template" => "system"
+									"tracking" => false,
+									"template" => "system"
 								));
 							}
 							// error

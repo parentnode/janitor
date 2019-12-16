@@ -175,7 +175,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 				- cancel the existing subscription, and leave membership inactive.
 			</p>
 			<ul class="actions">
-				<?= $JML->oneButtonForm("Cancel membership", "/janitor/admin/profile/membership/cancelMembership/".$membership["id"], array(
+				<?= $HTML->oneButtonForm("Cancel membership", "/janitor/admin/profile/membership/cancelMembership/".$membership["id"], array(
 					"confirm-value" => "Confirm cancellation",
 					"wrapper" => "li.cancel",
 					"class" => "secondary",

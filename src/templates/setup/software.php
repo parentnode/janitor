@@ -11,7 +11,7 @@ $software_ok = $model->checkSoftware();
 	<h1>Janitor setup guide</h1>
 	<h2>Software requirements test</h2>
 	<ul class="actions">
-		<?= $JML->oneButtonForm("Restart setup", "/janitor/admin/setup/reset", array(
+		<?= $HTML->oneButtonForm("Restart setup", "/janitor/admin/setup/reset", array(
 			"confirm-value" => "Are you sure you want to start over?",
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/setup"
