@@ -1539,6 +1539,8 @@ class ShopCore extends Model {
 									if($query->sql($sql)) {
 										$order_item = $query->result(0);
 
+										$order_item["custom_price"] = isset($custom_price) ? $custom_price : false;
+
 										// add callback to 'ordered'
 										$model = $IC->typeObject($item["itemtype"]);
 										if(method_exists($model, "ordered")) {

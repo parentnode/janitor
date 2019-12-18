@@ -218,6 +218,7 @@ class SuperSubscriptionCore extends Subscription {
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
+			$custom_price = $this->getProperty("custom_price", "value");
 
 			// safety valve
 			// check if subscription already exists (somehow something went wrong)
@@ -275,6 +276,9 @@ class SuperSubscriptionCore extends Subscription {
 				}
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
+				}
+				if($custom_price) {
+					$sql .= ", custom_price = $custom_price";
 				}
 	
 	
@@ -448,6 +452,13 @@ class SuperSubscriptionCore extends Subscription {
 				else if($subscription_renewal) {
 					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
 				}
+				if($custom_price) {
+					$sql .= ", custom_price = $custom_price";
+				}
+				else if($custom_price === "") {
+					$sql .= ", custom_price = NULL";
+				}
+			
 	
 				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";
 	
@@ -598,14 +609,16 @@ class SuperSubscriptionCore extends Subscription {
 						$new_expiry = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
 						$price = $SC->getPrice($item["item_id"], array("quantity" => 1));
 
-						
+						$custom_price = $subscription["custom_price"];
+
 						// add item to cart and then create order
 						// TODO: implement custom_item_name
 						// $_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
 						
 						$cart = $SC->addToNewInternalCart($item["id"], [
 							"user_id" => $subscription["user_id"], 
-							"custom_name" => $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")"
+							"custom_name" => $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")",
+							"custom_price" => $custom_price
 						]);
 							
 						// pass subscription_renewal flag for use in updateSubscription

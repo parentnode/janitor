@@ -218,6 +218,8 @@ class SubscriptionCore extends Model {
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
+			$custom_price = $this->getProperty("custom_price", "value");
+
 
 			// safety valve
 			// check if subscription already exists (somehow something went wrong)
@@ -284,6 +286,9 @@ class SubscriptionCore extends Model {
 				}
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
+				}
+				if($custom_price) {
+					$sql .= ", custom_price = $custom_price";
 				}
 	
 	
@@ -461,6 +466,12 @@ class SubscriptionCore extends Model {
 				}
 				else {
 					$sql .= ", expires_at = NULL";
+				}
+				if($custom_price) {
+					$sql .= ", custom_price = $custom_price";
+				}
+				else if($custom_price === "") {
+					$sql .= ", custom_price = NULL";
 				}
 	
 				$sql .= " WHERE user_id = $user_id AND id = $subscription_id";

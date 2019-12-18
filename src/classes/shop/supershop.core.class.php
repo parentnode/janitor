@@ -895,12 +895,7 @@ class SuperShopCore extends Shop {
 								$total_vat = $unit_vat * $quantity;
 
 								// use custom name for cart item if available
-								if(isset($cart_item["custom_name"]) && $cart_item["custom_name"]) {
-									$item_name = $cart_item["custom_name"];
-								}
-								else {
-									$item_name = $item["name"];
-								}
+								$item_name = isset($cart_item["custom_name"]) ? $cart_item["custom_name"] : $item["name"];
 
 								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item_name)."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
 								// print $sql;
@@ -914,7 +909,9 @@ class SuperShopCore extends Shop {
 									$sql = "SELECT * FROM ".$this->db_order_items." WHERE id = $order_item_id";
 									if($query->sql($sql)) {
 										$order_item = $query->result(0);
-										
+
+										$order_item["custom_price"] = isset($custom_price) ? $custom_price : false;
+
 										// add callback to 'ordered'
 										$model = $IC->typeObject($item["itemtype"]);
 										if(method_exists($model, "ordered")) {
