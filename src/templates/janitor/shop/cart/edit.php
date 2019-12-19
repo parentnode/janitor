@@ -44,7 +44,7 @@ if($cart) {
 
 	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("Cart list", "/janitor/admin/shop/cart/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $JML->oneButtonForm("Delete cart", "/janitor/admin/shop/deleteCart/".$cart["id"]."/".$cart["cart_reference"], array(
+		<?= $HTML->oneButtonForm("Delete cart", "/janitor/admin/shop/deleteCart/".$cart["id"]."/".$cart["cart_reference"], array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/shop/cart/list"
 		)) ?>
@@ -158,7 +158,7 @@ if($cart) {
 				</h3>
 
 				<ul class="actions">
-					<?= $JML->oneButtonForm("Delete", "/janitor/admin/shop/deleteFromCart/".$cart["cart_reference"]."/".$cart_item["id"], array(
+					<?= $HTML->oneButtonForm("Delete", "/janitor/admin/shop/deleteFromCart/".$cart["cart_reference"]."/".$cart_item["id"], array(
 						"wrapper" => "li.delete",
 						"success-function" => "deletedFromCart",
 						"static" => true
@@ -273,7 +273,7 @@ if($cart) {
 		<p>Start checkout process by converting this cart into an order.</p>
 
 		<ul class="actions">
-			<?= $JML->oneButtonForm("Start checkout process", "/janitor/admin/shop/newOrderFromCart/".$cart["id"]."/".$cart["cart_reference"], array(
+			<?= $HTML->oneButtonForm("Start checkout process", "/janitor/admin/shop/newOrderFromCart/".$cart["id"]."/".$cart["cart_reference"], array(
 				"inputs" => array("order_comment" => "Created by admin"),
 				"confirm-value" => "Create new order from this cart?",
 				"class" => "primary",

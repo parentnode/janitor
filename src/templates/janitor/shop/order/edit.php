@@ -54,7 +54,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<?= $HTML->link("User orders", "/janitor/admin/user/orders/".$order["user_id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
 
 		<? if($order["status"] == 0 || $order["status"] == 1): ?>
-		<?= $JML->oneButtonForm("Cancel order", "/janitor/admin/shop/cancelOrder/".$order["id"]."/".$order["user_id"], array(
+		<?= $HTML->oneButtonForm("Cancel order", "/janitor/admin/shop/cancelOrder/".$order["id"]."/".$order["user_id"], array(
 			"wrapper" => "li.delete",
 			"confirm-value" => "Are you sure? This will also cancel any subscriptions or memberships related to this order!",
 			"class" => "secondary",
@@ -72,7 +72,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<? endif; ?>
 
 		<? if($order["shipping_status"] < 2 && $order["status"] != 3): ?>
-		<?= $JML->oneButtonForm("Ship order", "/janitor/admin/shop/updateShippingStatus/$order_id", array(
+		<?= $HTML->oneButtonForm("Ship order", "/janitor/admin/shop/updateShippingStatus/$order_id", array(
 			"inputs" => array("shipped" => 1),
 			"class" => "primary",
 			"wrapper" => "li.ship",
@@ -201,7 +201,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 
 				<ul class="actions">
 					<? /*if($order["status"] == 0): ?>
-					<?= $JML->oneButtonForm("Delete", "/janitor/admin/shop/deleteFromOrder/$order_id/".$order_item["id"], array(
+					<?= $HTML->oneButtonForm("Delete", "/janitor/admin/shop/deleteFromOrder/$order_id/".$order_item["id"], array(
 						"wrapper" => "li.delete",
 						"success-function" => "deletedFromOrder",
 						"static" => true
@@ -209,13 +209,13 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 					<? endif; */?>
 
 					<? /*if($order["status"] == 0 || $order["status"] == 1 || $order["status"] == 2): ?>
-					<?= $JML->oneButtonForm("Mark as returned", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
+					<?= $HTML->oneButtonForm("Mark as returned", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
 						"inputs" => array("shipped" => 0),
 						"wrapper" => "li.shipped",
 						"static" => true,
 						"confirm-value" => "Yes, the item has been returned"
 					)) ?>
-					<?= $JML->oneButtonForm("Mark as shipped", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
+					<?= $HTML->oneButtonForm("Mark as shipped", "/janitor/admin/shop/updateShippingStatus/$order_id/".$order_item["id"], array(
 						"inputs" => array("shipped" => 1),
 						"class" => "secondary",
 						"wrapper" => "li.not_shipped",

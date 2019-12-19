@@ -88,7 +88,7 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 					<?= $HTML->link("Edit", "/janitor/admin/user/subscription/edit/".$user_id."/".$subscription["id"], array("class" => "button", "wrapper" => "li.cancel")) ?>
 					<? endif; ?>
 
-					<?= $JML->oneButtonForm("Delete", "/janitor/admin/user/deleteSubscription/".$user_id."/".$subscription["id"], array(
+					<?= $HTML->oneButtonForm("Delete", "/janitor/admin/user/deleteSubscription/".$user_id."/".$subscription["id"], array(
 						"js" => true,
 						"wrapper" => "li.delete",
 						"static" => true

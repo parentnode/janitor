@@ -13,7 +13,7 @@ $all_check = $model->checkAllSettings();
 	<h1>Can't finish until you are done</h1>
 	<h2>- and you're not done.</h2>
 	<ul class="actions">
-		<?= $JML->oneButtonForm("Restart setup", "/janitor/admin/setup/reset", array(
+		<?= $HTML->oneButtonForm("Restart setup", "/janitor/admin/setup/reset", array(
 			"confirm-value" => "Are you sure you want to start over?",
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/setup"
@@ -33,7 +33,7 @@ $all_check = $model->checkAllSettings();
 	<h1>Janitor is almost ready!</h1>
 	<h2 class="subheader">The required information has been validated.</h2>
 	<ul class="actions reset">
-		<?= $JML->oneButtonForm("Restart setup", "/janitor/admin/setup/reset", array(
+		<?= $HTML->oneButtonForm("Restart setup", "/janitor/admin/setup/reset", array(
 			"confirm-value" => "Are you sure you want to start over?",
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/setup"
@@ -44,7 +44,7 @@ $all_check = $model->checkAllSettings();
 		<p>Click <em>install</em> to write configuration files and finish the installation.</p>
 
 		<ul class="actions">
-			<?= $JML->oneButtonForm("Install", "/janitor/admin/setup/finish/finishInstallation", array(
+			<?= $HTML->oneButtonForm("Install", "/janitor/admin/setup/finish/finishInstallation", array(
 				"static" => true,
 				"wrapper" => "li.install",
 				"class" => "primary"

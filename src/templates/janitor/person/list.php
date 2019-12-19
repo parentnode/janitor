@@ -13,11 +13,11 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC, 
 		<?= $JML->listNew(array("label" => "New person")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList taggable filters sortable images width:100"<?= $JML->jsData(["order", "tags", "search"]) ?>>
+	<div class="all_items i:defaultList taggable filters sortable images width:100"<?= $HTML->jsData(["order", "tags", "search"]) ?>>
 <?		if($items): ?>
 		<ul class="items">
 <?			foreach($items as $item): ?>
-			<li class="item item_id:<?= $item["id"] ?><?= $JML->jsMedia($item, "single_media") ?>">
+			<li class="item item_id:<?= $item["id"] ?><?= $HTML->jsMedia($item, "single_media") ?>">
 				<h3><?= $item["name"] ?></h3>
 
 				<?= $JML->tagList($item["tags"]) ?>

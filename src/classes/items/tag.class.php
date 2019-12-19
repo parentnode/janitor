@@ -90,33 +90,28 @@ class Tag extends Model {
 		$this->getPostedEntities();
 
 		if(count($action) == 2) {
+
 			$tag_id = $action[1];
 			$query = new Query();
 
-			$entities = $this->data_entities;
-			$names = array();
-			$values = array();
+			if($this->validateList(["context", "value", "description"], $tag_id)) {
 
-			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && preg_match("/^(context|value|description)$/", $name)) {
-					$names[] = $name;
-					$values[] = $name."='".$entity["value"]."'";
-				}
-			}
+				$context = $this->getProperty("context", "value");
+				$value = $this->getProperty("value", "value");
+				$description = $this->getProperty("description", "value");
 
-			if($this->validateList($names, $tag_id)) {
-				if($values) {
-					$sql = "UPDATE ".$this->db." SET ".implode(",", $values)." WHERE id = ".$tag_id;
+				$sql = "UPDATE ".$this->db." SET context = '$context', value = '$value', description = '$description' WHERE id = ".$tag_id;
+				// debug([$sql]);
 
-//					print $sql;
-				}
-
-				if(!$values || $query->sql($sql)) {
+				if($query->sql($sql)) {
 					message()->addMessage("Tag updated");
 					return true;
 				}
+
 			}
+
 		}
+
 		message()->addMessage("Updating tag failed", array("type" => "error"));
 		return false;
 

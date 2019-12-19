@@ -44,7 +44,7 @@ session()->value("return_to_todolist", $item_id);
 	<ul class="actions i:defaultEditActions">
 		<?= $model->link("Back to overview", "/janitor/admin/todo/list" . ($todo_state_view ? "/state/".$todo_state_view : ""), array("class" => "button", "wrapper" => "li.cancel")); ?>
 		<?= $model->link("New task", "/janitor/admin/todo/new", array("class" => "button primary", "wrapper" => "li.new")); ?>
-		<?= $JML->oneButtonForm("Delete", "/janitor/admin/todolist/delete/".$item["id"], array(
+		<?= $model->oneButtonForm("Delete", "/janitor/admin/todolist/delete/".$item["id"], array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/todo/list" . ($todo_state_view ? "/state/".$todo_state_view : "")
 		)) ?>
@@ -126,7 +126,7 @@ if($item["state"] != 1): ?>
 
 					<ul class="actions">
 						<?= $model->link("Edit", "/janitor/admin/todo/edit/".$item["id"], array("class" => "button", "wrapper" => "li.edit")); ?>
-						<?= $JML->oneButtonForm("Delete", "/janitor/admin/todo/delete/".$item["id"], array(
+						<?= $model->oneButtonForm("Delete", "/janitor/admin/todo/delete/".$item["id"], array(
 							"js" => true,
 							"wrapper" => "li.delete",
 							"static" => true

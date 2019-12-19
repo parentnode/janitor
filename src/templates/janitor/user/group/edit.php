@@ -10,7 +10,7 @@ $item = $model->getUserGroups(array("user_group_id" => $user_group_id));
 
 	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("Groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $JML->oneButtonForm("Delete", "/janitor/admin/user/deleteUserGroup/".$user_group_id, array(
+		<?= $HTML->oneButtonForm("Delete", "/janitor/admin/user/deleteUserGroup/".$user_group_id, array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/user/group/list"
 		)) ?>
@@ -25,7 +25,7 @@ $item = $model->getUserGroups(array("user_group_id" => $user_group_id));
 			</fieldset>
 
 			<ul class="actions">
-				<?= $HTML->link("Back", "/janitor/admin/user/group/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
+				<?= $model->link("Back", "/janitor/admin/user/group/list", array("class" => "button key:esc", "wrapper" => "li.cancel")) ?>
 				<?= $model->submit("Update", array("class" => "primary key:s", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>

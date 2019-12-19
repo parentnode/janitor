@@ -62,10 +62,12 @@ $email = $model->getProperty("email", "value");
 
 		<?= $model->input("maillist", array("type" => "hidden", "value" => 1)); ?>
 		<?= $model->input("maillist_name", array("type" => "hidden", "value" => "curious")); ?>
+		<?= $model->input("signup_type", array("type" => "hidden", "value" => "")); ?>
 
 		<fieldset>
 			<?= $model->input("email", array("label" => "Your email", "required" => true, "value" => $email, "hint_message" => "Type your email.", "error_message" => "You entered an invalid email.")); ?>
 			<?= $model->input("password", array("hint_message" => "Type your new password - or leave it blank and we'll generate one for you.", "error_message" => "Your password must be more than 8 characters.")); ?>
+
 			<?= $model->input("terms"); ?>
 		</fieldset>
 

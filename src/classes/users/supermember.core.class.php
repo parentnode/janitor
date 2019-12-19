@@ -625,8 +625,18 @@ class SuperMemberCore extends Member {
 	
 									$expires_at = false;
 									if($item["subscription_method"]) {
-										$start_time = $subscription["renewed_at"] ? $subscription["renewed_at"] : $subscription["created_at"];
-										$expires_at = $SuperSubscriptionClass->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $start_time);
+										// current subscription has no expiry
+										if(!$subscription["expires_at"]) {
+
+											// calculate expiry date based on current date
+											$start_time = date("Y-m-d H:i", time()); 
+											$expires_at = $SuperSubscriptionClass->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $start_time);
+										}
+										else {
+
+											// keep expiry date
+											$expires_at = $subscription["expires_at"];
+										}									
 									}
 	
 									if($expires_at) {
