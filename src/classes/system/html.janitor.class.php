@@ -795,9 +795,9 @@ class JanitorHTML {
 						$_ .= '<li class="price">'.formatPrice($price, array("vat" => true)).'</li>';
 //						$_ .= '<li class="currency">'. $price["currency"].'</li>';
 						$_ .= '<li class="vatrate">'.$price["vatrate"].'% VAT</li>';
-						if($price["name"] == "offer"):
+						if($price["type"] == "offer"):
 							$_ .= '<li class="offer">Special offer</li>';
-						elseif($price["name"] == "bulk"):
+						elseif($price["type"] == "bulk"):
 							$_ .= '<li class="bulk">Bulk price for '.$price["quantity"].' items</li>';
 						endif;
 					$_ .= '</ul>';
