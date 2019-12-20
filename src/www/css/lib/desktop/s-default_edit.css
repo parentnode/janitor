@@ -162,8 +162,9 @@
 #content .scene.defaultEdit > div.prices ul.prices {padding: 0 0 15px;}
 #content .scene.defaultEdit > div.prices ul.prices li.pricedetails {display: block; position: relative; border-bottom: 1px solid #dedede;}
 #content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li {display: inline-block; vertical-align: top; padding: 10px 5px 10px 0; line-height: 1em;}
+#content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li.custom_price:before,
 #content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li.offer:before,
-#content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li.bulk:before {content: "- ";}
+#content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li.bulk:before{content: "- ";}
 #content .scene.defaultEdit > div.prices ul.prices > li > ul.actions {position: absolute; top: 3px; right: 0;}
 
 

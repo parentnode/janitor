@@ -840,7 +840,21 @@ class PageCore {
 	*
 	* @return Array of price_types or array of price_type details
 	*/
-	function price_types($id = false) {
+	function price_types($_options = false) {
+
+		$IC = new Items();
+
+		$id = false;
+		$exclude_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "id"                   : $id                    = $_value; break;
+					case "exclude_id"           : $exclude_id            = $_value; break;
+				}
+			}
+		}
 
 		if(!cache()->value("price_types")) {
 
@@ -861,10 +875,36 @@ class PageCore {
 				return false;
 			}
 		}
+		// exclude price_type of a specific item_id 
+		else if($exclude_id !== false) {
+			$IC = new Items();
+
+			$price_types = cache()->value("price_types");
+
+			$key = arrayKeyValue($price_types, "item_id", $exclude_id);
+
+			if($key) {
+				unset($price_types[$key]);
+			}
+		}
 		// return complete array of price_types
 		else {
-			return cache()->value("price_types");
+			$price_types = cache()->value("price_types");
 		}
+
+		// exclude price_type for disabled items
+		foreach($price_types as $key => $price_type) {
+
+			if(isset($price_type["item_id"])) {
+				$item = $IC->getItem(["id" => $price_type["item_id"]]);
+				
+				if($item["status"] === "0") {
+					unset($price_types[$key]);
+				}
+			}
+		}
+
+		return $price_types;
 	}
 	
 

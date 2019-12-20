@@ -584,8 +584,7 @@ class JanitorHTML {
 
 		$vatrate_options = $model->toOptions($page->vatrates(), "id", "name");
 
-		$type_options = $model->toOptions($page->price_types(), "id", "description");
-
+		$type_options = $model->toOptions($page->price_types(["exclude_id" => $item["id"]]), "id", "description");
 
 		
 
@@ -750,6 +749,8 @@ class JanitorHTML {
 							$_ .= '<li class="offer">Special offer</li>';
 						elseif($price["type"] == "bulk"):
 							$_ .= '<li class="bulk">Bulk price for '.$price["quantity"].' items</li>';
+						elseif($price["type"] != "default"):
+							$_ .= '<li class="custom_price">'.$price["description"].'</li>';
 						endif;
 					$_ .= '</ul>';
 				$_ .= '</li>';

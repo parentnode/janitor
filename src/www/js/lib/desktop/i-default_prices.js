@@ -55,13 +55,13 @@ Util.Objects["defaultPrices"] = new function() {
 						var info = u.ae(price_li, "ul", {"class":"info"});
 						u.ae(info, "li", {"class":"price", "html":response.cms_object["formatted_price"]});
 						u.ae(info, "li", {"class":"vatrate", "html":response.cms_object["vatrate"]+"%"});
-						if(response.cms_object["name"] == "offer") {
+						if(response.cms_object["type"] == "offer") {
 							u.ae(info, "li", {"class":"offer", "html":"Special offer"});
 						}
-						else if(response.cms_object["name"] == "bulk") {
+						else if(response.cms_object["type"] == "bulk") {
 							u.ae(info, "li", {"class":"bulk", "html":"Bulk price for "+response.cms_object["quantity"] + " items"});
 						}
-						else if(response.cms_object["name"] != "default") {
+						else if(response.cms_object["type"] != "default") {
 							u.ae(info, "li", {"class":"custom_price", "html":response.cms_object["description"]});
 						}
 

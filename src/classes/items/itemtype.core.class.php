@@ -1785,7 +1785,7 @@ class ItemtypeCore extends Model {
 				$currency = $this->getProperty("item_price_currency", "value");
 				$vatrate = $this->getProperty("item_price_vatrate", "value");
 				$type_id = $this->getProperty("item_price_type", "value");
-				$type_name = $page->price_types($type_id)["name"];
+				$type_name = $page->price_types(["id" => $type_id])["name"];
 				if($type_name == "bulk") {
 					$quantity = $this->getProperty("item_price_quantity", "value");
 					// check quantity value for bulk price
