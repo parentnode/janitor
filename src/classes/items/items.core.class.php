@@ -933,7 +933,6 @@ class ItemsCore {
 	 * * * "next" – pagination will start with the item that comes *after* the item with the specified sindex. 
 	 * * * "prev" – pagination will show the items that come immediately *before* the item with the specified sindex.
 	 * 
-	 * @todo implement id as a parameter
 	 * 
 	 * @return array
 	 * * range_items (list of items in specified range)
@@ -1059,8 +1058,16 @@ class ItemsCore {
 					// Include index item (specified by passed sindex or item_id)
 					if($include) {
 
-						$range_items = $this->getPrev($item_id, ["items" => $items, "limit" => $limit-1]);
-						array_push($range_items, $index_item);
+						// Limit must be greater than one, or we already have the full range in $index_item
+						if($limit > 1) {
+							// Reduce limit to make room
+							$range_items = $this->getPrev($item_id, ["items" => $items, "limit" => $limit-1]);
+							array_push($range_items, $index_item);
+						}
+						else {
+							$range_items[] = $index_item;
+						}
+
 					}
 					// Get prev N from item_id (not including index item)
 					else {
@@ -1075,9 +1082,15 @@ class ItemsCore {
 					// Include index item (specified by passed sindex or item_id)
 					if($include) {
 
-						// Reduce limit to make room
-						$range_items = $this->getNext($item_id, ["items" => $items, "limit" => $limit-1]);
-						array_unshift($range_items, $index_item);
+						// Limit must be greater than one, or we already have the full range in $index_item
+						if($limit > 1) {
+							// Reduce limit to make room
+							$range_items = $this->getNext($item_id, ["items" => $items, "limit" => $limit-1]);
+							array_unshift($range_items, $index_item);
+						}
+						else {
+							$range_items[] = $index_item;
+						}
 
 					}
 					// Get next N from item_id (not including index item)
