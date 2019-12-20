@@ -1953,7 +1953,7 @@ class ItemtypeCore extends Model {
 		$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
 		$item_id = $order_item["item_id"];
 
-		$custom_price = isset($order_item["custom_price"]) ? $order_item["custom_price"] : false;
+		$custom_price = isset($order_item["custom_price"]) ? $order_item["unit_price"] : false;
 
 		// order item can be subscribed to
 		if(SITE_SUBSCRIPTIONS && isset($item["subscription_method"]) && $item["subscription_method"]) {
