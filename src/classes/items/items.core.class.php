@@ -1677,7 +1677,8 @@ class ItemsCore {
 
 		// get specific price
 		if($price_id) {
-			if($query->sql("SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.id = '$price_id' AND vatrates.id = prices.vatrate_id")) {
+			$sql = "SELECT prices.id, prices.price, prices.currency, prices.quantity, vatrates.vatrate, price_types.name AS type, price_types.description FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates, ".UT_PRICE_TYPES." as price_types WHERE prices.id = '$price_id' AND vatrates.id = prices.vatrate_id AND price_types.id = prices.type_id";
+			if($query->sql($sql)) {
 
 				$price = $query->result(0);
 
@@ -1694,9 +1695,9 @@ class ItemsCore {
 
 			// if currency specified return only prices in that currency 
 			if($currency) {
-				$sql = "SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id AND prices.currency = '$currency' ORDER BY prices.currency ASC, prices.type DESC, prices.quantity ASC";
+				$sql = "SELECT prices.id, prices.price, prices.currency, prices.quantity, vatrates.vatrate, price_types.name AS type, price_types.description FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates, ".UT_PRICE_TYPES." as price_types WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id AND price_types.id = prices.type_id AND prices.currency = '$currency' ORDER BY prices.currency ASC, price_types.name DESC, prices.quantity ASC";
 				// print $sql;
-				if($query->sql($sql)) {
+					if($query->sql($sql)) {
 
 					$prices = $query->results();
 
@@ -1712,7 +1713,7 @@ class ItemsCore {
 			}
 			// get all prices for item
 			else {
-				$sql = "SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id ORDER BY prices.currency ASC, prices.type DESC, prices.quantity ASC";
+				$sql = "SELECT prices.id, prices.price, prices.currency, prices.quantity, vatrates.vatrate, price_types.name AS type, price_types.description FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates, ".UT_PRICE_TYPES." as price_types WHERE prices.item_id = $item_id AND vatrates.id = prices.vatrate_id AND price_types.id = prices.type_id ORDER BY prices.currency ASC, price_types.name DESC, prices.quantity ASC";
 				if($query->sql($sql)) {
 
 					$prices = $query->results();
@@ -1733,7 +1734,8 @@ class ItemsCore {
 		// get all prices
 		else {
 
-			if($query->sql("SELECT prices.id, prices.price, prices.currency, prices.type, prices.quantity, vatrates.vatrate FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates WHERE vatrates.id = prices.vatrate_id ORDER BY prices.currency ASC, prices.type DESC, prices.quantity ASC")) {
+			$sql = "SELECT prices.id, prices.item_id, prices.price, prices.currency, prices.quantity, vatrates.vatrate, price_types.name AS type, price_types.description FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates, ".UT_PRICE_TYPES." as price_types WHERE vatrates.id = prices.vatrate_id AND price_types.id = prices.type_id ORDER BY prices.currency ASC, price_types.name DESC, prices.quantity ASC";
+			if($query->sql($sql)) {
 
 				$prices = $query->results();
 

@@ -6,6 +6,8 @@ CREATE TABLE `SITE_DB`.`user_item_subscriptions` (
 
   `payment_method` int(11) DEFAULT NULL,
 
+  `custom_price` int(11) DEFAULT NULL,
+
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_at` timestamp NULL DEFAULT NULL,
 

@@ -261,6 +261,7 @@ class Upgrade extends Model {
 			// CREATE SHOP TABLES
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
 				$this->process($this->createTableIfMissing(UT_VATRATES), true);
+				$this->process($this->createTableIfMissing(UT_PRICE_TYPES), true);
 
 				// SHOP
 				$this->process($this->createTableIfMissing(SITE_DB.".user_addresses"), true);
@@ -284,6 +285,22 @@ class Upgrade extends Model {
 
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
 				$this->process($this->checkDefaultValues(UT_VATRATES), true);
+				$this->process($this->checkDefaultValues(UT_PRICE_TYPES), true);
+
+				// create price types for existing membership items
+				$membership_items = $IC->getItems(["itemtype" => "membership", "extend" => true]);
+				foreach($membership_items as $membership_item) {
+					$membership_item_id = $membership_item["id"];
+					$membership_item_name = $membership_item["name"];
+					$normalized_membership_item_name = superNormalize(substr($membership_item_name, 0, 60));
+					
+					$sql = "SELECT * FROM ".UT_PRICE_TYPES." WHERE item_id = $membership_item_id";
+					if (!$query->sql($sql)) {
+
+						$sql = "INSERT INTO ".UT_PRICE_TYPES." (item_id, name, description) VALUES($membership_item_id, '$normalized_membership_item_name', 'Price for \\'$membership_item_name\\' members')"; 
+						$query->sql($sql);
+					}
+				}
 			}
 			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->addColumn(UT_PAYMENT_METHODS, "classname", "varchar(50) DEFAULT NULL", "name"), true);
@@ -549,6 +566,47 @@ class Upgrade extends Model {
 				$this->process(["message" => "Media updated", "success" => true]);
 			}
 
+			// ITEM PRICES
+			$this->process($this->createTableIfMissing(UT_ITEMS_PRICES), true);
+
+			$sql = "SELECT id, type FROM ".UT_ITEMS_PRICES;
+			if($query->sql($sql)) {
+				$type_prices = $query->results();
+				
+				foreach($type_prices as $index => $type_price) {
+
+					if($type_price["type"] == "default") {
+						$type_prices[$index]["type_id"] = 1;
+					}
+					elseif($type_price["type"] == "offer") {
+						$type_prices[$index]["type_id"] = 2;
+					}
+					elseif($type_price["type"] == "bulk") {
+						$type_prices[$index]["type_id"] = 3;
+					}
+				}
+				
+				$this->synchronizeTable("items_prices");
+
+				$sql = "SELECT id, type_id FROM ".UT_ITEMS_PRICES;
+				if($query->sql($sql)) {
+
+					$type_id_prices = $query->results();
+
+					foreach($type_id_prices as $index => $type_id_price) {
+
+						$matching_type_prices_index = array_search($type_id_price["id"], array_column($type_prices, "id"));
+
+						$type_id = $type_prices[$matching_type_prices_index]["type_id"];
+
+						$sql = "UPDATE ".UT_ITEMS_PRICES." SET type_id = $type_id WHERE id = ".$type_id_price["id"];
+						$query->sql($sql);
+
+					}
+				}
+
+
+			}
 
 
 			// USER/ITEM

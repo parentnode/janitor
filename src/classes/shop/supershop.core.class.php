@@ -459,7 +459,11 @@ class SuperShopCore extends Shop {
 	 * 
 	 * /janitor/admin/shop/addToCart/#cart_reference#/
 	 *
-	 * Item and quantity in $_POST
+	 * Values in $_POST
+	 * - item_id (required)
+	 * - quantity (required)
+	 * - custom_price
+	 * - custom_name
 	 * 
 	 * @param array $action
 	 * @return array|false Cart object. False on error. 
@@ -483,21 +487,38 @@ class SuperShopCore extends Shop {
 				$query = new Query();
 				$IC = new Items();
 
+				$custom_name = $this->getProperty("custom_name", "value");
+				$custom_price = $this->getProperty("custom_price", "value");
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
 				$item = $IC->getItem(array("id" => $item_id));
 
-				$price = $this->getPrice($item_id);
-
 				// item has a price (price can be zero)
-				if ($price !== false) {
+				if ($query->sql("SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id")) {
+					
+					// look in cart to see if the added item is already there
+					// if added item already exists with a different custom_name or custom_price, create new line
+					if ($custom_price && $custom_name) {
 
-					// item is already in cart
-					if($cart["items"] && arrayKeyValue($cart["items"], "item_id", $item_id) !== false) {
-						$existing_item_index = arrayKeyValue($cart["items"], "item_id", $item_id);
-	
-	
-						$existing_item = $cart["items"][$existing_item_index];
+						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price, "custom_name" => $custom_name]);
+					}
+					else if($custom_price) {
+
+						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price]);
+					}
+					else if($custom_name) {
+						
+						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_name" => $custom_name]);
+					}
+					else {
+						
+						$existing_item = $this->getCartItem($cart_reference, $item_id);
+					}
+					
+
+					// added item is already in cart
+					if($existing_item) {
+						
 						$existing_quantity = $existing_item["quantity"];
 						$new_quantity = intval($quantity) + intval($existing_quantity);
 	
@@ -509,7 +530,14 @@ class SuperShopCore extends Shop {
 						
 						// insert new cart item
 						$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
-		//				print $sql;	
+
+						if($custom_price) {
+							$sql .= ", custom_price=$custom_price";
+						}
+						if($custom_name) {
+							$sql .= ", custom_name='".$custom_name."'";
+						}
+						// print $sql;	
 					}
 	
 					if($query->sql($sql)) {
@@ -545,20 +573,28 @@ class SuperShopCore extends Shop {
 	 *
 	 * @param int $item_id
 	 * @param int $_options 
-	 * – user_id is required	
+	 * – user_id (required)	
 	 * – a quantity can be specified (default is 1)
+	 * – custom_name
+	 * – custom_price
 	 * 
 	 * @return array|false Cart object. False on error.
 	 */
 	function addToNewInternalCart($item_id, $_options = false) {
 
 		$quantity = 1;
+		$custom_name = false;
+		$custom_price = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "user_id"           : $user_id             = $_value; break;
 					case "quantity"          : $quantity            = $_value; break;
+
+					case "custom_name"       : $custom_name         = $_value; break;
+					case "custom_price"      : $custom_price        = $_value; break;
+
 				}
 			}
 		}
@@ -566,6 +602,15 @@ class SuperShopCore extends Shop {
 		$price = $this->getPrice($item_id);
 		// user_id was passed and item has a price (price can be zero)
 		if($user_id && $price !== false) {
+
+			// use custom price if available
+			if($custom_price) {
+				$price["price"] = $custom_price;
+
+				$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
+				$price["price_without_vat"] = $custom_price_without_vat;
+				$price["vat"] = $custom_price - $custom_price_without_vat;
+			}
 
 			// create new internal cart
 			$_POST["user_id"] = $user_id;
@@ -580,6 +625,14 @@ class SuperShopCore extends Shop {
 				
 				// insert new cart item
 				$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
+
+				if($custom_price) {
+					$sql .= ", custom_price=$custom_price";
+				}
+				if($custom_name) {
+					$sql .= ", custom_name='".$custom_name."'";
+				}
+
 				if($query->sql($sql)) {
 
 					// get updated cart
@@ -704,6 +757,7 @@ class SuperShopCore extends Shop {
 
 	// Convert cart to order
 	# /janitor/admin/shop/newOrderFromCart/#card_id#/#cart_reference#
+	// order_comment in $_POST
 	function newOrderFromCart($action) {
 
 		// get posted values to make them available for models
@@ -716,6 +770,8 @@ class SuperShopCore extends Shop {
 			$query = new Query();
 			$UC = new SuperUser();
 			$IC = new Items();
+
+			$order_comment = $this->getProperty("order_comment", "value");
 
 			$cart_id = $action[1];
 			$cart_reference = $action[2];
@@ -777,6 +833,7 @@ class SuperShopCore extends Shop {
 
 					// no billing info is provided
 					if(!$billing_address) {
+						
 						// use available account info
 						$user = $UC->getUsers(["user_id" => $user_id]);
 						if($user["firstname"] && $user["lastname"]) {
@@ -799,7 +856,6 @@ class SuperShopCore extends Shop {
 						// get the new order
 						$order = $this->getOrders(array("order_no" => $order_no));
 
-						$admin_summary = [];
 //						print "items";
 //						print_r($cart["items"]);
 
@@ -818,12 +874,25 @@ class SuperShopCore extends Shop {
 								$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
 								// print_r("price: ".$price);
 
+								// use custom price if available
+								if(isset($cart_item["custom_price"]) && $cart_item["custom_price"]) {
+									$custom_price = $cart_item["custom_price"];
+									
+									$price["price"] = $custom_price;
+									$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
+									$price["price_without_vat"] = $custom_price_without_vat;
+									$price["vat"] = $custom_price - $custom_price_without_vat;
+								}
+								
 								$unit_price = $price["price"];
 								$unit_vat = $price["vat"];
 								$total_price = $unit_price * $quantity;
 								$total_vat = $unit_vat * $quantity;
 
-								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item["name"])."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+								// use custom name for cart item if available
+								$item_name = isset($cart_item["custom_name"]) ? $cart_item["custom_name"] : $item["name"];
+
+								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item_name)."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
 								// print $sql;
 
 
@@ -835,7 +904,9 @@ class SuperShopCore extends Shop {
 									$sql = "SELECT * FROM ".$this->db_order_items." WHERE id = $order_item_id";
 									if($query->sql($sql)) {
 										$order_item = $query->result(0);
-										
+
+										$order_item["custom_price"] = isset($custom_price);
+
 										// add callback to 'ordered'
 										$model = $IC->typeObject($item["itemtype"]);
 										if(method_exists($model, "ordered")) {
@@ -852,10 +923,11 @@ class SuperShopCore extends Shop {
 						$this->validateOrder($order["id"]);
 
 
-						// Update order comment
-						$sql = "UPDATE ".$this->db_orders." SET comment = '".$order["comment"]."' WHERE order_no='$order_no'";
-//						print $sql."<br>\n";
-						$query->sql($sql);
+						if($order_comment) {
+							
+							$sql = "UPDATE ".$this->db_orders." SET comment = '".$order_comment."' WHERE order_no='$order_no'";
+							$query->sql($sql);
+						}
 					
 						
 						// only autoship order if every item should be autoshipped
@@ -2069,6 +2141,45 @@ class SuperShopCore extends Shop {
 
 	}
 
+	// Process gateway data
+	function processOrderPayment($action) {
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		// does values validate
+		if(count($action) == 4 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
+
+			$order_no = $action[1];
+			$gateway = $action[2];
+
+			$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
+			$card_exp_month = $this->getProperty("card_exp_month", "value");
+			$card_exp_year = $this->getProperty("card_exp_year", "value");
+			$card_cvc = $this->getProperty("card_cvc", "value");
+
+
+			if($order_no) {
+				$order = $this->getOrders(array("order_no" => $order_no));
+
+				if($order && $order["payment_status"] !== 2) {
+
+					$order["total_price"] = $this->getTotalOrderPrice($order["id"]);
+
+					return payments()->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+
+				}
+
+			}
+
+		}
+
+		return false;
+
+	}
 
 }
 

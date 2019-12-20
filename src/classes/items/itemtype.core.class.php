@@ -1768,6 +1768,8 @@ class ItemtypeCore extends Model {
 	// /janitor/[admin/]#itemtype#/addPrice/#item_id#
  	function addPrice($action) {
 
+		global $page;
+		
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
@@ -1782,8 +1784,9 @@ class ItemtypeCore extends Model {
 				$price = $this->getProperty("item_price", "value");
 				$currency = $this->getProperty("item_price_currency", "value");
 				$vatrate = $this->getProperty("item_price_vatrate", "value");
-				$type = $this->getProperty("item_price_type", "value");
-				if($type == "bulk") {
+				$type_id = $this->getProperty("item_price_type", "value");
+				$type_name = $page->price_types(["id" => $type_id])["name"];
+				if($type_name == "bulk") {
 					$quantity = $this->getProperty("item_price_quantity", "value");
 					// check quantity value for bulk price
 					if(!is_numeric($quantity) || intval($quantity) != floatval($quantity) || intval($quantity) <= 1) {
@@ -1792,7 +1795,7 @@ class ItemtypeCore extends Model {
 					}
 
 					// bulk items price can only exist once for specific quantity
-					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type = '$type' AND quantity = $quantity";
+					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type_id = '$type_id' AND quantity = $quantity";
 					// debug($sql);
 
 					if($query->sql($sql)) {
@@ -1803,7 +1806,7 @@ class ItemtypeCore extends Model {
 				}
 				else {
 					// default and offer price can only exist once for an item
-					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type = '$type'";
+					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type_id = '$type_id'";
 					// debug($sql);
 
 					if($query->sql($sql)) {
@@ -1817,7 +1820,7 @@ class ItemtypeCore extends Model {
 				// replace , with . to make valid number
 				$price = preg_replace("/,/", ".", $price);
 
-				$sql = "INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', $vatrate, '$type', $quantity)";
+				$sql = "INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', $vatrate, '$type_id', $quantity)";
 				// debug($sql);
 				
 				if($query->sql($sql)) {
@@ -1950,6 +1953,8 @@ class ItemtypeCore extends Model {
 		$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
 		$item_id = $order_item["item_id"];
 
+		$custom_price = isset($order_item["custom_price"]) ? $order_item["unit_price"] : false;
+
 		// order item can be subscribed to
 		if(SITE_SUBSCRIPTIONS && isset($item["subscription_method"]) && $item["subscription_method"]) {
 			
@@ -1965,6 +1970,7 @@ class ItemtypeCore extends Model {
 				// makes callback to 'subscribed' if item_id changes
 				$_POST["order_id"] = $order["id"];
 				$_POST["item_id"] = $item_id;
+				$_POST["custom_price"] = $custom_price;
 				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription["id"]]);
 				unset($_POST);
 
@@ -1976,6 +1982,7 @@ class ItemtypeCore extends Model {
 				$_POST["item_id"] = $item_id;
 				$_POST["user_id"] = $user_id;
 				$_POST["order_id"] = $order_id;
+				$_POST["custom_price"] = $custom_price;
 				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 				unset($_POST);
 
