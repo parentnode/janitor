@@ -957,7 +957,11 @@ class ShopCore extends Model {
 	 * 
 	 * /shop/addToCart
 	 * 
-	 * Item and quantity in $_POST
+	 * Values in $_POST
+	 * - item_id (required)
+	 * - quantity (required)
+	 * - custom_price
+	 * - custom_name
 	 * 
 	 * @param array $action
 	 * @return array|false Cart object. False on error.
@@ -1000,21 +1004,11 @@ class ShopCore extends Model {
 				$item_id = $this->getProperty("item_id", "value");
 				$item = $IC->getItem(array("id" => $item_id));
 
-				$price = $this->getPrice($item_id);
-				
 				// item has a price (price can be zero)
-				if ($price !== false) {
-
-					// use custom price if available
-					if($custom_price) {
-						$price["price"] = $custom_price;
-
-						$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
-						$price["price_without_vat"] = $custom_price_without_vat;
-						$price["vat"] = $custom_price - $custom_price_without_vat;
-					}
+				if ($query->sql("SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id")) {
 					
 					// look in cart to see if the added item is already there
+					// if added item already exists with a different custom_name or custom_price, create new line
 					if ($custom_price && $custom_name) {
 
 						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price, "custom_name" => $custom_name]);
@@ -1086,7 +1080,11 @@ class ShopCore extends Model {
 	 * 
 	 *
 	 * @param int $item_id
-	 * @param int $_options – a quantity can be specified (default is 1)
+	 * @param int $_options
+	 * – quantity (default is 1)
+	 * – custom_name
+	 * – custom_price
+	 * 
 	 * @return array|false Cart object. False on error.
 	 */
 	function addToNewInternalCart($item_id, $_options = false) {
@@ -1361,6 +1359,7 @@ class ShopCore extends Model {
 	 * ### Convert cart to order
 	 * 
 	 * /shop/newOrderFromCart/#cart_reference#
+	 * order_comment in $_POST
 	 *
 	 * @param array $action
 	 * @return array|false Order object. False on error. 
@@ -1517,12 +1516,7 @@ class ShopCore extends Model {
 								$total_vat = $unit_vat * $quantity;
 
 								// use custom name for cart item if available
-								if(isset($cart_item["custom_name"]) && $cart_item["custom_name"]) {
-									$item_name = $cart_item["custom_name"];
-								}
-								else {
-									$item_name = $item["name"];
-								}
+								$item_name = isset($cart_item["custom_name"]) ? $cart_item["custom_name"] : $item["name"];
 
 								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item_name)."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
 								// print $sql;
@@ -1539,7 +1533,7 @@ class ShopCore extends Model {
 									if($query->sql($sql)) {
 										$order_item = $query->result(0);
 
-										$order_item["custom_price"] = isset($custom_price) ? $custom_price : false;
+										$order_item["custom_price"] = isset($custom_price);
 
 										// add callback to 'ordered'
 										$model = $IC->typeObject($item["itemtype"]);

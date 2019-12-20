@@ -196,7 +196,7 @@ class SuperSubscriptionCore extends Subscription {
 	 * @param array $action
 	 * /#controller#/addSubscription
 	 * required in $_POST: user_id, item_id 
-	 * optional in $_POST: payment_method, order_id
+	 * optional in $_POST: payment_method, order_id, custom_price
 	 * 
 	 * @return array|false Subscription object. False on error.
 	 */

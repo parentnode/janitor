@@ -347,7 +347,7 @@ class SubscriptionCore extends Model {
 	 * – item_id (item must have a subscription_method. If passed without an order_id, it will create an orderless subscription)
 	 * – expires_at
 	 * — order_id
-	 * – custom_price (not currently used)
+	 * – custom_price
 	 * – payment_method (not currently used)
 	 * 
 	 * @return array|false Subscription object. False on error.

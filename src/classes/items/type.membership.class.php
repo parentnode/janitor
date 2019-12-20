@@ -164,7 +164,7 @@ class TypeMembership extends Itemtype {
 		$order_id = $order["id"];
 		$user_id = $order["user_id"];
 
-		$custom_price = isset($order_item["custom_price"]) ? $order_item["custom_price"] : false;
+		$custom_price = isset($order_item["custom_price"]) ? $order_item["unit_price"] : false;
 		
 		$existing_membership = $MC->getMembers(["user_id" => $user_id]);
 		

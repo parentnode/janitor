@@ -459,7 +459,11 @@ class SuperShopCore extends Shop {
 	 * 
 	 * /janitor/admin/shop/addToCart/#cart_reference#/
 	 *
-	 * Item and quantity in $_POST
+	 * Values in $_POST
+	 * - item_id (required)
+	 * - quantity (required)
+	 * - custom_price
+	 * - custom_name
 	 * 
 	 * @param array $action
 	 * @return array|false Cart object. False on error. 
@@ -489,22 +493,11 @@ class SuperShopCore extends Shop {
 				$item_id = $this->getProperty("item_id", "value");
 				$item = $IC->getItem(array("id" => $item_id));
 
-				$price = $this->getPrice($item_id);
-				
 				// item has a price (price can be zero)
-				if ($price !== false) {
-
-					
-					// use custom price if available
-					if($custom_price) {
-						$price["price"] = $custom_price;
-
-						$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
-						$price["price_without_vat"] = $custom_price_without_vat;
-						$price["vat"] = $custom_price - $custom_price_without_vat;
-					}
+				if ($query->sql("SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id")) {
 					
 					// look in cart to see if the added item is already there
+					// if added item already exists with a different custom_name or custom_price, create new line
 					if ($custom_price && $custom_name) {
 
 						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price, "custom_name" => $custom_name]);
@@ -580,8 +573,10 @@ class SuperShopCore extends Shop {
 	 *
 	 * @param int $item_id
 	 * @param int $_options 
-	 * – user_id is required	
+	 * – user_id (required)	
 	 * – a quantity can be specified (default is 1)
+	 * – custom_name
+	 * – custom_price
 	 * 
 	 * @return array|false Cart object. False on error.
 	 */
@@ -762,7 +757,7 @@ class SuperShopCore extends Shop {
 
 	// Convert cart to order
 	# /janitor/admin/shop/newOrderFromCart/#card_id#/#cart_reference#
-	// order comment in $_POST
+	// order_comment in $_POST
 	function newOrderFromCart($action) {
 
 		// get posted values to make them available for models
@@ -910,7 +905,7 @@ class SuperShopCore extends Shop {
 									if($query->sql($sql)) {
 										$order_item = $query->result(0);
 
-										$order_item["custom_price"] = isset($custom_price) ? $custom_price : false;
+										$order_item["custom_price"] = isset($custom_price);
 
 										// add callback to 'ordered'
 										$model = $IC->typeObject($item["itemtype"]);
