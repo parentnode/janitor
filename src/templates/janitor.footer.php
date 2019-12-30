@@ -44,6 +44,7 @@ endif; ?>
 				<ul class="subjects">
 					<?= $HTML->link("Navigations", "/janitor/admin/navigation/list", array("wrapper" => "li.navigation")) ?>
 					<?= $HTML->link("Tags", "/janitor/admin/tag/list", array("wrapper" => "li.tags")) ?>
+					<?= $HTML->link("Taglists", "/janitor/admin/taglist/list", array("wrapper" => "li.taglists")) ?>
 				</ul>
 			</li>
 			<li class="system">
