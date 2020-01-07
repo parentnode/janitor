@@ -1882,7 +1882,12 @@ class Setup extends Itemtype {
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 			$query->checkDbExistence(UT_ITEMS_COMMENTS);
 			$query->checkDbExistence(UT_ITEMS_RATINGS);
+			
+			// create system_price_types
+			// requires items table to exist and is a prerequisite for items_prices
 			$query->checkDbExistence(UT_PRICE_TYPES);
+			$UP->checkDefaultValues(UT_PRICE_TYPES);
+			
 			$query->checkDbExistence(UT_ITEMS_PRICES);
 
 			// navigation requires items - must be run after items
