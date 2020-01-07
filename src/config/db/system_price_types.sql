@@ -6,7 +6,7 @@ CREATE TABLE `SITE_DB`.`system_price_types` (
 
 
   PRIMARY KEY  (`id`),
-  KEY (`item_id`),
+  KEY `item_id` (`item_id`),
   
   CONSTRAINT `system_price_types_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `SITE_DB`.`items` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
