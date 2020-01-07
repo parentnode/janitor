@@ -1869,20 +1869,20 @@ class Setup extends Itemtype {
 			$query->checkDbExistence(UT_CURRENCIES);
 			$query->checkDbExistence(UT_COUNTRIES);
 			$query->checkDbExistence(UT_VATRATES);
-			$query->checkDbExistence(UT_PRICE_TYPES);
 			$query->checkDbExistence(UT_PAYMENT_METHODS);
 			$query->checkDbExistence($UC->db_user_groups);
 			$query->checkDbExistence($UC->db);
-
-
+			
+			
 			// make sure item tables exist
 			$query->checkDbExistence(UT_ITEMS);
 			$query->checkDbExistence(UT_TAG);
 			$query->checkDbExistence(UT_TAGGINGS);
-
+			
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 			$query->checkDbExistence(UT_ITEMS_COMMENTS);
 			$query->checkDbExistence(UT_ITEMS_RATINGS);
+			$query->checkDbExistence(UT_PRICE_TYPES);
 			$query->checkDbExistence(UT_ITEMS_PRICES);
 
 			// navigation requires items - must be run after items
