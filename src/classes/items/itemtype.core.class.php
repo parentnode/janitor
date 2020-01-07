@@ -358,6 +358,7 @@ class ItemtypeCore extends Model {
 
 		// does values validate (only name required on save)
 		if($this->validateList(array("name"))) {
+			// debug(["save name", $_POST]);
 
 			$query = new Query();
 

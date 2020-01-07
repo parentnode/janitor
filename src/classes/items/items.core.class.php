@@ -413,6 +413,9 @@ class ItemsCore {
 		// add itemtype if available
 		if(isset($itemtype)) {
 			$WHERE[] = "items.itemtype = '$itemtype'";
+
+			// add main itemtype table to enable sorting based on local values
+			$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
 		}
 
 		// filter readstates
@@ -448,7 +451,7 @@ class ItemsCore {
 		}
 
 		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER)) . $LIMIT;
-		// print $sql."<br>\n";
+		// debug([$sql]);
 
 		$query->sql($sql);
 		$related_items = $query->results();

@@ -566,46 +566,52 @@ class Upgrade extends Model {
 				$this->process(["message" => "Media updated", "success" => true]);
 			}
 
-			// ITEM PRICES
-			$this->process($this->createTableIfMissing(UT_ITEMS_PRICES), true);
 
-			$sql = "SELECT id, type FROM ".UT_ITEMS_PRICES;
-			if($query->sql($sql)) {
-				$type_prices = $query->results();
-				
-				foreach($type_prices as $index => $type_price) {
 
-					if($type_price["type"] == "default") {
-						$type_prices[$index]["type_id"] = 1;
-					}
-					elseif($type_price["type"] == "offer") {
-						$type_prices[$index]["type_id"] = 2;
-					}
-					elseif($type_price["type"] == "bulk") {
-						$type_prices[$index]["type_id"] = 3;
-					}
-				}
-				
-				$this->synchronizeTable("items_prices");
+			// Update item prices with new type_id's for membership prices
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
 
-				$sql = "SELECT id, type_id FROM ".UT_ITEMS_PRICES;
+				// ITEM PRICES
+				$this->process($this->createTableIfMissing(UT_ITEMS_PRICES), true);
+
+				$sql = "SELECT id, type FROM ".UT_ITEMS_PRICES;
 				if($query->sql($sql)) {
+					$type_prices = $query->results();
+				
+					foreach($type_prices as $index => $type_price) {
 
-					$type_id_prices = $query->results();
-
-					foreach($type_id_prices as $index => $type_id_price) {
-
-						$matching_type_prices_index = array_search($type_id_price["id"], array_column($type_prices, "id"));
-
-						$type_id = $type_prices[$matching_type_prices_index]["type_id"];
-
-						$sql = "UPDATE ".UT_ITEMS_PRICES." SET type_id = $type_id WHERE id = ".$type_id_price["id"];
-						$query->sql($sql);
-
+						if($type_price["type"] == "default") {
+							$type_prices[$index]["type_id"] = 1;
+						}
+						elseif($type_price["type"] == "offer") {
+							$type_prices[$index]["type_id"] = 2;
+						}
+						elseif($type_price["type"] == "bulk") {
+							$type_prices[$index]["type_id"] = 3;
+						}
 					}
+				
+					$this->synchronizeTable("items_prices");
+
+					$sql = "SELECT id, type_id FROM ".UT_ITEMS_PRICES;
+					if($query->sql($sql)) {
+
+						$type_id_prices = $query->results();
+
+						foreach($type_id_prices as $index => $type_id_price) {
+
+							$matching_type_prices_index = array_search($type_id_price["id"], array_column($type_prices, "id"));
+
+							$type_id = $type_prices[$matching_type_prices_index]["type_id"];
+
+							$sql = "UPDATE ".UT_ITEMS_PRICES." SET type_id = $type_id WHERE id = ".$type_id_price["id"];
+							$query->sql($sql);
+
+						}
+					}
+
+
 				}
-
-
 			}
 
 
