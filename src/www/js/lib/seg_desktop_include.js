@@ -29,3 +29,5 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-shop.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-system.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-profile.js"></script>');
+
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/i-taglist_tags.js"></script>');

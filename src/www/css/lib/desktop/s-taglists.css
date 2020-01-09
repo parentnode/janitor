@@ -1,0 +1,5 @@
+#content .scene.taglistList ul.items li.item ul.actions li.add { display: inline-block;}
+#content .scene.taglistList ul.items li.item ul.actions li.remove {display: none;}
+
+#content .scene.taglistList ul.items li.item.added ul.actions li.add { display: none;}
+#content .scene.taglistList ul.items li.item.added ul.actions li.remove {display: inline-block;}
