@@ -271,6 +271,7 @@ class HTMLCore {
 		// validation
 		$min = $this->getProperty($name, "min");
 		$max = $this->getProperty($name, "max");
+		$step = $this->getProperty($name, "step");
 		$required = $this->getProperty($name, "required");
 		$pattern = $this->getProperty($name, "pattern");
 
@@ -311,6 +312,7 @@ class HTMLCore {
 
 					case "min"             : $min              = $_value; break;
 					case "max"             : $max              = $_value; break;
+					case "step"            : $step             = $_value; break;
 					case "required"        : $required         = $_value; break;
 					case "pattern"         : $pattern          = $_value; break;
 
@@ -507,6 +509,16 @@ class HTMLCore {
 					$att_min = $this->attribute("min", $min);
 
 					$_ .= '<input type="number"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
+				}
+
+				// RANGE
+				else if($type === "range") {
+					$att_value = $this->attribute("value", $value);
+					$att_max = $this->attribute("max", $max);
+					$att_min = $this->attribute("min", $min);
+					$att_step = $this->attribute("step", $min);
+
+					$_ .= '<input type="range"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_step.$att_max.$att_min.' />';
 				}
 
 				// FILES

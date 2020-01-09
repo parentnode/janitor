@@ -200,6 +200,9 @@ class Model extends HTML {
 					case "max"                   : $this->setProperty($name, "max",                  $_value); break;
 
 
+					case "step"                  : $this->setProperty($name, "step",                 $_value); break;
+
+
 					case "min_width"             : $this->setProperty($name, "min_width",            $_value); break;
 					case "min_height"            : $this->setProperty($name, "min_height",           $_value); break;
 
@@ -422,6 +425,12 @@ class Model extends HTML {
 		}
 		else if($this->getProperty($name, "type") == "radiobuttons") {
 			if($this->isChecked($name)) {
+				return true;
+			}
+		}
+
+		else if($this->getProperty($name, "type") == "range") {
+			if($this->isRange($name)) {
 				return true;
 			}
 		}
@@ -836,6 +845,31 @@ class Model extends HTML {
 		}
 
 		return $uploads;
+	}
+
+	/**
+	* Is input range?
+	*
+	* @param string $name Entity name
+	* @return bool
+	*/
+	function isRange($name) {
+
+		$value = $this->getProperty($name, "value");
+		$min = $this->getProperty($name, "min");
+		$max = $this->getProperty($name, "max");
+
+		if(($value || $value === "0") && is_numeric($value) && 
+			(!$min || $value >= $min) && 
+			(!$max || $value <= $max)
+		) {
+			$this->setProperty($name, "error", false);
+			return true;
+		}
+		else {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
 	}
 
 	/**
