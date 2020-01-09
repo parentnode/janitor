@@ -7,7 +7,7 @@ global $itemtype;
 $taglist_id = $action[1];
 $taglist = $model->getTaglist(array("id" => $taglist_id));
 $taglist_tags = $model->getTaglistTags(["taglist_id" => $taglist_id]);
-print_r($taglist_tags);
+// print_r($taglist_tags);
 ?>
 <div class="scene defaultEdit <?= $itemtype ?>Edit">
 	<h1>Edit taglist</h1>
