@@ -27,7 +27,7 @@ if($taglist_tags){
 		<?= $HTML->link("Back", "/janitor/admin/taglist/edit/".$taglist_id, array("class" => "button", "wrapper" => "li.back")) ?>
 </ul>
 
-<div class="all_items i:defaultList i:taglist_tags filters"<?= $JML->jsData(["order", "search"]) ?>>
+<div class="all_items i:defaultList i:taglist_tags filters"<?= $HTML->jsData(["order", "search"]) ?>>
 
 <? if($tags): ?>
 
@@ -37,14 +37,14 @@ if($taglist_tags){
 			<li class="item<?= isset($taglist_tag_ids[$tag_id]) ? " added" : "" ?>">
 				<h3><?= strip_tags($tag["context"]) ?>:<?= strip_tags($tag["value"]) ?></h3>
 				<ul class="actions">
-					<?= $JML->oneButtonForm("Add", "/janitor/admin/taglist/addTaglistTag/".$taglist_id."/".$tag_id, array(
+					<?= $HTML->oneButtonForm("Add", "/janitor/admin/taglist/addTaglistTag/".$taglist_id."/".$tag_id, array(
 					"confirm-value" => false,
 					"wrapper" => "li.add",
 					"class" => "primary",
 					"success-function" => "added" 
 					));?>
 
-					<?= $JML->oneButtonForm("Remove", "/janitor/admin/taglist/removeTaglistTag/".$taglist_id."/".$tag_id, array(
+					<?= $HTML->oneButtonForm("Remove", "/janitor/admin/taglist/removeTaglistTag/".$taglist_id."/".$tag_id, array(
 					"confirm-value" => "Confirm Removal",
 					"wrapper" => "li.remove",
 					"class" => "secondary",
