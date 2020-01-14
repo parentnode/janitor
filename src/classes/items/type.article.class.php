@@ -38,7 +38,7 @@ class TypeArticle extends Itemtype {
 			"type" => "string",
 			"label" => "Secondary headline",
 			"hint_message" => "Secondary headline of your article", 
-			"error_message" => "Secondary headline contains illigal characters."
+			"error_message" => "Secondary headline contains illegal characters."
 		));
 
 		// description

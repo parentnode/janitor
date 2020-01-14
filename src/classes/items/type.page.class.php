@@ -39,7 +39,7 @@ class TypePage extends Itemtype {
 			"type" => "string",
 			"label" => "Secondary headline",
 			"hint_message" => "Secondary headline of your page", 
-			"error_message" => "Secondary headline contains illigal characters."
+			"error_message" => "Secondary headline contains illegal characters."
 		));
 
 		// Description
