@@ -10,7 +10,7 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 $action = $page->actions();
 
-include_once("classes/system/taglist.class.php");
+include_once("classes/items/taglist.class.php");
 $model = new Taglist();
 
 
