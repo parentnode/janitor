@@ -51,7 +51,7 @@ class TypePost extends Itemtype {
 		// HTML
 		$this->addToModel("html", array(
 			"hint_message" => "Write your the post",
-			"allowed_tags" => "p,h2,h3,h4,ul,ol,download,jpg,png,code", //,mp4,vimeo,youtube,code",
+			"allowed_tags" => "p,h2,h3,h4,ul,ol,download,jpg,png,code,vimeo,youtube", //,mp4",
 		));
 
 		// Files
