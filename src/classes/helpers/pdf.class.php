@@ -11,6 +11,7 @@ class PDF {
 
 		$output_format = "A4";
 		$javascript_delay = 1000;
+		$orientation = "portrait";
 
 		$cookie = false;
 
@@ -19,6 +20,7 @@ class PDF {
 				switch($option) {
 					case "format"            : $output_format         = $value; break;
 					case "delay"             : $javascript_delay      = $value; break;
+					case "orientation"       : $orientation           = $value; break;
 
 					case "cookie"            : $cookie      = $value; break;
 				}
@@ -30,6 +32,7 @@ class PDF {
 //		$command = "$wkhtmlto_path -s $output_format $input_file $output_file";
 		$command = "$wkhtmlto_path";
 		$command .= " -s $output_format";
+		$command .= " -O $orientation";
 		$command .= " --javascript-delay $javascript_delay";
 		$command .= " --no-stop-slow-scripts";
 		$command .= " --enable-javascript";
