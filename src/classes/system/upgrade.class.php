@@ -247,6 +247,7 @@ class Upgrade extends Model {
 			$this->process($this->createTableIfMissing(UT_LANGUAGES), true);
 			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
 			$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
+			$this->process($this->createTableIfMissing(UT_PRICE_TYPES), true);
 
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 				// CREATE MAILLIST TABLE
@@ -261,7 +262,6 @@ class Upgrade extends Model {
 			// CREATE SHOP TABLES
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
 				$this->process($this->createTableIfMissing(UT_VATRATES), true);
-				$this->process($this->createTableIfMissing(UT_PRICE_TYPES), true);
 
 				// SHOP
 				$this->process($this->createTableIfMissing(SITE_DB.".user_addresses"), true);
