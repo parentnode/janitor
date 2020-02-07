@@ -3,3 +3,5 @@
 
 #content .scene.taglistList ul.items li.item.added ul.actions li.add { display: none;}
 #content .scene.taglistList ul.items li.item.added ul.actions li.remove {display: inline-block;}
+
+#content .scene.taglistList .taglist_tags ul.actions {padding-top: 10px;}

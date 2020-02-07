@@ -18,7 +18,6 @@ $page->bodyClass("taglist");
 $page->pageTitle("Taglist");
 
 
-
 if(is_array($action) && count($action)) {
 
 	// LIST/EDIT/NEW/ADD ITEM

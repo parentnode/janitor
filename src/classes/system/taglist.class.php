@@ -3,10 +3,7 @@
 * @package janitor.items
 */
 
-/**
-* This class holds Tag functionallity.
-*
-*/
+//This class holds Taglist functionallity.
 
 // define default database name constants
 // base DB tables
@@ -22,7 +19,7 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 		parent::__construct(get_class());
 
 		$this->db = SITE_DB.".taglist"; // Conventionally we write the base table name db
-		$this->db_taglist_tags = SITE_DB.".taglist_tags"; // table of references could me named anything instead of db_taglist_tags
+		$this->db_taglist_tags = SITE_DB.".taglist_tags"; // table of references could be named anything instead of db_taglist_tags
 		$this->db_tags = SITE_DB.".tags";
 
 		$this->addToModel("name", array(
@@ -34,6 +31,7 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 		));
 
 	}
+
 
 	function getAllTags(){
 
@@ -47,6 +45,7 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 	}
 
+
 	function getTaglists(){
 
 		$query = new Query();
@@ -59,33 +58,10 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 	}
 
+
 	function getTaglist($_options = false) {
 
 		// Define default values
-		$id = false;
-
-		// Search through $_options to find recognized parameters
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "id"        : $id             = $_value; break;
-				}
-			}
-		}
-
-		// Query database for taglist with specific id.
-		if($id) {
-			$query = new Query();
-			$sql = "SELECT * FROM ".$this->db." WHERE id = '$id'";
-			if($query->sql($sql)) {
-				return $query->result(0);
-			}
-		}
-
-		return false;
-	}
-
-	function getTaglistTags($_options = false){
 		$taglist_id = false;
 
 		// Search through $_options to find recognized parameters
@@ -99,15 +75,26 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 		// Query database for taglist with specific id.
 		if($taglist_id) {
-			$query = new Query();
-			$sql = "SELECT tags.id, tags.context, tags.value FROM ".$this->db_taglist_tags.", ". $this->db_tags." WHERE taglist_tags.tag_id = tags.id AND taglist_tags.taglist_id = '$taglist_id' ORDER BY taglist_tags.position ASC";
-
-			if($query->sql($sql)) {
-				return $query->results();
+			
+			$query1 = new Query();
+			$query2 = new Query();
+			$sql1 = "SELECT * FROM ".$this->db." WHERE id = '$taglist_id'";
+			$sql2 = "SELECT tags.id, tags.context, tags.value FROM ".$this->db_taglist_tags.", ". $this->db_tags." WHERE taglist_tags.tag_id = tags.id AND taglist_tags.taglist_id = '$taglist_id' ORDER BY taglist_tags.position ASC";
+			if($query1->sql($sql1)) {
+				$taglist = $query1->result(0);
+				if ($query2->sql($sql2)) {
+					$taglist["tags"] = $query2->results();
+				}
+				else {
+					$taglist["tags"] = false;
+				}
+				return $taglist;
 			}
 		}
+
 		return false;
 	}
+
 
 	function addTaglistTag($action){
 
@@ -133,6 +120,7 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 	}
 
+
 	function removeTaglistTag($action){
 
 		$taglist_id = $action[1];
@@ -157,6 +145,7 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 	}
 
+
 	function updateTaglist($action){
 		// Get content of $_POST array which have been "quality-assured" by Janitor 
 		$this->getPostedEntities();
@@ -171,7 +160,6 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 			// Get posted values
 			$name = $this->getProperty("name", "value");
 			$handle = superNormalize($name);
-
 
 			// Check if the taglist is already created (to avoid faulty double entries)  
 			$sql = "SELECT * FROM ".$this->db." WHERE name = '$name'";
@@ -212,7 +200,6 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 			$name = $this->getProperty("name", "value");
 			$handle = superNormalize($name);
 
-
 			// Check if the taglist is already created (to avoid faulty double entries)  
 			$sql = "SELECT * FROM ".$this->db." WHERE name = '$name'";
 			if(!$query->sql($sql)) {
@@ -232,12 +219,11 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 		}
 
-		// something went wrong
 		message()->addMessage("Could not create list.", array("type"=>"error"));
 		return false;
 	}
 
-	
+
 	function deleteTaglist($action){
 		global $page;
 		if(count($action) == 2) {
@@ -252,14 +238,11 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 			// debug([$sql]);
 			if($query->sql($sql)) {
 
-
 				$sql = "DELETE FROM ".$this->db." WHERE id = '$taglist_id'";
 				// debug([$sql]);
 				if($query->sql($sql)) {
 					
 					message()->addMessage("Taglist deleted");
-
-
 
 					// add log
 					$page->addLog("ItemType->delete ($taglist_id)");
@@ -279,14 +262,11 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 		global $model;
 
-
 		if(count($action) == 2) {
 			$taglist_id = $action[1];
 
-			$taglist = $model->getTaglist(array("id" => $taglist_id));
-			$taglist_tags = $model->getTaglistTags(["taglist_id" => $taglist_id]);
+			$taglist = $model->getTaglist(array("taglist_id" => $taglist_id));
 			//print_r($taglist_tags);
-
 
 			if($taglist) {
 				$query = new Query();
@@ -307,19 +287,19 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 					$new_taglist_id = $cloned_taglist["id"];
 
 					// add tags
-					
-					if($taglist_tags) {
-						foreach($taglist_tags as $taglist_tag) {
-							$this->addTaglistTag(["addTaglistTag", $new_taglist_id, $taglist_tag["id"]]);
 
+					if($taglist["tags"]) {
+						foreach($taglist["tags"] as $taglist_tag) {
+							//print_r($taglist_tag);
+							$this->addTaglistTag(["addTaglistTag", $new_taglist_id, $taglist_tag["id"]]);
 						}
 					}
 
 					message()->resetMessages();
 					message()->addMessage("Taglist duplicated");
 
-					// get and return new device (id will be used to redirect to new item page)
-					$taglist = $this->getTaglist(array("id" => $cloned_taglist["id"]));
+					$taglist = $this->getTaglist(array("taglist_id" => $cloned_taglist["id"]));
+					//print_r("#".$taglist."#");
 					return $taglist;
 				}
 			}
