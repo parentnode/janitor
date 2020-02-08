@@ -69,7 +69,6 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "id"        : $id             = $_value; break;
-					case "handle"    : $handle         = $_value; break;
 				}
 			}
 		}
@@ -78,14 +77,6 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 		if($id) {
 			$query = new Query();
 			$sql = "SELECT * FROM ".$this->db." WHERE id = '$id'";
-			if($query->sql($sql)) {
-				return $query->result(0);
-			}
-		}
-		// Query database for taglist with handle.
-		if($handle) {
-			$query = new Query();
-			$sql = "SELECT * FROM ".$this->db." WHERE handle = '$handle'";
 			if($query->sql($sql)) {
 				return $query->result(0);
 			}
