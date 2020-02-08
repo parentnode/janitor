@@ -461,7 +461,7 @@ class JanitorHTML {
 		global $model;
 
 		$variant = "mediae";
-		$label = "Media";
+		$label = "Mediae";
 		$class = "media i:addMedia i:collapseHeader";
 
 		// overwrite defaults
