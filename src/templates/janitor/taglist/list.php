@@ -4,7 +4,7 @@ global $action;
 global $model;
 
 $items = $model->getTaglists();
-print_r($items);
+//print_r($items);
 ?>
 
 <div class="scene defaultList taglistList">
@@ -30,7 +30,7 @@ print_r($items);
 <?			endforeach; ?>
 		</ul>
 <?		else: ?>
-		<p>No articles.</p>
+		<p>No Taglists.</p>
 <?		endif; ?>
 	</div>
 

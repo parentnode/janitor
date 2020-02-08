@@ -19,8 +19,8 @@ Util.Objects["defaultNew"] = new function() {
 				if(response.cms_status == "success" && response.cms_object) {
 					// u.bug("this.action:", this.action);
 					// u.bug("location.href:", location.href);
-					// u.bug(response);
-					// return;
+					//  u.bug(response);
+					//  return;
 					
 					if(response.return_to) {
 						if(response.cms_object.item_id) {
@@ -35,11 +35,23 @@ Util.Objects["defaultNew"] = new function() {
 					}
 					else if(this.action.match(/\/save$/)) {
 						//						u.bug("match save")
-						location.href = this.action.replace(/\/save/, "/edit/")+response.cms_object.item_id;
+						if(response.cms_object.item_id) {
+							location.href = this.action.replace(/\/save/, "/edit/")+response.cms_object.item_id;
+						}
+						else if (response.cms_object.id) {
+							location.href = this.action.replace(/\/save/, "/edit/")+response.cms_object.id;
+						}
 					}
 					else if(location.href.match(/\/new$/)) {
 						//						u.bug("match new:" + location.href.replace(/\/new/, "/edit/")+response.cms_object.id);
-						location.href = location.href.replace(/\/new$/, "/edit/")+response.cms_object.item_id;
+						if(response.cms_object.item_id) {
+							location.href = location.href.replace(/\/new$/, "/edit/")+response.cms_object.item_id;
+						}
+						else if (response.cms_object.id) {
+							location.href = location.href.replace(/\/new$/, "/edit/")+response.cms_object.id;
+						}
+
+
 					}
 					else if(this.actions["cancel"]) {
 						//						u.bug("match cancel")
