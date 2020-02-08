@@ -22,7 +22,9 @@ class TypePage extends Itemtype {
 		// Published
 		$this->addToModel("published_at", array(
 			"type" => "datetime",
-			"hint_message" => "Publication date and time of page. This will be shown on website. Leave empty for current time"
+			"label" => "Publish date (yyyy-mm-dd hh:mm)",
+			"hint_message" => "Publication date and time of page. This will be shown on website. Leave empty for current time",
+			"error_message" => "Datetime must be of format (yyyy-mm-dd hh:mm)"
 		));
 
 		// Name
@@ -50,11 +52,34 @@ class TypePage extends Itemtype {
 			"error_message" => "Your page needs a description"
 		));
 
+		// HTML
+		$this->addToModel("html", array(
+			"type" => "html",
+			"label" => "Fulle page text",
+			"allowed_tags" => "p,h2,h3,h4,ul,ol,code,download,jpg,png",
+			"hint_message" => "Write!",
+			"error_message" => "No words? How weird."
+		));
+
 		// Single media
 		$this->addToModel("single_media", array(
+			"type" => "files",
+			"label" => "Add media here",
 			"allowed_sizes" => "960x540",
+			"max" => 1,
 			"allowed_formats" => "png,jpg",
-			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x540"
+			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x540",
+			"error_message" => "Media does not fit requirements."
+		));
+
+		// Mediae
+		$this->addToModel("mediae", array(
+			"type" => "files",
+			"label" => "Add media here",
+			"max" => 20,
+			"allowed_formats" => "png,jpg,mp4",
+			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
+			"error_message" => "Media does not fit requirements."
 		));
 
 	}

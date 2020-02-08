@@ -24,7 +24,10 @@ class TypeMessage extends Itemtype {
 
 		// Published
 		$this->addToModel("published_at", array(
+			"type" => "datetime",
+			"label" => "Publish date (yyyy-mm-dd hh:mm)",
 			"hint_message" => "Publishing date of the message. Leave empty for current time",
+			"error_message" => "Datetime must be of format (yyyy-mm-dd hh:mm)"
 		));
 
 		// Name
@@ -46,8 +49,11 @@ class TypeMessage extends Itemtype {
 
 		// HTML
 		$this->addToModel("html", array(
+			"type" => "html",
+			"label" => "Full message",
+			"allowed_tags" => "p,h2,h3,h4,ul,ol,jpg,png",
 			"hint_message" => "Write the message",
-			"allowed_tags" => "p,h2,h3,h4,ul,ol,jpg,png", //,code,mp4,vimeo,youtube",
+			"error_message" => "No words is not gonna fly."
 		));
 
 

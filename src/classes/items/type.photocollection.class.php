@@ -45,14 +45,15 @@ class TypePhotocollection extends Itemtype {
 			"error_message" => ""
 		));
 
-		// // Files
-		// $this->addToModel("mediae", array(
-		// 	"type" => "files",
-		// 	"label" => "Add media here",
-		// 	"allowed_formats" => "png,jpg,mp4",
-		// 	"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
-		// 	"error_message" => "Media does not fit requirements."
-		// ));
+		// Mediae
+		$this->addToModel("mediae", array(
+			"type" => "files",
+			"label" => "Add media here",
+			"max" => 40,
+			"allowed_formats" => "png,jpg",
+			"hint_message" => "Add images here. Use png or jpg.",
+			"error_message" => "Media does not fit requirements."
+		));
 
 	}
 
