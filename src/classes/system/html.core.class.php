@@ -711,6 +711,7 @@ class HTMLCore {
 
 		$type = "button";
 		$name = false;
+		$formaction = false;
 		$class = false;
 
 		$wrapper = false;
@@ -722,6 +723,7 @@ class HTMLCore {
 
 					case "type"          : $type           = $_value; break;
 					case "name"          : $name           = $_value; break;
+					case "formaction"    : $formaction     = $_value; break;
 
 					case "class"         : $class          = $_value; break;
 
@@ -736,6 +738,7 @@ class HTMLCore {
 		$att_type = $this->attribute("type", $type);
 		$att_class = $this->attribute("class", "button", $class);
 		$att_name = $this->attribute("name", $name);
+		$att_formaction = $this->attribute("formaction", $formaction);
 
 		$att_wrap_id = "";
 		$att_wrap_class = "";
@@ -764,7 +767,7 @@ class HTMLCore {
 	
 		}
 
-		$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.' />';
+		$_ .= '<input'.$att_value.$att_name.$att_type.$att_formaction.$att_class.' />';
 
 		if($wrapper) {
 			$_ .= '</'.$wrap_node.'>'."\n";
