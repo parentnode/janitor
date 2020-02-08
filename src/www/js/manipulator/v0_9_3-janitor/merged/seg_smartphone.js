@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.3-janitor Copyright 2019 https://manipulator.parentnode.dk
-js-merged @ 2020-01-29 08:44:08
+js-merged @ 2020-02-08 20:06:00
 */
 
 /*seg_smartphone_include.js*/
@@ -2167,6 +2167,7 @@ Util.Form = u.f = new function() {
 				field.filelist.field = field;
 				field.uploaded_files = u.qsa("li.uploaded", field.filelist);
 				this._update_filelist.bind(field.input)();
+				u.e.addEvent(field.input, "change", this._update_filelist);
 				u.e.addEvent(field.input, "change", this._updated);
 				u.e.addEvent(field.input, "change", this._changed);
 				if(u.e.event_support != "touch") {
@@ -2174,7 +2175,6 @@ Util.Form = u.f = new function() {
 					u.e.addEvent(field.input, "dragleave", this._blur);
 					u.e.addEvent(field.input, "drop", this._blur);
 				}
-				u.e.addEvent(field.input, "change", this._update_filelist);
 				this.activateInput(field.input);
 			}
 			else {
@@ -2377,6 +2377,9 @@ Util.Form = u.f = new function() {
 				for(i = 0; i < this.field.uploaded_files.length; i++) {
 					u.ae(this.field.filelist, this.field.uploaded_files[i]);
 				}
+			}
+			else {
+				this.field.uploaded_files = [];
 			}
 		}
 		else if(this.field.uploaded_files && this.field.uploaded_files.length) {
