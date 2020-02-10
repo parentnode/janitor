@@ -19,58 +19,6 @@ class JanitorHTML {
 	// Add $_options to functions when extension is needed
 
 
-	// provide media info as classvars for JS
-	function jsMedia($item, $variant=false) {
-
-		$IC = new Items();
-		$media = $IC->getFirstMedia($item, $variant);
-
-		return $media ? (" format:".$media["format"]." variant:".$media["variant"]) : "";
-	}
-
-	// data elements for JS interaction
-	// TODO: implement a filter, to avoid printing all data attributes every time
-	function jsData($_options = false) {
-		global $page;
-
-		$_ = '';
-
-		$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
-
-		if(!$_options || array_search("order", $_options) !== false) {
-			$_ .= ' data-item-order="'.$page->validPath($this->path."/updateOrder").'"'; 
-		}
-
-		if(!$_options || array_search("tags", $_options) !== false) {
-			$_ .= ' data-tag-get="'.$page->validPath("/janitor/admin/items/tags").'"'; 
-			$_ .= ' data-tag-delete="'.$page->validPath($this->path."/deleteTag").'"';
-			$_ .= ' data-tag-add="'.$page->validPath($this->path."/addTag").'"';
-		}
-
-		if(!$_options || array_search("media", $_options) !== false) {
-			$_ .= ' data-media-order="'.$page->validPath($this->path."/updateMediaOrder").'"';
-			$_ .= ' data-media-delete="'.$page->validPath($this->path."/deleteMedia").'"';
-			$_ .= ' data-media-name="'.$page->validPath($this->path."/updateMediaName").'"';
-		}
-
-		if(!$_options || array_search("comments", $_options) !== false) {
-			$_ .= ' data-comment-update="'.$page->validPath($this->path."/updateComment").'"';
-			$_ .= ' data-comment-delete="'.$page->validPath($this->path."/deleteComment").'"';
-		}
-
-		if(!$_options || array_search("prices", $_options) !== false) {
-			$_ .= ' data-price-delete="'.$page->validPath($this->path."/deletePrice").'"';
-		}
-
-		if(!$_options || array_search("qna", $_options) !== false) {
-			$_ .= ' data-qna-update="'.$page->validPath($this->path."/updateQnA").'"';
-			$_ .= ' data-qna-delete="'.$page->validPath($this->path."/deleteQnA").'"';
-		}
-
-		return $_;
-	}
-
-
 
 	// NEW
 
@@ -270,7 +218,7 @@ class JanitorHTML {
 
 		// Delete button
 		if($standard["delete"]) {
-			$_ .= $this->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
+			$_ .= $model->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
 				"js" => true,
 				"wrapper" => $standard["delete"]["wrapper"],
 				"static" => $standard["delete"]["static"],
@@ -371,14 +319,14 @@ class JanitorHTML {
 		}
 
 		if($standard["delete"]) {
-			$_ .= $this->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
+			$_ .= $model->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
 				"wrapper" => $standard["delete"]["wrapper"],
 				"success-location" => $standard["delete"]["success-location"]
 			));
 		}
 
 		if($standard["duplicate"]) {
-			$_ .= $this->oneButtonForm($standard["duplicate"]["label"], $standard["duplicate"]["url"], array(
+			$_ .= $model->oneButtonForm($standard["duplicate"]["label"], $standard["duplicate"]["url"], array(
 				"wrapper" => $standard["duplicate"]["wrapper"],
 				"success-function" => $standard["duplicate"]["success-function"]
 			));
@@ -387,7 +335,7 @@ class JanitorHTML {
 		foreach($standard as $button => $data) {
 			if(!preg_match("/list|delete|duplicate|status/", $button)) {
 				if(isset($data["type"]) && $data["type"] == "onebuttonform") {
-					$_ .= $this->oneButtonForm($data["label"], $data["url"], array(
+					$_ .= $model->oneButtonForm($data["label"], $data["url"], array(
 						"wrapper" => $data["wrapper"],
 						"success-function" => $data["success-function"]
 					));
@@ -482,7 +430,7 @@ class JanitorHTML {
 
 	// edit tags form for edit page
 	function editTags($item, $_options = false) {
-		// global $model;
+		global $HTML;
 
 		$title = "Tags";
 		$class = "i:defaultTags i:collapseHeader";
@@ -500,7 +448,7 @@ class JanitorHTML {
 		}
 
 		$_ = '';
-		$_ .= '<div class="tags item_id:'.$item["id"].' '.$class.'"'.$this->jsData(["tags"]).'>';
+		$_ .= '<div class="tags item_id:'.$item["id"].' '.$class.'"'.$HTML->jsData(["tags"]).'>';
 		$_ .= '<h2>'.$title.' ('.($item["tags"] ? count($item["tags"]) : 0).')</h2>';
 		$_ .= $this->tagList($item["tags"], $_options);
 		$_ .= '</div>';
@@ -512,9 +460,8 @@ class JanitorHTML {
 	function editMediae($item, $_options = false) {
 		global $model;
 
-
 		$variant = "mediae";
-		$label = "Media";
+		$label = "Mediae";
 		$class = "media i:addMedia i:collapseHeader";
 
 		// overwrite defaults
@@ -535,7 +482,7 @@ class JanitorHTML {
 
 		$_ = '';
 
-		$_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' sortable item_id:'.$item["id"].'"'.$this->jsData(["media"]).'>';
+		$_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' sortable item_id:'.$item["id"].'"'.$model->jsData(["media"]).'>';
 
 		$_ .= '<h2>'.$label.' ('.count($file_input_value).')</h2>';
 		$_ .= $model->formStart($this->path."/addMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject"));
@@ -556,7 +503,6 @@ class JanitorHTML {
 	// edit single media form for edit page
 	function editSingleMedia($item, $_options = false) {
 		global $model;
-
 
 		$variant = "single_media";
 		$label = "Single media";
@@ -582,7 +528,7 @@ class JanitorHTML {
 		$_ = "";
 
 		// default view
-		$_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' item_id:'.$item["id"].'"'.$this->jsData(["media"]).'>';
+		$_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' item_id:'.$item["id"].'"'.$model->jsData(["media"]).'>';
 		$_ .= '<h2>'.$label.'</h2>';
 
 		$_ .= $model->formStart($this->path."/addSingleMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject"));
@@ -607,7 +553,7 @@ class JanitorHTML {
 
 		$_ = '';
 
-		$_ .= '<div class="comments i:defaultComments i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["comments"]).'>';
+		$_ .= '<div class="comments i:defaultComments i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["comments"]).'>';
 		$_ .= '<h2>Comments ('.($item["comments"] ? count($item["comments"]) : 0).')</h2>';
 
 		$_ .= $this->commentList($item["comments"]);
@@ -630,17 +576,22 @@ class JanitorHTML {
 	function editPrices($item, $_options = false) {
 		global $model;
 		global $page;
+		$query = new Query();
+
 
 		$currency_options = $model->toOptions($page->currencies(), "id", "id");
 		$default_currency = $page->currency();
 
 		$vatrate_options = $model->toOptions($page->vatrates(), "id", "name");
 
-		$type_options = array("default" => "Standard price", "offer" => "Special offer", "bulk" => "Bulk price");
+		$type_options = $model->toOptions($page->price_types(["exclude_id" => $item["id"]]), "id", "description");
+
+		
+
 
 		$_ = '';
 
-		$_ .= '<div class="prices i:defaultPrices i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["prices"]).'>';
+		$_ .= '<div class="prices i:defaultPrices i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["prices"]).'>';
 		$_ .= '<h2>Prices</h2>';
 
 		$_ .= $this->priceList($item["item_id"]);
@@ -675,9 +626,10 @@ class JanitorHTML {
 			global $model;
 			global $page;
 
+
 			$subscription_options = $model->toOptions($page->subscriptionMethods(), "id", "name", array("add" => array("" => " - ")));
 
-			$_ .= '<div class="subscription_method i:defaultSubscriptionmethod i:collapseHeader item_id:'.$item["id"].'"'.$this->jsData(["subscriptions"]).'>';
+			$_ .= '<div class="subscription_method i:defaultSubscriptionmethod i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["subscriptions"]).'>';
 			$_ .= '<h2>Subscription settings</h2>';
 			$_ .= '<dl class="info">';
 				$_ .= '<dt class="subscription_method">Subscription period</dt>';
@@ -715,6 +667,9 @@ class JanitorHTML {
 
 		return $_;
 	}
+
+
+
 
 	// simple tag list
 	function tagList($tags, $_options = false) {
@@ -794,6 +749,8 @@ class JanitorHTML {
 							$_ .= '<li class="offer">Special offer</li>';
 						elseif($price["type"] == "bulk"):
 							$_ .= '<li class="bulk">Bulk price for '.$price["quantity"].' items</li>';
+						elseif($price["type"] != "default"):
+							$_ .= '<li class="custom_price">'.$price["description"].'</li>';
 						endif;
 					$_ .= '</ul>';
 				$_ .= '</li>';
@@ -815,7 +772,7 @@ class JanitorHTML {
 	// 	$IC = new Items();
 	//
 	// 	$_ = '';
-	// 	$_ .= '<div class="todos i:defaultTodos item_id:'.$item["id"].'"'.$this->jsData(["todos]).'>';
+	// 	$_ .= '<div class="todos i:defaultTodos item_id:'.$item["id"].'"'.$model->jsData(["todos]).'>';
 	// 	$_ .= '<h2>TODOs</h2>';
 	//
 	// 	$todo_tag = $IC->getTags(array("item_id" => $item["item_id"], "context" => "todo"));
@@ -857,7 +814,7 @@ class JanitorHTML {
 		$IC = new Items();
 
 		$_ = '';
-		$_ .= '<div class="qnas i:defaultQnas item_id:'.$item["id"].'"'.$this->jsData(["qna"]).'>';
+		$_ .= '<div class="qnas i:defaultQnas item_id:'.$item["id"].'"'.$model->jsData(["qna"]).'>';
 		$_ .= '<h2>Questions and Answers</h2>';
 
 
@@ -895,268 +852,6 @@ class JanitorHTML {
 
 
 
-
-	// /**
-	// * Delete button
-	// */
-	// function deleteButton($name, $action, $_options = false) {
-	// 	global $page;
-	// 	global $HTML;
-	//
-	// 	if(!$page->validatePath($action)) {
-	// 		return "";
-	// 	}
-	//
-	// 	$js = false;
-	//
-	// 	// overwrite defaults
-	// 	if($_options !== false) {
-	// 		foreach($_options as $_option => $_value) {
-	// 			switch($_option) {
-	//
-	// 				case "js"           : $js            = $_value; break;
-	//
-	// 			}
-	// 		}
-	// 	}
-	//
-	//
-	//
-	//
-	//
-	// 	if($js) {
-	// 		$_ = '<li class="delete i:confirmAction" data-button-value="Delete" data-form-action="'.$action.'" data-csrf-token="'.session()->value("csrf").'" >';
-	// 	}
-	// 	else {
-	// 		$_ = '<li class="delete i:confirmAction">';
-	//
-	// 		$_ .= $HTML->formStart($action);
-	// 		$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
-	// 		$_ .= $HTML->formEnd();
-	// 	}
-	//
-	// 	$_ .= '</li>';
-	//
-	// 	return $_;
-	// }
-
-
-	/**
-	* Confirm button
-	*/
-	function oneButtonForm($value, $action, $_options = false) {
-		global $page;
-		global $HTML;
-
-		if(!$page->validatePath($action)) {
-			return "";
-		}
-
-		$js = false;
-
-		$class = "";
-		$name = "confirm";
-		$confirm_value = "Confirm";
-		$wait_value = false;
-		$static = false;
-
-		$dom_submit = false;
-		$download = false;
-		$target = false;
-
-		$success_location = false;
-		$success_function = false;
-
-		$wrapper = "li.confirm";
-
-		$inputs = false;
-
-		// overwrite defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "js"                   : $js                     = $_value; break;
-
-					case "class"                : $class                  = $_value; break;
-					case "name"                 : $name                   = $_value; break;
-					case "confirm-value"        : $confirm_value          = $_value; break;
-					case "wait-value"           : $wait_value             = $_value; break;
-					case "dom-submit"           : $dom_submit             = $_value; break;
-					case "download"             : $download               = $_value; break;
-					case "target"               : $target                 = $_value; break;
-
-					case "success-location"     : $success_location       = $_value; break;
-					case "success-function"     : $success_function       = $_value; break;
-
-					case "wrapper"              : $wrapper                = $_value; break;
-					case "static"               : $static                 = $_value; break;
-
-					case "inputs"               : $inputs                 = $_value; break;
-
-				}
-			}
-		}
-
-
-		$_ = "";
-
-		$wrap_node = false;
-
-
-		$att_wrap_id = "";
-		$wrap_class = $static ? "" : "i:oneButtonForm";
-
-
-		// identify wrapper node/class/id
-		// with class or id
-		if(preg_match("/([a-z]+)[\.#]+/", $wrapper, $node_match)) {
-//				print_r($node_match);
-
-			$wrap_node = $node_match[1];
-
-			if(preg_match("/#([a-zA-Z0-9_]+)/", $wrapper, $id_match)) {
-//					print_r($id_match);
-				$att_wrap_id = $this->attribute("id", $id_match[1]);
-			}
-			if(preg_match_all("/\.([a-zA-Z0-9_\:]+)/", $wrapper, $class_matches)) {
-//					print_r($class_matches);
-				$wrap_class .= " ".implode(" ", $class_matches[1]);
-			}
-		}
-		else {
-			$wrap_node = $wrapper;
-		}
-
-		$att_wrap_class = $HTML->attribute("class", $wrap_class);
-
-
-
-		$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id;
-		$_ .= ' data-confirm-value="'.$confirm_value.'"';
-
-
-		if($dom_submit) {
-			$_ .= ' data-dom-submit="true"';
-		}
-		if($download) {
-			$_ .= ' data-download="true"';
-		}
-		// custom waiting value (after submit)
-		if($wait_value) {
-			$_ .= ' data-wait-value="'.$wait_value.'"';
-		}
-
-		if($success_location) {
-			$_ .= ' data-success-location="'.$success_location.'"';
-		}
-		if($success_function) {
-			$_ .= ' data-success-function="'.$success_function.'"';
-		}
-
-		// JavaScript HTML expansion details
-		if($js) {
-
-			$_ .= ' data-button-value="'.$value.'"';
-			$_ .= $class ? ' data-button-class="'.$class.'"' : '';
-			$_ .= $name ? ' data-button-name="'.$name.'"' : '';
-			$_ .= $inputs ? ' data-inputs="'.json_encode($inputs).'"' : '';
-
-			$_ .= ' data-form-action="'.$action.'"';
-			$_ .= $target ? ' data-form-target="'.$target.'"' : '';
-			$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
-
-		}
-
-		$_ .= '>';
-
-
-		if(!$js) {
-			$att_value = $HTML->attribute("value", $value);
-			$att_type = $HTML->attribute("type", "submit");
-			$att_class = $HTML->attribute("class", "button", $class);
-			$att_name = $HTML->attribute("name", $name);
-
-			$form_options = [];
-
-			if($target) {
-				$form_options["target"] = "_blank";
-			}
-
-			$_ .= $HTML->formStart($action, $form_options);
-			if($inputs) {
-				foreach($inputs as $name => $value) {
-					$_ .= '<input type="hidden" name="'.$name.'" value="'.$value.'" />';
-				}
-			}
-
-			$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.' />';
-			$_ .= $HTML->formEnd();
-		}
-
-
-		$_ .= '</'.$wrap_node.'>'."\n";
-
-
-
-		//
-		// if($js) {
-		// 	$_ = '<li class="confirm i:confirmAction'.($class ? " ".$class : "").'"';
-		//
-		// }
-		// else {
-		// 	$_ = '<li class="confirm i:confirmAction'.($class ? " ".$class : "").'">';
-		//
-		// 	$_ .= $HTML->formStart($action);
-		// 	$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
-		// 	$_ .= $HTML->formEnd();
-		// }
-		//
-		// $_ .= '</li>';
-
-		return $_;
-	}
-
-
-	// /**
-	// * Confirm button
-	// */
-	// function confirmButton($name, $action, $_options = false) {
-	// 	global $page;
-	// 	global $HTML;
-	//
-	// 	if(!$page->validatePath($action)) {
-	// 		return "";
-	// 	}
-	//
-	// 	$js = false;
-	//
-	// 	// overwrite defaults
-	// 	if($_options !== false) {
-	// 		foreach($_options as $_option => $_value) {
-	// 			switch($_option) {
-	//
-	// 				case "js"           : $js            = $_value; break;
-	//
-	// 			}
-	// 		}
-	// 	}
-	//
-	// 	if($js) {
-	// 		$_ = '<li class="confirm" data-item-confirm="'.$action.'">';
-	// 	}
-	// 	else {
-	// 		$_ = '<li class="delete">';
-	//
-	// 		$_ .= $HTML->formStart($action);
-	// 		$_ .= '<input type="submit" value="'.$name.'" name="confirm" class="button confirm" />';
-	// 		$_ .= $HTML->formEnd();
-	// 	}
-	//
-	// 	$_ .= '</li>';
-	//
-	// 	return $_;
-	// }
 
 	/**
 	* Change status button
@@ -1307,6 +1002,7 @@ class JanitorHTML {
 		
 		return $_;
 	}
+
 
 
 

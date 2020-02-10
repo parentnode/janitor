@@ -63,12 +63,54 @@ class TypeMembership extends Itemtype {
 		$this->addToModel("html", [
 			"type" => "html",
 			"label" => "Full description",
+			"allowed_tags" => "p,h2,h3,h4,ul,ol,code,download,jpg,png", //,mp4,vimeo,youtube",
 			"hint_message" => "Write a full description of the membership.",
 			"error_message" => "A full description without any words? How weird."
 		]);
 
+		// Single media
+		$this->addToModel("single_media", array(
+			"type" => "files",
+			"label" => "Add media here",
+			"allowed_sizes" => "960x540",
+			"max" => 1,
+			"allowed_formats" => "png,jpg",
+			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x540",
+			"error_message" => "Media does not fit requirements."
+		));
+
 	}
 
+	function saved($item_id) {
+		$query = new Query();
+		$IC = new Items();
+
+		$item = $IC->getItem(["id" => $item_id, "extend" => true]);
+		
+		// insert price type for membership
+		$item_id = $item["id"];
+		$item_name = $item["name"];
+		$normalized_item_name = superNormalize(substr($item_name, 0, 60));
+		$sql = "INSERT INTO ".UT_PRICE_TYPES." (item_id, name, description) VALUES ($item_id, '$normalized_item_name', 'Price for \\'$item_name\\' members')";
+		$query->sql($sql);
+	}
+	
+	function deleting($item_id) {
+		$query = new Query();
+		$IC = new Items();
+		
+		$item = $IC->getItem(["id" => $item_id, "extend" => true]);
+		$item_id = $item["id"];
+		
+		$sql = "DELETE FROM ".UT_PRICE_TYPES." WHERE item_id = '$item_id'";
+		if($query->sql($sql)) {
+			 return true;
+		}
+		
+		message()->addMessage("Can't delete. Could not delete associated price type.", ["type" => "error"]);
+		return false;
+	}
+	
 	function enabling($item) {
 
 		if(!$item["subscription_method"]) {
@@ -133,6 +175,8 @@ class TypeMembership extends Itemtype {
 		
 		$order_id = $order["id"];
 		$user_id = $order["user_id"];
+
+		$custom_price = isset($order_item["custom_price"]) ? $order_item["unit_price"] : false;
 		
 		$existing_membership = $MC->getMembers(["user_id" => $user_id]);
 		
@@ -150,6 +194,7 @@ class TypeMembership extends Itemtype {
 					$_POST["item_id"] = $item_id;
 					$_POST["user_id"] = $user_id;
 					$_POST["order_id"] = $order_id;
+					$_POST["custom_price"] = $custom_price;
 					$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription_id]);
 					unset($_POST);
 				}
@@ -160,6 +205,7 @@ class TypeMembership extends Itemtype {
 					$_POST["item_id"] = $item_id;
 					$_POST["user_id"] = $user_id;
 					$_POST["order_id"] = $order_id;
+					$_POST["custom_price"] = $custom_price;
 					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 					unset($_POST);
 				}
@@ -187,6 +233,7 @@ class TypeMembership extends Itemtype {
 				$_POST["item_id"] = $item_id;
 				$_POST["user_id"] = $user_id;
 				$_POST["order_id"] = $order_id;
+				$_POST["custom_price"] = $custom_price;
 				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 				$subscription_id = $subscription["id"];
 				unset($_POST);

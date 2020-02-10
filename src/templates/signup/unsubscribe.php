@@ -46,7 +46,7 @@ if(count($action) == 4) {
 <?	endif; ?>
 
 	<ul class="actions">
-		<?= $JML->oneButtonForm("Unsubscribe from ".$maillist["name"], "/signup/unsubscribe", array(
+		<?= $HTML->oneButtonForm("Unsubscribe from ".$maillist["name"], "/signup/unsubscribe", array(
 			"class" => "button primary",
 			"confirm-value" => "Are you sure?",
 			"wrapper" => "li.unsubscribe",

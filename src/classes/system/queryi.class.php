@@ -374,7 +374,9 @@ class Query {
 
 		// check if database exists
 //		print "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'";
-		if(!$this->sql("SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'")) {
+		$sql = "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'";
+		// debug([$sql]);
+		if(!$this->sql($sql)) {
 
 //			print "dont exist";
 
@@ -407,7 +409,7 @@ class Query {
 				$sql = file_get_contents($db_file);
 				$sql = str_replace("SITE_DB", SITE_DB, $sql);
 				//$sql = str_replace("REGIONAL_DB", DB_REG, $sql);
-//				print $sql . "##";
+				// debug([$sql]);
 				if($this->sql($sql)) {
 					return true;
 				}

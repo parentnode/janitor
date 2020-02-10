@@ -14,7 +14,7 @@ $items = $model->getTaglists();
 		<?= $JML->listNew(array("label" => "New taglist")) ?>
 	</ul>
 
-	<div class="all_items i:defaultList filters"<?= $JML->jsData(["order", "search"]) ?>>
+	<div class="all_items i:defaultList filters"<?= $HTML->jsData(["order", "search"]) ?>>
 <?		if($items): ?>
 		<ul class="items">
 <?			foreach($items as $item): ?>

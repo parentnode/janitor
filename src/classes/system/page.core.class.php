@@ -834,6 +834,81 @@ class PageCore {
 		}
 	}
 
+	/**
+	* Get array of available price_types
+	* Optional get details for specific price_type
+	*
+	* @return Array of price_types or array of price_type details
+	*/
+	function price_types($_options = false) {
+
+		$IC = new Items();
+
+		$id = false;
+		$exclude_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "id"                   : $id                    = $_value; break;
+					case "exclude_id"           : $exclude_id            = $_value; break;
+				}
+			}
+		}
+
+		if(!cache()->value("price_types")) {
+
+			$query = new Query();
+			$query->sql("SELECT * FROM ".UT_PRICE_TYPES);
+			cache()->value("price_types", $query->results());
+		}
+
+		// looking for specific price_type details
+		if($id !== false) {
+			$price_types = cache()->value("price_types");
+			$key = arrayKeyValue($price_types, "id", $id);
+			if($key !== false) {
+				return $price_types[$key];
+			}
+			// invalid price_type requested
+			else {
+				return false;
+			}
+		}
+		// exclude price_type of a specific item_id 
+		else if($exclude_id !== false) {
+			$IC = new Items();
+
+			$price_types = cache()->value("price_types");
+
+			$key = arrayKeyValue($price_types, "item_id", $exclude_id);
+
+			if($key) {
+				unset($price_types[$key]);
+			}
+		}
+		// return complete array of price_types
+		else {
+			$price_types = cache()->value("price_types");
+		}
+
+		// exclude price_type for disabled items
+		foreach($price_types as $key => $price_type) {
+
+			if(isset($price_type["item_id"])) {
+				$item = $IC->getItem(["id" => $price_type["item_id"]]);
+				
+				if($item["status"] === "0") {
+					unset($price_types[$key]);
+				}
+			}
+		}
+
+		return $price_types;
+	}
+	
+
+
 
 	/**
 	* Get array of available subscription methods
@@ -1759,7 +1834,7 @@ class PageCore {
 							$query->sql($sql);
 
 
-							message()->addMessage("User has not been verified yet – did you forget to activate your account?", array("type" => "error"));
+							message()->addMessage("User has not been verified yet – did you forget to activate your account? We just sent you a new verification email in case the other one got lost.", array("type" => "error"));
 							return ["status" => "NOT_VERIFIED", "email" => $email];
 
 						}

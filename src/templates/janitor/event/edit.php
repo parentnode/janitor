@@ -17,7 +17,7 @@ $location_options = $model->toOptions($model->getLocations(), "id", "location", 
 
 	<?= $JML->editGlobalActions($item) ?>
 
-	<?= $JML->editSingleMedia($item) ?>
+	<?= $JML->editSingleMedia($item, ["label" => "Main image"]) ?>
 
 	<div class="item i:defaultEdit">
 		<h2>Event</h2>

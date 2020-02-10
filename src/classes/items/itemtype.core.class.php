@@ -17,7 +17,110 @@ class ItemtypeCore extends Model {
 		// to ensure restrictions on itemtype data manipulation
 		$this->itemtype = $itemtype;
 
+		// Construct model before adding item defaults (to allow for item defaults to override system defaults)
 		parent::__construct();
+
+
+		// Default settings
+
+		// Files
+		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,mp3,pdf,zip";
+
+		// Html
+		$this->data_defaults["allowed_tags"] = "p,h1,h2,h3,h4,h5,h6,code,ul,ol,download";
+		$this->data_defaults["file_add"] = $this->path."/addHTMLFile";
+		$this->data_defaults["file_delete"] = $this->path."/deleteHTMLFile";
+		$this->data_defaults["media_add"] = $this->path."/addHTMLMedia";
+		$this->data_defaults["media_delete"] = $this->path."/deleteHTMLMedia";
+
+
+
+		// Standard item extensions
+
+		// Tags
+		$this->addToModel("tags", array(
+			"type" => "tag",
+			"label" => "Add tag or type to filter existing tags",
+			"autocomplete" => true,
+			"hint_message" => "Select existing tag or add a new tag.",
+			"error_message" => "Tag must conform to tag format: context:value."
+		));
+
+		// Comments
+		$this->addToModel("item_comment", array(
+			"type" => "text",
+			"label" => "New comment",
+			"class" => "autoexpand",
+			"hint_message" => "Leave a new comment.",
+			"error_message" => "Comment cannot be empty."
+		));
+
+		// Ratings
+		$this->addToModel("item_rating", array(
+			"type" => "integer",
+			"label" => "New rating",
+			"hint_message" => "Leave a your rating.",
+			"error_message" => "Rating cannot be empty."
+		));
+
+		// Prices
+		$this->addToModel("item_price", array(
+			"type" => "string",
+			"label" => "New price",
+			"pattern" => "[0-9,]+",
+			"class" => "price",
+			"required" => true,
+			"hint_message" => "State the price INCLUDING VAT, using comma (,) as decimal point.",
+			"error_message" => "Price cannot be empty."
+		));
+		$this->addToModel("item_price_currency", array(
+			"type" => "string",
+			"label" => "Currency",
+			"class" => "currency",
+			"required" => true,
+			"hint_message" => "Currency of price",
+			"error_message" => "Currency cannot be empty."
+		));
+		$this->addToModel("item_price_vatrate", array(
+			"type" => "integer",
+			"label" => "Vatrate",
+			"class" => "vatrate",
+			"required" => true,
+			"hint_message" => "VAT rate for this product.",
+			"error_message" => "VAT rate cannot be empty."
+		));
+		$this->addToModel("item_price_type", array(
+			"type" => "string",
+			"label" => "Price type",
+			"class" => "type",
+			"required" => true,
+			"hint_message" => "Select the type of price.",
+			"error_message" => "Price type error."
+		));
+		$this->addToModel("item_price_quantity", array(
+			"type" => "integer",
+			"label" => "#",
+			"class" => "quantity",
+			"hint_message" => "Minimum quantity qualifying for bulk price. Used for BULK PRICES ONLY.",
+			"error_message" => "Price quantity error."
+		));
+
+		// Subscription method
+		$this->addToModel("item_subscription_method", array(
+			"type" => "integer",
+			"label" => "Subscription method",
+			"hint_message" => "Choose subscription renewal period.",
+			"error_message" => "Subscription method error."
+		));
+
+		// Ownership
+		$this->addToModel("item_ownership", array(
+			"type" => "integer",
+			"label" => "Item owner",
+			"hint_message" => "Choose new owner for item.",
+			"error_message" => "A valid new owner must be selected"
+		));
+
 	}
 
 
@@ -358,6 +461,7 @@ class ItemtypeCore extends Model {
 
 		// does values validate (only name required on save)
 		if($this->validateList(array("name"))) {
+			// debug(["save name", $_POST]);
 
 			$query = new Query();
 
@@ -1768,6 +1872,8 @@ class ItemtypeCore extends Model {
 	// /janitor/[admin/]#itemtype#/addPrice/#item_id#
  	function addPrice($action) {
 
+		global $page;
+		
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
@@ -1782,8 +1888,9 @@ class ItemtypeCore extends Model {
 				$price = $this->getProperty("item_price", "value");
 				$currency = $this->getProperty("item_price_currency", "value");
 				$vatrate = $this->getProperty("item_price_vatrate", "value");
-				$type = $this->getProperty("item_price_type", "value");
-				if($type == "bulk") {
+				$type_id = $this->getProperty("item_price_type", "value");
+				$type_name = $page->price_types(["id" => $type_id])["name"];
+				if($type_name == "bulk") {
 					$quantity = $this->getProperty("item_price_quantity", "value");
 					// check quantity value for bulk price
 					if(!is_numeric($quantity) || intval($quantity) != floatval($quantity) || intval($quantity) <= 1) {
@@ -1792,7 +1899,7 @@ class ItemtypeCore extends Model {
 					}
 
 					// bulk items price can only exist once for specific quantity
-					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type = '$type' AND quantity = $quantity";
+					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type_id = '$type_id' AND quantity = $quantity";
 					// debug($sql);
 
 					if($query->sql($sql)) {
@@ -1803,7 +1910,7 @@ class ItemtypeCore extends Model {
 				}
 				else {
 					// default and offer price can only exist once for an item
-					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type = '$type'";
+					$sql = "SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id AND currency = '$currency' AND type_id = '$type_id'";
 					// debug($sql);
 
 					if($query->sql($sql)) {
@@ -1817,7 +1924,7 @@ class ItemtypeCore extends Model {
 				// replace , with . to make valid number
 				$price = preg_replace("/,/", ".", $price);
 
-				$sql = "INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', $vatrate, '$type', $quantity)";
+				$sql = "INSERT INTO ".UT_ITEMS_PRICES." VALUES(DEFAULT, $item_id, '$price', '$currency', $vatrate, '$type_id', $quantity)";
 				// debug($sql);
 				
 				if($query->sql($sql)) {
@@ -1950,6 +2057,8 @@ class ItemtypeCore extends Model {
 		$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
 		$item_id = $order_item["item_id"];
 
+		$custom_price = isset($order_item["custom_price"]) ? $order_item["unit_price"] : false;
+
 		// order item can be subscribed to
 		if(SITE_SUBSCRIPTIONS && isset($item["subscription_method"]) && $item["subscription_method"]) {
 			
@@ -1965,6 +2074,7 @@ class ItemtypeCore extends Model {
 				// makes callback to 'subscribed' if item_id changes
 				$_POST["order_id"] = $order["id"];
 				$_POST["item_id"] = $item_id;
+				$_POST["custom_price"] = $custom_price;
 				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription["id"]]);
 				unset($_POST);
 
@@ -1976,6 +2086,7 @@ class ItemtypeCore extends Model {
 				$_POST["item_id"] = $item_id;
 				$_POST["user_id"] = $user_id;
 				$_POST["order_id"] = $order_id;
+				$_POST["custom_price"] = $custom_price;
 				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 				unset($_POST);
 

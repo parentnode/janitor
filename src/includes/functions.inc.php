@@ -255,7 +255,7 @@ function arrayKeyValue($array, $key, $value) {
 }
 
 /**
-* Generate ramdom key
+* Generate random key
 *
 * @param Integer $length (Optional) Length of key. Default is 8.
 * @return String Random key

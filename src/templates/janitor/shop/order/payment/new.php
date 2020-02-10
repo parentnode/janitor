@@ -105,7 +105,7 @@ $payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
 		<ul class="actions">
 		<? foreach($payment_gateways as $payment_method): ?>
 			<? if($model->canBeCharged(["user_id" => $order["user_id"], "gateway" => $payment_method["gateway"]])): ?>
-				<?= $JML->oneButtonForm("Charge ".formatPrice(array("price" => $payable_amount, "vat" => 0, "currency" => $order["currency"], "country" => $order["country"]))." from ".$payment_method["name"] . " (".$payment_method["gateway"].")", "/janitor/admin/shop/chargeRemainingOrderPayment", array(
+				<?= $HTML->oneButtonForm("Charge ".formatPrice(array("price" => $payable_amount, "vat" => 0, "currency" => $order["currency"], "country" => $order["country"]))." from ".$payment_method["name"] . " (".$payment_method["gateway"].")", "/janitor/admin/shop/chargeRemainingOrderPayment", array(
 					"inputs" => array("order_id" => $order["id"], "payment_method" => $payment_method["id"]),
 					"confirm-value" => "Are you sure?",
 					"success-location" => "/janitor/admin/shop/order/edit/".$order_id,
@@ -172,7 +172,7 @@ $payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
 		</p>
 
 		<ul class="actions">
-			<?= $JML->oneButtonForm("Send payment reminder", "/janitor/admin/shop/sendPaymentReminder", array(
+			<?= $HTML->oneButtonForm("Send payment reminder", "/janitor/admin/shop/sendPaymentReminder", array(
 				"inputs" => array("order_id" => $order["id"]),
 				"confirm-value" => "Are you sure?",
 				"success-location" => "/janitor/admin/shop/order/edit/".$order_id,

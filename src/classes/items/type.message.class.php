@@ -24,7 +24,10 @@ class TypeMessage extends Itemtype {
 
 		// Published
 		$this->addToModel("published_at", array(
+			"type" => "datetime",
+			"label" => "Publish date (yyyy-mm-dd hh:mm)",
 			"hint_message" => "Publishing date of the message. Leave empty for current time",
+			"error_message" => "Datetime must be of format (yyyy-mm-dd hh:mm)"
 		));
 
 		// Name
@@ -46,8 +49,11 @@ class TypeMessage extends Itemtype {
 
 		// HTML
 		$this->addToModel("html", array(
+			"type" => "html",
+			"label" => "Full message",
+			"allowed_tags" => "p,h2,h3,h4,ul,ol,jpg,png",
 			"hint_message" => "Write the message",
-			"allowed_tags" => "p,h2,h3,h4,ul,ol,jpg,png", //,code,mp4,vimeo,youtube",
+			"error_message" => "No words is not gonna fly."
 		));
 
 
@@ -677,6 +683,8 @@ class TypeMessage extends Itemtype {
 		// Message item id
 		$item_id = false;
 
+		$attachments = [];
+
 		$values = [];
 		$from_current_user = false;
 
@@ -690,6 +698,8 @@ class TypeMessage extends Itemtype {
 					case "user_id"                : $user_id                = $_value; break;
 
 					case "item_id"                : $item_id                = $_value; break;
+
+					case "attachments"            : $attachments            = $_value; break;
 
 					case "from_current_user"      : $from_current_user      = $_value; break;
 					case "values"                 : $values                 = $_value; break;
@@ -944,7 +954,7 @@ class TypeMessage extends Itemtype {
 					// print_r($recipients);
 					// print_r($recipient_values);
 
-					if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "subject" => $message["name"], "html" => $html, "tracking" => true])) {
+					if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "subject" => $message["name"], "html" => $html, "tracking" => true, "attachments" => $attachments])) {
 
 						global $page;
 						$page->addLog("TypeMessage->sendMessage: user_id:".session()->value("user_id").", item_id:".$item_id.", " . ($maillist_id ? "maillist_id:".$maillist_id : "recipients:".implode(";", $recipients)));

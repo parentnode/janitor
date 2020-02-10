@@ -21,7 +21,10 @@ class TypeArticle extends Itemtype {
 
 		// Published
 		$this->addToModel("published_at", array(
+			"type" => "datetime",
+			"label" => "Publish date (yyyy-mm-dd hh:mm)",
 			"hint_message" => "Publishing date of the article. Leave empty for current time",
+			"error_message" => "Datetime must be of format (yyyy-mm-dd hh:mm)"
 		));
 
 		// Name
@@ -38,7 +41,7 @@ class TypeArticle extends Itemtype {
 			"type" => "string",
 			"label" => "Secondary headline",
 			"hint_message" => "Secondary headline of your article", 
-			"error_message" => "Secondary headline contains illigal characters."
+			"error_message" => "Secondary headline contains illegal characters."
 		));
 
 		// description
@@ -51,22 +54,32 @@ class TypeArticle extends Itemtype {
 
 		// HTML
 		$this->addToModel("html", array(
-			"hint_message" => "Write your article",
+			"type" => "html",
+			"label" => "Full article",
 			"allowed_tags" => "p,h2,h3,h4,ul,ol,download,jpg,png,code", //,mp4,vimeo,youtube,code",
+			"hint_message" => "Write your article",
+			"error_message" => "No words? How weird."
 		));
 
 		// Single media
 		$this->addToModel("single_media", array(
+			"type" => "files",
+			"label" => "Add media here",
 			"allowed_sizes" => "960x540",
-			"allowed_formats" => "png,jpg",
-			"hint_message" => "Add single image/video by dragging it here. MP4, PNG or JPG allowed in 960x540"
+			"max" => 1,
+			"allowed_formats" => "png,jpg,mp4",
+			"hint_message" => "Add single image/video by dragging it here. MP4, PNG or JPG allowed in 960x540",
+			"error_message" => "Media does not fit requirements."
 		));
 
-		// Files
+		// Mediae
 		$this->addToModel("mediae", array(
+			"type" => "files",
 			"label" => "Add media here",
+			"max" => 20,
 			"allowed_formats" => "png,jpg,mp4",
 			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
+			"error_message" => "Media does not fit requirements."
 		));
 
 	}

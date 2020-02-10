@@ -19,7 +19,7 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 
 	<ul class="actions i:defaultEditActions">
 		<?= $model->link("Back to user", "/janitor/admin/user/edit/".$user_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $JML->oneButtonForm("Delete address", "/janitor/admin/user/deleteAddress/".$address_id, array(
+		<?= $model->oneButtonForm("Delete address", "/janitor/admin/user/deleteAddress/".$address_id, array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/user/edit/".$user_id
 		)) ?>

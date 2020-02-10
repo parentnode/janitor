@@ -144,10 +144,13 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		<h2>Cancellation</h2>
 		<p>
 			If you cancel your account, we'll delete your personal information and your 
-			membership and subscriptions from our system.
+			membership and subscriptions entirely from our system.
 		</p>
 		<p>
-			To unsubscribe from our maillists, see the "maillists" section above.
+			To cancel your membership only, choose the "Membership" tab above.
+		</p>
+		<p>
+			To unsubscribe from our maillists, choose the "Maillists" tab above.
 		</p>
 
 <? if($unpaid_orders): ?>

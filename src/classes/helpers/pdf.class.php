@@ -10,11 +10,19 @@ class PDF {
 		$fs = new FileSystem();
 
 		$output_format = "A4";
+		$javascript_delay = 1000;
+		$orientation = "portrait";
+
+		$cookie = false;
 
 		if($options !== false) {
 			foreach($options as $option => $value) {
 				switch($option) {
-					case "format"            : $output_format      = $value; break;
+					case "format"            : $output_format         = $value; break;
+					case "delay"             : $javascript_delay      = $value; break;
+					case "orientation"       : $orientation           = $value; break;
+
+					case "cookie"            : $cookie      = $value; break;
 				}
 			}
 		}
@@ -22,7 +30,16 @@ class PDF {
 		$wkhtmlto_path = wkhtmltoPath();
 
 //		$command = "$wkhtmlto_path -s $output_format $input_file $output_file";
-		$command = "$wkhtmlto_path -s $output_format --javascript-delay 1000 --no-stop-slow-scripts --enable-javascript --debug-javascript $input_file $output_file";
+		$command = "$wkhtmlto_path";
+		$command .= " -s $output_format";
+		$command .= " -O $orientation";
+		$command .= " --javascript-delay $javascript_delay";
+		$command .= " --no-stop-slow-scripts";
+		$command .= " --enable-javascript";
+		if($cookie) {
+			$command .= " --cookie " . $cookie["name"] . " " . $cookie["value"];
+		}
+		$command .= " $input_file $output_file";
 		// print "command:".$command."<br>\n";
 
 		// Generate the image

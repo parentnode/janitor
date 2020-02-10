@@ -45,7 +45,7 @@ session()->reset("return_to_wishlist");
 					<h3><?= $wishlist["name"] ?> (<?= count($wishlist_wishes) ?> wishes)</h3>
 					<ul class="actions">
 						<?= $model->link("View", "/janitor/admin/wishlist/edit/".$wishlist["id"], array("class" => "button primary", "wrapper" => "li.edit")); ?>
-						<?= $JML->oneButtonForm("Delete", "/janitor/admin/wishlist/delete/".$wishlist["id"], array(
+						<?= $model->oneButtonForm("Delete", "/janitor/admin/wishlist/delete/".$wishlist["id"], array(
 							"js" => true,
 							"wrapper" => "li.delete",
 							"static" => true
@@ -64,11 +64,11 @@ session()->reset("return_to_wishlist");
 
 	<div class="wishes">
 		<h2>All wishes</h2>
-		<div class="all_items i:defaultList taggable filters images width:100"<?= $JML->jsData(["tags", "search"]) ?>>
+		<div class="all_items i:defaultList taggable filters images width:100"<?= $HTML->jsData(["tags", "search"]) ?>>
 	<?		if($wishes): ?>
 			<ul class="items">
 	<?			foreach($wishes as $item): ?>
-				<li class="item item_id:<?= $item["id"] ?><?= $JML->jsMedia($item) ?>">
+				<li class="item item_id:<?= $item["id"] ?><?= $HTML->jsMedia($item) ?>">
 					<h3><?= $item["name"] ?></h3>
 					<dl class="info">
 						<dt class="reserved">Reserved</dt>

@@ -19,7 +19,7 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 		data-csrf-token="<?= session()->value("csrf") ?>"
 		>
 		<?= $model->link("Back to user", "/janitor/admin/profile", array("class" => "button", "wrapper" => "li.cancel")) ?>
-		<?= $JML->oneButtonForm("Delete address", "/janitor/admin/profile/deleteAddress/".$address_id, array(
+		<?= $model->oneButtonForm("Delete address", "/janitor/admin/profile/deleteAddress/".$address_id, array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/profile"
 		)) ?>

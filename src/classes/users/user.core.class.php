@@ -529,8 +529,8 @@ class UserCore extends Model {
 								mailer()->send(array(
 									"subject" => SITE_URL . " - New User: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
-									"tracking" => false
-									// "template" => "system"
+									"tracking" => false,
+									"template" => "system"
 								));
 							}
 							// error
@@ -572,10 +572,12 @@ class UserCore extends Model {
 
 							// maillist subscription sent as string?
 							$maillist = getPost("maillist");
-							if($maillist) {
+							$maillist_name = getPost("maillist_name");
+							if($maillist && $maillist_name) {
+
 								// check if maillist exists
 								$maillists = $page->maillists();
-								$maillist_match = arrayKeyValue($maillists, "name", $maillist);
+								$maillist_match = arrayKeyValue($maillists, "name", $maillist_name);
 								if($maillist_match !== false) {
 									$maillist_id = $maillists[$maillist_match]["id"];
 									$_POST["maillist_id"] = $maillist_id;
@@ -1865,25 +1867,45 @@ class UserCore extends Model {
 
 	// User has accepted terms
 	// Add to database
-	function acceptedTerms() {
+	function acceptedTerms($_options = false) {
 
 		$query = new Query();
 		$user_id = session()->value("user_id");
+		$name = "terms";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "name"        : $name          = $_value; break;
+				}
+			}
+		}
 
 		$query->checkDbExistence(SITE_DB.".user_log_agreements");
-		$sql = "INSERT INTO ".SITE_DB.".user_log_agreements SET user_id = $user_id, name = 'terms'";
+		$sql = "INSERT INTO ".SITE_DB.".user_log_agreements SET user_id = $user_id, name = '$name'";
 		$query->sql($sql);
 
 	}
 	
 	// Check if user has accepted terms
-	function hasAcceptedTerms() {
+	function hasAcceptedTerms($_options = false) {
 
 		$query = new Query();
 		$user_id = session()->value("user_id");
+		$name = "terms";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "name"        : $name          = $_value; break;
+				}
+			}
+		}
 
 		$query->checkDbExistence(SITE_DB.".user_log_agreements");
-		$sql = "SELECT user_id FROM ".SITE_DB.".user_log_agreements WHERE user_id = $user_id";
+		$sql = "SELECT user_id FROM ".SITE_DB.".user_log_agreements WHERE user_id = $user_id AND name = '$name'";
 		if($query->sql($sql)) {
 			return true;
 		}

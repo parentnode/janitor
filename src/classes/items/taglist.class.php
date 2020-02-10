@@ -63,31 +63,45 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 		// Define default values
 		$taglist_id = false;
+		$handle = false;
 
 		// Search through $_options to find recognized parameters
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "taglist_id"        : $taglist_id             = $_value; break;
+					case "handle"            : $handle                 = $_value; break;
 				}
 			}
 		}
 
 		// Query database for taglist with specific id.
-		if($taglist_id) {
-			
-			$query1 = new Query();
-			$query2 = new Query();
-			$sql1 = "SELECT * FROM ".$this->db." WHERE id = '$taglist_id'";
-			$sql2 = "SELECT tags.id, tags.context, tags.value FROM ".$this->db_taglist_tags.", ". $this->db_tags." WHERE taglist_tags.tag_id = tags.id AND taglist_tags.taglist_id = '$taglist_id' ORDER BY taglist_tags.position ASC";
-			if($query1->sql($sql1)) {
-				$taglist = $query1->result(0);
-				if ($query2->sql($sql2)) {
-					$taglist["tags"] = $query2->results();
+		if($taglist_id || $handle) {
+
+			$query = new Query();
+
+			if($taglist_id) {
+				$sql = "SELECT * FROM ".$this->db." WHERE id = '$taglist_id'";
+			}
+			else {
+				$sql = "SELECT * FROM ".$this->db." WHERE handle = '$handle'";
+			}
+
+			if($query->sql($sql)) {
+
+				$taglist = $query->result(0);
+
+
+				// Get tags for taglist
+				$sql = "SELECT tags.id, tags.context, tags.value FROM ".$this->db_taglist_tags.", ". $this->db_tags." WHERE taglist_tags.tag_id = tags.id AND taglist_tags.taglist_id = '".$taglist["id"]."' ORDER BY taglist_tags.position ASC";
+
+				if($query->sql($sql)) {
+					$taglist["tags"] = $query->results();
 				}
 				else {
 					$taglist["tags"] = false;
 				}
+
 				return $taglist;
 			}
 		}

@@ -31,6 +31,12 @@ if(count($action) == 3 && isset($_SERVER["HTTP_REFERER"]) && strpos($_SERVER["HT
 				$format = $query->result(0, "format");
 				$file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format;
 			}
+			else {
+				$sql = "SELECT ticket_no FROM ".SITE_DB.".user_item_tickets WHERE ticket_no = '$variant' AND item_id = $item_id";
+				if($query->sql($sql)) {
+					$file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/pdf";
+				}
+			}
 
 		}
 

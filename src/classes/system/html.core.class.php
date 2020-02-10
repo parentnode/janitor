@@ -82,6 +82,61 @@ class HTMLCore {
 
 
 
+
+	// provide media info as classvars for JS
+	function jsMedia($item, $variant=false) {
+
+		$IC = new Items();
+		$media = $IC->getFirstMedia($item, $variant);
+
+		return $media ? (" format:".$media["format"]." variant:".$media["variant"]) : "";
+	}
+
+	// data elements for JS interaction
+	// Using default data paths
+	function jsData($_filter = false) {
+		global $page;
+
+		$_ = '';
+
+		$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
+
+		if(!$_filter || array_search("order", $_filter) !== false) {
+			$_ .= ' data-item-order="'.$page->validPath($this->path."/updateOrder").'"'; 
+		}
+
+		if(!$_filter || array_search("tags", $_filter) !== false) {
+			$_ .= ' data-tag-get="'.$page->validPath("/janitor/admin/items/tags").'"'; 
+			$_ .= ' data-tag-delete="'.$page->validPath($this->path."/deleteTag").'"';
+			$_ .= ' data-tag-add="'.$page->validPath($this->path."/addTag").'"';
+		}
+
+		if(!$_filter || array_search("media", $_filter) !== false) {
+			$_ .= ' data-media-order="'.$page->validPath($this->path."/updateMediaOrder").'"';
+			$_ .= ' data-media-delete="'.$page->validPath($this->path."/deleteMedia").'"';
+			$_ .= ' data-media-name="'.$page->validPath($this->path."/updateMediaName").'"';
+		}
+
+		if(!$_filter || array_search("comments", $_filter) !== false) {
+			$_ .= ' data-comment-update="'.$page->validPath($this->path."/updateComment").'"';
+			$_ .= ' data-comment-delete="'.$page->validPath($this->path."/deleteComment").'"';
+		}
+
+		if(!$_filter || array_search("prices", $_filter) !== false) {
+			$_ .= ' data-price-delete="'.$page->validPath($this->path."/deletePrice").'"';
+		}
+
+		if(!$_filter || array_search("qna", $_filter) !== false) {
+			$_ .= ' data-qna-update="'.$page->validPath($this->path."/updateQnA").'"';
+			$_ .= ' data-qna-delete="'.$page->validPath($this->path."/deleteQnA").'"';
+		}
+
+		return $_;
+	}
+
+
+
+
 	/**
 	* Start a form tag
 	*
@@ -216,6 +271,7 @@ class HTMLCore {
 		// validation
 		$min = $this->getProperty($name, "min");
 		$max = $this->getProperty($name, "max");
+		$step = $this->getProperty($name, "step");
 		$required = $this->getProperty($name, "required");
 		$pattern = $this->getProperty($name, "pattern");
 
@@ -256,6 +312,7 @@ class HTMLCore {
 
 					case "min"             : $min              = $_value; break;
 					case "max"             : $max              = $_value; break;
+					case "step"            : $step             = $_value; break;
 					case "required"        : $required         = $_value; break;
 					case "pattern"         : $pattern          = $_value; break;
 
@@ -454,6 +511,16 @@ class HTMLCore {
 					$_ .= '<input type="number"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
 				}
 
+				// RANGE
+				else if($type === "range") {
+					$att_value = $this->attribute("value", $value);
+					$att_max = $this->attribute("max", $max);
+					$att_min = $this->attribute("min", $min);
+					$att_step = $this->attribute("step", $min);
+
+					$_ .= '<input type="range"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_step.$att_max.$att_min.' />';
+				}
+
 				// FILES
 				else if($type === "files") {
 
@@ -644,6 +711,7 @@ class HTMLCore {
 
 		$type = "button";
 		$name = false;
+		$formaction = false;
 		$class = false;
 
 		$wrapper = false;
@@ -655,6 +723,7 @@ class HTMLCore {
 
 					case "type"          : $type           = $_value; break;
 					case "name"          : $name           = $_value; break;
+					case "formaction"    : $formaction     = $_value; break;
 
 					case "class"         : $class          = $_value; break;
 
@@ -669,6 +738,7 @@ class HTMLCore {
 		$att_type = $this->attribute("type", $type);
 		$att_class = $this->attribute("class", "button", $class);
 		$att_name = $this->attribute("name", $name);
+		$att_formaction = $this->attribute("formaction", $formaction);
 
 		$att_wrap_id = "";
 		$att_wrap_class = "";
@@ -697,7 +767,7 @@ class HTMLCore {
 	
 		}
 
-		$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.' />';
+		$_ .= '<input'.$att_value.$att_name.$att_type.$att_formaction.$att_class.' />';
 
 		if($wrapper) {
 			$_ .= '</'.$wrap_node.'>'."\n";
@@ -719,6 +789,188 @@ class HTMLCore {
 		return $this->button($value, $_options);
 
 	}
+
+
+
+
+
+	/**
+	* Confirm button
+	*/
+	function oneButtonForm($value, $action, $_options = false) {
+		global $page;
+
+
+		if(!$page->validatePath($action)) {
+			return "";
+		}
+
+		$js = false;
+
+		$class = "";
+		$name = "confirm";
+		$confirm_value = "Confirm";
+		$wait_value = false;
+		$static = false;
+
+		$dom_submit = false;
+		$download = false;
+		$target = false;
+
+		$success_location = false;
+		$success_function = false;
+
+		$wrapper = "li.confirm";
+
+		$inputs = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "js"                   : $js                     = $_value; break;
+
+					case "class"                : $class                  = $_value; break;
+					case "name"                 : $name                   = $_value; break;
+					case "confirm-value"        : $confirm_value          = $_value; break;
+					case "wait-value"           : $wait_value             = $_value; break;
+					case "dom-submit"           : $dom_submit             = $_value; break;
+					case "download"             : $download               = $_value; break;
+					case "target"               : $target                 = $_value; break;
+
+					case "success-location"     : $success_location       = $_value; break;
+					case "success-function"     : $success_function       = $_value; break;
+
+					case "wrapper"              : $wrapper                = $_value; break;
+					case "static"               : $static                 = $_value; break;
+
+					case "inputs"               : $inputs                 = $_value; break;
+
+				}
+			}
+		}
+
+
+		$_ = "";
+
+		$wrap_node = false;
+
+
+		$att_wrap_id = "";
+		$wrap_class = $static ? "" : "i:oneButtonForm";
+
+
+		// identify wrapper node/class/id
+		// with class or id
+		if(preg_match("/([a-z]+)[\.#]+/", $wrapper, $node_match)) {
+//				print_r($node_match);
+
+			$wrap_node = $node_match[1];
+
+			if(preg_match("/#([a-zA-Z0-9_]+)/", $wrapper, $id_match)) {
+//					print_r($id_match);
+				$att_wrap_id = $this->attribute("id", $id_match[1]);
+			}
+			if(preg_match_all("/\.([a-zA-Z0-9_\:]+)/", $wrapper, $class_matches)) {
+//					print_r($class_matches);
+				$wrap_class .= " ".implode(" ", $class_matches[1]);
+			}
+		}
+		else {
+			$wrap_node = $wrapper;
+		}
+
+		$att_wrap_class = $this->attribute("class", $wrap_class);
+
+
+
+		$_ .= '<'.$wrap_node.$att_wrap_class.$att_wrap_id;
+		$_ .= ' data-confirm-value="'.$confirm_value.'"';
+
+
+		if($dom_submit) {
+			$_ .= ' data-dom-submit="true"';
+		}
+		if($download) {
+			$_ .= ' data-download="true"';
+		}
+		// custom waiting value (after submit)
+		if($wait_value) {
+			$_ .= ' data-wait-value="'.$wait_value.'"';
+		}
+
+		if($success_location) {
+			$_ .= ' data-success-location="'.$success_location.'"';
+		}
+		if($success_function) {
+			$_ .= ' data-success-function="'.$success_function.'"';
+		}
+
+		// JavaScript HTML expansion details
+		if($js) {
+
+			$_ .= ' data-button-value="'.$value.'"';
+			$_ .= $class ? ' data-button-class="'.$class.'"' : '';
+			$_ .= $name ? ' data-button-name="'.$name.'"' : '';
+			$_ .= $inputs ? ' data-inputs="'.json_encode($inputs).'"' : '';
+
+			$_ .= ' data-form-action="'.$action.'"';
+			$_ .= $target ? ' data-form-target="'.$target.'"' : '';
+			$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
+
+		}
+
+		$_ .= '>';
+
+
+		if(!$js) {
+			$att_value = $this->attribute("value", $value);
+			$att_type = $this->attribute("type", "submit");
+			$att_class = $this->attribute("class", "button", $class);
+			$att_name = $this->attribute("name", $name);
+
+			$form_options = [];
+
+			if($target) {
+				$form_options["target"] = "_blank";
+			}
+
+			$_ .= $this->formStart($action, $form_options);
+			if($inputs) {
+				foreach($inputs as $name => $value) {
+					$_ .= '<input type="hidden" name="'.$name.'" value="'.$value.'" />';
+				}
+			}
+
+			$_ .= '<input'.$att_value.$att_name.$att_type.$att_class.' />';
+			$_ .= $this->formEnd();
+		}
+
+
+		$_ .= '</'.$wrap_node.'>'."\n";
+
+
+
+		//
+		// if($js) {
+		// 	$_ = '<li class="confirm i:confirmAction'.($class ? " ".$class : "").'"';
+		//
+		// }
+		// else {
+		// 	$_ = '<li class="confirm i:confirmAction'.($class ? " ".$class : "").'">';
+		//
+		// 	$_ .= $this->formStart($action);
+		// 	$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
+		// 	$_ .= $HTML->formEnd();
+		// }
+		//
+		// $_ .= '</li>';
+
+		return $_;
+	}
+
+
 
 
 
