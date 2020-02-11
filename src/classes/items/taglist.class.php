@@ -30,6 +30,13 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 			"error_message" => "String must be string"
 		));
 
+		$this->addToModel("handle", array(
+			"type" => "string",
+			"label" => "Handle",
+			"required" => true,
+			"hint_message" => "Type string",
+			"error_message" => "String must be string"
+		));
 	}
 
 
@@ -173,14 +180,15 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 			
 			// Get posted values
 			$name = $this->getProperty("name", "value");
-			$handle = superNormalize($name);
+			$handle = $this->getProperty("handle", "value");
+			//print_r($handle);
+			$handle = superNormalize($handle);
 
 			// Check if the taglist is already created (to avoid faulty double entries)  
-			$sql = "SELECT * FROM ".$this->db." WHERE name = '$name'";
+			$sql = "SELECT * FROM ".$this->db." WHERE handle = $handle";
 			if(!$query->sql($sql)) {
 				// enter the List into the database
 				$sql = "UPDATE ".$this->db." SET name ='$name', handle ='$handle' WHERE id = '$taglist_id'";
-				
 				// if successful, add message and return List id
 				if($query->sql($sql)) {
 					message()->addMessage("List updated");

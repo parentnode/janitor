@@ -11,7 +11,7 @@ $taglist = $model->getTaglist(array("taglist_id" => $taglist_id));
 ?>
 <div class="scene defaultEdit taglistList <?= $itemtype ?>Edit">
 	<h1>Edit taglist</h1>
-	<h2><?= strip_tags($taglist["name"]) ?></h2>
+	<h2 ><?=strip_tags($taglist["name"]) ?></h2>
 
 	<?= $JML->editGlobalActions($taglist, ["modify"=>[
 		"delete"=>[
@@ -31,6 +31,8 @@ $taglist = $model->getTaglist(array("taglist_id" => $taglist_id));
 			<fieldset>
 
 				<?= $model->input("name", array("value" => $taglist["name"])) ?>
+				<p class="handle">Handles are being used programmatically. Don't edit it if you don't know what you are doing </p>
+				<?= $model->input("handle", array("value" => $taglist["handle"])) ?>
 
 			</fieldset>
 
