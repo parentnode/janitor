@@ -817,6 +817,16 @@ function payments() {
 	return $__ppp;
 }
 
+// Shorthand auto initializer for qr code generator access
+$__qrc = false;
+function qr_codes() {
+	global $__qrc;
+	if(!$__qrc) {
+		include_once("classes/helpers/qr_codes.class.php");
+		$__qrc = new QrCodesGateway();
+	}
+	return $__qrc;
+}
 
 
 /**
