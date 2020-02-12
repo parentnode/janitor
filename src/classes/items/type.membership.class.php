@@ -63,9 +63,21 @@ class TypeMembership extends Itemtype {
 		$this->addToModel("html", [
 			"type" => "html",
 			"label" => "Full description",
+			"allowed_tags" => "p,h2,h3,h4,ul,ol,code,download,jpg,png", //,mp4,vimeo,youtube",
 			"hint_message" => "Write a full description of the membership.",
 			"error_message" => "A full description without any words? How weird."
 		]);
+
+		// Single media
+		$this->addToModel("single_media", array(
+			"type" => "files",
+			"label" => "Add media here",
+			"allowed_sizes" => "960x540",
+			"max" => 1,
+			"allowed_formats" => "png,jpg",
+			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x540",
+			"error_message" => "Media does not fit requirements."
+		));
 
 	}
 

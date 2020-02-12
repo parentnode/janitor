@@ -62,9 +62,12 @@ class TypeWish extends Itemtype {
 
 		// Mediae
 		$this->addToModel("mediae", array(
-			"label" => "Drag image here",
+			"type" => "files",
+			"label" => "Add media here",
+			"max" => 20,
 			"allowed_formats" => "png,jpg",
-			"hint_message" => "Add image here. Use png or jpg in any proportion."
+			"hint_message" => "Add images or videos here. Use png or jpg.",
+			"error_message" => "Media does not fit requirements."
 		));
 
 	}

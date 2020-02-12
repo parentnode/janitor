@@ -17,7 +17,110 @@ class ItemtypeCore extends Model {
 		// to ensure restrictions on itemtype data manipulation
 		$this->itemtype = $itemtype;
 
+		// Construct model before adding item defaults (to allow for item defaults to override system defaults)
 		parent::__construct();
+
+
+		// Default settings
+
+		// Files
+		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,mp3,pdf,zip";
+
+		// Html
+		$this->data_defaults["allowed_tags"] = "p,h1,h2,h3,h4,h5,h6,code,ul,ol,download";
+		$this->data_defaults["file_add"] = $this->path."/addHTMLFile";
+		$this->data_defaults["file_delete"] = $this->path."/deleteHTMLFile";
+		$this->data_defaults["media_add"] = $this->path."/addHTMLMedia";
+		$this->data_defaults["media_delete"] = $this->path."/deleteHTMLMedia";
+
+
+
+		// Standard item extensions
+
+		// Tags
+		$this->addToModel("tags", array(
+			"type" => "tag",
+			"label" => "Add tag or type to filter existing tags",
+			"autocomplete" => true,
+			"hint_message" => "Select existing tag or add a new tag.",
+			"error_message" => "Tag must conform to tag format: context:value."
+		));
+
+		// Comments
+		$this->addToModel("item_comment", array(
+			"type" => "text",
+			"label" => "New comment",
+			"class" => "autoexpand",
+			"hint_message" => "Leave a new comment.",
+			"error_message" => "Comment cannot be empty."
+		));
+
+		// Ratings
+		$this->addToModel("item_rating", array(
+			"type" => "integer",
+			"label" => "New rating",
+			"hint_message" => "Leave a your rating.",
+			"error_message" => "Rating cannot be empty."
+		));
+
+		// Prices
+		$this->addToModel("item_price", array(
+			"type" => "string",
+			"label" => "New price",
+			"pattern" => "[0-9,]+",
+			"class" => "price",
+			"required" => true,
+			"hint_message" => "State the price INCLUDING VAT, using comma (,) as decimal point.",
+			"error_message" => "Price cannot be empty."
+		));
+		$this->addToModel("item_price_currency", array(
+			"type" => "string",
+			"label" => "Currency",
+			"class" => "currency",
+			"required" => true,
+			"hint_message" => "Currency of price",
+			"error_message" => "Currency cannot be empty."
+		));
+		$this->addToModel("item_price_vatrate", array(
+			"type" => "integer",
+			"label" => "Vatrate",
+			"class" => "vatrate",
+			"required" => true,
+			"hint_message" => "VAT rate for this product.",
+			"error_message" => "VAT rate cannot be empty."
+		));
+		$this->addToModel("item_price_type", array(
+			"type" => "string",
+			"label" => "Price type",
+			"class" => "type",
+			"required" => true,
+			"hint_message" => "Select the type of price.",
+			"error_message" => "Price type error."
+		));
+		$this->addToModel("item_price_quantity", array(
+			"type" => "integer",
+			"label" => "#",
+			"class" => "quantity",
+			"hint_message" => "Minimum quantity qualifying for bulk price. Used for BULK PRICES ONLY.",
+			"error_message" => "Price quantity error."
+		));
+
+		// Subscription method
+		$this->addToModel("item_subscription_method", array(
+			"type" => "integer",
+			"label" => "Subscription method",
+			"hint_message" => "Choose subscription renewal period.",
+			"error_message" => "Subscription method error."
+		));
+
+		// Ownership
+		$this->addToModel("item_ownership", array(
+			"type" => "integer",
+			"label" => "Item owner",
+			"hint_message" => "Choose new owner for item.",
+			"error_message" => "A valid new owner must be selected"
+		));
+
 	}
 
 

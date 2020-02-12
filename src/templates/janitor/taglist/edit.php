@@ -5,13 +5,13 @@ global $model;
 global $itemtype;
 
 $taglist_id = $action[1];
-$taglist = $model->getTaglist(array("id" => $taglist_id));
-$taglist_tags = $model->getTaglistTags(["taglist_id" => $taglist_id]);
-// print_r($taglist_tags);
+$taglist = $model->getTaglist(array("taglist_id" => $taglist_id));
+//$taglist_tags = $model->getTaglistTags(["taglist_id" => $taglist_id]);
+//print_r($taglist);
 ?>
-<div class="scene defaultEdit <?= $itemtype ?>Edit">
+<div class="scene defaultEdit taglistList <?= $itemtype ?>Edit">
 	<h1>Edit taglist</h1>
-	<h2><?= strip_tags($taglist["name"]) ?></h2>
+	<h2 ><?=strip_tags($taglist["name"]) ?></h2>
 
 	<?= $JML->editGlobalActions($taglist, ["modify"=>[
 		"delete"=>[
@@ -19,7 +19,8 @@ $taglist_tags = $model->getTaglistTags(["taglist_id" => $taglist_id]);
 		],
 		"duplicate"=>[
 			"url"=>"/janitor/admin/taglist/duplicateTaglist/".$taglist_id
-		]
+		],
+		"status"=>false
 	]]) ?>
 
 
@@ -30,6 +31,8 @@ $taglist_tags = $model->getTaglistTags(["taglist_id" => $taglist_id]);
 			<fieldset>
 
 				<?= $model->input("name", array("value" => $taglist["name"])) ?>
+				<p class="handle">Handles are being used programmatically. Don't edit it if you don't know what you are doing </p>
+				<?= $model->input("handle", array("value" => $taglist["handle"])) ?>
 
 			</fieldset>
 
@@ -45,9 +48,9 @@ $taglist_tags = $model->getTaglistTags(["taglist_id" => $taglist_id]);
 
 		<h2>Added tags</h2>
 
-		<? if($taglist_tags): ?>
+		<? if($taglist["tags"]): ?>
 		<ul class="items">
-			<? foreach($taglist_tags as $taglist_tag): ?>
+			<? foreach($taglist["tags"] as $taglist_tag): ?>
 				<li class="item item_id:<?= $taglist_tag["id"] ?>">
 					<h3><?= strip_tags($taglist_tag["context"]) ?>:<?= strip_tags($taglist_tag["value"]) ?></h3>
 				</li>

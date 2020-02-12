@@ -18,152 +18,28 @@ class Model extends HTML {
 		$this->path = preg_replace("/\.php$/", "", $_SERVER["SCRIPT_NAME"]);
 
 
-		// Default values
+		// Default values (relevant for all models)
 
 		// Default type
 		$this->data_defaults["type"] = "string";
 
-		// Default files settings
-		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,mp3,pdf,zip";
-
-		// Default html setting
-		$this->data_defaults["allowed_tags"] = "p,h1,h2,h3,h4,h5,h6,code,ul,download";
-		$this->data_defaults["file_add"] = $this->path."/addHTMLFile";
-		$this->data_defaults["file_delete"] = $this->path."/deleteHTMLFile";
-		$this->data_defaults["media_add"] = $this->path."/addHTMLMedia";
-		$this->data_defaults["media_delete"] = $this->path."/deleteHTMLMedia";
+		// Default html setting (no media for non-items)
+		$this->data_defaults["allowed_tags"] = "p,h1,h2,h3,h4,h5,h6,code,ul,ol";
 
 
-		// TODO:
-		// COMMENT: Some of these standard settings could be in Core Itemtype – at least the strictly item related ones
-		// COMMENT: They are not (yet), because it is annoying to look in two different places to get an overview of predefined entities
-		// define default models (Janitor model allows these element on all itemtypes)
-		// optimized for backend implementation
+		// Standard system extensions
 
 		$this->addToModel("user_id", array(
 			"type" => "user_id",
 			"label" => "User",
-			"hint_message" => "Select user", 
+			"hint_message" => "Please select a user", 
 			"error_message" => "User must exist"
 		));
 		$this->addToModel("item_id", array(
 			"type" => "item_id",
 			"label" => "Item",
 			"hint_message" => "Please select an item",
-			"error_message" => "Please select an item"
-		));
-
-		$this->addToModel("published_at", array(
-			"type" => "datetime",
-			"label" => "Publish date (yyyy-mm-dd hh:mm)",
-			"hint_message" => "Publishing date of the item. Leave empty for current time", 
-			"error_message" => "Datetime must be of format (yyyy-mm-dd hh:mm)"
-		));
-
-		$this->addToModel("tags", array(
-			"type" => "tag",
-			"label" => "Add tag or type to filter existing tags",
-			"autocomplete" => true,
-			"hint_message" => "Select existing tag or add a new tag.",
-			"error_message" => "Tag must conform to tag format: context:value."
-		));
-
-		$this->addToModel("html", array(
-			"type" => "html",
-			"label" => "HTML",
-			"allowed_tags" => "p,h2,h3,h4,ul,ol,code,download,jpg,png", //,mp4,vimeo,youtube,code",
-			"hint_message" => "Write!",
-			"error_message" => "No words? How weird."
-		));
-
-		$this->addToModel("mediae", array(
-			"type" => "files",
-			"label" => "Add media here",
-			"max" => 20,
-			"allowed_formats" => "png,jpg,mp4",
-			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
-			"error_message" => "Media does not fit requirements."
-		));
-
-		$this->addToModel("single_media", array(
-			"type" => "files",
-			"label" => "Add media here",
-			"max" => 1,
-			"allowed_formats" => "png,jpg,mp4",
-			"hint_message" => "Add images or videos here. Use png, jpg or mp4.",
-			"error_message" => "Media does not fit requirements."
-		));
-
-
-		$this->addToModel("item_comment", array(
-			"type" => "text",
-			"label" => "New comment",
-			"class" => "autoexpand",
-			"hint_message" => "Leave a new comment.",
-			"error_message" => "Comment cannot be empty."
-		));
-		$this->addToModel("item_rating", array(
-			"type" => "integer",
-			"label" => "New rating",
-			"hint_message" => "Leave a your rating.",
-			"error_message" => "Rating cannot be empty."
-		));
-
-
-		$this->addToModel("item_price", array(
-			"type" => "string",
-			"label" => "New price",
-			"pattern" => "[0-9,]+",
-			"class" => "price",
-			"required" => true,
-			"hint_message" => "State the price INCLUDING VAT, using comma (,) as decimal point.",
-			"error_message" => "Price cannot be empty."
-		));
-		$this->addToModel("item_price_currency", array(
-			"type" => "string",
-			"label" => "Currency",
-			"class" => "currency",
-			"required" => true,
-			"hint_message" => "Currency of price",
-			"error_message" => "Currency cannot be empty."
-		));
-		$this->addToModel("item_price_vatrate", array(
-			"type" => "integer",
-			"label" => "Vatrate",
-			"class" => "vatrate",
-			"required" => true,
-			"hint_message" => "VAT rate for this product.",
-			"error_message" => "VAT rate cannot be empty."
-		));
-		$this->addToModel("item_price_type", array(
-			"type" => "string",
-			"label" => "Price type",
-			"class" => "type",
-			"required" => true,
-			"hint_message" => "Select the type of price.",
-			"error_message" => "Price type error."
-		));
-		$this->addToModel("item_price_quantity", array(
-			"type" => "integer",
-			"label" => "#",
-			"class" => "quantity",
-			"hint_message" => "Minimum quantity qualifying for bulk price. Used for BULK PRICES ONLY.",
-			"error_message" => "Price quantity error."
-		));
-
-
-		$this->addToModel("item_subscription_method", array(
-			"type" => "integer",
-			"label" => "Subscription method",
-			"hint_message" => "Choose subscription renewal period.",
-			"error_message" => "Subscription method error."
-		));
-
-		$this->addToModel("item_ownership", array(
-			"type" => "integer",
-			"label" => "Item owner",
-			"hint_message" => "Choose new owner for item.",
-			"error_message" => "A valid new owner must be selected"
+			"error_message" => "Item must exist"
 		));
 
 	}

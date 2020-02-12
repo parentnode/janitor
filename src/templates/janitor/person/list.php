@@ -27,7 +27,7 @@ $items = $IC->getItems(array("itemtype" => $itemtype, "order" => "position ASC, 
 <?			endforeach; ?>
 		</ul>
 <?		else: ?>
-		<p>No content.</p>
+		<p>No peple, yet.</p>
 <?		endif; ?>
 	</div>
 

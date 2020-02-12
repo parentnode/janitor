@@ -1431,14 +1431,14 @@ class ItemsCore {
 				$sql .= " (tags.context = '".implode("' OR tags.context = '", $tag_context) . "')";
 				// " tags.context = '$tag_context'
 					
-				$sql .= " AND tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : "");
+				$sql .= " AND tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY tags.$order" : "");
 				if($query->sql($sql)) {
 					return $query->results();
 				}
 			}
 			// all tags
 			else {
-				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY $order" : "");
+				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY tags.$order" : "");
 				if($query->sql($sql)) {
 					return $query->results();
 				}
@@ -1486,7 +1486,7 @@ class ItemsCore {
 			$sql .= " (tags.context = '".implode("' OR tags.context = '", $tag_context) . "')";
 
 			// Order
-			$sql .=	($order ? " ORDER BY $order" : "");
+			$sql .=	($order ? " ORDER BY tags.$order" : "");
 
 			// debug([$sql]);
 			if($query->sql($sql)) {
@@ -1496,7 +1496,7 @@ class ItemsCore {
 		// all tags
 		else {
 
-			$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG.($order ? " ORDER BY $order" : " ORDER BY tags.context, tags.value");
+			$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG.($order ? " ORDER BY tags.$order" : " ORDER BY tags.context, tags.value");
 			if($query->sql($sql)) {
 				return $query->results();
 			}
