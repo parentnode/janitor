@@ -828,6 +828,18 @@ function qr_codes() {
 	return $__qrc;
 }
 
+// Shorthand auto initializer for performance access
+$__perf = false;
+function perf() {
+	global $__perf;
+	if(!$__perf) {
+		include_once("classes/helpers/performance.class.php");
+		$__perf = new Performance();
+	}
+	return $__perf;
+}
+
+
 
 /**
 * Converts dd:mm:yyyy hh:mm to yyyy:mm:dd hh:mm:ss
