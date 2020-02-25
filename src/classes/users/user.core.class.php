@@ -398,7 +398,7 @@ class UserCore extends Model {
 			$email = $this->getProperty("email", "value");
 
 
-			// if user already exists, return error
+			// if haven't accepted terms, return error
 			if(!$terms) {
 				$page->addLog("user->newUser: missing terms agreement");
 				return array("status" => "MISSING_TERMS");
