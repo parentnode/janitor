@@ -31,6 +31,7 @@ class TypePage extends Itemtype {
 		$this->addToModel("name", array(
 			"type" => "string",
 			"label" => "Title",
+			"searchable" => true,
 			"required" => true,
 			"hint_message" => "Title of your page", 
 			"error_message" => "Title must be filled out."
@@ -40,6 +41,7 @@ class TypePage extends Itemtype {
 		$this->addToModel("subheader", array(
 			"type" => "string",
 			"label" => "Secondary headline",
+			"searchable" => true,
 			"hint_message" => "Secondary headline of your page", 
 			"error_message" => "Secondary headline contains illegal characters."
 		));
@@ -55,7 +57,8 @@ class TypePage extends Itemtype {
 		// HTML
 		$this->addToModel("html", array(
 			"type" => "html",
-			"label" => "Fulle page text",
+			"label" => "Full page text",
+			"searchable" => true,
 			"allowed_tags" => "p,h2,h3,h4,ul,ol,code,download,jpg,png",
 			"hint_message" => "Write!",
 			"error_message" => "No words? How weird."
