@@ -557,7 +557,7 @@ class Upgrade extends Model {
 					// Missing file
 					else if(!$files) {
 
-						$this->process(["success" => false, "message" => "NOT FOUND - PRIVATE FILE MISSING: media_id: ".$media["id"]], false);
+						$this->process(["success" => false, "message" => "NOT FOUND - PRIVATE FILE MISSING: media_id: ".$media["id"].", item_id: ".$media["item_id"]], false);
 
 					}
 
