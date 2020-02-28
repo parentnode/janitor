@@ -32,6 +32,7 @@ class TypePost extends Itemtype {
 			"type" => "string",
 			"label" => "Name",
 			"required" => true,
+			"searchable" => true,
 			"hint_message" => "Name your post", 
 			"error_message" => "Name must be filled out."
 		));
@@ -55,6 +56,7 @@ class TypePost extends Itemtype {
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "Full post",
+			"searchable" => true,
 			"allowed_tags" => "p,h2,h3,h4,ul,ol,download,jpg,png,code,vimeo,youtube", //,mp4",
 			"hint_message" => "Write your the post",
 			"error_message" => "No words? How weird."

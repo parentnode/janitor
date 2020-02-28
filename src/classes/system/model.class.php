@@ -95,6 +95,9 @@ class Model extends HTML {
 					case "file_delete"           : $this->setProperty($name, "file_delete",          $_value); break;
 
 
+					case "searchable"            : $this->setProperty($name, "searchable",           $_value); break;
+
+
 					case "error_message"         : $this->setProperty($name, "error_message",        $_value); break;
 					case "hint_message"          : $this->setProperty($name, "hint_message",         $_value); break;
 

@@ -104,6 +104,9 @@ if($order) {
 
 	</div>
 
+	<div class="payment_info">
+		<? include("templates/janitor/shop/order/invoice-payment-info.php") ?>
+	</div>
 
 
 <? else: ?>

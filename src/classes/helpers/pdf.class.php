@@ -1,7 +1,11 @@
 <?php
 
-// BETA PDF CLASS
-// CURRENTLY ONLY INCLUDED TO TEST wkhtmlto module
+/**
+* PDF generation helper class
+*
+* Enables PDF generation based on WKHTMLTO module
+*/
+
 class PDF {
 
 

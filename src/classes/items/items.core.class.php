@@ -1189,6 +1189,132 @@ class ItemsCore {
 
 
 
+	// SEARCH
+
+	function search($_options = false) {
+		// debug(["search", $_options]);
+
+		$pattern = false;
+		$query_string = "";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					// case "itemtype"    : $itemtype        = $_value; break;
+
+					case "pattern"     : $pattern         = $_value; break;
+					case "query"       : $query_string           = $_value; break;
+				}
+			}
+		}
+
+		// Valid search string
+		if($query_string) {
+
+			$query = new Query();
+			$search_view_id = "search_".randomKey(8);
+
+			$itemtype_queries = [];
+
+			// Specific itemtype
+			if($pattern && $pattern["itemtype"]) {
+
+				// Collect data for this itemtype
+				$model = $this->typeObject($pattern["itemtype"]);
+				if($model) {
+					$entities = $model->getModel();
+
+					$searchable_column = [];
+
+					foreach($entities as $name => $entity) {
+						// debug([$entity]);
+
+						if(isset($entity["searchable"]) && $entity["searchable"]) {
+							$searchable_column[] = "itemtypes.".$name;
+						}
+
+					}
+
+					if($searchable_column) {
+						$itemtype_queries[] = "SELECT DISTINCT items.id as id, itemtypes.item_id as item_id, items.itemtype as itemtype, items.sindex as sindex, items.published_at as published_at, items.modified_at as modified_at, itemtypes.name as name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') as searchable_string FROM ".SITE_DB.".item_".$pattern["itemtype"]." as itemtypes, ".UT_ITEMS." as items WHERE items.id = itemtypes.item_id";
+					}
+
+				}
+
+			}
+
+			// All itemtypes
+			else {
+
+				// Get used itemtypes
+				$sql = "SELECT itemtype FROM ".UT_ITEMS." GROUP by itemtype";
+				if($query->sql($sql)) {
+
+					$itemtypes = $query->results("itemtype");
+
+					// Collect data for all itemtype
+					foreach($itemtypes as $itemtype) {
+
+						$model = $this->typeObject($itemtype);
+						if($model) {
+							$entities = $model->getModel();
+
+							$searchable_column = [];
+
+							foreach($entities as $name => $entity) {
+								// debug([$entity]);
+
+								if(isset($entity["searchable"]) && $entity["searchable"]) {
+									$searchable_column[] = "itemtypes.".$name;
+								}
+
+							}
+
+							if($searchable_column) {
+								$itemtype_queries[] = "SELECT DISTINCT items.id as id, itemtypes.item_id as item_id, items.itemtype as itemtype, items.sindex as sindex, items.published_at as published_at, items.modified_at as modified_at, itemtypes.name as name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') as searchable_string FROM ".SITE_DB.".item_".$itemtype." as itemtypes, ".UT_ITEMS." as items WHERE items.id = itemtypes.item_id";
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+			// Data queries available for view creation
+			if($itemtype_queries) {
+
+				// perf()->add("Collected data queries");
+
+				$sql = "CREATE VIEW ".SITE_DB.".".$search_view_id." AS " . (count($itemtype_queries) > 1 ? implode(" UNION ", $itemtype_queries) : $itemtype_queries[0]);
+				// debug([$sql]);
+				$query->sql($sql);
+
+				// perf()->add("View created");
+
+
+				$sql = "SELECT * FROM ".SITE_DB.".".$search_view_id." WHERE searchable_string LIKE '%$query_string%' ORDER BY published_at DESC";
+				// debug([$sql]);
+				$query->sql($sql);
+				$results = $query->results();
+
+				// perf()->add("Search query executed");
+
+
+				// Remove view after search
+				$query->sql("DROP VIEW IF EXISTS ".SITE_DB.".".$search_view_id);
+
+				// print_r($results);
+				return $results;
+			}
+
+		}
+
+	}
+
+
+
 	// MEDIA
 
 	// TODO: implement get media function like getTags (needs testing)
