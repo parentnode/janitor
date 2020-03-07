@@ -191,7 +191,7 @@ class PageCore {
 						}
 						// Linkedin size
 						else if(isset($_SERVER["HTTP_USER_AGENT"]) && strpos($_SERVER["HTTP_USER_AGENT"], "LinkedInBot") !== false) {
-							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/180x110.".$image["format"]);
+							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x627.".$image["format"]);
 						}
 						// Standard size for everyone else
 						else {
