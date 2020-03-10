@@ -92,7 +92,7 @@ class PageCore {
 		// set segment
 		if(getVar("segment")) {
 			// set real segment value
-			$this->segment(array("value" => getVar("segment"), "type" => "segment"));
+			$this->segment(["value" => getVar("segment"), "type" => "segment"]);
 		}
 
 		// set language
@@ -1050,6 +1050,7 @@ class PageCore {
 		// setting new value
 		if($value !== false) {
 //			if(is_string($value) && preg_match("/^(basic|desktop|desktop_ie|desktop_light|tablet|mobile|mobile_touch|mobile_light|tv)$/", $value)) {
+
 			if(is_string($value) && preg_match("/^[a-z0-9_]+$/", $value)) {
 
 //				print "set segment:". $value;
