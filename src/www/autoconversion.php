@@ -89,18 +89,22 @@ function conversionFailed($reason) {
 		}
 	}
 
-	mailer()->send([
-		"subject" => "Autoconversion failed ($request_type)", 
-		"message" => $reason,
-		"template" => "system"
-	]);
+	$segment = $page->segment();
+	debug([$segment]);
 
 	// TODO: implement fallback for audio and video
 	// TODO: implement constraints to avoid media generation abuse
 	// TODO: investigate use-cases and figure out if returning 404/410 is better
 
 	// Clearly tell robots that this image is gone
-	if($page->segment() === "seo") {
+	if($segment === "seo") {
+		// facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)
+
+		mailer()->send([
+			"subject" => "Autoconversion failed SEO - 410 Test ($request_type)",
+			"message" => $reason,
+			"template" => "system"
+		]);
 
 		header("Location: /images/0/missing/".$width."x".$height.".png", true, 410);
 
@@ -109,6 +113,12 @@ function conversionFailed($reason) {
 	// return missing image if it exists (and request is for image)
 	// print $request_type . ", " . file_exists(PRIVATE_FILE_PATH."/0/missing/png")." && ". $width ."&&". $height;
 	else if($request_type == "images" && file_exists(PRIVATE_FILE_PATH."/0/missing/png") && ($width || $height)) {
+
+		mailer()->send([
+			"subject" => "Autoconversion failed ($request_type)",
+			"message" => $reason,
+			"template" => "system"
+		]);
 
 		// 404 does not return "missing image"
 		header("Location: /images/0/missing/".$width."x".$height.".png", true, 307);
