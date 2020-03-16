@@ -1,4 +1,4 @@
-Util.Objects["defaultEditStatus"] = new function() {
+Util.Modules["defaultEditStatus"] = new function() {
 	this.init = function(node) {
 //		u.bug("init defaultEditStatus")
 

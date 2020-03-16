@@ -1,10 +1,10 @@
-Util.Objects["login"] = new function() {
+Util.Modules["scene"] = new function() {
 	this.init = function(scene) {
 		// u.bug("scene init:", scene);
-		
 
 		scene.resized = function() {
 			// u.bug("scene.resized:", this);
+
 		}
 
 		scene.scrolled = function() {
@@ -15,7 +15,6 @@ Util.Objects["login"] = new function() {
 			// u.bug("scene.ready:", this);
 
 			page.cN.scene = this;
-
 
 			var h1 = u.qs("h1", this);
 			var h2 = u.qs("h1 + h2", this);
@@ -29,19 +28,10 @@ Util.Objects["login"] = new function() {
 				u.ae(page._title, h2);
 			}
 
-
-			this._form = u.qs("form", this);
-			u.f.init(this._form);
-
-			this._form.inputs["username"].focus();
-
 			page.resized();
 		}
 
-
 		// scene is ready
 		scene.ready();
-
 	}
-
 }

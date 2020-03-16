@@ -1,4 +1,4 @@
-Util.Objects["taglist_tags"] = new function() {
+Util.Modules["taglist_tags"] = new function() {
 	this.init = function(div) {
 		//u.bug("scene init:");
 

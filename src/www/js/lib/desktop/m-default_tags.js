@@ -1,4 +1,4 @@
-Util.Objects["defaultTags"] = new function() {
+Util.Modules["defaultTags"] = new function() {
 	this.init = function(div) {
 
 		div._item_id = u.cv(div, "item_id");

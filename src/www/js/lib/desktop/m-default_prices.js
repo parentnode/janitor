@@ -1,4 +1,4 @@
-Util.Objects["defaultPrices"] = new function() {
+Util.Modules["defaultPrices"] = new function() {
 	this.init = function(div) {
 
 		div.item_id = u.cv(div, "item_id");

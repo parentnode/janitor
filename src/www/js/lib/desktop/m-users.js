@@ -1,5 +1,5 @@
 // default new form
-Util.Objects["usernames"] = new function() {
+Util.Modules["usernames"] = new function() {
 	this.init = function(div) {
 
 		// u.bug("div usernames")
@@ -231,7 +231,7 @@ Util.Objects["usernames"] = new function() {
 }
 
 // password form
-Util.Objects["password"] = new function() {
+Util.Modules["password"] = new function() {
 	this.init = function(div) {
 
 		var password_state = u.qs("div.password_state", div);
@@ -283,7 +283,7 @@ Util.Objects["password"] = new function() {
 }
 
 // default new form
-Util.Objects["apitoken"] = new function() {
+Util.Modules["apitoken"] = new function() {
 	this.init = function(div) {
 
 		var token = u.qs("p.token", div);
@@ -347,7 +347,7 @@ Util.Objects["apitoken"] = new function() {
 }
 
 // Update address
-Util.Objects["editAddress"] = new function() {
+Util.Modules["editAddress"] = new function() {
 	this.init = function(form) {
 
 		u.f.init(form);
@@ -373,7 +373,7 @@ Util.Objects["editAddress"] = new function() {
 }
 
 // userMaillists subscribe+unsubscribe form
-Util.Objects["maillists"] = new function() {
+Util.Modules["maillists"] = new function() {
 	this.init = function(div) {
 
 		var i, node;
@@ -420,7 +420,7 @@ Util.Objects["maillists"] = new function() {
 }
 
 // // Update address
-// Util.Objects["addNewsletter"] = new function() {
+// Util.Modules["addNewsletter"] = new function() {
 // 	this.init = function(form) {
 //
 // 		u.f.init(form);
@@ -446,7 +446,7 @@ Util.Objects["maillists"] = new function() {
 // 	}
 // }
 
-Util.Objects["accessEdit"] = new function() {
+Util.Modules["accessEdit"] = new function() {
 	this.init = function(div) {
 
 		div._item_id = u.cv(div, "item_id");
@@ -490,7 +490,7 @@ Util.Objects["accessEdit"] = new function() {
 
 }
 
-Util.Objects["flushUserSession"] = new function() {
+Util.Modules["flushUserSession"] = new function() {
 	this.init = function(div) {
 
 		u.bug("div flushUserSession")
@@ -526,7 +526,7 @@ Util.Objects["flushUserSession"] = new function() {
 
 
 // Update subscription
-Util.Objects["newSubscription"] = new function() {
+Util.Modules["newSubscription"] = new function() {
 	this.init = function(form) {
 
 		u.f.init(form);
@@ -565,7 +565,7 @@ Util.Objects["newSubscription"] = new function() {
 
 
 // unverifiedUsernames form
-Util.Objects["unverifiedUsernames"] = new function() {
+Util.Modules["unverifiedUsernames"] = new function() {
 	this.init = function(div) {
 
 		var i, node;
@@ -631,7 +631,7 @@ Util.Objects["unverifiedUsernames"] = new function() {
 }
 
 // unverifiedUsernamesSelected
-Util.Objects["unverifiedUsernamesSelected"] = new function() {
+Util.Modules["unverifiedUsernamesSelected"] = new function() {
 	this.init = function(ul) {
 
 		var bn_remind_selected = u.qs("li.remind_selected", ul);

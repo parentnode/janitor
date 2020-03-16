@@ -30,7 +30,7 @@
 // }
 
 
-Util.Objects["collapseHeader"] = new function() {
+Util.Modules["collapseHeader"] = new function() {
 	this.init = function(div) {
 		u.bug("init collapseHeader");
 

@@ -1,7 +1,7 @@
 // PROFILE UPDATES DO NOT RETURN SERVER MESSAGES
 // AS THESE ARE THOUGHT TO BE IMPLEMENTED IN FRONTEND (FOR FULL LOCALIZATION)
 
-Util.Objects["editProfile"] = new function() {
+Util.Modules["editProfile"] = new function() {
 	this.init = function(div) {
 
 		div._item_id = u.cv(div, "item_id");
@@ -32,7 +32,7 @@ Util.Objects["editProfile"] = new function() {
 }
 
 // default new form
-Util.Objects["usernamesProfile"] = new function() {
+Util.Modules["usernamesProfile"] = new function() {
 	this.init = function(div) {
 		u.bug("init usernamesProfile")
 
@@ -98,7 +98,7 @@ Util.Objects["usernamesProfile"] = new function() {
 }
 
 // default new form
-Util.Objects["passwordProfile"] = new function() {
+Util.Modules["passwordProfile"] = new function() {
 	this.init = function(div) {
 
 		var password_state = u.qs("div.password_state", div);
@@ -153,7 +153,7 @@ Util.Objects["passwordProfile"] = new function() {
 
 
 // default new form
-Util.Objects["apitokenProfile"] = new function() {
+Util.Modules["apitokenProfile"] = new function() {
 	this.init = function(div) {
 
 		var token = u.qs("p.token", div);
@@ -186,7 +186,7 @@ Util.Objects["apitokenProfile"] = new function() {
 }
 
 // Update address
-Util.Objects["addressProfile"] = new function() {
+Util.Modules["addressProfile"] = new function() {
 	this.init = function(form) {
 
 		u.f.init(form);
@@ -212,7 +212,7 @@ Util.Objects["addressProfile"] = new function() {
 }
 
 // userMaillists unsubscribe form
-Util.Objects["maillistsProfile"] = new function() {
+Util.Modules["maillistsProfile"] = new function() {
 	this.init = function(div) {
 
 		var i, node;
@@ -266,7 +266,7 @@ Util.Objects["maillistsProfile"] = new function() {
 }
 
 // Update address
-Util.Objects["resetPassword"] = new function() {
+Util.Modules["resetPassword"] = new function() {
 	this.init = function(form) {
 
 		u.f.init(form);
@@ -291,7 +291,7 @@ Util.Objects["resetPassword"] = new function() {
 }
 
 // Cancel account
-Util.Objects["cancellationProfile"] = new function() {
+Util.Modules["cancellationProfile"] = new function() {
 	this.init = function(div) {
 		u.bug("init cancellationProfile")
 

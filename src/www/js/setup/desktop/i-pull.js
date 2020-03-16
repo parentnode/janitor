@@ -1,4 +1,4 @@
-Util.Objects["pull"] = new function() {
+Util.Modules["pull"] = new function() {
 	this.init = function(scene) {
 		// console.log("pull init")
 

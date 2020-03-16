@@ -1,4 +1,4 @@
-Util.Objects["defaultSubscriptionmethod"] = new function() {
+Util.Modules["defaultSubscriptionmethod"] = new function() {
 	this.init = function(div) {
 
 		div.item_id = u.cv(div, "item_id");

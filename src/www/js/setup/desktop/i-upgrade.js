@@ -1,4 +1,4 @@
-Util.Objects["bulkremove"] = new function() {
+Util.Modules["bulkremove"] = new function() {
 	this.init = function(form) {
 		console.log("bulkremove")
 

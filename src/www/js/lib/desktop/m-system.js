@@ -1,4 +1,4 @@
-Util.Objects["cacheList"] = new function() {
+Util.Modules["cacheList"] = new function() {
 	this.init = function(div) {
 
 		u.bug("div cacheList")

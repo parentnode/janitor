@@ -1,4 +1,4 @@
-Util.Objects["defaultComments"] = new function() {
+Util.Modules["defaultComments"] = new function() {
 	this.init = function(div) {
 
 		div.item_id = u.cv(div, "item_id");

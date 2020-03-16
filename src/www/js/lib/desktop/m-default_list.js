@@ -1,5 +1,5 @@
 
-Util.Objects["defaultList"] = new function() {
+Util.Modules["defaultList"] = new function() {
 	this.init = function(div) {
 		// u.bug("init defaultList:", div);
 
@@ -138,7 +138,7 @@ Util.Objects["defaultList"] = new function() {
 
 					action.node = node;
 
-					u.o.oneButtonForm.init(action);
+					u.m.oneButtonForm.init(action);
 					// default sucessful delete action
 					action.confirmed = function(response) {
 

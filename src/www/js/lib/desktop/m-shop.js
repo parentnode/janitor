@@ -1,6 +1,6 @@
 
 // edit Cart/Order data section (basics, contact, billing address etc.)
-Util.Objects["editDataSection"] = new function() {
+Util.Modules["editDataSection"] = new function() {
 	this.init = function(form) {
 
 		var header = u.qs("h2", form.parentNode);
@@ -54,7 +54,7 @@ Util.Objects["editDataSection"] = new function() {
 
 
 // newOrderFromCart
-Util.Objects["newOrderFromCart"] = new function() {
+Util.Modules["newOrderFromCart"] = new function() {
 	this.init = function(div) {
 
 		var bn_convert = u.qs("li.convert", div);
@@ -75,7 +75,7 @@ Util.Objects["newOrderFromCart"] = new function() {
 
 
 //
-Util.Objects["cartItemsList"] = new function() {
+Util.Modules["cartItemsList"] = new function() {
 	this.init = function(div) {
 		u.bug("cartItemsList");
 
@@ -177,7 +177,7 @@ Util.Objects["cartItemsList"] = new function() {
 
 
 // New cart
-Util.Objects["orderItemsList"] = new function() {
+Util.Modules["orderItemsList"] = new function() {
 	this.init = function(div) {
 
 		u.bug("orderItemsList");
@@ -259,7 +259,7 @@ Util.Objects["orderItemsList"] = new function() {
 
 				node.li_shipped.node = node;
 
-				u.o.oneButtonForm.init(node.li_shipped);
+				u.m.oneButtonForm.init(node.li_shipped);
 
 				// callback from oneButtonForm
 				node.li_shipped.confirmed = function(response) {
@@ -288,7 +288,7 @@ Util.Objects["orderItemsList"] = new function() {
 
 				node.not_shipped.node = node;
 
-				u.o.oneButtonForm.init(node.not_shipped);
+				u.m.oneButtonForm.init(node.not_shipped);
 
 				// callback from oneButtonForm
 				node.not_shipped.confirmed = function(response) {
@@ -317,7 +317,7 @@ Util.Objects["orderItemsList"] = new function() {
 }
 
 
-Util.Objects["orderList"] = new function() {
+Util.Modules["orderList"] = new function() {
 	this.init = function(div) {
 		u.bug("orderList", div.nodes);
 
@@ -377,7 +377,7 @@ Util.Objects["orderList"] = new function() {
 
 //
 // // registerPayment form
-// Util.Objects["registerPayment"] = new function() {
+// Util.Modules["registerPayment"] = new function() {
 // 	this.init = function(div) {
 // 		u.bug("registerPayment:", div);
 //

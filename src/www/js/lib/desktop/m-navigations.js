@@ -1,4 +1,4 @@
-Util.Objects["navigationNodes"] = new function() {
+Util.Modules["navigationNodes"] = new function() {
 	this.init = function(div) {
 
 		div.list = u.qs("ul.items", div);
@@ -84,7 +84,7 @@ Util.Objects["navigationNodes"] = new function() {
 }
 
 // default new form
-Util.Objects["newNavigationNode"] = new function() {
+Util.Modules["newNavigationNode"] = new function() {
 	this.init = function(form) {
 
 		u.f.init(form);
@@ -116,7 +116,7 @@ Util.Objects["newNavigationNode"] = new function() {
 }
 
 
-Util.Objects["editNavigationNode"] = new function() {
+Util.Modules["editNavigationNode"] = new function() {
 	this.init = function(div) {
 
 		div._item_id = u.cv(div, "item_id");

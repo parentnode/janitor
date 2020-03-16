@@ -1,4 +1,4 @@
-Util.Objects["defaultEdit"] = new function() {
+Util.Modules["defaultEdit"] = new function() {
 	this.init = function(div) {
 
 		div._item_id = u.cv(div, "item_id");
@@ -141,7 +141,7 @@ Util.Objects["defaultEdit"] = new function() {
 }
 
 
-Util.Objects["newSystemMessage"] = new function() {
+Util.Modules["newSystemMessage"] = new function() {
 	this.init = function(div) {
 
 		// primary form
@@ -239,7 +239,7 @@ Util.Objects["newSystemMessage"] = new function() {
 	}
 }
 
-Util.Objects["sendMessage"] = new function() {
+Util.Modules["sendMessage"] = new function() {
 	this.init = function(div) {
 
 		// primary form

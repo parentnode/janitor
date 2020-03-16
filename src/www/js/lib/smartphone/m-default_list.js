@@ -1,5 +1,5 @@
 
-Util.Objects["defaultList"] = new function() {
+Util.Modules["defaultList"] = new function() {
 	this.init = function(div) {
 		// u.bug("init defaultList:", div);
 

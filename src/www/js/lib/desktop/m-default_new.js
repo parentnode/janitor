@@ -1,5 +1,5 @@
 // default new form
-Util.Objects["defaultNew"] = new function() {
+Util.Modules["defaultNew"] = new function() {
 	this.init = function(form) {
 		// u.bug("defaultNew:", form);
 		

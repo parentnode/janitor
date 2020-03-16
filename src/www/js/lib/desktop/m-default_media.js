@@ -1,5 +1,5 @@
 // Add images form
-Util.Objects["addMedia"] = new function() {
+Util.Modules["addMedia"] = new function() {
 	this.init = function(div) {
 		// u.bug("addMedia init:", div);
 
@@ -267,7 +267,7 @@ Util.Objects["addMedia"] = new function() {
 }
 
 // Add images form
-Util.Objects["addMediaSingle"] = new function() {
+Util.Modules["addMediaSingle"] = new function() {
 	this.init = function(div) {
 		// u.bug("addMediaSingle init:", div);
 
@@ -555,7 +555,7 @@ u.addDeleteMediaForm = function(div, node) {
 	node.delete_form.setAttribute("data-success-function", "deleted");
 
 	// Initialize oneButtonForm
-	u.o.oneButtonForm.init(node.delete_form);
+	u.m.oneButtonForm.init(node.delete_form);
 
 }
 

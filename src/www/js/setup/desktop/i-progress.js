@@ -1,4 +1,4 @@
-Util.Objects["setup"] = new function() {
+Util.Modules["setup"] = new function() {
 	this.init = function(scene) {
 
 		var bn_start = u.qs(".actions li.start", scene);
@@ -29,7 +29,7 @@ Util.Objects["setup"] = new function() {
 }
 
 
-Util.Objects["software"] = new function() {
+Util.Modules["software"] = new function() {
 	this.init = function(scene) {
 
 		var bn_continue = u.qs(".actions li.continue", scene);
@@ -59,7 +59,7 @@ Util.Objects["software"] = new function() {
 }
 
 
-Util.Objects["config"] = new function() {
+Util.Modules["config"] = new function() {
 	this.init = function(scene) {
 
 		// Enable update form
@@ -123,7 +123,7 @@ Util.Objects["config"] = new function() {
 }
 
 
-Util.Objects["database"] = new function() {
+Util.Modules["database"] = new function() {
 	this.init = function(scene) {
 
 		// Enable update form
@@ -212,7 +212,7 @@ Util.Objects["database"] = new function() {
 }
 
 
-Util.Objects["account"] = new function() {
+Util.Modules["account"] = new function() {
 	this.init = function(scene) {
 
 
@@ -277,7 +277,7 @@ Util.Objects["account"] = new function() {
 }
 
 
-Util.Objects["mail"] = new function() {
+Util.Modules["mail"] = new function() {
 	this.init = function(scene) {
 
 		var form = u.qs("form.mail", scene);
@@ -413,7 +413,7 @@ Util.Objects["mail"] = new function() {
 
 
 
-Util.Objects["payment"] = new function() {
+Util.Modules["payment"] = new function() {
 	this.init = function(scene) {
 
 		var form = u.qs("form.payment", scene);
@@ -550,7 +550,7 @@ Util.Objects["payment"] = new function() {
 
 
 
-Util.Objects["finish"] = new function() {
+Util.Modules["finish"] = new function() {
 	this.init = function(scene) {
 
 
