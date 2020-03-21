@@ -1190,9 +1190,9 @@ class JanitorHTML {
 				foreach($model->order_statuses as $order_status => $order_status_name) {
 					$_ .= '<li class="'.superNormalize($order_status_name).'">';
 					$_ .= '<h3>';
-					$_ .= '<a href="/janitor/admin/shop/order/list/"'.$order_status.'">'.$order_status_name.'</a> ';
+					$_ .= '<a href="/janitor/admin/shop/order/list/'.$order_status.'">'.$order_status_name.'</a> ';
 					$_ .= '<span class="count">'.$model->getOrderCount(array("status" => $order_status)).'</span>';
-					$_ .= '<h3>';
+					$_ .= '</h3>';
 
 					$_ .= '</li>';
 				}
@@ -1236,7 +1236,7 @@ class JanitorHTML {
 					$_ .= '<h3>';
 					$_ .= '<a href="/janitor/admin/member/list/'.$membership["id"].'">'.$membership["name"].'</a> ';
 					$_ .= '<span class="count">'.$MC->getMemberCount(array("item_id" => $membership["id"])).'</span>';
-					$_ .= '<h3>';
+					$_ .= '</h3>';
 					$_ .= '</li>';
 				}
 				$_ .= '</ul>';
