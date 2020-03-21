@@ -64,7 +64,7 @@ class TypeEvent extends Itemtype {
 		$this->addToModel("classname", array(
 			"type" => "string",
 			"label" => "CSS Class",
-			"hint_message" => "CSS class for custom styling. If you don't know what this is, just leave it empty"
+			"hint_message" => "CSS class for custom styling. If you don't know what this is, just leave it empty."
 		));
 
 		// Description
@@ -91,7 +91,7 @@ class TypeEvent extends Itemtype {
 			"label" => "Add media here",
 			"max" => 1,
 			"allowed_formats" => "png,jpg",
-			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed",
+			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed.",
 			"error_message" => "Media does not fit requirements."
 		));
 
@@ -228,6 +228,17 @@ class TypeEvent extends Itemtype {
 
 	}
 
+
+	// Update starting time on save
+	function saved($item_id) {
+
+		$query = new Query();
+
+		// Update starting date to next day
+		$sql = "UPDATE ".$this->db." SET starting_at = (NOW() + INTERVAL 1 DAY) WHERE item_id = ".$item_id;
+		$query->sql($sql);
+
+	}
 
 	// get all locations
 	function getLocations($_options = false) {
