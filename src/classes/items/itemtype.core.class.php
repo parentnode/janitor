@@ -487,7 +487,7 @@ class ItemtypeCore extends Model {
 							$names[] = $name;
 
 							// if value is posted
-							if($entity["value"]) {
+							if($entity["value"] !== false && $entity["value"] !== "") {
 								$values[] = $name."='".$entity["value"]."'";
 							}
 							// no value is posted – reset to default value
@@ -659,7 +659,7 @@ class ItemtypeCore extends Model {
 						$names[] = $name;
 
 						// if value is posted 
-						if($entity["value"]) {
+						if($entity["value"] !== false && $entity["value"] !== "") {
 							$values[] = $name."='".$entity["value"]."'";
 						}
 
