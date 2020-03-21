@@ -38,4 +38,8 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 
 	<?= $JML->editTags($item) ?>
 
+	<?= $JML->editSindex($item) ?>
+
+	<?= $JML->editOwner($item) ?>
+
 </div>

@@ -66,4 +66,9 @@ $todo_state_view = session()->value("todo_state_view");
 	<?= $JML->editComments($item) ?>
 
 	<?= $JML->editTags($item) ?>
+
+	<?= $JML->editSindex($item) ?>
+
+	<?= $JML->editOwner($item) ?>
+
 </div>

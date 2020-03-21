@@ -15,7 +15,7 @@ $messages = $IC->getItems(array("itemtype" => "message", "extend" => true));
 
 	<?= $JML->editGlobalActions($item) ?>
 
-	<?= $JML->editSingleMedia($item) ?>
+	<?= $JML->editSingleMedia($item, array("label" => "Main membership image")) ?>
 
 	<div class="item i:defaultEdit">
 		<h2>Membership details</h2>
@@ -23,7 +23,6 @@ $messages = $IC->getItems(array("itemtype" => "message", "extend" => true));
 
 			<fieldset>
 				<?= $model->input("name", array("value" => $item["name"])) ?>
-				<?= $model->input("classname", array("value" => $item["classname"])) ?>
 				<?= $model->input("subscribed_message_id", array("type" => "select", "options" => $HTML->toOptions($messages, "id", "name", ["add" => ["" => "Choose message"]]), "value" => $item["subscribed_message_id"])) ?>
 				<?= $model->input("description", array("class" => "autoexpand short", "value" => $item["description"])) ?>
 				<?= $model->input("introduction", array("value" => $item["introduction"])) ?>
@@ -41,6 +40,12 @@ $messages = $IC->getItems(array("itemtype" => "message", "extend" => true));
 
 	<?= $JML->editComments($item) ?>
 
+	<?= $JML->editSindex($item) ?>
+
 	<?= $JML->editSubscriptionMethod($item) ?>
+
+	<?= $JML->editDeveloperSettings($item) ?>
+
+	<?= $JML->editOwner($item) ?>
 
 </div>

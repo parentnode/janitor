@@ -21,7 +21,6 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 			<fieldset>
 				<?= $model->input("name", array("value" => $item["name"])) ?>
 				<?= $model->input("description", array("class" => "autoexpand short", "value" => $item["description"])) ?>
-				<?= $model->input("classname", array("value" => $item["classname"])) ?>
 			</fieldset>
 
 			<?= $JML->editActions($item) ?>
@@ -33,5 +32,11 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 	<?= $JML->editMediae($item) ?>
 
 	<?= $JML->editTags($item) ?>
+
+	<?= $JML->editSindex($item) ?>
+
+	<?= $JML->editDeveloperSettings($item) ?>
+
+	<?= $JML->editOwner($item) ?>
 
 </div>

@@ -87,4 +87,6 @@ $layout_options = $HTML->toOptions($layouts, "name", "subject", ["add" => ["" =>
 
 	<?= $JML->editTags($item) ?>
 
+	<?= $JML->editOwner($item) ?>
+
 </div>

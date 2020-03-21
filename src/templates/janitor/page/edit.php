@@ -13,7 +13,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 
 	<?= $JML->editGlobalActions($item) ?>
 
-	<?= $JML->editSingleMedia($item, array("label" => "Page image")) ?>
+	<?= $JML->editSingleMedia($item, array("label" => "Main page image")) ?>
 
 
 	<div class="item i:defaultEdit">
@@ -41,6 +41,8 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 
 	<?= $JML->editComments($item) ?>
 
-	<?= $JML->editSubscriptionMethod($item) ?>
+	<?= $JML->editSindex($item) ?>
+
+	<?= $JML->editOwner($item) ?>
 
 </div>

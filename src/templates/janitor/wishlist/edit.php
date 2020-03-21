@@ -47,7 +47,6 @@ session()->value("return_to_wishlist", $item_id);
 
 			<fieldset>
 				<?= $model->input("name", array("value" => $item["name"])) ?>
-				<?= $model->input("classname", array("value" => $item["classname"])) ?>
 			</fieldset>
 
 			<ul class="actions">
@@ -95,5 +94,8 @@ session()->value("return_to_wishlist", $item_id);
 
 	</div>
 
+	<?= $JML->editSindex($item) ?>
+
+	<?= $JML->editDeveloperSettings($item) ?>
 
 </div>

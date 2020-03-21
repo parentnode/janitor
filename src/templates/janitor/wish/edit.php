@@ -49,4 +49,8 @@ $return_to_wishlist = session()->value("return_to_wishlist");
 
 	<?= $JML->editMediae($item) ?>
 
+	<?= $JML->editSindex($item) ?>
+
+	<?= $JML->editOwner($item) ?>
+
 </div>

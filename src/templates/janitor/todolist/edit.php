@@ -63,7 +63,6 @@ session()->value("return_to_todolist", $item_id);
 
 			<fieldset>
 				<?= $model->input("name", array("value" => $item["name"])) ?>
-				<?= $model->input("classname", array("value" => $item["classname"])) ?>
 				<?= $model->input("description", array("value" => $item["description"])) ?>
 			</fieldset>
 
@@ -143,5 +142,9 @@ if($item["state"] != 1): ?>
 		</div>
 
 	</div>
+
+	<?= $JML->editSindex($item) ?>
+
+	<?= $JML->editDeveloperSettings($item) ?>
 
 </div>

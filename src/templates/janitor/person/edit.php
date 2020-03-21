@@ -13,7 +13,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 
 	<?= $JML->editGlobalActions($item) ?>
 
-	<?= $JML->editSingleMedia($item) ?>
+	<?= $JML->editSingleMedia($item, array("label" => "Main person image")) ?>
 
 
 	<div class="item i:defaultEdit">
@@ -38,5 +38,7 @@ $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "
 
 
 	<?= $JML->editTags($item) ?>
+
+	<?= $JML->editOwner($item) ?>
 
 </div>

@@ -24,6 +24,10 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_prices.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_subscriptionmethod.js"></script>');
 
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_sindex.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_owner.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_developer.js"></script>');
+
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-navigations.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-users.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-shop.js"></script>');

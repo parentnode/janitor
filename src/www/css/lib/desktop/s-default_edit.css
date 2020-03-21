@@ -1,9 +1,13 @@
-#content .scene div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
+#content .scene div > h2 {font-size: 0.9em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
 
 #content .scene div.togglable,
 #content .scene li.togglable {overflow: hidden;}
+#content .scene div.togglable div.togglable_content,
+#content .scene li.togglable div.togglable_content {display: none;}
 #content .scene div.togglable.open,
 #content .scene li.togglable.open {overflow: visible;}
+#content .scene div.togglable.open div.togglable_content,
+#content .scene li.togglable.open div.togglable_content {display: block;}
 #content .scene div.togglable > h2,
 #content .scene div.togglable > h3,
 #content .scene div.togglable > h4,
@@ -15,7 +19,7 @@
 #content .scene div.togglable > h4 svg,
 #content .scene li.togglable > h2 svg,
 #content .scene li.togglable > h3 svg,
-#content .scene li.togglable > h4 svg {position: absolute; top: 7px; right: 25px; stroke: #313942; stroke-width: 3px;}
+#content .scene li.togglable > h4 svg {position: absolute; top: 9px; right: 25px; stroke: #313942; stroke-width: 3px;}
 
 
 
@@ -43,9 +47,15 @@
 
 /* EDIT OWNER */
 #content .scene.defaultEdit > div.owner {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.owner form {padding-bottom: 15px;}
 
 /* EDIT/VIEW SINDEX */
 #content .scene.defaultEdit > div.sindex {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.sindex form {padding-bottom: 15px;}
+
+/* Developer settings */
+#content .scene.defaultEdit > div.developer {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.developer form {padding-bottom: 15px;}
 
 
 
