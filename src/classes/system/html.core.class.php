@@ -800,6 +800,11 @@ class HTMLCore {
 	function oneButtonForm($value, $action, $_options = false) {
 		global $page;
 
+		// relative paths are allowed for ease of use
+		// construct absolute path using current controller path
+		if(!preg_match("/^\//", $action)) {
+			$action = $this->path."/".$action;
+		}
 
 		if(!$page->validatePath($action)) {
 			return "";
@@ -988,6 +993,13 @@ class HTMLCore {
 	function link($value, $action, $_options = false) {
 
 		global $page;
+
+		// relative paths are allowed for ease of use
+		// construct absolute path using current controller path
+		if(!preg_match("/^\//", $action)) {
+			$action = $this->path."/".$action;
+		}
+
 		if(!$page->validatePath($action)) {
 			return "";
 		}
