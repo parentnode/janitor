@@ -17,8 +17,6 @@ CREATE TABLE `SITE_DB`.`item_event` (
 
   `location` int(11) NULL DEFAULT NULL,
 
-
-
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),
   CONSTRAINT `item_event_ibfk_1` FOREIGN KEY (`item_id`) REFERENCES `SITE_DB`.`items` (`id`) ON DELETE CASCADE ON UPDATE CASCADE

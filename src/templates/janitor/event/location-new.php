@@ -44,7 +44,7 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 		<?= $JML->newActions(array(
 			"modify" => array(
 				"cancel" => array(
-					"url" => $JML->path . "/locations"
+					"url" => "locations"
 				)
 			)
 		)) ?>

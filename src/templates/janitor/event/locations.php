@@ -12,7 +12,7 @@ $items = $model->getLocations();
 
 	<ul class="actions">
 		<?= $JML->listNew(array("label" => "New location", "action" => "location-new")) ?>
-		<?= $HTML->link("Events", "/janitor/admin/event/list", array("class" => "button", "wrapper" => "li.events")) ?>
+		<?= $HTML->link("Events", "list", array("class" => "button", "wrapper" => "li.events")) ?>
 	</ul>
 
 	<div class="all_items i:defaultList filters"<?= $HTML->jsData(["search"]) ?>>
@@ -26,10 +26,10 @@ $items = $model->getLocations();
 				<?= $JML->listActions($item, array("modify" => array(
 					"status" => false,
 					"edit" => array(
-						"url" => $JML->path."/location-edit/".$item["id"]
+						"url" => "location-edit/".$item["id"]
 					),
 					"delete" => array(
-						"url" => $JML->path."/deleteLocation/".$item["id"]
+						"url" => "deleteLocation/".$item["id"]
 					)
 				))) ?>
 			 </li>
