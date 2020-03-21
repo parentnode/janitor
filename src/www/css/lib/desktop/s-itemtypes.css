@@ -42,6 +42,13 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 
 
 /* EVENTS */
+#content .scene.eventLocationNew fieldset.online,
+#content .scene.eventLocationNew fieldset.offline,
+#content .scene.eventLocationNew fieldset.comment,
+#content .scene.eventLocationEdit fieldset.online,
+#content .scene.eventLocationEdit fieldset.offline,
+#content .scene.eventLocationEdit fieldset.comment {padding-top: 20px;}
+
 
 #content .scene.eventList ul.items > li.past {background: #dddddd;}
 

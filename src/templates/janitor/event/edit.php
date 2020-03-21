@@ -27,6 +27,8 @@ $location_options = $model->toOptions($model->getLocations(), "id", "location", 
 				<?= $model->input("name", array("value" => $item["name"])) ?>
 				<?= $model->input("classname", array("value" => $item["classname"])) ?>
 				<?= $model->input("description", array("class" => "autoexpand short", "value" => $item["description"])) ?>
+				<?= $model->input("event_status", array("value" => $item["event_status"])) ?>
+				<?= $model->input("event_attendance", array("value" => $item["event_attendance"])) ?>
 			</fieldset>
 
 			<fieldset>
