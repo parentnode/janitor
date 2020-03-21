@@ -1414,11 +1414,12 @@ class PageCore {
 				$controller_test = LOCAL_PATH."/www".$path_test.".php";
 			}
 
-//			print "controller_test:" . $controller_test . "<br>\n";
+			// debug(["controller_test:" . $controller_test]);
 
 
 			// does controller exist
 			if(file_exists($controller_test)) {
+				// debug(["Found controller:", $controller_test]);
 
 				// controller is found
 				$controller = $path_test;
