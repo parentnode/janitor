@@ -302,7 +302,7 @@ div.field.hover div.hint+div.error {border-top-left-radius: 0; border-top-right-
 
 
 /* HTML EDITOR */
-#content .field.html {border-top: 1px solid #dedede; padding-top: 10px; padding-bottom: 10px; border-bottom: 1px solid #dedede; margin-bottom: 10px; z-index: 3;}
+#content .field.html {padding-top: 20px; padding-bottom: 10px; margin-bottom: 10px; z-index: 3;}
 
 #content .field.html div.help {left: 555px;}
 
@@ -324,8 +324,8 @@ div.field.hover div.hint+div.error {border-top-left-radius: 0; border-top-right-
 #content .field.html.focus > textarea {margin: 2px; border: 1px solid #dcdcdc;}
 #content .field.html > textarea.show {display: block; height: 200px; width: 470px;}
 
-#content .field.html > label {display: block; /*width: 377px;*/ width: 477px;}
-#content .field.html > label span {font-size: 0.723em; float: right; padding: 1px 0 0; cursor: pointer;}
+#content .field.html > label {display: block; /*width: 377px;*/ width: 477px; font-size: 12px;}
+#content .field.html > label span {font-size: 10px; float: right; padding: 1px 0 0; cursor: pointer;}
 #content .field.html > .indicator {top: 33px;}
 
 /* HTML VIEWER AND EDITOR */
