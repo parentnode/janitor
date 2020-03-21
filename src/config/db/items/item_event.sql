@@ -11,13 +11,13 @@ CREATE TABLE `SITE_DB`.`item_event` (
   `ending_at` timestamp NULL DEFAULT NULL,
 
   `event_status` int(11) NOT NULL DEFAULT 1,
-  `event_attendance` int(11) NOT NULL DEFAULT 1,
+  `event_attendance_mode` int(11) NOT NULL DEFAULT 1,
+  `event_attendance_limit` int(11) DEFAULT NULL,
+  `accept_signups` int(11) NOT NULL DEFAULT 1,
 
   `location` int(11) NULL DEFAULT NULL,
 
-  `accepts_signups` int(11) NOT NULL DEFAULT 0,
 
-  `seats_limit` int(11) DEFAULT NULL,
 
   PRIMARY KEY (`id`),
   KEY `item_id` (`item_id`),

@@ -34,12 +34,12 @@ class TypeEvent extends Itemtype {
 			3 => "EventPostponed",
 			4 => "EventRescheduled"
 		];
-		$this->event_attendance_options = [
+		$this->event_attendance_mode_options = [
 			1 => "Physical",
 			2 => "Physical and Online",
 			3 => "Online"
 		];
-		$this->event_attendance_schema_values = [
+		$this->event_attendance_mode_schema_values = [
 			1 => "OfflineEventAttendanceMode",
 			2 => "MixedEventAttendanceMode",
 			3 => "OnlineEventAttendanceMode"
@@ -121,12 +121,28 @@ class TypeEvent extends Itemtype {
 		));
 
 		// Event attendance
-		$this->addToModel("event_attendance", array(
+		$this->addToModel("event_attendance_mode", array(
 			"type" => "select",
 			"label" => "Event attendance",
-			"options" => $this->event_attendance_options,
-			"hint_message" => "Attendence option of the event.",
-			"error_message" => "Indicated the attendance option of the event."
+			"options" => $this->event_attendance_mode_options,
+			"hint_message" => "Attendance option of the event.",
+			"error_message" => "Indicate the attendance option of the event."
+		));
+
+		// Event attendance limit
+		$this->addToModel("event_attendance_limit", array(
+			"type" => "integer",
+			"label" => "Event attendance limit",
+			"hint_message" => "Is there a limit for how many people can join the event. Leave empty for no limit.",
+			"error_message" => "Indicate the attendance limit of the event."
+		));
+
+		// Event accepts signups
+		$this->addToModel("accept_signups", array(
+			"type" => "checkbox",
+			"label" => "People can sign up for this event.",
+			"hint_message" => "Select whether people can sign up for this event.",
+			"error_message" => "Indicate whether people can sign up for this event."
 		));
 
 
