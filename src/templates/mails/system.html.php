@@ -34,7 +34,13 @@
 
 <h3>_SESSION:</h3>
 <code style="white-space: pre-wrap;"><?= print_r($_SESSION, true) ?></code>
-
+<?
+// Remove passwords before sending
+if(isset($_POST["password"])) {unset($_POST["password"]);}
+if(isset($_POST["new_password"])) {unset($_POST["new_password"]);}
+if(isset($_POST["confirm_password"])) {unset($_POST["confirm_password"]);}
+if(isset($_POST["old_password"])) {unset($_POST["old_password"]);}
+?>
 <h3>_POST:</h3>
 <code style="white-space: pre-wrap;"><?= print_r($_POST, true) ?></code>
 
