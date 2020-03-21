@@ -78,7 +78,7 @@ class ItemtypeCore extends Model {
 			"label" => "Currency",
 			"class" => "currency",
 			"required" => true,
-			"hint_message" => "Currency of price",
+			"hint_message" => "Currency of price.",
 			"error_message" => "Currency cannot be empty."
 		));
 		$this->addToModel("item_price_vatrate", array(
@@ -118,7 +118,15 @@ class ItemtypeCore extends Model {
 			"type" => "integer",
 			"label" => "Item owner",
 			"hint_message" => "Choose new owner for item.",
-			"error_message" => "A valid new owner must be selected"
+			"error_message" => "A valid new owner must be selected."
+		));
+
+		// Sindex
+		$this->addToModel("item_sindex", array(
+			"type" => "string",
+			"label" => "Item sindex",
+			"hint_message" => "Choose a specific sindex for this item. Value must be available.",
+			"error_message" => "A valid and available sindex must be specified."
 		));
 
 	}
@@ -181,267 +189,6 @@ class ItemtypeCore extends Model {
 		return false;
 
 	}
-
-	/**
-	* Change owner of Item
-	*/
-	# /§controller#/#itemtype#/owner/#item_id#
-	function owner($action) {
-		global $page;
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-		if(count($action) == 2) {
-
-//			$itemtype = $action[0];
-
-			$item_id = $action[1];
-			$new_owner = $this->getProperty("item_ownership", "value");
-
-			$query = new Query();
-
-
-			// Update item owner
-			if(
-				$query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")
-					&&
-				$query->sql("SELECT id FROM ".SITE_DB.".users WHERE id = $new_owner")
-				
-			) {
-
-				$sql = "UPDATE ".UT_ITEMS." SET user_id = $new_owner WHERE id = $item_id";
-				$query->sql($sql);
-
-				message()->addMessage("Item owner updated");
-
-
-				// add log
-				$page->addLog("ItemType->owner ($item_id, $new_owner)");
-
-				return true;
-			}
-		}
-
-		message()->addMessage("Item ownership could not be changed", array("type" => "error"));
-		return false;
-
-	}
-
-	/**
-	* Delete item function
-	*/
-	# /janitor/[admin/]#itemtype#/delete/#item_id#
-	function delete($action) {
-		global $page;
-
-		if(count($action) == 2) {
-
-			$item_id = $action[1];
-
-			$query = new Query();
-			$fs = new FileSystem();
-
-			// delete item + itemtype + files
-			$sql = "SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'";
-			// debug([$sql]);
-			if($query->sql($sql)) {
-
-				// EXPERIMENTAL: include pre/post functions to all itemtype.core functions to make extendability better
-				$pre_delete_state = true;
-
-				// itemtype pre delete handler?
-				if(method_exists($this, "deleting")) {
-					$pre_delete_state = $this->deleting($item_id);
-				}
-
-				// pre delete state allows full delete
-				if($pre_delete_state) {
-
-					$sql = "DELETE FROM ".UT_ITEMS." WHERE id = $item_id";
-					// debug([$sql]);
-					if($query->sql($sql)) {
-						
-						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
-						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
-
-						message()->addMessage("Item deleted");
-
-
-						// itemtype post delete handler?
-						if(method_exists($this, "deleted")) {
-							$this->deleted($item_id);
-						}
-
-						// add log
-						$page->addLog("ItemType->delete ($item_id)");
-
-						return true;
-					}
-				}
-			}
-		}
-
-		message()->addMessage("Item could not be deleted", array("type" => "error"));
-		return false;
-	}
-
-
-
-	/**
-	* update/create sindex value for item (for search optimized URLs)
-	*
-	* @param string $item_id Item id
-	* @param string $sindex
-	* @return String final/valid sindex
-	*/
-	function sindex($sindex, $item_id, $excluded = []) {
-
-		$query = new Query();
-
-		// superNormalize $sindex suggetion
-		$sindex = superNormalize(substr($sindex, 0, 60));
-		// print "try this:" . $sindex."<br>\n";
-
-		// check for existence
-		// update if sindex does not exist for other item already
-		$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE sindex = '$sindex' AND id != $item_id";
-		// debug([$sql]);
-
-		// If "clean" sindex is available, then always prioritize that
-		// (It always makes sense to use the cleanest possible sindex, as that is what you would typically hope for)
-		if(array_search($sindex, $excluded) === false && !$query->sql($sql)) {
-
-			$sql = "UPDATE ".UT_ITEMS." SET sindex = '$sindex' WHERE id = $item_id";
-			// debug([$sql]);
-
-			$query->sql($sql);
-
-			return $sindex;
-		}
-		// Find the best sindex option
-		else {
-
-			// Is current sindex already a numeric increment of sindex, then don't change it
-			// (It is confusing if sindex' change for no obvious reason)
-			$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE id = $item_id";
-			if($query->sql($sql)) {
-
-				$current_sindex = $query->result(0, "sindex");
-
-				// Does sindex exist and is it in fact a numeric increment
-				if($current_sindex && strpos($current_sindex, $sindex) !== false && is_numeric(str_replace($sindex."-", "", $current_sindex))) {
-
-					// Nothing to be done
-					return $sindex;
-				}
-
-			}
-
-
-
-
-			// find best match incremental sindex
-			// lower value is considered better
-
-
-			// Add this sindex to excluded options (to prevent endless loops)
-			array_push($excluded, $sindex);
-			// print "We have tried these already:<br>\n";
-			// print_r($excluded);
-
-			// clean sindex in case it's coming from iteration (removing incremental value)
-			$sindex = preg_replace("/-([\d]+)$/", "", $sindex);
-
-			// find all existing incremental versions of this sindex
-			$sql = "SELECT id, sindex FROM ".UT_ITEMS." WHERE sindex REGEXP '^".$sindex."[-]?[0-9]+$' ORDER BY LENGTH(sindex) DESC, sindex DESC";
-			// debug([$sql]);
-
-			$query->sql($sql);
-			$existing_sindexes = $query->results();
-
-
-			// set base values
-			$next_i = 1;
-			$last_i = 1;
-
-			// are there more increments of this sindex
-			if($existing_sindexes) {
-
-//				print_r($existing_sindexes);
-
-				// find last incremental value
-				preg_match("/-([\d]+)$/", $existing_sindexes[0]["sindex"], $matches);
-				if($matches && is_numeric($matches[1])) {
-					$last_i = $matches[1];
-				}
-				// print "last_i: $last_i". "<br>\n";
-
-
-				// amount of increments and last value matches or too many numbers in order
-
-				// it doesn't mean that the order is perfect (just that it probably is)
-				// let's just go for last+1 - if we haven't tried that already (it's the fastest option)
-				if(count($existing_sindexes) >= $last_i && array_search($sindex."-".($last_i+1), $excluded) === false) {
-					$next_i = $last_i+1;
-					// print "try last number: $next_i";
-				}
-				// some numbers seems to be missing in order
-				else {
-
-					// reverse sindexes to loop through from lowest to highest
-					$existing_sindexes = array_reverse($existing_sindexes);
-//					print_r($existing_sindexes);
-
-					foreach($existing_sindexes as $existing_sindex) {
-
-						// get incremental value
-						preg_match("/-([\d]+)$/", $existing_sindex["sindex"], $matches);
-//						print $matches[1]. " = ".$next_i."<br>\n";
-
-						// did we find matching incremental value
-						if($matches && is_numeric($matches[1])) {
-
-							// incremental value and position matches
-							if($matches[1] == $next_i) {
-
-								$next_i++;
-
-							}
-							// last incremental was used again, skip
-							else if($matches[1] == $next_i-1) {
-
-								// allow that - do not attempt to fix double entries here
-
-							}
-							// found a number which doesn't seem to be used
-							else if($matches[1] > $next_i && array_search($sindex."-".$next_i, $excluded) === false) {
-
-//								print "found"."<br>\n";
-								break;
-
-							}
-
-						}
-
-					}
-//					print "looped:" . $next_i."<br>\n";
-
-				}
-
-			}
-
-			$sindex = $sindex . "-" . $next_i;
-			// print $sindex . "<br>\n";
-
-			// recurse until valid sindex has been generated
-			$sindex = $this->sindex($sindex, $item_id, $excluded);
-		}
-
-		return $sindex;
-	}
-
-
 
 
 	// DATA HANDLING
@@ -716,21 +463,21 @@ class ItemtypeCore extends Model {
 					}
 
 
-					$sindex = false;
-					// look for local sindex method 
-					// implement sindexBase function in your itemtype class to use special sindexes
-					if(method_exists($this, "sindexBase")) {
-						$sindex = $this->sindexBase($item_id);
-					}
-					// Use name as default
-					else if(array_search("name", $names) !== false) {
-						$sindex = $entities["name"]["value"];
-					}
-
-					// create new sindex
-					if($sindex) {
-						$this->sindex($sindex, $item_id);
-					}
+					// $sindex = false;
+					// // look for local sindex method
+					// // implement sindexBase function in your itemtype class to use special sindexes
+					// if(method_exists($this, "sindexBase")) {
+					// 	$sindex = $this->sindexBase($item_id);
+					// }
+					// // Use name as default
+					// else if(array_search("name", $names) !== false) {
+					// 	$sindex = $entities["name"]["value"];
+					// }
+					//
+					// // create new sindex
+					// if($sindex) {
+					// 	$this->sindex($sindex, $item_id);
+					// }
 
 
 					// itemtype post update handler?
@@ -789,6 +536,356 @@ class ItemtypeCore extends Model {
 
 		return true;
 	}
+
+	/**
+	* Delete item function
+	*/
+	# /janitor/[admin/]#itemtype#/delete/#item_id#
+	function delete($action) {
+		global $page;
+
+		if(count($action) == 2) {
+
+			$item_id = $action[1];
+
+			$query = new Query();
+			$fs = new FileSystem();
+
+			// delete item + itemtype + files
+			$sql = "SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'";
+			// debug([$sql]);
+			if($query->sql($sql)) {
+
+				// EXPERIMENTAL: include pre/post functions to all itemtype.core functions to make extendability better
+				$pre_delete_state = true;
+
+				// itemtype pre delete handler?
+				if(method_exists($this, "deleting")) {
+					$pre_delete_state = $this->deleting($item_id);
+				}
+
+				// pre delete state allows full delete
+				if($pre_delete_state) {
+
+					$sql = "DELETE FROM ".UT_ITEMS." WHERE id = $item_id";
+					// debug([$sql]);
+					if($query->sql($sql)) {
+						
+						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
+						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
+
+						message()->addMessage("Item deleted");
+
+
+						// itemtype post delete handler?
+						if(method_exists($this, "deleted")) {
+							$this->deleted($item_id);
+						}
+
+						// add log
+						$page->addLog("ItemType->delete ($item_id)");
+
+						return true;
+					}
+				}
+			}
+		}
+
+		message()->addMessage("Item could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+
+	// OWNER
+
+	/**
+	* Change owner of Item
+	*/
+	# /§controller#/#itemtype#/updateOwner/#item_id#
+	function updateOwner($action) {
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2) {
+
+//			$itemtype = $action[0];
+
+			$item_id = $action[1];
+			$new_owner = $this->getProperty("item_ownership", "value");
+
+			$query = new Query();
+
+
+			// Update item owner
+			if(
+				$query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")
+					&&
+				$query->sql("SELECT id FROM ".SITE_DB.".users WHERE id = $new_owner")
+				
+			) {
+
+				$sql = "UPDATE ".UT_ITEMS." SET user_id = $new_owner WHERE id = $item_id";
+				$query->sql($sql);
+
+				message()->addMessage("Item owner updated");
+
+
+				// add log
+				$page->addLog("ItemType->owner ($item_id, $new_owner)");
+
+				$UC = new User();
+				return $UC->getUserInfo(["user_id" => $new_owner]);
+			}
+		}
+
+		message()->addMessage("Item ownership could not be changed", array("type" => "error"));
+		return false;
+
+	}
+
+
+	// SINDEX
+
+	/**
+	* update/create sindex value for item (for search optimized URLs)
+	*
+	* @param string $item_id Item id
+	* @param string $sindex
+	* @return String final/valid sindex
+	*/
+	function sindex($sindex, $item_id, $excluded = []) {
+
+		$query = new Query();
+
+		// superNormalize $sindex suggetion
+		$sindex = superNormalize(substr($sindex, 0, 60));
+		// print "try this:" . $sindex."<br>\n";
+
+		// check for existence
+		// update if sindex does not exist for other item already
+		$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE sindex = '$sindex' AND id != $item_id";
+		// debug([$sql]);
+
+		// If "clean" sindex is available, then always prioritize that
+		// (It always makes sense to use the cleanest possible sindex, as that is what you would typically hope for)
+		if(array_search($sindex, $excluded) === false && !$query->sql($sql)) {
+
+			$sql = "UPDATE ".UT_ITEMS." SET sindex = '$sindex' WHERE id = $item_id";
+			// debug([$sql]);
+
+			$query->sql($sql);
+
+			return $sindex;
+		}
+		// Find the best sindex option
+		else {
+
+			// Is current sindex already a numeric increment of sindex, then don't change it
+			// (It is confusing if sindex' change for no obvious reason)
+			$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE id = $item_id";
+			if($query->sql($sql)) {
+
+				$current_sindex = $query->result(0, "sindex");
+
+				// Does sindex exist and is it in fact a numeric increment
+				if($current_sindex && strpos($current_sindex, $sindex) !== false && is_numeric(str_replace($sindex."-", "", $current_sindex))) {
+
+					// Nothing to be done
+					return $current_sindex;
+				}
+
+			}
+
+
+
+
+			// find best match incremental sindex
+			// lower value is considered better
+
+
+			// Add this sindex to excluded options (to prevent endless loops)
+			array_push($excluded, $sindex);
+			// print "We have tried these already:<br>\n";
+			// print_r($excluded);
+
+			// clean sindex in case it's coming from iteration (removing incremental value)
+			$sindex = preg_replace("/-([\d]+)$/", "", $sindex);
+
+			// find all existing incremental versions of this sindex
+			$sql = "SELECT id, sindex FROM ".UT_ITEMS." WHERE sindex REGEXP '^".$sindex."[-]?[0-9]+$' ORDER BY LENGTH(sindex) DESC, sindex DESC";
+			// debug([$sql]);
+
+			$query->sql($sql);
+			$existing_sindexes = $query->results();
+
+
+			// set base values
+			$next_i = 1;
+			$last_i = 1;
+
+			// are there more increments of this sindex
+			if($existing_sindexes) {
+
+//				print_r($existing_sindexes);
+
+				// find last incremental value
+				preg_match("/-([\d]+)$/", $existing_sindexes[0]["sindex"], $matches);
+				if($matches && is_numeric($matches[1])) {
+					$last_i = $matches[1];
+				}
+				// print "last_i: $last_i". "<br>\n";
+
+
+				// amount of increments and last value matches or too many numbers in order
+
+				// it doesn't mean that the order is perfect (just that it probably is)
+				// let's just go for last+1 - if we haven't tried that already (it's the fastest option)
+				if(count($existing_sindexes) >= $last_i && array_search($sindex."-".($last_i+1), $excluded) === false) {
+					$next_i = $last_i+1;
+					// print "try last number: $next_i";
+				}
+				// some numbers seems to be missing in order
+				else {
+
+					// reverse sindexes to loop through from lowest to highest
+					$existing_sindexes = array_reverse($existing_sindexes);
+//					print_r($existing_sindexes);
+
+					foreach($existing_sindexes as $existing_sindex) {
+
+						// get incremental value
+						preg_match("/-([\d]+)$/", $existing_sindex["sindex"], $matches);
+//						print $matches[1]. " = ".$next_i."<br>\n";
+
+						// did we find matching incremental value
+						if($matches && is_numeric($matches[1])) {
+
+							// incremental value and position matches
+							if($matches[1] == $next_i) {
+
+								$next_i++;
+
+							}
+							// last incremental was used again, skip
+							else if($matches[1] == $next_i-1) {
+
+								// allow that - do not attempt to fix double entries here
+
+							}
+							// found a number which doesn't seem to be used
+							else if($matches[1] > $next_i && array_search($sindex."-".$next_i, $excluded) === false) {
+
+//								print "found"."<br>\n";
+								break;
+
+							}
+
+						}
+
+					}
+//					print "looped:" . $next_i."<br>\n";
+
+				}
+
+			}
+
+			$sindex = $sindex . "-" . $next_i;
+			// print $sindex . "<br>\n";
+
+			// recurse until valid sindex has been generated
+			$sindex = $this->sindex($sindex, $item_id, $excluded);
+		}
+
+		return $sindex;
+	}
+
+	/**
+	* Change sindex of Item
+	*/
+	# /§controller#/#itemtype#/updateSindex/#item_id#
+	function updateSindex($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2) {
+
+//			$itemtype = $action[0];
+
+			$item_id = $action[1];
+			$new_sindex = $this->getProperty("item_sindex", "value");
+
+			$query = new Query();
+
+			if($new_sindex) {
+
+				message()->addMessage("Item sindex updated");
+				return $this->sindex($new_sindex, $item_id);
+
+			}
+			else {
+				
+
+				$sindex = false;
+				// look for local sindex method
+				// implement sindexBase function in your itemtype class to use special sindexes
+				if(method_exists($this, "sindexBase")) {
+					$sindex = $this->sindexBase($item_id);
+				}
+				// Use name as default
+				else {
+
+					$IC = new Items();
+					$item = $IC->getItem(["id" => $item_id, "extend" => true]);
+
+					// debug([$item]);
+					$sindex = $item["name"];
+				}
+
+				// create new sindex
+				if($sindex) {
+					message()->addMessage("Item sindex updated");
+					return $this->sindex($sindex, $item_id);
+				}
+
+			}
+
+		}
+
+		message()->addMessage("Item sindex could not be changed", array("type" => "error"));
+		return false;
+
+	}
+
+
+	/**
+	* Change sindex of Item
+	*/
+	# /§controller#/#itemtype#/checkSindex
+	function checkSindex($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2) {
+
+			$item_id = $action[1];
+			$item_sindex = $this->getProperty("item_sindex", "value");
+
+			$query = new Query();
+
+			// Check item sindex
+			if(!$query->sql("SELECT id FROM ".UT_ITEMS." WHERE sindex = '$item_sindex' && id != $item_id")) {
+				return true;
+			}
+		}
+
+		return false;
+
+	}
+
 
 	// Update item order
 	// /janitor/[admin/]#itemtype#/updateOrder (order comma-separated in POST)
