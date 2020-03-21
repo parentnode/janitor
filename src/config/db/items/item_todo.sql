@@ -3,7 +3,7 @@ CREATE TABLE `SITE_DB`.`item_todo` (
   `item_id` int(11) NOT NULL,
 
   `name` varchar(255) NOT NULL,
-  `description` text NOT NULL,
+  `description` text NOT NULL DEFAULT '',
 
   `deadline` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `priority` int (11) DEFAULT 0,

@@ -3,7 +3,7 @@ CREATE TABLE `SITE_DB`.`item_wishlist` (
   `item_id` int(11) NOT NULL,
 
   `name` varchar(50) NOT NULL,
-  `classname` varchar(50) NULL,
+  `classname` varchar(100) NOT NULL DEFAULT '',
 
   `position` int(11) DEFAULT '0',
 
