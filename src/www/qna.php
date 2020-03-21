@@ -1,6 +1,8 @@
 <?php
 //$access_item = false;
 $access_item["/"] = true;
+$access_item["/owner"] = true;
+$access_item["/updateOwner"] = "/owner";
 $access_item["/edit"] = true;
 $access_item["/update"] = "/edit";
 $access_item["/new"] = true;

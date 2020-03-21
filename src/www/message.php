@@ -1,6 +1,7 @@
 <?php
 $access_item["/"] = true;
 $access_item["/owner"] = true;
+$access_item["/updateOwner"] = "/owner";
 
 if(isset($read_access) && $read_access) {
 	return;
