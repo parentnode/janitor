@@ -262,12 +262,14 @@ class MemberCore extends Model {
 					global $page;
 					$page->addLog("Member->cancelMembership: member_id:".$member["id"]);
 	
-	
+					$UC = new User();
+					$user = $UC->getUser();
+
 					// send notification email to admin
 					mailer()->send(array(
 						"recipients" => SHOP_ORDER_NOTIFIES,
 						"subject" => SITE_URL . " - Membership cancelled ($user_id)",
-						"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/" . $user_id,
+						"message" => "user_id: $user_id\nnickname:".$user["nickname"]."\nemail:".$user["email"]."\n\nCheck out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
 						"tracking" => false
 					));
 	
