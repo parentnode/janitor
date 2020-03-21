@@ -19,6 +19,37 @@ class TypeEvent extends Itemtype {
 		$this->db_locations = SITE_DB.".item_event_locations";
 		$this->db_performers = SITE_DB.".item_event_performers";
 
+		// Event details
+		$this->event_status_options = [
+			0 => "Cancelled",
+			1 => "Scheduled", 
+			2 => "Moved online", 
+			3 => "Postponed", 
+			4 => "Rescheduled"
+		];
+		$this->event_status_schema_values = [
+			0 => "EventCancelled",
+			1 => "EventScheduled",
+			2 => "EventMovedOnline",
+			3 => "EventPostponed",
+			4 => "EventRescheduled"
+		];
+		$this->event_attendance_options = [
+			1 => "Physical",
+			2 => "Physical and Online",
+			3 => "Online"
+		];
+		$this->event_attendance_schema_values = [
+			1 => "OfflineEventAttendanceMode",
+			2 => "MixedEventAttendanceMode",
+			3 => "OnlineEventAttendanceMode"
+		];
+
+
+		$this->event_location_type_options = [
+			1 => "Physical",
+			2 => "Online"
+		];
 
 		// Name
 		$this->addToModel("name", array(
@@ -39,9 +70,10 @@ class TypeEvent extends Itemtype {
 		// Description
 		$this->addToModel("description", array(
 			"type" => "text",
-			"label" => "Short description",
-			"hint_message" => "Write a short description of the event for SEO.",
-			"error_message" => "A short description without any words? How weird."
+			"label" => "Short SEO description",
+			"max" => 155,
+			"hint_message" => "Write a short description of the event for SEO and listings.",
+			"error_message" => "Your event needs a description – max 155 characters."
 		));
 
 		// HTML
@@ -79,6 +111,24 @@ class TypeEvent extends Itemtype {
 			"error_message" => "You need to enter a valid date/time."
 		));
 
+		// Event status
+		$this->addToModel("event_status", array(
+			"type" => "select",
+			"label" => "Event status",
+			"options" => $this->event_status_options,
+			"hint_message" => "Status of the event.",
+			"error_message" => "Indicated the status of the event."
+		));
+
+		// Event attendance
+		$this->addToModel("event_attendance", array(
+			"type" => "select",
+			"label" => "Event attendance",
+			"options" => $this->event_attendance_options,
+			"hint_message" => "Attendence option of the event.",
+			"error_message" => "Indicated the attendance option of the event."
+		));
+
 
 		// Location
 		$this->addToModel("location", array(
@@ -88,11 +138,31 @@ class TypeEvent extends Itemtype {
 			"hint_message" => "Name of the location.",
 			"error_message" => "You need to enter a valid location name."
 		));
+
+		// Location type
+		$this->addToModel("location_type", array(
+			"type" => "select",
+			"label" => "Location type",
+			"options" => $this->event_location_type_options,
+			"hint_message" => "Type of location.",
+			"error_message" => "Indicated the type of the location."
+		));
+
+
+		// Location url
+		$this->addToModel("location_url", array(
+			"type" => "string",
+			"label" => "Location url",
+			"pattern" => "http[s]?:\/\/[^$]+",
+			"hint_message" => "Url of location.",
+			"error_message" => "State the url of the location if available (including http:// or https://)."
+		));
+
+
 		// Location address 1
 		$this->addToModel("location_address1", array(
 			"type" => "string",
 			"label" => "Streetname and number",
-			"required" => true,
 			"hint_message" => "Streetname and number.",
 			"error_message" => "You need to enter a valid streetname and number."
 		));
@@ -107,7 +177,6 @@ class TypeEvent extends Itemtype {
 		$this->addToModel("location_city", array(
 			"type" => "string",
 			"label" => "City",
-			"required" => true,
 			"hint_message" => "Write your city",
 			"error_message" => "Invalid city"
 		));
@@ -115,7 +184,6 @@ class TypeEvent extends Itemtype {
 		$this->addToModel("location_postal", array(
 			"type" => "string",
 			"label" => "Postal code",
-			"required" => true,
 			"hint_message" => "Postalcode of your city",
 			"error_message" => "Invalid postal code"
 		));
@@ -123,7 +191,6 @@ class TypeEvent extends Itemtype {
 		$this->addToModel("location_country", array(
 			"type" => "string",
 			"label" => "Country",
-			"required" => true,
 			"hint_message" => "Country",
 			"error_message" => "Invalid country"
 		));

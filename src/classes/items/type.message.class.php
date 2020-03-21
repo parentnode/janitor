@@ -43,8 +43,9 @@ class TypeMessage extends Itemtype {
 		$this->addToModel("description", array(
 			"type" => "text",
 			"label" => "Short \"preview text\"",
+			"max" => 155,
 			"hint_message" => "Write a short teaser text for the message preview pane.",
-			"error_message" => "A short description without any words? How weird."
+			"error_message" => "Your message needs a preview text – max 155 characters."
 		));
 
 		// HTML

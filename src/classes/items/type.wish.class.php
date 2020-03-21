@@ -49,8 +49,10 @@ class TypeWish extends Itemtype {
 		// Description
 		$this->addToModel("description", array(
 			"type" => "text",
-			"label" => "Description",
-			"hint_message" => "Write a meaningful description of the wish."
+			"label" => "Short SEO description",
+			"max" => 155,
+			"hint_message" => "Write a short description of the wish for SEO and listings.",
+			"error_message" => "Your wish needs a description – max 155 characters."
 		));
 
 		// Link

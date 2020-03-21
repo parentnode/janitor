@@ -37,8 +37,10 @@ class TypeTodolist extends Itemtype {
 		// Description
 		$this->addToModel("description", array(
 			"type" => "text",
-			"label" => "Description",
-			"hint_message" => "Description for this TODO list"
+			"label" => "Short SEO description",
+			"max" => 155,
+			"hint_message" => "Write a short description of the TODO list for SEO and listings.",
+			"error_message" => "Your TODO list needs a description – max 155 characters."
 		));
 
 	}

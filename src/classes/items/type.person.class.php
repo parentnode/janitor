@@ -29,9 +29,10 @@ class TypePerson extends Itemtype {
 		// Description
 		$this->addToModel("description", array(
 			"type" => "text",
-			"label" => "Short description",
-			"hint_message" => "Write a short description of the Person.",
-			"error_message" => "A short description without any words? How weird."
+			"label" => "Short SEO description",
+			"max" => 155,
+			"hint_message" => "Write a short description of the Person for SEO and listings.",
+			"error_message" => "Your person needs a description – max 155 characters."
 		));
 
 		// HTML

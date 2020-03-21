@@ -31,10 +31,10 @@ class TypePhotocollection extends Itemtype {
 		// description
 		$this->addToModel("description", array(
 			"type" => "text",
-			"label" => "Short description",
-			"required" => true,
-			"hint_message" => "Write a short description of the page. It is used for page listings and SEO.",
-			"error_message" => "Your page needs a description"
+			"label" => "Short SEO description",
+			"max" => 155,
+			"hint_message" => "Write a short description of the photo collection for SEO and listings.",
+			"error_message" => "Your photo collection needs a description – max 155 characters."
 		));
 
 		// Classname
