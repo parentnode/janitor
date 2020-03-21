@@ -1,100 +1,74 @@
-
-
-// // quick toggle header with simplified memory (cross item memory)
-// u.toggleHeader = function(div, header) {
-//
-// 	header = header ? header : "h2";
-//
-// 	// add collapsable header
-// 	div._toggle_header = u.qs(header, div);
-// 	div._toggle_header_id = div.className.replace(/item_id:[0-9]+/, "").trim();
-//
-// 	div._toggle_header.div = div;
-// 	u.e.click(div._toggle_header);
-// 	div._toggle_header.clicked = function() {
-// 		if(this.div._toggle_is_closed) {
-// 			u.as(this.div, "height", "auto");
-// 			this.div._toggle_is_closed = false;
-// 			u.saveCookie(this.div._toggle_header_id+"_open", 1);
-// 		}
-// 		else {
-// 			u.as(this.div, "height", this.offsetHeight+"px");
-// 			this.div._toggle_is_closed = true;
-// 			u.saveCookie(this.div._toggle_header_id+"_open", 0);
-// 		}
-// 	}
-// 	var state = u.getCookie(div._toggle_header_id+"_open");
-// 	if(state == "0") {
-// 		div._toggle_header.clicked();
-// 	}
-// }
-
-
 Util.Modules["collapseHeader"] = new function() {
 	this.init = function(div) {
-		u.bug("init collapseHeader");
+		// u.bug("init collapseHeader");
 
 		// add collapsable header
 		u.ac(div, "togglable");
 		div._toggle_header = u.qs("h2,h3,h4", div);
 
-		div._toggle_header.div = div;
-		u.e.click(div._toggle_header);
-		div._toggle_header.clicked = function() {
+		if(div._toggle_header) {
 
-			if(this.div._toggle_is_closed) {
-				// add class (for detailed open settings)
-				u.ac(this.div, "open");
+			u.wc(div, "div", {"class":"togglable_content"});
+			u.ie(div, div._toggle_header);
 
-				u.ass(this.div, {
-					height: "auto"
-				});
-				this.div._toggle_is_closed = false;
-				u.saveNodeCookie(this.div, "open", 1, {"ignore_classvars":true, "ignore_classnames":"open"});
-				u.addCollapseArrow(this);
+			div._toggle_header.div = div;
+			u.e.click(div._toggle_header);
+			div._toggle_header.clicked = function() {
 
-				// callback
-				if(typeof(this.div.headerExpanded) == "function") {
-					this.div.headerExpanded();
+				if(this.div._toggle_is_closed) {
+					// add class (for detailed open settings)
+					u.ac(this.div, "open");
+
+					u.ass(this.div, {
+						height: "auto"
+					});
+					this.div._toggle_is_closed = false;
+					u.saveNodeCookie(this.div, "open", 1, {"ignore_classvars":true, "ignore_classnames":"open"});
+					u.addCollapseArrow(this);
+
+					// callback
+					if(typeof(this.div.headerExpanded) == "function") {
+						this.div.headerExpanded();
+					}
 				}
+				else {
+					// remove class (for detailed closed settings)
+					u.rc(this.div, "open");
+
+					u.ass(this.div, {
+						height: this.offsetHeight+"px"
+					});
+					this.div._toggle_is_closed = true;
+					u.saveNodeCookie(this.div, "open", 0, {"ignore_classvars":true, "ignore_classnames":"open"});
+					u.addExpandArrow(this);
+
+					// callback
+					if(typeof(this.div.headerCollapsed) == "function") {
+						this.div.headerCollapsed();
+					}
+				}
+			}
+
+			var state = u.getNodeCookie(div, "open", {"ignore_classvars":true, "ignore_classnames":"open"});
+	//		console.log("state:" + state + ", " + typeof(state));
+			// no state value (or state value = 0), means collapsed
+			if(!state) {
+				div._toggle_header.clicked();
 			}
 			else {
-				// remove class (for detailed closed settings)
-				u.rc(this.div, "open");
+				u.addCollapseArrow(div._toggle_header);
 
-				u.ass(this.div, {
-					height: this.offsetHeight+"px"
-				});
-				this.div._toggle_is_closed = true;
-				u.saveNodeCookie(this.div, "open", 0, {"ignore_classvars":true, "ignore_classnames":"open"});
-				u.addExpandArrow(this);
+				// add class (for detailed open settings)
+				u.ac(div, "open");
 
 				// callback
-				if(typeof(this.div.headerCollapsed) == "function") {
-					this.div.headerCollapsed();
+				if(typeof(div.headerExpanded) == "function") {
+					div.headerExpanded();
 				}
 			}
 		}
 
-		var state = u.getNodeCookie(div, "open", {"ignore_classvars":true, "ignore_classnames":"open"});
-//		console.log("state:" + state + ", " + typeof(state));
-		// no state value (or state value = 0), means collapsed
-		if(!state) {
-			div._toggle_header.clicked();
-		}
-		else {
-			u.addCollapseArrow(div._toggle_header);
-
-			// add class (for detailed open settings)
-			u.ac(div, "open");
-
-			// callback
-			if(typeof(div.headerExpanded) == "function") {
-				div.headerExpanded();
-			}
-		}
 	}
-
 
 }
 
@@ -104,7 +78,7 @@ Util.Modules["collapseHeader"] = new function() {
 u.addExpandArrow = function(node) {
 
 	if(node.collapsearrow) {
-		u.bug("remove collapsearrow");
+		// u.bug("remove collapsearrow");
 		node.collapsearrow.parentNode.removeChild(node.collapsearrow);
 		//node.collapsearrow = false;
 		delete node.collapsearrow;
@@ -117,7 +91,7 @@ u.addExpandArrow = function(node) {
 u.addCollapseArrow = function(node) {
 
 	if(node.expandarrow) {
-		u.bug("remove expandarrow");
+		// u.bug("remove expandarrow");
 		node.expandarrow.parentNode.removeChild(node.expandarrow);
 		// node.expandarrow = false;
 		delete node.expandarrow;
