@@ -85,12 +85,27 @@ session()->value("return_to_orderstatus", $status);
 					<dd class="email"><?= $order["user"]["email"] ?></dd>
 					<? endif; ?>
 
-					<? if($order["user"]["mobile"]): ?>
+					<? /*if($order["user"]["mobile"]): ?>
 					<dt class="mobile">Mobile</dt>
 					<dd class="mobile"><?= $order["user"]["mobile"] ?></dd>
-					<? endif; ?>
+					<? endif;*/ ?>
 
 				<? endif; ?>
+
+					<? if($status < 2): ?>
+					<dt class="order_content">Order content</dt>
+					<dd class="order_content"><?
+						$order_content = [];
+						$IC = new Items();
+						foreach($order["items"] as $order_item):
+							$item = $IC->getItem(["id" => $order_item["item_id"]]);
+							if(array_search($item["itemtype"], $order_content) === false) {
+								array_push($order_content, $item["itemtype"]);
+							}
+						endforeach;
+						print implode(", ", $order_content);
+					?></dd>
+					<? endif; ?>
 				</dl>
 
 				<ul class="actions">
