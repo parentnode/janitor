@@ -482,6 +482,7 @@ class Upgrade extends Model {
 
 								$this->process(array("success" => true, "message" => "Deleted HTMLEDITOR media remnant: " . $media["id"]), true);
 								$media = false;
+								continue;
 							}
 
 
