@@ -996,7 +996,7 @@ class HTMLCore {
 
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
-		if(!preg_match("/^\//", $action)) {
+		if($action && !preg_match("/^\//", $action)) {
 			$action = $this->path."/".$action;
 		}
 
@@ -1055,7 +1055,7 @@ class HTMLCore {
 	
 		}
 
-		$_ .= '<a href="'.$action.'"'.$att_id.$att_class.$att_target.'>'.$value.'</a>';
+		$_ .= '<a '.($action ? 'href="'.$action.'"' : '').$att_id.$att_class.$att_target.'>'.$value.'</a>';
 
 		if($wrapper) {
 			$_ .= '</'.$wrap_node.'>'."\n";
