@@ -26,7 +26,7 @@ $user_maillists = $item["maillists"];
 	<?= $JML->profileTabs("maillists") ?>
 
 
-	<div class="maillists i:maillistsProfile i:collapseHeader">
+	<div class="maillists item i:maillistsProfile">
 		<h2>Newsletters and maillists</h2>
 
 <?		if($all_maillists): ?>

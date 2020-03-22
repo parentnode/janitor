@@ -65,12 +65,9 @@
 #content .scene.userEdit > div.addresses ul.addresses > li div {padding: 0 0 3px;}
 #content .scene.userEdit > div.addresses ul.addresses > li .actions {position: absolute; bottom: 0; left: 0; padding: 0;}
 #content .scene.userEdit > div.addresses ul.addresses > li .actions li {padding-left: 0;}
-#content .scene.userEdit > div.addresses > .actions {padding-bottom: 15px;}
-
+#content .scene.userEdit > div.addresses ul.actions {padding-bottom: 15px;}
 
 /* MAILLISTS */
-#content .scene.defaultList > div.maillists {/*padding: 0 0 10px 0;*/border-bottom: 1px solid #bbbbbb;}
-#content .scene.defaultList > div.maillists h2 {padding-top: 10px;}
 #content .scene.defaultList > div.maillists ul.maillists {padding: 0 30px 10px;}
 #content .scene.defaultList > div.maillists ul.maillists > li {display: block; padding: 0 0 10px;}
 #content .scene.defaultList > div.maillists ul.maillists > li h3 {padding: 4px 0 0; display: inline-block; vertical-align: top;}
@@ -103,11 +100,11 @@
 
 
 /* USER CONTENT */
-#content .defaultList.userContentList div.all_items {padding-bottom: 20px;}
+#content .defaultList.userContentList div.all_items {padding-bottom: 40px;}
 
 
 /* USER ORDERS */
-#content .defaultList.userOrderList div.all_items {padding-bottom: 20px;}
+#content .defaultList.orderList div.all_items {padding-bottom: 40px;}
 
 
 /* USER SUBSCRIPTIONS */
@@ -125,10 +122,10 @@
 
 
 /* USER MEMBERSHIP */
-#content .defaultView.userMembership > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}
+/*#content .defaultView.userMembership > div > h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 0 0 20px;}*/
 
-#content .defaultView.userMembership div.item {position: relative; border-bottom: 1px solid #bbbbbb;}
-#content .defaultView.userMembership div.item h3 {padding-bottom: 20px; font-size: 28px;}
+/*#content .defaultView.userMembership div.item {position: relative; border-bottom: 1px solid #bbbbbb;}*/
+#content .defaultView.userMembership div.item h3 {padding-bottom: 20px; font-size: 38px;}
 
 #content .defaultView.userMembership div.item dl {margin-top: -5px; padding-bottom: 30px;}
 #content .defaultView.userMembership div.item dd.price.default {text-decoration: line-through;}

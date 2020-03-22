@@ -156,11 +156,12 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 <? if($unpaid_orders): ?>
 		<p class="note system_error">
 			You have <?= pluralize(count($unpaid_orders), "unpaid order", "unpaid orders")?>. 
-			Settle <?= pluralize(count($unpaid_orders), "it", "them") ?> before you
+			Settle <?= (count($unpaid_orders) == 1 ? "it" : "them") ?> before you
 			cancel your account.
 		</p>
 
 		<ul class="actions">
+			<?= $HTML->link("Cancel account", "", array("class" => "button disabled", "wrapper" => "li.cancelaccount")) ?>
 			<?= $HTML->link("Orders", "/janitor/admin/profile/orders/list", array("class" => "button primary", "wrapper" => "li.orders")) ?>
 		</ul>
 <? else: ?>
