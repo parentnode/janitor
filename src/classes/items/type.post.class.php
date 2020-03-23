@@ -22,9 +22,9 @@ class TypePost extends Itemtype {
 		// Published
 		$this->addToModel("published_at", array(
 			"type" => "datetime",
-			"label" => "Publish date (yyyy-mm-dd hh:mm)",
-			"hint_message" => "Publishing date of the post. Leave empty for current time",
-			"error_message" => "Datetime must be of format (yyyy-mm-dd hh:mm)"
+			"label" => "Publishing time (yyyy-mm-dd hh:mm)",
+			"hint_message" => "Date of the post publication (yyyy-mm-dd hh:mm). Leave empty for current time.", 
+			"error_message" => "Date of the post publication must be a valid date (yyyy-mm-dd hh:mm). Leave empty for current time.", 
 		));
 
 		// Name
