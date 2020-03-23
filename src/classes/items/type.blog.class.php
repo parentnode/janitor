@@ -75,10 +75,10 @@ class TypeBlog extends Itemtype {
 		$this->addToModel("single_media", array(
 			"type" => "files",
 			"label" => "Add media here",
-			"allowed_sizes" => "960x960",
+			"allowed_sizes" => "960x540",
 			"max" => 1,
 			"allowed_formats" => "png,jpg",
-			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x960",
+			"hint_message" => "Add single image by dragging it here. PNG or JPG allowed in 960x540",
 			"error_message" => "Media does not fit requirements."
 		));
 
