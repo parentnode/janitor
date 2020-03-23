@@ -347,6 +347,10 @@ class SuperMemberCore extends Member {
 				unset($_POST);
 	
 				if($order) {
+
+					global $page;
+					$page->addLog("Member->addMembership: member_id:".$membership["id"].", user_id:$user_id");		
+
 					return $order;
 				}
 			}
@@ -517,6 +521,10 @@ class SuperMemberCore extends Member {
 				$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["id"], $cart["cart_reference"]));
 	
 				if($order) {
+
+					global $page;
+					$page->addLog("SuperMember->switchMembership: member_id:".$member["id"].", user_id:$user_id)");
+
 					return $order;
 				}
 			}
