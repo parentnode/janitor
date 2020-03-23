@@ -149,10 +149,16 @@ class MemberCore extends Model {
 			$cart_reference = $cart["cart_reference"];
 
 			$current_user = $UC->getUser();
+			$current_user_id = $current_user["id"];
+
 			$order = $SC->newOrderFromCart(["newOrderFromCart", $cart_reference]);
 			unset($_POST);
 
 			if($order) {
+
+				global $page;
+				$page->addLog("Member->addNewMembership: user_id:$current_user_id)");
+
 				return $order;
 			}
 
@@ -328,6 +334,10 @@ class MemberCore extends Model {
 				$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["cart_reference"]));
 	
 				if($order) {
+
+					global $page;
+					$page->addLog("Member->switchMembership: member_id:".$member["id"].", user_id:$user_id)");
+
 					return $order;
 				}
 			}
