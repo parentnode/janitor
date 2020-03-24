@@ -54,11 +54,6 @@ class SubscriptionCore extends Model {
 			"type" => "boolean",
 			"required" => true
 		));
-		// Renew subscription switch
-		$this->addToModel("subscription_renewal", array(
-			"type" => "boolean",
-			"required" => true
-		));
 		// expiration date
 		$this->addToModel("expires_at", array(
 			"type" => "datetime",
@@ -375,6 +370,7 @@ class SubscriptionCore extends Model {
 			$expires_at = $this->getProperty("expires_at", "value");
 			$custom_price = $this->getProperty("custom_price", "value");
 
+
 			// get original subscription and user_id
 			$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
 			$user_id = $subscription["user_id"];
@@ -435,25 +431,24 @@ class SubscriptionCore extends Model {
 				// expiration date for new subscription is not directly specified and must be calculated
 				if(!$expires_at) {
 					
-					// current subscription has an expiration date
+					// current subscription has an expiration date 
 					if($subscription["expires_at"]) {
 						
 						$expires_at = $subscription["expires_at"];
-						
 					}
 					// current subscription never expires
 					else {
 						
 						// new subscription will expire at some point
 						if($item["subscription_method"]["duration"] != "*") {
-
+							
 							// calculate new expiration date, counting from current time
 							$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
 						}
 					}
-					
+
 				}
-	
+					
 				$sql = "UPDATE ".$this->db_subscriptions." SET item_id = $item_id, modified_at=CURRENT_TIMESTAMP";
 				if($order_id || $order_id === 'NULL') {
 					$sql .= ", order_id = $order_id";

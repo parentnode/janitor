@@ -12,6 +12,14 @@ class SuperSubscriptionCore extends Subscription {
 
 		$this->db_members = SITE_DB.".user_members";
 
+		// Renew subscription switch
+		$this->addToModel("subscription_renewal", array(
+			"type" => "boolean",
+		));
+		// Switch membership switch
+		$this->addToModel("switch_membership", array(
+			"type" => "boolean",
+		));
 
 		parent::__construct(get_class());
 		
@@ -320,6 +328,7 @@ class SuperSubscriptionCore extends Subscription {
 	 * — order_id
 	 * – payment_method
 	 * – subscription_renewal (boolean)
+	 * – switch_membership (boolean)
 	 * 
 	 * @return array|false Subscription object. False on error.
 	 */
@@ -340,9 +349,10 @@ class SuperSubscriptionCore extends Subscription {
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method = $this->getProperty("payment_method", "value");
-			$subscription_renewal = $this->getProperty("subscription_renewal", "value");
 			$expires_at = $this->getProperty("expires_at", "value");
 			$custom_price = $this->getProperty("custom_price", "value");
+			$subscription_renewal = $this->getProperty("subscription_renewal", "value");
+			$switch_membership = $this->getProperty("switch_membership", "value");
 
 			// get original subscription and user_id
 			$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
@@ -405,8 +415,15 @@ class SuperSubscriptionCore extends Subscription {
 				// expiration date for new subscription is not directly specified and must be calculated
 				if(!$expires_at) {
 					
+					// subscription update is initiated by switchMembership
+					if($switch_membership) {
+
+						// calculate new expiration date, counting from current time
+						$expires_at = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"]);
+						
+					}
 					// current subscription has an expiration date
-					if($subscription["expires_at"]) {
+					elseif($subscription["expires_at"]) {
 						
 						// current expiration date should be kept
 						if(!$subscription_renewal) {

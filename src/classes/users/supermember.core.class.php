@@ -349,7 +349,7 @@ class SuperMemberCore extends Member {
 				if($order) {
 
 					global $page;
-					$page->addLog("Member->addMembership: member_id:".$membership["id"].", user_id:$user_id");		
+					$page->addLog("Member->addNewMembership: item_id:".$item_id.", user_id:$user_id");		
 
 					return $order;
 				}
@@ -479,7 +479,7 @@ class SuperMemberCore extends Member {
 
 
 	/**
-	 * Switch membership for current user
+	 * Switch membership for specified user
 	 * 
 	 * /#controller#/switchMembership/#user_id#
 	 * item_id in $_POST
@@ -518,6 +518,9 @@ class SuperMemberCore extends Member {
 	
 				// convert to order
 				// this will call Member::updateMembership via TypeMembership::ordered 
+				// this will call SuperSubscription::updateSubscription or SuperSubscription::addSubscription via TypeMembership::ordered 
+
+				$_POST["switch_membership"] = true;
 				$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["id"], $cart["cart_reference"]));
 	
 				if($order) {
