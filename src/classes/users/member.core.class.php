@@ -331,6 +331,10 @@ class MemberCore extends Model {
 	
 				// convert to order
 				// this will call Member::updateMembership via TypeMembership::ordered 
+				// this will call Subscription::updateSubscription or Subscription::addSubscription via TypeMembership::ordered 
+				
+				// pass along update_expiry flag for updateSubscription
+				$_POST["switch_membership"] = true;
 				$order = $SC->newOrderFromCart(array("newOrderFromCart", $cart["cart_reference"]));
 	
 				if($order) {
