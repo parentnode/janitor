@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.3-janitor Copyright 2019 https://manipulator.parentnode.dk
-js-merged @ 2020-03-21 20:39:07
+js-merged @ 2020-04-02 22:01:27
 */
 
 /*seg_smartphone_include.js*/
@@ -455,7 +455,7 @@ Util.getNodeCookie = function(node, name, _options) {
 	var mem = JSON.parse(u.getCookie("man_mem"));
 	if(mem && mem[ref]) {
 		if(name) {
-			return mem[ref][name] ? mem[ref][name] : "";
+			return (typeof(mem[ref][name]) != "undefined") ? mem[ref][name] : false;
 		}
 		else {
 			return mem[ref];
