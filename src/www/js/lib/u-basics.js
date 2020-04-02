@@ -50,9 +50,9 @@ Util.Modules["collapseHeader"] = new function() {
 			}
 
 			var state = u.getNodeCookie(div, "open", {"ignore_classvars":true, "ignore_classnames":"open"});
-	//		console.log("state:" + state + ", " + typeof(state));
+			// console.log("state:" + state + ", " + typeof(state));
 			// no state value (or state value = 0), means collapsed
-			if(!state) {
+			if(state === 0 || (state === false && !u.hc(div, "open"))) {
 				div._toggle_header.clicked();
 			}
 			else {
