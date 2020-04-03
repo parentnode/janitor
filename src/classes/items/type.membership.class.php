@@ -195,7 +195,7 @@ class TypeMembership extends Itemtype {
 					$_POST["item_id"] = $item_id;
 					$_POST["user_id"] = $user_id;
 					$_POST["order_id"] = $order_id;
-					$_POST["custom_price"] = $custom_price;
+					$_POST["custom_price"] = $custom_price ?: null;
 					$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription_id]);
 					unset($_POST);
 				}
@@ -206,7 +206,7 @@ class TypeMembership extends Itemtype {
 					$_POST["item_id"] = $item_id;
 					$_POST["user_id"] = $user_id;
 					$_POST["order_id"] = $order_id;
-					$_POST["custom_price"] = $custom_price;
+					$_POST["custom_price"] = $custom_price ?: null;
 					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 					unset($_POST);
 				}

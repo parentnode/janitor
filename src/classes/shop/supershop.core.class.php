@@ -905,7 +905,7 @@ class SuperShopCore extends Shop {
 									if($query->sql($sql)) {
 										$order_item = $query->result(0);
 
-										$order_item["custom_price"] = isset($custom_price);
+										$order_item["custom_price"] = isset($custom_price) ? $custom_price : null;
 
 										// add callback to 'ordered'
 										$model = $IC->typeObject($item["itemtype"]);
