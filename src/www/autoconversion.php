@@ -90,7 +90,7 @@ function conversionFailed($reason) {
 	}
 
 	$segment = $page->segment();
-	debug([$segment]);
+	// debug([$segment]);
 
 	// TODO: implement fallback for audio and video
 	// TODO: implement constraints to avoid media generation abuse
@@ -100,11 +100,11 @@ function conversionFailed($reason) {
 	if($segment === "seo") {
 		// facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)
 
-		mailer()->send([
-			"subject" => "Autoconversion failed SEO - 410 Test ($request_type)",
-			"message" => $reason,
-			"template" => "system"
-		]);
+		// mailer()->send([
+		// 	"subject" => "Autoconversion failed SEO - 410 Test ($request_type)",
+		// 	"message" => $reason,
+		// 	"template" => "system"
+		// ]);
 
 		header("Location: /images/0/missing/".$width."x".$height.".png", true, 410);
 

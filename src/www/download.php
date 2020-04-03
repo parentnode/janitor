@@ -87,16 +87,15 @@ if(count($action) == 3 && isset($_SERVER["HTTP_REFERER"]) && strpos($_SERVER["HT
 
 }
 
-mailer()->send([
-	"subject" => "File download FAILED on ".SITE_URL, 
-	"message" => "File download was attempted but failed:<br>".implode("/", $action),
-	"template" => "system"
-]);
+http_response_code(403);
 
-// no valid actions
-$page->page(array(
-	"templates" => "pages/404.php"
-));
+// Disable notification mail
+// mailer()->send([
+// 	"subject" => "File download FAILED on ".SITE_URL,
+// 	"message" => "File download was attempted but failed:<br>".implode("/", $action),
+// 	"template" => "system"
+// ]);
 
+exit;
 
 ?>

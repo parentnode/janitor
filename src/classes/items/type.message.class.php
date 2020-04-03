@@ -104,9 +104,6 @@ class TypeMessage extends Itemtype {
 
 		if($this->validateList(array("item_id"))) {
 
-			// $query = new Query();
-			// $query->checkDbExistence(SITE_DB.".user_log_messages");
-
 
 			$recipients = $this->getProperty("recipients", "value");
 			$maillist_id = $this->getProperty("maillist_id", "value");
@@ -116,176 +113,13 @@ class TypeMessage extends Itemtype {
 			$user_id = $this->getProperty("user_id", "value");
 
 
-
 			return $this->sendMessage([
 				"maillist_id" => $maillist_id,
 				"recipients" => $recipients,
 				"item_id" => $item_id,
 				"from_current_user" => true,
-
-				"values" => ["martin@think.dk" => ["NICKNAME" => "howski snowski"]],
 				"user_id" => $user_id,
 			]);
-
-//
-//
-// 			// for value placeholders found in mail HTML
-// 			$needed_values = [];
-//
-// 			// item_id of mailcontent and layout available
-// 			if($item_id && $layout) {
-//
-// 				// create final HTML
-// 				$html = $this->mergeItemIntoLayout($item_id, $layout);
-//
-// //				print "##\n".$html."\n##";
-//
-// 				// find variables in content
-// 				preg_match_all("/\{([a-zA-Z0-9\-_]+)\}/", $html, $matches);
-// 				foreach($matches[1] as $match) {
-// 					if(array_search($match, $needed_values) === false) {
-// 						$needed_values[] = $match;
-// 					}
-//
-// 				}
-//
-// 			}
-//
-//
-// 			$recipients = [];
-// 			$recipient_values = [];
-//
-// 			// recipients sent as comma-separated list
-// 			if($recipients_list) {
-//
-// 				// filter out invalid recipients
-// 				$recipients_list = explode(";", preg_replace("/,/", ";", $recipients_list));
-// 				foreach($recipients_list as $key => $recipient) {
-// 					// if recipient seems valid, add it (and values) to the arrays that will be passed on
-// 					if($recipient && preg_match("/^[\w\.\-_]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
-// 						$recipients[] = $recipient;
-// 					}
-//
-// 					// there is no user-mapping, when using comma-separated list
-// 					// so don't try to add user values
-//
-// 				}
-//
-// 			}
-// 			// get recipients from maillist id
-// 			else if($maillist_id) {
-//
-// 				include_once("classes/users/superuser.class.php");
-// 				$UC = new SuperUser();
-//
-// 				// get all subscribers for selected maillist
-// 				$subscribers = $UC->getMaillists(["maillist_id" => $maillist_id]);
-// 				foreach($subscribers as $subscriber) {
-//
-// 					// User values placeholder
-// 					$user_values = [];
-//
-// 					// Add message key to user values (to create massage viewer on website)
-// 					$user_values["MESSAGE_TOKEN"] = randomKey(30);
-// 					$user_values["MAILLIST_ID"] = $maillist_id;
-//
-//
-// 					// Some userdata is readily available from subscriber
-// 					if(array_search("NICKNAME", $needed_values) !== false) {
-// 						$user_values["NICKNAME"] = $subscriber["nickname"];
-// 					}
-// 					if(array_search("EMAIL", $needed_values) !== false) {
-// 						$user_values["EMAIL"] = $subscriber["email"];
-// 					}
-// 					if(array_search("USERNAME", $needed_values) !== false) {
-// 						$user_values["USERNAME"] = $subscriber["email"];
-// 					}
-//
-//
-// 					// Check if we need to look up additional user info
-//
-// 					// USER DATA
-// 					if(preg_match("/FIRSTNAME|LASTNAME|LANGUAGE/", implode(",", $needed_values))) {
-// 						$user = $UC->getUsers(["user_id" => $subscriber["user_id"]]);
-//
-// 						if(array_search("FIRSTNAME", $needed_values) !== false) {
-// 							$user_values["FIRSTNAME"] = $user && $user["firstname"] ? $user["firstname"] : "";
-// 						}
-//
-// 						if(array_search("LASTNAME", $needed_values) !== false) {
-// 							$user_values["LASTNAME"] = $user && $user["lastname"] ? $user["lastname"] : "";
-// 						}
-//
-// 						if(array_search("LANGUAGE", $needed_values) !== false) {
-// 							$user_values["LANGUAGE"] = $user && $user["language"] ? $user["language"] : "EN";
-// 						}
-//
-// 					}
-//
-// 					// USER VERIFICATION CODE (FOR UNSUBSCRIBE LINK)
-// 					if(preg_match("/VERIFICATION_CODE/", implode(",", $needed_values))) {
-// 						$user_values["VERIFICATION_CODE"] = $UC->getVerificationCode("email", $subscriber["email"]);
-// 					}
-//
-// 					// MEMBERSHIP DATA
-// 					if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP/", implode(",", $needed_values))) {
-// 						$member = $UC->getMembers(["user_id" => $subscriber["user_id"]]);
-//
-// 						if(array_search("MEMBER_ID", $needed_values) !== false) {
-// 							$user_values["MEMBER_ID"] = $member && $member["id"] ? $member["id"] : "N/A";
-// 						}
-//
-// 						if(array_search("MEMBERSHIP", $needed_values) !== false) {
-// 							$user_values["MEMBERSHIP"] = $member && $member["item"] && $member["item"]["name"] ? $member["item"]["name"] : "N/A";
-// 						}
-//
-// 					}
-//
-// 					$recipients[] = $subscriber["email"];
-// 					$recipient_values[$subscriber["email"]] = $user_values;
-//
-//
-// 					// Insert data into messages log to enable "view in browser"
-// 					$data = $user_values;
-// 					unset($data["MESSAGE_TOKEN"]);
-// 					// Save data object with message token in user_log_messages
-// 					$sql = "INSERT INTO ".SITE_DB.".user_log_messages SET user_id = ".$subscriber["user_id"].", item_id = $item_id, token = '".$user_values["MESSAGE_TOKEN"]."', data = '".prepareForDB(json_encode($data))."'";
-// //					print $sql;
-// 					$query->sql($sql);
-//
-// 				}
-//
-// 			}
-//
-//
-// 			// valid recipients and html
-// 			if($html && $recipients) {
-//
-// 				if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "html" => $html, "tracking" => false])) {
-//
-// 					global $page;
-// 					$page->addLog("TypeMessage->sendMessage: user_id:".session()->value("user_id").", item_id:".$item_id.", " . ($maillist_id ? "maillist_id:".$maillist_id : "recipients:".implode(";", $recipients)));
-//
-// 					message()->addMessage("Mail(s) sent to ".implode(",", $recipients));
-//
-// 					return $recipients;
-//
-// 				}
-// 				// message failed
-// 				else {
-//
-// 					// remove user messages log entries, since mail wasn't sent anyway
-// 					foreach($recipient_values as $values) {
-//
-// 						$sql = "DELETE FROM ".SITE_DB.".user_log_messages WHERE token = '".$values["MESSAGE_TOKEN"]."'";
-// 				//		print $sql;
-// 						$query->sql($sql);
-//
-// 					}
-//
-// 				}
-//
-// 			}
 
 		}
 
