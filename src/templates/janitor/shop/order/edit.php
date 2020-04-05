@@ -17,8 +17,8 @@ $UC = new SuperUser();
 // get addresses for selected user
 $addresses = $UC->getAddresses(array("user_id" => $order["user_id"]));
 if($addresses) {
-	$delivery_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("" => "Select delivery address")));
-	$billing_address_options = $model->toOptions($addresses, "id", "address_label", array("add" => array("" => "Select billing address")));
+	$delivery_address_options = $model->toOptions($addresses, "id", "address1", array("add" => array("" => "Select delivery address")));
+	$billing_address_options = $model->toOptions($addresses, "id", "address1", array("add" => array("" => "Select billing address")));
 }
 else {
 	$delivery_address_options = array("" => "No addresses");
@@ -131,10 +131,10 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</dl>
 	</div>
 
-	<div class="comment i:collapseHeader">
+	<div class="comment i:collapseHeader i:editDataSection">
 		<h2>Comment</h2>
-		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrderComment/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<? /*if($order["status"] == 0):*/ ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrderComment/".$order_id, array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("order_comment", array("value" => $order["comment"])) ?>
 			</fieldset>
@@ -143,7 +143,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
-		<? endif; ?>
+		<? /*endif;*/ ?>
 
 		<? if($order["comment"]): ?>
 		<p><?= nl2br($order["comment"]) ?></p>
@@ -278,11 +278,11 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 
 	</div>
 
-	<div class="delivery i:collapseHeader">
+	<div class="delivery i:collapseHeader i:editDataSection">
 		<h2>Delivery</h2>
 
-		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrderAddresses/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<? /*if($order["status"] == 0):*/ ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrderAddresses/".$order_id, array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("delivery_address_id", array(
 					"type" => "select",
@@ -293,8 +293,11 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 			<ul class="actions">
 				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
 			</ul>
+			<p>
+				If you need to add a new address, please go to the address section of your <a href="/janitor/admin/user/edit/<?= $order["user_id"] ?>">profile page</a>.
+			</p> 
 		<?= $model->formEnd() ?>
-		<? endif; ?>
+		<? /* endif; */ ?>
 
 		<dl class="info">
 			<dt>Name</dt>
@@ -314,11 +317,11 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</dl>
 	</div>
 
-	<div class="billing i:collapseHeader">
+	<div class="billing i:collapseHeader i:editDataSection">
 		<h2>Billing</h2>
 
-		<? if($order["status"] == 0): ?>
-		<?= $model->formStart("/janitor/admin/shop/updateOrderAddresses/".$order_id, array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<? /*if($order["status"] == 0):*/ ?>
+		<?= $model->formStart("/janitor/admin/shop/updateOrderAddresses/".$order_id, array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("billing_address_id", array(
 					"type" => "select",
@@ -330,7 +333,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 				<?= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
-		<? endif; ?>
+		<? /*endif;*/ ?>
 
 		<dl class="info">
 			<dt>Name</dt>

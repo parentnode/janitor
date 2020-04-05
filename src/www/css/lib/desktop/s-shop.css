@@ -23,24 +23,25 @@
 
 
 /* CART/ORDER DATA SECTION FORMS */
-#content .scene.shopView > div > h2 + form {display: none; padding-top: 10px; padding-bottom: 10px;}
-#content .scene.shopView > div > h2 > span {color: #7d848c; cursor: pointer;}
-#content .scene.shopView > div > h2 > span:before {content: "\00a0-\00a0";}
+#content .scene.shopView div > h2 + div > form {display: none; padding-bottom: 10px;}
+
+#content .scene.shopView div > h2 span {color: #7d848c; cursor: pointer; font-size: 12px; vertical-align: top; padding-top: 1px;}
+#content .scene.shopView div > h2 span:before {content: "\00a0-\00a0";}
 
 /* CART/ORDER DETAILS LISTINGS */
-#content .scene.shopView > div > dl.info,
+#content .scene.shopView div > dl.info,
 #content .scene.shopView div.payments dl.info {padding: 3px 0 0 0; margin: 0 30px 30px; width: 370px; border-bottom: 1px solid #dbdfe5;}
-#content .scene.shopView > div > dl.info dt,
-#content .scene.shopView > div > dl.info dd, 
+#content .scene.shopView div > dl.info dt,
+#content .scene.shopView div > dl.info dd, 
 #content .scene.shopView div.payments dl.info dt,
 #content .scene.shopView div.payments dl.info dd {padding: 5px 0; border-top: 1px solid #dbdfe5; vertical-align: top;}
 #content .scene.shopView div.payments dl.info dt:first-child,
 #content .scene.shopView div.payments dl.info dd:nth-child(2) {border-top: none;}
 
 
-#content .scene.shopView > div > dl.info dt,
+#content .scene.shopView div > dl.info dt,
 #content .scene.shopView div.payments dl.info dt {width: 120px; float: none;}
-#content .scene.shopView > div > dl.info dd,
+#content .scene.shopView div > dl.info dd,
 #content .scene.shopView div.payments dl.info dd {width: 250px; margin: 0; float: none;}
 
 /* CART/ORDER DATA SECTIONS */
@@ -56,6 +57,7 @@
 
 /* CART/ORDER ITEMS */
 #content .scene.shopView div.all_items {border-bottom: 1px solid #bbbbbb;}
+#content .scene.shopView div.all_items ul.items {padding-bottom: 25px;}
 #content .scene.shopView div.all_items p {padding-bottom: 25px;}
 #content .scene.shopView div.all_items > p + ul.items {display: none;}
 
@@ -164,6 +166,8 @@ body.invoice #page {margin: 0;}
 body.invoice #content {margin: 50px 0;}
 body.invoice #content div.scene ul.info {padding: 0 30px;}
 body.invoice #content div.scene ul.info li {display: block; padding: 0 0 2px; font-size: 14px;}
+
+body.invoice #content div.scene .status h3.cancelled {color: #df0000;}
 
 body.invoice #content div.scene .basics {text-align: right;}
 body.invoice #content div.scene .basics h1 {padding-bottom: 5px;}

@@ -1,51 +1,56 @@
 
 // edit Cart/Order data section (basics, contact, billing address etc.)
 Util.Modules["editDataSection"] = new function() {
-	this.init = function(form) {
+	this.init = function(div) {
 
-		var header = u.qs("h2", form.parentNode);
+		var header = u.qs("h2", div);
+		var form = u.qs("form", div);
+		if(header && form) {
 
-		var action = u.ae(header, "span", {"html":"edit"});
-		
-		action.change_form = form;
-		u.ce(action);
-
-
-		u.f.init(form);
+			var action = u.ae(header, "span", {"html":"edit"});
 
 
-		action.clicked = function(event) {
-
-			if(this.change_form.is_open) {
-				this.change_form.is_open = false;
-				this.innerHTML = "Edit";
-				this.change_form.reset();
-				u.ass(this.change_form, {
-					"display":"none"
-				})
-			}
-			else {
-				this.change_form.is_open = true;
-				this.innerHTML = "Cancel";
-				u.ass(this.change_form, {
-					"display":"block"
-				})
-				u.f.init(this.change_form);
-			}
-		}
+			action.change_form = form;
+			u.ce(action);
 
 
-		form.submitted = function() {
+			u.f.init(form);
 
-			this.response = function(response) {
-				page.notify(response);
 
-				if(response && response.cms_status == "success") {
-					location.reload(true);
+			action.clicked = function(event) {
+
+				if(this.change_form.is_open) {
+					this.change_form.is_open = false;
+					this.innerHTML = "Edit";
+					this.change_form.reset();
+					u.ass(this.change_form, {
+						"display":"none"
+					})
+				}
+				else {
+					this.change_form.is_open = true;
+					this.innerHTML = "Cancel";
+					u.ass(this.change_form, {
+						"display":"block"
+					})
+					u.f.init(this.change_form);
 				}
 			}
+
+
+			form.submitted = function() {
+
+				this.response = function(response) {
+					page.notify(response);
+
+					if(response && response.cms_status == "success") {
+						location.reload(true);
+					}
+				}
 			
-			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+			}
+
 		}
 
 	}

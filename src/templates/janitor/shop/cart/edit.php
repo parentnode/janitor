@@ -50,10 +50,10 @@ if($cart) {
 		)) ?>
 	</ul>
 
-	<div class="basics i:collapseHeader">
+	<div class="basics i:collapseHeader i:editDataSection">
 		<h2>Cart</h2>
 
-		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("country", array(
 					"type" => "select",
@@ -87,10 +87,10 @@ if($cart) {
 		</dl>
 	</div>
 
-	<div class="contact i:collapseHeader">
+	<div class="contact i:collapseHeader i:editDataSection">
 		<h2>Contact</h2>
 
-		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("user_id", array(
 					"type" => "select",
@@ -179,10 +179,10 @@ if($cart) {
 
 	<? if($cart["user_id"] > 1): ?>
 
-	<div class="delivery i:collapseHeader">
+	<div class="delivery i:collapseHeader i:editDataSection">
 		<h2>Delivery</h2>
 
-		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("delivery_address_id", array(
 					"type" => "select",
@@ -221,10 +221,10 @@ if($cart) {
 		<? endif; ?>
 	</div>
 
-	<div class="billing i:collapseHeader">
+	<div class="billing i:collapseHeader i:editDataSection">
 		<h2>Billing</h2>
 
-		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "i:editDataSection labelstyle:inject")) ?>
+		<?= $model->formStart("/janitor/admin/shop/updateCart/".$cart["cart_reference"], array("class" => "labelstyle:inject")) ?>
 			<fieldset>
 				<?= $model->input("billing_address_id", array(
 					"type" => "select",
