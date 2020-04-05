@@ -11,7 +11,7 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 //$item = $model->getUser();
 ?>
 
-<div class="scene i:scene defaultEdit userEdit">
+<div class="scene i:scene defaultEdit addressEdit">
 	<h1>Edit Address</h1>
 	<h2><?= $address["address_label"] ? $address["address_label"] : $address["address1"] ?></h2>
 
