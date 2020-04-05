@@ -107,8 +107,8 @@ Util.Modules["newNavigationNode"] = new function() {
 					page.notify(response);
 				}
 			}
-//			u.bug("params:"+u.f.getParams(this))
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+			// u.bug("data:", this.getData());
+			u.request(this, this.action, {"method":"post", "data" : this.getData({"format":"formdata"})});
 
 		}
 
@@ -146,7 +146,7 @@ Util.Modules["editNavigationNode"] = new function() {
 				page.notify(response);
 
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+			u.request(this, this.action, {"method":"post", "data" : this.getData({"format":"formdata"})});
 
 		}
 

@@ -115,7 +115,7 @@ Util.Modules["defaultList"] = new function() {
 			// 						u.rc(this.parentNode, "enabled");
 			// 					}
 			// 				}
-			// 				u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+			// 				u.request(this, this.action, {"method":"post", "data":this.getData()});
 			// 			}
 			//
 			// 			// initialize enable form
@@ -128,7 +128,7 @@ Util.Modules["defaultList"] = new function() {
 			// 						u.ac(this.parentNode, "enabled");
 			// 					}
 			// 				}
-			// 				u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+			// 				u.request(this, this.action, {"method":"post", "data":this.getData()});
 			// 			}
 			// 		}
 			// 	}
@@ -190,7 +190,7 @@ Util.Modules["defaultList"] = new function() {
 			// 							}
 			// 						}
 			// 					}
-			// 					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+			// 					u.request(this, this.action, {"method":this.method, "data":this.getData()});
 			// 				}
 			// 			}
 			// 		}
@@ -362,7 +362,7 @@ Util.Modules["defaultList"] = new function() {
 // 					}
 // 				}
 // 				// get all tags from server
-// 				u.request(div, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
+// 				u.request(div, div.get_tags_url, {"callback":"tagsResponse", "method":"post", "data":"csrf-token=" + div.csrf_token});
 // 			}
 // 		}
 //

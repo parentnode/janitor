@@ -74,7 +74,7 @@ Util.Modules["pull"] = new function() {
 						}
 
 
-						u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+						u.request(this, this.action, {"method":"post", "data":this.getData()});
 					}
 				}
 				scene.form_pull.confirmed = function(response) {

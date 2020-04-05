@@ -72,8 +72,8 @@ Util.Modules["defaultPrices"] = new function() {
 
 					}
 				}
-				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
-			}			
+				u.request(this, this.action, {"method":"post", "data" : this.getData()});
+			}
 
 		}
 
@@ -135,7 +135,7 @@ Util.Modules["defaultPrices"] = new function() {
 									}
 								}
 							}
-							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+							u.request(this, this.action, {"method":"post", "data":this.getData()});
 						}
 					}
 				}

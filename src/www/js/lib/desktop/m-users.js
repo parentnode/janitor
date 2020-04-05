@@ -203,7 +203,7 @@ Util.Modules["usernames"] = new function() {
 				}
 
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 		}
 
 		form = u.qs("form.mobile", div);
@@ -224,7 +224,7 @@ Util.Modules["usernames"] = new function() {
 					u.rc(this.actions["save"], "primary");
 				}
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 		}
 
 	}
@@ -273,7 +273,7 @@ Util.Modules["password"] = new function() {
 				}
 				page.notify(response);
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 			this.reset();
 
@@ -316,7 +316,7 @@ Util.Modules["apitoken"] = new function() {
 					}
 
 				}
-				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+				u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 			}
 		}
@@ -339,7 +339,7 @@ Util.Modules["apitoken"] = new function() {
 					}
 
 				}
-				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+				u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 			}
 		}
@@ -364,7 +364,7 @@ Util.Modules["editAddress"] = new function() {
 					location.href = this.actions["cancel"].url;
 				}
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 		}
 
@@ -402,7 +402,7 @@ Util.Modules["customPrice"] = new function() {
 
 					}
 				}
-				u.request(this, this.action, {"method":"post", "data" : this.getData(this)});
+				u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 			}
 
@@ -480,7 +480,7 @@ Util.Modules["maillists"] = new function() {
 // 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
 // 				}
 // 			}
-// 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+// 			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 //
 // 		}
 // 	}
@@ -502,7 +502,7 @@ Util.Modules["accessEdit"] = new function() {
 			this.response = function(response) {
 				page.notify(response);
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 		}
 
@@ -554,7 +554,7 @@ Util.Modules["flushUserSession"] = new function() {
 				this.response = function(response) {
 					page.notify(response);
 				}
-				u.request(this, this.div.flush_url+"/"+this.user_id, {"method":"post", "params" : "csrf-token="+this.div.csrf_token});
+				u.request(this, this.div.flush_url+"/"+this.user_id, {"method":"post", "data" : "csrf-token="+this.div.csrf_token});
 				
 			}
 
@@ -594,7 +594,7 @@ Util.Modules["newSubscription"] = new function() {
 					location.href = this.actions["cancel"].url;
 				}
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 		}
 

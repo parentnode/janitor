@@ -54,7 +54,7 @@ Util.Modules["defaultTags"] = new function() {
 
 			}
 			// get all tags from server
-			u.request(div, div.get_tags_url + (div._tags_context ? "/"+div._tags_context : ""), {"callback":"tagsResponse", "method":"post", "params":"csrf-token=" + div.csrf_token});
+			u.request(div, div.get_tags_url + (div._tags_context ? "/"+div._tags_context : ""), {"callback":"tagsResponse", "method":"post", "data":"csrf-token=" + div.csrf_token});
 
 		}
 

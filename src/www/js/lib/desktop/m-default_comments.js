@@ -45,7 +45,8 @@ Util.Modules["defaultComments"] = new function() {
 
 					}
 				}
-				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+				u.bug("defaultComments save");
+				u.request(this, this.action, {"method":"post", "data" : this.getData()});
 			}
 			
 		}
@@ -93,7 +94,7 @@ Util.Modules["defaultComments"] = new function() {
 									this.parentNode.removeChild(this);
 								}
 							}
-							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+							u.request(this, this.action, {"method":"post", "data":this.getData()});
 							
 						}
 
@@ -147,7 +148,7 @@ Util.Modules["defaultComments"] = new function() {
 									}
 								}
 							}
-							u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+							u.request(this, this.action, {"method":"post", "data":this.getData()});
 						}
 					}
 				}

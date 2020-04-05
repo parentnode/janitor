@@ -38,7 +38,7 @@ Util.Modules["defaultEditStatus"] = new function() {
 							u.rc(this.parentNode, "enabled");
 						}
 					}
-					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+					u.request(this, this.action, {"method":this.method, "data":this.getData()});
 				}
 
 				u.f.init(form_enable);
@@ -50,7 +50,7 @@ Util.Modules["defaultEditStatus"] = new function() {
 							u.ac(this.parentNode, "enabled");
 						}
 					}
-					u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+					u.request(this, this.action, {"method":this.method, "data":this.getData()});
 				}
 			}
 

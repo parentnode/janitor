@@ -40,7 +40,7 @@ Util.Modules["cacheList"] = new function() {
 						this.entry.parentNode.removeChild(this.entry);
 					}
 				}
-				u.request(this, this.div.flush_url, {"method":"post", "params" : "csrf-token="+this.div.csrf_token+"&cache-key="+this.cache_key});
+				u.request(this, this.div.flush_url, {"method":"post", "data" : "csrf-token="+this.div.csrf_token+"&cache-key="+this.cache_key});
 				
 			}
 		}

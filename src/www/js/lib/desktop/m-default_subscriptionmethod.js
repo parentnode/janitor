@@ -61,7 +61,7 @@ Util.Modules["defaultSubscriptionmethod"] = new function() {
 
 					}
 				}
-				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+				u.request(this, this.action, {"method":"post", "data" : this.getData()});
 			}
 			
 		}

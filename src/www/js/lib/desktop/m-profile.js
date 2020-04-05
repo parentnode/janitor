@@ -24,7 +24,7 @@ Util.Modules["editProfile"] = new function() {
 
 				page.notify(response);
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+			u.request(this, this.action, {"method":"post", "data" : this.getData({"format":"formdata"})});
 
 		}
 
@@ -63,7 +63,7 @@ Util.Modules["usernamesProfile"] = new function() {
 					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Email updated"]});
 				}
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 		}
 
 		form = u.qs("form.mobile", div);
@@ -91,7 +91,7 @@ Util.Modules["usernamesProfile"] = new function() {
 					page.notify({"isJSON":true, "cms_status":"success", "cms_message":["Mobile updated"]});
 				}
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 		}
 
 	}
@@ -140,7 +140,7 @@ Util.Modules["passwordProfile"] = new function() {
 				}
 
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 			this.reset();
 //			this.inputs["new_password"].val("");
@@ -177,7 +177,7 @@ Util.Modules["apitokenProfile"] = new function() {
 					}
 
 				}
-				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+				u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 			}
 		}
@@ -205,7 +205,7 @@ Util.Modules["addressProfile"] = new function() {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
 				}
 			}
-			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data" : this.getData()});
 
 		}
 	}
@@ -283,7 +283,7 @@ Util.Modules["resetPassword"] = new function() {
 				}
 
 			}
-			u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+			u.request(this, this.action, {"method":"post", "data":this.getData()});
 
 		}
 
@@ -395,7 +395,7 @@ Util.Modules["cancellationProfile"] = new function() {
 					}
 
 				}
-				u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":"post", "data":this.getData()});
 
 			}
 

@@ -48,7 +48,7 @@ Util.Modules["editDataSection"] = new function() {
 					}
 				}
 			
-				u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":"post", "data":this.getData()});
 			}
 
 		}
@@ -126,7 +126,7 @@ Util.Modules["cartItemsList"] = new function() {
 						}
 					}
 
-					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+					u.request(this, this.action, {"method":"post", "data":this.getData()});
 				}
 			}
 
@@ -232,7 +232,7 @@ Util.Modules["orderItemsList"] = new function() {
 						}
 					}
 
-					u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+					u.request(this, this.action, {"method":"post", "data":this.getData()});
 				}
 			}
 
@@ -410,8 +410,8 @@ Util.Modules["orderList"] = new function() {
 // 					page.notify(response);
 // 				}
 // 			}
-// //			u.bug("params:"+u.f.getParams(this))
-// 			u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+// //			u.bug("data:", this.getData());
+// 			u.request(this, this.action, {"method":"post", "data" : this.getData({"format":"formdata"})});
 //
 // 		}
 //

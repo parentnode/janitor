@@ -89,7 +89,7 @@ Util.Modules["config"] = new function() {
 						page.notify(response);
 					}
 				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":this.method, "data":this.getData()});
 			}
 
 		}
@@ -161,7 +161,7 @@ Util.Modules["database"] = new function() {
 						page.notify(response);
 					}
 				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":this.method, "data":this.getData()});
 			}
 		}
 
@@ -198,7 +198,7 @@ Util.Modules["database"] = new function() {
 						page.notify(response);
 					}
 				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":this.method, "data":this.getData()});
 			}
 		}
 
@@ -243,7 +243,7 @@ Util.Modules["account"] = new function() {
 						page.notify(response);
 					}
 				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":this.method, "data":this.getData()});
 			}
 
 		}
@@ -347,7 +347,7 @@ Util.Modules["mail"] = new function() {
 						page.notify(response);
 					}
 				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":this.method, "data":this.getData()});
 			}
 
 		}
@@ -377,7 +377,7 @@ Util.Modules["mail"] = new function() {
 						page.notify(response);
 					}
 				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":this.method, "data":this.getData()});
 			}
 		}
 
@@ -483,7 +483,7 @@ Util.Modules["payment"] = new function() {
 						page.notify(response);
 					}
 				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":this.method, "data":this.getData()});
 			}
 
 		}
@@ -513,7 +513,7 @@ Util.Modules["payment"] = new function() {
 						page.notify(response);
 					}
 				}
-				u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
+				u.request(this, this.action, {"method":this.method, "data":this.getData()});
 			}
 		}
 
@@ -635,7 +635,7 @@ Util.Modules["finish"] = new function() {
 								// Constants needs to be reloaded
 								if(response.cms_object.reload_constants) {
 
-									u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)+"&setup_type=reload"});
+									u.request(this, this.action, {"method":"post", "data":this.getData({"format":"string"})+"&setup_type=reload"});
 
 								}
 								// An error occured in the install process
@@ -668,7 +668,7 @@ Util.Modules["finish"] = new function() {
 							}
 
 						}
-						u.request(this, this.action, {"method":"post", "params":u.f.getParams(this)});
+						u.request(this, this.action, {"method":"post", "data":this.getData()});
 
 					}
 

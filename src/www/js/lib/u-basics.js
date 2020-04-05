@@ -287,7 +287,7 @@ u.defaultSortableList = function(list) {
 			u.request(this, this.div.save_order_url, {
 				"callback":"orderResponse", 
 				"method":"post", 
-				"params":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")
+				"data":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")
 			});
 		}
 
@@ -462,7 +462,7 @@ u.activateTagging = function(node) {
 			}
 
 		}
-		u.request(this, this.action+"/"+this.node._item_id, {"method":"post", "params" : u.f.getParams(this)});
+		u.request(this, this.action+"/"+this.node._item_id, {"method":"post", "data" : this.getData()});
 	}
 	// add focus to tag field
 	node._tag_form.inputs["tags"].focus();
@@ -567,7 +567,7 @@ u.activateTag = function(tag_node) {
 					}
 				}
 				// delete tag request
-				u.request(this, this.node.data_div.delete_tag_url+"/"+this.node._item_id+"/" + this._id, {"method":"post", "params":"csrf-token=" + this.node.data_div.csrf_token});
+				u.request(this, this.node.data_div.delete_tag_url+"/"+this.node._item_id+"/" + this._id, {"method":"post", "data":"csrf-token=" + this.node.data_div.csrf_token});
 			}
 			// add tag
 			else {
@@ -584,7 +584,7 @@ u.activateTag = function(tag_node) {
 					}
 				}
 				// add tag request
-				u.request(this, this.node.data_div.add_tag_url+"/"+this.node._item_id, {"method":"post", "params":"tags="+this._id+"&csrf-token=" + this.node.data_div.csrf_token});
+				u.request(this, this.node.data_div.add_tag_url+"/"+this.node._item_id, {"method":"post", "data":"tags="+this._id+"&csrf-token=" + this.node.data_div.csrf_token});
 			}
 
 		}

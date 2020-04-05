@@ -295,7 +295,7 @@ Util.Modules["sendMessage"] = new function() {
 					}
 
 				}
-				u.request(this, this.action, {"method":"post", "params" : u.f.getParams(this, {"send_as":"formdata"})});
+				u.request(this, this.action, {"method":"post", "data" : this.getData({"format":"formdata"})});
 				
 			}
 			else {

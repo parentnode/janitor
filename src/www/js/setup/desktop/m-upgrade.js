@@ -1,6 +1,5 @@
 Util.Modules["bulkremove"] = new function() {
 	this.init = function(form) {
-		console.log("bulkremove")
 
 		u.f.init(form);
 
@@ -11,14 +10,11 @@ Util.Modules["bulkremove"] = new function() {
 
 			this.response = function(response) {
 
-
 				form.p_response.innerHTML = response.cms_object.message;
-				
-				console.log(response)
+
 			}
-			u.request(this, this.action, {"method":this.method, "params":u.f.getParams(this)});
-		console.log("bulkremove submitted")
-			
+			u.request(this, this.action, {"method":this.method, "data":this.getData()});
+
 		}
 
 	}
