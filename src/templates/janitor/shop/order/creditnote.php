@@ -20,6 +20,10 @@ if($order && $order["status"] >= 2) {
 <div class="scene i:scene invoice">
 <? if($order && $order["status"] >= 2): ?>
 
+	<div class="status">
+		<h3 class="cancelled">Cancellation of <a href="/janitor/admin/shop/order/invoice/<?= $order_id ?>" target="_blank">Invoice: <?= $order["order_no"] ?></a></h3>
+	</div>
+
 	<div class="basics">
 
 		<? include("templates/janitor/shop/order/invoice-seller.php") ?>

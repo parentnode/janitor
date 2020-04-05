@@ -20,8 +20,11 @@ if($order) {
 <? if($order): ?>
 
 	<div class="status">
-	<? if($order["status"] >= 2): ?>
+	<? if($order["status"] == 2): ?>
 		<h3>Paid</h3>
+	<? elseif($order["status"] == 3):
+		$creditnote_no = $model->getCreditnoteNo(["order_id" => $order_id]); ?>
+		<h3 class="cancelled">Cancelled with <a href="/janitor/admin/shop/order/creditnote/<?= $order_id ?>" target="_blank">Credit note: <?= $creditnote_no ?></a></h3>
 	<? else: ?>
 		<h3>Payment due</h3>
 	<? endif; ?>

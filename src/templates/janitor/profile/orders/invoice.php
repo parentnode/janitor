@@ -20,6 +20,17 @@ if($order && $order["status"] >= 2) {
 <div class="scene i:scene invoice">
 <? if($order && $order["status"] >= 2): ?>
 
+	<div class="status">
+	<? if($order["status"] == 2): ?>
+		<h3>Paid</h3>
+	<? elseif($order["status"] == 3):
+		$creditnote_no = $SC->getCreditnoteNo(["order_id" => $order_id]); ?>
+		<h3 class="cancelled">Cancelled with <a href="/janitor/admin/profile/orders/creditnote/<?= $order_id ?>" target="_blank">Credit note: <?= $creditnote_no ?></a></h3>
+	<? else: ?>
+		<h3>Payment due</h3>
+	<? endif; ?>
+	</div>
+
 	<div class="basics">
 
 		<? include("templates/janitor/shop/order/invoice-seller.php") ?>
@@ -55,7 +66,7 @@ if($order && $order["status"] >= 2) {
 		<? if($order["items"]): ?>
 		<ul class="items">
 			<? foreach($order["items"] as $order_item): ?>
-			<li class="item <?= superNormalize($model->order_statuses[$order["status"]]) ?><?= ($order_item["shipped_by"] ? " shipped" : "") ?>">
+			<li class="item <?= superNormalize($SC->order_statuses[$order["status"]]) ?><?= ($order_item["shipped_by"] ? " shipped" : "") ?>">
 				<h3>
 
 					<span class="quantity"><?= $order_item["quantity"] ?></span>
