@@ -33,12 +33,16 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 
 			<ul class="items subscriptions">
 				<? foreach($subscriptions as $subscription): 
-				
-					$price = $SC->getPrice($subscription["item_id"]);
-					// $subscription = $SubscriptionClass->getSubscriptions(["item_id" => $membership["item_id"], "user_id" => $membership["user_id"]]);
 
-					$custom_price = $price;
-					$custom_price["price"] = $subscription["custom_price"];
+					$price = $SC->getPrice($subscription["item_id"]);
+
+					if($subscription["custom_price"]) {
+						$custom_price = $price;
+						$custom_price["price"] = $subscription["custom_price"];
+					}
+					else {
+						$custom_price = false;
+					}
 
 				?>
 				<li class="item subscription">
