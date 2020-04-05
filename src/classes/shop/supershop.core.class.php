@@ -1002,7 +1002,9 @@ class SuperShopCore extends Shop {
 			$order = $this->getOrders(array("order_id" => $order_id));
 
 			// order is still pending
-			if($order && $order["status"] == 0) {
+			// if($order && $order["status"] == 0) {
+				// Allow updating comments in any state
+			if($order) {
 				
 				$order_comment = $this->getProperty("order_comment", "value");
 
@@ -1044,11 +1046,14 @@ class SuperShopCore extends Shop {
 			$order_id = $action[1];
 			$order = $this->getOrders(array("order_id" => $order_id));
 
+			$delivery_address_id = $this->getProperty("delivery_address_id", "value");
+			$billing_address_id = $this->getProperty("billing_address_id", "value");
+
 			// order is still pending
-			if($order && $order["status"] == 0) {
+			// if($order && $order["status"] == 0) {
+			// Allow super user to change address for any order states
+			if($order) {
 				
-				$delivery_address_id = $this->getProperty("delivery_address_id", "value");
-				$billing_address_id = $this->getProperty("billing_address_id", "value");
 
 				// create base data update sql
 				$sql = "UPDATE ".$this->db_orders." SET modified_at=CURRENT_TIMESTAMP";
