@@ -399,23 +399,22 @@ class SuperMemberCore extends Member {
 				// make sure subscription is valid
 				$subscription = $SuperSubscriptionClass->getSubscriptions(["subscription_id" => $subscription_id, "user_id" => $user_id]);
 				if($subscription && $subscription["user_id"] == $user_id) {
-					
+
 					$sql .= ", subscription_id = $subscription_id";
+
 				}
-				
+
 			}
-			
+
 			// Add condition
 			$sql .= " WHERE user_id = $user_id";
-			
-			
+
 			// creation sucess
 			if($query->sql($sql)) {
-				
-				
+
 				global $page;
 				$page->addLog("SuperMember->updateMembership: member_id:".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
-				
+
 				$membership = $this->getMembers(["user_id" => $user_id]);
 				return $membership;
 			}
@@ -656,7 +655,11 @@ class SuperMemberCore extends Member {
 									else {
 										$sql .= ", expires_at = NULL";
 									}
-	
+
+									// Reset custom price
+									$sql .= ", custom_price = NULL";
+
+									// Add condition
 									$sql .= " WHERE id = ".$member["subscription_id"];
 	
 									if($query->sql($sql)) {
