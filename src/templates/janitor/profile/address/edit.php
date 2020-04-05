@@ -13,7 +13,7 @@ $country_options = $model->toOptions($this->countries(), "id", "name");
 
 <div class="scene i:scene defaultEdit userEdit">
 	<h1>Edit Address</h1>
-	<h2><?= $address["address_label"] ?></h2>
+	<h2><?= $address["address_label"] ? $address["address_label"] : $address["address1"] ?></h2>
 
 	<ul class="actions i:defaultEditActions"
 		data-csrf-token="<?= session()->value("csrf") ?>"

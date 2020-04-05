@@ -113,7 +113,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		<ul class="addresses">
 <?			foreach($addresses as $address): ?>
 			<li>
-				<h3 class="address_label"><?= $address["address_label"] ?></h3>
+				<?= $address["address_label"] ? ('<div class="address_label">' . $address["address_label"] . '</div>') : '' ?>
 				<div class="address_name"><?= $address["address_name"] ?></div>
 				<?= $address["att"] ? ('<div class="att">Att: ' . $address["att"] . '</div>') : '' ?>
 				<div class="address1"><?= $address["address1"] ?></div>

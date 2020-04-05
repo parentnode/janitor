@@ -197,7 +197,7 @@ class UserCore extends Model {
 		$this->addToModel("address_label", array(
 			"type" => "string",
 			"label" => "Address label",
-			"required" => true,
+			// "required" => true,
 			"hint_message" => "Give this address a label (home, office, parents, etc.)",
 			"error_message" => "Invalid label"
 		));
