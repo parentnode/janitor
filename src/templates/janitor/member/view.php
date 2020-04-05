@@ -24,6 +24,12 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 }
 
 
+$price = $SC->getPrice($membership["item_id"]);
+$subscription = $SubscriptionClass->getSubscriptions(["item_id" => $membership["item_id"], "user_id" => $membership["user_id"]]);
+
+$custom_price = $price;
+$custom_price["price"] = $subscription["custom_price"];
+
 // FOR TESTING EMAIL SENDING
 // $subscription = $SubscriptionClass->getSubscriptions(array("subscription_id" => $membership["subscription_id"]));
 // $IC = new Items();
@@ -82,14 +88,19 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 			$default = arrayKeyValue($membership["item"]["prices"], "type", "default");
 			?>
 
-			<? if($offer !== false && $default !== false): ?>
+			<? if($custom_price): ?>
+			<dt class="price default">Normal price</dt>
+			<dd class="price default"><?= formatPrice($membership["item"]["prices"][$default]).($membership["item"]["subscription_method"] ? " / " . $membership["item"]["subscription_method"]["name"] : "") ?></dd>
+			<dt class="price custom">Your price</dt>
+			<dd class="price custom"><span class="price"><?= formatPrice($custom_price) ?></span><?= ($membership["item"]["subscription_method"] ? " / " . $membership["item"]["subscription_method"]["name"] : "") ?></dd>
+			<? elseif($offer !== false && $default !== false): ?>
 			<dt class="price default">Normal price</dt>
 			<dd class="price default"><?= formatPrice($membership["item"]["prices"][$default]).($membership["item"]["subscription_method"] ? " / " . $membership["item"]["subscription_method"]["name"] : "") ?></dd>
 			<dt class="price offer">Special offer</dt>
-			<dd class="price offer"><?= formatPrice($membership["item"]["prices"][$offer]).($membership["item"]["subscription_method"] ? " / " . $membership["item"]["subscription_method"]["name"] : "") ?></dd>
+			<dd class="price offer"><span class="price"><?= formatPrice($membership["item"]["prices"][$offer]) ?></span><?= ($membership["item"]["subscription_method"] ? " / " . $membership["item"]["subscription_method"]["name"] : "") ?></dd>
 			<? elseif($default !== false): ?>
 			<dt class="price">Price</dt>
-			<dd class="price"><?= formatPrice($membership["item"]["prices"][$default]).($membership["item"]["subscription_method"] ? " / " . $membership["item"]["subscription_method"]["name"] : "") ?></dd>
+			<dd class="price"><span class="price"><?= formatPrice($membership["item"]["prices"][$default]) ?></span><?= ($membership["item"]["subscription_method"] ? " / " . $membership["item"]["subscription_method"]["name"] : "") ?></dd>
 			<? endif; ?>
 
 

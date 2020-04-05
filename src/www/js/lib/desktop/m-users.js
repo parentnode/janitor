@@ -372,6 +372,46 @@ Util.Modules["editAddress"] = new function() {
 
 }
 
+// Update address
+Util.Modules["customPrice"] = new function() {
+	this.init = function(div) {
+
+		div.info_price = u.qs("div.item dl.info span.price");
+		div.custom_price = u.qs("h3.current_price span.price");
+
+		var form = u.qs("form", div);
+		if(form) {
+
+			form.div = div;
+
+			u.f.init(form);
+
+			form.submitted = function(iN) {
+
+				this.response = function(response) {
+					page.notify(response);
+					if(response.cms_status == "success") {
+
+						if(this.div.info_price) {
+							this.div.info_price.innerHTML = response.cms_object;
+						}
+
+						if(this.div.custom_price) {
+							this.div.custom_price.innerHTML = response.cms_object;
+						}
+
+					}
+				}
+				u.request(this, this.action, {"method":"post", "data" : this.getData(this)});
+
+			}
+
+		}
+
+	}
+}
+
+
 // userMaillists subscribe+unsubscribe form
 Util.Modules["maillists"] = new function() {
 	this.init = function(div) {

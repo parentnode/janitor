@@ -32,7 +32,15 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 			<? if($subscriptions): ?>
 
 			<ul class="items subscriptions">
-				<? foreach($subscriptions as $subscription): ?>
+				<? foreach($subscriptions as $subscription): 
+				
+					$price = $SC->getPrice($subscription["item_id"]);
+					// $subscription = $SubscriptionClass->getSubscriptions(["item_id" => $membership["item_id"], "user_id" => $membership["user_id"]]);
+
+					$custom_price = $price;
+					$custom_price["price"] = $subscription["custom_price"];
+
+				?>
 				<li class="item subscription">
 					<h3><?= $subscription["item"]["name"] ?></h3>
 				
@@ -55,15 +63,20 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 						$offer = arrayKeyValue($subscription["item"]["prices"], "type", "offer");
 						$default = arrayKeyValue($subscription["item"]["prices"], "type", "default");
 						?>
-				
-						<? if($offer !== false && $default !== false): ?>
-							<dt class="price default">Normal price</dt>
-							<dd class="price default"><?= formatPrice($subscription["item"]["prices"][$default]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
-							<dt class="price offer">Special offer</dt>
-							<dd class="price offer"><?= formatPrice($subscription["item"]["prices"][$offer]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
+
+						<? if($custom_price): ?>
+						<dt class="price default">Normal price</dt>
+						<dd class="price default"><?= formatPrice($subscription["item"]["prices"][$default]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
+						<dt class="price custom">Your price</dt>
+						<dd class="price custom"><span class="price"><?= formatPrice($custom_price) ?></span><?= ($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
+						<? elseif($offer !== false && $default !== false): ?>
+						<dt class="price default">Normal price</dt>
+						<dd class="price default"><?= formatPrice($subscription["item"]["prices"][$default]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
+						<dt class="price offer">Special offer</dt>
+						<dd class="price offer"><?= formatPrice($subscription["item"]["prices"][$offer]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
 						<? elseif($default !== false): ?>
-							<dt class="price">Price</dt>
-							<dd class="price"><?= formatPrice($subscription["item"]["prices"][$default]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
+						<dt class="price">Price</dt>
+						<dd class="price"><?= formatPrice($subscription["item"]["prices"][$default]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
 						<? endif; ?>
 
 						<dt class="payment_method">Payment method</dt>
