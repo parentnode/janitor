@@ -472,7 +472,7 @@ class SuperSubscriptionCore extends Subscription {
 				if($custom_price) {
 					$sql .= ", custom_price = $custom_price";
 				}
-				else if($custom_price === "") {
+				else {
 					$sql .= ", custom_price = NULL";
 				}
 			
