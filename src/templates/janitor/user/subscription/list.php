@@ -36,7 +36,7 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 
 					$price = $SC->getPrice($subscription["item_id"]);
 
-					if($subscription["custom_price"]) {
+					if($subscription["custom_price"] || $subscription["custom_price"] === "0") {
 						$custom_price = $price;
 						$custom_price["price"] = $subscription["custom_price"];
 					}
