@@ -1824,7 +1824,7 @@ class ItemsCore {
 
 			// if currency specified return only prices in that currency 
 			if($currency) {
-				$sql = "SELECT prices.id, prices.price, prices.currency, prices.quantity, vatrates.vatrate, price_types.name AS type, price_types.description FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates, ".UT_PRICE_TYPES." as price_types WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id AND price_types.id = prices.type_id AND prices.currency = '$currency' ORDER BY prices.currency ASC, price_types.name DESC, prices.quantity ASC";
+				$sql = "SELECT prices.id, prices.price, prices.currency, prices.quantity, vatrates.vatrate, prices.type_id, price_types.name AS type, price_types.description FROM ".UT_ITEMS_PRICES." as prices, ".UT_VATRATES." as vatrates, ".UT_PRICE_TYPES." as price_types WHERE prices.item_id = '$item_id' AND vatrates.id = prices.vatrate_id AND price_types.id = prices.type_id AND prices.currency = '$currency' ORDER BY prices.currency ASC, price_types.name DESC, prices.quantity ASC";
 				// print $sql;
 					if($query->sql($sql)) {
 

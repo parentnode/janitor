@@ -578,11 +578,15 @@ class ShopCore extends Model {
 				$default_price = $prices[arrayKeyValue($prices, "type", "default")];
 			}
 
+			// use membership-specific price if applicable
 			$membership = $MC->getMembership();
-			$matching_membership_price_index = arrayKeyValue($prices, "type", $membership["item"]["name"]);
-			if($user_id != 1 && $membership && $membership["item"]["status"] == 1 && $matching_membership_price_index !== false) {
+			$price_types = $page->price_types();
+			$where_pricetype_matches_membership = arrayKeyValue($price_types, "item_id", $membership["item"]["item_id"]);
+			$membership_price_type_id = $price_types[$where_pricetype_matches_membership]["id"];
+			$where_price_matches_membership_price_type = arrayKeyValue($prices, "type_id", $membership_price_type_id);
+			if($user_id != 1 && $membership && $membership["item"]["status"] == 1 && $where_price_matches_membership_price_type !== false) {
 
-				$membership_price = $prices[$matching_membership_price_index];
+				$membership_price = $prices[$where_price_matches_membership_price_type];
 			}
 
 
