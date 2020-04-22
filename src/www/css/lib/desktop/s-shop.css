@@ -130,6 +130,8 @@
 /* PAYMENTS */
 #content .scene.paymentList ul.items > li dl.info dd.price {right: 140px;}
 
+#content .scene.newPayment div > h2 + div > form {display: block; padding-bottom: 10px;}
+
 #content .scene.newPayment div.notice {background: orange; padding: 25px 0 0; border-bottom: 1px solid #bbbbbb; margin: 0 0 20px;}
 #content .scene.newPayment div.notice p {font-size: 20px; color: #ffffff;}
 
