@@ -463,21 +463,15 @@ class ItemtypeCore extends Model {
 					}
 
 
-					// $sindex = false;
-					// // look for local sindex method
-					// // implement sindexBase function in your itemtype class to use special sindexes
-					// if(method_exists($this, "sindexBase")) {
-					// 	$sindex = $this->sindexBase($item_id);
-					// }
-					// // Use name as default
-					// else if(array_search("name", $names) !== false) {
-					// 	$sindex = $entities["name"]["value"];
-					// }
-					//
-					// // create new sindex
-					// if($sindex) {
-					// 	$this->sindex($sindex, $item_id);
-					// }
+					$sindex = false;
+					// if sindexBase is implemented, use the overridden sindex naming scheme:
+					if (method_exists($this, "sindexBase")) {
+						$sindex = $this->sindexBase($item_id);
+					}
+					// update sindex
+					if ($sindex) {
+						$this->sindex($sindex, $item_id);
+					}
 
 
 					// itemtype post update handler?
