@@ -282,7 +282,7 @@ class SubscriptionCore extends Model {
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
 				}
-				if($custom_price) {
+				if($custom_price || $custom_price === "0") {
 					$sql .= ", custom_price = $custom_price";
 				}
 	
@@ -462,10 +462,10 @@ class SubscriptionCore extends Model {
 				else {
 					$sql .= ", expires_at = NULL";
 				}
-				if($custom_price) {
+				if($custom_price || $custom_price === "0") {
 					$sql .= ", custom_price = $custom_price";
 				}
-				else if($custom_price === "") {
+				else {
 					$sql .= ", custom_price = NULL";
 				}
 	

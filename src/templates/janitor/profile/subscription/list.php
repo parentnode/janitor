@@ -74,7 +74,7 @@ if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 						$default = arrayKeyValue($subscription["item"]["prices"], "type", "default");
 						?>
 
-						<? if($custom_price): ?>
+						<? if(isset($custom_price) && $custom_price !== false): ?>
 						<dt class="price default">Normal price</dt>
 						<dd class="price default"><?= formatPrice($subscription["item"]["prices"][$default]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
 						<dt class="price custom">Your price</dt>
