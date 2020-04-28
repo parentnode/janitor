@@ -67,7 +67,7 @@ class SubscriptionCore extends Model {
 			"label" => "Custom price (overrides default item price)",
 			"pattern" => "^(\d+)(\.|,)?(\d+)?$",
 			"class" => "custom_price",
-			"hint_message" => "State the custom price INCLUDING VAT, using comma (,) as decimal point.",
+			"hint_message" => "State the custom price INCLUDING VAT.",
 			"error_message" => "Invalid price"
 		));
 		
