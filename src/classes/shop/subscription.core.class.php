@@ -65,7 +65,7 @@ class SubscriptionCore extends Model {
 		$this->addToModel("custom_price", array(
 			"type" => "string",
 			"label" => "Custom price (overrides default item price)",
-			"pattern" => "[0-9,]+",
+			"pattern" => "^(\d+)(\.|,)?(\d+)?$",
 			"class" => "custom_price",
 			"hint_message" => "State the custom price INCLUDING VAT, using comma (,) as decimal point.",
 			"error_message" => "Invalid price"

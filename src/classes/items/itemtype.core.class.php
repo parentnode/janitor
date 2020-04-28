@@ -67,10 +67,10 @@ class ItemtypeCore extends Model {
 		$this->addToModel("item_price", array(
 			"type" => "string",
 			"label" => "New price",
-			"pattern" => "[0-9,]+",
+			"pattern" => "^(\d+)(\.|,)?(\d+)?$",
 			"class" => "price",
 			"required" => true,
-			"hint_message" => "State the price INCLUDING VAT, using comma (,) as decimal point.",
+			"hint_message" => "State the price INCLUDING VAT.",
 			"error_message" => "Price cannot be empty."
 		));
 		$this->addToModel("item_price_currency", array(
