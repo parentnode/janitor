@@ -572,9 +572,10 @@ class SuperUserCore extends User {
 		}
 
 		$query = new Query();
-
+		// debug(["#", $username_id, "#"]);
 		if($username_id) {
 			$sql = "SELECT * FROM ".$this->db_usernames." WHERE id = $username_id";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				return $query->result(0);
 			}
@@ -735,42 +736,39 @@ class SuperUserCore extends User {
 
 		// does action match expected
 		if(count($action) == 2) {
-			
+
 			$user_id = $action[1];
 			$query = new Query();
-			
+
 			// make sure type tables exist
 			$query->checkDbExistence($this->db_usernames);
-			
+
 			$email = $this->getProperty("email", "value");
-			$username_id = getPost("username_id"); 
-			
 			$verification_status = $this->getProperty("verification_status", "value");
-			
-			
-			$current_email = $this->getUsernames(array("username_id" => $username_id))["username"];
-			
-			// email is posted
+
+			$username_id = getPost("username_id");
+
+			// email was sent
 			if($email) {
-				
-				$verification_code = randomKey(8);
-				
-				$user = $this->getUsers(["user_id" => $user_id]);
-				$nickname = $user["nickname"];
-				
-				
+
 				// check if email already exists
+
+				// On current user_id
 				$sql = "SELECT id FROM $this->db_usernames WHERE username = '$email' AND user_id = $user_id".($username_id ? " AND id != $username_id" : "");
-				// print $sql;
+				// debug([$sql]);
 				if($query->sql($sql)) {
+
 					message()->addMessage("Email already exists for this user", array("type" => "error"));
 					$status = ["email_status" => "ALREADY_EXISTS"];
 					return $status;
 				}
+
+				// On other user_id
 				else {
 					$sql = "SELECT id FROM $this->db_usernames WHERE username = '$email'".($username_id ? " AND id != $username_id" : "");
-					// print $sql;
+					// debug([$sql]);
 					if($query->sql($sql)) {
+
 						message()->addMessage("Email is used by another user", array("type" => "error"));
 						$status = ["email_status" => "ALREADY_EXISTS"];
 						return $status;
@@ -778,79 +776,92 @@ class SuperUserCore extends User {
 				}
 
 
-				// email has not been set before
-				if(!$current_email) {
+				// Generate new verification code
+				$verification_code = randomKey(8);
 
+
+
+				// New username
+				if(!$username_id) {
+
+					// Insert new username
 					$sql = "INSERT INTO $this->db_usernames SET username = '$email', verification_code = '$verification_code', type = 'email', user_id = $user_id";
-					$query->sql($sql);
-					$username_id = $query->lastInsertId();
-					// print "username_id ".$username_id;
-					
-					$sql = "SELECT * FROM $this->db_usernames WHERE username = '$email' AND verification_code = '$verification_code' AND user_id = $user_id";
-					
-					
-					if($query->sql($sql)) {
-						
+					// debug([$sql]);
+					if($query->sql($sql)){
+
+						$username_id = $query->lastInsertId();
+
 						message()->addMessage("Email added");
 						$status = [
 							"email_status" => "UPDATED",
 						];
+
 					}
+
 				}
-				
-				// email is changed
-				else if($email != $current_email) {					
 
-					$sql = "UPDATE $this->db_usernames SET username = '$email', verification_code = '$verification_code' WHERE id = $username_id AND type = 'email' AND user_id = $user_id";
-					// print $sql."<br>";
-					
-					if($query->sql($sql)) {
 
-						$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE username_id = $username_id AND user_id = $user_id";
-						// print $sql;
+				// Modifying existing username
+				else if($username_id) {
 
+					$current_username = $this->getUsernames(array("username_id" => $username_id));
+
+
+
+					// email is changed
+					if($current_username && $current_username["type"] === "email" && $email != $current_username["username"]) {
+
+						$sql = "UPDATE $this->db_usernames SET username = '$email', verification_code = '$verification_code' WHERE id = $username_id";
+						// debug([$sql]);
 						if($query->sql($sql)) {
-								
+
+							// Delete verification logs
+							$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE username_id = $username_id";
+							// debug([$sql]);
+							$query->sql($sql);
+
 							message()->addMessage("Email updated");
 							$status = ["email_status" => "UPDATED"];
+
 						}
+
 					}
-				}	
-				
-				// email is NOT changed
-				else if($email == $current_email) {
-					
-					message()->addMessage("Email unchanged");
-					$status = ["email_status" => "UNCHANGED"];
+
+					// email is NOT changed
+					else if($current_username && $current_username["type"] === "email" && $email == $current_username["username"]) {
+
+						message()->addMessage("Email unchanged");
+						$status = ["email_status" => "UNCHANGED"];
+
+					}
 
 				}
-				
+
+
+				// Map username_id to response
 				$status["username_id"] = $username_id;
-				// print $username_id;	
-				
+
+
 				// update verification status
 				$result = $this->setVerificationStatus($username_id, $user_id, $verification_status);
-				// print_r($result);
 				if($result && isset($result["verification_status"])) {
 
 					$status["verification_status"] = $result["verification_status"];
 					return $status;
-				}		
+
+				}
+
 			}
+			// Email was empty, username_id was sent – delete username
+			else if(!$email && $username_id) {
 
-			// email is not posted
-			else if(!$email) {
+				$sql = "DELETE FROM $this->db_usernames WHERE id = $username_id AND user_id = $user_id AND type = 'email'";
+				// debug([$sql]);
+				if($query->sql($sql)) {
+					message()->addMessage("Email deleted");
+					return true;
+				}
 
-				if($current_email) {
-					$sql = "DELETE FROM $this->db_usernames WHERE type = 'email' AND user_id = $user_id";
-	//				print $sql."<br>";
-					if($query->sql($sql)) {
-						message()->addMessage("Email deleted");
-						
-					}
-				}		
-				return true;
-				
 			}
 
 		}
