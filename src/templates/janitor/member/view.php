@@ -94,7 +94,7 @@ else {
 			$default = arrayKeyValue($membership["item"]["prices"], "type", "default");
 			?>
 
-			<? if($custom_price): ?>
+			<? if(isset($custom_price) && $custom_price !== false): ?>
 			<dt class="price default">Normal price</dt>
 			<dd class="price default"><?= formatPrice($membership["item"]["prices"][$default]).($membership["item"]["subscription_method"] ? " / " . $membership["item"]["subscription_method"]["name"] : "") ?></dd>
 			<dt class="price custom">Your price</dt>

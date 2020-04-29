@@ -285,7 +285,7 @@ class SuperSubscriptionCore extends Subscription {
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
 				}
-				if($custom_price) {
+				if($custom_price || $custom_price === "0") {
 					$sql .= ", custom_price = $custom_price";
 				}
 	
@@ -469,7 +469,7 @@ class SuperSubscriptionCore extends Subscription {
 				else if($subscription_renewal) {
 					$sql .= ", renewed_at = CURRENT_TIMESTAMP";
 				}
-				if($custom_price) {
+				if($custom_price || $custom_price === "0") {
 					$sql .= ", custom_price = $custom_price";
 				}
 				else {

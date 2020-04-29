@@ -65,9 +65,9 @@ class SubscriptionCore extends Model {
 		$this->addToModel("custom_price", array(
 			"type" => "string",
 			"label" => "Custom price (overrides default item price)",
-			"pattern" => "[0-9,]+",
+			"pattern" => "^(\d+)(\.|,)?(\d+)?$",
 			"class" => "custom_price",
-			"hint_message" => "State the custom price INCLUDING VAT, using comma (,) as decimal point.",
+			"hint_message" => "State the custom price INCLUDING VAT.",
 			"error_message" => "Invalid price"
 		));
 		
@@ -282,7 +282,7 @@ class SubscriptionCore extends Model {
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
 				}
-				if($custom_price) {
+				if($custom_price || $custom_price === "0") {
 					$sql .= ", custom_price = $custom_price";
 				}
 	
@@ -462,10 +462,10 @@ class SubscriptionCore extends Model {
 				else {
 					$sql .= ", expires_at = NULL";
 				}
-				if($custom_price) {
+				if($custom_price || $custom_price === "0") {
 					$sql .= ", custom_price = $custom_price";
 				}
-				else if($custom_price === "") {
+				else {
 					$sql .= ", custom_price = NULL";
 				}
 	

@@ -67,10 +67,10 @@ class ItemtypeCore extends Model {
 		$this->addToModel("item_price", array(
 			"type" => "string",
 			"label" => "New price",
-			"pattern" => "[0-9,]+",
+			"pattern" => "^(\d+)(\.|,)?(\d+)?$",
 			"class" => "price",
 			"required" => true,
-			"hint_message" => "State the price INCLUDING VAT, using comma (,) as decimal point.",
+			"hint_message" => "State the price INCLUDING VAT.",
 			"error_message" => "Price cannot be empty."
 		));
 		$this->addToModel("item_price_currency", array(
@@ -2154,7 +2154,7 @@ class ItemtypeCore extends Model {
 		$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
 		$item_id = $order_item["item_id"];
 
-		$custom_price = isset($order_item["custom_price"]) ? $order_item["unit_price"] : false;
+		$custom_price = isset($order_item["custom_price"]) ? $order_item["custom_price"] : false;
 
 		// order item can be subscribed to
 		if(SITE_SUBSCRIPTIONS && isset($item["subscription_method"]) && $item["subscription_method"]) {

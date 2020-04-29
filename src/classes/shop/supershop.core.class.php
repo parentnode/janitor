@@ -498,11 +498,11 @@ class SuperShopCore extends Shop {
 					
 					// look in cart to see if the added item is already there
 					// if added item already exists with a different custom_name or custom_price, create new line
-					if ($custom_price && $custom_name) {
+					if ($custom_price !== false && $custom_name) {
 
 						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price, "custom_name" => $custom_name]);
 					}
-					else if($custom_price) {
+					else if($custom_price !== false) {
 
 						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price]);
 					}
@@ -531,7 +531,7 @@ class SuperShopCore extends Shop {
 						// insert new cart item
 						$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
 
-						if($custom_price) {
+						if($custom_price !== false) {
 							$sql .= ", custom_price=$custom_price";
 						}
 						if($custom_name) {
@@ -604,7 +604,7 @@ class SuperShopCore extends Shop {
 		if($user_id && $price !== false) {
 
 			// use custom price if available
-			if($custom_price) {
+			if(isset($custom_price) && $custom_price !== false) {
 				$price["price"] = $custom_price;
 
 				$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
@@ -626,7 +626,7 @@ class SuperShopCore extends Shop {
 				// insert new cart item
 				$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
 
-				if($custom_price) {
+				if(isset($custom_price) && $custom_price !== false) {
 					$sql .= ", custom_price=$custom_price";
 				}
 				if($custom_name) {
@@ -875,7 +875,7 @@ class SuperShopCore extends Shop {
 								// print_r("price: ".$price);
 
 								// use custom price if available
-								if(isset($cart_item["custom_price"]) && $cart_item["custom_price"]) {
+								if(isset($cart_item["custom_price"]) && $cart_item["custom_price"] !== false) {
 									$custom_price = $cart_item["custom_price"];
 									
 									$price["price"] = $custom_price;
@@ -949,6 +949,7 @@ class SuperShopCore extends Shop {
 						$order = $this->getOrders(array("order_no" => $order_no));
 						$total_order_price = $this->getTotalOrderPrice($order["id"]);
 						if($total_order_price["price"] === 0) {
+							$sql = "UPDATE ".$this->db_orders." SET status = 1, payment_status = 2 WHERE order_no='$order_no'";
 							$query->sql($sql);
 						}
 
