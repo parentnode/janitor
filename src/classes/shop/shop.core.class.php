@@ -111,12 +111,14 @@ class ShopCore extends Model {
 			"hint_message" => "Custom name for cart item.", 
 			"error_message" => "The name must be a string."
 		));
+		
 		$this->addToModel("custom_price", array(
-			"type" => "integer",
-			"label" => "Custom price",
-			"required" => true,
-			"hint_message" => "Custom price for cart item", 
-			"error_message" => "Price must be a number."
+			"type" => "string",
+			"label" => "Custom price (overrides default item price)",
+			"pattern" => "^(\d+)(\.|,)?(\d+)?$",
+			"class" => "custom_price",
+			"hint_message" => "State the custom price INCLUDING VAT.",
+			"error_message" => "Invalid price"
 		));
 
 

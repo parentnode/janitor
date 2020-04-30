@@ -7,7 +7,7 @@ CREATE TABLE `SITE_DB`.`shop_cart_items` (
   `quantity` int(11) NOT NULL,
 
   `custom_name` varchar(100) DEFAULT NULL,
-  `custom_price` int(11) DEFAULT NULL,
+  `custom_price` float DEFAULT NULL,
 
 
   PRIMARY KEY (`id`),
