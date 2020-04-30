@@ -111,7 +111,7 @@ class ShopCore extends Model {
 			"hint_message" => "Custom name for cart item.", 
 			"error_message" => "The name must be a string."
 		));
-		
+
 		$this->addToModel("custom_price", array(
 			"type" => "string",
 			"label" => "Custom price (overrides default item price)",
@@ -1049,6 +1049,10 @@ class ShopCore extends Model {
 						$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
 
 						if($custom_price !== false) {
+							
+							// use correct decimal seperator
+							$custom_price = preg_replace("/,/", ".", $custom_price);
+
 							$sql .= ", custom_price=$custom_price";
 						}
 						if($custom_name) {
@@ -1116,6 +1120,10 @@ class ShopCore extends Model {
 
 			// use custom price if available
 			if(isset($custom_price) && $custom_price !== false) {
+
+				// use correct decimal seperator
+				$custom_price = preg_replace("/,/", ".", $custom_price);
+
 				$price["price"] = $custom_price;
 
 				$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
@@ -1138,6 +1146,7 @@ class ShopCore extends Model {
 				$sql = "INSERT INTO ".$this->db_cart_items." SET cart_id=".$cart["id"].", item_id=$item_id, quantity=$quantity";
 				
 				if(isset($custom_price) && $custom_price !== false) {
+
 					$sql .= ", custom_price=$custom_price";
 				}
 				if($custom_name) {

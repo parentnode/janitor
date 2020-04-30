@@ -177,8 +177,10 @@ class TypeMembership extends Itemtype {
 		$order_id = $order["id"];
 		$user_id = $order["user_id"];
 
-		$custom_price = isset($order_item["custom_price"]) ? $order_item["custom_price"] : false;
-		
+		if(isset($order_item["custom_price"]) && $order_item["custom_price"] !== false) {
+			$custom_price = $order_item["custom_price"];
+		}
+
 		$existing_membership = $MC->getMembers(["user_id" => $user_id]);
 		
 		// user is already member (active or inactive)
@@ -195,7 +197,7 @@ class TypeMembership extends Itemtype {
 					$_POST["item_id"] = $item_id;
 					$_POST["user_id"] = $user_id;
 					$_POST["order_id"] = $order_id;
-					$_POST["custom_price"] = $custom_price ?: null;
+					$_POST["custom_price"] = $custom_price ?? null;
 					$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription_id]);
 					unset($_POST);
 				}
@@ -206,7 +208,7 @@ class TypeMembership extends Itemtype {
 					$_POST["item_id"] = $item_id;
 					$_POST["user_id"] = $user_id;
 					$_POST["order_id"] = $order_id;
-					$_POST["custom_price"] = $custom_price ?: null;
+					$_POST["custom_price"] = $custom_price ?? null;
 					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 					unset($_POST);
 				}
