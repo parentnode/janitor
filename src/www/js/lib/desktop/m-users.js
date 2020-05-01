@@ -154,7 +154,7 @@ Util.Modules["usernames"] = new function() {
 						this.inputs.username_id.val(response.cms_object.username_id);
 						// u.bug("saved username_id", this.inputs.username_id.val());
 						
-						if(send_verification_link.form.action == "/janitor/admin/user/sendVerificationLink/") {
+						if(send_verification_link.form.action.match(/sendVerificationLink\/$/)) {
 							send_verification_link.form.action += this.inputs.username_id.val();
 						}
 						// u.bug("updated action", send_verification_link.form.action);

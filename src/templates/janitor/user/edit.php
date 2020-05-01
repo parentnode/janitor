@@ -23,12 +23,26 @@ if($item && $item["status"] >= 0) {
 	else {
 		$mobile = "Not available";
 	}
+
+
+	// Default email values
+	$email = ""; 
+	$email_username_id = "";
+	$current_verification = false;
+	$current_verification_status = 0;
+
+	// Get current email values
 	$username_email = $model->getUsernames(array("user_id" => $user_id, "type" => "email"));
 	if ($username_email) {
+
 		$email = $username_email["username"]; 
-	}
-	else {
-		$email = "Not available";
+		$email_username_id = $username_email["id"];
+
+		$current_verification = $model->getVerificationStatus($email_username_id, $user_id);
+		if($current_verification) {
+			$current_verification_status = $current_verification["verified"];
+		}
+
 	}
 
 
@@ -135,17 +149,9 @@ if($item && $item["status"] >= 0) {
 		<div class="email">
 			<?= $model->formStart("updateEmail/".$user_id, array("class" => "email labelstyle:inject")) ?>
 				<fieldset>
-					<?	$username_id = $username_email["id"];?>
-					<?	$current_verification_status = $username_id ? $model->getVerificationStatus($username_id, $user_id) : 0;
-					// print_r ($current_verification_status);
-					?>
-					
-					
-					<?= $model->input("username_id", array("type" => "hidden", "value" => $username_id)) ?>
-					<?= $model->input("email", array("value" => stringOr($username_email["username"]))) ?>
-					<?= $model->input("verification_status", array(
-						"value" => $current_verification_status["verified"]
-						)) ?>
+					<?= $model->input("username_id", array("type" => "hidden", "value" => $email_username_id)) ?>
+					<?= $model->input("email", array("value" => $email)) ?>
+					<?= $model->input("verification_status", array("value" => $current_verification_status)) ?>
 				</fieldset>
 				<ul class="actions">
 					<?= $model->submit("Save", array("name" => "save", "wrapper" => "li.save", "class" => "disabled")) ?>
@@ -153,16 +159,16 @@ if($item && $item["status"] >= 0) {
 			<?= $model->formEnd() ?>
 			<div class="send_verification_link">
 				<ul class="actions send_verification_link">
-					<? if($current_verification_status["total_reminders"] == 0): ?>
-						<?= $HTML->oneButtonForm("Send invite", "/janitor/admin/user/sendVerificationLink/".$username_id, array(
+					<? if(!$current_verification || $current_verification["total_reminders"] == 0): ?>
+						<?= $HTML->oneButtonForm("Send invite", "/janitor/admin/user/sendVerificationLink/".$email_username_id, array(
 							"wrapper" => "li.send_verification_link.invite",
 							"class" => "send_verification_link invite",
 							"inputs" => [
 								"template" => "verify_new_email"
 							]
 						)) ?>
-					<? else: ?>			
-						<?= $HTML->oneButtonForm("Send reminder", "/janitor/admin/user/sendVerificationLink/".$username_id, array(
+					<? else: ?>
+						<?= $HTML->oneButtonForm("Send reminder", "/janitor/admin/user/sendVerificationLink/".$email_username_id, array(
 							"wrapper" => "li.send_verification_link.reminder",
 							"class" => "send_verification_link reminder",
 							"inputs" => [
@@ -171,8 +177,8 @@ if($item && $item["status"] >= 0) {
 						)) ?>
 					<? endif;?>
 				</ul>
-				<? if($current_verification_status["reminded_at"]):?>
-				<p class="reminded_at">Reminder sent: <span class="date_time"><?=$current_verification_status["reminded_at"]?></span></p>
+				<? if($current_verification && $current_verification["reminded_at"]):?>
+				<p class="reminded_at">Reminder sent: <span class="date_time"><?=$current_verification["reminded_at"]?></span></p>
 				<? else:?>
 				<p class="reminded_at">Reminder sent: <span class="date_time never">-</span></p>
 				<? endif;?>

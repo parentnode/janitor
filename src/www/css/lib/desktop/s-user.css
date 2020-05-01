@@ -13,7 +13,7 @@
 
 /* USERNAMES */
 #content .scene.userEdit > div.usernames {border-bottom: 1px solid #bbbbbb;}
-#content .scene.userEdit > div.usernames > div.email {padding-bottom: 20px; position: relative;}
+#content .scene.userEdit > div.usernames div.email {padding-bottom: 20px; position: relative;}
 #content .scene.userEdit > div.usernames form.email {font-size: 0; display: inline-block; vertical-align: top;}
 
 #content .scene.userEdit > div.usernames div.send_verification_link {position: absolute; right: 5px; top: 4px; width: auto; text-align: right;}
