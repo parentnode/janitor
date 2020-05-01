@@ -1179,7 +1179,7 @@ class ShopCore extends Model {
 	 * @param string $cart_reference
 	 * @param integer $item_id
 	 * @param array|false $_options – can be freely combined
-	 * * custom_price (integer) get item with the specified custom_price
+	 * * custom_price (string) get item with the specified custom_price
 	 * * custom_name (string) get item with the specified custom_name
 	 * 
 	 * @return array|false Cart item object. False if no match is found. False on error.
