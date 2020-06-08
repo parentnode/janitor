@@ -367,7 +367,7 @@ class MailGateway {
 			foreach($recipients as $recipient) {
 
 				// prepare default values for merging - but don't overwrite
-				$values[$recipient]["SITE_URL"] = isset($values[$recipient]["SITE_URL"]) ? $values[$recipient]["SITE_UEL"] : SITE_URL;
+				$values[$recipient]["SITE_URL"] = isset($values[$recipient]["SITE_URL"]) ? $values[$recipient]["SITE_URL"] : SITE_URL;
 				$values[$recipient]["SITE_NAME"] = isset($values[$recipient]["SITE_NAME"]) ? $values[$recipient]["SITE_NAME"] : SITE_NAME;
 				$values[$recipient]["SITE_EMAIL"] = isset($values[$recipient]["SITE_EMAIL"]) ? $values[$recipient]["SITE_EMAIL"] : SITE_EMAIL;
 				$values[$recipient]["ADMIN_EMAIL"] = isset($values[$recipient]["ADMIN_EMAIL"]) ? $values[$recipient]["ADMIN_EMAIL"] : ADMIN_EMAIL;
