@@ -3,7 +3,7 @@
 * @package janitor.shop
 */
 
-require_once('includes/mailer/mailgun-php-2.5/vendor/autoload.php');
+require_once('includes/mailer/mailgun-php-3.0/vendor/autoload.php');
 
 use Mailgun\Mailgun;
 use Mailgun\Exception\HttpClientException;
@@ -81,12 +81,33 @@ class JanitorMailgun {
 
 		// set tracking 
 		if($tracking != "default") {
+			if($tracking === false) {
+				$tracking = "false";
+			}
+			elseif($tracking === true) {
+				$tracking = "true";
+			}
+			
 			$mail_options["o:tracking"] = $tracking;
 		}
 		if($track_clicks != "default") {
+			if($track_clicks === false) {
+				$track_clicks = "false";
+			}
+			elseif($track_clicks === true) {
+				$track_clicks = "true";
+			}
+			
 			$mail_options["o:tracking-clicks"] = $track_clicks;
 		}
 		if($track_opened != "default") {
+			if($track_opened === false) {
+				$track_opened = "false";
+			}
+			elseif($track_opened === true) {
+				$track_opened = "true";
+			}
+			
 			$mail_options["o:tracking-opens"] = $track_opened;
 		}
 
@@ -182,12 +203,33 @@ class JanitorMailgun {
 
 		// set tracking 
 		if($tracking != "default") {
+			if($tracking === false) {
+				$tracking = "false";
+			}
+			elseif($tracking === true) {
+				$tracking = "true";
+			}
+			
 			$mail_options["o:tracking"] = $tracking;
 		}
 		if($track_clicks != "default") {
+			if($track_clicks === false) {
+				$track_clicks = "false";
+			}
+			elseif($track_clicks === true) {
+				$track_clicks = "true";
+			}
+			
 			$mail_options["o:tracking-clicks"] = $track_clicks;
 		}
 		if($track_opened != "default") {
+			if($track_opened === false) {
+				$track_opened = "false";
+			}
+			elseif($track_opened === true) {
+				$track_opened = "true";
+			}
+			
 			$mail_options["o:tracking-opens"] = $track_opened;
 		}
 
