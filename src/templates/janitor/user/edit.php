@@ -188,7 +188,7 @@ if($item && $item["status"] >= 0) {
 		<div class="mobile">
 			<?= $model->formStart("updateMobile/".$user_id, array("class" => "mobile labelstyle:inject")) ?>
 				<fieldset>
-					<?= $model->input("mobile", array("value" => stringOr($username_mobile["username"]))) ?>
+					<?= $model->input("mobile", array("value" => stringOr($mobile))) ?>
 				</fieldset>
 				<ul class="actions">
 					<?= $model->submit("Save", array("name" => "save", "wrapper" => "li.save")) ?>
