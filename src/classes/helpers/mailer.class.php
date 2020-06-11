@@ -76,6 +76,8 @@ class MailGateway {
 
 			$values = [];
 			$from_current_user = false;
+			$from_name = false;
+			$from_email = false;
 
 			// we'll do some extra recipient checking before making the final recipients list
 			$temp_recipients = false;
@@ -103,6 +105,8 @@ class MailGateway {
 						case "message"                : $message                = $_value; break;
 						case "template"               : $template               = $_value; break;
 
+						case "from_name"              : $from_name              = $_value; break;
+						case "from_email"             : $from_email             = $_value; break;
 						case "from_current_user"      : $from_current_user      = $_value; break;
 						case "values"                 : $values                 = $_value; break;
 
@@ -219,7 +223,7 @@ class MailGateway {
 			// only attempt sending if recipients are specified
 			if($text && $recipients) {
 
-				list($from_email, $from_name) = $this->getSender($from_current_user);
+				list($from_email, $from_name) = $this->getSender($from_name, $from_email, $from_current_user);
 
 
 				return $this->adapter->send([
@@ -268,6 +272,8 @@ class MailGateway {
 
 			$values = [];
 			$from_current_user = false;
+			$from_name = false;
+			$from_email = false;
 
 			$temp_recipients = false;
 			$recipients = [];
@@ -293,6 +299,8 @@ class MailGateway {
 						case "message"                : $message                = $_value; break;
 						case "template"               : $template               = $_value; break;
 
+						case "from_name"              : $from_name              = $_value; break;
+						case "from_email"             : $from_email             = $_value; break;
 						case "from_current_user"      : $from_current_user      = $_value; break;
 						case "values"                 : $values                 = $_value; break;
 
@@ -435,21 +443,31 @@ class MailGateway {
 	}
 
 
-	function getSender($from_current_user) {
+	function getSender($from_name, $from_email, $from_current_user) {
 
 		// from information
 		if($from_current_user) {
 			$UC = new User();
 			$current_user = $UC->getUser();
-
-			$from_email = $current_user["email"];
-			$from_name = $current_user["nickname"];
+			
+			if($current_user) {
+				if(!$from_name) {
+					$from_name = $current_user["nickname"];
+				}
+				if(!$from_email) {
+					$from_email = $current_user["email"];
+				}
+			}
 		}
 		else {
-			$from_email = (defined("SITE_EMAIL") ? SITE_EMAIL : ADMIN_EMAIL);
-			$from_name = SITE_NAME;
+			if(!$from_name) {
+				$from_name = SITE_NAME;
+			}
+			if(!$from_email) {
+				$from_email = (defined("SITE_EMAIL") ? SITE_EMAIL : ADMIN_EMAIL);
+			}
 		}
-
+	
 		return [$from_email, $from_name];
 	}
 
