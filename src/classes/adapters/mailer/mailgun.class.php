@@ -70,6 +70,9 @@ class JanitorMailgun {
 					case "from_name"              : $from_name              = $_value; break;
 					case "from_email"             : $from_email             = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
+					case "cc_recipients"          : $cc_recipients          = $_value; break;
+					case "bcc_recipients"         : $bcc_recipients         = $_value; break;
+
 
 					case "attachments"            : $attachments            = $_value; break;
 
@@ -87,6 +90,8 @@ class JanitorMailgun {
 		$mail_options["subject"] = $subject;
 		$mail_options["from"] = "$from_name <$from_email>";
 		$mail_options["to"] = $recipients;
+		$mail_options["cc"] = $cc_recipients;
+		$mail_options["bcc"] = $bcc_recipients;
 		$mail_options["text"] = $text;
 		$mail_options["html"] = $html;
 
@@ -185,7 +190,10 @@ class JanitorMailgun {
 					case "from_name"              : $from_name              = $_value; break;
 					case "from_email"             : $from_email             = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
-					case "values"                 : $recipient_values                 = $_value; break;
+					case "cc_recipients"          : $cc_recipients          = $_value; break;
+					case "bcc_recipients"         : $bcc_recipients         = $_value; break;
+
+					case "values"                 : $recipient_values       = $_value; break;
 
 					case "attachments"            : $attachments            = $_value; break;
 
@@ -209,6 +217,8 @@ class JanitorMailgun {
 		$mail_options["subject"] = $subject;
 		$mail_options["from"] = "$from_name <$from_email>";
 		$mail_options["to"] = $recipients;
+		$mail_options["cc"] = $cc_recipients;
+		$mail_options["bcc"] = $bcc_recipients;
 		$mail_options["text"] = $text;
 		$mail_options["html"] = $html;
 		$mail_options["recipient-variables"] = json_encode($recipient_values);
