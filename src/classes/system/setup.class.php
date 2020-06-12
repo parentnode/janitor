@@ -241,6 +241,15 @@ class Setup extends Itemtype {
 			"hint_message" => "Mail account domain to use when sending emails.", 
 			"error_message" => "API key must be filled out."
 		));
+		// mail_mailgun_region
+		$this->addToModel("mail_mailgun_region", array(
+			"type" => "select",
+			"label" => "Region",
+			"options" => ["US" => "US region", "EU" => "EU region"],
+			"required" => true,
+			"hint_message" => "Select your Mailgun region.", 
+			"error_message" => "Region must be filled out."
+		));
 
 
 
@@ -1218,10 +1227,11 @@ class Setup extends Itemtype {
 			// Mailgun account
 			if($this->get("mail", "mail_type") == "mailgun") {
 
-				if($this->validateList(array("mail_mailgun_api_key", "mail_mailgun_domain"))) {
+				if($this->validateList(array("mail_mailgun_api_key", "mail_mailgun_domain", "mail_mailgun_region"))) {
 
 					$this->set("mail", "mail_mailgun_api_key", $this->getProperty("mail_mailgun_api_key", "value"));
 					$this->set("mail", "mail_mailgun_domain", $this->getProperty("mail_mailgun_domain", "value"));
+					$this->set("mail", "mail_mailgun_region", $this->getProperty("mail_mailgun_region", "value"));
 
 				}
 			}
@@ -1697,6 +1707,7 @@ class Setup extends Itemtype {
 				if($this->get("mail", "mail_type") == "mailgun") {
 					$file_mail_settings .= "\t\t\"api-key\" => \"".$this->get("mail", "mail_mailgun_api_key")."\",\n";
 					$file_mail_settings .= "\t\t\"domain\" => \"".$this->get("mail", "mail_mailgun_domain")."\",\n";
+					$file_mail_settings .= "\t\t\"region\" => \"".$this->get("mail", "mail_mailgun_region")."\",\n";
 				
 				}
 				// SMTP settings

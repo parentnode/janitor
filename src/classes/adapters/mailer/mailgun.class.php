@@ -24,8 +24,20 @@ class JanitorMailgun {
 		$this->domain = $_settings["domain"];
 		$this->api_key = $_settings["api-key"];
 
+		// use US endpoint as default
+		$this->endpoint = "https://api.mailgun.net";
+		
+		if(isset($_settings["region"])) {
+			
+			if(preg_match("/^eu$/i", $_settings["region"])) {
+				
+				// use EU endpoint
+				$this->endpoint = "https://api.eu.mailgun.net";
+			}
+		}
 
-		$this->client = Mailgun::create($this->api_key);
+
+		$this->client = Mailgun::create($this->api_key, $this->endpoint);
 
 	}
 
