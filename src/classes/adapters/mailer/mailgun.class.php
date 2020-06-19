@@ -171,6 +171,7 @@ class JanitorMailgun {
 
 		$from_name = false;
 		$from_email = false;
+		$reply_to = false;
 
 		$recipients = false;
 		$recipient_values = [];
@@ -192,6 +193,7 @@ class JanitorMailgun {
 
 					case "from_name"              : $from_name              = $_value; break;
 					case "from_email"             : $from_email             = $_value; break;
+					case "reply_to"               : $reply_to               = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
 					case "cc_recipients"          : $cc_recipients          = $_value; break;
 					case "bcc_recipients"         : $bcc_recipients         = $_value; break;
@@ -220,6 +222,7 @@ class JanitorMailgun {
 		$mail_options["subject"] = $subject;
 		$mail_options["from"] = "$from_name <$from_email>";
 		$mail_options["to"] = $recipients;
+		$mail_options["h:Reply-To"] = $reply_to;
 		$mail_options["cc"] = $cc_recipients;
 		$mail_options["bcc"] = $bcc_recipients;
 		$mail_options["text"] = $text;
