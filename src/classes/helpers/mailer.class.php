@@ -273,6 +273,7 @@ class MailGateway {
 			$from_current_user = false;
 			$from_name = false;
 			$from_email = false;
+			$reply_to = false;
 
 			$temp_recipients = false;
 			$temp_cc_recipients = false;
@@ -421,6 +422,7 @@ class MailGateway {
 
 					"from_name" => $from_name,
 					"from_email" => $from_email,
+					"reply_to" => $reply_to,
 					"recipients" => $recipients,
 					"cc_recipients" => $cc_recipients,
 					"bcc_recipients" => $bcc_recipients,
