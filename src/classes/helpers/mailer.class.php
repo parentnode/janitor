@@ -78,6 +78,7 @@ class MailGateway {
 			$from_current_user = false;
 			$from_name = false;
 			$from_email = false;
+			$reply_to = false;
 
 			// we'll do some extra recipient checking before making the final recipients list
 			$temp_recipients = false;
@@ -109,6 +110,7 @@ class MailGateway {
 						case "from_name"              : $from_name              = $_value; break;
 						case "from_email"             : $from_email             = $_value; break;
 						case "from_current_user"      : $from_current_user      = $_value; break;
+						case "reply_to"               : $reply_to               = $_value; break;
 						case "values"                 : $values                 = $_value; break;
 
 						case "recipients"             : $temp_recipients        = $_value; break;
@@ -227,6 +229,7 @@ class MailGateway {
 
 					"from_name" => $from_name,
 					"from_email" => $from_email,
+					"reply_to" => $reply_to,
 					"recipients" => $recipients,
 					"cc_recipients" => $cc_recipients,
 					"bcc_recipients" => $bcc_recipients,
@@ -300,6 +303,7 @@ class MailGateway {
 						case "from_name"              : $from_name              = $_value; break;
 						case "from_email"             : $from_email             = $_value; break;
 						case "from_current_user"      : $from_current_user      = $_value; break;
+						case "reply_to"               : $reply_to               = $_value; break;
 						case "values"                 : $values                 = $_value; break;
 
 						case "recipients"             : $temp_recipients        = $_value; break;
