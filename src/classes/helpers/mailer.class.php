@@ -76,10 +76,14 @@ class MailGateway {
 
 			$values = [];
 			$from_current_user = false;
+			$from_name = false;
+			$from_email = false;
+			$reply_to = false;
 
 			// we'll do some extra recipient checking before making the final recipients list
 			$temp_recipients = false;
-			$recipients = [];
+			$temp_cc_recipients = false;
+			$temp_bcc_recipients = false;
 
 			$attachments = false;
 
@@ -103,10 +107,15 @@ class MailGateway {
 						case "message"                : $message                = $_value; break;
 						case "template"               : $template               = $_value; break;
 
+						case "from_name"              : $from_name              = $_value; break;
+						case "from_email"             : $from_email             = $_value; break;
 						case "from_current_user"      : $from_current_user      = $_value; break;
+						case "reply_to"               : $reply_to               = $_value; break;
 						case "values"                 : $values                 = $_value; break;
 
 						case "recipients"             : $temp_recipients        = $_value; break;
+						case "cc_recipients"          : $temp_cc_recipients     = $_value; break;
+						case "bcc_recipients"         : $temp_bcc_recipients    = $_value; break;
 						case "attachments"            : $attachments            = $_value; break;
 
 						case "html"                   : $html                   = $_value; break;
@@ -127,20 +136,11 @@ class MailGateway {
 				$temp_recipients[] = ADMIN_EMAIL;
 			}
 
+			$recipients = $this->getRecipients($temp_recipients);
+			$cc_recipients = $this->getRecipients($temp_cc_recipients);
+			$bcc_recipients = $this->getRecipients($temp_bcc_recipients);
 
-			// split comma separated recipient list
-			if(!is_array($temp_recipients)) {
-				$temp_recipients = preg_split("/,|;/", $temp_recipients);
-			}
-
-			// check that recipient seems to be a valid email
-			foreach($temp_recipients as $recipient) {
-				// only use valid recipients
-				if($recipient && preg_match("/^[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
-					$recipients[] = $recipient;
-				}
-			}
-
+			
 			// include template
 			// template is prioritized before $text and $html
 			if($template) {
@@ -219,7 +219,7 @@ class MailGateway {
 			// only attempt sending if recipients are specified
 			if($text && $recipients) {
 
-				list($from_email, $from_name) = $this->getSender($from_current_user);
+				list($from_email, $from_name) = $this->getSender($from_name, $from_email, $from_current_user);
 
 
 				return $this->adapter->send([
@@ -229,7 +229,10 @@ class MailGateway {
 
 					"from_name" => $from_name,
 					"from_email" => $from_email,
+					"reply_to" => $reply_to,
 					"recipients" => $recipients,
+					"cc_recipients" => $cc_recipients,
+					"bcc_recipients" => $bcc_recipients,
 
 					"attachments" => $attachments,
 
@@ -268,9 +271,14 @@ class MailGateway {
 
 			$values = [];
 			$from_current_user = false;
+			$from_name = false;
+			$from_email = false;
+			$reply_to = false;
 
 			$temp_recipients = false;
-			$recipients = [];
+			$temp_cc_recipients = false;
+			$temp_bcc_recipients = false;
+			
 			$attachments = false;
 
 			$text = "";
@@ -293,10 +301,15 @@ class MailGateway {
 						case "message"                : $message                = $_value; break;
 						case "template"               : $template               = $_value; break;
 
+						case "from_name"              : $from_name              = $_value; break;
+						case "from_email"             : $from_email             = $_value; break;
 						case "from_current_user"      : $from_current_user      = $_value; break;
+						case "reply_to"               : $reply_to               = $_value; break;
 						case "values"                 : $values                 = $_value; break;
 
 						case "recipients"             : $temp_recipients        = $_value; break;
+						case "cc_recipients"          : $temp_cc_recipients     = $_value; break;
+						case "bcc_recipients"         : $temp_bcc_recipients    = $_value; break;
 						case "attachments"            : $attachments            = $_value; break;
 
 						case "html"                   : $html                   = $_value; break;
@@ -312,13 +325,9 @@ class MailGateway {
 			}
 
 
-			// check that recipient seems to be a valid email
-			foreach($temp_recipients as $recipient) {
-				// only use valid recipients
-				if($recipient && preg_match("/^[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
-					$recipients[] = $recipient;
-				}
-			}
+			$recipients = $this->getRecipients($temp_recipients);
+			$cc_recipients = $this->getRecipients($temp_cc_recipients);
+			$bcc_recipients = $this->getRecipients($temp_bcc_recipients);
 
 
 			// include template
@@ -367,7 +376,7 @@ class MailGateway {
 			foreach($recipients as $recipient) {
 
 				// prepare default values for merging - but don't overwrite
-				$values[$recipient]["SITE_URL"] = isset($values[$recipient]["SITE_URL"]) ? $values[$recipient]["SITE_UEL"] : SITE_URL;
+				$values[$recipient]["SITE_URL"] = isset($values[$recipient]["SITE_URL"]) ? $values[$recipient]["SITE_URL"] : SITE_URL;
 				$values[$recipient]["SITE_NAME"] = isset($values[$recipient]["SITE_NAME"]) ? $values[$recipient]["SITE_NAME"] : SITE_NAME;
 				$values[$recipient]["SITE_EMAIL"] = isset($values[$recipient]["SITE_EMAIL"]) ? $values[$recipient]["SITE_EMAIL"] : SITE_EMAIL;
 				$values[$recipient]["ADMIN_EMAIL"] = isset($values[$recipient]["ADMIN_EMAIL"]) ? $values[$recipient]["ADMIN_EMAIL"] : ADMIN_EMAIL;
@@ -404,7 +413,7 @@ class MailGateway {
 			// only attempt sending if recipients are specified
 			if($text && $recipients) {
 
-				list($from_email, $from_name) = $this->getSender($from_current_user);
+				list($from_email, $from_name) = $this->getSender($from_name, $from_email, $from_current_user);
 
 				return $this->adapter->sendBulk([
 	//			return $mailer->send([
@@ -413,7 +422,10 @@ class MailGateway {
 
 					"from_name" => $from_name,
 					"from_email" => $from_email,
+					"reply_to" => $reply_to,
 					"recipients" => $recipients,
+					"cc_recipients" => $cc_recipients,
+					"bcc_recipients" => $bcc_recipients,
 					"values" => $values,
 
 					"attachments" => $attachments,
@@ -435,21 +447,31 @@ class MailGateway {
 	}
 
 
-	function getSender($from_current_user) {
+	function getSender($from_name, $from_email, $from_current_user) {
 
 		// from information
 		if($from_current_user) {
 			$UC = new User();
 			$current_user = $UC->getUser();
-
-			$from_email = $current_user["email"];
-			$from_name = $current_user["nickname"];
+			
+			if($current_user) {
+				if(!$from_name) {
+					$from_name = $current_user["nickname"];
+				}
+				if(!$from_email) {
+					$from_email = $current_user["email"];
+				}
+			}
 		}
 		else {
-			$from_email = (defined("SITE_EMAIL") ? SITE_EMAIL : ADMIN_EMAIL);
-			$from_name = SITE_NAME;
+			if(!$from_name) {
+				$from_name = SITE_NAME;
+			}
+			if(!$from_email) {
+				$from_email = (defined("SITE_EMAIL") ? SITE_EMAIL : ADMIN_EMAIL);
+			}
 		}
-
+	
 		return [$from_email, $from_name];
 	}
 
@@ -491,6 +513,26 @@ class MailGateway {
 		}
 
 		return [$text, $html];
+	}
+
+	function getRecipients($temp_recipients) {
+		
+		$recipients = [];
+
+		// split comma separated recipient list
+		if(!is_array($temp_recipients)) {
+			$temp_recipients = preg_split("/,|;/", $temp_recipients);
+		}
+
+		// check that recipient seems to be a valid email
+		foreach($temp_recipients as $recipient) {
+			// only use valid recipients
+			if($recipient && preg_match("/^[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}$/", $recipient)) {
+				$recipients[] = $recipient;
+			}
+		}
+
+		return $recipients;
 	}
 
 }

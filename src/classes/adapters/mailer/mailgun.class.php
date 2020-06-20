@@ -3,7 +3,7 @@
 * @package janitor.shop
 */
 
-require_once('includes/mailer/mailgun-php-2.5/vendor/autoload.php');
+require_once('includes/mailer/mailgun-php-3.0/vendor/autoload.php');
 
 use Mailgun\Mailgun;
 use Mailgun\Exception\HttpClientException;
@@ -24,8 +24,20 @@ class JanitorMailgun {
 		$this->domain = $_settings["domain"];
 		$this->api_key = $_settings["api-key"];
 
+		// use US endpoint as default
+		$this->endpoint = "https://api.mailgun.net";
+		
+		if(isset($_settings["region"])) {
+			
+			if(preg_match("/^eu$/i", $_settings["region"])) {
+				
+				// use EU endpoint
+				$this->endpoint = "https://api.eu.mailgun.net";
+			}
+		}
 
-		$this->client = Mailgun::create($this->api_key);
+
+		$this->client = Mailgun::create($this->api_key, $this->endpoint);
 
 	}
 
@@ -37,6 +49,7 @@ class JanitorMailgun {
 
 		$from_name = false;
 		$from_email = false;
+		$reply_to = false;
 		$recipients = false;
 
 		$attachments = false;
@@ -57,7 +70,11 @@ class JanitorMailgun {
 
 					case "from_name"              : $from_name              = $_value; break;
 					case "from_email"             : $from_email             = $_value; break;
+					case "reply_to"               : $reply_to               = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
+					case "cc_recipients"          : $cc_recipients          = $_value; break;
+					case "bcc_recipients"         : $bcc_recipients         = $_value; break;
+
 
 					case "attachments"            : $attachments            = $_value; break;
 
@@ -74,19 +91,43 @@ class JanitorMailgun {
 
 		$mail_options["subject"] = $subject;
 		$mail_options["from"] = "$from_name <$from_email>";
+		$mail_options["h:Reply-To"] = "$reply_to";
 		$mail_options["to"] = $recipients;
+		$mail_options["cc"] = $cc_recipients;
+		$mail_options["bcc"] = $bcc_recipients;
 		$mail_options["text"] = $text;
 		$mail_options["html"] = $html;
 
 
 		// set tracking 
 		if($tracking != "default") {
+			if($tracking === false) {
+				$tracking = "false";
+			}
+			elseif($tracking === true) {
+				$tracking = "true";
+			}
+			
 			$mail_options["o:tracking"] = $tracking;
 		}
 		if($track_clicks != "default") {
+			if($track_clicks === false) {
+				$track_clicks = "false";
+			}
+			elseif($track_clicks === true) {
+				$track_clicks = "true";
+			}
+			
 			$mail_options["o:tracking-clicks"] = $track_clicks;
 		}
 		if($track_opened != "default") {
+			if($track_opened === false) {
+				$track_opened = "false";
+			}
+			elseif($track_opened === true) {
+				$track_opened = "true";
+			}
+			
 			$mail_options["o:tracking-opens"] = $track_opened;
 		}
 
@@ -130,6 +171,7 @@ class JanitorMailgun {
 
 		$from_name = false;
 		$from_email = false;
+		$reply_to = false;
 
 		$recipients = false;
 		$recipient_values = [];
@@ -151,8 +193,12 @@ class JanitorMailgun {
 
 					case "from_name"              : $from_name              = $_value; break;
 					case "from_email"             : $from_email             = $_value; break;
+					case "reply_to"               : $reply_to               = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
-					case "values"                 : $recipient_values                 = $_value; break;
+					case "cc_recipients"          : $cc_recipients          = $_value; break;
+					case "bcc_recipients"         : $bcc_recipients         = $_value; break;
+
+					case "values"                 : $recipient_values       = $_value; break;
 
 					case "attachments"            : $attachments            = $_value; break;
 
@@ -176,18 +222,42 @@ class JanitorMailgun {
 		$mail_options["subject"] = $subject;
 		$mail_options["from"] = "$from_name <$from_email>";
 		$mail_options["to"] = $recipients;
+		$mail_options["h:Reply-To"] = $reply_to;
+		$mail_options["cc"] = $cc_recipients;
+		$mail_options["bcc"] = $bcc_recipients;
 		$mail_options["text"] = $text;
 		$mail_options["html"] = $html;
 		$mail_options["recipient-variables"] = json_encode($recipient_values);
 
 		// set tracking 
 		if($tracking != "default") {
+			if($tracking === false) {
+				$tracking = "false";
+			}
+			elseif($tracking === true) {
+				$tracking = "true";
+			}
+			
 			$mail_options["o:tracking"] = $tracking;
 		}
 		if($track_clicks != "default") {
+			if($track_clicks === false) {
+				$track_clicks = "false";
+			}
+			elseif($track_clicks === true) {
+				$track_clicks = "true";
+			}
+			
 			$mail_options["o:tracking-clicks"] = $track_clicks;
 		}
 		if($track_opened != "default") {
+			if($track_opened === false) {
+				$track_opened = "false";
+			}
+			elseif($track_opened === true) {
+				$track_opened = "true";
+			}
+			
 			$mail_options["o:tracking-opens"] = $track_opened;
 		}
 

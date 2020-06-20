@@ -64,6 +64,7 @@ class JanitorPHPMailer {
 
 		$from_name = false;
 		$from_email = false;
+		$reply_to = false;
 		$recipients = false;
 
 		$attachments = false;
@@ -79,6 +80,7 @@ class JanitorPHPMailer {
 
 					case "from_name"              : $from_name              = $_value; break;
 					case "from_email"             : $from_email             = $_value; break;
+					case "reply_to"               : $reply_to               = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
 
 					case "attachments"            : $attachments            = $_value; break;
@@ -91,12 +93,23 @@ class JanitorPHPMailer {
 		$this->mailer->Subject    = $subject;
 
 
-		$this->mailer->addReplyTo($from_email, $from_name);
+		if($reply_to) {
+			$this->mailer->addReplyTo($reply_to);
+		}
+		else {
+			$this->mailer->addReplyTo($from_email, $from_name);
+		}
 		$this->mailer->SetFrom($from_email, $from_name);
 
 
 		foreach($recipients as $recipient) {
 			$this->mailer->AddAddress($recipient);
+		}
+		foreach($cc_recipients as $cc_recipient) {
+			$this->mailer->addCC($cc_recipient);
+		}
+		foreach($bcc_recipients as $bcc_recipient) {
+			$this->mailer->addBCC($bcc_recipient);
 		}
 
 
@@ -135,6 +148,7 @@ class JanitorPHPMailer {
 
 		$from_name = false;
 		$from_email = false;
+		$reply_to = false;
 		$recipients = false;
 		$recipient_values = [];
 
@@ -151,6 +165,7 @@ class JanitorPHPMailer {
 
 					case "from_name"              : $from_name              = $_value; break;
 					case "from_email"             : $from_email             = $_value; break;
+					case "reply_to"               : $reply_to               = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
 					case "values"                 : $recipient_values       = $_value; break;
 
@@ -188,6 +203,7 @@ class JanitorPHPMailer {
 
 				"from_name" => $from_name,
 				"from_email" => $from_email,
+				"reply_to" => $reply_to,	
 				"recipients" => [$recipient],
 
 				"attachments" => $attachments,

@@ -86,6 +86,7 @@ $mail_check = $model->checkMailSettings();
 			<fieldset>
 				<?= $model->input("mail_mailgun_api_key", array("value" => $model->get("mail", "mail_mailgun_api_key"))) ?>
 				<?= $model->input("mail_mailgun_domain", array("value" => $model->get("mail", "mail_mailgun_domain"))) ?>
+				<?= $model->input("mail_mailgun_region", array("value" => $model->get("mail", "mail_mailgun_region"))) ?>
 			</fieldset>
 		</div>
 
