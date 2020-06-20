@@ -4,6 +4,7 @@ CREATE TABLE `SITE_DB`.`system_payment_methods` (
   `classname` varchar(50) DEFAULT NULL,
   `description` text DEFAULT '',
   `gateway` varchar(50) NULL DEFAULT NULL,
+  `state` varchar(10) NULL DEFAULT NULL,
   `position` int(11) NOT NULL DEFAULT '0',
 
   PRIMARY KEY  (`id`)

@@ -11,6 +11,9 @@ $language_options = $model->toOptions($this->languages(), "id", "name");
 // api token
 $apitoken = $model->getToken();
 
+// payment methods
+$user_payment_methods = $model->getPaymentMethods(["extend" => true]);
+
 // get addresses
 $addresses = $item["addresses"];
 
@@ -89,6 +92,72 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 				</ul>
 			<?= $model->formEnd() ?>
 		</div>
+	</div>
+
+	<div class="payment_methods i:paymentMethods i:collapseHeader">
+		<h2>Payment methods</h2>
+
+		<? if($user_payment_methods): ?>
+		<ul class="payment_methods">
+
+			<? foreach($user_payment_methods as $user_payment_method): ?>
+
+				<? if(isset($user_payment_method["cards"]) && $user_payment_method["cards"]): ?>
+
+					<? foreach($user_payment_method["cards"] as $card): ?>
+				<li class="payment_method user_payment_method<?= $user_payment_method["classname"] ? " ".$user_payment_method["classname"] : "" ?><?= $card["default"] ? " default" : "" ?>">
+					<h3><?= $user_payment_method["name"] ?> – card ending in <?= $card["last4"] ?><?= $card["default"] ? ' <span class="default">(default)</span>' : '' ?></h3>
+					<p><?= $user_payment_method["description"] ?></p>
+					<ul class="actions">
+						<?= $HTML->oneButtonForm(
+						"Delete", 
+						"deletePaymentMethod/card",
+						array(
+							"inputs" => array(
+								"user_payment_method_id" => $user_payment_method["id"], 
+								"gateway_payment_method_id" => $card["id"]
+							),
+							"confirm-value" => "Yes, I'm serious",
+							"class" => "",
+							"name" => "delete",
+							"wrapper" => "li.delete.".$user_payment_method["classname"],
+						)) ?>
+					</ul>
+				</li>
+					<? endforeach; ?>
+
+				<? else: ?>
+				<li class="payment_method user_payment_method<?= $user_payment_method["classname"] ? " ".$user_payment_method["classname"] : "" ?><?= $user_payment_method["default_method"] ? " default" : "" ?>">
+					<h3><?= $user_payment_method["name"] ?></h3>
+					<p><?= $user_payment_method["description"] ?><?= $user_payment_method["default_method"] ? ' <span class="default">(default)</span>' : '' ?></p>
+					<ul class="actions">
+						<?= $HTML->oneButtonForm(
+						"Delete", 
+						"deletePaymentMethod",
+						array(
+							"inputs" => array(
+								"user_payment_method_id" => $user_payment_method["id"], 
+							),
+							"confirm-value" => false,
+							"static" => true,
+							"class" => "",
+							"name" => "continue",
+							"wrapper" => "li.delete.".$user_payment_method["classname"],
+						)) ?>
+					</ul>
+				</li>
+				<? endif; ?>
+
+			<? endforeach; ?>
+
+		</ul>
+
+		<? else: ?>
+
+		<p>You do not have any payment methods yet. Make a purchase to add your first payment method.</p>
+
+		<? endif; ?>
+
 	</div>
 
 	<div class="apitoken i:apitokenProfile i:collapseHeader">

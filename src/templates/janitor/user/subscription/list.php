@@ -8,7 +8,6 @@ $SubscriptionClass = new SuperSubscription();
 
 $user_id = $action[2];
 
-
 $user = $model->getUsers(array("user_id" => $user_id));
 $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_id));
 
@@ -35,6 +34,8 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 				<? foreach($subscriptions as $subscription): 
 
 					$price = $SC->getPrice($subscription["item_id"]);
+
+					$payment_method = $model->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"], "user_id" => $user_id]);
 
 					if($subscription["custom_price"] || $subscription["custom_price"] === "0") {
 						$custom_price = $price;
@@ -83,8 +84,11 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 						<dd class="price"><?= formatPrice($subscription["item"]["prices"][$default]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
 						<? endif; ?>
 
+						<? if($payment_method): ?>
 						<dt class="payment_method">Payment method</dt>
-						<dd class="payment_method"><?= $subscription["payment_method"] ? $subscription["payment_method"]["name"] : "N/A" ?></dd>
+						<dd class="payment_method"><?= $payment_method["name"] . ($payment_method["card"] ? " ending in " . $payment_method["card"]["last4"] : "") ?></dd>
+						<? endif;?>
+
 					<? endif; ?>
 
 					<? if($subscription["order_id"]): ?>

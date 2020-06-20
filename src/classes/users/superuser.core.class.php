@@ -1021,6 +1021,278 @@ class SuperUserCore extends User {
 
 
 
+	// PAYMENT METHODS
+
+
+	// return payment_methods for current user
+	// can return all payment_methods for current user, or a specific payment_method
+	function getPaymentMethods($_options = false) {
+
+		$user_id = false;
+		$payment_method_id = false;
+		$user_payment_method_id = false;
+		$gateway_payment_method_id = false;
+
+		$extend = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "payment_method_id"          : $payment_method_id          = $_value; break;
+					case "user_payment_method_id"     : $user_payment_method_id     = $_value; break;
+					case "gateway_payment_method_id"  : $gateway_payment_method_id  = $_value; break;
+					case "user_id"                    : $user_id                    = $_value; break;
+
+					case "extend"                     : $extend                     = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		// get specific user_payment_method
+		if($user_payment_method_id) {
+			$sql = "SELECT * FROM ".$this->db_payment_methods." WHERE payment_method_id = $payment_method_id AND user_id = $user_id LIMIT 1";
+			// debug(["sql", $sql]);
+
+			if($query->sql($sql)) {
+				$result = $query->result(0);
+				// debug(["result", $result]);
+
+				if($extend) {
+
+					global $page;
+					$payment_methods = $page->paymentMethods();
+
+					$key = arrayKeyValue($payment_methods, "id", $result["payment_method_id"]);
+
+					$result["name"] = $payment_methods[$key]["name"];
+					$result["classname"] = $payment_methods[$key]["classname"];
+					$result["description"] = $payment_methods[$key]["description"];
+					$result["gateway"] = $payment_methods[$key]["gateway"];
+
+					if($result["gateway"] && $gateway_payment_method_id) {
+						$result["card"] = payments()->getPaymentMethod($user_id, $gateway_payment_method_id);
+					}
+					else {
+						$result["card"] = false;
+					}
+
+				}
+
+				return $result;
+			}
+		}
+
+		// get specific payment_method
+		else if($payment_method_id) {
+			$sql = "SELECT * FROM ".$this->db_payment_methods." WHERE payment_method_id = $payment_method_id AND user_id = $user_id LIMIT 1";
+			// debug([$sql]);
+
+			if($query->sql($sql)) {
+				$result = $query->result(0);
+
+				if($extend) {
+					global $page;
+					$payment_methods = $page->paymentMethods();
+
+					$key = arrayKeyValue($payment_methods, "id", $result["payment_method_id"]);
+
+					$result["name"] = $payment_methods[$key]["name"];
+					$result["classname"] = $payment_methods[$key]["classname"];
+					$result["description"] = $payment_methods[$key]["description"];
+					$result["gateway"] = $payment_methods[$key]["gateway"];
+
+					if($result["gateway"]) {
+						$result["cards"] = payments()->getPaymentMethods($user_id);
+					}
+					else {
+						$result["cards"] = false;
+					}
+
+				}
+
+				return $result;
+			}
+		}
+
+		// get all payment_methods for user
+		else {
+
+			$sql = "SELECT * FROM ".$this->db_payment_methods." WHERE user_id = $user_id";
+			// debug([$sql]);
+
+			if($query->sql($sql)) {
+				$results = $query->results();
+
+				if($extend) {
+
+					global $page;
+					$payment_methods = $page->paymentMethods();
+
+					foreach($results as $index => $result) {
+
+						$key = arrayKeyValue($payment_methods, "id", $result["payment_method_id"]);
+						$results[$index]["name"] = $payment_methods[$key]["name"];
+						$results[$index]["classname"] = $payment_methods[$key]["classname"];
+						$results[$index]["description"] = $payment_methods[$key]["description"];
+						$results[$index]["gateway"] = $payment_methods[$key]["gateway"];
+
+
+						if($results[$index]["gateway"]) {
+							$results[$index]["cards"] = payments()->getPaymentMethods($user_id);
+						}
+						else {
+							$results[$index]["cards"] = false;
+						}
+
+					}
+
+				}
+				return $results;
+			}
+
+		}
+	}
+
+	// Get payment method for subscription – or default payment method
+	function getPaymentMethodForSubscription($_options = false) {
+
+		$subscription_id = false;
+		$user_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "subscription_id"          : $subscription_id          = $_value; break;
+					case "user_id"                  : $user_id                  = $_value; break;
+				}
+			}
+		}
+
+
+		$gateway_payment_method = payments()->getPaymentMethodForSubscription($user_id, $subscription_id);
+		if($gateway_payment_method) {
+
+			$query = new Query();
+			$sql = "SELECT * FROM ".$this->db_payment_methods." WHERE payment_method_id = ".$gateway_payment_method["payment_method_id"]." AND user_id = $user_id LIMIT 1";
+			// debug(["sql", $sql]);
+			if($query->sql($sql)) {
+				$user_payment_method_id = $query->result(0, "id");
+
+				return $this->getPaymentMethods([
+					"user_id" => $user_id,
+					"payment_method_id" => $gateway_payment_method["payment_method_id"],
+					"gateway_payment_method_id" => $gateway_payment_method["gateway_payment_method_id"],
+					"user_payment_method_id" => $user_payment_method_id,
+					"extend" => true,
+				]);
+
+			}
+		}
+
+		return $this->getDefaultPaymentMethod($_options);
+
+	}
+
+	// Get default payment method (perhaps deducted)
+	function getDefaultPaymentMethod($_options = false) {
+
+		$query = new Query();
+
+		$user_id = false;
+		$user_payment_method = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"                  : $user_id                  = $_value; break;
+				}
+			}
+		}
+
+		$sql = "SELECT * FROM ".$this->db_payment_methods." WHERE user_id = $user_id AND default_method = 1";
+		// debug([$sql]);
+
+		if($query->sql($sql)) {
+			$user_payment_method = $query->result(0);
+		}
+		else {
+			$sql = "SELECT * FROM ".$this->db_payment_methods." WHERE user_id = $user_id";
+			if($query->sql($sql)) {
+				$user_payment_method = $query->result(0);
+			}
+		}
+
+		// Did we find a default payment method?
+		if($user_payment_method) {
+			$payment_method = $this->getPaymentMethods([
+				"user_id" => $user_id,
+				"payment_method_id" => $user_payment_method["payment_method_id"],
+				"user_payment_method_id" => $user_payment_method["id"],
+				"extend" => true,
+			]);
+			if($payment_method && (($payment_method["gateway"] && $payment_method["card"]) || !$payment_method["gateway"])) {
+				return $payment_method;
+			}
+			else if($payment_method && $payment_method["gateway"]) {
+				$payment_methods = $this->getPaymentMethods([
+					"payment_method_id" => $payment_method["payment_method_id"],
+					"user_id" => $user_id,
+					"extend" => true,
+				]);
+				if($payment_methods && $payment_methods["cards"]) {
+					$default_card = arrayKeyValue($payment_methods["cards"], "default", 1);
+					if($default_card !== false) {
+						$payment_method["card"] = $payment_methods["cards"][$default_card];
+					}
+					else {
+						$payment_method["card"] = $payment_methods["cards"][0];
+					}
+					
+				}
+				return $payment_method;
+
+			}
+		}
+
+
+		return false;
+	}
+
+	// Add user payment_method
+	function addPaymentMethod($_options = false) {
+
+		$user_id = false;
+		$payment_method_id = false;
+
+		// debug(["addPaymentMethod", $options, $user_id]);
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "payment_method_id"          : $payment_method_id         = $_value; break;
+					case "user_id"                    : $user_id                   = $_value; break;
+				}
+			}
+		}
+
+		if($payment_method_id && $user_id) {
+			$query = new Query();
+			$sql = "INSERT INTO $this->db_payment_methods SET payment_method_id = $payment_method_id, user_id = $user_id, default_method = 1";
+			// debug([$sql]);
+			if($query->sql($sql)) {
+				message()->addMessage("PaymentMethod added");
+				return true;
+			}
+		}
+
+		message()->addMessage("PaymentMethod could not be added", ["type" => "error"]);
+		return false;
+	}
+
+
 
 	// API TOKEN
 

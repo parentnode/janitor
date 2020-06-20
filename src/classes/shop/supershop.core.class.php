@@ -1944,6 +1944,7 @@ class SuperShopCore extends Shop {
 
 	// PAYMENTS
 
+	// Get payments
 	function getPayments($_options=false) {
 
 		$order_id = false;
@@ -2005,16 +2006,18 @@ class SuperShopCore extends Shop {
 	# /#controller#/registerPayment
 	function registerPayment($action) {
 
+		// return 1;
+
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if(count($action) == 1 && $this->validateList(array("payment_amount", "payment_method", "order_id", "transaction_id"))) {
+		if(count($action) == 1 && $this->validateList(array("payment_amount", "payment_method_id", "order_id", "transaction_id"))) {
 
 
 			$order_id = $this->getProperty("order_id", "value");
 			$transaction_id = $this->getProperty("transaction_id", "value");
 			$payment_amount = $this->getProperty("payment_amount", "value");
-			$payment_method = $this->getProperty("payment_method", "value");
+			$payment_method_id = $this->getProperty("payment_method_id", "value");
 
 			$order = $this->getOrders(array("order_id" => $order_id));
 
@@ -2023,13 +2026,13 @@ class SuperShopCore extends Shop {
 				$query = new Query();
 
 				// update modified at time
-				$sql = "INSERT INTO ".$this->db_payments." SET order_id=$order_id, currency='".$order["currency"]."', payment_amount=$payment_amount, transaction_id='$transaction_id', payment_method=$payment_method";
+				$sql = "INSERT INTO ".$this->db_payments." SET order_id=$order_id, currency='".$order["currency"]."', payment_amount=$payment_amount, transaction_id='$transaction_id', payment_method_id=$payment_method_id";
 				if($query->sql($sql)) {
 					$payment_id = $query->lastInsertId();
 					$this->validateOrder($order["id"]);
 
 					global $page;
-					$page->addLog("SuperShop->addPayment: order_id:$order_id, payment_method:$payment_method, payment_amount:$payment_amount");
+					$page->addLog("SuperShop->addPayment: order_id:$order_id, payment_method_id:$payment_method_id, payment_amount:$payment_amount");
 
 					message()->addMessage("Payment added");
 					return $payment_id;
@@ -2042,159 +2045,33 @@ class SuperShopCore extends Shop {
 		return false;
 	}
 
+	// Capture payment intent
+	function capturePayment($action) {
 
-	// check if we have gateway user info (indicates we can charge)
-	function canBeCharged($_options = false) {
-
-		// get all orders for user_id
-		$user_id = false;
-		$gateway = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "gateway"           : $gateway             = $_value; break;
-					case "user_id"           : $user_id             = $_value; break;
-				}
-			}
-		}
-
-
-		$customer_id = payments()->getGatewayUserId($user_id);
-		if($customer_id) {
-			return true;
-		}
-
-		//
-		// if($gateway == "stripe") {
-		//
-		// 	include_once("classes/adapters/stripe.class.php");
-		// 	$GC = new JanitorStripe();
-		//
-		// 	$customer_id = $GC->getCustomerId($user_id);
-		// 	if($customer_id) {
-		// 		return true;
-		// 	}
-		// }
-
-		return false;
-	}
-
-	// Charge remaining order payment from gateway
-	function chargeRemainingOrderPayment($action) {
-	
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if(count($action) == 1 && $this->validateList(array("payment_method", "order_id"))) {
+		if(count($action) == 1 && $this->validateList(array("payment_amount", "payment_intent_id"))) {
 
-			global $page;
+			$payment_amount = $this->getProperty("payment_amount", "value");
+			$payment_intent_id = $this->getProperty("payment_intent_id", "value");
 
-			$order_id = $this->getProperty("order_id", "value");
-			$payment_method_id = $this->getProperty("payment_method", "value");
-
-			$payment_method = $page->paymentMethods($payment_method_id);
-			$order = $this->getOrders(array("order_id" => $order_id));
-
-			if($order) {
-
-				$total_order_price = $this->getTotalOrderPrice($order_id);
-				$payments = $this->getPayments(array("order_id" => $order_id));
-
-//				print_r($payments);
-
-				$total_payments = 0;
-				if($payments) {
-					foreach($payments as $payment) {
-						$total_payments += $payment["payment_amount"];
-					
-					}
-				}
-
-				$payment_amount = $total_order_price["price"]-$total_payments;
-
-				$custom_order = $order;
-				$custom_order["total_price"]["price"] = $payment_amount;
-				
-				// if partially paid already, add custom description to charge
-				if($total_payments) {
-					$custom_order["custom_description"] = $order["order_no"] . ", " . $order["comment"] . " (partial)";
-				}
-
-				// // if partially paid already, add custom description to charge
-				// if($total_payments) {
-				// 	$order["custom_description"] = $order["order_no"] . ", " . $order["comment"] . " (partial)";
-				// }
-
-//				print "should charge $payment_amount from ".$payment_method["gateway"];
-
-				if(payments()->chargeUser($custom_order)) {
-
-					message()->addMessage("Payment charged sucessfully.");
-					return true;
-
-				}
-				else {
-
-					message()->addMessage("Payment could not be charged.", array("type" => "error"));
-					return false;
-
-				}
-
+			$result = payments()->capturePayment($payment_intent_id, $payment_amount);
+			if($result && $result["status"] === "success") {
+				message()->resetMessages();
+				return $result["order"];
 			}
-			else {
-
-				message()->addMessage("Unknown order.", array("type" => "error"));
+			else if($result && $result["status"] === "NOT_CAPTURABLE"){
+				message()->addMessage("Payment is not available for capturing", array("type" => "error"));
 				return false;
-
 			}
 
 		}
 
-		message()->addMessage("Payment could not be charged", array("type" => "error"));
+		message()->addMessage("Payment could not be captured", array("type" => "error"));
 		return false;
-
 	}
 
-	// Process gateway data
-	function processOrderPayment($action) {
-
-		global $page;
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-
-		// does values validate
-		if(count($action) == 4 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
-
-			$order_no = $action[1];
-			$gateway = $action[2];
-
-			$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
-			$card_exp_month = $this->getProperty("card_exp_month", "value");
-			$card_exp_year = $this->getProperty("card_exp_year", "value");
-			$card_cvc = $this->getProperty("card_cvc", "value");
-
-
-			if($order_no) {
-				$order = $this->getOrders(array("order_no" => $order_no));
-
-				if($order && $order["payment_status"] !== 2) {
-
-					$order["total_price"] = $this->getTotalOrderPrice($order["id"]);
-
-					return payments()->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
-
-				}
-
-			}
-
-		}
-
-		return false;
-
-	}
 
 }
 

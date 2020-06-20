@@ -283,6 +283,14 @@ class ShopCore extends Model {
 			"hint_message" => "Select order to associate payment with.",
 			"error_message" => "Invalid order."
 		));
+		// cart id
+		$this->addToModel("cart_id", array(
+			"type" => "integer",
+			"label" => "Cart",
+			"required" => true,
+			"hint_message" => "Select cart.",
+			"error_message" => "Invalid cart."
+		));
 		// order ids
 		$this->addToModel("order_ids", array(
 			"type" => "string",
@@ -307,13 +315,29 @@ class ShopCore extends Model {
 			"hint_message" => "Payment amount including tax. Use . (point) as decimal separator.",
 			"error_message" => "Invalid amount."
 		));
-		// payment method
-		$this->addToModel("payment_method", array(
-			"type" => "string",
+		// payment method id
+		$this->addToModel("payment_method_id", array(
+			"type" => "integer",
 			"label" => "Payment method",
 			"required" => true,
 			"hint_message" => "Please select a payment method.",
 			"error_message" => "Invalid payment method."
+		));
+		// user payment method id
+		$this->addToModel("user_payment_method_id", array(
+			"type" => "integer",
+			"label" => "User payment method",
+			"required" => true,
+			"hint_message" => "Please select a payment method.",
+			"error_message" => "Invalid payment method."
+		));
+		// payment intent id
+		$this->addToModel("payment_intent_id", array(
+			"type" => "string",
+			"label" => "Payment intent",
+			"required" => true,
+			"hint_message" => "Please select a payment intent.",
+			"error_message" => "Invalid payment intent."
 		));
 
 
@@ -447,7 +471,6 @@ class ShopCore extends Model {
 
 		return false;
 	}
-
 
 	// delete unused creditnote number (if order cancellation fails)
 	function deleteCreditnoteNumber($creditnote_no) {
@@ -630,10 +653,6 @@ class ShopCore extends Model {
 
 
 
-
-
-
-
 	// get cart for current user
 	function getCart() {
 
@@ -647,6 +666,7 @@ class ShopCore extends Model {
 			$cart_reference = isset($_COOKIE["cart_reference"]) ? $_COOKIE["cart_reference"] : false;
 		}
 
+		// debug(["cart ref", $cart_reference]);
 		if($cart_reference) {
 
 			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
@@ -721,7 +741,7 @@ class ShopCore extends Model {
 
 
 		// get specific cart
-		if($cart_id || $cart_reference) {
+		if($cart_id !== false || $cart_reference !== false) {
 
 			if($cart_id) {
 				$sql = "SELECT * FROM ".$this->db_carts." WHERE id = $cart_id LIMIT 1";
@@ -957,7 +977,7 @@ class ShopCore extends Model {
 		return false;
 
 	}
-	
+
 	/**
 	 * ### Add item to cart
 	 * 
@@ -972,7 +992,7 @@ class ShopCore extends Model {
 	 * @param array $action
 	 * @return array|false Cart object. False on error.
 	 */
-		function addToCart($action) {
+	function addToCart($action) {
 
 		if(count($action) >= 1) {
 			
@@ -1330,8 +1350,8 @@ class ShopCore extends Model {
 
 		return false;
 	}
-	
-	
+
+
 	// Delete itemtypes from cart
 	// #controller#/deleteItemtypeFromCart
 	function deleteItemtypeFromCart($itemtype) {
@@ -1350,8 +1370,8 @@ class ShopCore extends Model {
 		}
 		return false;	
 	}
-		
-		
+
+
 	// Empty cart
 	# #controller#/emptyCart
 	function emptyCart($action) {
@@ -1370,7 +1390,7 @@ class ShopCore extends Model {
 	}
 
 
-	
+
 	/**
 	 * ### Convert cart to order
 	 * 
@@ -1381,7 +1401,7 @@ class ShopCore extends Model {
 	 * @return array|false Order object. False on error. 
 	 */
 	function newOrderFromCart($action) {
-//		print "newOrderFromCart";
+//		debug(["newOrderFromCart", $action]);
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -1610,6 +1630,7 @@ class ShopCore extends Model {
 
 						// delete cart
 						$sql = "DELETE FROM $this->db_carts WHERE id = ".$cart["id"]." AND cart_reference = '".$cart["cart_reference"]."'";
+						// debug([$sql]);
 						$query->sql($sql);
 
 
@@ -1800,7 +1821,7 @@ class ShopCore extends Model {
 
 			if($itemtype) {
 
-				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE orders.user_id=$user_id AND orders.payment_status != 2 AND orders.status != 3 AND order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
+				$sql = "SELECT orders.id, orders.order_no FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE orders.user_id=$user_id AND orders.payment_status != 2 AND orders.status != 3 AND order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
 //				print $sql;
 				$query->sql($sql);
 				return $query->results();
@@ -1809,14 +1830,14 @@ class ShopCore extends Model {
 			// get all unpaid orders with item_id in it
 			else if($item_id) {
 
-				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as items WHERE orders.user_id=$user_id AND orders.payment_status != 2 AND orders.status != 3 AND orders.id = items.order_id AND items.item_id = $item_id GROUP BY order_id";
+				$sql = "SELECT orders.id, orders.order_no FROM ".$this->db_orders." as orders, ".$this->db_order_items." as items WHERE orders.user_id=$user_id AND orders.payment_status != 2 AND orders.status != 3 AND orders.id = items.order_id AND items.item_id = $item_id GROUP BY order_id";
 	//			print $sql;
 				$query->sql($sql);
 				return $query->results();
 
 			}
 			else {
-				$sql = "SELECT * FROM ".$this->db_orders." WHERE user_id=$user_id AND payment_status != 2 AND status != 3 ORDER BY id DESC";
+				$sql = "SELECT id, order_no FROM ".$this->db_orders." WHERE user_id=$user_id AND payment_status != 2 AND status != 3 ORDER BY id DESC";
 //				print $sql;
 				$query->sql($sql);
 				return $query->results();
@@ -1852,9 +1873,10 @@ class ShopCore extends Model {
 		return false;
 	}
 
-	// Select payment method
-	// If order is for subscription, then also set this payment method for the subscription
-	function selectPaymentMethod($action) {
+
+
+	// Select payment method for cart
+	function selectPaymentMethodForCart($action) {
 
 		global $page;
 
@@ -1862,49 +1884,137 @@ class ShopCore extends Model {
 		$this->getPostedEntities();
 
 		// does values validate
-		if(count($action) == 1 && $this->validateList(array("payment_method", "order_id"))) {
+		if(count($action) == 1 && $this->validateList(array("payment_method_id", "cart_id"))) {
 
-			$query = new Query();
+			// $query = new Query();
 			$UC = new User();
 
 
 			$user_id = session()->value("user_id");
+			$cart_id = $this->getProperty("cart_id", "value");
+			$payment_method_id = $this->getProperty("payment_method_id", "value");
 
-			$order_id = $this->getProperty("order_id", "value");
-			$order = $this->getOrders(array("order_id" => $order_id));
-			
-			$payment_method_id = $this->getProperty("payment_method", "value");
+			// $payment_object["cart"] = $this->getCarts(array("cart_id" => $cart_id));
+			$cart = $this->getCarts(array("cart_id" => $cart_id));
+
+			// $payment_object["payment_method"] = $page->paymentMethods($payment_method_id);
 			$payment_method = $page->paymentMethods($payment_method_id);
 
-			if($order && $payment_method) {
+			if($payment_method && $payment_method["state"] === "public") {
 
-				// add order no to return object - because receipt requires and order_no to display correctly
-				$payment_method["order_no"] = $order["order_no"];
+				if($payment_method["gateway"]) {
+
+					return [
+						"status" => "PROCEED_TO_GATEWAY", 
+						"payment_gateway" => $payment_method["gateway"],
+						"cart_reference" => $cart["cart_reference"]
+					];
+
+				}
+				else {
+
+					// no automatic payment processing available
+					// create order from cart
+					$order = $model->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
+					if($order) {
+
+						// Clear messages
+						message()->resetMessages();
+
+						return [
+							"status" => "PROCEED_TO_RECEIPT", 
+							"payment_name" => $payment_method["name"], 
+							"order_no" => $order["order_no"],
+						];
+
+					}
+					else {
+
+						return [
+							"status" => "ORDER_FAILED"
+						];
+
+					}
+				}
+
+				// return $payment_method;
+			}
+
+			return false;
+
+		}
+
+		return false;
+	}
+
+	// Select user payment method for cart
+	function selectUserPaymentMethodForCart($action) {
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("payment_method_id", "cart_id", "user_payment_method_id"))) {
+
+			$UC = new User();
 
 
-				// get subscriptions related to this order and update their payment method for future reference
-				$sql = "SELECT * FROM ".$UC->db_subscriptions." WHERE order_id = ".$order["id"];
-//				print $sql;
-				if($query->sql($sql)) {
+			$user_id = session()->value("user_id");
+			$cart_id = $this->getProperty("cart_id", "value");
+			$payment_method_id = $this->getProperty("payment_method_id", "value");
+			$user_payment_method_id = $this->getProperty("user_payment_method_id", "value");
+			
+			$gateway_payment_method_id = getPost("gateway_payment_method_id");
 
-					$subscriptions = $query->results();
-					foreach($subscriptions as $subscription) {
+			$cart = $this->getCarts(array("cart_id" => $cart_id));
 
-						$sql = "UPDATE ".$UC->db_subscriptions." SET modified_at = CURRENT_TIMESTAMP, payment_method = $payment_method_id WHERE user_id = $user_id AND id = ".$subscription["id"];
-//						print $sql;
-						if($query->sql($sql)) {
+			$user_payment_method = $UC->getPaymentMethods([
+				"user_payment_method_id" => $user_payment_method_id, 
+				"payment_method_id" => $payment_method_id, 
+				"gateway_payment_method_id" => $gateway_payment_method_id, 
+				"extend" => true
+			]);
 
+			if($user_payment_method) {
 
-							global $page;
-							$page->addLog("Shop->selectPaymentMethod: order_id:$order_id, payment_method: $payment_method_id");
+				if($user_payment_method["gateway"]) {
 
-						}
+					return [
+						"status" => "PROCEED_TO_INTENT",
+						"gateway_payment_method_id" => $gateway_payment_method_id,
+						"payment_gateway" => $user_payment_method["gateway"],
+						"cart" => $cart
+					];
+
+				}
+				else {
+
+					// no automatic payment processing available
+					// create order from cart
+					$order = $model->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
+					if($order) {
+
+						// Clear messages
+						message()->resetMessages();
+
+						return [
+							"status" => "PROCEED_TO_RECEIPT", 
+							"payment_name" => $user_payment_method["name"], 
+							"order_no" => $order["order_no"],
+						];
+
+					}
+					else {
+
+						return [
+							"status" => "ORDER_FAILED"
+						];
 
 					}
 
 				}
-
-				return $payment_method;
 
 			}
 
@@ -1914,9 +2024,10 @@ class ShopCore extends Model {
 	}
 
 
-	// select bulk payment method
-	// make payment method details and order ids ready
-	function selectBulkPaymentMethod($action) {
+
+	// Select payment method for order
+	function selectPaymentMethodForOrder($action) {
+		// debug(["selectPaymentMethodForOrder", $action]);
 
 		global $page;
 
@@ -1924,127 +2035,264 @@ class ShopCore extends Model {
 		$this->getPostedEntities();
 
 		// does values validate
-		if(count($action) == 1 && $this->validateList(array("payment_method", "order_ids"))) {
+		if(count($action) == 1 && $this->validateList(array("payment_method_id", "order_id"))) {
 
-			$query = new Query();
+			// $query = new Query();
+			$UC = new User();
+
+
+			$user_id = session()->value("user_id");
+			$order_id = $this->getProperty("order_id", "value");
+			$payment_method_id = $this->getProperty("payment_method_id", "value");
+
+			$order = $this->getOrders(array("order_id" => $order_id));
+
+			$payment_method = $page->paymentMethods($payment_method_id);
+
+			if($payment_method && $payment_method["state"] === "public") {
+
+				if($payment_method["gateway"]) {
+
+					return [
+						"status" => "PROCEED_TO_GATEWAY", 
+						"payment_gateway" => $payment_method["gateway"],
+						"order_no" => $order["order_no"]
+					];
+
+				}
+				else {
+
+					return [
+						"status" => "PROCEED_TO_RECEIPT", 
+						"payment_name" => $payment_method["name"], 
+						"order_no" => $order["order_no"]
+					];
+
+				}
+
+			}
+
+		}
+
+		return false;
+	}
+
+	// Select user payment method for order
+	function selectUserPaymentMethodForOrder($action) {
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("payment_method_id", "order_id", "user_payment_method_id"))) {
+
+			// $query = new Query();
+			$UC = new User();
+
+
+			$user_id = session()->value("user_id");
+			$order_id = $this->getProperty("order_id", "value");
+			$payment_method_id = $this->getProperty("payment_method_id", "value");
+			$user_payment_method_id = $this->getProperty("user_payment_method_id", "value");
+			
+			$gateway_payment_method_id = getPost("gateway_payment_method_id");
+
+			$order = $this->getOrders(array("order_id" => $order_id));
+
+			$user_payment_method = $UC->getPaymentMethods([
+				"user_payment_method_id" => $user_payment_method_id, 
+				"payment_method_id" => $payment_method_id, 
+				"gateway_payment_method_id" => $gateway_payment_method_id, 
+				"extend" => true
+			]);
+
+			if($user_payment_method) {
+
+				if($user_payment_method["gateway"]) {
+
+					return [
+						"status" => "PROCEED_TO_INTENT",
+						"gateway_payment_method_id" => $gateway_payment_method_id,
+						"payment_gateway" => $user_payment_method["gateway"],
+						"order" => $order
+					];
+
+				}
+				else {
+
+					return [
+						"status" => "PROCEED_TO_RECEIPT", 
+						"payment_name" => $user_payment_method["name"], 
+						"order_no" => $order["order_no"]
+					];
+
+				}
+
+			}
+
+		}
+
+		return false;
+	}
+
+
+
+	// Select payment method for orders
+	function selectPaymentMethodForOrders($action) {
+		// debug(["selectPaymentMethodForOrders", $action]);
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("payment_method_id", "order_ids"))) {
+
 			$UC = new User();
 
 
 			$user_id = session()->value("user_id");
 			$order_ids = $this->getProperty("order_ids", "value");
+			$payment_method_id = $this->getProperty("payment_method_id", "value");
 
-			$payment_method_id = $this->getProperty("payment_method", "value");
 			$payment_method = $page->paymentMethods($payment_method_id);
 
- 			if($order_ids && $payment_method) {
+			if($payment_method && $payment_method["state"] === "public") {
 
-				// add order no to return object - because receipt requires and order_no to display correctly
-				$payment_method["order_ids"] = $order_ids;
+				if($payment_method["gateway"]) {
 
-				return $payment_method;
-
-			}
-
-		}
-
-		return false;
-	}
-
-
-	// Process gateway data
-	function processOrderPayment($action) {
-
-		global $page;
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-
-		// does values validate
-		if(count($action) == 4 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
-
-			$order_no = $action[1];
-			$gateway = $action[2];
-
-			$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
-			$card_exp_month = $this->getProperty("card_exp_month", "value");
-			$card_exp_year = $this->getProperty("card_exp_year", "value");
-			$card_cvc = $this->getProperty("card_cvc", "value");
-
-
-			if($order_no) {
-				$order = $this->getOrders(array("order_no" => $order_no));
-
-				if($order && $order["payment_status"] !== 2) {
-
-					$UC = new User();
-					$order["user"] = $UC->getUser();
-					$order["total_price"] = $this->getTotalOrderPrice($order["id"]);
-
-					return payments()->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+					return [
+						"status" => "PROCEED_TO_GATEWAY", 
+						"payment_gateway" => $payment_method["gateway"],
+						"order_ids" => $order_ids
+					];
 
 				}
+				else {
 
-			}
-
-		}
-
-		return false;
-
-	}
-
-	// Process gateway data
-	function processBulkOrderPayment($action) {
-
-		global $page;
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-
-		// does values validate
-		if(count($action) == 4 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
-
-			$order_ids = explode(",", $action[1]);
-			$gateway = $action[2];
-
-			$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
-			$card_exp_month = $this->getProperty("card_exp_month", "value");
-			$card_exp_year = $this->getProperty("card_exp_year", "value");
-			$card_cvc = $this->getProperty("card_cvc", "value");
-
-
-			if($order_ids) {
-				$bulk_order = ["total_price" => 0];
-
-				$order_nos = [];
-				$UC = new User();
-				$bulk_order["user"] = $UC->getUser();
-				$bulk_order["user_id"] = $bulk_order["user"]["id"];
-				foreach($order_ids as $order_id) {
-
-					$order = $this->getOrders(array("order_id" => $order_id));
-					$remaining_order_price = false;
-
-					if($order && $order["payment_status"] !== 2) {
-						$remaining_order_price = $this->getRemainingOrderPrice($order_id);
-
-						$bulk_order["currency"] = $order["currency"];
-
-						$order_nos[] = $order["order_no"];
-//						$order_ids[] = $order["id"];
-
-						$bulk_order["total_price"] += $remaining_order_price["price"];
+					$order_id_list = explode(",", $order_ids);
+					$order_no_list = [];
+					foreach($order_id_list as $order_id) {
+						$order = $this->getOrders(["order_id" => $order_id]);
+						$order_no_list[] = $order["order_no"];
 					}
 
+					return [
+						"status" => "PROCEED_TO_RECEIPT", 
+						"payment_name" => $payment_method["name"], 
+						"order_nos" => implode(",", $order_no_list),
+					];
+
 				}
 
-				$description = implode(", ", $order_nos);
-				$bulk_order["order_no"]	= strlen($description) > 22 ? cutString($description, 14)." and more" : $description;
-				$bulk_order["id"]	= implode(", ", $order_ids);
-				$bulk_order["custom_description"] = "Bulk payment of ".implode(", ", $order_nos);
+			}
 
-				return payments()->processCardAndPayOrders($bulk_order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+		}
+
+		return false;
+	}
+
+	// Select user payment method for orders
+	function selectUserPaymentMethodForOrders($action) {
+
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("payment_method_id", "order_ids", "user_payment_method_id"))) {
+
+			// $query = new Query();
+			$UC = new User();
+
+
+			$user_id = session()->value("user_id");
+			$order_ids = $this->getProperty("order_ids", "value");
+			$payment_method_id = $this->getProperty("payment_method_id", "value");
+			$user_payment_method_id = $this->getProperty("user_payment_method_id", "value");
+			
+			$gateway_payment_method_id = getPost("gateway_payment_method_id");
+
+			// $order = $this->getOrders(array("order_id" => $order_id));
+			$order_id_list = explode(",", $order_ids);
+			$order_no_list = [];
+			$orders = [];
+			foreach($order_id_list as $order_id) {
+				$order = $this->getOrders(["order_id" => $order_id]);
+				$orders[] = $order;
+				$order_no_list[] = $order["order_no"];
+			}
+
+
+			$user_payment_method = $UC->getPaymentMethods([
+				"user_payment_method_id" => $user_payment_method_id, 
+				"payment_method_id" => $payment_method_id, 
+				"gateway_payment_method_id" => $gateway_payment_method_id, 
+				"extend" => true
+			]);
+
+			if($user_payment_method) {
+
+				if($user_payment_method["gateway"]) {
+
+					return [
+						"status" => "PROCEED_TO_INTENT",
+						"gateway_payment_method_id" => $gateway_payment_method_id,
+						"payment_gateway" => $user_payment_method["gateway"],
+						"order_ids" => $order_ids,
+						"orders" => $orders,
+					];
+
+				}
+				else {
+
+
+					return [
+						"status" => "PROCEED_TO_RECEIPT", 
+						"payment_name" => $user_payment_method["name"], 
+						"order_nos" => implode(",", $order_no_list),
+					];
+
+				}
+
+			}
+
+		}
+
+		return false;
+	}
+
+
+
+	// Process gateway data for cart
+	function processCardForCart($action) {
+		// debug(["processCardForCart shop"]);
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		// does values validate
+		if(count($action) == 5 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
+
+			// $gateway = $action[1];
+			$cart_reference = $action[3];
+			$cart = $this->getCarts(["cart_reference" => $cart_reference]);
+
+			if($cart) {
+
+				$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
+				$card_exp_month = $this->getProperty("card_exp_month", "value");
+				$card_exp_year = $this->getProperty("card_exp_year", "value");
+				$card_cvc = $this->getProperty("card_cvc", "value");
+
+				// Use payment gateway for further processing
+				return payments()->processCardForCart($cart, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
 
 			}
 
@@ -2053,6 +2301,83 @@ class ShopCore extends Model {
 		return false;
 
 	}
+
+	// Process gateway data for order
+	function processCardForOrder($action) {
+		// debug(["processCardForCart shop"]);
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		// does values validate
+		if(count($action) == 5 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
+
+			// $gateway = $action[1];
+			$order_no = $action[3];
+			$order = $this->getOrders(["order_no" => $order_no]);
+
+			if($order) {
+
+				$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
+				$card_exp_month = $this->getProperty("card_exp_month", "value");
+				$card_exp_year = $this->getProperty("card_exp_year", "value");
+				$card_cvc = $this->getProperty("card_cvc", "value");
+
+				// Use payment gateway for further processing
+				return payments()->processCardForOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+
+			}
+
+		}
+
+		return false;
+
+	}
+
+	// Process gateway data for orders
+	function processCardForOrders($action) {
+		// debug(["processCardForCart shop"]);
+		global $page;
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		// does values validate
+		if(count($action) == 5 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
+
+			// $gateway = $action[1];
+			$order_ids = explode(",", $action[3]);
+			$orders = [];
+			foreach($order_ids as $order_id) {
+
+				$order = $this->getOrders(["order_id" => $order_id]);
+				if($order) {
+					$orders[] = $order;
+				}
+			}
+			
+
+			if($orders) {
+
+				$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
+				$card_exp_month = $this->getProperty("card_exp_month", "value");
+				$card_exp_year = $this->getProperty("card_exp_year", "value");
+				$card_cvc = $this->getProperty("card_cvc", "value");
+
+				// Use payment gateway for further processing
+				return payments()->processCardForOrders($orders, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+
+			}
+
+		}
+
+		return false;
+
+	}
+
 
 
 	// PAYMENTS
@@ -2110,40 +2435,6 @@ class ShopCore extends Model {
 		return false;
 	}
 
-
-	// check if we have gateway user info (indicates we can charge)
-	function canBeCharged($_options = false) {
-
-		$user_id = session()->value("user_id");
-		$gateway = false;
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					case "gateway"           : $gateway             = $_value; break;
-				}
-			}
-		}
-
-
-		$customer_id = payments()->getGatewayUserId($user_id);
-		if($customer_id) {
-			return true;
-		}
-
-		// if($gateway == "stripe") {
-		//
-		// 	include_once("classes/adapters/stripe.class.php");
-		// 	$GC = new JanitorStripe();
-		//
-		// 	$customer_id = $GC->getCustomerId($user_id);
-		// 	if($customer_id) {
-		// 		return true;
-		// 	}
-		// }
-
-		return false;
-	}
 
 }
 

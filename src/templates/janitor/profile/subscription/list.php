@@ -17,6 +17,7 @@ $subscriptions = false;
 if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 
 	$subscriptions = $SubscriptionClass->getSubscriptions();
+
 }
 
 ?>
@@ -36,6 +37,8 @@ if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 				<? foreach($subscriptions as $subscription):
 
 					$price = $SC->getPrice($subscription["item_id"]);
+
+					$payment_method = $model->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"]]);
 
 					if($subscription["custom_price"] || $subscription["custom_price"] === "0") {
 						$custom_price = $price;
@@ -89,8 +92,10 @@ if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 						<dd class="price"><span class="price"><?= formatPrice($subscription["item"]["prices"][$default]) ?></span><?= ($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
 						<? endif; ?>
 
+						<? if($payment_method): ?>
 						<dt class="payment_method">Payment method</dt>
-						<dd class="payment_method"><?= $subscription["payment_method"] ? $subscription["payment_method"]["name"] : "N/A" ?></dd>
+						<dd class="payment_method"><?= $payment_method["name"] . ($payment_method["card"] ? " ending in " . $payment_method["card"]["last4"] : "") ?></dd>
+						<? endif;?>
 					<? endif; ?>
 
 					<? if($subscription["order_id"]): ?>

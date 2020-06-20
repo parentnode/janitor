@@ -409,6 +409,7 @@ Util.Modules["customPrice"] = new function() {
 		}
 
 	}
+
 }
 
 
@@ -459,32 +460,6 @@ Util.Modules["maillists"] = new function() {
 
 }
 
-// // Update address
-// Util.Modules["addNewsletter"] = new function() {
-// 	this.init = function(form) {
-//
-// 		u.f.init(form);
-//
-// 		form.actions["cancel"].clicked = function(event) {
-// 			location.href = this.url;
-// 		}
-//
-// 		form.submitted = function(iN) {
-//
-// 			this.response = function(response) {
-// 				page.notify(response);
-// 				if(response.cms_status == "success") {
-// 					location.href = this.actions["cancel"].url;
-// 				}
-// 				else {
-// 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Address could not be updated"});
-// 				}
-// 			}
-// 			u.request(this, this.action, {"method":"post", "data" : this.getData()});
-//
-// 		}
-// 	}
-// }
 
 Util.Modules["accessEdit"] = new function() {
 	this.init = function(div) {

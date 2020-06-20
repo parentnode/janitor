@@ -16,7 +16,7 @@
 #content .scene.userEdit > div.usernames div.email {padding-bottom: 20px; position: relative;}
 #content .scene.userEdit > div.usernames form.email {font-size: 0; display: inline-block; vertical-align: top;}
 
-#content .scene.userEdit > div.usernames div.send_verification_link {position: absolute; right: 5px; top: 4px; width: auto; text-align: right;}
+#content .scene.userEdit > div.usernames div.send_verification_link {position: absolute; right: 30px; top: 4px; width: auto; text-align: right;}
 #content .scene.userEdit > div.usernames div.send_verification_link p {font-size: 11px; padding: 0px; padding-bottom: 4px;}
 
 #content .scene.userEdit > div.usernames form.email fieldset div.field {display: inline-block; vertical-align: top; position: static;}
@@ -48,6 +48,14 @@
 
 #content .scene.userEdit > div.password .actions {text-align: left;}
 #content .scene.userEdit > div.password .actions li {padding: 0 5px 25px;}
+
+/* PAYMENT METHODS */
+#content .scene.userEdit > div.payment_methods {/*padding: 0 0 10px 0;*/border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.payment_methods li.payment_method {width: 30%;}
+#content .scene.userEdit > div.payment_methods h3 {padding-bottom: 5px;width: auto;}
+#content .scene.userEdit > div.payment_methods p {padding-bottom: 10px; width: auto;}
+#content .scene.userEdit > div.payment_methods ul.actions {padding-bottom: 20px;}
+
 
 
 /* API TOKEN */
@@ -111,6 +119,7 @@
 #content .defaultNew.userSubscriptions .item {padding-top: 10px;}
 #content .defaultNew.userSubscriptions .item p {padding-bottom: 3px;}
 
+#content .defaultList.userSubscriptions ul.items {padding-bottom: 25px;}
 #content .defaultList.userSubscriptions dd.price.default {text-decoration: line-through;}
 
 #content .defaultList.userSubscriptions dt.price,

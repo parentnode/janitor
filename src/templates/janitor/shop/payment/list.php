@@ -18,7 +18,7 @@ $payments = $model->getPayments();
 		<ul class="items payments">
 			<? foreach($payments as $payment):
 				$order = $model->getOrders(array("order_id" => $payment["order_id"]));
-				$payment["payment_method"] = $this->paymentMethods($payment["payment_method"]); ?>
+				$payment["payment_method"] = $this->paymentMethods($payment["payment_method_id"]); ?>
 			<li class="item payment">
 				<h3><?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)</h3>
 

@@ -5,7 +5,7 @@ $access_item["/"] = true;
 $access_item["/registerPayment"] = true;
 $access_item["/order/payment/new"] = "/registerPayment";
 $access_item["/payment/new"] = true;
-
+$access_item["/capturePayment"] = "/payment/new";
 if(isset($read_access) && $read_access) {
 	return;
 }

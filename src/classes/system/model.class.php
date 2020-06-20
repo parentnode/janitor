@@ -320,6 +320,12 @@ class Model extends HTML {
 				return true;
 			}
 		}
+
+		// else if($this->getProperty($name, "type") == "array") {
+		// 	if($this->isArray($name)) {
+		// 		return true;
+		// 	}
+		// }
 		// else if($this->getProperty($name, "type") == "prices") {
 		// 	if($this->isPrices($name)) {
 		// 		return true;
@@ -1049,7 +1055,30 @@ class Model extends HTML {
 		}
 	}
 
-
+	// /**
+	// * Is value array?
+	// *
+	// * @param string $name Entity name
+	// * @return bool
+	// */
+	// function isArray($name) {
+	//
+	// 	$value = $this->getProperty($name, "value");
+	// 	$min_length = $this->getProperty($name, "min");
+	// 	$max_length = $this->getProperty($name, "max");
+	//
+	// 	if($value && is_array($value) &&
+	// 		(!$min_length || count($value) >= $min_length) &&
+	// 		(!$max_length || count($value) <= $max_length)
+	// 	) {
+	// 		$this->setProperty($name, "error", false);
+	// 		return true;
+	// 	}
+	// 	else {
+	// 		$this->setProperty($name, "error", true);
+	// 		return false;
+	// 	}
+	// }
 
 
 	// // TODO: Faulty price validation

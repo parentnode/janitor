@@ -50,7 +50,10 @@ class PaymentGateway {
 
 	}
 
-	function deleteGatewayUserId($user_id) {
+
+
+	function getPaymentMethod($user_id, $gateway_payment_method_id) {
+		// debug(["getPaymentMethods", $$user_id, $gateway_payment_method_id]);
 
 		// only load payment adapter when needed
 		$this->init_adapter();
@@ -58,53 +61,232 @@ class PaymentGateway {
 		// Only attempt with valid adapter
 		if($this->adapter) {
 
-			return $this->adapter->deleteCustomer($user_id);
+			if($user_id && $gateway_payment_method_id) {
 
-		}
-
-	}
-	
-	function chargeUser($order) {
-
-		// only load payment adapter when needed
-		$this->init_adapter();
-
-		// Only attempt with valid adapter
-		if($this->adapter) {
-
-			$customer_id = $this->getGatewayUserId($order["user_id"]);
-			if($customer_id) {
-
-				return $this->adapter->chargeCustomer($order, $customer_id);
+				return $this->adapter->getPaymentMethod($user_id, $gateway_payment_method_id);
 
 			}
 
 		}
 	}
 
-	function processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
+	function getPaymentMethods($user_id) {
+		// debug(["getPaymentMethods", $$user_id]);
 
 		// only load payment adapter when needed
 		$this->init_adapter();
 
 		// Only attempt with valid adapter
 		if($this->adapter) {
-			return $this->adapter->processCardAndPayOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+
+			if($user_id) {
+				return $this->adapter->getPaymentMethods($user_id);
+			}
+
 		}
 
 	}
 
-	function processCardAndPayOrders($bulk_order, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
+	function deletePaymentMethod($user_id, $gateway_payment_method_id) {
+		// debug(["deletePaymentMethod", $user_id, $gateway_payment_method_id]);
 
 		// only load payment adapter when needed
 		$this->init_adapter();
 
 		// Only attempt with valid adapter
 		if($this->adapter) {
-			return $this->adapter->processCardAndPayOrders($bulk_order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+
+			if($user_id && $gateway_payment_method_id) {
+				return $this->adapter->deletePaymentMethod($user_id, $gateway_payment_method_id);
+			}
+		}
+		return false;
+	}
+
+	function getPaymentMethodForSubscription($user_id, $subscription_id) {
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->getPaymentMethodForSubscription($user_id, $subscription_id);
+		}
+		return false;
+	}
+
+	function canBeCaptured($_options) {
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->canBeCaptured($_options);
+		}
+		return false;
+	}
+
+
+	function capturePayment($payment_intent_id, $payment_amoutn) {
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->capturePayment($payment_intent_id, $payment_amoutn);
+		}
+		return false;
+	}
+
+
+
+	function processCardForCart($cart, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
+		// debug(["processCardForCart payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->processCardForCart($cart, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
 		}
 
 	}
+
+	function requestPaymentIntentForCart($cart, $payment_method, $return_url) {
+		// debug(["requestPaymentIntentForCart payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->requestPaymentIntentForCart($cart, $payment_method, $return_url);
+		}
+
+	}
+
+
+
+	function processCardForOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
+		// debug(["processCardForOrder payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->processCardForOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+		}
+
+	}
+
+	function requestPaymentIntentForOrder($order, $payment_method, $return_url) {
+		// debug(["requestPaymentIntentForOrder payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->requestPaymentIntentForOrder($order, $payment_method, $return_url);
+		}
+
+	}
+
+
+
+	function processCardForOrders($orders, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
+		// debug(["processCardForOrders payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->processCardForOrders($orders, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+		}
+
+	}
+
+	function requestPaymentIntentForOrders($orders, $payment_method, $return_url) {
+		// debug(["requestPaymentIntentForOrders payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->requestPaymentIntentForOrders($orders, $payment_method, $return_url);
+		}
+
+	}
+
+
+	function identifyPaymentIntent($payment_intent_id) {
+		// debug(["identifyPaymentIntent payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->identifyPaymentIntent($payment_intent_id);
+		}
+
+	}
+
+	function registerPaymentIntent($payment_intent_id, $order) {
+		// debug(["registerPaymentIntent payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->registerPaymentIntent($payment_intent_id, $order);
+		}
+
+	}
+
+	function updatePaymentIntent($payment_intent_id, $order) {
+		// debug(["registerPaymentIntent payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->updatePaymentIntent($payment_intent_id, $order);
+		}
+
+	}
+
+	function registerPayment($order, $payment_intent) {
+		// debug(["registerPayment payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->registerPayment($order, $payment_intent);
+		}
+
+	}
+
+	function registerPayments($orders, $payment_intent) {
+		// debug(["registerPayment payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->registerPayments($orders, $payment_intent);
+		}
+
+	}
+
 
 	function getGatewayUserId($user_id) {
 
@@ -119,5 +301,20 @@ class PaymentGateway {
 		}
 
 	}
+
+	function deleteGatewayUserId($user_id) {
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+
+			return $this->adapter->deleteCustomer($user_id);
+
+		}
+
+	}
+
 
 }

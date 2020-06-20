@@ -27,6 +27,8 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 $price = $SC->getPrice($membership["item_id"]);
 $subscription = $SubscriptionClass->getSubscriptions(["item_id" => $membership["item_id"], "user_id" => $membership["user_id"]]);
 
+$payment_method = $model->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"], "user_id" => $user_id]);
+
 if($subscription["custom_price"]) {
 	$custom_price = $price;
 	$custom_price["price"] = $subscription["custom_price"];
@@ -111,8 +113,11 @@ else {
 
 
 			<? if($default !== false && $membership["item"]["prices"][$default]["price"] !== "0"): ?>
+
+				<? if($payment_method): ?>
 			<dt class="payment_method">Payment method</dt>
-			<dd class="payment_method"><?= $subscription["payment_method"] ? $subscription["payment_method"]["name"] : "N/A" ?></dd>
+			<dd class="payment_method"><?= $payment_method["name"] . ($payment_method["card"] ? " ending in " . $payment_method["card"]["last4"] : "") ?></dd>
+				<? endif; ?>
 
 				<? if($membership["order_id"]): ?>
 			<dt class="payment_status">Payment status</dt>
@@ -125,16 +130,6 @@ else {
 
 
 		</dl>
-
-		<? /*if($membership["order_id"] && $membership["order"]["payment_status"] != 2): ?>
-		<p>
-			You have unpaid membership orders.<br />
-		</p>
-		<ul class="actions">
-			<?= $HTML->link("Pay now", "/janitor/admin/shop/order/payment/new/".$membership["order"]["id"], array("class" => "button primary", "wrapper" => "li.pay")); ?>
-		</ul>
-		<? endif;*/?>
-
 
 	</div>
 

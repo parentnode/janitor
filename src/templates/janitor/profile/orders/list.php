@@ -48,6 +48,18 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	<?					endif; ?>
 						<dt class="price">Total price</dt>
 						<dd class="price"><?= formatPrice($total_price) ?></dd>
+						<dt class="order_content">Order content</dt>
+						<dd class="order_content"><?
+							$order_content = [];
+							$IC = new Items();
+							foreach($order["items"] as $order_item):
+								$item = $IC->getItem(["id" => $order_item["item_id"]]);
+								if(array_search($item["itemtype"], $order_content) === false) {
+									array_push($order_content, $item["itemtype"]);
+								}
+							endforeach;
+							print implode(", ", $order_content);
+						?></dd>
 					</dl>
 
 					<ul class="actions">

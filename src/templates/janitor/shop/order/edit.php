@@ -242,7 +242,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<? if($payments): ?>
 		<ul class="payment items">
 			<? foreach($payments as $payment):
-				$payment["payment_method"] = $this->paymentMethods($payment["payment_method"]); ?>
+				$payment["payment_method"] = $this->paymentMethods($payment["payment_method_id"]); ?>
 			<li class="item">
 				<dl class="info">
 					<dt class="created_at">Created at</dt>

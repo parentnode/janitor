@@ -5,11 +5,10 @@
 #content .scene.shopList ul.tabs li.complete {color: green;}
 
 #content .scene.shopList ul.items > li dl.info dt.price {display: none;}
-#content .scene.shopList ul.items > li dl.info dd.price {position: absolute; top: 10px; right: 100px; font-size: 26px;}
+#content .scene.shopList ul.items > li dl.info dd.price {position: absolute; top: 10px; right: 30px; font-size: 26px;}
 
-#content .scene.shopList ul.items > li.ship dl.info dd.price {right: 180px;}
-
-
+#content .scene.shopList ul.items ul.actions {top: 35px;}
+#content .scene.shopList ul.items ul.actions li {text-align: right; padding-bottom: 0;}
 
 
 /* SHOP VIEW HEADER ACTIONS */
@@ -128,23 +127,23 @@
 
 
 /* PAYMENTS */
-#content .scene.paymentList ul.items > li dl.info dd.price {right: 140px;}
-
+/*#content .scene.paymentList ul.items > li dl.info dd.price {right: 140px;}
+*/
 #content .scene.newPayment div > h2 + div > form {display: block; padding-bottom: 10px;}
 
 #content .scene.newPayment div.notice {background: orange; padding: 25px 0 0; border-bottom: 1px solid #bbbbbb; margin: 0 0 20px;}
 #content .scene.newPayment div.notice p {font-size: 20px; color: #ffffff;}
 
 #content .scene.newPayment div.basics {border-top: 1px solid #bbbbbb;}
-#content .scene.newPayment div.charge,
+#content .scene.newPayment div.capture,
 #content .scene.newPayment div.reminder,
 #content .scene.newPayment div.register {border-bottom: 1px solid #bbbbbb;}
 
 #content .scene.newPayment > div ul.actions {padding-bottom: 15px;}
 #content .scene.newPayment > div ul.actions li {}
 
-#content .scene.newPayment > div.charge ul.actions {overflow: hidden;}
-#content .scene.newPayment > div.charge ul.actions li {float: left; clear: both;}
+#content .scene.newPayment > div.capture ul.actions {overflow: hidden;}
+#content .scene.newPayment > div.capture ul.actions li {float: left; clear: both;}
 
 #content .scene.newPayment div.reminder ul.info {padding: 0 30px 25px;}
 #content .scene.newPayment div.reminder ul.info li {padding: 0 0 3px; display: block;}

@@ -41,14 +41,14 @@ class SubscriptionCore extends Model {
 			"hint_message" => "Please select a membership",
 			"error_message" => "Please select a membership"
 		));
-		// payment_method
-		$this->addToModel("payment_method", array(
-			"type" => "string",
-			"label" => "Payment method",
-			"required" => true,
-			"hint_message" => "Please select a payment method",
-			"error_message" => "Please select a payment method"
-		));
+		// // payment_method
+		// $this->addToModel("payment_method", array(
+		// 	"type" => "string",
+		// 	"label" => "Payment method",
+		// 	"required" => true,
+		// 	"hint_message" => "Please select a payment method",
+		// 	"error_message" => "Please select a payment method"
+		// ));
 		// Upgrade subscription switch
 		$this->addToModel("subscription_upgrade", array(
 			"type" => "boolean",
@@ -116,11 +116,11 @@ class SubscriptionCore extends Model {
 				$subscription["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
 				$subscription["membership"] = $subscription["item"]["itemtype"] == "membership" ? true : false;
 
-				// extend payment method details
-				if($subscription["payment_method"]) {
-					$payment_method = $subscription["payment_method"];
-					$subscription["payment_method"] = $page->paymentMethods($payment_method);
-				}
+				// // extend payment method details
+				// if($subscription["payment_method"]) {
+				// 	$payment_method = $subscription["payment_method"];
+				// 	$subscription["payment_method"] = $page->paymentMethods($payment_method);
+				// }
 
 				// payment status
 				if($subscription["order_id"]) {
@@ -138,11 +138,11 @@ class SubscriptionCore extends Model {
 				$subscription["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
 				$subscription["membership"] = $subscription["item"]["itemtype"] == "membership" ? true : false;
 
-				// extend payment method details
-				if($subscription["payment_method"]) {
-					$payment_method = $subscription["payment_method"];
-					$subscription["payment_method"] = $page->paymentMethods($payment_method);
-				}
+				// // extend payment method details
+				// if($subscription["payment_method"]) {
+				// 	$payment_method = $subscription["payment_method"];
+				// 	$subscription["payment_method"] = $page->paymentMethods($payment_method);
+				// }
 
 				// payment status
 				if($subscription["order_id"]) {
@@ -162,11 +162,11 @@ class SubscriptionCore extends Model {
 					$subscriptions[$i]["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
 					$subscriptions[$i]["membership"] = $subscriptions[$i]["item"]["itemtype"] == "membership" ? true : false;
 
-					// extend payment method details
-					if($subscription["payment_method"]) {
-						$payment_method = $subscription["payment_method"];
-						$subscriptions[$i]["payment_method"] = $page->paymentMethods($payment_method);
-					}
+					// // extend payment method details
+					// if($subscription["payment_method"]) {
+					// 	$payment_method = $subscription["payment_method"];
+					// 	$subscriptions[$i]["payment_method"] = $page->paymentMethods($payment_method);
+					// }
 
 					// payment status
 					if($subscription["order_id"]) {
@@ -190,7 +190,7 @@ class SubscriptionCore extends Model {
 	 * @param array $action
 	 * /#controller#/addSubscription
 	 * required in $_POST: item_id 
-	 * optional in $_POST: payment_method (currently not used), order_id
+	 * optional in $_POST: order_id
 	 * 
 	 * @return array|false Subscription object. False on error.
 	 */
@@ -212,7 +212,7 @@ class SubscriptionCore extends Model {
 	
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
-			$payment_method = $this->getProperty("payment_method", "value");
+			// $payment_method = $this->getProperty("payment_method", "value");
 			$custom_price = $this->getProperty("custom_price", "value");
 
 
@@ -276,9 +276,9 @@ class SubscriptionCore extends Model {
 				if($order_id) {
 					$sql .= ", order_id = $order_id";
 				}
-				if($payment_method) {
-					$sql .= ", payment_method = $payment_method";
-				}
+				// if($payment_method) {
+				// 	$sql .= ", payment_method = $payment_method";
+				// }
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
 				}
@@ -343,7 +343,6 @@ class SubscriptionCore extends Model {
 	 * – expires_at
 	 * — order_id
 	 * – custom_price
-	 * – payment_method (not currently used)
 	 * 
 	 * @return array|false Subscription object. False on error.
 	 */
@@ -366,7 +365,7 @@ class SubscriptionCore extends Model {
 			$subscription_id = $action[1];
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
-			$payment_method = $this->getProperty("payment_method", "value");
+			// $payment_method = $this->getProperty("payment_method", "value");
 			$expires_at = $this->getProperty("expires_at", "value");
 			$custom_price = $this->getProperty("custom_price", "value");
 
@@ -453,9 +452,9 @@ class SubscriptionCore extends Model {
 				if($order_id || $order_id === 'NULL') {
 					$sql .= ", order_id = $order_id";
 				}
-				if($payment_method) {
-					$sql .= ", payment_method = $payment_method";
-				}
+				// if($payment_method) {
+				// 	$sql .= ", payment_method = $payment_method";
+				// }
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
 				}

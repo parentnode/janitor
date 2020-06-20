@@ -50,6 +50,7 @@ class Upgrade extends Model {
 
 
 		global $model;
+		global $page;
 
 		$query = new Query();
 		$IC = new Items();
@@ -258,6 +259,7 @@ class Upgrade extends Model {
 			// CREATE PAYMENT METHOD TABLE
 			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
+				$this->process($this->createTableIfMissing(SITE_DB.".user_payment_methods"), true);
 			}
 			// CREATE SHOP TABLES
 			if((defined("SITE_SHOP") && SITE_SHOP)) {
@@ -303,11 +305,45 @@ class Upgrade extends Model {
 				}
 			}
 			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
-				$this->process($this->addColumn(UT_PAYMENT_METHODS, "classname", "varchar(50) DEFAULT NULL", "name"), true);
-				$this->process($this->addColumn(UT_PAYMENT_METHODS, "gateway", "varchar(50) DEFAULT NULL", "description"), true);
-				$this->process($this->addColumn(UT_PAYMENT_METHODS, "position", "int(11) DEFAULT '0'", "gateway"), true);
+
+
+				$payment_method_table = $this->tableInfo(UT_PAYMENT_METHODS);
+				if($payment_method_table && !isset($payment_method_table["columns"]["state"])) {
+
+					$this->process($this->addColumn(UT_PAYMENT_METHODS, "state", "varchar(10) NULL DEFAULT NULL", "gateway"), true);
+
+					// Move state values from classname column
+					$sql = "SELECT * FROM ".UT_PAYMENT_METHODS;
+					if ($query->sql($sql)) {
+
+						$payment_methods = $query->results();
+						foreach($payment_methods as $payment_method) {
+
+							// Has disabled class
+							if($payment_method["classname"] === "disabled") {
+
+								// remove classname
+								$sql = "UPDATE ".UT_PAYMENT_METHODS." SET classname = NULL WHERE id = ".$payment_method["id"];
+								$query->sql($sql);
+
+							}
+							// Does not have disabled class
+							else {
+
+								// add public state
+								$sql = "UPDATE ".UT_PAYMENT_METHODS." SET state = 'public' WHERE id = ".$payment_method["id"];
+								$query->sql($sql);
+
+							}
+						}
+
+					}
+
+				}
+
 
 				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS), true);
+
 			}
 			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS), true);
@@ -613,6 +649,15 @@ class Upgrade extends Model {
 
 
 				}
+
+
+				// Payments
+				$shop_payments_table = $this->tableInfo(SITE_DB.".shop_payments");
+				if($shop_payments_table && isset($shop_payments_table["columns"]["payment_method"])) {
+
+					$this->process($this->renameColumn(SITE_DB.".shop_payments", "payment_method", "payment_method_id"), true);
+
+				}
 			}
 
 
@@ -644,8 +689,98 @@ class Upgrade extends Model {
 
 				$this->process($this->createTableIfMissing(SITE_DB.".user_item_subscriptions"), true);
 
+				// Move payment method from user subscriptions table to payment methods
+				$user_item_subscription_table = $this->tableInfo(SITE_DB.".user_item_subscriptions");
+				if($user_item_subscription_table && isset($user_item_subscription_table["columns"]["payment_method"])) {
+
+					$this->process(["message" => "PAYMENT METHOD UPGRADE user_item_subscriptions – MOVE TO user_payment_methods", "success" => true], true);
+
+					// Get all subscriptions
+					$sql = "SELECT * FROM ".SITE_DB.".user_item_subscriptions";
+					if($query->sql($sql)) {
+						$subscriptions = $query->results();
+
+						foreach($subscriptions as $subscription) {
+
+							// if subscription has payment_method, then move info to payment methods
+							if($subscription["payment_method"]) {
+
+								$sql = "INSERT INTO ".SITE_DB.".user_payment_methods SET user_id = ".$subscription["user_id"].", payment_method_id = ".$subscription["payment_method"].", created_at = '".$subscription["created_at"]."', default_method = 1";
+								$query->sql($sql);
+
+							}
+
+						}
+					}
+
+					// Remove payment method column
+					$this->process($this->dropConstraints(SITE_DB.".user_item_subscriptions", "payment_method"), true);
+					$this->process($this->dropKeys(SITE_DB.".user_item_subscriptions", "payment_method"), true);
+					$this->process($this->dropColumn(SITE_DB.".user_item_subscriptions", "payment_method"), true);
+
+					cache()->reset("payment_methods");
+
+				}
+
 			}
 
+			if((defined("SITE_SHOP") && SITE_SHOP) || (defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
+
+				// Rename table
+				$this->process($this->renameTable(SITE_DB.".user_gateway_stripe", "user_gateway_stripe_customer"));
+
+				// DEPRECATED UPGRADE
+				// Move payment gateway details to payment methods table
+				// $user_gateway_stripe_table = $this->tableInfo(SITE_DB.".user_gateway_stripe");
+				// if($user_gateway_stripe_table) {
+				//
+				// 	$this->process(["message" => "PAYMENT METHOD UPGRADE user_gateway_stripe – MOVE TO user_payment_methods", "success" => true], true);
+				//
+				// 	// Find stripe payment id
+				// 	$payment_methods = $page->paymentMethods();
+				// 	$stripe_payment_id = false;
+				// 	foreach($payment_methods as $payment_method) {
+				// 		if($payment_method["gateway"] === "stripe") {
+				// 			$stripe_payment_id = $payment_method["id"];
+				// 		}
+				// 	}
+				//
+				// 	if(!$stripe_payment_id) {
+				// 		$this->process(["message" => "STRIPE PAYMENT ID NOT FOUND – CANNOT UPGRADE payment methods", "success" => false], true);
+				// 	}
+				//
+				//
+				// 	$sql = "SELECT * FROM ".SITE_DB.".user_gateway_stripe";
+				// 	if($query->sql($sql)) {
+				// 		$stripe_customers = $query->results();
+				//
+				// 		foreach($stripe_customers as $stripe_customer) {
+				//
+				// 			// Check if payment method exists (only if user subscription had this set as default)
+				// 			$sql = "SELECT * FROM ".SITE_DB.".user_payment_methods WHERE user_id = ".$stripe_customer["user_id"]." AND payment_method_id = $stripe_payment_id";
+				// 			if($query->sql($sql)) {
+				//
+				// 				$sql = "UPDATE ".SITE_DB.".user_payment_methods SET customer_id = '".$stripe_customer["customer_id"]."', created_at = '".$stripe_customer["created_at"]."' WHERE user_id = ".$stripe_customer["user_id"];
+				// 				$query->sql($sql);
+				//
+				// 			}
+				// 			else {
+				//
+				// 				$sql = "INSERT INTO ".SITE_DB.".user_payment_methods SET user_id = ".$stripe_customer["user_id"].", payment_method_id = ".$stripe_payment_id.", customer_id = '".$stripe_customer["customer_id"]."', created_at = '".$stripe_customer["created_at"]."'";
+				// 				$query->sql($sql);
+				//
+				// 			}
+				//
+				// 		}
+				// 	}
+				//
+				// 	// Remove gateway table
+				// 	$this->process($this->dropTable(SITE_DB.".user_gateway_stripe"), true);
+				//
+				// 	cache()->reset("payment_methods");
+				// }
+
+			}
 
 
 			# MEMBERS
@@ -841,31 +976,6 @@ class Upgrade extends Model {
 
 				}
 
-
-				// $orders = $SC->getOrders();
-				// if($orders) {
-				// 	foreach($orders as $order) {
-				//
-				// 		if(!$order["billing_name"]) {
-				// 			$user = $UC->getUsers(["user_id" => $order["user_id"]]);
-				//
-				// 			// create base data update sql
-				// 			$sql = "UPDATE ".$SC->db_orders." SET ";
-				//
-				// 			if($user["firstname"] && $user["lastname"]) {
-				// 				$sql .= "billing_name='".prepareForDB($user["firstname"]) ." ". prepareForDB($user["lastname"])."'";
-				// 			}
-				// 			else {
-				// 				$sql .= "billing_name='".prepareForDB($user["nickname"])."'";
-				// 			}
-				//
-				// 			$sql .= " WHERE id=".$order["id"];
-				// 			$query->sql($sql);
-				// 		}
-				//
-				// 	}
-				//
-				// }
 
 			}
 

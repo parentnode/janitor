@@ -153,6 +153,29 @@ Util.Modules["passwordProfile"] = new function() {
 
 
 // default new form
+Util.Modules["paymentMethods"] = new function() {
+	this.init = function(div) {
+
+		var payment_methods = u.qsa("li.payment_method", div);
+		var i, payment_method;
+		for(i = 0; i < payment_methods.length; i++) {
+			payment_method = payment_methods[i];
+			payment_method.action = u.qs("li.delete", payment_method);
+			payment_method.action.payment_method = payment_method;
+
+			payment_method.action.confirmed = function(response) {
+				page.notify(response);
+				if(response.cms_status && response.cms_status === "success") {
+					this.payment_method.parentNode.removeChild(this.payment_method);
+				}
+			}
+
+		}
+
+	}
+}
+
+// default new form
 Util.Modules["apitokenProfile"] = new function() {
 	this.init = function(div) {
 
@@ -184,6 +207,7 @@ Util.Modules["apitokenProfile"] = new function() {
 
 	}
 }
+
 
 // Update address
 Util.Modules["addressProfile"] = new function() {

@@ -79,11 +79,11 @@ class SuperSubscriptionCore extends Subscription {
 					$subscription["membership"] = $subscription["item"]["itemtype"] == "membership" ? true : false;
 				}
 
-				// extend payment method details
-				if($subscription["payment_method"]) {
-					$payment_method = $subscription["payment_method"];
-					$subscription["payment_method"] = $page->paymentMethods($payment_method);
-				}
+				// // extend payment method details
+				// if($subscription["payment_method"]) {
+				// 	$payment_method = $subscription["payment_method"];
+				// 	$subscription["payment_method"] = $page->paymentMethods($payment_method);
+				// }
 				// payment status
 				if($subscription["order_id"]) {
 					$subscription["order"] = $SC->getOrders(array("order_id" => $subscription["order_id"]));
@@ -109,11 +109,11 @@ class SuperSubscriptionCore extends Subscription {
 					// is this subscription used for membership
 					$subscription["membership"] = $subscription["item"]["itemtype"] == "membership" ? true : false;
 
-					// extend payment method details
-					if($subscription["payment_method"]) {
-						$payment_method = $subscription["payment_method"];
-						$subscription["payment_method"] = $page->paymentMethods($payment_method);
-					}
+					// // extend payment method details
+					// if($subscription["payment_method"]) {
+					// 	$payment_method = $subscription["payment_method"];
+					// 	$subscription["payment_method"] = $page->paymentMethods($payment_method);
+					// }
 
 					// payment status
 					if($subscription["order_id"]) {
@@ -138,11 +138,11 @@ class SuperSubscriptionCore extends Subscription {
 						// is this subscription used for membership
 						$subscriptions[$i]["membership"] = $subscriptions[$i]["item"]["itemtype"] == "membership" ? true : false;
 
-						// extend payment method details
-						if($subscription["payment_method"]) {
-							$payment_method = $subscription["payment_method"];
-							$subscriptions[$i]["payment_method"] = $page->paymentMethods($payment_method);
-						}
+						// // extend payment method details
+						// if($subscription["payment_method"]) {
+						// 	$payment_method = $subscription["payment_method"];
+						// 	$subscriptions[$i]["payment_method"] = $page->paymentMethods($payment_method);
+						// }
 						// payment status
 						if($subscriptions[$i]["order_id"]) {
 							$subscriptions[$i]["order"] = $SC->getOrders(array("order_id" => $subscription["order_id"]));
@@ -204,7 +204,7 @@ class SuperSubscriptionCore extends Subscription {
 	 * @param array $action
 	 * /#controller#/addSubscription
 	 * required in $_POST: user_id, item_id 
-	 * optional in $_POST: payment_method, order_id, custom_price
+	 * optional in $_POST: order_id, custom_price
 	 * 
 	 * @return array|false Subscription object. False on error.
 	 */
@@ -225,7 +225,7 @@ class SuperSubscriptionCore extends Subscription {
 			$user_id = $this->getProperty("user_id", "value");
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
-			$payment_method = $this->getProperty("payment_method", "value");
+			// $payment_method = $this->getProperty("payment_method", "value");
 			$custom_price = $this->getProperty("custom_price", "value");
 
 			// safety valve
@@ -279,9 +279,9 @@ class SuperSubscriptionCore extends Subscription {
 				if($order_id) {
 					$sql .= ", order_id = $order_id";
 				}
-				if($payment_method) {
-					$sql .= ", payment_method = $payment_method";
-				}
+				// if($payment_method) {
+				// 	$sql .= ", payment_method = $payment_method";
+				// }
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
 				}
@@ -326,7 +326,6 @@ class SuperSubscriptionCore extends Subscription {
 	 * – expires_at
 	 * – custom_price
 	 * — order_id
-	 * – payment_method
 	 * – subscription_renewal (boolean)
 	 * – switch_membership (boolean)
 	 * 
@@ -348,7 +347,7 @@ class SuperSubscriptionCore extends Subscription {
 			$subscription_id = $action[1];
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
-			$payment_method = $this->getProperty("payment_method", "value");
+			// $payment_method = $this->getProperty("payment_method", "value");
 			$expires_at = $this->getProperty("expires_at", "value");
 			$custom_price = $this->getProperty("custom_price", "value");
 			$subscription_renewal = $this->getProperty("subscription_renewal", "value");
@@ -454,9 +453,9 @@ class SuperSubscriptionCore extends Subscription {
 				if($order_id || $order_id === 'NULL') {
 					$sql .= ", order_id = $order_id";
 				}
-				if($payment_method) {
-					$sql .= ", payment_method = $payment_method";
-				}
+				// if($payment_method) {
+				// 	$sql .= ", payment_method = $payment_method";
+				// }
 				if($expires_at) {
 					$sql .= ", expires_at = '$expires_at'";
 				}
@@ -594,6 +593,9 @@ class SuperSubscriptionCore extends Subscription {
 			include_once("classes/shop/supershop.class.php");
 			$SC = new SuperShop();
 
+			include_once("classes/users/superuser.class.php");
+			$UC = new SuperUser();
+
 			// renew specific user
 			if(count($action) == 2) {
 				$user_id = $action[1];
@@ -631,7 +633,6 @@ class SuperSubscriptionCore extends Subscription {
 						// add item to cart and then create order
 						// TODO: implement custom_item_name
 						// $_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
-						
 						$cart = $SC->addToNewInternalCart($item["id"], [
 							"user_id" => $subscription["user_id"], 
 							"custom_name" => $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")",
@@ -651,12 +652,64 @@ class SuperSubscriptionCore extends Subscription {
 							}
 							else {
 								$_POST["order_comment"] = "Subscription renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
-							}							
+							}
 							$order = $SC->updateOrderComment(["updateOrderComment", $order["id"]])	;
 							unset($_POST);
 
 
-							// CONSIDER: if payment method is stripe and we have the stripe customer_id, then charge the order directly
+							// Charge subscription now
+
+							// Get payment method of subscription – if it exists
+							$payment_method_result = $UC->getPaymentMethodForSubscription([
+								"user_id" => $subscription["user_id"],
+								"subscription_id" => $subscription["id"]
+							]);
+
+							// if we have valid payment method, then capture and register payment
+							if(isset($payment_method_result["card"])) {
+
+								$return_url = str_replace("{GATEWAY}", $payment_method_result["gateway"], SITE_PAYMENT_REGISTER_INTENT);
+
+								$result = payments()->requestPaymentIntentForOrder(
+									$order, 
+									$payment_method_result["card"]["id"], 
+									$return_url
+								);
+
+								if($result["status"] === "PAYMENT_CAPTURED") {
+
+									$intent_registration_result = payments()->updatePaymentIntent($result["payment_intent_id"], $order);
+									if($intent_registration_result["status"] === "success") {
+
+										$payment_registration_result = payments()->registerPayment($order, $intent_registration_result["payment_intent"]);
+
+										// Clear messages
+										message()->resetMessages();
+
+										// failed registration of payment
+										if(!$payment_registration_result || $payment_registration_result["status"] !== "REGISTERED") {
+
+											mailer()->send(array(
+												"subject" => SITE_URL . " - Subscription renewal, payment registration failed",
+												"message" => "SuperUser->renewSubscriptions: FAILED REGISTERING PAYMENT, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"],
+												"template" => "system"
+											));
+
+										}
+
+									}
+								}
+								else {
+
+									mailer()->send(array(
+										"subject" => SITE_URL . " - Subscription renewal, payment action required",
+										"message" => "SuperUser->renewSubscriptions: payment action required, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"]."\n\nWe should send mail to user – To be implemented.",
+										"template" => "system"
+									));
+
+								}
+
+							}
 
 
 							$page->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);

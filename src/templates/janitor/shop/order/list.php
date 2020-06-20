@@ -21,6 +21,7 @@ else {
 	$orders = $model->getOrders(array("status" => $status));
 
 }
+$selected_status_name = $model->order_statuses[$status];
 
 session()->value("return_to_orderstatus", $status);
 
@@ -44,10 +45,20 @@ session()->value("return_to_orderstatus", $status);
 <? endif; ?>
 
 
-	<div class="all_items i:defaultList i:orderList filters">
+	<div class="all_items i:defaultList i:orderList filters <?= superNormalize($selected_status_name) ?>">
 		<? if($orders): ?>
 		<ul class="items orders">
-			<? foreach($orders as $order): ?>
+			<? foreach($orders as $order):
+				$total_order_price = $model->getTotalOrderPrice($order["id"]);
+				if($status < 2) {
+					$payment_intent = payments()->canBeCaptured([
+						"user_id" => $order["user_id"], 
+						"order_id" => $order["id"], 
+						"amount" => $total_order_price["price"],
+						"check_validity" => false
+					]);
+				}
+			?>
 			<li class="item order<?= ($order["shipping_status"] < 2 && $order["status"] != 3) ? " ship" : ""?>">
 				<h3>
 					<?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)
@@ -74,7 +85,7 @@ session()->value("return_to_orderstatus", $status);
 				<? endif; ?>
 
 					<dt class="price">Total price</dt>
-					<dd class="price"><?= formatPrice($model->getTotalOrderPrice($order["id"])) ?></dd>
+					<dd class="price"><?= formatPrice($total_order_price) ?></dd>
 
 				<? if(isset($order["user"])): ?>
 					<dt class="nickname">Nickname</dt>
@@ -111,10 +122,10 @@ session()->value("return_to_orderstatus", $status);
 				<ul class="actions">
 					<?= $HTML->link(($status < 2 ? "Edit" : "View"), "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
 
-					<? if($order["shipping_status"] < 2 && $order["status"] != 3): ?>
+					<? if($status < 2 && $order["shipping_status"] < 2 && $order["status"] != 3): ?>
 					<?= $HTML->oneButtonForm("Ship order", "/janitor/admin/shop/updateShippingStatus/".$order["id"], array(
 						"inputs" => array("shipped" => 1),
-						"class" => "primary",
+						"class" => "ship primary",
 						"wrapper" => "li.ship",
 						"confirm-value" => "Mark order as shipped?",
 
@@ -123,7 +134,22 @@ session()->value("return_to_orderstatus", $status);
 
 					)) ?>
 					<? endif; ?>
-
+					
+					<? if($status < 2 && $order["payment_status"] < 2 && $payment_intent): ?>
+					<?= $HTML->oneButtonForm(
+					"Capture ".formatPrice($total_order_price),
+					"capturePayment",
+					array(
+						"inputs" => array(
+							"payment_intent_id" => $payment_intent["payment_intent_id"],
+							"payment_amount" => $total_order_price["price"],
+						),
+						"confirm-value" => "Yes, I'm serious",
+						"class" => "capture primary",
+						"name" => "delete",
+						"wrapper" => "li.capture",
+					)); ?>
+					<? endif; ?>
 				</ul>
 			 </li>
 		 	<? endforeach; ?>

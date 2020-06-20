@@ -6,7 +6,7 @@ CREATE TABLE `SITE_DB`.`shop_payments` (
   `payment_amount` float NOT NULL,
  
   `transaction_id` varchar(50) DEFAULT NULL,
-  `payment_method` int(11) DEFAULT NULL,
+  `payment_method_id` int(11) DEFAULT NULL,
 
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified_at` timestamp NULL DEFAULT NULL,
@@ -14,8 +14,8 @@ CREATE TABLE `SITE_DB`.`shop_payments` (
   PRIMARY KEY (`id`),
   KEY `order_id` (`order_id`),
   KEY `currency` (`currency`),
-  KEY `payment_method` (`payment_method`),
+  KEY `payment_method_id` (`payment_method_id`),
   CONSTRAINT `shop_payments_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `SITE_DB`.`shop_orders` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `shop_payments_ibfk_2` FOREIGN KEY (`currency`) REFERENCES `SITE_DB`.`system_currencies` (`id`) ON UPDATE CASCADE,
-  CONSTRAINT `shop_payments_ibfk_3` FOREIGN KEY (`payment_method`) REFERENCES `SITE_DB`.`system_payment_methods` (`id`) ON UPDATE CASCADE  
+  CONSTRAINT `shop_payments_ibfk_3` FOREIGN KEY (`payment_method_id`) REFERENCES `SITE_DB`.`system_payment_methods` (`id`) ON UPDATE CASCADE  
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
