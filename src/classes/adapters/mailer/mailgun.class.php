@@ -91,7 +91,7 @@ class JanitorMailgun {
 
 		$mail_options["subject"] = $subject;
 		$mail_options["from"] = "$from_name <$from_email>";
-		$mail_options["h:Reply-To"] = "$reply_to";
+		if($reply_to) [$mail_options["h:Reply-To"] = $reply_to];
 		$mail_options["to"] = $recipients;
 		$mail_options["cc"] = $cc_recipients;
 		$mail_options["bcc"] = $bcc_recipients;
@@ -222,7 +222,7 @@ class JanitorMailgun {
 		$mail_options["subject"] = $subject;
 		$mail_options["from"] = "$from_name <$from_email>";
 		$mail_options["to"] = $recipients;
-		$mail_options["h:Reply-To"] = $reply_to;
+		if($reply_to) [$mail_options["h:Reply-To"] = $reply_to];
 		$mail_options["cc"] = $cc_recipients;
 		$mail_options["bcc"] = $bcc_recipients;
 		$mail_options["text"] = $text;

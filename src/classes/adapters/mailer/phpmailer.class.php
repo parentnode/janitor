@@ -82,6 +82,9 @@ class JanitorPHPMailer {
 					case "from_email"             : $from_email             = $_value; break;
 					case "reply_to"               : $reply_to               = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
+					case "cc_recipients"          : $cc_recipients          = $_value; break;
+					case "bcc_recipients"         : $bcc_recipients         = $_value; break;
+
 
 					case "attachments"            : $attachments            = $_value; break;
 
@@ -167,6 +170,8 @@ class JanitorPHPMailer {
 					case "from_email"             : $from_email             = $_value; break;
 					case "reply_to"               : $reply_to               = $_value; break;
 					case "recipients"             : $recipients             = $_value; break;
+					case "cc_recipients"          : $cc_recipients          = $_value; break;
+					case "bcc_recipients"         : $bcc_recipients         = $_value; break;
 					case "values"                 : $recipient_values       = $_value; break;
 
 					case "attachments"            : $attachments            = $_value; break;
@@ -175,8 +180,8 @@ class JanitorPHPMailer {
 			}
 		}
 
-		print "recipient values:<br>\n";
-		print_r($recipient_values);
+		// print "recipient values:<br>\n";
+		// print_r($recipient_values);
 
 
 		foreach($recipients as $recipient) {
@@ -205,6 +210,9 @@ class JanitorPHPMailer {
 				"from_email" => $from_email,
 				"reply_to" => $reply_to,	
 				"recipients" => [$recipient],
+				"cc_recipients" => $cc_recipients,
+				"bcc_recipients" => $bcc_recipients,
+
 
 				"attachments" => $attachments,
 				

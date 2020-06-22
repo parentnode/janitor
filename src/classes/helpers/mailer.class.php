@@ -385,7 +385,6 @@ class MailGateway {
 				if($message && !isset($values[$recipient]["message"])) {
 					$values[$recipient]["message"] = $message;
 				}
-
 			}
 
 
