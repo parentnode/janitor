@@ -177,7 +177,6 @@ class TypeMembership extends Itemtype {
 		$order_id = $order["id"];
 		$user_id = $order["user_id"];
 
-		$custom_price = false;
 		if(isset($order_item["custom_price"]) && $order_item["custom_price"] !== false) {
 			$custom_price = $order_item["custom_price"];
 		}
@@ -249,8 +248,12 @@ class TypeMembership extends Itemtype {
 				$_POST["item_id"] = $item_id;
 				$_POST["user_id"] = $user_id;
 				$_POST["order_id"] = $order_id;
-				$_POST["custom_price"] = $custom_price;
-				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
+				if(isset($custom_price) && ($custom_price || $custom_price === "0")) {
+					$_POST["custom_price"] = $custom_price;
+				}
+				else {
+					$_POST["custom_price"] = null;
+				}					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 				$subscription_id = $subscription["id"];
 				unset($_POST);
 	
