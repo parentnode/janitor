@@ -177,6 +177,7 @@ class TypeMembership extends Itemtype {
 		$order_id = $order["id"];
 		$user_id = $order["user_id"];
 
+		$custom_price = false;
 		if(isset($order_item["custom_price"]) && $order_item["custom_price"] !== false) {
 			$custom_price = $order_item["custom_price"];
 		}
