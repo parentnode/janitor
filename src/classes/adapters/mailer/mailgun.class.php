@@ -223,8 +223,12 @@ class JanitorMailgun {
 		$mail_options["from"] = "$from_name <$from_email>";
 		$mail_options["to"] = $recipients;
 		if($reply_to) [$mail_options["h:Reply-To"] = $reply_to];
-		$mail_options["cc"] = $cc_recipients;
-		$mail_options["bcc"] = $bcc_recipients;
+		
+		// CC and BCC recipients currently disabled, since Mailgun handles it differently than we prefer. 
+		// We want a CC mail per recipient, Mailgun only provides one CC mail per batch 
+		// $mail_options["cc"] = $cc_recipients;
+		// $mail_options["bcc"] = $bcc_recipients;
+		
 		$mail_options["text"] = $text;
 		$mail_options["html"] = $html;
 		$mail_options["recipient-variables"] = json_encode($recipient_values);
