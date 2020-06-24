@@ -1408,6 +1408,49 @@ class SuperShopCore extends Shop {
 		return false;
 	}
 
+	/**
+	* Get total order price
+	*
+	* Calculate total order price by adding each order item + vat
+	*
+	* @return price object
+	*/
+	function getTotalOrderPrice($order_id) {
+		$order = $this->getOrders(array("order_id" => $order_id));
+		$total_price = 0;
+		$total_vat = 0;
+
+		if($order["items"]) {
+			foreach($order["items"] as $item) {
+				$total_price += $item["total_price"];
+				$total_vat += $item["total_vat"];
+			}
+		}
+		return array("price" => $total_price, "vat" => $total_vat, "currency" => $order["currency"], "country" => $order["country"]);
+	}
+
+	/**
+	* Get remaining order price
+	*
+	* @return price object without VAT info
+	*/
+	function getRemainingOrderPrice($order_id) {
+		$total_order_price = $this->getTotalOrderPrice($order_id);
+		$total_order_amount = $total_order_price["price"];
+
+		// Loop through all payments to get remaining payment amount
+		$payments = $this->getPayments(["order_id" => $order_id]);
+		$total_payments = 0;
+		if($payments) {
+			foreach($payments as $payment) {
+				$total_payments += $payment["payment_amount"];
+			}
+		}
+
+		$total_order_amount = $total_order_amount-$total_payments;
+
+		return array("price" => $total_order_amount, "currency" => $total_order_price["currency"]);
+	}
 
 	function getUnpaidOrders($_options=false) {
 		

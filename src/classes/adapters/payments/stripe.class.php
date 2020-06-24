@@ -775,7 +775,9 @@ class JanitorStripe {
 	// Charges now – allows for future charging
 	function requestPaymentIntentForOrder($order, $gateway_payment_method_id, $return_url) {
 
-		$SC = new Shop();
+		include_once("classes/shop/supershop.class.php");
+		$SC = new SuperShop();
+
 		// Get intent for full order price – to be used for re-occuring subscriptions
 		$amount = $SC->getTotalOrderPrice($order["id"]);
 		$currency = $order["currency"];
@@ -948,7 +950,8 @@ class JanitorStripe {
 	// Charges now
 	function requestPaymentIntentForOrders($orders, $gateway_payment_method_id, $return_url) {
 
-		$SC = new Shop();
+		include_once("classes/shop/supershop.class.php");
+		$SC = new SuperShop();
 		// Get intent for full order price – to be used for re-occuring subscriptions
 
 		$amount = 0;
