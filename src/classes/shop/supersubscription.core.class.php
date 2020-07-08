@@ -666,7 +666,7 @@ class SuperSubscriptionCore extends Subscription {
 							]);
 
 							// if we have valid payment method, then capture and register payment
-							if(isset($payment_method_result["card"])) {
+							if(isset($payment_method_result["card"]) && $payment_method_result["card"]) {
 
 								$return_url = str_replace("{GATEWAY}", $payment_method_result["gateway"], SITE_PAYMENT_REGISTER_INTENT);
 
