@@ -593,12 +593,12 @@ class JanitorStripe {
 			}
 			else {
 
-				return ["status" => "STRIPE_ERROR"];
+				return ["status" => "STRIPE_ERROR", "message" => "There was an error processing your payment"];
 
 			}
 		}
 
-		return ["status" => "CART_NOT_FOUND"];
+		return ["status" => "CART_NOT_FOUND", "message" => "Cart not found"];
 	}
 
 	// Request payment intent for cart
