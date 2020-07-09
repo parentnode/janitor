@@ -43,6 +43,7 @@ class TypeMessage extends Itemtype {
 		$this->addToModel("description", array(
 			"type" => "text",
 			"label" => "Short \"preview text\"",
+			"required" => true,
 			"max" => 155,
 			"hint_message" => "Write a short teaser text for the message preview pane.",
 			"error_message" => "Your message needs a preview text – max 155 characters."
@@ -52,6 +53,7 @@ class TypeMessage extends Itemtype {
 		$this->addToModel("html", array(
 			"type" => "html",
 			"label" => "Full message",
+			"required" => true,
 			"allowed_tags" => "p,h2,h3,h4,ul,ol,jpg,png",
 			"hint_message" => "Write the message",
 			"error_message" => "No words is not gonna fly."
@@ -236,6 +238,7 @@ class TypeMessage extends Itemtype {
 
 						// ignore all text nodes
 						if($node->nodeName != "#text") {
+							// writeToFile($node->nodeName);
 //							print "LOOK FOR:" .$node->nodeName."<br>\n";
 
 							$tag = strtolower($node->nodeName);
@@ -390,12 +393,15 @@ class TypeMessage extends Itemtype {
 								}
 							}
 
-
 							// Import node to layout dom (cannot append without importing first)
-							$node = $dom_layout->importNode($node, true);
+							// Import node via Janitor DOM, to ensure correct encoding
+							$node = $DC->importNode($dom_layout, $node);
+							// $node = $dom_layout->importNode($node, true);
+
 
 							// append updated tag to mail layout
-							$content_placeholder->appendChild($node);
+							$node = $content_placeholder->appendChild($node);
+
 
 						}
 
@@ -404,7 +410,6 @@ class TypeMessage extends Itemtype {
 				}
 
 			}
-
 			// get HTML from updated DOM
 			$html = $DC->saveHTML($dom_layout);	
 		}

@@ -212,13 +212,84 @@ class DOM extends DOMElement {
 	}
 
 
+	function importNodeIterator($node) {
 
-	// innerHTML equivalent
-	function innerHTML($node, $content) {
-		while($node->childNodes->length) {
-			$node->removeChild($node->firstChild);
+		foreach($node->childNodes as $child_node) {
+
+			// TEXT fragment
+			if($child_node->nodeName == "#text") {
+				// trim and remove tabs
+				$child_node->textContent =  preg_replace("/&([#0-9a-zA-Z]{2,6};)/", "&amp;$1", $child_node->textContent);
+				$child_node->textContent =  mb_convert_encoding($child_node->textContent, "HTML-ENTITIES", "UTF-8");
+			}
+			else if($child_node->childNodes){
+				$this->importNodeIterator($child_node);
+			}
+
 		}
-		$node->appendChild(new DOMText($content));
+
+		return $node;
+	}
+
+
+	function importNode($dom, $node) {
+
+		// Import node to layout dom (cannot append without importing first)
+		$node = $dom->importNode($node, true);
+
+		$node = $this->importNodeIterator($node);
+
+		return $node;
+
+	}
+
+	function innerHTMLIterator($node) {
+
+		$html_string = '';
+
+		// loop children
+		foreach($node->childNodes as $child_node) {
+
+
+			// TEXT fragment
+			if($child_node->nodeName == "#text") {
+				$html_string .= $child_node->textContent;
+			}
+			else if($child_node->childNodes){
+
+				$html_string .= '<'.strtolower($child_node->nodeName);
+				// loop attributes
+				foreach($child_node->attributes as $attribute => $attribute_node) {
+					$html_string .= ' '.$attribute.'="'.$attribute_node->value.'"';
+				}
+				$html_string .= '>';
+
+				$html_string .= $this->innerHTMLIterator($child_node);
+
+				$html_string .= '</'.strtolower($child_node->nodeName).'>';
+
+			}
+
+		}
+
+		return $html_string;
+	}
+
+	// innerHTML equivalent ish get/set
+	function innerHTML($node, $content = false) {
+		if($content) {
+			while($node->childNodes->length) {
+				$node->removeChild($node->firstChild);
+			}
+
+			$content =  preg_replace("/&([#0-9a-zA-Z]{2,6};)/", "&amp;$1", $content);
+			$content =  mb_convert_encoding($content, "HTML-ENTITIES", "UTF-8");
+
+			$node->appendChild(new DOMText($content));
+		}
+		else {
+			return $this->innerHTMLIterator($node);
+		}
 	}
 
 	// get manipulator classVar from node
