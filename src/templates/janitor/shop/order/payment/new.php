@@ -134,7 +134,7 @@ $payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
 			<?= $model->input("order_id", array("type" => "hidden", "value" => $order_id)) ?>
 			<?= $model->input("return_to", array("type" => "hidden", "value" => "/janitor/admin/shop/order/edit/".$order_id)) ?>
 			<fieldset>
-				<?= $model->input("payment_method", array(
+				<?= $model->input("payment_method_id", array(
 					"type" => "select",
 					"options" => $model->toOptions($payment_sources, "id", "name"),
 				)) ?>

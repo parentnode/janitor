@@ -666,7 +666,7 @@ class SuperSubscriptionCore extends Subscription {
 							]);
 
 							// if we have valid payment method, then capture and register payment
-							if(isset($payment_method_result["card"])) {
+							if(isset($payment_method_result["card"]) && $payment_method_result["card"]) {
 
 								$return_url = str_replace("{GATEWAY}", $payment_method_result["gateway"], SITE_PAYMENT_REGISTER_INTENT);
 
@@ -703,7 +703,7 @@ class SuperSubscriptionCore extends Subscription {
 
 									mailer()->send(array(
 										"subject" => SITE_URL . " - Subscription renewal, payment action required",
-										"message" => "SuperUser->renewSubscriptions: payment action required, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"]."\n\nWe should send mail to user – To be implemented.",
+										"message" => "SuperUser->renewSubscriptions: payment action required, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"].", ".print_r($payment_method_result, true)."\n\nWe should send mail to user – To be implemented.",
 										"template" => "system"
 									));
 
@@ -736,6 +736,8 @@ class SuperSubscriptionCore extends Subscription {
 						$query->sql($sql);
 
 					}
+
+					message()->resetMessages();
 
 				}
 
