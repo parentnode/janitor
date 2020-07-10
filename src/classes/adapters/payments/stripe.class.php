@@ -903,7 +903,7 @@ class JanitorStripe {
 
 
 
-	// Process payment method for order
+	// Process payment method for orders
 	function processCardForOrders($orders, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
 		// debug(["processCartAndPayment stripe"]);
 
@@ -1503,7 +1503,7 @@ class JanitorStripe {
 
 	}
 
-	// Capture and existing payment intent
+	// Capture an existing payment intent
 	function capturePayment($payment_intent_id, $payment_amount) {
 
 		global $page;
@@ -1553,7 +1553,7 @@ class JanitorStripe {
 				}
 
 			}
-			// If payment intent exists, but is not captuable
+			// If payment intent exists, but is not capturable
 			else if($payment_intent_id) {
 
 				// Make sure intent is deleted
