@@ -613,6 +613,7 @@ class SuperSubscriptionCore extends Subscription {
 
 			if($query->sql($sql)) {
 				$expired_subscriptions = $query->results();
+				// debug(["expired_subscriptions", $expired_subscriptions]);
 
 				foreach($expired_subscriptions as $subscription) {
 
@@ -630,6 +631,7 @@ class SuperSubscriptionCore extends Subscription {
 
 						$custom_price = $subscription["custom_price"];
 
+						// debug(["item_id", $item["id"], "price", $price]);
 						// add item to cart and then create order
 						// TODO: implement custom_item_name
 						// $_POST["item_name"] = $item["name"] . ", automatic renewal (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
@@ -676,6 +678,7 @@ class SuperSubscriptionCore extends Subscription {
 									$return_url
 								);
 
+								// debug(["result", $result]);
 								if($result["status"] === "PAYMENT_CAPTURED") {
 
 									$intent_registration_result = payments()->updatePaymentIntent($result["payment_intent_id"], $order);
@@ -701,9 +704,13 @@ class SuperSubscriptionCore extends Subscription {
 								}
 								else {
 
+									$_POST["order_id"] = $order["id"];
+									$SC->sendPaymentReminder(["sendPaymentReminder"]);
+									unset($_POST);
+
 									mailer()->send(array(
 										"subject" => SITE_URL . " - Subscription renewal, payment action required",
-										"message" => "SuperUser->renewSubscriptions: payment action required, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"].", ".print_r($payment_method_result, true)."\n\nWe should send mail to user – To be implemented.",
+										"message" => "SuperUser->renewSubscriptions: payment action required, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"].", ".print_r($payment_method_result, true)."\n\nWe HAVE sent mail to user",
 										"template" => "system"
 									));
 

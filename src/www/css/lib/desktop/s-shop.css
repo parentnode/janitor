@@ -145,6 +145,9 @@
 #content .scene.newPayment > div.capture ul.actions {overflow: hidden;}
 #content .scene.newPayment > div.capture ul.actions li {float: left; clear: both;}
 
+#content .scene.newPayment > div.capture ul.payment_options ul.actions {padding-bottom: 0;}
+#content .scene.newPayment > div.capture ul.payment_options ul.actions li {float: none; display: inline-block; padding-bottom: 5px;}
+
 #content .scene.newPayment div.reminder ul.info {padding: 0 30px 25px;}
 #content .scene.newPayment div.reminder ul.info li {padding: 0 0 3px; display: block;}
 

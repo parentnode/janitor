@@ -36,6 +36,9 @@ $payment_methods = $this->paymentMethods();
 // $user_payment_methods = $UC->getPaymentMethods(["user_id" => $order["user_id"], "extend" => true]);
 
 $payment_intent = payments()->canBeCaptured(["user_id" => $order["user_id"], "order_id" => $order["id"], "amount" => $payment_amount]);
+if(!$payment_intent) {
+	$user_payment_methods = $UC->getPaymentMethods(["user_id" => $order["user_id"], "extend" => true]);
+}
 
 // debug(["user_payment_methods", $user_payment_methods]);
 
@@ -96,10 +99,12 @@ $payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
 <? if($payment_amount > 0): ?>
 	<div class="capture i:collapseHeader i:capturePaymentNew">
 		<h2>Capture payment now</h2>
+
+		<? if($payment_intent): ?>
+
 		<p>
 			The payment can be captured now.
 		</p>
-		<? if($payment_intent): ?>
 
 		<ul class="actions">
 			<?= $HTML->oneButtonForm(
@@ -117,11 +122,55 @@ $payment_reminders = $model->getPaymentReminders(["order_id" => $order["id"]]);
 			)) ?>
 		</ul>
 
+		<? elseif($user_payment_methods): ?>
+
+		<p>
+			We do <strong>not</strong> have a payment intent for this order, but you can still attempt to capture payment
+			using one of the following registered cards.
+		</p>
+		<ul class="payment_options">
+		<? foreach($user_payment_methods as $user_payment_method): ?>
+
+			<? if($user_payment_method && $user_payment_method["cards"]): ?>
+
+				<? foreach($user_payment_method["cards"] as $card): ?>
+
+			<li class="payment_method user_payment_method<?= $user_payment_method["classname"] ? " ".$user_payment_method["classname"] : "" ?>">
+				<ul class="actions">
+					<?= $HTML->oneButtonForm(
+					"Pay order with card ending in " . $card["last4"], 
+					"capturePaymentWithoutIntent",
+					array(
+						"inputs" => array(
+							"order_id" => $order["id"], 
+							"user_payment_method_id" => $user_payment_method["id"], 
+							"payment_method_id" => $user_payment_method["payment_method_id"],
+							"gateway_payment_method_id" => $card["id"]
+						),
+						"confirm-value" => "I'm sure, let's try",
+						"wait-value" => "Please wait",
+						"success-location" => $this->url,
+						"class" => ($card["default"] ? "primary" : ""),
+						"name" => "continue",
+						"wrapper" => "li.continue.".$user_payment_method["classname"],
+					)) ?>
+				</ul>
+				<p><?= $user_payment_method["description"] ?></p>
+			</li>
+				<? endforeach; ?>
+
+			<? endif; ?>
+
+		<? endforeach; ?>
+		</ul>
+
 		<? else: ?>
+
 		<p class="note">
 			Payment cannot be automatically captured, because we don't have sufficient information available to charge the 
 			client for this order. You can choose to send a payment reminder to the user (under the reminder section).
 		</p>
+
 		<? endif; ?>
 
 	</div>
