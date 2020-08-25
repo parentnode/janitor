@@ -1915,7 +1915,7 @@ class ShopCore extends Model {
 
 					// no automatic payment processing available
 					// create order from cart
-					$order = $model->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
+					$order = $this->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
 					if($order) {
 
 						// Clear messages
@@ -1993,7 +1993,7 @@ class ShopCore extends Model {
 
 					// no automatic payment processing available
 					// create order from cart
-					$order = $model->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
+					$order = $this->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
 					if($order) {
 
 						// Clear messages
