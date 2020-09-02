@@ -126,16 +126,30 @@ class PaymentGateway {
 	}
 
 
-	function capturePayment($payment_intent_id, $payment_amoutn) {
+
+
+	function capturePayment($payment_intent_id, $payment_amount) {
 		// only load payment adapter when needed
 		$this->init_adapter();
 
 		// Only attempt with valid adapter
 		if($this->adapter) {
-			return $this->adapter->capturePayment($payment_intent_id, $payment_amoutn);
+			return $this->adapter->capturePayment($payment_intent_id, $payment_amount);
 		}
 		return false;
 	}
+
+	function capturePaymentWithoutIntent($order_id, $gateway_payment_method_id) {
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->capturePaymentWithoutIntent($order_id, $gateway_payment_method_id);
+		}
+		return false;
+	}
+
 
 
 

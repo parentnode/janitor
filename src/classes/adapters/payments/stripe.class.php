@@ -566,7 +566,6 @@ class JanitorStripe {
 	}
 
 
-
 	// Process payment method for cart
 	function processCardForCart($cart, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
 		// debug(["processCartAndPayment stripe"]);
@@ -843,12 +842,14 @@ class JanitorStripe {
 				else if($payment_intent->status === "requires_action") {
 					return [
 						"status" => "ACTION_REQUIRED", 
+						"payment_intent_id" => $payment_intent->id, 
 						"action" => $payment_intent->next_action->redirect_to_url->url
 					];
 				}
 				else if($payment_intent->status === "requires_source_action") {
 					return [
 						"status" => "ACTION_REQUIRED", 
+						"payment_intent_id" => $payment_intent->id, 
 						"action" => $payment_intent->next_source_action->authorize_with_url->url
 					];
 				}
@@ -1027,12 +1028,14 @@ class JanitorStripe {
 				else if($payment_intent->status === "requires_action") {
 					return [
 						"status" => "ACTION_REQUIRED", 
-						"action" => $payment_intent->next_action->redirect_to_url->url
+						"payment_intent_id" => $payment_intent->id, 
+						"action" => $payment_intent->next_action->redirect_to_url->url,
 					];
 				}
 				else if($payment_intent->status === "requires_source_action") {
 					return [
 						"status" => "ACTION_REQUIRED", 
+						"payment_intent_id" => $payment_intent->id, 
 						"action" => $payment_intent->next_source_action->authorize_with_url->url
 					];
 				}
@@ -1624,6 +1627,140 @@ class JanitorStripe {
 
 		return false;
 		
+	}
+
+
+	// Capture payment without an available intent
+	function capturePaymentWithoutIntent($order_id, $gateway_payment_method_id) {
+
+		include_once("classes/shop/supershop.class.php");
+		$SC = new SuperShop();
+
+		$order = $SC->getOrders(["order_id" => $order_id]);
+
+
+		// Get intent for full order price – to be used for re-occuring subscriptions
+		$amount = $SC->getTotalOrderPrice($order["id"]);
+		$currency = $order["currency"];
+		$customer_id = $this->getCustomerId($order["user_id"]);
+
+		try {
+
+			$payment_intent = \Stripe\PaymentIntent::create([
+				"amount" => $amount["price"]*100,
+				"currency" => $currency,
+
+				"confirm" => true,
+
+				"description" => "think.dk–".$order["order_no"],
+				"statement_descriptor" => cutString("think.dk–".$order["order_no"], 22),
+				"statement_descriptor_suffix" => cutString($order["order_no"], 22),
+
+				"customer" => "$customer_id",
+
+				"payment_method" => "$gateway_payment_method_id",
+				"setup_future_usage" => "off_session",
+
+				// User should be returned to this url upon SCA confirmation
+				// "return_url" => $return_url,
+
+				"metadata" => [
+					"order_no" => $order["order_no"]
+				],
+
+				// Does this make any sense?
+				"mandate_data" => [
+					"customer_acceptance" => [
+						"type" => "online",
+						"online" => [
+							"ip_address" => session()->value("ip"),
+							"user_agent" => session()->value("useragent"),
+						],
+					],
+				],
+			
+			]);
+
+			// debug(["payment_intent2", $payment_intent]);
+			if($payment_intent) {
+
+				if($payment_intent->status === "succeeded") {
+
+					// Register payment
+					$registration = $this->registerPayment($order, $payment_intent);
+					if($registration && $registration["status"] === "REGISTERED") {
+
+						$order = $SC->getOrders(["order_id" => $order_id]);
+
+						return [
+							"status" => "success",
+							"order" => $order, 
+						];
+
+					}
+
+				}
+
+			}
+
+			// Could not be captured
+			return [
+				"status" => "NOT_CAPTURABLE"
+			];
+
+		}
+		// Card error
+		catch(\Stripe\Exception\CardException $exception) {
+
+			$this->exceptionHandler("PaymentIntent::create", $exception);
+			return $this->exceptionResponder($exception);
+
+		}
+		// Too many requests made to the API too quickly
+		catch (\Stripe\Exception\RateLimitException $exception) {
+
+			$this->exceptionHandler("PaymentIntent::create", $exception);
+			return $this->exceptionResponder($exception);
+
+		}
+		// Invalid parameters were supplied to Stripe's API
+		catch (\Stripe\Exception\InvalidRequestException $exception) {
+
+			$this->exceptionHandler("PaymentIntent::create", $exception);
+			return $this->exceptionResponder($exception);
+
+		}
+		// Authentication with Stripe's API failed
+		catch (\Stripe\Exception\AuthenticationException $exception) {
+
+			$this->exceptionHandler("PaymentIntent::create", $exception);
+			return $this->exceptionResponder($exception);
+
+		}
+		// Network communication with Stripe failed
+		catch (\Stripe\Exception\ApiConnectionException $exception) {
+
+			$this->exceptionHandler("PaymentIntent::create", $exception);
+			return $this->exceptionResponder($exception);
+
+		}
+		// Generic error
+		catch (\Stripe\Exception\ApiErrorException $exception) {
+
+			$this->exceptionHandler("PaymentIntent::create", $exception);
+			return $this->exceptionResponder($exception);
+
+		}
+		// Something else happened, completely unrelated to Stripe
+		catch (Exception $exception) {
+
+			$this->exceptionHandler("PaymentIntent::create", $exception);
+			return $this->exceptionResponder($exception);
+
+		}
+
+		return false;
+
 	}
 
 

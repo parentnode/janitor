@@ -23,6 +23,7 @@ input, textarea {outline: none;}
 
 
 a, span {font-size: inherit; font-family: inherit; font-style: inherit; font-weight: inherit; line-height: inherit; color: inherit; text-transform: inherit;}
+em, strong {font-size: inherit; font-family: inherit; line-height: inherit; color: inherit; text-transform: inherit;}
 
 
 h1 {padding: 20px 30px; text-transform: uppercase; font-size: 26px;}

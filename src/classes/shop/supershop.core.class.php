@@ -2115,6 +2115,32 @@ class SuperShopCore extends Shop {
 		return false;
 	}
 
+	// Capture payment intent
+	function capturePaymentWithoutIntent($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 1 && $this->validateList(array("order_id"))) {
+
+			$order_id = $this->getProperty("order_id", "value");
+			$gateway_payment_method_id = getPost("gateway_payment_method_id");
+
+			$result = payments()->capturePaymentWithoutIntent($order_id, $gateway_payment_method_id);
+			if($result && $result["status"] === "success") {
+				message()->resetMessages();
+				return $result["order"];
+			}
+			else if($result && $result["status"] === "NOT_CAPTURABLE"){
+				message()->addMessage("Payment is not available for capturing", array("type" => "error"));
+				return false;
+			}
+
+		}
+
+		message()->addMessage("Payment could not be captured", array("type" => "error"));
+		return false;
+	}
 
 }
 
