@@ -1283,7 +1283,7 @@ class SuperUserCore extends User {
 			$sql = "INSERT INTO $this->db_payment_methods SET payment_method_id = $payment_method_id, user_id = $user_id, default_method = 1";
 			// debug([$sql]);
 			if($query->sql($sql)) {
-				message()->addMessage("PaymentMethod added");
+				// message()->addMessage("PaymentMethod added");
 				return true;
 			}
 		}

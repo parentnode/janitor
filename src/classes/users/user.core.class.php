@@ -1652,7 +1652,7 @@ class UserCore extends Model {
 			$sql = "INSERT INTO $this->db_payment_methods SET payment_method_id = $payment_method_id AND user_id = $user_id";
 			// debug([$sql]);
 			if($query->sql($sql)) {
-				message()->addMessage("PaymentMethod added");
+				// message()->addMessage("PaymentMethod added");
 				return true;
 			}
 		}
