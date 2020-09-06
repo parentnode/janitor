@@ -56,10 +56,20 @@ class Cache {
 	function reset($key) {
 
 		if($this->cache->get(SITE_URL."-".$key)) {
-			return $this->cache->delete(SITE_URL."-".$key);
+			if($this->cache_type === "redis") {
+				return $this->cache->del(SITE_URL."-".$key);
+			}
+			else {
+				return $this->cache->delete(SITE_URL."-".$key);
+			}
 		}
 		else if($this->cache->get($key)) {
-			return $this->cache->delete($key);
+			if($this->cache_type === "redis") {
+				return $this->cache->del($key);
+			}
+			else {
+				return $this->cache->delete($key);
+			}
 		}
 
 	}
