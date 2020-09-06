@@ -1887,11 +1887,6 @@ class ShopCore extends Model {
 		// does values validate
 		if(count($action) == 1 && $this->validateList(array("payment_method_id", "cart_id"))) {
 
-			// $query = new Query();
-			$UC = new User();
-
-
-			$user_id = session()->value("user_id");
 			$cart_id = $this->getProperty("cart_id", "value");
 			$payment_method_id = $this->getProperty("payment_method_id", "value");
 
@@ -1916,7 +1911,7 @@ class ShopCore extends Model {
 
 					// no automatic payment processing available
 					// create order from cart
-					$order = $model->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
+					$order = $this->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
 					if($order) {
 
 						// Clear messages
@@ -1961,8 +1956,6 @@ class ShopCore extends Model {
 
 			$UC = new User();
 
-
-			$user_id = session()->value("user_id");
 			$cart_id = $this->getProperty("cart_id", "value");
 			$payment_method_id = $this->getProperty("payment_method_id", "value");
 			$user_payment_method_id = $this->getProperty("user_payment_method_id", "value");
@@ -1994,7 +1987,7 @@ class ShopCore extends Model {
 
 					// no automatic payment processing available
 					// create order from cart
-					$order = $model->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
+					$order = $this->newOrderFromCart(["newOrderFromCart", $cart["cart_reference"]]);
 					if($order) {
 
 						// Clear messages
@@ -2038,11 +2031,6 @@ class ShopCore extends Model {
 		// does values validate
 		if(count($action) == 1 && $this->validateList(array("payment_method_id", "order_id"))) {
 
-			// $query = new Query();
-			$UC = new User();
-
-
-			$user_id = session()->value("user_id");
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method_id = $this->getProperty("payment_method_id", "value");
 
@@ -2089,11 +2077,8 @@ class ShopCore extends Model {
 		// does values validate
 		if(count($action) == 1 && $this->validateList(array("payment_method_id", "order_id", "user_payment_method_id"))) {
 
-			// $query = new Query();
 			$UC = new User();
 
-
-			$user_id = session()->value("user_id");
 			$order_id = $this->getProperty("order_id", "value");
 			$payment_method_id = $this->getProperty("payment_method_id", "value");
 			$user_payment_method_id = $this->getProperty("user_payment_method_id", "value");
@@ -2152,10 +2137,6 @@ class ShopCore extends Model {
 		// does values validate
 		if(count($action) == 1 && $this->validateList(array("payment_method_id", "order_ids"))) {
 
-			$UC = new User();
-
-
-			$user_id = session()->value("user_id");
 			$order_ids = $this->getProperty("order_ids", "value");
 			$payment_method_id = $this->getProperty("payment_method_id", "value");
 
@@ -2210,8 +2191,6 @@ class ShopCore extends Model {
 			// $query = new Query();
 			$UC = new User();
 
-
-			$user_id = session()->value("user_id");
 			$order_ids = $this->getProperty("order_ids", "value");
 			$payment_method_id = $this->getProperty("payment_method_id", "value");
 			$user_payment_method_id = $this->getProperty("user_payment_method_id", "value");

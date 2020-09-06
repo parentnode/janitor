@@ -214,6 +214,9 @@ class JanitorStripe {
 
 		global $page;
 
+		include_once("classes/users/superuser.class.php");
+		$UC = new SuperUser();
+
 		// does customer already exist in Stripe account
 		$customer_id = $this->getCustomerId($user_id);
 
@@ -254,6 +257,12 @@ class JanitorStripe {
 				// Attach method to customer, if it didn't exist already
 				$attached = $payment_method->attach([
 					"customer" => $customer_id,
+				]);
+
+				// Add user payment method
+				$UC->addPaymentMethod([
+					"payment_method_id" => $this->getStripePaymentMethodId(),
+					"user_id" => $user_id,
 				]);
 
 				// debug(["new payment_method", $payment_method]);
@@ -586,7 +595,7 @@ class JanitorStripe {
 				}
 				else {
 
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"]];
+					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"]];
 
 				}
 			}
@@ -756,18 +765,18 @@ class JanitorStripe {
 				}
 				else {
 
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"]];
+					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"]];
 
 				}
 			}
 			else {
 
-				return ["status" => "STRIPE_ERROR"];
+				return ["status" => "STRIPE_ERROR", "message" => "There was an error processing your payment"];
 
 			}
 		}
 
-		return ["status" => "ORDER_NOT_FOUND"];
+		return ["status" => "ORDER_NOT_FOUND", "message" => "Order not found"];
 	}
 
 	// Request payment intent for order
@@ -933,18 +942,18 @@ class JanitorStripe {
 				}
 				else {
 
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"]];
+					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"]];
 
 				}
 			}
 			else {
 
-				return ["status" => "STRIPE_ERROR"];
+				return ["status" => "STRIPE_ERROR", "message" => "There was an error processing your payment"];
 
 			}
 		}
 
-		return ["status" => "ORDER_NOT_FOUND"];
+		return ["status" => "ORDER_NOT_FOUND", "message" => "Orders not found"];
 	}
 
 	// Request payment intent for orders
@@ -1140,6 +1149,7 @@ class JanitorStripe {
 						"payment_status" => $payment_intent->status,
 						"payment_intent_id" => $payment_intent->id,
 						"payment_intent" => $payment_intent,
+						"code" => $payment_intent->last_payment_error->code,
 						"message" => $payment_intent->last_payment_error->message,
 						"gateway" => "stripe",
 						"cart_reference" => $cart_reference,
@@ -1788,12 +1798,6 @@ class JanitorStripe {
 					$customer_id = $customer->id;
 					$this->saveCustomerId($user_id, $customer_id);
 
-					// Add user payment method
-					$UC->addPaymentMethod([
-						"payment_method_id" => $this->getStripePaymentMethodId(),
-						"user_id" => $user_id,
-					]);
-
 					$page->addLog("Customer created: user_id:".$user_id.", email:".$customer->email.", customer_id:".$customer->id, "stripe");
 
 					return $customer_id;
@@ -2015,7 +2019,7 @@ class JanitorStripe {
 		$error_body = $exception->getJsonBody();
 		$error = $error_body["error"];
 
-		return ["status" => "error", "message" => $error["message"]];
+		return ["status" => "error", "message" => $error["message"], "code" => $error["code"]];
 	}
 
 	// Handle any stripe exception and notify Admin
