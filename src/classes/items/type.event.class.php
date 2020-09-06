@@ -18,6 +18,7 @@ class TypeEvent extends Itemtype {
 		$this->db = SITE_DB.".item_event";
 		$this->db_locations = SITE_DB.".item_event_locations";
 		$this->db_performers = SITE_DB.".item_event_performers";
+		$this->db_editors = SITE_DB.".item_event_editors";
 
 		// Event details
 		$this->event_status_options = [
@@ -72,7 +73,7 @@ class TypeEvent extends Itemtype {
 			"type" => "text",
 			"label" => "Short SEO description",
 			"max" => 155,
-			"hint_message" => "Write a short description of the event for SEO and listings.",
+			"hint_message" => "Write a short description of the event for SEO and listings (max 155 characters).",
 			"error_message" => "Your event needs a description – max 155 characters."
 		));
 
@@ -224,6 +225,16 @@ class TypeEvent extends Itemtype {
 			"label" => "Location comment",
 			"hint_message" => "Directions or other comments.",
 			"error_message" => "Location comment error."
+		));
+
+
+		// event_editor
+		$this->addToModel("event_editor", array(
+			"type" => "user_id",
+			"label" => "Event editor",
+			"required" => true,
+			"hint_message" => "Select an event editor.",
+			"error_message" => "You need to select an event editor."
 		));
 
 	}
@@ -407,7 +418,106 @@ class TypeEvent extends Itemtype {
 	}
 
 
+	function getEditors($_options) {
+		
 
+		$item_id = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"           : $item_id            = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+		$query->checkDbExistence($this->db_editors);
+
+		$UC = new User();
+
+		// get location by id
+		if($item_id) {
+
+			$sql = "SELECT editors.id, users.id as user_id, users.nickname FROM ".$this->db_editors." as editors, ".$UC->db." as users WHERE editors.item_id = $item_id AND editors.user_id = users.id";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+
+		}
+
+		return false;
+
+	}
+
+	function addEditor($action) {
+		
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2 && $this->validateList(array("event_editor"))) {
+
+
+			$item_id = $action[1];
+			$query = new Query();
+			$UC = new User();
+
+			// make sure type tables exist
+			$query->checkDbExistence($this->db_editors);
+
+			$event_editor = $this->getProperty("event_editor", "value");
+			
+			if(!$query->sql("SELECT id FROM ".$this->db_editors." WHERE user_id = $event_editor AND item_id = $item_id")) {
+				$sql = "INSERT INTO ".$this->db_editors." SET user_id = $event_editor, item_id = $item_id";
+				// debug([$sql]);
+
+				if($query->sql($sql)) {
+					message()->addMessage("Editor added");
+
+					$editor_id = $query->lastInsertId();
+					$user = $UC->getUserInfo(["user_id" => $event_editor]);
+					return [
+						"id" => $editor_id,
+						"user_id" => $event_editor,
+						"nickname" => $user["nickname"],
+					];
+				}
+			}
+			else {
+				message()->addMessage("Editor already exists");
+				return true;
+			}
+
+		}
+
+		message()->addMessage("Editor could not be added", array("type" => "error"));
+		return false;
+
+	}
+
+	// Remove editor
+	// /janitor/admin/event/removeEditor
+	function removeEditor($action) {
+
+		if(count($action) == 1) {
+
+			$editor_id = getPost("editor_id");
+			$query = new Query();
+
+			$sql = "DELETE FROM $this->db_editors WHERE id = ".$editor_id;
+			debug([$sql]);
+
+			if($query->sql($sql)) {
+				message()->addMessage("Editor removed");
+				return true;
+			}
+
+		}
+
+		return false;
+	}
 
 }
 

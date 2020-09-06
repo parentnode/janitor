@@ -218,3 +218,9 @@
 
 
 
+
+/* COMMENTS */
+#content .scene.defaultEdit > div.editors {padding: 0 0 15px; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.editors ul.editors {border-top: 1px solid #dedede; padding-bottom: 30px;}
+#content .scene.defaultEdit > div.editors > form {padding-bottom: 10px; padding-top: 5px;}
+

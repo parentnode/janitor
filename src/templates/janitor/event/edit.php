@@ -4,11 +4,20 @@ global $IC;
 global $model;
 global $itemtype;
 
+include_once("classes/users/superuser.class.php");
+$UC = new SuperUser();
+
+
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true, "subscription_method" => true)));
 
 // $location_options = $model->toOptions($model->getLocations(), "id", "location");
 $location_options = $model->toOptions($model->getLocations(), "id", "location", ["add" => ["" => "Select event location"]]);
+
+$event_editors = $model->getEditors(["item_id" => $item_id]);
+
+$users = $UC->getUsers(["order" => "nickname ASC"]);
+$user_options_editors = $model->toOptions($users, "id", "nickname", ["add" => ["" => "Select event editor"]]);
 
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
@@ -58,7 +67,7 @@ $location_options = $model->toOptions($model->getLocations(), "id", "location", 
 		<?= $model->formEnd() ?>
 	</div>
 
-	<?= $JML->editPrices($item) ?>
+	<?= $JML->editEditors($item) ?>
 
 	<?= $JML->editTags($item) ?>
 

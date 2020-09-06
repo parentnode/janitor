@@ -21,6 +21,7 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_tags.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_media.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_comments.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_editors.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_prices.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_subscriptionmethod.js"></script>');
 

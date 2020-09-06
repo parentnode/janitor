@@ -743,8 +743,78 @@ class JanitorHTML {
 		return $_;
 	}
 
+	// edit Comments form for edit page
+	function editEditors($item, $_options = false) {
+		global $model;
+
+		$class = "all_items editors i:defaultEditors i:collapseHeader";
+		$event_editors = false;
+		$users = false;
 
 
+		if(!$event_editors) {
+			$event_editors = $model->getEditors(["item_id" => $item["id"]]);
+		}
+
+		if(!$users) {
+			$UC = new User();
+
+			$users = $UC->getUsers();
+			$user_options_editors = $model->toOptions($users, "id", "nickname", ["add" => ["" => "Select event editor"]]);
+		}
+
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "event_editors"           : $event_editors           = $_value; break;
+					case "users"                   : $users                   = $_value; break;
+					case "class"                   : $class                   = $_value; break;
+				}
+			}
+		}
+
+		$_ = '';
+
+		$_ .= '<div class="'.$class.' item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'" data-editor-remove="'.$this->path.'/removeEditor">';
+		$_ .= '<h2>Editors ('.($event_editors ? count($event_editors) : 0).')</h2>';
+
+		$_ .= '<fieldset>';
+		$_ .= '<h3>Existing event editors</h3>';
+		$_ .= '</fieldset>';
+
+		if($event_editors):
+
+			$_ .= '<ul class="items editors">';
+
+			foreach($event_editors as $event_editor) {
+				$_ .= '<li class="item editor editor_id:'.$event_editor["id"].'"><h3>'.$event_editor["nickname"].'</h3></li>';
+			}
+			$_ .= '</ul>';
+
+		else:
+
+		$_ .= '<p>No event admins defined yet.</p>';
+
+		endif;
+
+		$_ .= $model->formStart($this->path."/addEditor/".$item["id"], array("class" => "editors labelstyle:inject"));
+		$_ .= '<fieldset>';
+		$_ .= '<h3>Add event editor</h3>';
+		$_ .= $model->input("event_editor", array("type" => "select", "options" => $user_options_editors));
+		$_ .= '</fieldset>';
+
+		$_ .= '<ul class="actions">';
+		$_ .= $model->submit("Add event editor", array("class" => "primary", "wrapper" => "li.save"));
+		$_ .= '</ul>';
+		$_ .= $model->formEnd();
+		$_ .= '</div>';
+
+		return $_;
+	}
 
 	// simple tag list
 	function tagList($tags, $_options = false) {
