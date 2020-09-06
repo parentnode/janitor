@@ -1881,6 +1881,7 @@ class Setup extends Itemtype {
 			$query->checkDbExistence(UT_COUNTRIES);
 			$query->checkDbExistence(UT_VATRATES);
 			$query->checkDbExistence(UT_PAYMENT_METHODS);
+			$query->checkDbExistence(UT_SUBSCRIPTION_METHODS);
 			$query->checkDbExistence($UC->db_payment_methods);
 			$query->checkDbExistence($UC->db_user_groups);
 			$query->checkDbExistence($UC->db);
