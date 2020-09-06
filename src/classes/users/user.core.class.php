@@ -377,6 +377,28 @@ class UserCore extends Model {
 		return false;
 	}
 
+	// Simple get users info, with limited information (to avoid having to use SuperUser for getting a users list)
+	function getUsers($_options = false) {
+
+		$order = "nickname ASC";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "order"			: $order			= $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		// Exclude Guest user for all-users list
+		if($query->sql("SELECT id, nickname FROM ".$this->db." WHERE id != 1 AND status = 1 ORDER BY $order")) {
+			 return $query->results();
+		}
+
+		return false;		
+	}
 
 	// NOTE: All output should be kept in frontend logic because it might need to be served in different language
 	// or with specific context
