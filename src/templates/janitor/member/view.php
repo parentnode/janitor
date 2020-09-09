@@ -23,14 +23,14 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	$orders = $SC->getOrders(array("user_id" => $user_id, "itemtype" => "membership"));
 }
 
-if($membership) {
+if($membership && $membership["item_id"]) {
 
 	$price = $SC->getPrice($membership["item_id"]);
 	$subscription = $SubscriptionClass->getSubscriptions(["item_id" => $membership["item_id"], "user_id" => $membership["user_id"]]);
 
 	$payment_method = $UC->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"], "user_id" => $user_id]);
 
-	if($subscription["custom_price"]) {
+	if($subscription["custom_price"] || $subscription["custom_price"] === "0") {
 		$custom_price = $price;
 		$custom_price["price"] = $subscription["custom_price"];
 	}
@@ -95,7 +95,7 @@ if($membership) {
 			<dd class="expires_at"><?= date("d. F, Y", strtotime($membership["expires_at"])) ?></dd>
 		<? endif; ?>
 
-		<? if($membership["item"]["prices"]):
+		<? if($membership["item"] && $membership["item"]["prices"]):
 			$offer = arrayKeyValue($membership["item"]["prices"], "type", "offer");
 			$default = arrayKeyValue($membership["item"]["prices"], "type", "default");
 			?>
