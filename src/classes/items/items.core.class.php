@@ -29,6 +29,12 @@ class ItemsCore {
 
 
 		if(!isset($this->itemtypes["class"][$itemtype])) {
+
+			// TODO: this allows for gradual extension of type classes, to introduce core version along the way
+			// The core model allow for smaller overrides in local projects
+			if(file_exists(FRAMEWORK_PATH."/classes/items/type.$itemtype.core.class.php")) {
+				include_once("classes/items/type.$itemtype.core.class.php");
+			}
 			include_once("classes/items/type.$itemtype.class.php");
 
 			$class = "Type".ucfirst($itemtype);
