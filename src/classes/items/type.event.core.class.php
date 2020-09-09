@@ -442,6 +442,7 @@ class TypeEventCore extends Itemtype {
 		if($item_id) {
 
 			$sql = "SELECT editors.id, users.id as user_id, users.nickname FROM ".$this->db_editors." as editors, ".$UC->db." as users WHERE editors.item_id = $item_id AND editors.user_id = users.id";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				return $query->results();
 			}
