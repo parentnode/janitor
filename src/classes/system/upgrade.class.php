@@ -244,6 +244,38 @@ class Upgrade extends Model {
 			}
 
 
+			// think.dk specific – move event owner and backers to event editors
+			$item_events = $this->tableInfo(SITE_DB.".item_event");
+			if($item_events && isset($item_events["columns"]["event_owner"])) {
+
+				// CREATE EVENT EDITORS TABLE
+				$this->process($this->createTableIfMissing(SITE_DB.".item_event_editors"), true);
+
+				$event_items = $IC->getItems(["itemtype" => "event", "extend" => true]);
+				foreach($event_items as $event_item) {
+
+					$event_item_id = $event_item["id"];
+
+					if($event_item["event_owner"]) {
+						$sql = "INSERT INTO ".SITE_DB.".item_event_editors SET user_id = ".$event_item["event_owner"].", item_id = $event_item_id"; 
+						$query->sql($sql);
+					}
+
+					if($event_item["backer_1"]) {
+						$sql = "INSERT INTO ".SITE_DB.".item_event_editors SET user_id = ".$event_item["backer_1"].", item_id = $event_item_id"; 
+						$query->sql($sql);
+					}
+
+					if($event_item["backer_2"]) {
+						$sql = "INSERT INTO ".SITE_DB.".item_event_editors SET user_id = ".$event_item["backer_2"].", item_id = $event_item_id"; 
+						$query->sql($sql);
+					}
+
+				}
+
+			}
+
+
 			// CREATE ANY MISSING SYSTEM TABLES (CRITICAL)
 			$this->process($this->createTableIfMissing(UT_LANGUAGES), true);
 			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
