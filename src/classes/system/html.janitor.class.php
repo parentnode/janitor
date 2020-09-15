@@ -748,21 +748,8 @@ class JanitorHTML {
 		global $model;
 
 		$class = "all_items editors i:defaultEditors i:collapseHeader";
-		$event_editors = false;
+		$item_editors = false;
 		$users = false;
-
-
-		if(!$event_editors) {
-			$event_editors = $model->getEditors(["item_id" => $item["id"]]);
-		}
-
-		if(!$users) {
-			$UC = new User();
-
-			$users = $UC->getUsers();
-			$user_options_editors = $model->toOptions($users, "id", "nickname", ["add" => ["" => "Select event editor"]]);
-		}
-
 
 
 		// overwrite defaults
@@ -770,45 +757,57 @@ class JanitorHTML {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "event_editors"           : $event_editors           = $_value; break;
+					case "item_editors"            : $item_editors            = $_value; break;
 					case "users"                   : $users                   = $_value; break;
 					case "class"                   : $class                   = $_value; break;
 				}
 			}
 		}
 
+		if(!$item_editors) {
+			$item_editors = $model->getEditors(["item_id" => $item["id"]]);
+		}
+
+		if(!$users) {
+			$UC = new User();
+
+			$users = $UC->getUsers();
+			$user_options_editors = $model->toOptions($users, "id", "nickname", ["add" => ["" => "Select editor"]]);
+		}
+
+
 		$_ = '';
 
 		$_ .= '<div class="'.$class.' item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'" data-editor-remove="'.$this->path.'/removeEditor">';
-		$_ .= '<h2>Editors ('.($event_editors ? count($event_editors) : 0).')</h2>';
+		$_ .= '<h2>Editors ('.($item_editors ? count($item_editors) : 0).')</h2>';
 
 		$_ .= '<fieldset>';
-		$_ .= '<h3>Existing event editors</h3>';
+		$_ .= '<h3>Existing editors</h3>';
 		$_ .= '</fieldset>';
 
-		if($event_editors):
+		if($item_editors):
 
 			$_ .= '<ul class="items editors">';
 
-			foreach($event_editors as $event_editor) {
-				$_ .= '<li class="item editor editor_id:'.$event_editor["id"].'"><h3>'.$event_editor["nickname"].'</h3></li>';
+			foreach($item_editors as $item_editor) {
+				$_ .= '<li class="item editor editor_id:'.$item_editor["id"].'"><h3>'.$item_editor["nickname"].'</h3></li>';
 			}
 			$_ .= '</ul>';
 
 		else:
 
-		$_ .= '<p>No event admins defined yet.</p>';
+		$_ .= '<p>No editors defined yet.</p>';
 
 		endif;
 
 		$_ .= $model->formStart($this->path."/addEditor/".$item["id"], array("class" => "editors labelstyle:inject"));
 		$_ .= '<fieldset>';
-		$_ .= '<h3>Add event editor</h3>';
-		$_ .= $model->input("event_editor", array("type" => "select", "options" => $user_options_editors));
+		$_ .= '<h3>Add editor</h3>';
+		$_ .= $model->input("item_editor", array("type" => "select", "options" => $user_options_editors));
 		$_ .= '</fieldset>';
 
 		$_ .= '<ul class="actions">';
-		$_ .= $model->submit("Add event editor", array("class" => "primary", "wrapper" => "li.save"));
+		$_ .= $model->submit("Add editor", array("class" => "primary", "wrapper" => "li.save"));
 		$_ .= '</ul>';
 		$_ .= $model->formEnd();
 		$_ .= '</div>';

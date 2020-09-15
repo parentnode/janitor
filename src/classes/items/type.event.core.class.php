@@ -9,9 +9,9 @@ class TypeEventCore extends Itemtype {
 	/**
 	* Init, set varnames, validation rules
 	*/
-	function __construct() {
+	function __construct($itemtype) {
 
-		parent::__construct(get_class());
+		parent::__construct($itemtype);
 
 
 		// itemtype database
@@ -229,7 +229,7 @@ class TypeEventCore extends Itemtype {
 
 
 		// event_editor
-		$this->addToModel("event_editor", array(
+		$this->addToModel("item_editor", array(
 			"type" => "user_id",
 			"label" => "Event editor",
 			"required" => true,
@@ -458,7 +458,7 @@ class TypeEventCore extends Itemtype {
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if(count($action) == 2 && $this->validateList(array("event_editor"))) {
+		if(count($action) == 2 && $this->validateList(array("item_editor"))) {
 
 
 			$item_id = $action[1];
@@ -468,20 +468,20 @@ class TypeEventCore extends Itemtype {
 			// make sure type tables exist
 			$query->checkDbExistence($this->db_editors);
 
-			$event_editor = $this->getProperty("event_editor", "value");
+			$item_editor = $this->getProperty("item_editor", "value");
 			
-			if(!$query->sql("SELECT id FROM ".$this->db_editors." WHERE user_id = $event_editor AND item_id = $item_id")) {
-				$sql = "INSERT INTO ".$this->db_editors." SET user_id = $event_editor, item_id = $item_id";
+			if(!$query->sql("SELECT id FROM ".$this->db_editors." WHERE user_id = $item_editor AND item_id = $item_id")) {
+				$sql = "INSERT INTO ".$this->db_editors." SET user_id = $item_editor, item_id = $item_id";
 				// debug([$sql]);
 
 				if($query->sql($sql)) {
 					message()->addMessage("Editor added");
 
 					$editor_id = $query->lastInsertId();
-					$user = $UC->getUserInfo(["user_id" => $event_editor]);
+					$user = $UC->getUserInfo(["user_id" => $item_editor]);
 					return [
 						"id" => $editor_id,
-						"user_id" => $event_editor,
+						"user_id" => $item_editor,
 						"nickname" => $user["nickname"],
 					];
 				}
