@@ -11,6 +11,12 @@
 #content .scene.front div.orders ul.orders li h3 a {display: block;}
 #content .scene.front div.orders ul.orders li h3 span {display: block; font-size: 50px; line-height: 60px;}
 
+/* ORDERS DASHBOARD */
+#content .scene.front div.common ul.common {}
+#content .scene.front div.common ul.common li {width: 25%; text-align: center;}
+#content .scene.front div.common ul.common li h3 a {display: block; border: 2px solid #313942; padding: 20px; border-radius: 5px;}
+#content .scene.front div.common ul.common li h3 span {display: block; font-size: 50px; line-height: 60px;}
+
 
 /* MEMBERS DASHBOARD */
 #content .scene.front div.members ul.members {}

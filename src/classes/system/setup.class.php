@@ -759,7 +759,7 @@ class Setup extends Itemtype {
 			$this->set("database", "db_host", stringOr($this->get("database", "db_host"), "127.0.0.1"));
 			$this->set("database", "db_root_user", stringOr($this->get("database", "db_root_user"), "root"));
 
-			$this->set("database", "db_janitor_db",  stringOr($this->get("database", "db_janitor_db"), preg_replace("/[-]/", "_", superNormalize($this->get("config", "site_name")))));
+			$this->set("database", "db_janitor_db",  stringOr($this->get("database", "db_janitor_db"), preg_replace("/[-]/", "_", superNormalize($_SERVER["SERVER_NAME"]))));
 			$this->set("database", "db_janitor_user", stringOr($this->get("database", "db_janitor_user"), substr(preg_replace("/[-]/", "", superNormalize($this->get("config", "site_name"))), 0, 16)));
 
 		}
