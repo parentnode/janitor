@@ -638,18 +638,21 @@ function pluralize($count, $singular, $plural) {
 
 
 // price formatting - uses $page and currency db-table for information
-// optinally add currency abbreviation and/or VAT
+// optionally add currency abbreviation and/or VAT
+// decimals can optionally be shown only if they are not zero
 function formatPrice($price, $_options=false) {
 	global $page;
 
 	$vat = false;
 	$currency = true;
+	$conditional_decimals = false;
 
 	if($_options !== false) {
 		foreach($_options as $_option => $_value) {
 			switch($_option) {
-				case "vat"        : $vat         = $_value; break;
-				case "currency"   : $currency    = $_value; break;
+				case "vat"                    : $vat                     = $_value; break;
+				case "currency"               : $currency                = $_value; break;
+				case "conditional_decimals"   : $conditional_decimals    = $_value; break;
 			}
 		}
 	}
@@ -659,7 +662,16 @@ function formatPrice($price, $_options=false) {
 
 	$currency_details = $page->currencies($price["currency"]);
 
-	$formatted_price = number_format($price["price"], $currency_details["decimals"], $currency_details["decimal_separator"], $currency_details["grouping_separator"]);
+	if($conditional_decimals && ctype_digit($price["price"])) {
+		
+		// price is an integer; omit decimals
+		$formatted_price = number_format($price["price"], 0, $currency_details["decimal_separator"], $currency_details["grouping_separator"]);
+	}
+	else {
+
+		$formatted_price = number_format($price["price"], $currency_details["decimals"], $currency_details["decimal_separator"], $currency_details["grouping_separator"]);
+	}
+
 
 	// show currency
 	if($currency) {
