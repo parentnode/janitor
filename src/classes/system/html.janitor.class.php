@@ -204,12 +204,33 @@ class JanitorHTML {
 
 
 		// TODO: implement extend options
-
+		if($extend) {
+			foreach($extend as $index => $values) {
+				if(!isset($standard[$index])) {
+					$standard[$index] = $values;
+				}
+			}
+		}
 
 		$_ = '';
 
 
 		$_ .= '<ul class="actions">';
+
+
+		foreach($standard as $button => $data) {
+			if(!preg_match("/edit|delete|status/", $button)) {
+				if(isset($data["type"]) && $data["type"] == "onebuttonform") {
+					$_ .= $model->oneButtonForm($data["label"], $data["url"], array(
+						"wrapper" => $data["wrapper"],
+						"success-function" => $data["success-function"]
+					));
+				}
+				else {
+					$_ .= $model->link($data["label"], $data["url"], $data["options"]);
+				}
+			}
+		}
 
 		// Edit button
 		if($standard["edit"]) {
@@ -230,6 +251,7 @@ class JanitorHTML {
 		if($standard["status"]) {
 			$_ .= $this->statusButton($standard["status"]["label_enable"], $standard["status"]["label_disable"], $standard["status"]["url"], $item, array("js" => true));
 		}
+
 
 		$_ .= '</ul>';
 
