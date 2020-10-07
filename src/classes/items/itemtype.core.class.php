@@ -985,13 +985,13 @@ class ItemtypeCore extends Model {
 			
 								$sql .= "price='".$complete_price["price"]."',";
 								$sql .= "currency='".$complete_price["currency"]."',";
-								$sql .= "type='".$complete_price["type"]."',";
+								$sql .= "type_id='".$complete_price["type_id"]."',";
 								$sql .= "vatrate_id='".$complete_price["vatrate_id"]."'";
 
-								if($complete_price["type"] === "bulk") {
-									$sql .= ",quantity='".$complete_price["quantity"]."'";
-								}
-
+								// if($complete_price["type"] === "bulk") {
+									$sql .= ",quantity=".($complete_price["quantity"] ? "'".$complete_price["quantity"]."'" : "NULL");
+								// }
+								// debug([$sql]);
 								// Insert price
 								$query->sql($sql);
 
