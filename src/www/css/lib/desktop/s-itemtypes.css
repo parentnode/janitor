@@ -52,6 +52,8 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 
 #content .scene.eventList ul.items > li.past {background: #dddddd;}
 
+#content .scene.ticketEdit div.item.expired {background: orange; padding-top: 25px;}
+#content .scene.ticketEdit div.item.expired p {color: #ffffff;}
 
 /*#content .scene.eventEdit fieldset h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 20px 0 0px;}*/
 
