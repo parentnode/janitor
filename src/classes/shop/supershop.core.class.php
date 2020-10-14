@@ -500,30 +500,30 @@ class SuperShopCore extends Shop {
 					// if added item already exists with a different custom_name or custom_price, create new line
 					if ($custom_price !== false && $custom_name) {
 
-						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price, "custom_name" => $custom_name]);
+						$existing_cart_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price, "custom_name" => $custom_name]);
 					}
 					else if($custom_price !== false) {
 
-						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price]);
+						$existing_cart_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price]);
 					}
 					else if($custom_name) {
 						
-						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_name" => $custom_name]);
+						$existing_cart_item = $this->getCartItem($cart_reference, $item_id, ["custom_name" => $custom_name]);
 					}
 					else {
 						
-						$existing_item = $this->getCartItem($cart_reference, $item_id);
+						$existing_cart_item = $this->getCartItem($cart_reference, $item_id);
 					}
 					
 
 					// added item is already in cart
-					if($existing_item) {
+					if($existing_cart_item) {
 						
-						$existing_quantity = $existing_item["quantity"];
+						$existing_quantity = $existing_cart_item["quantity"];
 						$new_quantity = intval($quantity) + intval($existing_quantity);
 	
 						// update item quantity
-						$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
+						$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_cart_item["id"]." AND cart_id = ".$cart["id"];
 	//					print $sql;
 					}
 					else {
@@ -685,8 +685,8 @@ class SuperShopCore extends Shop {
 
 				// find item_id in cart items?
 				if($cart["items"] && arrayKeyValue($cart["items"], "id", $cart_item_id) !== false) {
-					$existing_item_index = arrayKeyValue($cart["items"], "id", $cart_item_id);
-					$item_id = $cart["items"][$existing_item_index]["item_id"];
+					$existing_cart_item_index = arrayKeyValue($cart["items"], "id", $cart_item_id);
+					$item_id = $cart["items"][$existing_cart_item_index]["item_id"];
 
 					$sql = "UPDATE ".$this->db_cart_items." SET quantity=$quantity WHERE id = ".$cart_item_id." AND cart_id = ".$cart["id"];
 //					print $sql;
