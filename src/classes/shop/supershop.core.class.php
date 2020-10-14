@@ -492,9 +492,11 @@ class SuperShopCore extends Shop {
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
 				$item = $IC->getItem(array("id" => $item_id));
+				$price = $this->getPrice($item_id);
+
 
 				// item has a price (price can be zero)
-				if ($query->sql("SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id")) {
+				if ($price !== false) {
 					
 					// look in cart to see if the added item is already there
 					// if added item already exists with a different custom_name or custom_price, create new line
