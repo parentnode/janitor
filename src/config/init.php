@@ -69,6 +69,7 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 		exit();
 	}
 
+	include_once("classes/system/html.janitor.core.class.php");
 	include_once("classes/system/html.janitor.class.php");
 
 
