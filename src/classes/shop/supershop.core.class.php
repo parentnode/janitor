@@ -492,38 +492,40 @@ class SuperShopCore extends Shop {
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
 				$item = $IC->getItem(array("id" => $item_id));
+				$price = $this->getPrice($item_id);
+
 
 				// item has a price (price can be zero)
-				if ($query->sql("SELECT id FROM ".UT_ITEMS_PRICES." WHERE item_id = $item_id")) {
+				if ($price !== false) {
 					
 					// look in cart to see if the added item is already there
 					// if added item already exists with a different custom_name or custom_price, create new line
 					if ($custom_price !== false && $custom_name) {
 
-						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price, "custom_name" => $custom_name]);
+						$existing_cart_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price, "custom_name" => $custom_name]);
 					}
 					else if($custom_price !== false) {
 
-						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price]);
+						$existing_cart_item = $this->getCartItem($cart_reference, $item_id, ["custom_price" => $custom_price]);
 					}
 					else if($custom_name) {
 						
-						$existing_item = $this->getCartItem($cart_reference, $item_id, ["custom_name" => $custom_name]);
+						$existing_cart_item = $this->getCartItem($cart_reference, $item_id, ["custom_name" => $custom_name]);
 					}
 					else {
 						
-						$existing_item = $this->getCartItem($cart_reference, $item_id);
+						$existing_cart_item = $this->getCartItem($cart_reference, $item_id);
 					}
 					
 
 					// added item is already in cart
-					if($existing_item) {
+					if($existing_cart_item) {
 						
-						$existing_quantity = $existing_item["quantity"];
+						$existing_quantity = $existing_cart_item["quantity"];
 						$new_quantity = intval($quantity) + intval($existing_quantity);
 	
 						// update item quantity
-						$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_item["id"]." AND cart_id = ".$cart["id"];
+						$sql = "UPDATE ".$this->db_cart_items." SET quantity=$new_quantity WHERE id = ".$existing_cart_item["id"]." AND cart_id = ".$cart["id"];
 	//					print $sql;
 					}
 					else {
@@ -685,8 +687,8 @@ class SuperShopCore extends Shop {
 
 				// find item_id in cart items?
 				if($cart["items"] && arrayKeyValue($cart["items"], "id", $cart_item_id) !== false) {
-					$existing_item_index = arrayKeyValue($cart["items"], "id", $cart_item_id);
-					$item_id = $cart["items"][$existing_item_index]["item_id"];
+					$existing_cart_item_index = arrayKeyValue($cart["items"], "id", $cart_item_id);
+					$item_id = $cart["items"][$existing_cart_item_index]["item_id"];
 
 					$sql = "UPDATE ".$this->db_cart_items." SET quantity=$quantity WHERE id = ".$cart_item_id." AND cart_id = ".$cart["id"];
 //					print $sql;
@@ -871,60 +873,21 @@ class SuperShopCore extends Shop {
 						// add the items from the cart
 						foreach($cart["items"] as $cart_item) {
 
-							$quantity = $cart_item["quantity"];
-							$item_id = $cart_item["item_id"];
+							$order_item = $this->addCartItemToOrder($cart_item, $order);
 
-							// get item details
-							$item = $IC->getItem(["id" => $item_id, "extend" => true]);
-
-							if($item) {
-
-								// get best price for item
-								$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-								// print_r("price: ".$price);
-
-								// use custom price if available
-								if(isset($cart_item["custom_price"]) && $cart_item["custom_price"] !== false) {
-									$custom_price = $cart_item["custom_price"];
-									
-									$price["price"] = $custom_price;
-									$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
-									$price["price_without_vat"] = $custom_price_without_vat;
-									$price["vat"] = $custom_price - $custom_price_without_vat;
-								}
+							if($order_item) {
 								
-								$unit_price = $price["price"];
-								$unit_vat = $price["vat"];
-								$total_price = $unit_price * $quantity;
-								$total_vat = $unit_vat * $quantity;
+								$admin_summary[] = $order_item["item_name"];
 
-								// use custom name for cart item if available
-								$item_name = isset($cart_item["custom_name"]) ? $cart_item["custom_name"] : $item["name"];
+								// get item details
+								$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => true]);
 
-								$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item_name)."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-								// print $sql;
-
-
-								// Add item to order
-								if($query->sql($sql)) {
-									$order_item_id = $query->lastInsertId();
-
-									// get order_item
-									$sql = "SELECT * FROM ".$this->db_order_items." WHERE id = $order_item_id";
-									if($query->sql($sql)) {
-										$order_item = $query->result(0);
-
-										$order_item["custom_price"] = isset($custom_price) ? $custom_price : null;
-
-										// add callback to 'ordered'
-										$model = $IC->typeObject($item["itemtype"]);
-										if(method_exists($model, "ordered")) {
-											$model->ordered($order_item, $order);
-										}
-									}
-
+								// add callback to 'ordered'
+								$model = $IC->typeObject($item["itemtype"]);
+								if(method_exists($model, "ordered")) {
+	
+									$model->ordered($order_item, $order);
 								}
-
 							}
 							
 						}
