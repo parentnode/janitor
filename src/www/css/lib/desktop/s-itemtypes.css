@@ -52,8 +52,31 @@ CAN ALWAYS BE OVERWRITTEN LOCALLY
 
 #content .scene.eventList ul.items > li.past {background: #dddddd;}
 
+#content .scene.eventEdit div.eventTickets {border-bottom: 1px solid #bbbbbb;}
+#content .scene.eventEdit div.eventTickets > div > form > ul.actions {padding-bottom: 20px;}
+#content .scene.eventEdit div.eventTickets ul.tickets {border-top: 1px solid #dedede; padding-bottom: 30px;}
+
+
 #content .scene.ticketEdit div.item.expired {background: orange; padding-top: 25px;}
 #content .scene.ticketEdit div.item.expired p {color: #ffffff;}
+
+#content .scene.ticketEdit div.ticketEvent {border-bottom: 1px solid #bbbbbb;}
+#content .scene.ticketEdit div.ticketEvent > div > form > ul.actions {padding-bottom: 20px;}
+#content .scene.ticketEdit div.ticketEvent ul.events {border-top: 1px solid #dedede; padding-bottom: 30px;}
+
+
+#content .scene.ticketEdit div.participants {border-bottom: 1px solid #bbbbbb;}
+#content .scene.ticketEdit div.participants div.all_items {padding-bottom: 30px;}
+#content .scene.ticketEdit div.participants > div > ul.actions {padding-bottom: 20px; text-align: right;}
+
+#content .scene.ticketEdit ul.items.participants {}
+#content .scene.ticketEdit ul.items.participants li {padding: 0 30px;}
+#content .scene.ticketEdit ul.items.participants li ul.actions {top: 4px;}
+#content .scene.ticketEdit ul.items.participants li ul.actions li {padding: 0 0 0 10px;}
+#content .scene.ticketEdit ul.items.participants li span {padding: 10px 7px 10px 0; display: inline-block; width: 300px;}
+#content .scene.ticketEdit ul.items.participants li span.ticket_no {width: 130px;}
+#content .scene.ticketEdit ul.items.participants li span.unit_price {width: 80px;}
+
 
 /*#content .scene.eventEdit fieldset h2 {font-size: 0.8em; text-transform: uppercase; padding-top: 7px; padding-bottom: 10px; margin: 20px 0 0px;}*/
 

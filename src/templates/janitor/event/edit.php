@@ -28,8 +28,8 @@ $user_options_editors = $model->toOptions($users, "id", "nickname", ["add" => ["
 
 	<?= $JML->editSingleMedia($item, ["label" => "Main event image"]) ?>
 
-	<div class="item i:defaultEdit">
-		<h2>Event</h2>
+	<div class="item i:defaultEdit i:collapseHeader">
+		<h2>Event details</h2>
 		<?= $model->formStart("update/".$item["id"], array("class" => "labelstyle:inject")) ?>
 
 			<fieldset>
@@ -66,6 +66,8 @@ $user_options_editors = $model->toOptions($users, "id", "nickname", ["add" => ["
 
 		<?= $model->formEnd() ?>
 	</div>
+
+	<?= $JML->editEventTickets($item) ?>
 
 	<?= $JML->editEditors($item) ?>
 

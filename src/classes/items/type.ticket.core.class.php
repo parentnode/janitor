@@ -130,6 +130,15 @@ class TypeTicketCore extends Itemtype {
 			"error_message" => "You need to select a ticket editor."
 		));
 
+		// item_event
+		$this->addToModel("item_event", array(
+			"type" => "item_id",
+			"label" => "Ticket event",
+			"required" => true,
+			"hint_message" => "Select an event for this ticket.",
+			"error_message" => "You need to select a valid event."
+		));
+
 	}
 
 	// Find specific tickets in orders
@@ -646,7 +655,7 @@ class TypeTicketCore extends Itemtype {
 			$query = new Query();
 
 			$sql = "DELETE FROM $this->db_editors WHERE id = ".$editor_id;
-			debug([$sql]);
+			// debug([$sql]);
 
 			if($query->sql($sql)) {
 				message()->addMessage("Editor removed");
@@ -657,6 +666,117 @@ class TypeTicketCore extends Itemtype {
 
 		return false;
 	}
+
+
+
+	function getTicketEvent($_options) {
+		
+
+		$item_id = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"           : $item_id            = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+		$IC = new Items();
+
+		$event_model = $IC->typeObject("event");
+		$query->checkDbExistence($event_model->db_tickets);
+
+		// get location by id
+		if($item_id) {
+
+			$sql = "SELECT event_id FROM ".$event_model->db_tickets." WHERE ticket_id = $item_id LIMIT 1";
+			if($query->sql($sql)) {
+				$event_id = $query->result(0, "event_id");
+
+				return $IC->getItem(["id" => $event_id, "extend" => true]);
+			}
+
+		}
+
+		return false;
+
+	}
+
+	function addTicketEvent($action) {
+		
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2 && $this->validateList(array("item_event"))) {
+
+
+			$item_id = $action[1];
+			$query = new Query();
+			$IC = new Items();
+
+			// make sure type tables exist
+			$event_model = $IC->typeObject("event");
+			$query->checkDbExistence($event_model->db_tickets);
+
+			$item_event_id = $this->getProperty("item_event", "value");
+			$event = $IC->getItem(["id" => $item_event_id, "extend" => true]);
+			
+			if(!$query->sql("SELECT id FROM ".$event_model->db_tickets." WHERE ticket_id = $item_id")) {
+				$sql = "INSERT INTO ".$event_model->db_tickets." SET event_id = $item_event_id, ticket_id = $item_id";
+			}
+			else {
+				$sql = "UPDATE ".$event_model->db_tickets." SET event_id = $item_event_id WHERE ticket_id = $item_id";
+			}
+
+			// debug([$sql]);
+			if($query->sql($sql)) {
+				message()->addMessage("Event added");
+
+				return [
+					"event_id" => $event["item_id"],
+					"event_name" => $event["name"].' ('.date("Y-m-d", strtotime($event["starting_at"])).')',
+				];
+			}
+
+		}
+
+		message()->addMessage("Event could not be added", array("type" => "error"));
+		return false;
+
+	}
+
+	// Remove editor
+	// /janitor/admin/event/removeEditor
+	function removeTicketEvent($action) {
+
+		if(count($action) == 2) {
+
+			$ticket_id = $action[1];
+			$event_id = getPost("event_id");
+
+			$query = new Query();
+			$IC = new Items();
+
+			$event_model = $IC->typeObject("event");
+			$query->checkDbExistence($event_model->db_tickets);
+
+			$sql = "DELETE FROM $event_model->db_tickets WHERE event_id = $event_id AND ticket_id = $ticket_id";
+			// debug([$sql]);
+
+			if($query->sql($sql)) {
+				message()->addMessage("Event removed");
+				return true;
+			}
+
+		}
+
+		return false;
+	}
+
 
 }
 

@@ -48,7 +48,12 @@ $participants = $model->getParticipants($item_id);
 		<?= $model->formEnd() ?>
 	</div>
 
+	<?= $JML->editPrices($item) ?>
+
+	<?= $JML->editTicketEvent($item) ?>
+
 	<?= $JML->editEditors($item) ?>
+
 
 	<div class="participants i:defaultParticipants i:collapseHeader item_id:<?= $item["id"] ?>">
 		<h2>Participants (<?= $participants && $participants["paid"] ? count($participants["paid"]) : "0" ?>)</h2>
@@ -104,10 +109,6 @@ $participants = $model->getParticipants($item_id);
 		</div>
 
 	</div>
-
-	<?= $JML->editPrices($item) ?>
-
-	<?= $JML->editTags($item) ?>
 
 	<?= $JML->editComments($item) ?>
 
