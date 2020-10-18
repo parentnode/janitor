@@ -20,6 +20,17 @@ Util.Modules["defaultEdit"] = new function() {
 		// form.actions["cancel"].clicked = function(event) {
 		// 	location.href = this.url;
 		// }
+		form.submitFailed = function(iN) {
+
+			u.bug("submit failed", iN);
+
+			var first_error = Object.keys(this._error_inputs)[0];
+			if(this.inputs[first_error]) {
+				u.scrollTo(window, {node: this.inputs[first_error].field, offset_y: 170});
+			}
+
+		}
+
 		form.submitted = function(iN) {
 
 			// stop autosave (this could be a manual save)
