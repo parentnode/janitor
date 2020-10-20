@@ -106,6 +106,7 @@ if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 
 
 
+	include_once("classes/system/html.janitor.core.class.php");
 	include_once("classes/system/html.janitor.class.php");
 
 	include_once("classes/items/items.core.class.php");
