@@ -68,7 +68,11 @@ class ItemsCore {
 
 		// tags and optional itemtype
 		$tags = false;
+		$where = false;
 		$itemtype = false;
+
+		// Dont declare status – less chars to detect 0 value
+		// $status = false;
 
 		$extend = false;
 
@@ -79,6 +83,7 @@ class ItemsCore {
 					case "sindex"    : $sindex         = $_value; break;
 
 					case "tags"      : $tags           = $_value; break;
+					case "where"     : $where          = $_value; break;
 					case "itemtype"  : $itemtype       = $_value; break;
 					case "status"    : $status         = $_value; break;
 
@@ -96,7 +101,7 @@ class ItemsCore {
 		else if($sindex) {
 			$sql = "SELECT * FROM ".UT_ITEMS." WHERE sindex = '$sindex'" . (isset($status) ? " AND status = $status" : "");
 		}
-		else if($tags) {
+		else if($tags || $where) {
 			
 			$SELECT = array();
 			$FROM = array();
@@ -117,7 +122,14 @@ class ItemsCore {
 
 		 	$FROM[] = UT_ITEMS." as items";
 
-			$WHERE[] = "items.status = 1";
+			if(isset($where)) {
+				if(is_array($where)) {
+					$WHERE = $where;
+				}
+				else {
+					$WHERE[] = $where;
+				}
+			}
 
 			if(isset($status)) {
 				$WHERE[] = "items.status = $status";
@@ -125,29 +137,34 @@ class ItemsCore {
 
 			if($itemtype) {
 				$WHERE[] = "items.itemtype = '$itemtype'";
+
+				// add main itemtype table to enable sorting based on local values
+				$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
 			}
 
-			// tag query
-			$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
-			$LEFTJOIN[] = UT_TAG." as tags ON tags.id = taggings.tag_id";
+			if($tags) {
+				// tag query
+				$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
+				$LEFTJOIN[] = UT_TAG." as tags ON tags.id = taggings.tag_id";
 
-			$tag_array = explode(";", $tags);
+				$tag_array = explode(";", $tags);
 
-			// create tag SQL
-			$tag_sql = "";
-			foreach($tag_array as $tag) {
-				list($context, $value) = explode(":", $tag);
-				$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '".$context."' AND tags.value = '".$value."'";
+				// create tag SQL
+				$tag_sql = "";
+				foreach($tag_array as $tag) {
+					list($context, $value) = explode(":", $tag);
+					$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '".$context."' AND tags.value = '".$value."'";
+				}
+				$WHERE[] = "(".$tag_sql.")";
+				$HAVING = "count(*) = ".count($tag_array);
+				$GROUP_BY = "items.id";
 			}
-			$WHERE[] = "(".$tag_sql.")";
-			$HAVING = "count(*) = ".count($tag_array);
-			$GROUP_BY = "items.id";
 
 
 			$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY));
 		}
 		
-//		print $sql."<br>";
+		// debug([$sql]);
 
 		if($sql && $query->sql($sql)) {
 			$item = $query->result(0);
@@ -1558,7 +1575,7 @@ class ItemsCore {
 			}
 			// get all tags with context
 			else if($tag_context) {
-				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE";
+				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value, tags.description as description FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE";
 
 				$sql .= " (tags.context = '".implode("' OR tags.context = '", $tag_context) . "')";
 				// " tags.context = '$tag_context'
@@ -1570,7 +1587,7 @@ class ItemsCore {
 			}
 			// all tags
 			else {
-				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY tags.$order" : "");
+				$sql = "SELECT tags.id as id, tags.context as context, tags.value as value, tags.description as description FROM ".UT_TAG." as tags, ".UT_TAGGINGS." as taggings WHERE tags.id = taggings.tag_id AND taggings.item_id = $item_id".($order ? " ORDER BY tags.$order" : "");
 				if($query->sql($sql)) {
 					return $query->results();
 				}
@@ -1612,7 +1629,7 @@ class ItemsCore {
 		// get all tags with context
 		else if($tag_context) {
 
-			$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG." as tags WHERE";
+			$sql = "SELECT tags.id as id, tags.context as context, tags.value as value, tags.description as description FROM ".UT_TAG." as tags WHERE";
 
 			// Matching contexts
 			$sql .= " (tags.context = '".implode("' OR tags.context = '", $tag_context) . "')";
@@ -1628,7 +1645,7 @@ class ItemsCore {
 		// all tags
 		else {
 
-			$sql = "SELECT tags.id as id, tags.context as context, tags.value as value FROM ".UT_TAG.($order ? " ORDER BY tags.$order" : " ORDER BY tags.context, tags.value");
+			$sql = "SELECT tags.id as id, tags.context as context, tags.value as value, tags.description as description FROM ".UT_TAG.($order ? " ORDER BY tags.$order" : " ORDER BY tags.context, tags.value");
 			if($query->sql($sql)) {
 				return $query->results();
 			}
