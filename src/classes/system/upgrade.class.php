@@ -2558,9 +2558,9 @@ class Upgrade extends Model {
 			else if(file_exists(FRAMEWORK_PATH."/config/db/default_data/$table.sql")) {
 				$default_data = file_get_contents(FRAMEWORK_PATH."/config/db/default_data/$table.sql");
 			}
-			
+
 			if($default_data) {
-				
+
 				$default_data = preg_replace("/SITE_DB/", SITE_DB, $default_data);
 				if($query->sql($default_data)) {
 					
