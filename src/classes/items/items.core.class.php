@@ -1518,10 +1518,14 @@ class ItemsCore {
 
 
 		// return all users
-		$sql = "SELECT users.id, users.nickname FROM ".SITE_DB.".users"." as users";
-		if($query->sql($sql)) {
-			return $query->results();
+		else {
+			$sql = "SELECT users.id, users.nickname FROM ".SITE_DB.".users"." as users";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
 		}
+		
+		return false;
 
 	}
 
