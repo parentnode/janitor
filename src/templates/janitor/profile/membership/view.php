@@ -20,19 +20,22 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	$orders = $SC->getOrders(array("itemtype" => "membership"));
 }
 
+if($membership && $membership["item_id"]) {
 
-$price = $SC->getPrice($membership["item_id"]);
-$subscription = $SubscriptionClass->getSubscriptions(["item_id" => $membership["item_id"], "user_id" => $membership["user_id"]]);
-
-$payment_method = $model->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"]]);
-
-if($subscription["custom_price"]) {
-	$custom_price = $price;
-	$custom_price["price"] = $subscription["custom_price"];
+	$price = $SC->getPrice($membership["item_id"]);
+	$subscription = $SubscriptionClass->getSubscriptions(["item_id" => $membership["item_id"], "user_id" => $membership["user_id"]]);
+	$payment_method = $model->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"]]);
+	
+	if($subscription["custom_price"]) {
+		$custom_price = $price;
+		$custom_price["price"] = $subscription["custom_price"];
+	}
+	else {
+		$custom_price = false;
+	}
 }
-else {
-	$custom_price = false;
-}
+
+
 
 
 // FOR TESTING EMAIL SENDING
