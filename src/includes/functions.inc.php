@@ -657,40 +657,45 @@ function formatPrice($price, $_options=false) {
 		}
 	}
 
+	if($price) {
 
-	$_ = '';
-
-	$currency_details = $page->currencies($price["currency"]);
-
-	if($conditional_decimals && ctype_digit($price["price"])) {
-		
-		// price is an integer; omit decimals
-		$formatted_price = number_format($price["price"], 0, $currency_details["decimal_separator"], $currency_details["grouping_separator"]);
-	}
-	else {
-
-		$formatted_price = number_format($price["price"], $currency_details["decimals"], $currency_details["decimal_separator"], $currency_details["grouping_separator"]);
-	}
-
-
-	// show currency
-	if($currency) {
-		if($currency_details["abbreviation_position"] == "after") {
-			$_ .= $formatted_price . " " . $currency_details["abbreviation"];
+		$_ = '';
+	
+		$currency_details = $page->currencies($price["currency"]);
+	
+		if($conditional_decimals && ctype_digit($price["price"])) {
+			
+			// price is an integer; omit decimals
+			$formatted_price = number_format($price["price"], 0, $currency_details["decimal_separator"], $currency_details["grouping_separator"]);
 		}
 		else {
-			$_ .= $currency_details["abbreviation"] . " " . $formatted_price;
+	
+			$formatted_price = number_format($price["price"], $currency_details["decimals"], $currency_details["decimal_separator"], $currency_details["grouping_separator"]);
 		}
-	}
-	else {
-		$_ .= $formatted_price;
+	
+	
+		// show currency
+		if($currency) {
+			if($currency_details["abbreviation_position"] == "after") {
+				$_ .= $formatted_price . " " . $currency_details["abbreviation"];
+			}
+			else {
+				$_ .= $currency_details["abbreviation"] . " " . $formatted_price;
+			}
+		}
+		else {
+			$_ .= $formatted_price;
+		}
+	
+		if($vat) {
+			$_ .= " (".number_format($price["vat"], $currency_details["decimals"], $currency_details["decimal_separator"], $currency_details["grouping_separator"]).")";
+		}
+	
+		return $_;
 	}
 
-	if($vat) {
-		$_ .= " (".number_format($price["vat"], $currency_details["decimals"], $currency_details["decimal_separator"], $currency_details["grouping_separator"]).")";
-	}
+	return false;
 
-	return $_;
 
 }
 

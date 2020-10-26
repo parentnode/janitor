@@ -540,16 +540,22 @@ class ShopCore extends Model {
 		$total_price = 0;
 		$total_vat = 0;
 
-		if(isset($cart["items"]) && $cart["items"]) {
-			foreach($cart["items"] as $cart_item) {
-				$price = $this->getPrice($cart_item["item_id"], array("quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
-				if($price) {
-					$total_price += $price["price"] * $cart_item["quantity"];
-					$total_vat += $price["vat"] * $cart_item["quantity"];
+		if($cart) {
+
+			if(isset($cart["items"]) && $cart["items"]) {
+				foreach($cart["items"] as $cart_item) {
+					$price = $this->getPrice($cart_item["item_id"], array("quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
+					if($price) {
+						$total_price += $price["price"] * $cart_item["quantity"];
+						$total_vat += $price["vat"] * $cart_item["quantity"];
+					}
 				}
 			}
+			return array("price" => $total_price, "vat" => $total_vat, "currency" => $cart["currency"], "country" => $cart["country"]);
 		}
-		return array("price" => $total_price, "vat" => $total_vat, "currency" => $cart["currency"], "country" => $cart["country"]);
+
+		return false;
+
 	}
 
 
