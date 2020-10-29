@@ -689,7 +689,7 @@ class JanitorHTMLCore {
 		$_ = '';
 
 		$_ .= '<div class="prices i:defaultPrices i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["prices"]).'>';
-		$_ .= '<h2>Prices (' . ($item["prices"] ? count($item["prices"]) : 0) .')</h2>';
+		$_ .= '<h2>Prices (' . ((isset($item["prices"]) && $item["prices"]) ? count($item["prices"]) : 0) .')</h2>';
 
 		$_ .= $this->priceList($item["item_id"]);
 
