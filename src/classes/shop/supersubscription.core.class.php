@@ -355,10 +355,10 @@ class SuperSubscriptionCore extends Subscription {
 
 			// get original subscription and user_id
 			$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
-			$user_id = $subscription["user_id"];
+			$user_id = $subscription ? $subscription["user_id"] : false;
 			
 			// get original item_id and use as fallback
-			$org_item_id = $subscription["item_id"];
+			$org_item_id = $subscription ? $subscription["item_id"] : false;
 			if(!$item_id) {
 				$item_id = $org_item_id;
 			}
@@ -543,7 +543,7 @@ class SuperSubscriptionCore extends Subscription {
 	
 				// perform special action on unsubscribe
 				$IC = new Items();
-				$unsubscribed_item = $IC->getItem(array("id" => $subscription["item_id"]));
+				$unsubscribed_item = $subscription ? $IC->getItem(array("id" => $subscription["item_id"])) : false;
 				if($unsubscribed_item) {
 					$model = $IC->typeObject($unsubscribed_item["itemtype"]);
 					if(method_exists($model, "unsubscribed")) {

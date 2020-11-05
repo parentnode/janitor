@@ -174,7 +174,7 @@ class TypeMembership extends Itemtype {
 		$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
 		$item_id = $order_item["item_id"];
 		
-		$order_id = $order["id"];
+		$order_id = $order ? $order["id"] : false;
 		$user_id = $order["user_id"];
 
 		if(isset($order_item["custom_price"]) && $order_item["custom_price"] !== false) {
@@ -226,7 +226,7 @@ class TypeMembership extends Itemtype {
 				}
 
 				// update membership with subscription_id
-				$subscription_id = $subscription["id"];
+				$subscription_id = $subscription ? $subscription["id"] : false;
 				$MC->updateMembership(["user_id" => $user_id, "subscription_id" => $subscription_id]);
 			}
 			
@@ -254,7 +254,7 @@ class TypeMembership extends Itemtype {
 				else {
 					$_POST["custom_price"] = null;
 				}					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
-				$subscription_id = $subscription["id"];
+				$subscription_id = $subscription ? $subscription["id"] : false;
 				unset($_POST);
 	
 				// add membership
@@ -294,7 +294,7 @@ class TypeMembership extends Itemtype {
 			if(isset($subscription["order"])) {
 				$order = $subscription["order"];
 				$item_key = arrayKeyValue($order["items"], "item_id", $item_id);
-				$order_id = $order["id"];
+				$order_id = $order ? $order["id"] : false;
 				$order_item = $order["items"][$item_key];
 				
 				// variables for email

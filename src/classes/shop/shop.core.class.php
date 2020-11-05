@@ -1022,7 +1022,7 @@ class ShopCore extends Model {
 				$cart = $this->addCart(array("addCart"));
 				// print_r($cart);
 				
-				$cart_reference = $cart["cart_reference"];
+				$cart_reference = $cart ? $cart["cart_reference"] : false;
 			}
 			
 			// cart exists and values are valid

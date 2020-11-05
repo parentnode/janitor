@@ -146,7 +146,7 @@ class MemberCore extends Model {
 			$item_id = $this->getProperty("item_id", "value");
 
 			$cart = $SC->addToNewInternalCart($item_id);
-			$cart_reference = $cart["cart_reference"];
+			$cart_reference = $cart ? $cart["cart_reference"] : false;
 
 			$current_user = $UC->getUser();
 			$current_user_id = $current_user["id"];

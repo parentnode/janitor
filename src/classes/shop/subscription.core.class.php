@@ -372,10 +372,10 @@ class SubscriptionCore extends Model {
 
 			// get original subscription and user_id
 			$subscription = $this->getSubscriptions(array("subscription_id" => $subscription_id));
-			$user_id = $subscription["user_id"];
+			$user_id = $subscription ? $subscription["user_id"] : false;
 			
 			// get original item_id and use as fallback
-			$org_item_id = $subscription["item_id"];
+			$org_item_id = $subscription ? $subscription["item_id"] : false;
 			if(!$item_id) {
 				$item_id = $org_item_id;
 			}
@@ -529,7 +529,7 @@ class SubscriptionCore extends Model {
 				// perform special action on unsubscribe
 				// before removing subscription (because unsubscribe uses it as information source)
 				$IC = new Items();
-				$unsubscribed_item = $IC->getItem(array("id" => $subscription["item_id"]));
+				$unsubscribed_item = $subscription ? $IC->getItem(array("id" => $subscription["item_id"])) : false;
 				if($unsubscribed_item) {
 					$model = $IC->typeObject($unsubscribed_item["itemtype"]);
 					if(method_exists($model, "unsubscribed")) {
