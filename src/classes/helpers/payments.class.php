@@ -34,7 +34,7 @@ class PaymentGateway {
 
 		if(!$this->adapter) {
 
-			if(preg_match("/^stripe$/i", $this->_settings["type"])) {
+			if(isset($this->_settings["type"]) && preg_match("/^stripe$/i", $this->_settings["type"])) {
 
 				@include_once("classes/adapters/payments/stripe.class.php");
 				$this->adapter = new JanitorStripe($this->_settings);
