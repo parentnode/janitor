@@ -626,8 +626,8 @@ class SuperShopCore extends Shop {
 			$_POST["user_id"] = $user_id;
 			$cart = $this->addCart(["addCart"]);
 			unset($_POST);
-			$cart_reference = $cart["cart_reference"];
 			if($cart) {
+				$cart_reference = $cart["cart_reference"];
 
 				$query = new Query();
 				$IC = new Items();

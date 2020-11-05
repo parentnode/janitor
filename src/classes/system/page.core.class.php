@@ -898,7 +898,7 @@ class PageCore {
 			if(isset($price_type["item_id"])) {
 				$item = $IC->getItem(["id" => $price_type["item_id"]]);
 				
-				if($item["status"] === "0") {
+				if($item && $item["status"] === "0") {
 					unset($price_types[$key]);
 				}
 			}
