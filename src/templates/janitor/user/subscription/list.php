@@ -1,7 +1,8 @@
 <?php
 global $action;
 global $model;
-$SC = new Shop();
+include_once("classes/shop/supershop.class.php");
+$SC = new SuperShop();
 include_once("classes/shop/supersubscription.class.php");
 $SubscriptionClass = new SuperSubscription();
 
@@ -33,7 +34,7 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 			<ul class="items subscriptions">
 				<? foreach($subscriptions as $subscription): 
 
-					$price = $SC->getPrice($subscription["item_id"]);
+					$price = $SC->getPrice($subscription["item_id"], ["user_id" => $user_id]);
 
 					$payment_method = $model->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"], "user_id" => $user_id]);
 

@@ -577,11 +577,11 @@ class SuperMemberCore extends Member {
 			if($user && $member && $member["subscription_id"]) {
 	
 				// get existing membership price
-				$current_price = $SC->getPrice($member["item_id"]);
+				$current_price = $SC->getPrice($member["item_id"], ["user_id" => $user_id]);
 	
 				// get new item and price
 				$item = $IC->getItem(["id" => $item_id, "extend" => ["subscription_method" => true]]);
-				$new_price = $SC->getPrice($item_id);
+				$new_price = $SC->getPrice($item_id, ["user_id" => $user_id]);
 	
 				$model = $IC->typeObject($item["itemtype"]);
 	

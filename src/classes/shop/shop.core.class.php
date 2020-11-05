@@ -1646,62 +1646,66 @@ class ShopCore extends Model {
 
 	function addCartItemToOrder($cart_item, $order) {
 		
-		$query = new Query();
-		$IC = new Items();
-
-		$quantity = $cart_item["quantity"];
-		$item_id = $cart_item["item_id"];
-
-		// get item details
-		$item = $IC->getItem(["id" => $item_id, "extend" => true]);
-
-		if($item) {
-
-			// get best price for item
-			$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
-			// print_r("price: ".$price);
-
-			// use custom price if available
-			if(isset($cart_item["custom_price"]) && $cart_item["custom_price"] !== false) {
-				$custom_price = $cart_item["custom_price"];
-				
-				$price["price"] = $custom_price;
-				$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
-				$price["price_without_vat"] = $custom_price_without_vat;
-				$price["vat"] = $custom_price - $custom_price_without_vat;
-			}
-
-			$unit_price = $price["price"];
-			$unit_vat = $price["vat"];
-			$total_price = $unit_price * $quantity;
-			$total_vat = $unit_vat * $quantity;
-
-			// use custom name for cart item if available
-			$item_name = isset($cart_item["custom_name"]) ? $cart_item["custom_name"] : $item["name"];
-
-			$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item_name)."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
-			// print $sql;
-
-
-			// Add item to order
-			if($query->sql($sql)) {
-				$order_item_id = $query->lastInsertId();
-				
-				// get order_item
-				$sql = "SELECT * FROM ".$this->db_order_items." WHERE id = $order_item_id";
+		if($cart_item && $order) {
+			
+			$query = new Query();
+			$IC = new Items();
+			
+			$quantity = $cart_item["quantity"];
+			$item_id = $cart_item["item_id"];
+	
+			// get item details
+			$item = $IC->getItem(["id" => $item_id, "extend" => true]);
+	
+			if($item) {
+	
+				// get best price for item
+				$price = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
+				// print_r("price: ".$price);
+	
+				// use custom price if available
+				if(isset($cart_item["custom_price"]) && $cart_item["custom_price"] !== false) {
+					$custom_price = $cart_item["custom_price"];
+					
+					$price["price"] = $custom_price;
+					$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
+					$price["price_without_vat"] = $custom_price_without_vat;
+					$price["vat"] = $custom_price - $custom_price_without_vat;
+				}
+	
+				$unit_price = $price["price"];
+				$unit_vat = $price["vat"];
+				$total_price = $unit_price * $quantity;
+				$total_vat = $unit_vat * $quantity;
+	
+				// use custom name for cart item if available
+				$item_name = isset($cart_item["custom_name"]) ? $cart_item["custom_name"] : $item["name"];
+	
+				$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item_name)."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+				// print $sql;
+	
+	
+				// Add item to order
 				if($query->sql($sql)) {
-					$order_item = $query->result(0);
-
-					$order_item["custom_price"] = isset($custom_price) ? $custom_price : null;
-					$order_item["item_name"] = $item_name;
-
-					return $order_item;
+					$order_item_id = $query->lastInsertId();
+					
+					// get order_item
+					$sql = "SELECT * FROM ".$this->db_order_items." WHERE id = $order_item_id";
+					if($query->sql($sql)) {
+						$order_item = $query->result(0);
+	
+						$order_item["custom_price"] = isset($custom_price) ? $custom_price : null;
+						$order_item["item_name"] = $item_name;
+	
+						return $order_item;
+						
+					}
 					
 				}
-				
+	
 			}
-
 		}
+
 
 		return false;
 	}

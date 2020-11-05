@@ -2,7 +2,8 @@
 global $action;
 global $model;
 $IC = new Items();
-$SC = new Shop();
+include_once("classes/shop/supershop.class.php");
+$SC = new SuperShop();
 include_once("classes/users/superuser.class.php");
 $UC = new SuperUser();
 
@@ -10,13 +11,13 @@ $user_id = $action[1];
 
 $user = $UC->getUsers(array("user_id" => $user_id));
 $member = $model->getMembers(array("user_id" => $user_id));
-$current_membership_price = $SC->getPrice($member["item_id"]);
+$current_membership_price = $SC->getPrice($member["item_id"], ["user_id" => $user_id]);
 
 $memberships = $IC->getItems(array("itemtype" => "membership", "status" => 1, "extend" => array("subscription_method" => true, "prices" => true)));
 
 $membership_options = array();
 foreach($memberships as $membership) {
-	$price = $SC->getPrice($membership["item_id"]);
+	$price = $SC->getPrice($membership["item_id"], ["user_id" => $user_id]);
 	if($current_membership_price["price"] < $price["price"]) {
 		$membership_options[$membership["item_id"]] = strip_tags($membership["name"])." (".formatPrice($price).")";
 	}

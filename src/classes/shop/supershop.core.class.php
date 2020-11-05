@@ -492,8 +492,7 @@ class SuperShopCore extends Shop {
 				$quantity = $this->getProperty("quantity", "value");
 				$item_id = $this->getProperty("item_id", "value");
 				$item = $IC->getItem(array("id" => $item_id));
-				$price = $this->getPrice($item_id);
-
+				$price = $this->getPrice($item_id, ["user_id" => $cart["user_id"]]);
 
 				// item has a price (price can be zero)
 				if ($price !== false) {
@@ -591,6 +590,7 @@ class SuperShopCore extends Shop {
 		$quantity = 1;
 		$custom_name = false;
 		$custom_price = false;
+		$user_id = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -605,7 +605,7 @@ class SuperShopCore extends Shop {
 			}
 		}
 		
-		$price = $this->getPrice($item_id);
+		$price = $this->getPrice($item_id, ["user_id" => $user_id]);
 		// user_id was passed and item has a price (price can be zero)
 		if($user_id && $price !== false) {
 
@@ -699,7 +699,7 @@ class SuperShopCore extends Shop {
 						$query->sql($sql);
 
 						$item = $IC->getItem(array("id" => $item_id, "extend" => true)); 
-						$item["unit_price"] = $this->getPrice($item_id, array("quantity" => $quantity, "currency" => $cart["currency"], "country" => $cart["country"]));
+						$item["unit_price"] = $this->getPrice($item_id, array("user_id" => $cart["user_id"], "quantity" => $quantity, "currency" => $cart["currency"], "country" => $cart["country"]));
 						$item["unit_price_formatted"] = formatPrice($item["unit_price"]);
 						$item["total_price"] = array(
 							"price" => $item["unit_price"]["price"]*$quantity, 
@@ -947,6 +947,74 @@ class SuperShopCore extends Shop {
 			}
 
 		}
+
+		return false;
+	}
+
+	function addCartItemToOrder($cart_item, $order) {
+		
+		if($cart_item && $order) {
+			
+			$query = new Query();
+			$IC = new Items();
+
+			$quantity = $cart_item["quantity"];
+			$item_id = $cart_item["item_id"];
+			$cart = $this->getCarts(["cart_id" => $cart_item["cart_id"]]);
+			$user_id = $cart ? $cart["user_id"] : false;
+	
+			// get item details
+			$item = $IC->getItem(["id" => $item_id, "extend" => true]);
+	
+			if($item) {
+	
+				// get best price for item
+				$price = $this->getPrice($item_id, array("user_id" => $user_id, "quantity" => $quantity, "currency" => $order["currency"], "country" => $order["country"]));
+				// print_r("price: ".$price);
+	
+				// use custom price if available
+				if(isset($cart_item["custom_price"]) && $cart_item["custom_price"] !== false) {
+					$custom_price = $cart_item["custom_price"];
+					
+					$price["price"] = $custom_price;
+					$custom_price_without_vat = $custom_price / (100 + $price["vatrate"]) * 100;
+					$price["price_without_vat"] = $custom_price_without_vat;
+					$price["vat"] = $custom_price - $custom_price_without_vat;
+				}
+	
+				$unit_price = $price["price"];
+				$unit_vat = $price["vat"];
+				$total_price = $unit_price * $quantity;
+				$total_vat = $unit_vat * $quantity;
+	
+				// use custom name for cart item if available
+				$item_name = isset($cart_item["custom_name"]) ? $cart_item["custom_name"] : $item["name"];
+	
+				$sql = "INSERT INTO ".$this->db_order_items." SET order_id=".$order["id"].", item_id=$item_id, name='".prepareForDB($item_name)."', quantity=$quantity, unit_price=$unit_price, unit_vat=$unit_vat, total_price=$total_price, total_vat=$total_vat";
+				// print $sql;
+	
+	
+				// Add item to order
+				if($query->sql($sql)) {
+					$order_item_id = $query->lastInsertId();
+					
+					// get order_item
+					$sql = "SELECT * FROM ".$this->db_order_items." WHERE id = $order_item_id";
+					if($query->sql($sql)) {
+						$order_item = $query->result(0);
+	
+						$order_item["custom_price"] = isset($custom_price) ? $custom_price : null;
+						$order_item["item_name"] = $item_name;
+	
+						return $order_item;
+						
+					}
+					
+				}
+	
+			}
+		}
+
 
 		return false;
 	}
@@ -1414,6 +1482,137 @@ class SuperShopCore extends Shop {
 
 		return array("price" => $total_order_amount, "currency" => $total_order_price["currency"]);
 	}
+
+	/**
+	* Get total price for cart
+	*
+	* @return price object
+	*/
+	function getTotalCartPrice($cart_id) {
+
+		$cart = $this->getCarts(array("cart_id" => $cart_id));
+		$total_price = 0;
+		$total_vat = 0;
+
+		if($cart) {
+
+			if(isset($cart["items"]) && $cart["items"]) {
+				foreach($cart["items"] as $cart_item) {
+					$price = $this->getPrice($cart_item["item_id"], array("user_id" => $cart["user_id"], "quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
+					if($price) {
+						$total_price += $price["price"] * $cart_item["quantity"];
+						$total_vat += $price["vat"] * $cart_item["quantity"];
+					}
+				}
+			}
+			return array("price" => $total_price, "vat" => $total_vat, "currency" => $cart["currency"], "country" => $cart["country"]);
+		}
+
+		return false;
+
+	}
+
+	// get best available price for item
+	function getPrice($item_id, $_options = false) {
+		global $page;
+		$IC = new Items();
+		include_once("classes/users/supermember.class.php");
+		$MC = new SuperMember();
+
+		$quantity = false;
+		$currency = false;
+
+		// when different vat rates apply
+		$country = false;
+
+		$user_id = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "quantity"           : $quantity             = $_value; break;
+					case "currency"           : $currency             = $_value; break;
+
+					case "country"            : $country              = $_value; break;
+				
+					case "user_id"            : $user_id              = $_value; break;
+				}
+			}
+		}
+
+		if(!$currency) {
+			$currency = $page->currency();
+		}
+
+		if(!$country) {
+			$country = $page->country();
+		}
+
+		// get prices
+		$prices = $IC->getPrices(array("item_id" => $item_id, "currency" => $currency, "country" => $country));
+
+		if($prices && $user_id) {
+
+			$offer = arrayKeyValue($prices, "type", "offer");
+			if($offer !== false) {
+				$offer_price = $prices[arrayKeyValue($prices, "type", "offer")];
+			}
+
+			$default = arrayKeyValue($prices, "type", "default");
+			if($default !== false) {
+
+				$default_price = $prices[arrayKeyValue($prices, "type", "default")];
+			}
+
+			// use membership-specific price if applicable
+			$membership = $MC->getMembers(["user_id" => $user_id]);
+			if($membership && $membership["item"]) {
+				$price_types = $page->price_types();
+				$where_pricetype_matches_membership = arrayKeyValue($price_types, "item_id", $membership["item"]["item_id"]);
+				$membership_price_type_id = $price_types[$where_pricetype_matches_membership]["id"];
+				$where_price_matches_membership_price_type = arrayKeyValue($prices, "type_id", $membership_price_type_id);
+				if($user_id != 1 && $membership["item"]["status"] == 1 && $where_price_matches_membership_price_type !== false) {
+					$membership_price = $prices[$where_price_matches_membership_price_type];
+				}
+			}
+
+
+
+			if($quantity && arrayKeyValue($prices, "type", "bulk") !== false) {
+				$current_best_price = false;
+				foreach($prices as $price) {
+					if($price["type"] == "bulk" && $quantity >= $price["quantity"]) {
+						$bulk_price = $price;
+					}
+				} 
+			}
+
+			if(isset($default_price)) {
+				$return_price = $default_price;
+			}
+
+			if(isset($offer_price) && (!isset($return_price) || $return_price["price"] > $offer_price["price"])) {
+				$return_price = $offer_price;
+			}
+
+			if(isset($bulk_price) && (!isset($return_price) || $return_price["price"] > $bulk_price["price"])) {
+				$return_price = $bulk_price;
+			}
+			
+			if(isset($membership_price) && (!isset($return_price) || $return_price["price"] > $membership_price["price"])) {
+				$return_price = $membership_price;
+			}
+			
+
+			if(isset($return_price)) {
+				return $return_price;
+			} 
+
+		}
+
+		return false;
+	}
+
 
 	function getUnpaidOrders($_options=false) {
 		

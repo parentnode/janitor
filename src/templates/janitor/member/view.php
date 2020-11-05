@@ -1,7 +1,8 @@
 <?php
 global $action;
 global $model;
-$SC = new Shop();
+include_once("classes/shop/supershop.class.php");
+$SC = new SuperShop();
 include_once("classes/users/superuser.class.php");
 $UC = new SuperUser();
 include_once("classes/shop/supersubscription.class.php");
@@ -25,7 +26,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 if($membership && $membership["item_id"]) {
 
-	$price = $SC->getPrice($membership["item_id"]);
+	$price = $SC->getPrice($membership["item_id"], ["user_id" => $user_id]);
 	$subscription = $SubscriptionClass->getSubscriptions(["item_id" => $membership["item_id"], "user_id" => $membership["user_id"]]);
 
 	$payment_method = $UC->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"], "user_id" => $user_id]);

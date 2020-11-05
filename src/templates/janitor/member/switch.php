@@ -2,7 +2,8 @@
 global $action;
 global $model;
 $IC = new Items();
-$SC = new Shop();
+include_once("classes/shop/supershop.class.php");
+$SC = new SuperShop();
 include_once("classes/users/superuser.class.php");
 $UC = new SuperUser();
 
@@ -18,7 +19,7 @@ $membership_options = array();
 foreach($memberships as $membership) {
 	// do not include current membership
 	if($membership["item_id"] != $member["item_id"])  {
-		$price = $SC->getPrice($membership["item_id"]);
+		$price = $SC->getPrice($membership["item_id"], ["user_id" => $user_id]);
 		$membership_options[$membership["item_id"]] = strip_tags($membership["name"])." (".formatPrice($price).")";
 	}
 }

@@ -127,7 +127,7 @@ if($cart) {
 		<ul class="items">
 			<? foreach($cart["items"] as $cart_item):
 				$item = $IC->getItem(array("id" => $cart_item["item_id"], "extend" => true)); 
-				$price = $model->getPrice($cart_item["item_id"], array("quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
+				$price = $model->getPrice($cart_item["item_id"], array("user_id" => $cart["user_id"], "quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
 			?>
 			<li class="item">
 				<h3>

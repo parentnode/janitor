@@ -627,7 +627,7 @@ class SuperSubscriptionCore extends Subscription {
 
 						// Calculate new expiry
 						$new_expiry = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
-						$price = $SC->getPrice($item["item_id"], array("quantity" => 1));
+						$price = $SC->getPrice($item["item_id"], array("user_id" => $subscription["user_id"], "quantity" => 1));
 
 						$custom_price = $subscription["custom_price"];
 

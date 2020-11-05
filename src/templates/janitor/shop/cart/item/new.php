@@ -16,13 +16,11 @@ $item_options[""] = "Select item";
 
 foreach($items as $item) {
 	if($item["prices"]) {
+
+		$price = $model->getPrice($item["id"], ["user_id" => $cart["user_id"]]);
+
 		$item_options[$item["item_id"]] = strip_tags($item["name"])." (".$item["itemtype"].")";
-		if(arrayKeyValue($item["prices"], "type", "offer") !== false) {
-			$item_options[$item["item_id"]] .= " – " . formatPrice($item["prices"][arrayKeyValue($item["prices"], "type", "offer")]);
-		}
-		else if(arrayKeyValue($item["prices"], "type", "default") !== false) {
-			$item_options[$item["item_id"]] .= " – " . formatPrice($item["prices"][arrayKeyValue($item["prices"], "type", "default")]);
-		}
+		$item_options[$item["item_id"]] .= " – " . formatPrice($price);
 
 		if($item["subscription_method"]) {
 			$item_options[$item["item_id"]] .= " / ".$item["subscription_method"]["name"];

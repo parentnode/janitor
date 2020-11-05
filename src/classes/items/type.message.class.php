@@ -736,10 +736,11 @@ class TypeMessage extends Itemtype {
 
 							if(array_search("MEMBERSHIP_PRICE", $needed_values) !== false) {
 
-								$SC = new Shop();
+								include_once("classes/shop/supershop.class.php");
+								$SC = new SuperShop();
 
 								if($member && $member["item"] && $member["item"]["item_id"]) {
-									$price = $SC->getPrice($member["item"]["item_id"]);
+									$price = $SC->getPrice($member["item"]["item_id"], ["user_id" => $subscriber["user_id"]]);
 									$user_values["MEMBERSHIP_PRICE"] = formatPrice($price);
 								}
 								else {
