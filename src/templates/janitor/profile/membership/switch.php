@@ -25,7 +25,7 @@ foreach($memberships as $membership) {
 ?>
 <div class="scene i:scene defaultEdit userMember">
 	<h1>Switch to a new membership</h1>
-	<h2><?= $user["nickname"] ?> / <?= $member["item"]["name"] ?></h2>
+	<h2><?= $user["nickname"] ?> / <?= $member["item"] ? $member["item"]["name"] : "Inaktivt medlem" ?></h2>
 
 	<ul class="actions">
 		<?= $HTML->link("Back", "/janitor/admin/profile/membership/view", array("class" => "button", "wrapper" => "li.membership")); ?>
