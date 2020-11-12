@@ -623,7 +623,7 @@ class SuperSubscriptionCore extends Subscription {
 					// debug([$item]);
 
 					// Is expiry relevant (does item still require renewal)
-					if($item && $item["subscription_method"] && $item["subscription_method"]["duration"] != "*") {
+					if($this->allowRenewal($subscription)) {
 
 						// Calculate new expiry
 						$new_expiry = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
@@ -742,6 +742,10 @@ class SuperSubscriptionCore extends Subscription {
 						// debug($sql);
 						$query->sql($sql);
 
+						if(method_exists($this, "renewalDenied")) {
+							$this->renewalDenied($subscription);
+						}
+
 					}
 
 					message()->resetMessages();
@@ -750,6 +754,23 @@ class SuperSubscriptionCore extends Subscription {
 
 			}
 			return true;
+		}
+
+		return false;
+	}
+
+	function allowRenewal($subscription) {
+
+		if($subscription) {
+
+			$IC = new Items();
+
+			// get item with subscription method
+			$item = $IC->getItem(["id" => $subscription["item_id"], "extend" => ["subscription_method" => true]]);
+
+			if($item && $item["subscription_method"] && $item["subscription_method"]["duration"] != "*") {
+				return true;
+			}
 		}
 
 		return false;
