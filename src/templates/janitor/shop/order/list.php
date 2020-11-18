@@ -21,7 +21,7 @@ else {
 	$orders = $model->getOrders(array("status" => $status));
 
 }
-$selected_status_name = $model->order_statuses[$status];
+$selected_status_name = isset($model->order_statuses[$status]) ? $model->order_statuses[$status] : false;
 
 session()->value("return_to_orderstatus", $status);
 
