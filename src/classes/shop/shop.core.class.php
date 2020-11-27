@@ -1338,17 +1338,28 @@ class ShopCore extends Model {
 			$cart_item_id = $action[2];
 			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
 
-			if($cart) {
-
+			if($cart && $cart["items"]) {
+				
+				// get item
+				$IC = new Items();
+				$item_id = $cart["items"][arrayKeyValue($cart["items"], "id", $cart_item_id)]["item_id"];
+				$item = $IC->getItem(["id" => $item_id]);
+				
 				$query = new Query();
 				$sql = "DELETE FROM ".$this->db_cart_items." WHERE id = $cart_item_id AND cart_id = ".$cart["id"];
 				// print $sql;
 				if($query->sql($sql)) {
 					$cart = $this->getCarts(array("cart_id" => $cart["id"]));
-
+					
 					// add total price info to enable UI update
 					$cart["total_cart_price"] = $this->getTotalCartPrice($cart["id"]);
 					$cart["total_cart_price_formatted"] = formatPrice($cart["total_cart_price"]);
+					
+					// add callback to deletedFromCart
+					$model = $IC->typeObject($item["itemtype"]);
+					if(method_exists($model, "deletedFromCart")) {
+						$model->deletedFromCart($item, $cart);
+					}
 
 					return $cart;
 				}
@@ -1431,11 +1442,11 @@ class ShopCore extends Model {
 			$cart = $this->getCart();
 			
 			// user cart matches cart received via REST
-			if($cart["cart_reference"] == $cart_reference) {
+			if($cart && $cart["cart_reference"] == $cart_reference) {
 				$cart_match = true;
 			}
 			// received cart is an internal cart
-			else if($received_cart["user_id"] == $user_id) {
+			else if($received_cart && $received_cart["user_id"] == $user_id) {
 				$cart_match = true;
 				$cart = $received_cart;
 			}			
