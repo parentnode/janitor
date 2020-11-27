@@ -133,6 +133,7 @@ class MailGateway {
 
 			// if no recipients - send to ADMIN
 			if(!$temp_recipients && defined("ADMIN_EMAIL")) {
+				$temp_recipients = [];
 				$temp_recipients[] = ADMIN_EMAIL;
 			}
 
