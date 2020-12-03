@@ -425,7 +425,7 @@ class HTMLCore {
 
 				foreach($options as $radio_value => $radio_label) {
 
-					$radio_for = "input_".preg_replace("/\[\]/", "", $name."_".$radio_value);
+					$radio_for = $for."_".$radio_value;
 					$att_radio_id = $this->attribute("id", $radio_for);
 					$att_radio_value = $this->attribute("value", $radio_value);
 					$att_radio_checked = $this->attribute("checked", ($value == $radio_value ? "checked" : ""));
