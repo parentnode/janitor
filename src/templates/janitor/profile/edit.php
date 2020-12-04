@@ -13,7 +13,7 @@ $apitoken = $model->getToken();
 
 // payment methods
 $user_payment_methods = $model->getPaymentMethods(["extend" => true]);
-
+// debug(["user_payment_methods", $user_payment_methods]);
 // get addresses
 $addresses = $item["addresses"];
 
@@ -97,12 +97,15 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	<div class="payment_methods i:paymentMethods i:collapseHeader">
 		<h2>Payment methods</h2>
 
-		<? if($user_payment_methods): ?>
+		<? if($user_payment_methods):
+			$method_exists = false; ?>
 		<ul class="payment_methods">
 
 			<? foreach($user_payment_methods as $user_payment_method): ?>
 
-				<? if(isset($user_payment_method["cards"]) && $user_payment_method["cards"]): ?>
+				<? if(isset($user_payment_method["cards"]) && $user_payment_method["cards"]):
+				$method_exists = true;
+				?>
 
 					<? foreach($user_payment_method["cards"] as $card): ?>
 				<li class="payment_method user_payment_method<?= $user_payment_method["classname"] ? " ".$user_payment_method["classname"] : "" ?><?= $card["default"] ? " default" : "" ?>">
@@ -126,7 +129,9 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 				</li>
 					<? endforeach; ?>
 
-				<? else: ?>
+				<? elseif(!$user_payment_method["gateway"]):
+					$method_exists = true;
+				?>
 				<li class="payment_method user_payment_method<?= $user_payment_method["classname"] ? " ".$user_payment_method["classname"] : "" ?><?= $user_payment_method["default_method"] ? " default" : "" ?>">
 					<h3><?= $user_payment_method["name"] ?></h3>
 					<p><?= $user_payment_method["description"] ?><?= $user_payment_method["default_method"] ? ' <span class="default">(default)</span>' : '' ?></p>
@@ -152,10 +157,10 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 		</ul>
 
-		<? else: ?>
+		<? endif; ?>
 
+		<? if(!$method_exists): ?>
 		<p>You do not have any payment methods yet. Make a purchase to add your first payment method.</p>
-
 		<? endif; ?>
 
 	</div>

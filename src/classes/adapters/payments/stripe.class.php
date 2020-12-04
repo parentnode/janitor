@@ -338,7 +338,7 @@ class JanitorStripe {
 
 	// Delete payment method from Stripe account
 	function deletePaymentMethod($user_id, $user_payment_method_id) {
-		// debug(["deletePaymentMethod stripe"]);
+		// debug(["deletePaymentMethod stripe", $user_payment_method_id]);
 		// does customer already exist in Stripe account
 		$customer_id = $this->getCustomerId($user_id);
 
@@ -354,8 +354,9 @@ class JanitorStripe {
 
 				if(!$result->customer) {
 
+					$query = new Query();
 					// Delete this payment method from subscriptions
-					$sql = "DELETE FROM ".SITE_DB.".user_gateway_stripe_subscription_payment_method WHERE payment_method_id = ".$order["id"];
+					$sql = "DELETE FROM ".SITE_DB.".user_gateway_stripe_subscription_payment_method WHERE payment_method_id = ".$user_payment_method_id;
 					$query->sql($sql);
 
 					
