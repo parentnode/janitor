@@ -594,6 +594,52 @@ class SubscriptionCore extends Model {
 
 		}
 
+		// bi-annually
+		else if($duration == "biannually") {
+
+			$days_of_month = date("t", $timestamp);
+			$date_of_month = date("j", $timestamp);
+
+			$days_of_next_month = date("t", mktime(0, 0, 0, date("n", $timestamp)+6, 1, date("Y", $timestamp)));
+			
+			// if current date doesn't exist 6 months from now (fx. 30 or 31/01)
+			// if current date is last date in month 
+			// - choose last day of month 6 month from now
+			if($date_of_month > $days_of_next_month || $date_of_month == $days_of_month) {
+
+				$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp)+6, $days_of_next_month, date("Y", $timestamp)));
+			}
+			// just use same date next month
+			else {
+
+				$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp)+6, date("j", $timestamp), date("Y", $timestamp)));
+			}
+
+		}
+
+		// quaterly
+		else if($duration == "quarterly") {
+
+			$days_of_month = date("t", $timestamp);
+			$date_of_month = date("j", $timestamp);
+
+			$days_of_next_month = date("t", mktime(0, 0, 0, date("n", $timestamp)+3, 1, date("Y", $timestamp)));
+			
+			// if current date doesn't exist 3 months from now (fx. 30 or 31/01)
+			// if current date is last date in month 
+			// - choose last day of month 3 months ahead
+			if($date_of_month > $days_of_next_month || $date_of_month == $days_of_month) {
+
+				$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp)+3, $days_of_next_month, date("Y", $timestamp)));
+			}
+			// just use same date next month
+			else {
+
+				$expires_at = date("Y-m-d 00:00:00", mktime(0, 0, 0, date("n", $timestamp)+3, date("j", $timestamp), date("Y", $timestamp)));
+			}
+
+		}
+
 		// monthly
 		else if($duration == "monthly") {
 
