@@ -516,7 +516,7 @@ class HTMLCore {
 					$att_value = $this->attribute("value", $value);
 					$att_max = $this->attribute("max", $max);
 					$att_min = $this->attribute("min", $min);
-					$att_step = $this->attribute("step", $min);
+					$att_step = $this->attribute("step", $step);
 
 					$_ .= '<input type="range"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_step.$att_max.$att_min.' />';
 				}
