@@ -125,7 +125,7 @@ class TypeMembership extends Itemtype {
 	function addedToCart($added_item, $cart) {
 
 		$added_item_id = $added_item["id"];
-		// print "\n<br>###$added_item_id### added to cart (membership)\n<br>";
+		// debug(["added to cart (membership)", $added_item_id]);### added to cart (membership)\n<br>";
 		$SC = new Shop;
 		$IC = new Items;
 		$query = new Query;
@@ -134,6 +134,7 @@ class TypeMembership extends Itemtype {
 			
 			$existing_item = $IC->getItem(["id" => $cart_item["item_id"]]);
 
+			// debug([$existing_item]);
 			// another membership type already exists in cart
 			if($existing_item["itemtype"] == "membership" && $existing_item["id"] != $added_item["id"]) {
 
@@ -142,7 +143,7 @@ class TypeMembership extends Itemtype {
 
 			}
 		}
-		
+
 		// check quantity
 		$sql = "SELECT quantity FROM ".SITE_DB.".shop_cart_items WHERE item_id = ".$added_item["id"]." AND cart_id = ".$cart["id"];
 		if($query->sql($sql) && $query->result(0, "quantity") > 1) {
