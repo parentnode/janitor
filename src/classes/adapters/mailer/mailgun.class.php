@@ -7,6 +7,7 @@ require_once('includes/mailer/mailgun-php-3.0/vendor/autoload.php');
 
 use Mailgun\Mailgun;
 use Mailgun\Exception\HttpClientException;
+use Buzz\Exception\NetworkException;
 
 
 class JanitorMailgun {
@@ -154,11 +155,12 @@ class JanitorMailgun {
 			return $this->client->messages()->send($this->domain, $mail_options);
 		}
 		catch(HttpClientException $e) {
-
 			return false;
-
 		}
-
+		// Catch general exception
+		catch(Exception $e) {
+			return false;
+		}
 
 	}
 
@@ -289,9 +291,11 @@ class JanitorMailgun {
 			return $this->client->messages()->send($this->domain, $mail_options); 
 		}
 		catch(HttpClientException $e) {
-
 			return false;
-
+		}
+		// Catch general exception
+		catch(Exception $e) {
+			return false;
 		}
 
 	}
