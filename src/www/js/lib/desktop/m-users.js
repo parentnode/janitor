@@ -541,41 +541,41 @@ Util.Modules["flushUserSession"] = new function() {
 
 
 // Update subscription
-Util.Modules["newSubscription"] = new function() {
-	this.init = function(form) {
-
-		u.f.init(form);
-
-		u.bug("init")
-
-		form.inputs["item_id"].changed = function() {
-
-			location.href = location.href.replace(/new\/([\d]+).+/, "new/$1") + "/" + this.val();
-			
-		}
-
-		if(form.actions["cancel"]) {
-			form.actions["cancel"].clicked = function(event) {
-				location.href = this.url;
-			}
-		}
-
-		form.submitted = function(iN) {
-
-			this.response = function(response) {
-				page.notify(response);
-
-				if(response.cms_status == "success") {
-					location.href = this.actions["cancel"].url;
-				}
-			}
-			u.request(this, this.action, {"method":"post", "data" : this.getData()});
-
-		}
-
-	}
-
-}
+// Util.Modules["newSubscription"] = new function() {
+// 	this.init = function(form) {
+//
+// 		u.f.init(form);
+//
+// 		u.bug("init")
+//
+// 		form.inputs["item_id"].changed = function() {
+//
+// 			location.href = location.href.replace(/new\/([\d]+).+/, "new/$1") + "/" + this.val();
+//
+// 		}
+//
+// 		if(form.actions["cancel"]) {
+// 			form.actions["cancel"].clicked = function(event) {
+// 				location.href = this.url;
+// 			}
+// 		}
+//
+// 		form.submitted = function(iN) {
+//
+// 			this.response = function(response) {
+// 				page.notify(response);
+//
+// 				if(response.cms_status == "success") {
+// 					location.href = this.actions["cancel"].url;
+// 				}
+// 			}
+// 			u.request(this, this.action, {"method":"post", "data" : this.getData()});
+//
+// 		}
+//
+// 	}
+//
+// }
 
 
 
@@ -585,33 +585,34 @@ Util.Modules["unverifiedUsernames"] = new function() {
 
 		var i, node;
 
-		div.bn_remind_selected = u.qs("li.remind_selected");
-		
-		div.selectionUpdated = function(response) {
-			if(response.length > 0) {
-				u.rc(this.bn_remind_selected.form[2], "disabled");				
+		u.bug("div", div)
+		div.bn_remind_selected = u.qs("li.remind_selected input[type=submit]");
+
+		div.selectionUpdated = function(inputs) {
+			u.bug("inputs", inputs, this.bn_remind_selected);
+			if(inputs.length > 0) {
+				u.rc(this.bn_remind_selected, "disabled");
 			}
 			else {
-				u.ac(this.bn_remind_selected.form[2], "disabled");
+				u.ac(this.bn_remind_selected, "disabled");
 			}
 
 			this.selected_username_ids = [];
-			
-			
-			for(i = 0; i < response.length; i++) {
-				node = response[i].node;
+
+			for(i = 0; i < inputs.length; i++) {
+				node = inputs[i].node;
 				node.username_id = u.cv(node, "username_id");
 				this.selected_username_ids.push(node.username_id);
 			}
-			
+
 			this.selected_username_ids = this.selected_username_ids.join();
-			this.bn_remind_selected.form.inputs.selected_username_ids.val(this.selected_username_ids);
+			this.bn_remind_selected._form.inputs.selected_username_ids.val(this.selected_username_ids);
 		}
 
-		
+
 		// nodes are already available from defaultList
 		for(i = 0; node = div.nodes[i]; i++) {
-			
+
 			node.bn_remind = u.qs("ul.actions li.remind", node);
 			node.bn_remind.node = node;
 
@@ -627,7 +628,7 @@ Util.Modules["unverifiedUsernames"] = new function() {
 				if(response.cms_status == "success") {
 					var reminded_at = u.qs("dd.reminded_at", this.node);
 					var total_reminders = u.qs("dd.total_reminders", this.node);
-					
+
 					reminded_at.innerHTML = response.cms_object["reminded_at"] + " (just now)";
 					u.ac(reminded_at, "system_warning");
 					total_reminders.innerHTML = response.cms_object["total_reminders"];
@@ -636,13 +637,13 @@ Util.Modules["unverifiedUsernames"] = new function() {
 				else {
 					page.notify({"cms_status":"error", "cms_message":{"error":["Could not send message"]}, "isJSON":true});
 				}
-				
+
 			}
-	
+
 		}
 
 	}
-	
+
 }
 
 // unverifiedUsernamesSelected
@@ -650,10 +651,10 @@ Util.Modules["unverifiedUsernamesSelected"] = new function() {
 	this.init = function(ul) {
 
 		var bn_remind_selected = u.qs("li.remind_selected", ul);
-				
+
 		bn_remind_selected.reminded = function(response) {
-			
-			var obj;
+
+			var obj, i, node;
 			if(response.cms_status == "success") {
 				for(i = 0; i < response.cms_object.length; i++) {
 					obj = response.cms_object[i];
@@ -662,7 +663,7 @@ Util.Modules["unverifiedUsernamesSelected"] = new function() {
 					if(node) {
 						node.bn_remind.reminded({"cms_status":"success", "cms_object":obj});
 					}
-					
+
 				}
 
 			}
