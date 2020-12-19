@@ -2018,7 +2018,14 @@ class JanitorStripe {
 	// Respond with exception data
 	function exceptionResponder($exception) {
 		$error_body = $exception->getJsonBody();
-		$error = $error_body["error"];
+		if($error_body && isset($error_body["error"])) {
+			$error = $error_body["error"];
+		}
+		else {
+			$error["type"] = "Unknown";
+			$error["message"] = $exception->getMessage();
+			$error["code"] = $exception->getCode();
+		}
 
 		return ["status" => "error", "message" => $error["message"], "code" => $error["code"]];
 	}
@@ -2027,7 +2034,14 @@ class JanitorStripe {
 	function exceptionHandler($action, $exception) {
 
 		$error_body = $exception->getJsonBody();
-		$error = $error_body["error"];
+		if($error_body && isset($error_body["error"])) {
+			$error = $error_body["error"];
+		}
+		else {
+			$error["type"] = "Unknown";
+			$error["message"] = $exception->getMessage();
+		}
+		// debug([$action, "exception", $exception, "error_body", $error_body, "em", $exception->getMessage()]);
 		$http_response = $exception->getHttpStatus();
 
 		// Add log entry
