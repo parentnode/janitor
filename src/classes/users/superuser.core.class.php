@@ -1851,13 +1851,19 @@ class SuperUserCore extends User {
 
 		$selected_username_ids = explode(",", getPost("selected_username_ids"));
 		$verification_statuses = [];
-		
+
 		foreach ($selected_username_ids as $username_id) {
 			$verification_status = $this->sendVerificationLink(["sendVerificationLink", $username_id]);
-			$verification_status["username_id"] = $username_id;
-			array_push($verification_statuses, $verification_status);
+
+			if($verification_status) {
+
+				$verification_status["username_id"] = $username_id;
+				array_push($verification_statuses, $verification_status);
+
+			}
+
 		}
-		
+
 		return $verification_statuses;
 
 	}
