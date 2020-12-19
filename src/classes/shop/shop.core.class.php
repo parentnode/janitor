@@ -544,10 +544,11 @@ class ShopCore extends Model {
 
 			if(isset($cart["items"]) && $cart["items"]) {
 				foreach($cart["items"] as $cart_item) {
-					$price = $this->getPrice($cart_item["item_id"], array("quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
+					// $price = $this->getPrice($cart_item["item_id"], array("quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
+					$price = $this->getCartItemPrice($cart_item, $cart);
 					if($price) {
-						$total_price += $price["price"] * $cart_item["quantity"];
-						$total_vat += $price["vat"] * $cart_item["quantity"];
+						$total_price += $price["cart_price"] * $cart_item["quantity"];
+						$total_vat += $price["cart_vat"] * $cart_item["quantity"];
 					}
 				}
 			}
@@ -558,6 +559,29 @@ class ShopCore extends Model {
 
 	}
 
+	// Get item price for cart item – observing custom price in cart
+	function getCartItemPrice($cart_item, $cart) {
+
+		$price = $this->getPrice($cart_item["item_id"], array("quantity" => $cart_item["quantity"], "currency" => $cart["currency"], "country" => $cart["country"]));
+
+		if($price) {
+
+			if($cart_item["custom_price"]) {
+				$price["cart_price"] = $cart_item["custom_price"];
+			}
+			else {
+				$price["cart_price"] = $price["price"];
+			}
+
+			// $custom_price / (100 + $price["vatrate"]) * 100;
+			$price["cart_price_without_vat"] = ($price["cart_price"] / (100 + $price["vatrate"]) * 100);
+			$price["cart_vat"] = $price["cart_price"] - $price["cart_price_without_vat"];
+
+		}
+
+		return $price;
+
+	}
 
 	// get best available price for item
 	function getPrice($item_id, $_options = false) {
