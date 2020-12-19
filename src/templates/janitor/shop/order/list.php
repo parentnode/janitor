@@ -110,7 +110,7 @@ session()->value("return_to_orderstatus", $status);
 						$IC = new Items();
 						foreach($order["items"] as $order_item):
 							$item = $IC->getItem(["id" => $order_item["item_id"]]);
-							if(array_search($item["itemtype"], $order_content) === false) {
+							if($item && array_search($item["itemtype"], $order_content) === false) {
 								array_push($order_content, $item["itemtype"]);
 							}
 						endforeach;
