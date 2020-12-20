@@ -645,9 +645,9 @@ class SuperSubscriptionCore extends Subscription {
 						$_POST["subscription_renewal"] = 1;
 						$order = $SC->newOrderFromCart(["newOrderFromCart", $cart["id"], $cart["cart_reference"]]);
 						unset($_POST);
-						
+
 						if($order) {
-							
+
 							// update order comment
 							if($item["itemtype"] == "membership") {
 								$_POST["order_comment"] = "Membership renewed (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")";
@@ -658,65 +658,72 @@ class SuperSubscriptionCore extends Subscription {
 							$order = $SC->updateOrderComment(["updateOrderComment", $order["id"]])	;
 							unset($_POST);
 
+							// Only attempt charging anything if order price is > 0
+							$total_order_price = $SC->getTotalOrderPrice($order["id"]);
+							if($total_order_price && $total_order_price["price"] > 0) {
 
-							// Charge subscription now
 
-							// Get payment method of subscription – if it exists
-							$payment_method_result = $UC->getPaymentMethodForSubscription([
-								"user_id" => $subscription["user_id"],
-								"subscription_id" => $subscription["id"]
-							]);
+								// Charge subscription now
 
-							// if we have valid payment method, then capture and register payment
-							if(isset($payment_method_result["card"]) && $payment_method_result["card"]) {
+								// Get payment method of subscription – if it exists
+								$payment_method_result = $UC->getPaymentMethodForSubscription([
+									"user_id" => $subscription["user_id"],
+									"subscription_id" => $subscription["id"]
+								]);
 
-								$return_url = str_replace("{GATEWAY}", $payment_method_result["gateway"], SITE_PAYMENT_REGISTER_INTENT);
+								// if we have valid payment method, then capture and register payment
+								if(isset($payment_method_result["card"]) && $payment_method_result["card"]) {
 
-								$result = payments()->requestPaymentIntentForOrder(
-									$order, 
-									$payment_method_result["card"]["id"], 
-									$return_url
-								);
+									$return_url = str_replace("{GATEWAY}", $payment_method_result["gateway"], SITE_PAYMENT_REGISTER_INTENT);
 
-								// debug(["result", $result]);
-								if($result["status"] === "PAYMENT_CAPTURED") {
+									$result = payments()->requestPaymentIntentForOrder(
+										$order, 
+										$payment_method_result["card"]["id"], 
+										$return_url
+									);
 
-									$intent_registration_result = payments()->updatePaymentIntent($result["payment_intent_id"], $order);
-									if($intent_registration_result["status"] === "success") {
+									// debug(["result", $result]);
+									if($result["status"] === "PAYMENT_CAPTURED") {
 
-										$payment_registration_result = payments()->registerPayment($order, $intent_registration_result["payment_intent"]);
+										$intent_registration_result = payments()->updatePaymentIntent($result["payment_intent_id"], $order);
+										if($intent_registration_result["status"] === "success") {
 
-										// Clear messages
-										message()->resetMessages();
+											$payment_registration_result = payments()->registerPayment($order, $intent_registration_result["payment_intent"]);
 
-										// failed registration of payment
-										if(!$payment_registration_result || $payment_registration_result["status"] !== "REGISTERED") {
+											// Clear messages
+											message()->resetMessages();
 
-											mailer()->send(array(
-												"subject" => SITE_URL . " - Subscription renewal, payment registration failed",
-												"message" => "SuperUser->renewSubscriptions: FAILED REGISTERING PAYMENT, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"],
-												"template" => "system"
-											));
+											// failed registration of payment
+											if(!$payment_registration_result || $payment_registration_result["status"] !== "REGISTERED") {
+
+												mailer()->send(array(
+													"subject" => SITE_URL . " - Subscription renewal, payment registration failed",
+													"message" => "SuperUser->renewSubscriptions: FAILED REGISTERING PAYMENT, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"],
+													"template" => "system"
+												));
+
+											}
 
 										}
+									}
+									else {
+
+										$_POST["order_id"] = $order["id"];
+										$SC->sendPaymentReminder(["sendPaymentReminder"]);
+										unset($_POST);
+
+										mailer()->send(array(
+											"subject" => SITE_URL . " - Subscription renewal, payment action required",
+											"message" => "SuperUser->renewSubscriptions: payment action required, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"].", ".print_r($payment_method_result, true)."\n\nWe HAVE sent mail to user",
+											"template" => "system"
+										));
 
 									}
-								}
-								else {
-
-									$_POST["order_id"] = $order["id"];
-									$SC->sendPaymentReminder(["sendPaymentReminder"]);
-									unset($_POST);
-
-									mailer()->send(array(
-										"subject" => SITE_URL . " - Subscription renewal, payment action required",
-										"message" => "SuperUser->renewSubscriptions: payment action required, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"].", ".print_r($payment_method_result, true)."\n\nWe HAVE sent mail to user",
-										"template" => "system"
-									));
 
 								}
 
 							}
+
 
 
 							$page->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
