@@ -401,10 +401,10 @@ class PageCore {
 			if($this->header_includes) {
 				$_ = "";
 				foreach($this->header_includes as $include) {
-					if(preg_match("/\.js$/", $include)) {
+					if(preg_match("/\.js($|\?)/", $include)) {
 						$_ .= '<script type="text/javascript" src="'.$include.'"></script>';
 					}
-					else if(preg_match("/\.css$/", $include)) {
+					else if(preg_match("/\.css($|\?)/", $include)) {
 						$_ .= '<link type="text/css" rel="stylesheet" media="all" href="'.$include.'" />';
 					}
 				}
