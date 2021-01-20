@@ -1703,6 +1703,17 @@ class SuperShopCore extends Shop {
 		
 	}
 
+	function getOrderContentString($order_items) {
+		
+		$order_content = "";
+		foreach ($order_items as $order_item) {
+
+			$order_content .= $order_item["quantity"]." x ".$order_item["name"]."<br />";
+
+		}
+
+		return $order_content;
+	}
 
 	// /#controller#/sendPaymentReminder/#order_id#
 	function sendPaymentReminder($action) {
@@ -1731,14 +1742,17 @@ class SuperShopCore extends Shop {
 				$current_user = $UC->getUser();
 				$total_order_price = $this->getTotalOrderPrice($order["id"]);
 
+				$order_content = $this->getOrderContentString($order["items"]);
+
 				mailer()->send(array(
-					"from_current_user" => true,
+					// "from_current_user" => true,
 					"values" => array(
-						"FROM" => $current_user["nickname"],
+						"FROM" => SITE_NAME,
 						"NICKNAME" => $order["user"]["nickname"],
 						"ORDER_NO" => $order["order_no"],
 						"ORDER_ID" => $order["id"],
 						"ORDER_PRICE" => formatPrice($total_order_price),
+						"ORDER_CONTENT" => $order_content,
 					),
 					"recipients" => $order["user"]["email"],
 					"template" => "payment_reminder",
