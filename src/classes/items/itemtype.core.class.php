@@ -659,9 +659,15 @@ class ItemtypeCore extends Model {
 
 		$query = new Query();
 
+		// reduce length of $sindex suggetion if not part of incremental value iteration
+		// If we reduce length on incremental value iteration we risk cutting off the incremental value thus creating an endless loop
+		if(count($excluded) === 0) {
+			$sindex = substr($sindex, 0, 60);
+		}
+
 		// superNormalize $sindex suggetion
-		$sindex = superNormalize(substr($sindex, 0, 60));
-		// print "try this:" . $sindex."<br>\n";
+		$sindex = superNormalize($sindex);
+		// debug(["try this:" . $sindex]);
 
 		// check for existence
 		// update if sindex does not exist for other item already
@@ -712,6 +718,7 @@ class ItemtypeCore extends Model {
 
 			// clean sindex in case it's coming from iteration (removing incremental value)
 			$sindex = preg_replace("/-([\d]+)$/", "", $sindex);
+
 
 			// find all existing incremental versions of this sindex
 			$sql = "SELECT id, sindex FROM ".UT_ITEMS." WHERE sindex REGEXP '^".$sindex."[-]?[0-9]+$' ORDER BY LENGTH(sindex) DESC, sindex DESC";
