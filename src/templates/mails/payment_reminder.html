@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Payment due for {ORDER_NO}!</title>
+	<title>Payment for {ORDER_NO}!</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 	<style type="text/css">
@@ -42,7 +42,7 @@
 <body style="color: #000000; letter-spacing: normal; orphans: auto; text-align: start; text-indent: 0px; text-transform: none; white-space: normal; widows: auto; word-spacing: 0px; -webkit-text-stroke-width: 0px; word-wrap: break-word; -webkit-nbsp-mode: space; -webkit-line-break: after-white-space; margin: 0; padding: 0;">
 
 <div class="preview ignore_text" style="display: none; font-size: 1px; color: #ffffff; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0.001; overflow: hidden">
-	Your order, {ORDER_NO}, with a total of {ORDER_PRICE}, has not been paid yet.
+	Your payment of {ORDER_NO} requires your attention.
 </div>
 
 <div style="background-color: #ffffff; text-align: center; padding: 0; margin: 0 10px;">
@@ -62,13 +62,19 @@
 	</tr>
 	<tr>
 		<td align="left" style="text-align: left;">
-			<h1 style="font-family: 'Times New Roman', Times, serif; font-size: 30px; font-weight: 400; color: #000000; padding: 0; margin: 0 0 20px;">Payment due for {ORDER_NO}</h1>
+			<h1 style="font-family: 'Times New Roman', Times, serif; font-size: 30px; font-weight: 400; color: #000000; padding: 0; margin: 0 0 20px;">Payment action needed for {ORDER_NO}</h1>
 			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 20px 0 20px;">
 				Hi {NICKNAME},<br />
-				Your order, {ORDER_NO}, with a total of {ORDER_PRICE}, has not been paid yet.
+				We were unable to automatically process the payment for your order, {ORDER_NO}.
+			</p>
+			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 20px 0 20px;">
+				There could be several reasons for this. EU regulations now require 2-factor authentification on some payments. It could also be due to your card being expired, or perhaps it has insufficient funds.
+			</p>
+			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 20px 0 20px;">
+				Please click the button below and pay the order now:
 			</p>
 			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 20px 0 30px;">
-				Please click the button below and pay the order now:
+				The total amount is {ORDER_PRICE}.
 			</p>
 
 			<table border="0" cellpadding="0" cellspacing="0" style="width: auto; margin: 30px 0;">
@@ -79,6 +85,12 @@
 			</tr>
 			</table>
 
+			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 20px 0 20px;">
+				The order contains the following item(s): 
+			</p>
+			<p style="font-family: Verdana, sans-serif; font-style: italic;font-size: 15px; color: #777777; padding: 0 30px; margin: 20px 0 20px;">
+				{ORDER_CONTENT}
+			</p>
 			<p style="font-family: Verdana, sans-serif; font-size: 15px; color: #777777; padding: 0; margin: 30px 0;">
 				To view the order and invoice:
 			</p>
