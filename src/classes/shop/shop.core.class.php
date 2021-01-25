@@ -1571,7 +1571,7 @@ class ShopCore extends Model {
 
 							if($order_item) {
 								
-								$admin_summary[] = $order_item["item_name"];
+								$admin_summary[] = $order_item["quantity"]." x ".$order_item["item_name"];
 
 								// get item details
 								$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => true]);
@@ -1638,7 +1638,7 @@ class ShopCore extends Model {
 						mailer()->send(array(
 							"recipients" => SHOP_ORDER_NOTIFIES,
 							"subject" => SITE_URL . " - New order ($order_no) created by: $user_id",
-							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/user/orders/" . $user_id . "\n\nOrder content: ".implode(",", $admin_summary),
+							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/user/orders/" . $user_id . "\n\nOrder content: ".implode(", ", $admin_summary),
 							"tracking" => false
 							// "template" => "system"
 						));
