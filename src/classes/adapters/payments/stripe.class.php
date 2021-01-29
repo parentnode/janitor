@@ -618,6 +618,8 @@ class JanitorStripe {
 		$currency = $cart["currency"];
 		$customer_id = $this->getCustomerId($cart["user_id"]);
 
+		$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
+
 		try {
 
 			$payment_intent = \Stripe\PaymentIntent::create([
@@ -626,8 +628,8 @@ class JanitorStripe {
 
 				"confirm" => true,
 
-				"description" => "think.dk–".$cart["cart_reference"],
-				"statement_descriptor" => "think.dk–".$cart["cart_reference"],
+				"description" => $payment_prefix."-".$cart["cart_reference"],
+				"statement_descriptor" => $payment_prefix."-".$cart["cart_reference"],
 				"statement_descriptor_suffix" => $cart["cart_reference"],
 
 				"customer" => "$customer_id",
@@ -792,6 +794,8 @@ class JanitorStripe {
 		$currency = $order["currency"];
 		$customer_id = $this->getCustomerId($order["user_id"]);
 
+				$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
+
 		try {
 
 			$payment_intent = \Stripe\PaymentIntent::create([
@@ -800,8 +804,8 @@ class JanitorStripe {
 
 				"confirm" => true,
 
-				"description" => "think.dk–".$order["order_no"],
-				"statement_descriptor" => cutString("think.dk–".$order["order_no"], 22),
+				"description" => $payment_prefix."-".$order["order_no"],
+				"statement_descriptor" => cutString($payment_prefix."-".$order["order_no"], 22),
 				"statement_descriptor_suffix" => cutString($order["order_no"], 22),
 
 				"customer" => "$customer_id",
@@ -1189,6 +1193,7 @@ class JanitorStripe {
 	function registerPaymentIntent($payment_intent_id, $order) {
 		// debug(["registerPaymentIntent", $payment_intent_id, $order]);
 
+		$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
 
 		try {
 
@@ -1197,8 +1202,8 @@ class JanitorStripe {
 				$payment_intent_id,
 				[
 
-					"description" => "think.dk–".$order["order_no"],
-					"statement_descriptor" => "think.dk–".$order["order_no"],
+					"description" => $payment_prefix."-".$order["order_no"],
+					"statement_descriptor" => $payment_prefix."-".$order["order_no"],
 					"statement_descriptor_suffix" => $order["order_no"],
 
 					"metadata" => [
@@ -1647,6 +1652,8 @@ class JanitorStripe {
 		$currency = $order["currency"];
 		$customer_id = $this->getCustomerId($order["user_id"]);
 
+		$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
+
 		try {
 
 			$payment_intent = \Stripe\PaymentIntent::create([
@@ -1655,8 +1662,8 @@ class JanitorStripe {
 
 				"confirm" => true,
 
-				"description" => "think.dk–".$order["order_no"],
-				"statement_descriptor" => cutString("think.dk–".$order["order_no"], 22),
+				"description" => $payment_prefix."-".$order["order_no"],
+				"statement_descriptor" => cutString($payment_prefix."-".$order["order_no"], 22),
 				"statement_descriptor_suffix" => cutString($order["order_no"], 22),
 
 				"customer" => "$customer_id",
