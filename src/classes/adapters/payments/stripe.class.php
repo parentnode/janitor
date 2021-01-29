@@ -979,6 +979,8 @@ class JanitorStripe {
 		$customer_id = $this->getCustomerId($orders[0]["user_id"]);
 		$payment_method_id = $this->getStripePaymentMethodId();
 
+		$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
+
 		try {
 
 			$payment_intent = \Stripe\PaymentIntent::create([
@@ -987,8 +989,8 @@ class JanitorStripe {
 
 				"confirm" => true,
 
-				"description" => "think.dk-".implode(",", $order_no_list),
-				"statement_descriptor" => cutString("think.dk–".implode(",", $order_no_list), 22),
+				"description" => $payment_prefix."-".implode(",", $order_no_list),
+				"statement_descriptor" => cutString($payment_prefix."-".implode(",", $order_no_list), 22),
 				"statement_descriptor_suffix" => cutString(implode(",", $order_no_list), 22),
 
 				"customer" => "$customer_id",
