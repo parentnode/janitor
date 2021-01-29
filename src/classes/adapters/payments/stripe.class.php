@@ -618,7 +618,7 @@ class JanitorStripe {
 		$currency = $cart["currency"];
 		$customer_id = $this->getCustomerId($cart["user_id"]);
 
-		$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
+		$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
 
 		try {
 
@@ -794,7 +794,7 @@ class JanitorStripe {
 		$currency = $order["currency"];
 		$customer_id = $this->getCustomerId($order["user_id"]);
 
-				$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
+				$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
 
 		try {
 
@@ -983,7 +983,7 @@ class JanitorStripe {
 		$customer_id = $this->getCustomerId($orders[0]["user_id"]);
 		$payment_method_id = $this->getStripePaymentMethodId();
 
-		$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
+		$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
 
 		try {
 
@@ -1193,7 +1193,7 @@ class JanitorStripe {
 	function registerPaymentIntent($payment_intent_id, $order) {
 		// debug(["registerPaymentIntent", $payment_intent_id, $order]);
 
-		$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
+		$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
 
 		try {
 
@@ -1652,7 +1652,7 @@ class JanitorStripe {
 		$currency = $order["currency"];
 		$customer_id = $this->getCustomerId($order["user_id"]);
 
-		$payment_prefix = defined(PAYMENT_PREFIX) ? PAYMENT_PREFIX : SITE_UID;
+		$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
 
 		try {
 
