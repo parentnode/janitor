@@ -600,13 +600,13 @@ class SuperSubscriptionCore extends Subscription {
 			if(count($action) == 2) {
 				$user_id = $action[1];
 				// get all user's subscriptions where expires_at is now
-				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURDATE() AND user_id = $user_id";
+				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURTIME() AND user_id = $user_id";
 				// debug($sql);
 			}
 			// renew for all users
 			else {
 				// get all subscriptions where expires_at is now
-				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURDATE()";
+				$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE expires_at < CURTIME()";
 				// debug($sql);
 			}
 
