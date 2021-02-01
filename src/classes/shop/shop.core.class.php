@@ -303,7 +303,7 @@ class ShopCore extends Model {
 		// transactions id
 		$this->addToModel("transaction_id", array(
 			"type" => "string",
-			"label" => "Transasction id",
+			"label" => "Transaction id",
 			"hint_message" => "Unique transaction id. This helps to identify the exact origin of the payment.",
 			"error_message" => "Invalid id."
 		));
