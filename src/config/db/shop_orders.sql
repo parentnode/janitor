@@ -3,6 +3,7 @@ CREATE TABLE `SITE_DB`.`shop_orders` (
   `user_id` int(11) DEFAULT NULL,
 
   `order_no` varchar(10) NOT NULL,
+  `cart_reference` varchar(12) DEFAULT NULL,
 
   `country` varchar(2) DEFAULT NULL,
   `currency` varchar(3) DEFAULT NULL,

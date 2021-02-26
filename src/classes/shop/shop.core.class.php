@@ -1500,7 +1500,7 @@ class ShopCore extends Model {
 					$billing_address = false;
 
 					// create base data update sql
-					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency'";
+					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency', cart_reference='$cart_reference'";
 //					print $sql."<br />\n";
 
 					// add delivery address
@@ -1762,6 +1762,8 @@ class ShopCore extends Model {
 		$order_id = false;
 		$order_no = false;
 
+		$cart_reference = false;
+
 		// get all orders containing item_id
 		$item_id = false;
 		$itemtype = false;
@@ -1776,6 +1778,8 @@ class ShopCore extends Model {
 					case "order_id"          : $order_id            = $_value; break;
 					case "order_no"          : $order_no            = $_value; break;
 
+					case "cart_reference"    : $cart_reference      = $_value; break;
+
 					case "item_id"           : $item_id             = $_value; break;
 					case "itemtype"          : $itemtype            = $_value; break;
 
@@ -1787,10 +1791,13 @@ class ShopCore extends Model {
 		$query = new Query();
 
 		// get specific order
-		if($order_id !== false || $order_no !== false) {
+		if($order_id !== false || $cart_reference !== false || $order_no !== false) {
 
 			if($order_id) {
 				$sql = "SELECT * FROM ".$this->db_orders." WHERE id = $order_id AND user_id = $user_id LIMIT 1";
+			}
+			else if($cart_reference) {
+				$sql = "SELECT * FROM ".$this->db_orders." WHERE cart_reference = '$cart_reference' AND user_id = $user_id LIMIT 1";
 			}
 			else {
 				$sql = "SELECT * FROM ".$this->db_orders." WHERE order_no = '$order_no' AND user_id = $user_id  LIMIT 1";
