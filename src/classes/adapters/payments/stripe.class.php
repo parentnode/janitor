@@ -596,7 +596,7 @@ class JanitorStripe {
 				}
 				else {
 
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"]];
+					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"], "decline_code" => (isset($payment_method["decline_code"]) ?  $payment_method["decline_code"] : false)];
 
 				}
 			}
@@ -768,7 +768,7 @@ class JanitorStripe {
 				}
 				else {
 
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"]];
+					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"], "decline_code" => (isset($payment_method["decline_code"]) ?  $payment_method["decline_code"] : false)];
 
 				}
 			}
@@ -947,7 +947,7 @@ class JanitorStripe {
 				}
 				else {
 
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"]];
+					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"], "decline_code" => (isset($payment_method["decline_code"]) ?  $payment_method["decline_code"] : false)];
 
 				}
 			}
@@ -2036,7 +2036,7 @@ class JanitorStripe {
 			$error["code"] = $exception->getCode();
 		}
 
-		return ["status" => "error", "message" => $error["message"], "code" => $error["code"]];
+		return ["status" => "error", "message" => $error["message"], "code" => $error["code"], "decline_code" => $error["decline_code"]];
 	}
 
 	// Handle any stripe exception and notify Admin
