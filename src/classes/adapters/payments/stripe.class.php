@@ -1502,7 +1502,7 @@ class JanitorStripe {
 		}
 
 		// Accounting adds up
-		if($accounting === floatval(0)) {
+		if(floatval($accounting) === floatval(0)) {
 			return [
 				"status" => "REGISTERED", 
 				"payment_ids" => implode(",", $payment_ids),
