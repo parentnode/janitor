@@ -43,7 +43,8 @@ class PDF {
 		if($cookie) {
 			$command .= " --cookie " . $cookie["name"] . " " . $cookie["value"];
 		}
-		$command .= " $input_file $output_file";
+		// $command .= " $input_file $output_file";
+		$command .= " \"$input_file\" \"$output_file\"";
 		// print "command:".$command."<br>\n";
 
 		// Generate the image
