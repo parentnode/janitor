@@ -303,7 +303,7 @@ class ShopCore extends Model {
 		// transactions id
 		$this->addToModel("transaction_id", array(
 			"type" => "string",
-			"label" => "Transasction id",
+			"label" => "Transaction id",
 			"hint_message" => "Unique transaction id. This helps to identify the exact origin of the payment.",
 			"error_message" => "Invalid id."
 		));
@@ -1500,7 +1500,7 @@ class ShopCore extends Model {
 					$billing_address = false;
 
 					// create base data update sql
-					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency'";
+					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency', cart_reference='$cart_reference'";
 //					print $sql."<br />\n";
 
 					// add delivery address
@@ -1571,7 +1571,7 @@ class ShopCore extends Model {
 
 							if($order_item) {
 								
-								$admin_summary[] = $order_item["item_name"];
+								$admin_summary[] = $order_item["quantity"]." x ".$order_item["item_name"];
 
 								// get item details
 								$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => true]);
@@ -1638,7 +1638,7 @@ class ShopCore extends Model {
 						mailer()->send(array(
 							"recipients" => SHOP_ORDER_NOTIFIES,
 							"subject" => SITE_URL . " - New order ($order_no) created by: $user_id",
-							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/user/orders/" . $user_id . "\n\nOrder content: ".implode(",", $admin_summary),
+							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/user/orders/" . $user_id . "\n\nOrder content: ".implode(", ", $admin_summary),
 							"tracking" => false
 							// "template" => "system"
 						));
@@ -1762,6 +1762,8 @@ class ShopCore extends Model {
 		$order_id = false;
 		$order_no = false;
 
+		$cart_reference = false;
+
 		// get all orders containing item_id
 		$item_id = false;
 		$itemtype = false;
@@ -1776,6 +1778,8 @@ class ShopCore extends Model {
 					case "order_id"          : $order_id            = $_value; break;
 					case "order_no"          : $order_no            = $_value; break;
 
+					case "cart_reference"    : $cart_reference      = $_value; break;
+
 					case "item_id"           : $item_id             = $_value; break;
 					case "itemtype"          : $itemtype            = $_value; break;
 
@@ -1787,10 +1791,13 @@ class ShopCore extends Model {
 		$query = new Query();
 
 		// get specific order
-		if($order_id !== false || $order_no !== false) {
+		if($order_id !== false || $cart_reference !== false || $order_no !== false) {
 
 			if($order_id) {
 				$sql = "SELECT * FROM ".$this->db_orders." WHERE id = $order_id AND user_id = $user_id LIMIT 1";
+			}
+			else if($cart_reference) {
+				$sql = "SELECT * FROM ".$this->db_orders." WHERE cart_reference = '$cart_reference' AND user_id = $user_id LIMIT 1";
 			}
 			else {
 				$sql = "SELECT * FROM ".$this->db_orders." WHERE order_no = '$order_no' AND user_id = $user_id  LIMIT 1";

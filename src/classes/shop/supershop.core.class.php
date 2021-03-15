@@ -820,7 +820,7 @@ class SuperShopCore extends Shop {
 					$billing_address = false;
 
 					// create base data update sql
-					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency'";
+					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency', cart_reference='$cart_reference'";
 					// print $sql."<br />\n";
 
 					if($delivery_address_id) {
@@ -1188,6 +1188,8 @@ class SuperShopCore extends Shop {
 		$order_id = false;
 		$order_no = false;
 
+		$cart_reference = false;
+
 		// get all orders for user_id
 		$user_id = false;
 
@@ -1205,6 +1207,8 @@ class SuperShopCore extends Shop {
 					case "order_id"          : $order_id            = $_value; break;
 					case "order_no"          : $order_no            = $_value; break;
 
+					case "cart_reference"    : $cart_reference      = $_value; break;
+
 					case "user_id"           : $user_id             = $_value; break;
 
 					case "item_id"           : $item_id             = $_value; break;
@@ -1219,10 +1223,13 @@ class SuperShopCore extends Shop {
 		$query = new Query();
 
 		// get specific order
-		if($order_id || $order_no) {
+		if($order_id  || $cart_reference || $order_no) {
 
 			if($order_id) {
 				$sql = "SELECT * FROM ".$this->db_orders." WHERE id = ".$order_id." LIMIT 1";
+			}
+			else if($cart_reference) {
+				$sql = "SELECT * FROM ".$this->db_orders." WHERE cart_reference = $cart_reference AND user_id = $user_id LIMIT 1";
 			}
 			else {
 				$sql = "SELECT * FROM ".$this->db_orders." WHERE order_no = '".$order_no."' LIMIT 1";

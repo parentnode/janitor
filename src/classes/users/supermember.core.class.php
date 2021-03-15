@@ -664,6 +664,12 @@ class SuperMemberCore extends Member {
 	
 									if($query->sql($sql)) {
 	
+										// add callback to 'upgraded'
+										if(method_exists($this, "upgraded")) {
+	
+											$this->upgraded($member, $item);
+										}
+
 										global $page;
 										$page->addLog("SuperMember->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
 	

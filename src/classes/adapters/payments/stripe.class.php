@@ -596,7 +596,7 @@ class JanitorStripe {
 				}
 				else {
 
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"]];
+					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"], "decline_code" => (isset($payment_method["decline_code"]) ?  $payment_method["decline_code"] : false)];
 
 				}
 			}
@@ -618,6 +618,8 @@ class JanitorStripe {
 		$currency = $cart["currency"];
 		$customer_id = $this->getCustomerId($cart["user_id"]);
 
+		$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
+
 		try {
 
 			$payment_intent = \Stripe\PaymentIntent::create([
@@ -626,8 +628,8 @@ class JanitorStripe {
 
 				"confirm" => true,
 
-				"description" => "think.dk–".$cart["cart_reference"],
-				"statement_descriptor" => "think.dk–".$cart["cart_reference"],
+				"description" => $payment_prefix."-".$cart["cart_reference"],
+				"statement_descriptor" => $payment_prefix."-".$cart["cart_reference"],
 				"statement_descriptor_suffix" => $cart["cart_reference"],
 
 				"customer" => "$customer_id",
@@ -766,7 +768,7 @@ class JanitorStripe {
 				}
 				else {
 
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"]];
+					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"], "decline_code" => (isset($payment_method["decline_code"]) ?  $payment_method["decline_code"] : false)];
 
 				}
 			}
@@ -792,6 +794,8 @@ class JanitorStripe {
 		$currency = $order["currency"];
 		$customer_id = $this->getCustomerId($order["user_id"]);
 
+				$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
+
 		try {
 
 			$payment_intent = \Stripe\PaymentIntent::create([
@@ -800,8 +804,8 @@ class JanitorStripe {
 
 				"confirm" => true,
 
-				"description" => "think.dk–".$order["order_no"],
-				"statement_descriptor" => cutString("think.dk–".$order["order_no"], 22),
+				"description" => $payment_prefix."-".$order["order_no"],
+				"statement_descriptor" => cutString($payment_prefix."-".$order["order_no"], 22),
 				"statement_descriptor_suffix" => cutString($order["order_no"], 22),
 
 				"customer" => "$customer_id",
@@ -943,7 +947,7 @@ class JanitorStripe {
 				}
 				else {
 
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"]];
+					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"], "decline_code" => (isset($payment_method["decline_code"]) ?  $payment_method["decline_code"] : false)];
 
 				}
 			}
@@ -979,6 +983,8 @@ class JanitorStripe {
 		$customer_id = $this->getCustomerId($orders[0]["user_id"]);
 		$payment_method_id = $this->getStripePaymentMethodId();
 
+		$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
+
 		try {
 
 			$payment_intent = \Stripe\PaymentIntent::create([
@@ -987,8 +993,8 @@ class JanitorStripe {
 
 				"confirm" => true,
 
-				"description" => "think.dk-".implode(",", $order_no_list),
-				"statement_descriptor" => cutString("think.dk–".implode(",", $order_no_list), 22),
+				"description" => $payment_prefix."-".implode(",", $order_no_list),
+				"statement_descriptor" => cutString($payment_prefix."-".implode(",", $order_no_list), 22),
 				"statement_descriptor_suffix" => cutString(implode(",", $order_no_list), 22),
 
 				"customer" => "$customer_id",
@@ -1187,6 +1193,7 @@ class JanitorStripe {
 	function registerPaymentIntent($payment_intent_id, $order) {
 		// debug(["registerPaymentIntent", $payment_intent_id, $order]);
 
+		$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
 
 		try {
 
@@ -1195,8 +1202,8 @@ class JanitorStripe {
 				$payment_intent_id,
 				[
 
-					"description" => "think.dk–".$order["order_no"],
-					"statement_descriptor" => "think.dk–".$order["order_no"],
+					"description" => $payment_prefix."-".$order["order_no"],
+					"statement_descriptor" => $payment_prefix."-".$order["order_no"],
 					"statement_descriptor_suffix" => $order["order_no"],
 
 					"metadata" => [
@@ -1495,7 +1502,7 @@ class JanitorStripe {
 		}
 
 		// Accounting adds up
-		if($accounting === floatval(0)) {
+		if(floatval($accounting) === floatval(0)) {
 			return [
 				"status" => "REGISTERED", 
 				"payment_ids" => implode(",", $payment_ids),
@@ -1645,6 +1652,8 @@ class JanitorStripe {
 		$currency = $order["currency"];
 		$customer_id = $this->getCustomerId($order["user_id"]);
 
+		$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
+
 		try {
 
 			$payment_intent = \Stripe\PaymentIntent::create([
@@ -1653,8 +1662,8 @@ class JanitorStripe {
 
 				"confirm" => true,
 
-				"description" => "think.dk–".$order["order_no"],
-				"statement_descriptor" => cutString("think.dk–".$order["order_no"], 22),
+				"description" => $payment_prefix."-".$order["order_no"],
+				"statement_descriptor" => cutString($payment_prefix."-".$order["order_no"], 22),
 				"statement_descriptor_suffix" => cutString($order["order_no"], 22),
 
 				"customer" => "$customer_id",
@@ -2027,7 +2036,7 @@ class JanitorStripe {
 			$error["code"] = $exception->getCode();
 		}
 
-		return ["status" => "error", "message" => $error["message"], "code" => $error["code"]];
+		return ["status" => "error", "message" => $error["message"], "code" => $error["code"], "decline_code" => $error["decline_code"]];
 	}
 
 	// Handle any stripe exception and notify Admin
