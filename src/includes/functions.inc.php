@@ -384,18 +384,13 @@ function cutString($string, $max_length) {
 		return $return_string;
 	}
 
-	if(strlen($return_string) - $max_length > 3) {
-		$max_length = $max_length - 3;
-	}
-	else {
-		$max_length = $max_length - (strlen($return_string) - $max_length);
-	}
+	$max_length = $max_length - 3;
 
 	// cut string
 	$return_string = substr($return_string, 0, $max_length);
 	
 	// or look for last word-spacing
-	if(strrpos($return_string, " ") !== false) {
+	if(substr($string, $max_length, 1) !== " " && strrpos($return_string, " ") !== false) {
 		return substr($return_string, 0, strrpos($return_string, " ")) . "...";
 	}
 
