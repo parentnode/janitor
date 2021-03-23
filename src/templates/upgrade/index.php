@@ -31,7 +31,7 @@ global $upgrade_model;
 	<div class="option">
 		<h3>Replace user emails</h3>
 		<p>
-			Changes all user emails to <em><?= ADMIN_EMAIL ?></em>. Useful for testing user updates on "real" users without risking
+			Changes all user emails to a specified email with an optional suffix. Useful for testing user updates on "real" users without risking
 			sending unintended emails.
 		</p>
 		<p class="note">

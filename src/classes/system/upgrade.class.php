@@ -1111,32 +1111,35 @@ class Upgrade extends Model {
 
 	// Replace all user-emails with ADMIN_EMAIL
 	// to create local dev version without triggering emails to real users
-	function replaceEmails() {
+	function replaceEmails($action) {
 
 		$query = new Query();
 		mailer()->init_adapter();
 
-		try {
+		$replacement = getPost("replacement", "value");
+		$exclude = getPost("exclude", "value");
+		$user_id_suffix = getPost("user_id_suffix", "value");
 
-			// change emails for all users (during test)
-			if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames WHERE type='email'")) {
-				$usernames = $query->results();
-				foreach($usernames as $username) {
-					if($query->sql("UPDATE ".SITE_DB.".user_usernames SET username = '".ADMIN_EMAIL."' WHERE id = ".$username["id"])) {
-						$this->process(array("success" => true, "message" => "Replaced ". $username["username"] . " with " . ADMIN_EMAIL), true);
-					}
-					else {
-						$this->process(array("success" => false), true);
-					}
+		if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames WHERE type='email'".($exclude ? " AND username !='$exclude'": ""))) {
+			$usernames = $query->results();
+			foreach($usernames as $username) {
+
+				if($user_id_suffix) {
+					$user_replacement = substr_replace($replacement, "+".$username["user_id"], strpos($replacement, "@"), 0);
+				}
+				else {
+					$user_replacement = $replacement;
+				}
+
+				if(!$query->sql("UPDATE ".SITE_DB.".user_usernames SET username = '".$user_replacement."' WHERE id = ".$username["id"])) {
+
+					return ["message" => "Something went wrong."];
 				}
 			}
-
-
-			// Upgrade complete
-			print '<li class="done">REPLACEMENT COMPLETE</li>';
-
+			return array("message" => "Success! ". (count($usernames) - ($exclude ? 1:0)). " email addresses were replaced.");
 		}
-		catch(Exception $exception) {}
+
+		return false;
 
 	}
 
