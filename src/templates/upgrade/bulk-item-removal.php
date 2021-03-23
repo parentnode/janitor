@@ -7,7 +7,7 @@ global $upgrade_model;
 <div class="scene i:scene">
 	<h1>Bulk item removal</h1>
 
-	<p>This can remove excess items from the database and will also remove any ssociated files. It will pick random items to keep.</p>
+	<p>This can remove excess items from the database and will also remove any associated files. It will pick random items to keep.</p>
 	<p>Due to performance issues, only 5000 items can be deleted at the time.</p>
 	<h3>Removal criterias</h3>
 
