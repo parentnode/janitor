@@ -32,13 +32,15 @@ class SuperMemberCore extends Member {
 		$member_id = false;
 		$user_id = false;
 		$item_id = false;
+		$only_active_members = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "user_id"       : $user_id         = $_value; break;
-					case "member_id"     : $member_id       = $_value; break;
-					case "item_id"       : $item_id         = $_value; break;
+					case "user_id"                   : $user_id                     = $_value; break;
+					case "member_id"                 : $member_id                   = $_value; break;
+					case "item_id"                   : $item_id                     = $_value; break;
+					case "only_active_members"       : $only_active_members         = $_value; break;
 				}
 			}
 		}
@@ -167,32 +169,34 @@ class SuperMemberCore extends Member {
 
 			}
 
-			// also include "cancelled" members
-			$sql = "SELECT members.id as id, members.user_id as user_id, members.subscription_id as subscription_id, members.created_at as created_at, members.modified_at as modified_at FROM ".$this->db_members." as members WHERE members.subscription_id IS NULL";
-			if($query->sql($sql)) {
-				$cancelled_members = $query->results();
+			if(!$only_active_members) {
 
-				foreach($cancelled_members as $i => $cancelled_member) {
-					$cancelled_members[$i]["user"] = $UC->getUsers(["user_id" => $cancelled_member["user_id"]]);
-					$cancelled_members[$i]["item"] = false;
-					$cancelled_members[$i]["order"] = false;
-					$cancelled_members[$i]["order_id"] = false;
-					$cancelled_members[$i]["renewed_at"] = false;
-					$cancelled_members[$i]["expires_at"] = false;
+				// also include "cancelled" members
+				$sql = "SELECT members.id as id, members.user_id as user_id, members.subscription_id as subscription_id, members.created_at as created_at, members.modified_at as modified_at FROM ".$this->db_members." as members WHERE members.subscription_id IS NULL";
+				if($query->sql($sql)) {
+					$cancelled_members = $query->results();
+	
+					foreach($cancelled_members as $i => $cancelled_member) {
+						$cancelled_members[$i]["user"] = $UC->getUsers(["user_id" => $cancelled_member["user_id"]]);
+						$cancelled_members[$i]["item"] = false;
+						$cancelled_members[$i]["order"] = false;
+						$cancelled_members[$i]["order_id"] = false;
+						$cancelled_members[$i]["renewed_at"] = false;
+						$cancelled_members[$i]["expires_at"] = false;
+					}
+	
 				}
-
-			}
-
-			if($members && $cancelled_members) {
-				// append cancelled members to members array
-				$members = array_merge($members, $cancelled_members);
-			}
-			else if($cancelled_members) {
-				$members = $cancelled_members;
+	
+				if($members && $cancelled_members) {
+					// append cancelled members to members array
+					$members = array_merge($members, $cancelled_members);
+				}
+				else if($cancelled_members) {
+					$members = $cancelled_members;
+				}
 			}
 
 			return $members;
-
 
 		}
 
