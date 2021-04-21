@@ -18,6 +18,7 @@ class SuperMemberCore extends Member {
 	 * Get members (by user_id, member_id, item_id or all)
 	 *
 	 * Passing no parameters in $_options will return all members, including cancelled members
+	 * Passing 'only_active_members' will exclude cancelled members (when getting multiple members)
 	 * 
 	 * @param array|false $_options
 	 * * user_id – get member object for user_id
