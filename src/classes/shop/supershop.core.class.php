@@ -1569,7 +1569,7 @@ class SuperShopCore extends Shop {
 		// get prices
 		$prices = $IC->getPrices(array("item_id" => $item_id, "currency" => $currency, "country" => $country));
 
-		if($prices && $user_id) {
+		if($prices) {
 
 			$offer = arrayKeyValue($prices, "type", "offer");
 			if($offer !== false) {
@@ -1582,15 +1582,18 @@ class SuperShopCore extends Shop {
 				$default_price = $prices[arrayKeyValue($prices, "type", "default")];
 			}
 
-			// use membership-specific price if applicable
-			$membership = $MC->getMembers(["user_id" => $user_id]);
-			if($membership && $membership["item"]) {
-				$price_types = $page->price_types();
-				$where_pricetype_matches_membership = arrayKeyValue($price_types, "item_id", $membership["item"]["item_id"]);
-				$membership_price_type_id = $price_types[$where_pricetype_matches_membership]["id"];
-				$where_price_matches_membership_price_type = arrayKeyValue($prices, "type_id", $membership_price_type_id);
-				if($user_id != 1 && $membership["item"]["status"] == 1 && $where_price_matches_membership_price_type !== false) {
-					$membership_price = $prices[$where_price_matches_membership_price_type];
+			if($user_id) {
+
+				// use membership-specific price if applicable
+				$membership = $MC->getMembers(["user_id" => $user_id]);
+				if($membership && $membership["item"]) {
+					$price_types = $page->price_types();
+					$where_pricetype_matches_membership = arrayKeyValue($price_types, "item_id", $membership["item"]["item_id"]);
+					$membership_price_type_id = $price_types[$where_pricetype_matches_membership]["id"];
+					$where_price_matches_membership_price_type = arrayKeyValue($prices, "type_id", $membership_price_type_id);
+					if($user_id != 1 && $membership["item"]["status"] == 1 && $where_price_matches_membership_price_type !== false) {
+						$membership_price = $prices[$where_price_matches_membership_price_type];
+					}
 				}
 			}
 
