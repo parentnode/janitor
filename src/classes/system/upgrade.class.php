@@ -1118,9 +1118,12 @@ class Upgrade extends Model {
 
 		$replacement = getPost("replacement", "value");
 		$exclude = getPost("exclude", "value");
+		$exclude_arr = explode(",", $exclude);
+		$exclude = "'".implode("', '", $exclude_arr)."'";
+
 		$user_id_suffix = getPost("user_id_suffix", "value");
 
-		if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames WHERE type='email'".($exclude ? " AND username !='$exclude'": ""))) {
+		if($query->sql("SELECT * FROM ".SITE_DB.".user_usernames WHERE type='email'".($exclude ? " AND username NOT IN ($exclude)": ""))) {
 			$usernames = $query->results();
 			foreach($usernames as $username) {
 

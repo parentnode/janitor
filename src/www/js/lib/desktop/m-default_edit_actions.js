@@ -12,6 +12,11 @@ Util.Modules["defaultEditActions"] = new function() {
 			}
 	
 		}
+
+		var bn_delete = u.qs("li.delete", node);
+		if(bn_delete && u.hc(bn_delete, "has_dependencies")) {
+			bn_delete.setAttribute("title", "This item has dependencies and cannot be deleted.");
+		}
 		// add autosave option
 
 		// bn_autosave = u.ae(node, "li", {"class":"autosave on", "html":"Autosave ON"});

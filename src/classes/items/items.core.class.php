@@ -215,6 +215,7 @@ class ItemsCore {
 			$ratings = false;
 			$comments = false;
 			$subscription_method = false;
+			$dependencies = false;
 
 			$user = false;
 			$readstate = false;
@@ -233,6 +234,7 @@ class ItemsCore {
 						case "ratings"               : $ratings                 = $_value; break;
 						case "comments"              : $comments                = $_value; break;
 						case "subscription_method"   : $subscription_method     = $_value; break;
+						case "dependencies"          : $dependencies            = $_value; break;
 
 						case "user"                  : $user                    = $_value; break;
 						case "readstate"             : $readstate               = $_value; break;
@@ -287,6 +289,11 @@ class ItemsCore {
 			// add subscription method (for item)
 			if($all || $subscription_method) {
 				$item["subscription_method"] = $this->getSubscriptionMethod(array("item_id" => $item["id"]));
+			}
+
+			// add dependencies
+			if($all || $dependencies) {
+				$item["dependencies"] = $this->getDependencies(["item_id" => $item["id"]]);
 			}
 
 
@@ -1934,6 +1941,39 @@ class ItemsCore {
 			if($query->sql($sql)) {
 				return $query->result(0);
 			}
+			
+		}
+
+		return false;
+	}
+
+	// get dependencies for item_id
+	// maintain $_options parameter despite only one option for now (could be more in the future)
+	function getDependencies($_options=false) {
+
+		$item_id = false;
+		
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "item_id"     : $item_id        = $_value; break;
+				}
+			}
+		}
+		
+		$query = new Query();
+		
+		if($item_id) {
+
+			$dependencies = [];
+
+			// check for dependencies in order_items
+			$sql = "SELECT order_items.id FROM ".SITE_DB.".shop_order_items AS order_items WHERE order_items.item_id = $item_id"; 
+			if($query->sql($sql)) {
+				$dependencies["order_items"] = $query->results("id");
+			}
+
+			return $dependencies;
 			
 		}
 
