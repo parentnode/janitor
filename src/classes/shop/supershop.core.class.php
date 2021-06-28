@@ -1940,6 +1940,10 @@ class SuperShopCore extends Shop {
 					$sql = "UPDATE ".$this->db_orders." SET status = 3 WHERE id = ".$order_id." AND user_id = ".$user_id;
 					if($query->sql($sql)) {
 
+						// delete payment intent reference for order, if it exists 
+						$sql = "DELETE FROM ".SITE_DB.".user_gateway_stripe_order_intent WHERE order_id = $order_id";
+						$query->sql($sql);
+
 						foreach($order["items"] as $order_item) {
 
 							// get item and itemtype
