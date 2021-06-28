@@ -67,10 +67,10 @@ if(is_array($action) && count($action)) {
 						header('Expires: 0');
 						header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 						header('Pragma: public');
-						header('Content-Length: ' . strlen(implode($emails, "\n")));
+						header('Content-Length: ' . strlen(implode("\n", $emails)));
 						ob_clean();
 						flush();
-						print implode($emails, "\n");
+						print implode("\n", $emails);
 						exit();
 					}
 				}
