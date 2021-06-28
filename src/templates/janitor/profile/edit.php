@@ -159,7 +159,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 
 		<? endif; ?>
 
-		<? if(!$method_exists): ?>
+		<? if(!isset($method_exists) || !$method_exists): ?>
 		<p>You do not have any payment methods yet. Make a purchase to add your first payment method.</p>
 		<? endif; ?>
 

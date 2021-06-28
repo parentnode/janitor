@@ -1706,6 +1706,16 @@ class UserCore extends Model {
 
 			$result = payments()->deletePaymentMethod($user_id, $gateway_payment_method_id);
 			if($result) {
+
+				// there are no more cards stored with Stripe
+				if(!payments()->getPaymentMethods($user_id)) {
+					
+					// delete user payment method
+					$query = new Query();
+					$sql = "DELETE FROM $this->db_payment_methods WHERE id = $user_payment_method_id AND user_id = $user_id";
+					$query->sql($sql);
+				}
+
 				message()->addMessage("PaymentMethod deleted");
 				return $result;
 			}
