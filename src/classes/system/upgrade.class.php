@@ -1008,6 +1008,9 @@ class Upgrade extends Model {
 
 				}
 
+				// set item_id = NULL for orphaned order items
+				$sql = "UPDATE ".SITE_DB.".shop_order_items AS order_items SET item_id = NULL WHERE NOT EXISTS (SELECT * FROM ".SITE_DB.".items AS items WHERE items.id = order_items.item_id)";
+				$query->sql($sql);
 
 			}
 
