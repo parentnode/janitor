@@ -300,7 +300,13 @@ Util.Modules["resetPassword"] = new function() {
 			this.response = function(response) {
 
 				if(response.cms_status == "success") {
-					location.href = "/login";
+					var login = u.qs("li.user.login a");
+					if(login) {
+						location.href = login.href;
+					}
+					else {
+						location.href = "/login";
+					}
 				}
 				else {
 					page.notify({"isJSON":true, "cms_status":"error", "cms_message":"Password could not be updated"});

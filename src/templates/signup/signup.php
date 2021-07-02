@@ -33,7 +33,7 @@ $email = $model->getProperty("email", "value");
 		<? endif; ?>
 
 
-		<?= $HTML->articleInfo($page_item, "/signup", [
+		<?= $HTML->articleInfo($page_item, SITE_SIGNUP_URL, [
 			"media" => $media, 
 		]) ?>
 

@@ -13,4 +13,3 @@ $this->mail_connection(
 	)
 );
 
-?>

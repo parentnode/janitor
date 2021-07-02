@@ -426,6 +426,40 @@ class Query {
 
 
 	/**
+	* Get current Janitor DB version
+	*/
+	function getDbVersion() {
+
+		$sql = "SELECT db_version FROM ".UT_VERSION;
+		// debug([$sql]);
+		if($this->sql($sql)) {
+			return $this->result(0, "db_version");
+
+		}
+		else {
+			return "0";
+		}
+	}
+
+	/**
+	* Update Janitor DB version
+	*/
+	function updateDbVersion($version) {
+
+		$sql = "SELECT id FROM ".UT_VERSION." LIMIT 1";
+		// debug([$sql]);
+		if($this->sql($sql)) {
+			$sql = "UPDATE ".UT_VERSION." SET db_version = '$version' WHERE id = " . $this->result(0, "id");
+			return $this->sql($sql);
+		}
+		else {
+			$sql = "INSERT INTO ".UT_VERSION." SET db_version = '$version'";
+			return $this->sql($sql);
+		}
+	}
+
+
+	/**
 	*	Simple debug function, printing basic result info
 	*/
 	function debug() {

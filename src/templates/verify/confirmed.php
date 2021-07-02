@@ -50,7 +50,7 @@ session()->reset("signup_email");
 <? else:?>
 
 	<h1>Thank you!</h1>
-	<p><em><?= $username ?></em> has been confirmed. Go ahead and <a href="/login">log in</a>.</p>
+	<p><em><?= $username ?></em> has been confirmed. Go ahead and <a href="<?= SITE_LOGIN_URL ?>">log in</a>.</p>
 
 <? endif; ?>
 

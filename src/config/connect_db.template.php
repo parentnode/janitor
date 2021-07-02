@@ -14,4 +14,3 @@ $this->db_connection(
 	)
 );
 
-?>

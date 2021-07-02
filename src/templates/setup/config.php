@@ -75,6 +75,16 @@ $config_check = $model->checkConfigSettings();
 		</fieldset>
 
 		<fieldset>
+			<h3>Janitor core</h3>
+			<?= $model->input("site_signup", array("value" => $model->get("config", "site_signup"))) ?>
+			<?= $model->input("site_items", array("value" => $model->get("config", "site_items"))) ?>
+			<?= $model->input("site_shop", array("value" => $model->get("config", "site_shop"))) ?>
+			<?= $model->input("site_subscriptions", array("value" => $model->get("config", "site_subscriptions"))) ?>
+			<?= $model->input("site_members", array("value" => $model->get("config", "site_members"))) ?>
+		</fieldset>
+
+		<fieldset>
+			<h3>Environment</h3>
 			<?= $model->input("site_deployment", array("value" => $model->get("config", "site_deployment"))) ?>
 		</fieldset>
 

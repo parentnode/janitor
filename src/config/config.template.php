@@ -9,46 +9,38 @@ header("Content-type: text/html; charset=UTF-8");
 error_reporting(E_ALL);
 
 
-// Define current version
-define("VERSION", "0.7.9");
+define("VERSION", "###CURRENT_JANITOR_VERSION###");
 
 
-/**
-* Site name
-*/
 define("SITE_UID", "###SITE_UID###");
 define("SITE_NAME", "###SITE_NAME###");
 define("SITE_URL", (isset($_SERVER["HTTPS"]) ? "https" : "http")."://".$_SERVER["SERVER_NAME"]);
 define("SITE_EMAIL", "###SITE_EMAIL###");
 
-/**
-* Optional constants
-*/
 define("DEFAULT_PAGE_DESCRIPTION", "###DEFAULT_PAGE_DESCRIPTION###");
-// define("DEFAULT_PAGE_IMAGE", "/img/logo-large.png");
+define("DEFAULT_PAGE_IMAGE", "/img/logo-large.png");
 
 define("DEFAULT_LANGUAGE_ISO", "EN");
 define("DEFAULT_COUNTRY_ISO", "DK");
-// define("DEFAULT_CURRENCY_ISO", "DKK");
+define("DEFAULT_CURRENCY_ISO", "DKK");
 
+define("SITE_LOGIN_URL",  "/janitor/admin/login");
 
-// ENABLE ITEMS MODEL
-define("SITE_ITEMS", true);
+define("SITE_SIGNUP", ###SITE_SIGNUP###);
+define("SITE_SIGNUP_URL", "/signup");
 
-// define("SITE_SIGNUP", "/signup");
-// define("SITE_SUBSCRIPTIONS", true);
-// define("SITE_MEMBERS", true);
+define("SITE_ITEMS", ###SITE_ITEMS###);
 
-// Enable shop model
-// define("SITE_SHOP", true);
-// define("SHOP_ORDER_NOTIFIES", "email@domain.tld");
+define("SITE_SHOP", ###SITE_SHOP###);
+define("SHOP_ORDER_NOTIFIES", "");
 
+define("SITE_SUBSCRIPTIONS", ###SITE_SUBSCRIPTIONS###);
 
-// Enable notifications (send collection email after N notifications)
+define("SITE_MEMBERS", ###SITE_MEMBERS###);
+
+// send collection email after N rows
 define("SITE_COLLECT_NOTIFICATIONS", 50);
 
 
 // INSTALL MODE (DISABLES ALL SECURITY) – ONLY USE IN EMERGENCIES AND ONLY TEMPORARILY
 // define("SITE_INSTALL", true);
-
-?>

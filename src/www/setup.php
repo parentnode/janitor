@@ -87,6 +87,9 @@ if(is_array($action) && count($action)) {
 	}
 	else if(preg_match("/^(upgrade)$/", $action[0])) {
 
+		include_once("classes/system/upgrade.class.php");
+		$upgrade_model = new Upgrade();
+
 		if(count($action) == 1) {
 
 			$page->page(array(

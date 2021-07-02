@@ -1355,7 +1355,7 @@ class PageCore {
 
 
 				// redirect to login
-				header("Location: /login");
+				header("Location: ".SITE_LOGIN_URL);
 				exit();
 
 			}
@@ -2042,9 +2042,9 @@ class PageCore {
 		$_SESSION["message"] = $messages;
 
 		session()->value("login_forward", $url);
-		print '<script type="text/javacript">location.href="/login?page_status=logoff"</script>';
+		print '<script type="text/javacript">location.href="'.SITE_LOGIN_URL.'?page_status=logoff"</script>';
 
-		header("Location: /login");
+		header("Location: ".SITE_LOGIN_URL);
 
 		exit();
 	}

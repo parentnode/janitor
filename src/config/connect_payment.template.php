@@ -15,4 +15,3 @@ $this->payment_connection(
 	)
 );
 
-?>

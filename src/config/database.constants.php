@@ -1,6 +1,8 @@
 <?php
 	
 // SYSTEM
+define("UT_VERSION",                    SITE_DB.".system_version");                    // Version
+
 define("UT_LANGUAGES",                  SITE_DB.".system_languages");                  // Languages
 define("UT_COUNTRIES",                  SITE_DB.".system_countries");                  // Countries
 
