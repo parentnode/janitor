@@ -139,6 +139,11 @@ Util.Modules["defaultList"] = new function() {
 					action.node = node;
 
 					u.m.oneButtonForm.init(action);
+
+					if(u.hc(action, "has_dependencies")) {
+						action.setAttribute("title", "This item has dependencies and cannot be deleted.");
+					}
+
 					// default sucessful delete action
 					action.confirmed = function(response) {
 

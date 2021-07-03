@@ -15,6 +15,8 @@ CREATE TABLE `SITE_DB`.`shop_order_items` (
 
   PRIMARY KEY (`id`),
   KEY `order_id` (`order_id`),
+  KEY `item_id` (`item_id`),
   CONSTRAINT `shop_order_items_ibfk_1` FOREIGN KEY (`order_id`) REFERENCES `SITE_DB`.`shop_orders` (`id`) ON UPDATE CASCADE ON DELETE CASCADE,
-  CONSTRAINT `shop_order_items_ibfk_2` FOREIGN KEY (`shipped_by`) REFERENCES `SITE_DB`.`users` (`id`) ON UPDATE CASCADE
+  CONSTRAINT `shop_order_items_ibfk_2` FOREIGN KEY (`shipped_by`) REFERENCES `SITE_DB`.`users` (`id`) ON UPDATE CASCADE,
+  CONSTRAINT `shop_order_items_ibfk_3` FOREIGN KEY (`item_id`) REFERENCES `SITE_DB`.`items` (`id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

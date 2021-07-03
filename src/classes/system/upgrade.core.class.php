@@ -137,6 +137,8 @@ class UpgradeCore extends Model {
 				$this->updateUserSubscriptionPaymentMethods08();
 				$this->updateActivationReminders08();
 				$this->addBillingNameToOrders08();
+				
+				$this->removeDeletedItemsFromOrderItems08();
 
 			}
 
@@ -1860,8 +1862,20 @@ class UpgradeCore extends Model {
 
 	}
 
+	function removeDeletedItemsFromOrderItems08() {
+		
+		// Add billing_name from user info if not already set
+		if((defined("SITE_SHOP") && SITE_SHOP)) {
 
+			$query = new Query();
 
+			// set item_id = NULL for orphaned order items
+			$sql = "UPDATE ".SITE_DB.".shop_order_items AS order_items SET item_id = NULL WHERE NOT EXISTS (SELECT * FROM ".SITE_DB.".items AS items WHERE items.id = order_items.item_id)";
+			$query->sql($sql);
+
+		}
+
+	}
 
 	// Replace all user-emails with ADMIN_EMAIL
 	// to create local dev version without triggering emails to real users

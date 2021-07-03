@@ -162,7 +162,8 @@ class JanitorHTMLCore {
 				"wrapper" => "li.delete",
 				"static" => true,
 				"url" => $this->path."/delete/".$item["id"],
-				"success-location" => false
+				"success-location" => false,
+				"class" => "",
 			),
 			"status" => array(
 				"label_enable" => "Enable",
@@ -170,6 +171,11 @@ class JanitorHTMLCore {
 				"url" => $this->path."/status"
 			)
 		);
+
+		if(isset($item["dependencies"]) && $item["dependencies"]) {
+			$standard["delete"]["class"] = "disabled";
+			$standard["delete"]["wrapper"] = "li.delete.has_dependencies";
+		}
 
 		// extend with these settings
 		$modify = "";
@@ -243,7 +249,8 @@ class JanitorHTMLCore {
 				"js" => true,
 				"wrapper" => $standard["delete"]["wrapper"],
 				"static" => $standard["delete"]["static"],
-				"success-location" => $standard["delete"]["success-location"]
+				"success-location" => $standard["delete"]["success-location"],
+				"class" => $standard["delete"]["class"],
 			));
 		}
 
@@ -283,7 +290,8 @@ class JanitorHTMLCore {
 				"label" => "Delete",
 				"wrapper" => "li.delete",
 				"url" => $this->path."/delete/".$item["id"],
-				"success-location" => $this->path."/list"
+				"success-location" => $this->path."/list",
+				"class" => ""
 			),
 			"status" => array(
 				"label_enable" => "Enable",
@@ -291,6 +299,12 @@ class JanitorHTMLCore {
 				"url" => $this->path."/status"
 			)
 		);
+
+		if(isset($item["dependencies"]) && $item["dependencies"]) {
+			$standard["delete"]["class"] = "disabled";
+			$standard["delete"]["wrapper"] = "li.delete.has_dependencies";
+		}
+
 		// extend with these settings
 		$modify = "";
 		$extend = "";
@@ -343,7 +357,8 @@ class JanitorHTMLCore {
 		if($standard["delete"]) {
 			$_ .= $model->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
 				"wrapper" => $standard["delete"]["wrapper"],
-				"success-location" => $standard["delete"]["success-location"]
+				"success-location" => $standard["delete"]["success-location"],
+				"class" => $standard["delete"]["class"]
 			));
 		}
 
