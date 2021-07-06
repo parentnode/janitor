@@ -44,6 +44,10 @@ class UpgradeCore extends Model {
 	}
 
 
+	function dump($array) {
+		print "<li><pre>".print_r($array, true)."</pre></li>";
+	}
+
 	// Check Database structure for v0_8 requirements
 	function fullUpgrade() {
 
@@ -107,6 +111,9 @@ class UpgradeCore extends Model {
 				$this->moveJanitorIndexToTemplate08();
 				$this->updateConfigFileSyntax08();
 				$this->updateConnectFilesSyntax08();
+				$this->updateModelDeclarations08();
+				$this->updateSyntaxTo08();
+
 			}
 
 
@@ -885,30 +892,42 @@ class UpgradeCore extends Model {
 
 		$fs = new FileSystem();
 
-		if(file_exists(LOCAL_PATH."www/janitor/index.php")) {
+		if(file_exists(LOCAL_PATH."/www/janitor/index.php")) {
 
-			$index_file = file_get_contents(LOCAL_PATH."www/janitor/index.php");
+			$index_file = file_get_contents(LOCAL_PATH."/www/janitor/index.php");
 
-			// Does index file have standalone header include
-			if(preg_match("/\<\? \$page-\>header\(array\(\"type\" \=\> \"janitor\"\)\) \?\>/", $index_file)) {
+			// Does file contain standard header line
+			if(preg_match("/\<\? \\\$page-\>header\(array\(\"type\" \=\> \"janitor\"\)\) \?\>/", $index_file)) {
 
-				preg_match("/\?\>\n\<\? \$page-\>header\(array\(\"type\" \=\> \"janitor\"\)\) \?\>([^$]+)\<\? \$page-\>footer\(array\(\"type\" \=\> \"janitor\"\)\) \?\>/", $index_file, $match);
+				// Check endline semi-colon after header (typically not present)
+				if(preg_match("/\\\$page-\>pageTitle\([^$]+\)\n/", $index_file, $title_match)) {
+					$index_file = preg_replace("/(\\\$page-\>pageTitle\([^$]+\))/", "$1;", $index_file);
+				}
 
-				$index_file = preg_replace("/\?\>\n\<\? \$page-\>header\(array\(\"type\" \=\> \"janitor\"\)\) \?\>[^$]+\<\? \$page-\>footer\(array\(\"type\" \=\> \"janitor\"\)\) \?\>/", "", $index_file);
+				// Extract template content
+				preg_match("/\?\>\n\<\? \\\$page-\>header\(array\(\"type\" \=\> \"janitor\"\)\) \?\>([^$]+)\<\? \\\$page-\>footer\(array\(\"type\" \=\> \"janitor\"\)\) \?\>/", $index_file, $match);
 
-				file_put_contents(LOCAL_PATH."www/janitor/index.php", $index_file);
+				// Replace header/template content/footer with regular page template 
+				$index_file = preg_replace("/\?\>\n\<\? \\\$page-\>header\(array\(\"type\" \=\> \"janitor\"\)\) \?>[^$]+\<\? \\\$page-\>footer\(array\(\"type\" \=\> \"janitor\"\)\) \?\>/", "\n\$page->page(array(\n\t\"type\" => \"janitor\",\n\t\"templates\" => \"janitor/front/index.php\"\n));\nexit();\n\n", $index_file);
 
+				// Write updated controller
+				file_put_contents(LOCAL_PATH."/www/janitor/index.php", $index_file);
+
+				// Evaluate template content
 				// Non standard content – move it to local template file
-				if(preg_replace("/[\n\r ]+/", "", trim($match[1])) != "<div class=\"scene front\"><h1><?= SITE_NAME ?> Admin</h1></div>") {
+				if(preg_replace("/[\n\r\t ]+/", "", trim($match[1])) != "<divclass=\"scenefront\"><h1><?=SITE_NAME?>Admin</h1></div>") {
 
-					$fs->makeDirRecursively(LOCAL_PATH."templates/janitor/front");
-					if(file_put_contents(LOCAL_PATH."templates/janitor/front/index.php", $match[1])) {
+					$fs->makeDirRecursively(LOCAL_PATH."/templates/janitor/front");
+					if(file_put_contents(LOCAL_PATH."/templates/janitor/front/index.php", $match[1])) {
 						$this->process(["success" => false, "message" => "/www/janitor/index.php converted to controller using template templates/janitor/front/index.php"], false);
 					}
 					else {
 						$this->process(["success" => false, "message" => "Could not finish controller conversion. You should check /www/janitor/index.php and templates/janitor/front/index.php for errors before you continue"], true);
 					}
 
+				}
+				else {
+					$this->process(["success" => false, "message" => "/www/janitor/index.php converted to controller using default Janitor template"], false);
 				}
 
 			}
@@ -958,17 +977,19 @@ class UpgradeCore extends Model {
 
 		}
 
+		// Correct package comment
+		$config_info = preg_replace("/package Config Dummy file/", "package Config", $config_info);
 
+		// Remove known comments 
 		$config_info = preg_replace("/\/\*\*\n\* Required site information\n\*\//", "", $config_info);
 		$config_info = preg_replace("/\/\*\*\n\* Site name\n\*\//", "", $config_info);
 		$config_info = preg_replace("/\/\*\*\n\* Optional constants\n\*\//", "", $config_info);
-		$config_info = preg_replace("/\/\/ Enable [a-z]+ model[^$]*/i", "", $config_info);
-		$config_info = preg_replace("/\/\/ Define current version[^$]*/i", "", $config_info);
+		$config_info = preg_replace("/\/\/ Enable [a-z]+ model[^\n]*/i", "", $config_info);
+		$config_info = preg_replace("/\/\/ Define current version[^\n]*/i", "", $config_info);
 
 
 		// Check page description constant
 		if(!defined("DEFAULT_PAGE_DESCRIPTION")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"DEFAULT_PAGE_DESCRIPTION\"/", $config_info)) {
 				$config_info = preg_replace("/\/\/[ ]*define\(\"DEFAULT_PAGE_DESCRIPTION\"/", "define(\"DEFAULT_PAGE_DESCRIPTION\"" , $config_info);
@@ -986,19 +1007,22 @@ class UpgradeCore extends Model {
 			}
 
 			$this->process(["success" => true, "message" => "Missing DEFAULT_PAGE_DESCRIPTION constant added to config.php"], false);
-
+		}
+		// Check line position
+		if(preg_match("/define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"SITE_EMAIL\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
 		}
 
 		// Check page image constant
 		if(!defined("DEFAULT_PAGE_IMAGE")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"DEFAULT_PAGE_IMAGE\"/", $config_info)) {
 				$config_info = preg_replace("/\/\/[ ]*define\(\"DEFAULT_PAGE_IMAGE\"/", "define(\"DEFAULT_PAGE_IMAGE\"" , $config_info);
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after DEFAULT_PAGE_DESCRIPTION
 				if(preg_match("/define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+/", $config_info)) {
 					$config_info = preg_replace("/(define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+)/", "$1\ndefine(\"DEFAULT_PAGE_IMAGE\", \"/img/logo.png\");\n" , $config_info);
 				}
@@ -1010,18 +1034,22 @@ class UpgradeCore extends Model {
 
 			$this->process(["success" => true, "message" => "Missing DEFAULT_PAGE_IMAGE constant added to config.php"], false);
 		}
+		// Check line position
+		if(preg_match("/define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
+		}
 
 
 		// Check language constant
 		if(!defined("DEFAULT_LANGUAGE_ISO")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"DEFAULT_LANGUAGE_ISO\"/", $config_info)) {
 				$config_info = preg_replace("/\/\/[ ]*define\(\"DEFAULT_LANGUAGE_ISO\"/", "define(\"DEFAULT_LANGUAGE_ISO\"" , $config_info);
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after DEFAULT_PAGE_IMAGE
 				if(preg_match("/define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+/", $config_info)) {
 					$config_info = preg_replace("/(define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+)/", "$1\n\ndefine(\"DEFAULT_LANGUAGE_ISO\", \"EN\");\n" , $config_info);
 				}
@@ -1032,17 +1060,21 @@ class UpgradeCore extends Model {
 			}
 			$this->process(["success" => true, "message" => "Missing DEFAULT_LANGUAGE_ISO constant added to config.php"], false);
 		}
+		// Check line position
+		if(preg_match("/define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
+		}
 
 		// Check country constant
 		if(!defined("DEFAULT_COUNTRY_ISO")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"DEFAULT_COUNTRY_ISO\"/", $config_info)) {
 				$config_info = preg_replace("/\/\/[ ]*define\(\"DEFAULT_COUNTRY_ISO\"/", "define(\"DEFAULT_COUNTRY_ISO\"" , $config_info);
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after DEFAULT_LANGUAGE_ISO
 				if(preg_match("/define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+/", $config_info)) {
 					$config_info = preg_replace("/(define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+)/", "$1\ndefine(\"DEFAULT_COUNTRY_ISO\", \"DK\");\n" , $config_info);
 				}
@@ -1052,6 +1084,11 @@ class UpgradeCore extends Model {
 				}
 			}
 			$this->process(["success" => true, "message" => "Missing DEFAULT_COUNTRY_ISO constant added to config.php"], false);
+		}
+		// Check line position
+		if(preg_match("/define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
 		}
 
 		// Check currency constant
@@ -1063,7 +1100,7 @@ class UpgradeCore extends Model {
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after DEFAULT_COUNTRY_ISO
 				if(preg_match("/define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+/", $config_info)) {
 					$config_info = preg_replace("/(define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+)/", "$1\ndefine(\"DEFAULT_CURRENCY_ISO\", \"DKK\");\n" , $config_info);
 				}
@@ -1074,60 +1111,77 @@ class UpgradeCore extends Model {
 			}
 			$this->process(["success" => true, "message" => "Missing DEFAULT_CURRENCY_ISO constant added to config.php"], false);
 		}
+		// Check line position
+		if(preg_match("/define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
+		}
 
 
 		// Check login url constant
 		if(!defined("SITE_LOGIN_URL")) {
 
+			// Check for obvious frontend login controller
+			$project_login_controller = file_exists(LOCAL_PATH."/www/login.php");
+
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"SITE_LOGIN_URL\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_LOGIN_URL\"/", "define(\"SITE_LOGIN_URL\"" , $config_info);
+				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_LOGIN_URL\", [^\)]+/", "define(\"SITE_LOGIN_URL\", \"".($project_login_controller ? "/login" : "/janitor/admin/login")."\"" , $config_info);
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after DEFAULT_CURRENCY_ISO
 				if(preg_match("/define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+)/", "$1\n\ndefine(\"SITE_LOGIN_URL\", \"/janitor/admin/login\");\n" , $config_info);
+					$config_info = preg_replace("/(define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+)/", "$1\n\ndefine(\"SITE_LOGIN_URL\", \"".($project_login_controller ? "/login" : "/janitor/admin/login")."\");\n" , $config_info);
 				}
 				// Append to file
 				else {
-					$config_info .= "\ndefine(\"SITE_LOGIN_URL\", \"/janitor/admin/login\");\n";
+					$config_info .= "\ndefine(\"SITE_LOGIN_URL\", \"".($project_login_controller ? "/login" : "/janitor/admin/login")."\");\n";
 				}
 			}
 			$this->process(["success" => true, "message" => "Missing SITE_LOGIN_URL constant added to config.php"], false);
 		}
+		// Check line position
+		if(preg_match("/define\(\"SITE_LOGIN_URL\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"SITE_LOGIN_URL\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
+		}
+
 
 		// Check singup constant
 		if(!defined("SITE_SIGNUP")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"SITE_SIGNUP\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SIGNUP\"/", "define(\"SITE_SIGNUP\"" , $config_info);
+				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SIGNUP\", [^\)]+/", "define(\"SITE_SIGNUP\", false" , $config_info);
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after SITE_LOGIN_URL
 				if(preg_match("/define\(\"SITE_LOGIN_URL\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_LOGIN_URL\"[^\n]+)/", "$1\n\ndefine(\"SITE_SIGNUP\", \"0\");\n" , $config_info);
+					$config_info = preg_replace("/(define\(\"SITE_LOGIN_URL\"[^\n]+)/", "$1\n\ndefine(\"SITE_SIGNUP\", false);\n" , $config_info);
 				}
 				// Append to file
 				else {
-					$config_info .= "\ndefine(\"SITE_SIGNUP\", \"0\");\n";
+					$config_info .= "\ndefine(\"SITE_SIGNUP\", false);\n";
 				}
 			}
 			$this->process(["success" => true, "message" => "Missing SITE_SIGNUP constant added to config.php"], false);
 		}
+		// Check line position
+		if(preg_match("/define\(\"SITE_SIGNUP\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"SITE_SIGNUP\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"SITE_LOGIN_URL\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
+		}
 
 		// Check signup url constant
 		if(!defined("SITE_SIGNUP_URL")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"SITE_SIGNUP_URL\"/", $config_info)) {
 				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SIGNUP_URL\"/", "define(\"SITE_SIGNUP_URL\"" , $config_info);
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after SITE_SIGNUP
 				if(preg_match("/define\(\"SITE_SIGNUP\"[^\n]+/", $config_info)) {
 					$config_info = preg_replace("/(define\(\"SITE_SIGNUP\"[^\n]+)/", "$1\ndefine(\"SITE_SIGNUP_URL\", \"/signup\");\n" , $config_info);
 				}
@@ -1138,61 +1192,73 @@ class UpgradeCore extends Model {
 			}
 			$this->process(["success" => true, "message" => "Missing SITE_SIGNUP_URL constant added to config.php"], false);
 		}
+		// Check line position
+		if(preg_match("/define\(\"SITE_SIGNUP_URL\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"SITE_SIGNUP_URL\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"SITE_SIGNUP\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
+		}
 
 
 		// Check items constant
 		if(!defined("SITE_ITEMS")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"SITE_ITEMS\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_ITEMS\"/", "define(\"SITE_ITEMS\"" , $config_info);
+				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_ITEMS\",[^\)]+/", "define(\"SITE_ITEMS\", false" , $config_info);
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after SITE_SIGNUP_URL
 				if(preg_match("/define\(\"SITE_SIGNUP_URL\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_SIGNUP_URL\"[^\n]+)/", "$1\n\ndefine(\"SITE_ITEMS\", \"false\");\n" , $config_info);
+					$config_info = preg_replace("/(define\(\"SITE_SIGNUP_URL\"[^\n]+)/", "$1\n\ndefine(\"SITE_ITEMS\", false);\n" , $config_info);
 				}
 				// Append to file
 				else {
-					$config_info .= "\ndefine(\"SITE_ITEMS\", \"false\");\n";
+					$config_info .= "\ndefine(\"SITE_ITEMS\", false);\n";
 				}
 			}
 			$this->process(["success" => true, "message" => "Missing SITE_ITEMS constant added to config.php"], false);
+		}
+		// Check line position
+		if(preg_match("/define\(\"SITE_ITEMS\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"SITE_ITEMS\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"SITE_SIGNUP_URL\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
 		}
 
 
 		// Check shop constant
 		if(!defined("SITE_SHOP")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"SITE_SHOP\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SHOP\"/", "define(\"SITE_SHOP\"" , $config_info);
+				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SHOP\",[^\)]+/", "define(\"SITE_SHOP\", false" , $config_info);
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after SITE_ITEMS
 				if(preg_match("/define\(\"SITE_ITEMS\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_ITEMS\"[^\n]+)/", "$1\n\ndefine(\"SITE_SHOP\", \"false\");\n" , $config_info);
+					$config_info = preg_replace("/(define\(\"SITE_ITEMS\"[^\n]+)/", "$1\n\ndefine(\"SITE_SHOP\", false);\n" , $config_info);
 				}
 				// Append to file
 				else {
-					$config_info .= "\ndefine(\"SITE_SHOP\", \"false\");\n";
+					$config_info .= "\ndefine(\"SITE_SHOP\", false);\n";
 				}
 			}
 			$this->process(["success" => true, "message" => "Missing SITE_SHOP constant added to config.php"], false);
 		}
-		
+		// Check line position
+		if(preg_match("/define\(\"SITE_SHOP\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"SITE_SHOP\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"SITE_ITEMS\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
+		}
+
 		// Check order notifies constant
 		if(!defined("SHOP_ORDER_NOTIFIES")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"SHOP_ORDER_NOTIFIES\"/", $config_info)) {
 				$config_info = preg_replace("/\/\/[ ]*define\(\"SHOP_ORDER_NOTIFIES\"/", "define(\"SHOP_ORDER_NOTIFIES\"" , $config_info);
 			}
 			// Insert line
 			else {
-				// Insert after SITE_EMAIL
+				// Insert after SITE_SHOP
 				if(preg_match("/define\(\"SITE_SHOP\"[^\n]+/", $config_info)) {
 					$config_info = preg_replace("/(define\(\"SITE_SHOP\"[^\n]+)/", "$1\ndefine(\"SHOP_ORDER_NOTIFIES\", \"\");\n" , $config_info);
 				}
@@ -1203,55 +1269,67 @@ class UpgradeCore extends Model {
 			}
 			$this->process(["success" => true, "message" => "Missing SHOP_ORDER_NOTIFIES constant added to config.php"], false);
 		}
+		// Check line position
+		if(preg_match("/define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"SITE_SHOP\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
+		}
 
 
 		// Check subscription constant
 		if(!defined("SITE_SUBSCRIPTIONS")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"SITE_SUBSCRIPTIONS\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SUBSCRIPTIONS\"/", "define(\"SITE_SUBSCRIPTIONS\"" , $config_info);
+				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SUBSCRIPTIONS\", [^\)]+/", "define(\"SITE_SUBSCRIPTIONS\", false" , $config_info);
 			}
 			// Insert line
 			else {
 				// Insert after SITE_EMAIL
 				if(preg_match("/define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+)/", "$1\n\ndefine(\"SITE_SUBSCRIPTIONS\", \"false\");\n" , $config_info);
+					$config_info = preg_replace("/(define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+)/", "$1\n\ndefine(\"SITE_SUBSCRIPTIONS\", false);\n" , $config_info);
 				}
 				// Append to file
 				else {
-					$config_info .= "\ndefine(\"SITE_SUBSCRIPTIONS\", \"false\");\n";
+					$config_info .= "\ndefine(\"SITE_SUBSCRIPTIONS\", false);\n";
 				}
 			}
 			$this->process(["success" => true, "message" => "Missing SITE_SUBSCRIPTIONS constant added to config.php"], false);
+		}
+		// Check line position
+		if(preg_match("/define\(\"SITE_SUBSCRIPTIONS\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"SITE_SUBSCRIPTIONS\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
 		}
 
 
 		// Check members constant
 		if(!defined("SITE_MEMBERS")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"SITE_MEMBERS\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_MEMBERS\"/", "define(\"SITE_MEMBERS\"" , $config_info);
+				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_MEMBERS\", [^\)]+/", "define(\"SITE_MEMBERS\", false" , $config_info);
 			}
 			// Insert line
 			else {
 				// Insert after SITE_EMAIL
 				if(preg_match("/define\(\"SITE_SUBSCRIPTIONS\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_SUBSCRIPTIONS\"[^\n]+)/", "$1\n\ndefine(\"SITE_MEMBERS\", \"false\");\n" , $config_info);
+					$config_info = preg_replace("/(define\(\"SITE_SUBSCRIPTIONS\"[^\n]+)/", "$1\n\ndefine(\"SITE_MEMBERS\", false);\n" , $config_info);
 				}
 				// Append to file
 				else {
-					$config_info .= "\ndefine(\"SITE_MEMBERS\", \"false\");\n";
+					$config_info .= "\ndefine(\"SITE_MEMBERS\", false);\n";
 				}
 			}
 			$this->process(["success" => true, "message" => "Missing SITE_MEMBERS constant added to config.php"], false);
+		}
+		// Check line position
+		if(preg_match("/define\(\"SITE_MEMBERS\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"SITE_MEMBERS\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"SITE_SUBSCRIPTIONS\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
 		}
 
 
 		// Check collect notifications constant
 		if(!defined("SITE_COLLECT_NOTIFICATIONS")) {
-
 			// Line is commented out
 			if(preg_match("/\/\/[ ]*define\(\"SITE_COLLECT_NOTIFICATIONS\"/", $config_info)) {
 				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_COLLECT_NOTIFICATIONS\"/", "define(\"SITE_COLLECT_NOTIFICATIONS\"" , $config_info);
@@ -1269,7 +1347,15 @@ class UpgradeCore extends Model {
 			}
 			$this->process(["success" => true, "message" => "Missing SITE_COLLECT_NOTIFICATIONS constant added to config.php"], false);
 		}
+		// Check line position
+		if(preg_match("/define\(\"SITE_COLLECT_NOTIFICATIONS\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"SITE_COLLECT_NOTIFICATIONS\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"SITE_MEMBERS\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
+		}
 
+
+		// Remove leftover comments
+		$config_info = preg_replace("/([^:])\/\/[^\n]*/", "$1", $config_info);
 
 		// Remove repeated newlines
 		$config_info = preg_replace("/(\n){3,100}/", "\n\n", $config_info);
@@ -1279,6 +1365,7 @@ class UpgradeCore extends Model {
 
 	}
 
+	// Code update
 	function updateConnectFilesSyntax08() {
 
 		// correct mail config
@@ -1324,6 +1411,268 @@ class UpgradeCore extends Model {
 		}
 
 	}
+
+	// Code update
+	function updateModelDeclarations08() {
+
+		$IC = new Items();
+		$fs = new FileSystem();
+
+		// Look through itemtype classes and check that model is wellformed
+		$itemtype_classes = $fs->files(LOCAL_PATH."/classes/items", ["allow_extensions" => "php"]);
+		$models_changed = false;
+
+		if($itemtype_classes) {
+			foreach($itemtype_classes as $itemtype_class) {
+
+				preg_match("/type\.([A-Za-z]+)\.class/", $itemtype_class, $match);
+				$itemtype["name"] = $match[1];
+				$itemtype["classfile"] = $itemtype_class;
+
+				$model = $IC->typeObject($itemtype["name"]);
+				$model_entities = $model->getModel();
+
+				$class_content = file_get_contents($itemtype["classfile"]);
+				$class_updated = false;
+
+				foreach($model_entities as $name => $model_entity) {
+					// $this->dump($name);
+					// $this->dump($model_entity);
+
+					if(!isset($model_entity["type"])) {
+						if($name == "html") {
+							$type = "html";
+						}
+						else if($name == "mediae" || $name == "single_media") {
+							$type = "files";
+						}
+						else if($name == "published_at") {
+							$type = "datetime";
+						}
+						else {
+							$this->process(["success" => false, "message" => "MISSING MODEL TYPE FOR UNKNOWN ENTITY ($name) IN " . $itemtype["classfile"]], true);
+						}
+
+						$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^\n]+)/", "$1\n\t\t\t\"type\" => \"$type\",", $class_content);
+						$class_updated = true;
+					}
+
+					if(!isset($model_entity["label"])) {
+						if($name == "html") {
+							$label = "HTML";
+						}
+						else if($name == "mediae" || $name == "single_media") {
+							$label = "Add media here";
+						}
+						else if($name == "published_at") {
+							$label = "Publish date (yyyy-mm-dd hh:mm)";
+						}
+						else {
+							$this->process(["success" => false, "message" => "MISSING MODEL LABEL FOR UNKNOWN ENTITY ($name) IN " . $itemtype["classfile"]], true);
+						}
+
+						$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^\n]+\n\t\t\t\"type\"[^\n]+)/", "$1\n\t\t\t\"label\" => \"$label\",", $class_content);
+						$class_updated = true;
+					}
+
+					if(!isset($model_entity["hint_message"])) {
+						if($name == "html") {
+							$hint = "Write!";
+						}
+						else if($name == "mediae" || $name == "single_media") {
+							$hint = "Add images or videos here. Use png or jpg.";
+						}
+						else if($name == "published_at") {
+							$hint = "Publish date (yyyy-mm-dd hh:mm)";
+						}
+						else {
+							$this->process(["success" => false, "message" => "MISSING MODEL HINT MESSAGE FOR UNKNOWN ENTITY ($name) IN " . $itemtype["classfile"]], true);
+						}
+
+						if(preg_match("/\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\))/", $class_content, $insert_after)) {
+							// Check for comma in end of insertion point
+							if(preg_match("/,$/", trim($insert_after[0]))) {
+								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\)))/", "$1\t\"hint_message\" => \"$hint\",\n\t\t", $class_content);
+							}
+							else {
+								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\)))/", trim($insert_after[0]).",\n\t\t\t\"hint_message\" => \"$hint\",\n\t\t", $class_content);
+							}
+							$class_updated = true;
+						}
+					}
+
+					if(!isset($model_entity["error_message"])) {
+						if($name == "html") {
+							$error = "No words? How weird.";
+						}
+						else if($name == "mediae" || $name == "single_media") {
+							$error = "Media does not fit requirements.";
+						}
+						else if($name == "published_at") {
+							$error = "Datetime must be of format yyyy-mm-dd hh:mm";
+						}
+						else {
+							$error = ucfirst($name)." is invalid.";
+						}
+
+						if(preg_match("/\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\))/", $class_content, $insert_after)) {
+							// Check for comma in end of insertion point
+							if(preg_match("/,$/", trim($insert_after[0]))) {
+								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\)))/", "$1\t\"error_message\" => \"$error\",\n\t\t", $class_content);
+							}
+							else {
+								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\)))/", trim($insert_after[0]).",\n\t\t\t\"error_message\" => \"$error\",\n\t\t", $class_content);
+							}
+							$class_updated = true;
+						}
+					}
+
+					// Special properties that might be missing
+					if($name == "html") {
+						if(!isset($model_entity["allowed_tags"])) {
+							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\"hint_message\" \=\>))/", "$1\"allowed_tags\" => \"p,h3,h4,download\",\n\t\t\t", $class_content);
+							$class_updated = true;
+						}
+					}
+					if($name == "mediae") {
+						if(!isset($model_entity["max"])) {
+							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\"hint_message\" \=\>))/", "$1\"max\" => 20,\n\t\t\t", $class_content);
+							$class_updated = true;
+						}
+					}
+					if($name == "single_media") {
+						if(!isset($model_entity["max"])) {
+							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\"hint_message\" \=\>))/", "$1\"max\" => 1,\n\t\t\t", $class_content);
+							$class_updated = true;
+						}
+					}
+					if($name == "mediae" || $name == "single_media") {
+						if(!isset($model_entity["allowed_formats"])) {
+							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\"hint_message\" \=\>))/", "$1\"max\" => \"png,jpg\",\n\t\t\t", $class_content);
+							$class_updated = true;
+						}
+					}
+
+				}
+
+
+				// Catch previously fully inherited types by checking content of edit template
+				// html / mediae / single_media / published_at
+				if(file_exists(LOCAL_PATH."/templates/janitor/".$itemtype["name"]."/edit.php")) {
+					$template_content = file_get_contents(LOCAL_PATH."/templates/janitor/".$itemtype["name"]."/edit.php");
+
+					if(preg_match("/(inputHTML|input)\(\"html\"/", $template_content)) {
+						if(!isset($model_entities["html"])) {
+							$class_content = preg_replace("/(\\\$this-\>addToModel\([^$]+\)\);)/", "$1\n\n\t\t// HTML\n\t\t\$this->addToModel(\"html\", array(\n\t\t\t\"type\" => \"html\",\n\t\t\t\"label\" => \"HTML\",\n\t\t\t\"allowed_tags\" => \"p,h2,h3,h4,ul,ol,download,jpg,png\",\n\t\t\t\"hint_message\" => \"Write!\",\n\t\t\t\"error_message\" => \"No words? How weird.\",\n\t\t));", $class_content, 1);
+							$class_updated = true;
+						}
+					}
+
+					if(preg_match("/editMediae\(\\\$item/", $template_content)) {
+						if(!isset($model_entities["mediae"])) {
+							$class_content = preg_replace("/(\\\$this-\>addToModel\([^$]+\)\);)/", "$1\n\n\t\t// Mediae\n\t\t\$this->addToModel(\"mediae\", array(\n\t\t\t\"type\" => \"files\",\n\t\t\t\"label\" => \"Add media here\",\n\t\t\t\"max\" => 20,\n\t\t\t\"allowed_formats\" => \"jpg,png\",\n\t\t\t\"hint_message\" => \"Add images or videos here. Use png or jpg.\",\n\t\t\t\"error_message\" => \"Media does not fit requirements.\",\n\t\t));", $class_content, 1);
+							$class_updated = true;
+						}
+					}
+
+					if(preg_match("/editSingleMedia\(\\\$item/", $template_content)) {
+						if(!isset($model_entities["single_media"])) {
+							$class_content = preg_replace("/(\\\$this-\>addToModel\([^$]+\)\);)/", "$1\n\n\t\t// Single media\n\t\t\$this->addToModel(\"single_media\", array(\n\t\t\t\"type\" => \"files\",\n\t\t\t\"label\" => \"Add media here\",\n\t\t\t\"max\" => 1,\n\t\t\t\"allowed_formats\" => \"jpg,png\",\n\t\t\t\"hint_message\" => \"Add images or videos here. Use png or jpg.\",\n\t\t\t\"error_message\" => \"Media does not fit requirements.\",\n\t\t));", $class_content, 1);
+							$class_updated = true;
+						}
+					}
+
+					if(preg_match("/input\(\"published_at\"/", $template_content)) {
+						if(!isset($model_entities["published_at"])) {
+							$class_content = preg_replace("/(\\\$this-\>addToModel\([^$]+\)\);)/", "$1\n\n\t\t// Published at\n\t\t\$this->addToModel(\"published_at\", array(\n\t\t\t\"type\" => \"datetime\",\n\t\t\t\"label\" => \"Publish date (yyyy-mm-dd hh:mm)\",\n\t\t\t\"hint_message\" => \"Publishing date of the item. Leave empty for current time.\",\n\t\t\t\"error_message\" => \"Datetime must be of format yyyy-mm-dd hh:mm\",\n\t\t));", $class_content, 1);
+							$class_updated = true;
+						}
+					}
+
+				}
+
+
+				file_put_contents($itemtype["classfile"], $class_content);
+
+				if($class_updated) {
+					$this->process(["success" => true, "message" => $itemtype["name"]." MODEL UPDATED"], true);
+					$models_changed = true;
+				}
+
+			}
+		}
+		
+		if($models_changed) {
+			$this->process(["success" => false, "message" => "MODELS HAVE BEEN UPDATED – REFRESH THIS PAGE TO FINISH UPGRADE"], false);
+			throw new Exception();
+		}
+	}
+	
+	// Code update
+	function updateSyntaxTo08() {
+
+		$fs = new FileSystem();
+		// get all php files in theme
+		$php_files = $fs->files(LOCAL_PATH."/templates", ["allow_extensions" => "php", "include_tempfiles" => true]);
+		foreach($php_files as $php_file) {
+
+			$is_code_altered = false;
+			$code_lines = file($php_file);
+			foreach($code_lines as $line_no => $line) {
+
+				// Change $JML->jsMedia to $HTML->jsMedia
+				if(preg_match("/\\\$JML\-\>jsMedia\(/", $line)) {
+
+					$line = preg_replace("/\\\$JML\-\>jsMedia\(/", "\$HTML->jsMedia(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (JML->jsMedia) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (JML->jsMedia) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Change $JML->jsData to $HTML->jsData
+				if(preg_match("/\\\$JML\-\>jsData\(/", $line)) {
+
+					$line = preg_replace("/\\\$JML\-\>jsData\(/", "\$HTML->jsData(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (JML->jsData) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (JML->jsData) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Change $JML->jsMedia to $HTML->jsMedia
+				if(preg_match("/\-\>inputHTML\(/", $line)) {
+
+					$line = preg_replace("/\-\>inputHTML\(/", "->input(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (inputHTML) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (inputHTML) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+			}
+
+			// Should we write
+			if($is_code_altered) {
+				file_put_contents($php_file, implode("", $code_lines));
+			}
+
+		}
+
+	}
+	
 
 	function updateUserSubscriptionPaymentMethods08() {
 		
@@ -1445,11 +1794,12 @@ class UpgradeCore extends Model {
 
 			$query = new Query();
 			$IC = new Items();
+			$fs = new FileSystem();
 
 			// Update mediae tables with extended variant names
 			// - cross-reference stored mediae with HTML-value – does all "HTML" mediae exist in HTML-text
 			// - fix "free-text" name classVars (containing spaces)
-			$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE;
+			$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." ORDER BY item_id";
 			// debug([$sql]);
 			if($query->sql($sql)) {
 				$mediae = $query->results();
@@ -1457,11 +1807,12 @@ class UpgradeCore extends Model {
 				// Ensure items_mediae variant definition has been updated to fit the new variant names
 				$this->synchronizeTable("items_mediae");
 
-				// debug([$mediae]);
+				// $this->dump($mediae);
 
 				foreach($mediae as $media) {
 
-					// debug(["CHECKING:" . $media["variant"]]);
+					// $this->dump("media");
+					// $this->dump($media);
 
 					// Get related item
 					$item = $IC->getItem(["id" => $media["item_id"], "extend" => true]);
@@ -1469,7 +1820,7 @@ class UpgradeCore extends Model {
 					// Get model for related item
 					$item_model = $IC->typeObject($item["itemtype"]);
 					$model_entities = $item_model->getModel();
-					// debug([$model_entities]);
+					// $this->dump($model_entities);
 
 
 					// OLD HTML editor media
@@ -1481,6 +1832,7 @@ class UpgradeCore extends Model {
 						// Look for HTML inputs to check values for media occurence
 						foreach($item as $name => $value) {
 
+
 							if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
 
 								// Is variant used in this HTML input (item can have several HTML inputs)
@@ -1490,11 +1842,11 @@ class UpgradeCore extends Model {
 									$new_value = str_replace($media["variant"], $new_variant, $value);
 									$new_value = str_replace($media["name"], urlencode($media["name"]), $new_value);
 									$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
-									// debug([$sql]);
+									// $this->dump($sql);
 									if($query->sql($sql)) {
 
 										$sql = "UPDATE ".$item_model->db." SET $name = '".preg_replace("/'/", "\'", $new_value)."' WHERE item_id = ".$media["item_id"];
-										// debug([$sql]);
+										// $this->dump($sql);
 										if($query->sql($sql)) {
 
 											$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
@@ -1503,6 +1855,7 @@ class UpgradeCore extends Model {
 										}
 									}
 
+									$media["variant"] = $new_variant;
 									$found = true;
 
 								}
@@ -1522,6 +1875,7 @@ class UpgradeCore extends Model {
 
 								$this->process(array("success" => true, "message" => "Deleted HTML media remnant: " . $media["id"]), true);
 								$media = false;
+								continue;
 							}
 
 						}
@@ -1550,7 +1904,7 @@ class UpgradeCore extends Model {
 							// If not found, then assign media to mediae input
 							$new_variant = "mediae-".randomKey(8);
 							$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
-							// debug([$sql, $query->sql($sql)]);
+							// $this->dump($sql);
 
 							if($query->sql($sql)) {
 
@@ -1563,6 +1917,8 @@ class UpgradeCore extends Model {
 								$this->process(array("success" => true, "message" => "Assign media to mediae-variant: " . $media["id"]), true);
 
 							}
+							$media = false;
+							continue;
 
 						}
 
@@ -1628,8 +1984,10 @@ class UpgradeCore extends Model {
 
 					}
 
-					// Rename previously uncompress files (downloadable files)
+					// Rename previously uncompressed files (downloadable files)
 					$files = $fs->files(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// $this->dump("files:");
+					// $this->dump($files);
 					if($files && (!file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"]) || count($files) > 1)) {
 						if(count($files) > 1) {
 							$this->process(["message" => "MULTIPLE PRIVATE FILES FOR media_id: ".$media["id"]." - SOMETHING IS WRONG)", "success" => false], true);
