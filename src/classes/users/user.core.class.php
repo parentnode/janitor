@@ -976,26 +976,21 @@ class UserCore extends Model {
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 						
-						// this has been commented out as it is not yet 
-						// possible to create a user that has no email username
-						// verify_new_email is currently phrased as an invitation
-						// which would not fit this situation 
-
-						// // send verification email to user
-						// mailer()->send(array(
-						// 	"values" => array(
-						// 		"NICKNAME" => $nickname, 
-						// 		"EMAIL" => $email, 
-						// 		"VERIFICATION" => $verification_code,
-						// 		"PASSWORD" => $mail_password
-						// 	), 
-						// 	"track_clicks" => false,
-						// 	"recipients" => $email, 
-						// 	"template" => "verify_new_email"
-						// ));
+						// send verification email to user
+						mailer()->send(array(
+							"values" => array(
+								"NICKNAME" => $nickname, 
+								"EMAIL" => $email, 
+								"VERIFICATION" => $verification_code,
+								// "PASSWORD" => $mail_password
+							), 
+							"track_clicks" => false,
+							"recipients" => $email, 
+							"template" => "verify_new_email"
+						));
 
 						
-//						message()->addMessage("Email added");
+						message()->addMessage("Email added");
 						return true;
 					}
 				}
