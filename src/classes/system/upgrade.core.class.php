@@ -93,6 +93,7 @@ class UpgradeCore extends Model {
 			if(!defined("VERSION")) {
 
 				$this->updatePHPSyntaxToPHP7();
+				$this->restructureItemsMediae();
 
 				define("VERSION", 0);
 			}
@@ -352,7 +353,9 @@ class UpgradeCore extends Model {
 	// 0.7 to v 0.9 UPGRADE HELPERS
 
 
-	function moveFilesColumnToItems($itemtype, $variant = false, $column = "files") {
+	// Version 0.7
+
+	function restructureItemsMediae() {
 
 		$query = new Query();
 		$IC = new Items();
@@ -360,142 +363,177 @@ class UpgradeCore extends Model {
 
 		$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
+		$query->sql("SELECT itemtype FROM ".UT_ITEMS." GROUP BY itemtype");
+		$itemtypes = $query->results("itemtype");
 
-		$sql = "SELECT * FROM ".SITE_DB.".item_".$itemtype;
-		$query->sql($sql);
-		$results = $query->results();
+		// $this->dump($itemtypes);
 
-//		print_r($results);
+		foreach($itemtypes as $itemtype) {
 
-		foreach($results as $result) {
+			$item_table = $this->tableInfo(SITE_DB.".item_".$itemtype);
+			// $this->dump($item_table);
+			if($item_table && isset($item_table["columns"]["files"])) {
+				$this->dump("Files column found for $itemtype");
 
-		//	print $result["files"] . "<br>";
-			if($result[$column]) {
 
-				$item_id = $result["item_id"];
-				$format = $result[$column];
-
-				if(file_exists(PRIVATE_FILE_PATH."/".$item_id."/".$format)) {
-					$file = PRIVATE_FILE_PATH."/".$item_id."/".$format;
-				}
-				else if(file_exists(PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format)) {
-					$file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format;
-				}
-				else {
-					continue;
-				}
-
-				$new_file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format;
-
-				if(preg_Match("/^(png|jpg)$/", $format)) {
-					$image = new Imagick($file);
-
-					// check if we can get relevant info about image
-					$width = $image->getImageWidth();
-					$height = $image->getImageHeight();
-				}
-				else if(preg_Match("/^(mov|mp4)$/", $format)) {
-					include_once("classes/helpers/video.class.php");
-					$VC = new Video();
-					$info = $VC->info($file);
-					$width = $info["width"];
-					$height = $info["height"];
-				}
-				else {
-					$width = 0;
-					$height = 0;
-				}
-
-				$variant = $variant ? $variant : randomKey(8);
-				$name = $format;
-				$filesize = filesize($file);
-
-				// insert into new table
-				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', '$width', '$height', '$filesize', 0)";
-//				print $sql."<br>";
-
+				$sql = "SELECT * FROM ".SITE_DB.".item_".$itemtype;
 				$query->sql($sql);
+				$results = $query->results();
 
-				// move image to new folder
-				$fs->makeDirRecursively(dirname($new_file));
+		//		print_r($results);
 
-				if($file != $new_file) {
-					copy($file, PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format);
-					unlink(PRIVATE_FILE_PATH."/".$item_id."/".$format);
+				foreach($results as $result) {
+
+					if($result["files"]) {
+
+						$item_id = $result["item_id"];
+						$format = $result["files"];
+						$variant = "main";
+
+						if(file_exists(PRIVATE_FILE_PATH."/".$item_id."/".$format)) {
+							$file = PRIVATE_FILE_PATH."/".$item_id."/".$format;
+						}
+						else if(file_exists(PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format)) {
+							$file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format;
+						}
+						else {
+							$this->process(["message" => "File not found for item_id: $item_id", "success" => false], true);
+							continue;
+						}
+
+
+						$new_file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format;
+
+						if(preg_Match("/^(png|jpg)$/", $format)) {
+							$image = new Imagick($file);
+
+							// check if we can get relevant info about image
+							$width = $image->getImageWidth();
+							$height = $image->getImageHeight();
+						}
+						else if(preg_Match("/^(mov|mp4)$/", $format)) {
+							include_once("classes/helpers/video.class.php");
+							$VC = new Video();
+							$info = $VC->info($file);
+							$width = $info["width"];
+							$height = $info["height"];
+						}
+						else {
+							$width = 0;
+							$height = 0;
+						}
+
+						$variant = $variant ."-". randomKey(8);
+						$name = $format;
+						$filesize = filesize($file);
+
+						// insert into new table
+						$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', '$width', '$height', '$filesize', 0)";
+		//				print $sql."<br>";
+
+						$query->sql($sql);
+
+						// move image to new folder
+						$fs->makeDirRecursively(dirname($new_file));
+
+						if($file != $new_file) {
+							copy($file, PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format);
+							unlink(PRIVATE_FILE_PATH."/".$item_id."/".$format);
+
+							$this->process(["message" => "Media for item_id: $item_id transferred to items_mediae", "success" => true], true);
+						}
+						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id);
+
+					}
 				}
-				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id);
+
+				$this->process($this->dropColumn(SITE_DB.".item_".$itemtype, "files"), true);
 
 			}
-		}
-		print "You can now delete '$column' column in ".SITE_DB.".item_".$itemtype."<br>";
-
-	}
 
 
-
-	// V 0.7 to v 0.8 UPGRADE HELPERS
-
-	function moveMediaeToItems($itemtype) {
-
-		$query = new Query();
-		$IC = new Items();
-
-		$query->checkDbExistence(UT_ITEMS_MEDIAE);
-
-		$sql = "SELECT * FROM ".SITE_DB.".item_".$itemtype."_mediae";
-		print $sql."<br>\n";
-
-		$query->sql($sql);
-		$mediae = $query->results();
-
-		foreach($mediae as $media) {
-
-			$item_id = $media["item_id"];
-			$item_format = $media["format"];
-			$item_variant = isset($media["variant"]) ? $media["variant"] : "";
+			$item_table = $this->tableInfo(SITE_DB.".item_".$itemtype."_mediae");
+			if($item_table) {
+				$this->dump("Mediae table found for $itemtype");
 
 
-			if(!$item_variant) {
-				print "missing variant - create variant and move file??<br>\n";
-			}
-
-
-			$file = PRIVATE_FILE_PATH."/".$item_id.($item_variant ? "/".$item_variant : "")."/".$item_format;
-
-//			print_r($media);
-
-			if(file_exists($file)) {
-				print "valid file: $file<br>\n";
-
-				$item_name = (isset($media["name"]) && $media["name"]) ? $media["name"] : $item_format;
-				$item_filesize = (isset($media["filesize"]) && $media["filesize"]) ? $media["filesize"] : filesize($file);
-				$item_position = (isset($media["position"]) && $media["position"]) ? $media["position"] : 0;
-
-				if(preg_match("/jpg|png/", $item_format)) {
-					$image = new Imagick($file);
-					$item_width = (isset($media["width"]) && $media["width"]) ? $media["width"] : $image->getImageWidth();
-					$item_height = (isset($media["height"]) && $media["height"]) ? $media["height"] : $image->getImageHeight();
-				}
-				else {
-					$item_width = (isset($media["width"]) && $media["width"]) ? $media["width"] : 0;
-					$item_height = (isset($media["height"]) && $media["height"]) ? $media["height"] : 0;
-			
-				}
-
-
-
-				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET item_id=$item_id, format='$item_format', variant='$item_variant', name='$item_name', filesize=$item_filesize, width='$item_width', height='$item_height', position='$item_position'";
-				print $sql."<br>\n";
+				$sql = "SELECT * FROM ".SITE_DB.".item_".$itemtype."_mediae";
 				$query->sql($sql);
+				$mediae = $query->results();
+
+				// $this->dump($mediae);
+
+				foreach($mediae as $media) {
+
+					$item_id = $media["item_id"];
+					$item_format = $media["format"];
+					$item_variant = (isset($media["variant"]) ? $media["variant"] : "mediae");
+					$new_item_variant = $item_variant."-".randomKey(8);
+
+
+					$file = PRIVATE_FILE_PATH."/".$item_id."/".$item_variant."/".$item_format;
+					// $this->dump($file);
+
+					if(file_exists($file)) {
+						// $this->dump("valid file:". $file);
+
+						$item_name = (isset($media["name"]) && $media["name"]) ? $media["name"] : $item_format;
+						$item_filesize = (isset($media["filesize"]) && $media["filesize"]) ? $media["filesize"] : filesize($file);
+						$item_position = (isset($media["position"]) && $media["position"]) ? $media["position"] : 0;
+
+						if(preg_match("/jpg|png/", $item_format)) {
+							$image = new Imagick($file);
+							$item_width = $image->getImageWidth();
+							$item_height = $image->getImageHeight();
+							// $item_width = (isset($media["width"]) && $media["width"]) ? $media["width"] : $image->getImageWidth();
+							// $item_height = (isset($media["height"]) && $media["height"]) ? $media["height"] : $image->getImageHeight();
+						}
+						else if(preg_Match("/^(mov|mp4)$/", $format)) {
+							include_once("classes/helpers/video.class.php");
+							$VC = new Video();
+							$info = $VC->info($file);
+							$width = $info["width"];
+							$height = $info["height"];
+						}
+						else {
+							$item_width = (isset($media["width"]) && $media["width"]) ? $media["width"] : 0;
+							$item_height = (isset($media["height"]) && $media["height"]) ? $media["height"] : 0;
+						}
+
+						$new_file = PRIVATE_FILE_PATH."/".$item_id."/".$new_item_variant."/".$item_format;
+
+						$fs->makeDirRecursively(dirname($new_file));
+
+						if(copy($file, $new_file)) {
+							$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$item_variant);
+
+							$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET item_id=$item_id, format='$item_format', variant='$new_item_variant', name='$item_name', filesize=$item_filesize, width=$item_width, height=$item_height, position='$item_position'";
+							// $this->dump($sql);
+							$query->sql($sql);
+
+							$this->process(["message" => "Media for item_id: $item_id, variant: $item_variant transferred to items_mediae", "success" => true], true);
+						}
+						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id);
+
+					}
+					else {
+						$this->process(["message" => "Media file for item_id: $item_id, variant: $item_variant NOT FOUND", "success" => false], true);
+						
+						// $this->dump("invalid file:" . $file);
+					}
+
+
+
+				}
+
+				$this->dropTable(SITE_DB.".item_".$itemtype."_mediae");
+				// Delete mediae table
 			}
-			else {
-				print "invalid file:" . $file ."<br>\n";
-			}
-
-
-
+	
 		}
+
 		
+
 	}
 
 
