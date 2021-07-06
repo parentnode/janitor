@@ -1453,7 +1453,7 @@ class UpgradeCore extends Model {
 							$this->process(["success" => false, "message" => "MISSING MODEL TYPE FOR UNKNOWN ENTITY ($name) IN " . $itemtype["classfile"]], true);
 						}
 
-						$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^\n]+)/", "$1\n\t\t\t\"type\" => \"$type\",", $class_content);
+						$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^\n]+)/", "$1\n\t\t\t\"type\" => \"$type\",", $class_content);
 						$class_updated = true;
 					}
 
@@ -1471,7 +1471,7 @@ class UpgradeCore extends Model {
 							$this->process(["success" => false, "message" => "MISSING MODEL LABEL FOR UNKNOWN ENTITY ($name) IN " . $itemtype["classfile"]], true);
 						}
 
-						$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^\n]+\n\t\t\t\"type\"[^\n]+)/", "$1\n\t\t\t\"label\" => \"$label\",", $class_content);
+						$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^\n]+\n\t\t\t\"type\"[^\n]+)/", "$1\n\t\t\t\"label\" => \"$label\",", $class_content);
 						$class_updated = true;
 					}
 
@@ -1492,10 +1492,10 @@ class UpgradeCore extends Model {
 						if(preg_match("/\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\))/", $class_content, $insert_after)) {
 							// Check for comma in end of insertion point
 							if(preg_match("/,$/", trim($insert_after[0]))) {
-								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\)))/", "$1\t\"hint_message\" => \"$hint\",\n\t\t", $class_content);
+								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^$]+?(?=\)\)))/", "$1\t\"hint_message\" => \"$hint\",\n\t\t", $class_content);
 							}
 							else {
-								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\)))/", trim($insert_after[0]).",\n\t\t\t\"hint_message\" => \"$hint\",\n\t\t", $class_content);
+								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^$]+?(?=\)\)))/", trim($insert_after[0]).",\n\t\t\t\"hint_message\" => \"$hint\",\n\t\t", $class_content);
 							}
 							$class_updated = true;
 						}
@@ -1518,10 +1518,10 @@ class UpgradeCore extends Model {
 						if(preg_match("/\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\))/", $class_content, $insert_after)) {
 							// Check for comma in end of insertion point
 							if(preg_match("/,$/", trim($insert_after[0]))) {
-								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\)))/", "$1\t\"error_message\" => \"$error\",\n\t\t", $class_content);
+								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^$]+?(?=\)\)))/", "$1\t\"error_message\" => \"$error\",\n\t\t", $class_content);
 							}
 							else {
-								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\)\)))/", trim($insert_after[0]).",\n\t\t\t\"error_message\" => \"$error\",\n\t\t", $class_content);
+								$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^$]+?(?=\)\)))/", trim($insert_after[0]).",\n\t\t\t\"error_message\" => \"$error\",\n\t\t", $class_content);
 							}
 							$class_updated = true;
 						}
@@ -1530,25 +1530,25 @@ class UpgradeCore extends Model {
 					// Special properties that might be missing
 					if($name == "html") {
 						if(!isset($model_entity["allowed_tags"])) {
-							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\"hint_message\" \=\>))/", "$1\"allowed_tags\" => \"p,h3,h4,download\",\n\t\t\t", $class_content);
+							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^$]+?(?=\"hint_message\" \=\>))/", "$1\"allowed_tags\" => \"p,h3,h4,download\",\n\t\t\t", $class_content);
 							$class_updated = true;
 						}
 					}
 					if($name == "mediae") {
 						if(!isset($model_entity["max"])) {
-							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\"hint_message\" \=\>))/", "$1\"max\" => 20,\n\t\t\t", $class_content);
+							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^$]+?(?=\"hint_message\" \=\>))/", "$1\"max\" => 20,\n\t\t\t", $class_content);
 							$class_updated = true;
 						}
 					}
 					if($name == "single_media") {
 						if(!isset($model_entity["max"])) {
-							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\"hint_message\" \=\>))/", "$1\"max\" => 1,\n\t\t\t", $class_content);
+							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^$]+?(?=\"hint_message\" \=\>))/", "$1\"max\" => 1,\n\t\t\t", $class_content);
 							$class_updated = true;
 						}
 					}
 					if($name == "mediae" || $name == "single_media") {
 						if(!isset($model_entity["allowed_formats"])) {
-							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."[^$]+?(?=\"hint_message\" \=\>))/", "$1\"max\" => \"png,jpg\",\n\t\t\t", $class_content);
+							$class_content = preg_replace("/(\\\$this-\>addToModel\(\"".$name."\"[^$]+?(?=\"hint_message\" \=\>))/", "$1\"max\" => \"png,jpg\",\n\t\t\t", $class_content);
 							$class_updated = true;
 						}
 					}
