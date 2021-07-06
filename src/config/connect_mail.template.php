@@ -1,7 +1,7 @@
 <?php
+
 /**
 * This file contains settings for mailer connection
-*
 *
 * @package Config
 */

@@ -2,6 +2,7 @@
 
 /**
 * This file contains generel database connection information
+*
 * @package Config
 */
 define("SITE_DB", "###SITE_DB###");

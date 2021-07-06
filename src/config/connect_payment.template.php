@@ -1,4 +1,5 @@
 <?php
+
 /**
 * This file contains settings for payment gateway connection
 *
