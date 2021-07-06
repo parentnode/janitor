@@ -907,28 +907,37 @@ class UpgradeCore extends Model {
 				// Extract template content
 				preg_match("/\?\>\n\<\? \\\$page-\>header\(array\(\"type\" \=\> \"janitor\"\)\) \?\>([^$]+)\<\? \\\$page-\>footer\(array\(\"type\" \=\> \"janitor\"\)\) \?\>/", $index_file, $match);
 
-				// Replace header/template content/footer with regular page template 
-				$index_file = preg_replace("/\?\>\n\<\? \\\$page-\>header\(array\(\"type\" \=\> \"janitor\"\)\) \?>[^$]+\<\? \\\$page-\>footer\(array\(\"type\" \=\> \"janitor\"\)\) \?\>/", "\n\$page->page(array(\n\t\"type\" => \"janitor\",\n\t\"templates\" => \"janitor/front/index.php\"\n));\nexit();\n\n", $index_file);
+				if($match) {
+					// $this->dump($match);
+					// Replace header/template content/footer with regular page template 
+					$index_file = preg_replace("/\?\>\n\<\? \\\$page-\>header\(array\(\"type\" \=\> \"janitor\"\)\) \?>[^$]+\<\? \\\$page-\>footer\(array\(\"type\" \=\> \"janitor\"\)\) \?\>/", "\n\$page->page(array(\n\t\"type\" => \"janitor\",\n\t\"templates\" => \"janitor/front/index.php\"\n));\nexit();\n\n", $index_file);
 
-				// Write updated controller
-				file_put_contents(LOCAL_PATH."/www/janitor/index.php", $index_file);
+					// Write updated controller
+					file_put_contents(LOCAL_PATH."/www/janitor/index.php", $index_file);
 
-				// Evaluate template content
-				// Non standard content – move it to local template file
-				if(preg_replace("/[\n\r\t ]+/", "", trim($match[1])) != "<divclass=\"scenefront\"><h1><?=SITE_NAME?>Admin</h1></div>") {
+					// Evaluate template content
+					// Non standard content – move it to local template file
+					if(preg_replace("/[\n\r\t ]+/", "", trim($match[1])) != "<divclass=\"scenefront\"><h1><?=SITE_NAME?>Admin</h1></div>") {
 
-					$fs->makeDirRecursively(LOCAL_PATH."/templates/janitor/front");
-					if(file_put_contents(LOCAL_PATH."/templates/janitor/front/index.php", $match[1])) {
-						$this->process(["success" => false, "message" => "/www/janitor/index.php converted to controller using template templates/janitor/front/index.php"], false);
+						$fs->makeDirRecursively(LOCAL_PATH."/templates/janitor/front");
+						if(file_put_contents(LOCAL_PATH."/templates/janitor/front/index.php", $match[1])) {
+							$this->process(["success" => false, "message" => "/www/janitor/index.php converted to controller using template templates/janitor/front/index.php"], false);
+						}
+						else {
+							$this->process(["success" => false, "message" => "Could not finish controller conversion. You should check /www/janitor/index.php and templates/janitor/front/index.php for errors before you continue"], true);
+						}
+
 					}
 					else {
-						$this->process(["success" => false, "message" => "Could not finish controller conversion. You should check /www/janitor/index.php and templates/janitor/front/index.php for errors before you continue"], true);
+						$this->process(["success" => false, "message" => "/www/janitor/index.php converted to controller using default Janitor template"], false);
 					}
-
 				}
 				else {
-					$this->process(["success" => false, "message" => "/www/janitor/index.php converted to controller using default Janitor template"], false);
+
+					$this->process(["success" => false, "message" => "Could not convert Janitor index controller to controller/template. You should consider doing this manually."], true);
+
 				}
+
 
 			}
 
