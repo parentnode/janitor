@@ -87,6 +87,8 @@ if(is_array($action) && count($action)) {
 	}
 	else if(preg_match("/^(upgrade)$/", $action[0])) {
 
+		$page->pageTitle("Janitor upgrade");
+
 		include_once("classes/system/upgrade.class.php");
 		$upgrade_model = new Upgrade();
 
