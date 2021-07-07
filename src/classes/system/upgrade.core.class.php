@@ -1619,7 +1619,6 @@ class UpgradeCore extends Model {
 
 						// Check for custom variant
 						if(preg_match_all("/editMediae\(\\\$item[^$]+\"variant\" \=\> \"([a-zA-Z0-9\-_]+)\"/", $template_content, $variant_match)) {
-							$this->dump($variant_match);
 							$media_variants = $variant_match[1];
 							foreach($media_variants as $media_variant) {
 
@@ -1641,7 +1640,6 @@ class UpgradeCore extends Model {
 
 						// Check for custom variant
 						if(preg_match_all("/editSingleMedia\(\\\$item[^$]+\"variant\" \=\> \"([a-zA-Z0-9\-_]+)\"/", $template_content, $variant_match)) {
-							$this->dump($variant_match);
 							$media_variants = $variant_match[1];
 							foreach($media_variants as $media_variant) {
 
