@@ -854,7 +854,7 @@ class UpgradeCore extends Model {
 				// Change href="<?= SITE_SIGNUP \?\>" to a href="< ?= SITE_SIGNUP_URL \?\>"
 				if(preg_match("/href\=\"\<\?\= SITE_SIGNUP \?\>\"/", $line)) {
 
-					$line = preg_replace("/href\=\"\<\?\= SITE_SIGNUP \?\>\"/", "href=\"<?= SITE_SIGNUP ?>\"", $line);
+					$line = preg_replace("/href\=\"\<\?\= SITE_SIGNUP \?\>\"/", "href=\"<?= SITE_SIGNUP_URL ?>\"", $line);
 					if($code_lines[$line_no] != $line) {
 
 						$code_lines[$line_no] = $line;
