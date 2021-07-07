@@ -1616,14 +1616,44 @@ class UpgradeCore extends Model {
 					}
 
 					if(preg_match("/editMediae\(\\\$item/", $template_content)) {
-						if(!isset($model_entities["mediae"])) {
+
+						// Check for custom variant
+						if(preg_match_all("/editMediae\(\\\$item[^$]+\"variant\" \=\> \"([a-zA-Z0-9\-_]+)\"/", $template_content, $variant_match)) {
+							$this->dump($variant_match);
+							$media_variants = $variant_match[1];
+							foreach($media_variants as $media_variant) {
+
+								if(!isset($model_entities[$media_variant])) {
+									$class_content = preg_replace("/(\\\$this-\>addToModel\([^$]+\)\);)/", "$1\n\n\t\t// $media_variant media\n\t\t\$this->addToModel(\"$media_variant\", array(\n\t\t\t\"type\" => \"files\",\n\t\t\t\"label\" => \"Add media here\",\n\t\t\t\"max\" => 20,\n\t\t\t\"allowed_formats\" => \"jpg,png\",\n\t\t\t\"hint_message\" => \"Add images or videos here. Use png or jpg.\",\n\t\t\t\"error_message\" => \"Media does not fit requirements.\",\n\t\t));", $class_content, 1);
+									$class_updated = true;
+								}
+
+							}
+						}
+						// Default variant
+						else if(!isset($model_entities["mediae"])) {
 							$class_content = preg_replace("/(\\\$this-\>addToModel\([^$]+\)\);)/", "$1\n\n\t\t// Mediae\n\t\t\$this->addToModel(\"mediae\", array(\n\t\t\t\"type\" => \"files\",\n\t\t\t\"label\" => \"Add media here\",\n\t\t\t\"max\" => 20,\n\t\t\t\"allowed_formats\" => \"jpg,png\",\n\t\t\t\"hint_message\" => \"Add images or videos here. Use png or jpg.\",\n\t\t\t\"error_message\" => \"Media does not fit requirements.\",\n\t\t));", $class_content, 1);
 							$class_updated = true;
 						}
 					}
 
 					if(preg_match("/editSingleMedia\(\\\$item/", $template_content)) {
-						if(!isset($model_entities["single_media"])) {
+
+						// Check for custom variant
+						if(preg_match_all("/editSingleMedia\(\\\$item[^$]+\"variant\" \=\> \"([a-zA-Z0-9\-_]+)\"/", $template_content, $variant_match)) {
+							$this->dump($variant_match);
+							$media_variants = $variant_match[1];
+							foreach($media_variants as $media_variant) {
+
+								if(!isset($model_entities[$media_variant])) {
+									$class_content = preg_replace("/(\\\$this-\>addToModel\([^$]+\)\);)/", "$1\n\n\t\t// $media_variant media\n\t\t\$this->addToModel(\"$media_variant\", array(\n\t\t\t\"type\" => \"files\",\n\t\t\t\"label\" => \"Add media here\",\n\t\t\t\"max\" => 1,\n\t\t\t\"allowed_formats\" => \"jpg,png\",\n\t\t\t\"hint_message\" => \"Add images or videos here. Use png or jpg.\",\n\t\t\t\"error_message\" => \"Media does not fit requirements.\",\n\t\t));", $class_content, 1);
+									$class_updated = true;
+								}
+
+							}
+						}
+						// Default variant
+						else if(!isset($model_entities["single_media"])) {
 							$class_content = preg_replace("/(\\\$this-\>addToModel\([^$]+\)\);)/", "$1\n\n\t\t// Single media\n\t\t\$this->addToModel(\"single_media\", array(\n\t\t\t\"type\" => \"files\",\n\t\t\t\"label\" => \"Add media here\",\n\t\t\t\"max\" => 1,\n\t\t\t\"allowed_formats\" => \"jpg,png\",\n\t\t\t\"hint_message\" => \"Add images or videos here. Use png or jpg.\",\n\t\t\t\"error_message\" => \"Media does not fit requirements.\",\n\t\t));", $class_content, 1);
 							$class_updated = true;
 						}
