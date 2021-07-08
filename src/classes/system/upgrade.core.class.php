@@ -150,7 +150,7 @@ class UpgradeCore extends Model {
 
 			}
 
-			// Run any project specific pre-upgade tasks
+			// Run any project specific post-upgade tasks
 			if(method_exists($this, "postUpgrade")) {
 				$this->postUpgrade();
 			}
