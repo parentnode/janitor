@@ -129,37 +129,47 @@ class TypeMembership extends Itemtype {
 		$SC = new Shop;
 		$IC = new Items;
 		$query = new Query;
+		global $page;
 
-		foreach($cart["items"] as $cart_item) {
-			
-			$existing_item = $IC->getItem(["id" => $cart_item["item_id"]]);
+		// get membership cart_item(s)
+		$sql = "SELECT cart_items.* FROM ".SITE_DB.".shop_cart_items AS cart_items JOIN ".SITE_DB.".items AS items ON items.id = cart_items.item_id WHERE items.itemtype = 'membership' AND cart_items.cart_id = ".$cart["id"];
 
-			// debug([$existing_item]);
-			// another membership type already exists in cart
-			if($existing_item["itemtype"] == "membership" && $existing_item["id"] != $added_item["id"]) {
+		if($query->sql($sql)) {
+			$results = $query->results();
 
-				// keep the newest membership item
-				$SC->deleteFromCart(["deleteFromCart", $cart["cart_reference"], $cart_item["id"]]);
+			// only 1 membership cart_item was found in cart
+			if(count($results) === 1) {
+				
+				// membership cart_item has quantity above 1
+				if($query->result(0, "quantity") > 1) {
+
+					// set membership cart_item quantity to 1 
+					$sql = "UPDATE ".SITE_DB.".shop_cart_items SET quantity = 1 WHERE item_id = ".$added_item["id"]." AND cart_id = ".$cart["id"];
+					$query->sql($sql);
+	
+					message()->addMessage("Can't update quantity. A Membership can only have a quantity of 1.", ["type" => "error"]);
+				}
+			}
+			// several membership cart_items were found in cart
+			elseif(count($results) > 1) {
+				
+				// find most recently added cart_item (highest cart_item_id)
+				$max_cart_item_id = max(array_column($results, "id"));
+
+				// delete all membership cart_items except most recently added
+				$sql = "DELETE ".SITE_DB.".shop_cart_items FROM ".SITE_DB.".shop_cart_items INNER JOIN ".SITE_DB.".items i ON i.id = ".SITE_DB.".shop_cart_items.item_id WHERE ".SITE_DB.".shop_cart_items.cart_id = ".$cart["id"]." AND i.itemtype = 'membership' AND ".SITE_DB.".shop_cart_items.id != ".$max_cart_item_id;
+				if($query->sql($sql)) {
+					$page->addLog("membership->addedToCart: enforce single membership in cart - keep only cart_item_id:".$max_cart_item_id);
+				}
+
+				// set remaining membership cart_item quantity to 1 
+				$sql = "UPDATE ".SITE_DB.".shop_cart_items SET quantity = 1 WHERE item_id = ".$added_item["id"]." AND cart_id = ".$cart["id"];
+				$query->sql($sql);
 
 			}
 		}
 
-		// check quantity
-		$sql = "SELECT quantity FROM ".SITE_DB.".shop_cart_items WHERE item_id = ".$added_item["id"]." AND cart_id = ".$cart["id"];
-		if($query->sql($sql) && $query->result(0, "quantity") > 1) {
 
-			// ensure that membership item has quantity of 1 
-			$sql = "UPDATE ".SITE_DB.".shop_cart_items SET quantity = 1 WHERE item_id = ".$added_item["id"]." AND cart_id = ".$cart["id"];
-			// print $sql;
-			$query->sql($sql);
-
-			message()->addMessage("Can't update quantity. A Membership can only have a quantity of 1.", ["type" => "error"]);
-		}  
-		
-
-
-
-		global $page;
 		$page->addLog("membership->addedToCart: added_item:".$added_item_id);
 
 	}
