@@ -145,6 +145,7 @@ class UpgradeCore extends Model {
 				$this->updateUserSubscriptionPaymentMethods08();
 				$this->updateActivationReminders08();
 				$this->addBillingNameToOrders08();
+				$this->renameTaglistTable08();
 				
 				$this->removeDeletedItemsFromOrderItems08();
 
@@ -2308,6 +2309,19 @@ class UpgradeCore extends Model {
 
 		}
 
+	}
+
+	function renameTaglistTable08() {
+
+		if((defined("SITE_ITEMS") && SITE_ITEMS)) {
+
+			$taglist_table = $this->tableInfo(SITE_DB.".taglist");
+			if($taglist_table) {
+
+				$this->process($this->renameTable(SITE_DB.".taglist", "taglists"));
+
+			}
+		}
 	}
 
 	// Replace all user-emails with ADMIN_EMAIL

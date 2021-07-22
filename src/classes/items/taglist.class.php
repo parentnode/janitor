@@ -22,6 +22,10 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 		$this->db_taglist_tags = SITE_DB.".taglist_tags"; // table of references could be named anything instead of db_taglist_tags
 		$this->db_tags = SITE_DB.".tags";
 
+		$query = new Query();
+		$query->checkDbExistence($this->db);
+		$query->checkDbExistence($this->db_taglist_tags);
+
 		$this->addToModel("name", array(
 			"type" => "string",
 			"label" => "Name",
