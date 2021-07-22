@@ -18,8 +18,8 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 		parent::__construct(get_class());
 
-		$this->db = SITE_DB.".taglist"; // Conventionally we write the base table name db
-		$this->db_taglist_tags = SITE_DB.".taglist_tags"; // table of references could be named anything instead of db_taglist_tags
+		$this->db = SITE_DB.".taglists";
+		$this->db_taglist_tags = SITE_DB.".taglist_tags";
 		$this->db_tags = SITE_DB.".tags";
 
 		$query = new Query();
