@@ -104,7 +104,7 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 
 				// Get tags for taglist
-				$sql = "SELECT tags.id, tags.context, tags.value FROM ".$this->db_taglist_tags.", ". $this->db_tags." WHERE taglist_tags.tag_id = tags.id AND taglist_tags.taglist_id = '".$taglist["id"]."' ORDER BY taglist_tags.position ASC";
+				$sql = "SELECT tags.id, tags.context, tags.value, taglist_tags.position FROM ".$this->db_taglist_tags." AS taglist_tags, ". $this->db_tags." AS tags WHERE taglist_tags.tag_id = tags.id AND taglist_tags.taglist_id = '".$taglist["id"]."' ORDER BY taglist_tags.position ASC";
 
 				if($query->sql($sql)) {
 					$taglist["tags"] = $query->results();
@@ -286,12 +286,10 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 	function duplicateTaglist($action) {
 
-		global $model;
-
 		if(count($action) == 2) {
 			$taglist_id = $action[1];
 
-			$taglist = $model->getTaglist(array("taglist_id" => $taglist_id));
+			$taglist = $this->getTaglist(array("taglist_id" => $taglist_id));
 			//print_r($taglist_tags);
 
 			if($taglist) {
