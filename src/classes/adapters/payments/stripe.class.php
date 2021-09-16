@@ -356,7 +356,7 @@ class JanitorStripe {
 
 					$query = new Query();
 					// Delete this payment method from subscriptions
-					$sql = "DELETE FROM ".SITE_DB.".user_gateway_stripe_subscription_payment_method WHERE payment_method_id = ".$user_payment_method_id;
+					$sql = "DELETE FROM ".SITE_DB.".user_gateway_stripe_subscription_payment_method WHERE payment_method_id = '".$user_payment_method_id."'";
 					$query->sql($sql);
 
 					
@@ -1260,6 +1260,9 @@ class JanitorStripe {
 					}
 				}
 
+				// use payment_method for any subscription that is missing a payment_method.
+				$this->restoreMissingSubscriptionPaymentMethods($order["user_id"], $payment_method_id);
+
 				return ["status" => "success"];
 
 			}
@@ -1332,7 +1335,6 @@ class JanitorStripe {
 
 				$query = new Query();
 
-
 				// Save payment_method for subscriptions
 				$query->checkDBExistence(SITE_DB.".user_gateway_stripe_subscription_payment_method");
 				$sql = "SELECT id FROM ".SITE_DB.".user_item_subscriptions WHERE order_id = ".$order["id"];
@@ -1353,6 +1355,9 @@ class JanitorStripe {
 					}
 				}
 
+				// use payment_method for any subscription that is missing a payment_method.
+				$this->restoreMissingSubscriptionPaymentMethods($order["user_id"], $payment_method_id);
+				
 				return ["status" => "success", "payment_intent" => $payment_intent];
 
 			}
@@ -1399,6 +1404,35 @@ class JanitorStripe {
 
 			$this->exceptionHandler("PaymentIntent::update", $exception);
 			return $this->exceptionResponder($exception);
+		}
+
+		return false;
+
+	}
+
+	function restoreMissingSubscriptionPaymentMethods($user_id, $payment_method_id) {
+		
+		$query = new Query();
+
+		// get user subscriptions without payment_method
+		$sql = "
+		SELECT uis.* 
+		FROM ".SITE_DB.".user_item_subscriptions uis 
+			LEFT JOIN ".SITE_DB.".user_gateway_stripe_subscription_payment_method ugssm ON uis.id = ugssm.subscription_id
+		WHERE 
+			uis.user_id = $user_id
+			AND ugssm.subscription_id IS NULL";
+		if($query->sql($sql)) {
+
+			$subscriptions_without_payment_methods = $query->results();
+			foreach ($subscriptions_without_payment_methods as $subscription) {
+				
+				// insert payment_method
+				$sql = "INSERT INTO ".SITE_DB.".user_gateway_stripe_subscription_payment_method SET user_id=$user_id, subscription_id=".$subscription["id"].", payment_method_id = '$payment_method_id'";
+				$query->sql($sql);
+			}
+			
+			return true;
 		}
 
 		return false;

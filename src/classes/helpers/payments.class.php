@@ -275,6 +275,19 @@ class PaymentGateway {
 
 	}
 
+	function restoreMissingSubscriptionPaymentMethods($user_id, $payment_intent_id) {
+		// debug(["registerPaymentIntent payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->restoreMissingSubscriptionPaymentMethods($user_id, $payment_intent_id);
+		}
+
+	}
+
 	function registerPayment($order, $payment_intent) {
 		// debug(["registerPayment payments"]);
 
