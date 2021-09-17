@@ -1503,7 +1503,7 @@ class JanitorStripe {
 
 			// if user has any subscription that is missing a payment_method, use this payment_method
 			if($key === 0) {
-				payments()->restoreMissingSubscriptionPaymentMethods($order["user_id"], $payment_method_id);
+				payments()->restoreMissingSubscriptionPaymentMethods($order["user_id"], $payment_intent->payment_method);
 			}
 
 			$order_no_list[] = $order["order_no"];
