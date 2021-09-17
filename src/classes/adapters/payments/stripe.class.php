@@ -1499,7 +1499,12 @@ class JanitorStripe {
 		$order_no_list = [];
 		$accounting = $payment_intent->amount_received/100;
 
-		foreach($orders as $order) {
+		foreach($orders as $key => $order) {
+
+			// if user has any subscription that is missing a payment_method, use this payment_method
+			if($key === 0) {
+				payments()->restoreMissingSubscriptionPaymentMethods($order["user_id"], $payment_method_id);
+			}
 
 			$order_no_list[] = $order["order_no"];
 			$remaining_order_price = $SC->getRemainingOrderPrice($order["id"]);
