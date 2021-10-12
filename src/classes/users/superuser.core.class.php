@@ -1284,17 +1284,20 @@ class SuperUserCore extends User {
 			$sql = "SELECT * FROM $this->db_payment_methods WHERE payment_method_id = $payment_method_id AND user_id = $user_id";
 			// debug([$sql]);
 			if($query->sql($sql)) {
-				return true;
+
+				$user_payment_method_id = $query->result(0, "id");
+				return $user_payment_method_id;			
 			}
 			else {
 
 				$sql = "INSERT INTO $this->db_payment_methods SET payment_method_id = $payment_method_id, user_id = $user_id, default_method = 1";
 				// debug([$sql]);
 				if($query->sql($sql)) {
+					
+					$user_payment_method_id = $query->lastInsertId();
 					// message()->addMessage("PaymentMethod added");
-					return true;
+					return $user_payment_method_id;
 				}
-
 			}
 		}
 
