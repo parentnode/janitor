@@ -1107,10 +1107,10 @@ class HTMLCore {
 		global $page;
 
 		if($link === $page->url) {
-			return " selected";
+			return "selected";
 		}
 		else if($link && $link !== "/" && strpos($page->url, $link) !== false) {
-			return " path";
+			return "path";
 		}
 		return "";
 	}
