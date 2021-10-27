@@ -131,7 +131,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		</dl>
 	</div>
 
-	<div class="comment i:collapseHeader i:editDataSection">
+	<div class="comment i:collapseHeader i:editComment">
 		<h2>Comment</h2>
 		<? /*if($order["status"] == 0):*/ ?>
 		<?= $model->formStart("/janitor/admin/shop/updateOrderComment/".$order_id, array("class" => "labelstyle:inject")) ?>
