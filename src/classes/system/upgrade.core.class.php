@@ -323,6 +323,20 @@ class UpgradeCore extends Model {
 			$query->updateDbVersion($this->current_janitor_version);
 
 
+			// Clear cache to ensure updated values are available
+			cache()->reset("languages");
+			cache()->reset("countries");
+			cache()->reset("currencies");
+			cache()->reset("vatrates");
+			cache()->reset("price_types");
+			cache()->reset("subscription_methods");
+			cache()->reset("payment_methods");
+			cache()->reset("maillists");
+
+			cache()->reset("ffmpeg_path");
+			cache()->reset("ffmpeg_aac");
+			cache()->reset("wkhtmlto_path");
+
 
 			// Upgrade complete
 			print '<li class="done">UPGRADE COMPLETE</li>';
