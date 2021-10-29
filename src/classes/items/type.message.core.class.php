@@ -410,10 +410,14 @@ class TypeMessageCore extends Itemtype {
 				}
 
 			}
-			// get HTML from updated DOM
-			$html = $DC->saveHTML($dom_layout);	
-		}
 
+			// get HTML from updated DOM
+			$html = $DC->saveHTML($dom_layout);
+
+			// Remove double encodings, to counter double encoding issue when merging to DOMs
+			$html = preg_replace("/&amp;([#0-9a-zA-Z]{2,6};)/", "&$1", $html);
+
+		}
 
 		return $html;
 
