@@ -445,7 +445,7 @@ class MemberCore extends Model {
 									$subscription = $SubscriptionClass->getSubscriptions(array("subscription_id" => $member["subscription_id"]));
 									
 									// update subscription data (item id, order_id, expires_at)
-									$sql = "UPDATE ".$SubscriptionClass->db_subscriptions. " SET item_id = $item_id, order_id = ".$order["id"];
+									$sql = "UPDATE ".$SubscriptionClass->db_subscriptions. " SET item_id = $item_id, order_id = ".$order["id"].", custom_price = NULL";
 	
 									$expires_at = false;
 									if($item["subscription_method"]) {
