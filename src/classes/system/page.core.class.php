@@ -27,8 +27,8 @@ class PageCore {
 
 
 	// current action - used for access validation
-	private $actions;
-	private $permissions;
+	protected $actions;
+	protected $permissions;
 
 
 	// page output variables
