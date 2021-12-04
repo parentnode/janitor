@@ -1649,7 +1649,7 @@ class PageCore {
 				}
 				// user wasn't logged in, it's probably a timeout issue
 				else if($_SERVER["HTTP_REFERER"]) {
-					message()->addMessage("Your session may have expired or it has been confused by multiple simultaneaous logins. Please try again.", array("type" => "error"));
+					message()->addMessage("Your session may have expired or it has been confused by multiple simultaneous logins. Please try again.", array("type" => "error"));
 					header("Location:". $_SERVER["HTTP_REFERER"]);
 					exit();
 				}
