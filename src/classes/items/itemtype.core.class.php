@@ -170,7 +170,7 @@ class ItemtypeCore extends Model {
 
 
 				$query->sql("UPDATE ".UT_ITEMS." SET status = $status WHERE id = $item_id");
-				message()->addMessage("Item ".$this->status_states[$status]);
+				message()->addMessage(translate("Item ".$this->status_states[$status]));
 				
 				// add callback to 'enabled' and/or 'disabled', if available
 				if($status === "1" && method_exists($model, "enabled")) {

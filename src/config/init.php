@@ -69,6 +69,11 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 		exit();
 	}
 
+
+	// Load message texts
+	include_once("config/texts-".$page->language().".php");
+
+
 	include_once("classes/system/html.janitor.core.class.php");
 	include_once("classes/system/html.janitor.class.php");
 

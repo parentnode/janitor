@@ -800,6 +800,17 @@ function wkhtmltoPath() {
 }
 
 
+// Enable dynamic message texts
+function translate($id) {
+	global $__translations;
+	
+	if(isset($__translations[$id])) {
+		return $__translations[$id];
+	}
+	
+	return $id;
+}
+
 // Shorthand auto initializer for mailer access
 $__mmm = false;
 function mailer() {
