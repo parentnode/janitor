@@ -71,7 +71,7 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 
 
 	// Load message texts
-	include_once("config/texts-".$page->language().".php");
+	include_once("config/texts-".strtolower($page->language()).".php");
 
 
 	include_once("classes/system/html.janitor.core.class.php");
