@@ -338,7 +338,7 @@ class HTMLCore {
 		$_ = '';
 
 
-		$for = stringOr($id, "input_".preg_replace("/\[\]/", "", $name));
+		$for = stringOr($id, "input_".preg_replace("/\[|\]/", "", $name));
 		$att_id = $this->attribute("id", $for);
 		$att_name = $this->attribute("name", $name);
 
