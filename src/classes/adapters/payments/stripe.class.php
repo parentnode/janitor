@@ -361,7 +361,7 @@ class JanitorStripe {
 
 					
 					global $page;
-					$page->addLog("Payment method removed: customer_id:".$customer_id.", user_payment_method_id:".$user_payment_method_id, "stripe");
+					$page->addLog("Payment method removed: user_id:$user_id, customer_id:".$customer_id.", user_payment_method_id:".$user_payment_method_id, "stripe");
 					return true;
 				}
 
