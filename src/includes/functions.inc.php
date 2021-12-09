@@ -857,6 +857,17 @@ function qr_codes() {
 	return $__qrc;
 }
 
+// Shorthand auto initializer for sms gateway access
+$__sms = false;
+function sms() {
+	global $__sms;
+	if(!$__sms) {
+		include_once("classes/helpers/sms.class.php");
+		$__sms = new SMSGateway();
+	}
+	return $__sms;
+}
+
 // Shorthand auto initializer for performance access
 $__perf = false;
 function perf() {
