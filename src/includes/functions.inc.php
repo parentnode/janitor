@@ -812,14 +812,14 @@ function translate($id) {
 }
 
 // Shorthand auto initializer for mailer access
-$__mmm = false;
+$__mail = false;
 function mailer() {
-	global $__mmm;
-	if(!$__mmm) {
+	global $__mail;
+	if(!$__mail) {
 		include_once("classes/helpers/mailer.class.php");
-		$__mmm = new MailGateway();
+		$__mail = new MailGateway();
 	}
-	return $__mmm;
+	return $__mail;
 }
 
 
@@ -836,25 +836,25 @@ function DOM() {
 
 
 // Shorthand auto initializer for payment access
-$__ppp = false;
+$__pay = false;
 function payments() {
-	global $__ppp;
-	if(!$__ppp) {
+	global $__pay;
+	if(!$__pay) {
 		include_once("classes/helpers/payments.class.php");
-		$__ppp = new PaymentGateway();
+		$__pay = new PaymentGateway();
 	}
-	return $__ppp;
+	return $__pay;
 }
 
 // Shorthand auto initializer for qr code generator access
-$__qrc = false;
+$__qr = false;
 function qr_codes() {
-	global $__qrc;
-	if(!$__qrc) {
+	global $__qr;
+	if(!$__qr) {
 		include_once("classes/helpers/qr_codes.class.php");
-		$__qrc = new QrCodesGateway();
+		$__qr = new QrCodesGateway();
 	}
-	return $__qrc;
+	return $__qr;
 }
 
 // Shorthand auto initializer for sms gateway access
