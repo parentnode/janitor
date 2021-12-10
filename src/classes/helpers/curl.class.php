@@ -4,7 +4,41 @@ class CurlRequest {
 
 	private $ch;
 
-	public function init($params) {
+	public function init($_options = false) {
+
+		$header = false;
+		$method = "GET";
+		$useragent = false;
+		$referer = false;
+		$cookie = false;
+		$cookiejar = false;
+
+		$inputs = false;
+
+		// overwrite model/defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "header"           : $header            = $_value; break;
+
+					case "method"           : $method            = $_value; break;
+					case "useragent"        : $useragent         = $_value; break;
+
+					case "referer"          : $referer           = $_value; break;
+					case "cookie"           : $cookie            = $_value; break;
+					case "cookiejar"        : $cookiejar         = $_value; break;
+
+					case "inputs"           : $inputs            = $_value; break;
+
+					// Backwards compatibility
+					case "post_fields"      : $inputs            = $_value; break;
+
+				}
+			}
+		}
+
+		
 
 		$this->ch = curl_init();
 
@@ -17,33 +51,33 @@ class CurlRequest {
 
 		@curl_setopt($this->ch, CURLOPT_COOKIEFILE, "");
  
-		if(isset($params['header']) && $params['header']) {
-			@curl_setopt($this->ch, CURLOPT_HTTPHEADER, $params['header']);
+		if($header) {
+			@curl_setopt($this->ch, CURLOPT_HTTPHEADER, $header);
 		}
 
-		if($params['method'] == "HEAD") {
+		if($method == "HEAD") {
 			@curl_setopt($this->ch, CURLOPT_NOBODY, 1);
 		}
 
-		if(isset($params['useragent'])) {
-			@curl_setopt($this->ch, CURLOPT_USERAGENT, $params['useragent']);
+		if($useragent) {
+			@curl_setopt($this->ch, CURLOPT_USERAGENT, $useragent);
 		}
 
-		if($params['method'] == "POST") {
+		if($method == "POST") {
 			@curl_setopt($this->ch, CURLOPT_POST, true);
-			@curl_setopt($this->ch, CURLOPT_POSTFIELDS, $params['post_fields']);
+			@curl_setopt($this->ch, CURLOPT_POSTFIELDS, $inputs);
 		}
 
-		if(isset($params['referer'])) {
-			@curl_setopt($this->ch, CURLOPT_REFERER, $params['referer']);
+		if($referer) {
+			@curl_setopt($this->ch, CURLOPT_REFERER, $referer);
 		}
 
-		if(isset($params['cookie'])) {
-			@curl_setopt($this->ch, CURLOPT_COOKIE, $params['cookie']);
+		if($cookie) {
+			@curl_setopt($this->ch, CURLOPT_COOKIE, $cookie);
 		}
 		
-		if(isset($params['cookiejar'])) {
-			@curl_setopt($this->ch, CURLOPT_COOKIEJAR, $params['cookiejar']);
+		if($cookiejar) {
+			@curl_setopt($this->ch, CURLOPT_COOKIEJAR, $cookiejar);
 		}
 	}
 
@@ -104,4 +138,13 @@ class CurlRequest {
 		return $result;
 
 	}
+
+	// Combined init and execution, for full request
+	public function request($url, $_options = []) {
+
+		$this->init($_options);
+		return $this->exec($url, $_options);
+
+	}
+	
 }

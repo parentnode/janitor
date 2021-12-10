@@ -868,6 +868,17 @@ function sms() {
 	return $__sms;
 }
 
+// curl
+$__curl = false;
+function curl() {
+	global $__curl;
+	if(!$__curl) {
+		include_once("classes/helpers/curl.class.php");
+		$__curl = new CurlRequest();
+	}
+	return $__curl;
+}
+
 // Shorthand auto initializer for performance access
 $__perf = false;
 function perf() {
