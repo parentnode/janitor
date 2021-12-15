@@ -405,7 +405,7 @@ class SuperUserCore extends User {
 
 		}
 
-		message()->addMessage("No user session found", array("type" => "error"));
+		message()->addMessage("No user session found");
 		return false;
 
 	}
