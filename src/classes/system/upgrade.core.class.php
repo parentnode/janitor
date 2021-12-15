@@ -1487,6 +1487,11 @@ class UpgradeCore extends Model {
 		if($itemtype_classes) {
 			foreach($itemtype_classes as $itemtype_class) {
 
+				// Allowed overwrite classes in items folder
+				if(preg_match("/(items|itemtyp.|tag|taglist)\./", $itemtype_class)) {
+					continue;
+				}
+
 				preg_match("/type\.([A-Za-z]+)\.class/", $itemtype_class, $match);
 				$itemtype["name"] = $match[1];
 				$itemtype["classfile"] = $itemtype_class;
