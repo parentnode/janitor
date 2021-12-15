@@ -35,7 +35,7 @@ class MailGateway {
 
 		if(!$this->adapter) {
 
-			if(preg_match("/^mailgun$/i", $this->_settings["type"])) {
+			if($this->_settings && preg_match("/^mailgun$/i", $this->_settings["type"])) {
 
 				@include_once("classes/adapters/mailer/mailgun.class.php");
 				$this->adapter = new JanitorMailgun($this->_settings);
