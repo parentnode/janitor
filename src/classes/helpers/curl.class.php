@@ -55,7 +55,7 @@ class CurlRequest {
 			@curl_setopt($this->ch, CURLOPT_HTTPHEADER, $header);
 		}
 
-		if($method == "HEAD") {
+		if(strtoupper($method) == "HEAD") {
 			@curl_setopt($this->ch, CURLOPT_NOBODY, 1);
 		}
 
@@ -63,7 +63,7 @@ class CurlRequest {
 			@curl_setopt($this->ch, CURLOPT_USERAGENT, $useragent);
 		}
 
-		if($method == "POST") {
+		if(strtoupper($method) == "POST") {
 			@curl_setopt($this->ch, CURLOPT_POST, true);
 			@curl_setopt($this->ch, CURLOPT_POSTFIELDS, $inputs);
 		}
