@@ -1267,7 +1267,12 @@ class ItemsCore {
 
 					if($searchable_column) {
 						$sql = "SELECT DISTINCT items.id as id, itemtypes.item_id as item_id, items.itemtype as itemtype, items.sindex as sindex, items.published_at as published_at, items.modified_at as modified_at, itemtypes.name as name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') as searchable_string FROM ".SITE_DB.".item_".$pattern["itemtype"]." as itemtypes, ".UT_ITEMS." as items WHERE items.id = itemtypes.item_id";
-						if($pattern["where"]) {
+
+						if(isset($pattern["status"])) {
+							$sql .= " AND items.status = " .$pattern["status"];
+						}
+
+						if(isset($pattern["where"])) {
 							$sql .= " AND (".$pattern["where"].")";
 						}
 						$itemtype_queries[] = $sql;
@@ -1306,7 +1311,12 @@ class ItemsCore {
 
 							if($searchable_column) {
 								$sql = "SELECT DISTINCT items.id as id, itemtypes.item_id as item_id, items.itemtype as itemtype, items.sindex as sindex, items.published_at as published_at, items.modified_at as modified_at, itemtypes.name as name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') as searchable_string FROM ".SITE_DB.".item_".$itemtype." as itemtypes, ".UT_ITEMS." as items WHERE items.id = itemtypes.item_id";
-								if($pattern["where"]) {
+
+								if(isset($pattern["status"])) {
+									$sql .= " AND items.status = " .$pattern["status"];
+								}
+
+								if(isset($pattern["where"])) {
 									$sql .= " AND (".$pattern["where"].")";
 								}
 								$itemtype_queries[] = $sql;
