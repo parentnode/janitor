@@ -81,7 +81,7 @@ class PageCore {
 			$this->logIn();
 		}
 		// login in progress
-		if(getVar("token")) {
+		if(getVar("token") && getVar("username")) {
 			$this->tokenLogIn();
 		}
 		// logoff
@@ -1955,7 +1955,7 @@ class PageCore {
 				session()->reset("user_group_permissions");
 				session()->value("user_nickname", $query->result(0, "nickname"));
 
-				$this->addLog("Token login: ".$username ." (".session()->value("user_id").")");
+				$this->addLog("Token login, username: ".$username .", user_id:".session()->value("user_id"));
 
 				// set new csrf token for user
 				session()->value("csrf", gen_uuid());
@@ -1973,7 +1973,7 @@ class PageCore {
 			}
 		}
 
-		$this->addLog("Token login error: ".$username);
+		$this->addLog("Token login error, username: ".$username);
 
 		message()->addMessage("Computer says NO!", array("type" => "error"));
 		return false;
