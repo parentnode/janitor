@@ -22,6 +22,17 @@ global $upgrade_model;
 
 	</div>
 
+	<div class="option">
+		<h3>Reduce version history</h3>
+		<p>
+			View and delete version history
+		</p>
+		<ul class="actions">
+			<li class="check"><a href="/janitor/admin/setup/upgrade/version_history" class="button primary">Version history overview</a></li>
+		</ul>
+
+	</div>
+
 <? if(preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL)):
 	// initialize mailer to make ADMIN_EMAIL available
 		mailer();

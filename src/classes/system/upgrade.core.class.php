@@ -1767,7 +1767,6 @@ class UpgradeCore extends Model {
 		}
 
 	}
-	
 
 	function updateUserSubscriptionPaymentMethods08() {
 		
@@ -2456,6 +2455,54 @@ class UpgradeCore extends Model {
 
 //		print_r($items);
 
+	}
+
+	function deleteOneYearOldVersionHistoryForTable($action) {
+
+		$table = getPost("table");
+
+		$query = new Query();
+
+		if(preg_match("/_versions$/", $table)) {
+			$sql = "DELETE FROM ".SITE_DB.".$table WHERE versioned < '".date("Y-m-d", strtotime("-1 year"))."'";
+			if($query->sql($sql)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	function deleteOneMonthOldVersionHistoryForTable($action) {
+
+		$table = getPost("table");
+
+		$query = new Query();
+
+		if(preg_match("/_versions$/", $table)) {
+			$sql = "DELETE FROM ".SITE_DB.".$table WHERE versioned < '".date("Y-m-d", strtotime("-1 month"))."'";
+			if($query->sql($sql)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	function deleteAllVersionHistoryForTable($action) {
+
+		$table = getPost("table");
+
+		$query = new Query();
+
+		if(preg_match("/_versions$/", $table)) {
+			$sql = "DELETE FROM ".SITE_DB.".$table";
+			if($query->sql($sql)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 
