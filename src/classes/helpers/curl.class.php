@@ -6,14 +6,20 @@ class CurlRequest {
 
 	public function init($_options = false) {
 
-		$header = false;
+		$header = [];
+
 		$method = "GET";
+		$inputs = false;
+
 		$useragent = false;
 		$referer = false;
+
 		$cookie = false;
 		$cookiejar = false;
+		$cookiefile = false;
 
-		$inputs = false;
+		$debug = false;
+
 
 		// overwrite model/defaults
 		if($_options !== false) {
@@ -22,7 +28,7 @@ class CurlRequest {
 
 					case "header"           : $header            = $_value; break;
 
-					case "method"           : $method            = $_value; break;
+					case "method"           : $method            = strtoupper($_value); break;
 					case "useragent"        : $useragent         = $_value; break;
 
 					case "referer"          : $referer           = $_value; break;
@@ -30,9 +36,10 @@ class CurlRequest {
 					case "cookiejar"        : $cookiejar         = $_value; break;
 
 					case "inputs"           : $inputs            = $_value; break;
-
 					// Backwards compatibility
 					case "post_fields"      : $inputs            = $_value; break;
+
+					case "debug"            : $debug             = $_value; break;
 
 				}
 			}
@@ -43,42 +50,84 @@ class CurlRequest {
 		$this->ch = curl_init();
 
 		@curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
-		@curl_setopt($this->ch, CURLOPT_VERBOSE, 1);
 		@curl_setopt($this->ch, CURLOPT_HEADER, 1);
 		@curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, 1);
 		@curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 0);
 		@curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 0);
 
-		@curl_setopt($this->ch, CURLOPT_COOKIEFILE, "");
- 
-		if($header) {
+
+		// HEADER
+
+		// Add content length to header if fields are posted
+		if($inputs && is_string($inputs)) {
+			array_push($header, "Content-Length: " . strlen($inputs));
+		}
+		// Set header
+		if(count($header)) {
 			@curl_setopt($this->ch, CURLOPT_HTTPHEADER, $header);
 		}
 
-		if(strtoupper($method) == "HEAD") {
+
+
+		// METHOD
+
+		if($method == "HEAD") {
 			@curl_setopt($this->ch, CURLOPT_NOBODY, 1);
 		}
+		else if($method == "POST") {
+			@curl_setopt($this->ch, CURLOPT_POST, true);
+			@curl_setopt($this->ch, CURLOPT_POSTFIELDS, $inputs);
+		}
+		else if($method == "PUT") {
+			@curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method); 
+			@curl_setopt($this->ch, CURLOPT_POSTFIELDS, $inputs);
+		}
+		else if($method == "GET") {
+			@curl_setopt($this->ch, CURLOPT_HTTPGET, true);
+		}
+		// Other methods (OPTIONS, DELETE, CONNECT, etc)
+		else {
+			@curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method); 
+		}
+
+
+
+		// IDENTIFICATION
 
 		if($useragent) {
 			@curl_setopt($this->ch, CURLOPT_USERAGENT, $useragent);
 		}
-
-		if(strtoupper($method) == "POST") {
-			@curl_setopt($this->ch, CURLOPT_POST, true);
-			@curl_setopt($this->ch, CURLOPT_POSTFIELDS, $inputs);
-		}
-
 		if($referer) {
 			@curl_setopt($this->ch, CURLOPT_REFERER, $referer);
 		}
 
+
+
+		// COOKIES
+
 		if($cookie) {
 			@curl_setopt($this->ch, CURLOPT_COOKIE, $cookie);
 		}
-		
 		if($cookiejar) {
 			@curl_setopt($this->ch, CURLOPT_COOKIEJAR, $cookiejar);
 		}
+		if($cookiefile) {
+			@curl_setopt($this->ch, CURLOPT_COOKIEFILE, $cookiefile);
+		}
+
+
+		// DEBUG
+
+		if($debug) {
+			@curl_setopt($this->ch, CURLOPT_VERBOSE, 1);
+			@curl_setopt($this->ch, CURLINFO_HEADER_OUT, true);
+
+			// Output to file
+			if(defined(LOCAL_PATH)) {
+				@curl_setopt($this->ch, CURLOPT_STDERR,  fopen(LOCAL_PATH."/library/debug", "a+"));
+			}
+		}
+
 	}
 
 	public function exec($url, $_options = false) {
@@ -103,7 +152,8 @@ class CurlRequest {
 		$error = curl_error($this->ch);
 
 		if($debug) {
-			print_r($response);
+			$information = curl_getinfo($this->ch);
+			$result['information'] = $information;
 		}
 
 		$result = array(
@@ -126,14 +176,6 @@ class CurlRequest {
 		$result['last_url'] = curl_getinfo($this->ch, CURLINFO_EFFECTIVE_URL);
 		$result['cookies'] = curl_getinfo($this->ch, CURLINFO_COOKIELIST);
 
-		// Disabled because it turned out to be too restrictive for certain common use cases
-		//
-		// if($result["http_code"] == 200 && $result['last_url'] == $url) {
-		// 	return $result;
-		// }
-		// else {
-		// 	return false;
-		// }
 
 		return $result;
 
