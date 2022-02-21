@@ -1246,6 +1246,8 @@ class ItemsCore {
 
 			$itemtype_queries = [];
 
+			// debug([$pattern]);
+
 			// Specific itemtype
 			if($pattern && $pattern["itemtype"]) {
 
@@ -1272,7 +1274,7 @@ class ItemsCore {
 							$sql .= " AND items.status = " .$pattern["status"];
 						}
 
-						if(isset($pattern["where"])) {
+						if(isset($pattern["where"]) && $pattern["where"]) {
 							$sql .= " AND (".$pattern["where"].")";
 						}
 						$itemtype_queries[] = $sql;
@@ -1316,7 +1318,7 @@ class ItemsCore {
 									$sql .= " AND items.status = " .$pattern["status"];
 								}
 
-								if(isset($pattern["where"])) {
+								if(isset($pattern["where"]) && $pattern["where"]) {
 									$sql .= " AND (".$pattern["where"].")";
 								}
 								$itemtype_queries[] = $sql;
