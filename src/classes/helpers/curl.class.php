@@ -127,6 +127,9 @@ class CurlRequest {
 				@curl_setopt($this->ch, CURLOPT_STDERR,  fopen(LOCAL_PATH."/library/debug", "a+"));
 			}
 		}
+		else {
+			@curl_setopt($this->ch, CURLOPT_VERBOSE, 0);
+		}
 
 	}
 
