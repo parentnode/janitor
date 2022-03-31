@@ -145,16 +145,17 @@ class Cache {
 		}
 
 		foreach($keys as $key) {
-//			print $key."<br>\n";
+			// debug(["key", $key]);
 
 			// only list cache entries matching current site
 			if(preg_match("/^".preg_quote(SITE_URL, "/")."\-/", $key)) {
 
 				$entry = $this->cache->get($key);
-				// print $entry."<br>\n";
-				$data = $this->decodeSessionJSON($entry);
+				// debug(["entry:", $entry]);
 
-				// print_r($data);
+				$data = $this->decodeSessionJSON($entry);
+				// debug(["data:", $data]);
+
 				$entries[preg_replace("/^".preg_quote(SITE_URL, "/")."\-/", "", $key)] = $data;
 
 			}
@@ -194,16 +195,16 @@ class Cache {
 		foreach($keys as $key) {
 //			print $key."<br>\n";
 			$user = $this->cache->get($key);
-			// print_r($user);
+			// debug(["user:", $user]);
 
 			if($user) {
 
 				$data = $this->unserializeSession($user);
-				// print_r($data);
+				// debug(["data:", $data]);
 
 				// collect sessions users
 				// skip current user
-				if($data && isset($data["SV"]) && $data["SV"]["csrf"] != session()->value("csrf")) {
+				if($data && isset($data["SV"]) && isset($data["SV"]["csrf"]) && $data["SV"]["csrf"] != session()->value("csrf")) {
 
 					$values = $data["SV"];
 
