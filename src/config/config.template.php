@@ -10,6 +10,7 @@ error_reporting(E_ALL);
 
 
 define("VERSION", "###CURRENT_JANITOR_VERSION###");
+define("UI_BUILD", "###CURRENT_UI_BUILD###");
 
 
 define("SITE_UID", "###SITE_UID###");

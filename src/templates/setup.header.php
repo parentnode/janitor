@@ -13,8 +13,8 @@
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
-	<link type="text/css" rel="stylesheet" media="all" href="/janitor/admin/css/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.css?rev=0.7.9" />
-	<script type="text/javascript" src="/janitor/admin/js/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.js?rev=0.7.9"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/janitor/admin/css/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.css" />
+	<script type="text/javascript" src="/janitor/admin/js/setup/seg_<?= $this->segment(array("type" => "setup")) ?>_include.js"></script>
 </head>
 
 <body<?= $HTML->attribute("class", $this->bodyClass()) ?>>

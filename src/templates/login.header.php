@@ -17,8 +17,8 @@
 	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/lib/seg_<?= $this->segment(array("type" => "login")) ?>_include.css" />
 	<script type="text/javascript" src="/janitor/js/lib/seg_<?= $this->segment(array("type" => "login")) ?>_include.js"></script>
 <? } else { ?>
-	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/seg_<?= $this->segment(array("type" => "login")) ?>.css?rev=0.7.9" />
-	<script type="text/javascript" src="/janitor/js/seg_<?= $this->segment(array("type" => "login")) ?>.js?rev=0.7.9"></script>
+	<link type="text/css" rel="stylesheet" media="all" href="/janitor/css/seg_<?= $this->segment(array("type" => "login")) ?>.css?rev=<?= UI_BUILD ?>" />
+	<script type="text/javascript" src="/janitor/js/seg_<?= $this->segment(array("type" => "login")) ?>.js?rev=<?= UI_BUILD ?>"></script>
 <? } ?>
 </head>
 

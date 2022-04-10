@@ -1651,6 +1651,7 @@ class SetupCore extends Itemtype {
 				$file_config = file_get_contents(FRAMEWORK_PATH."/config/config.template.php");
 
 				$file_config = preg_replace("/###CURRENT_JANITOR_VERSION###/", $UP->current_janitor_version, $file_config);
+				$file_config = preg_replace("/###CURRENT_UI_BUILD###/", date("Ymd-His"), $file_config);
 
 				$file_config = preg_replace("/###SITE_UID###/", $this->get("config", "site_uid"), $file_config);
 				$file_config = preg_replace("/###SITE_NAME###/", $this->get("config", "site_name"), $file_config);

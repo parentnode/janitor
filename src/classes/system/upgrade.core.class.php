@@ -1039,6 +1039,30 @@ class UpgradeCore extends Model {
 
 		}
 
+		// Check UI build constant
+		if(!defined("UI_BUILD")) {
+
+			// Line is commented out
+			if(preg_match("/\/\/[ ]*define\(\"UI_BUILD\"/", $config_info)) {
+				$config_info = preg_replace("/\/\/[ ]*define\(\"UI_BUILD\"/", "define(\"UI_BUILD\"" , $config_info);
+			}
+			// Insert line
+			else {
+				// Insert after VERSION
+				if(preg_match("/define\(\"VERSION\"[^\n]+/", $config_info)) {
+					$config_info = preg_replace("/(define\(\"VERSION\"[^\n]+)/", "$1\ndefine(\"UI_BUILD\", \"UN-BUILD\");\n" , $config_info);
+				}
+				// Append to file
+				else {
+					$config_info .= "\ndefine(\"UI_BUILD\", \"\");\n";
+				}
+			}
+
+			$this->process(["success" => false, "message" => "Missing UI_BUILD constant added to config.php"], false);
+
+		}
+
+
 		// Correct package comment
 		$config_info = preg_replace("/package Config Dummy file/", "package Config", $config_info);
 
