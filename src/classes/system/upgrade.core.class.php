@@ -2743,7 +2743,12 @@ class UpgradeCore extends Model {
 			// Out of sync
 			else {
 
-				
+				$query = new Query();
+
+
+				// Disable key checks for upgrade process
+				$query->sql("SET GLOBAL foreign_key_checks=OFF");
+
 
 				// Drop contraints, to be able to update keys and columns freely
 				$this->process($this->dropConstraints(SITE_DB.".".$table), true);
@@ -2886,6 +2891,10 @@ class UpgradeCore extends Model {
 						}
 					}
 				}
+
+
+				// Re-enable key checks
+				$query->sql("SET GLOBAL foreign_key_checks=ON");
 
 			}
 
