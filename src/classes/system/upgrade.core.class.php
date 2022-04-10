@@ -2747,7 +2747,7 @@ class UpgradeCore extends Model {
 
 
 				// Disable key checks for upgrade process
-				$query->sql("SET GLOBAL foreign_key_checks=OFF");
+				$query->sql("SET SESSION foreign_key_checks=OFF");
 
 
 				// Drop contraints, to be able to update keys and columns freely
@@ -2894,7 +2894,7 @@ class UpgradeCore extends Model {
 
 
 				// Re-enable key checks
-				$query->sql("SET GLOBAL foreign_key_checks=ON");
+				$query->sql("SET SESSION foreign_key_checks=ON");
 
 			}
 
