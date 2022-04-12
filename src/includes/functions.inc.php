@@ -16,7 +16,9 @@ function debug($vars, $output = "print") {
 			writeToFile($var);
 		}
 		else {
+			print "<pre>";
 			print_r($var);
+			print "</pre>";
 			print "<br />\n";
 		}
 		
