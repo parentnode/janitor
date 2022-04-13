@@ -1050,7 +1050,7 @@ class UpgradeCore extends Model {
 			else {
 				// Insert after VERSION
 				if(preg_match("/define\(\"VERSION\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"VERSION\"[^\n]+)/", "$1\ndefine(\"UI_BUILD\", \"UN-BUILD\");\n" , $config_info);
+					$config_info = preg_replace("/(define\(\"VERSION\"[^\n]+)/", "$1\ndefine(\"UI_BUILD\", \"UN-BUILT\");\n" , $config_info);
 				}
 				// Append to file
 				else {
