@@ -4,9 +4,10 @@ global $model;
 
 
 $login_forward = getVar("login_forward");
-// if($login_forward) {
+if(!$login_forward && !session()->value("login_forward")) {
+	$login_forward = "/janitor";
 // 	session()->value("login_forward", $login_forward);
-// }
+}
 
 
 $username = stringOr(getPost("username"));
