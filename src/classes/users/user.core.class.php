@@ -976,19 +976,12 @@ class UserCore extends Model {
 	//				print $sql."<br>";
 					if($query->sql($sql)) {
 						
-						// send verification email to user
-						mailer()->send(array(
-							"values" => array(
-								"NICKNAME" => $nickname, 
-								"EMAIL" => $email, 
-								"VERIFICATION" => $verification_code,
-								// "PASSWORD" => $mail_password
-							), 
-							"track_clicks" => false,
-							"recipients" => $email, 
-							"template" => "verify_new_email"
-						));
-
+						if(method_exists($this, "email_created")) {
+							
+							// add callback to 'email_created'
+							// send verification email to user
+							$this->email_created($email, $verification_code);
+						}
 						
 						message()->addMessage("Email added");
 						return true;
@@ -1003,19 +996,12 @@ class UserCore extends Model {
 					if($query->sql($sql)) {
 
 
-						// send verification email to user
-						mailer()->send(array(
-							"values" => array(
-								"NICKNAME" => $nickname, 
-								"EMAIL" => $email, 
-								"VERIFICATION" => $verification_code,
-								// "PASSWORD" => $mail_password
-							), 
-							"track_clicks" => false,
-							"recipients" => $email, 
-							"template" => "verify_changed_email"
-						));
-
+						if(method_exists($this, "email_changed")) {
+							
+							// add callback to 'email_changed'
+							// send verification email to user
+							$this->email_changed($current_email, $email, $verification_code);
+						}
 
 //						message()->addMessage("Email updated");
 						return true;
@@ -1046,6 +1032,41 @@ class UserCore extends Model {
 //		message()->addMessage("Could not update email", array("type" => "error"));
 		return false;
 
+	}
+
+	function email_created($email, $verification_code) {
+
+		$user = $this->getUser();
+		
+		mailer()->send([
+			"values" => [
+				"NICKNAME" => $user["nickname"], 
+				"EMAIL" => $email, 
+				"VERIFICATION" => $verification_code,
+				// "PASSWORD" => $mail_password
+			], 
+			"track_clicks" => false,
+			"recipients" => $email, 
+			"template" => "verify_new_email"
+		]);
+	}
+
+	function email_changed($old_email, $new_email, $verification_code) {
+		
+		$user = $this->getUser();
+
+		mailer()->send(array(
+			"values" => array(
+				"NICKNAME" => $user["nickname"], 
+				"EMAIL" => $new_email, 
+				"VERIFICATION" => $verification_code,
+				// "PASSWORD" => $mail_password
+			), 
+			"track_clicks" => false,
+			"recipients" => $new_email, 
+			"template" => "verify_changed_email"
+		));
+		
 	}
 
 	// Update mobile from posted values
@@ -1239,7 +1260,7 @@ class UserCore extends Model {
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 					if($query->sql($sql)) {
 
-						// add callback to 'password_changed'
+						// add callback to 'password_created'
 						if(method_exists($this, "password_created")) {
 		
 							$this->password_created($this->getProperty("new_password", "value"));
