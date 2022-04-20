@@ -1202,6 +1202,12 @@ class UserCore extends Model {
 								$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 								if($query->sql($sql)) {
 
+									// add callback to 'password_changed'
+									if(method_exists($this, "password_changed")) {
+		
+										$this->password_changed($this->getProperty("new_password", "value"));
+									}
+
 									return true;
 								}
 							}
@@ -1232,6 +1238,12 @@ class UserCore extends Model {
 					// SAVE NEW PASSWORD
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 					if($query->sql($sql)) {
+
+						// add callback to 'password_changed'
+						if(method_exists($this, "password_created")) {
+		
+							$this->password_created($this->getProperty("new_password", "value"));
+						}
 
 						return true;
 					}
