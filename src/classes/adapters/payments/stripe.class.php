@@ -2075,7 +2075,7 @@ class JanitorStripe {
 			$error["code"] = $exception->getCode();
 		}
 
-		return ["status" => "error", "message" => $error["message"], "code" => $error["code"], "decline_code" => $error["decline_code"]];
+		return ["status" => "error", "message" => $error["message"], "code" => $error["code"], "decline_code" => isset($error["decline_code"]) ? $error["decline_code"] : false];
 	}
 
 	// Handle any stripe exception and notify Admin
