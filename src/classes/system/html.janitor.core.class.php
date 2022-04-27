@@ -780,8 +780,9 @@ class JanitorHTMLCore {
 		return $_;
 	}
 
-	// edit Comments form for edit page
+	// edit Editors form for edit page
 	function editEditors($item, $_options = false) {
+		global $IC;
 		global $model;
 
 		$class = "all_items editors i:defaultEditors i:collapseHeader";
@@ -802,7 +803,7 @@ class JanitorHTMLCore {
 		}
 
 		if(!$item_editors) {
-			$item_editors = $model->getEditors(["item_id" => $item["id"]]);
+			$item_editors = $IC->getEditors(["item_id" => $item["id"]]);
 		}
 
 		if(!$users) {

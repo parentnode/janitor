@@ -20,6 +20,8 @@ class ItemtypeCore extends Model {
 		// Construct model before adding item defaults (to allow for item defaults to override system defaults)
 		parent::__construct();
 
+		$this->db_editors = SITE_DB.".items_editors";
+		
 
 		// Default settings
 
@@ -121,6 +123,14 @@ class ItemtypeCore extends Model {
 			"error_message" => "A valid new owner must be selected."
 		));
 
+		// Editor
+		$this->addToModel("item_editor", array(
+			"type" => "integer",
+			"label" => "Item editor",
+			"hint_message" => "Choose new editor for item.",
+			"error_message" => "A valid new editor must be selected."
+		));
+		
 		// Sindex
 		$this->addToModel("item_sindex", array(
 			"type" => "string",
@@ -128,6 +138,7 @@ class ItemtypeCore extends Model {
 			"hint_message" => "Choose a specific sindex for this item. Value must be available.",
 			"error_message" => "A valid and available sindex must be specified."
 		));
+
 
 	}
 
@@ -2145,6 +2156,76 @@ class ItemtypeCore extends Model {
 		return false;
 
 	}
+
+
+	function addEditor($action) {
+		
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2 && $this->validateList(array("item_editor"))) {
+
+
+			$item_id = $action[1];
+			$query = new Query();
+			$UC = new User();
+
+			// make sure type tables exist
+			$query->checkDbExistence($this->db_editors);
+
+			$item_editor = $this->getProperty("item_editor", "value");
+			
+			if(!$query->sql("SELECT id FROM ".$this->db_editors." WHERE user_id = $item_editor AND item_id = $item_id")) {
+				$sql = "INSERT INTO ".$this->db_editors." SET user_id = $item_editor, item_id = $item_id";
+				// debug([$sql]);
+
+				if($query->sql($sql)) {
+					message()->addMessage("Editor added");
+
+					$editor_id = $query->lastInsertId();
+					$user = $UC->getUserInfo(["user_id" => $item_editor]);
+					return [
+						"id" => $editor_id,
+						"user_id" => $item_editor,
+						"nickname" => $user["nickname"],
+					];
+				}
+			}
+			else {
+				message()->addMessage("Editor already exists");
+				return true;
+			}
+
+		}
+
+		message()->addMessage("Editor could not be added", array("type" => "error"));
+		return false;
+
+	}
+
+
+	// Remove editor
+	// /janitor/admin/event/removeEditor
+	function removeEditor($action) {
+
+		if(count($action) == 1) {
+
+			$editor_id = getPost("editor_id");
+			$query = new Query();
+
+			$sql = "DELETE FROM $this->db_editors WHERE id = ".$editor_id;
+			// debug([$sql]);
+
+			if($query->sql($sql)) {
+				message()->addMessage("Editor removed");
+				return true;
+			}
+
+		}
+
+		return false;
+	}
+
 
 	function addedToCart($added_item, $cart) {
 		

@@ -34,6 +34,9 @@ define("UT_ITEMS_PRICES",               SITE_DB.".items_prices");               
 // SUBSCRIPTION METHOD
 define("UT_ITEMS_SUBSCRIPTION_METHOD",  SITE_DB.".items_subscription_method");         // Items Subscription method
 
+// EDITORS
+define("UT_ITEMS_EDITORS",				SITE_DB.".items_editors");				       // Items Editors
+
 
 
 // TAGS

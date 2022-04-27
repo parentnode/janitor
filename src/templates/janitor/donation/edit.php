@@ -51,5 +51,7 @@ $messages = $IC->getItems(array("itemtype" => "message", "tags" => "message:Dona
 	<?= $JML->editDeveloperSettings($item) ?>
 
 	<?= $JML->editOwner($item) ?>
+	
+	<?= $JML->editEditors($item) ?>
 
 </div>

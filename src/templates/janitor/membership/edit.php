@@ -48,4 +48,6 @@ $messages = $IC->getItems(array("itemtype" => "message", "extend" => true));
 
 	<?= $JML->editOwner($item) ?>
 
+	<?= $JML->editEditors($item) ?>
+
 </div>

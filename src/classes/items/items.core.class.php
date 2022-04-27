@@ -216,6 +216,7 @@ class ItemsCore {
 			$comments = false;
 			$subscription_method = false;
 			$dependencies = false;
+			$editors = false;
 
 			$user = false;
 			$readstate = false;
@@ -235,6 +236,7 @@ class ItemsCore {
 						case "comments"              : $comments                = $_value; break;
 						case "subscription_method"   : $subscription_method     = $_value; break;
 						case "dependencies"          : $dependencies            = $_value; break;
+						case "editors"               : $editors                 = $_value; break;
 
 						case "user"                  : $user                    = $_value; break;
 						case "readstate"             : $readstate               = $_value; break;
@@ -263,6 +265,11 @@ class ItemsCore {
 			// add comments
 			if($all || $comments) {
 				$item["comments"] = $this->getComments(array("item_id" => $item["id"]));
+			}
+
+			// add editors
+			if($all || $editors) {
+				$item["editors"] = $this->getEditors(array("item_id" => $item["id"]));
 			}
 
 			// add tags
@@ -571,6 +578,8 @@ class ItemsCore {
 					case "no_readstate"  : $no_readstate  = $_value; break;
 					case "user_id"       : $user_id       = $_value; break;
 
+					case "editor_id"     : $editor_id     = $_value; break;
+
 					case "exclude"       : $exclude       = $_value; break;
 
 					case "extend"        : $extend        = $_value; break;
@@ -653,6 +662,14 @@ class ItemsCore {
 
 			// add main itemtype table to enable sorting based on local values
 			$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
+		}
+
+		if(isset($editor_id)) {
+
+			$LEFTJOIN[] = SITE_DB.".items_editors AS editors ON editors.item_id = items.id";
+
+			$WHERE[] = "editors.user_id = $editor_id";
+
 		}
 
 
@@ -1998,6 +2015,42 @@ class ItemsCore {
 		}
 
 		return false;
+	}
+
+	// EDITORS
+
+	function getEditors($_options) {
+		
+
+		$item_id = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"           : $item_id            = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		$UC = new User();
+
+		// get location by id
+		if($item_id) {
+
+			$sql = "SELECT editors.id, users.id as user_id, users.nickname FROM ".UT_ITEMS_EDITORS." as editors, ".$UC->db." as users WHERE editors.item_id = $item_id AND editors.user_id = users.id";
+			// debug([$sql]);
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+
+		}
+
+		return false;
+
 	}
 
 }
