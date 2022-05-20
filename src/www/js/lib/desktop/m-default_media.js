@@ -373,7 +373,7 @@ Util.Modules["addMediaSingle"] = new function() {
 					this.addImagePreview(node);
 				}
 				else if(node.media_format.match(/^(mp3|ogg|wav|aac)$/i)) {
-					
+
 					this.addAudioPreview(node);
 				}
 				else if(node.media_format.match(/^(mov|mp4|ogv|3gp)$/i)) {
@@ -381,7 +381,7 @@ Util.Modules["addMediaSingle"] = new function() {
 					this.addVideoPreview(node);
 				}
 				else if(node.media_format.match(/^zip$/i)) {
-					
+
 					this.addZipPreview(node);
 				}
 				else if(node.media_format.match(/^pdf$/i)) {
