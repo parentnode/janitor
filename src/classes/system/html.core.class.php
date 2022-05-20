@@ -531,8 +531,23 @@ class HTMLCore {
 					$allowed_formats = $this->getProperty($name, "allowed_formats");
 					$att_accept = $this->attribute("accept", $allowed_formats ? ".".implode(",.", explode(",", $allowed_formats)) : "");
 
+					// Image/video size validation rules
+					$min_width = $this->getProperty($name, "min_width");
+					$att_min_width = $this->attribute("data-min-width", $min_width);
+
+					$min_height = $this->getProperty($name, "min_height");
+					$att_min_height = $this->attribute("data-min-height", $min_height);
+
+					$proportions = $this->getProperty($name, "allowed_proportions");
+					$att_proportions = $this->attribute("data-allowed-proportions", $proportions);
+
+					$sizes = $this->getProperty($name, "allowed_sizes");
+					$att_sizes = $this->attribute("data-allowed-sizes", $sizes);
+
+
 					// Create file-input
-					$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_multiple.$att_accept.' />';
+					$_ .= '<input type="file"'.$att_name.$att_id.$att_disabled.$att_multiple.$att_accept.$att_min_width.$att_min_height.$att_proportions.$att_sizes.' />';
+
 
 					// List files belonging to this input
 					$_ .= '<ul class="filelist">';
