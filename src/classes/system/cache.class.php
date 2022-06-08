@@ -38,11 +38,21 @@ class Cache {
 
 
 	// Set/Get Cached value
-	function value($key, $value = false) {
+	function value($key, $value = false, $expire = false) {
 
 		// set value
 		if($value) {
-			$this->cache->set(SITE_URL."-".$key, json_encode($value));
+			if($expire) {
+				if($this->cache_type === "memcached") {
+					$this->cache->set(SITE_URL."-".$key, json_encode($value), false, $expire);
+				}
+				else {
+					$this->cache->set(SITE_URL."-".$key, json_encode($value), $expire);
+				}
+			}
+			else {
+				$this->cache->set(SITE_URL."-".$key, json_encode($value));
+			}
 		}
 		// get value
 		else {
@@ -234,6 +244,7 @@ class Cache {
 
 
 // Pseudo Caching for systems without Redis/Memcached installed
+// – expire times are not meaningful as this cache only lives through the execution of the individual request
 class PseudoCache {
 
 	private $pseudo_cache;
@@ -244,7 +255,7 @@ class PseudoCache {
 	function get($key) {
 		return isset($this->pseudo_cache[$key]) ? $this->pseudo_cache[$key] : "";
 	}
-	function set($key, $value = false) {
+	function set($key, $value = false, $expire = false) {
 		$this->pseudo_cache[$key] = $value;
 	}
 	function delete($key) {
