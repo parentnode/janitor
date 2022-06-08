@@ -43,7 +43,7 @@ $taglist = $model->getTaglist(array("taglist_id" => $taglist_id));
 
 	<div class="all_items taglist_tags i:defaultList sortable"
 			data-csrf-token="<?= session()->value("csrf") ?>"
-			data-item-order="<?= $this->validPath("/janitor/admin/taglist/updateOrder/".$taglist_id) ?>"
+			data-item-order="<?= security()->validPath("/janitor/admin/taglist/updateOrder/".$taglist_id) ?>"
 		>
 
 		<h2>Added tags</h2>

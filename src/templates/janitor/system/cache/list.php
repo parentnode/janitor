@@ -16,7 +16,7 @@ $entries = cache()->getAllDomainPairs();
 	<? if($entries): ?>
 	<div class="all_items users i:defaultList i:cacheList filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
-		data-flush-url="<?= $this->validPath("/janitor/admin/system/flushFromCache") ?>"
+		data-flush-url="<?= security()->validPath("/janitor/admin/system/flushFromCache") ?>"
 		>
 		<ul class="items">
 			<? foreach($entries as $key => $data): ?>

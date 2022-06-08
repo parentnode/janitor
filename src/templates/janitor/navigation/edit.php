@@ -87,7 +87,7 @@ function recurseNodes($nodes) {
 	</div>
 
 	<div class="all_items sortable i:navigationNodes"
-		data-item-order="<?= $this->validPath("/janitor/admin/navigation/updateOrder/".$navigation_id) ?>" 
+		data-item-order="<?= security()->validPath("/janitor/admin/navigation/updateOrder/".$navigation_id) ?>" 
 		data-csrf-token="<?= session()->value("csrf") ?>"
 	>
 		<h2>Navigation nodes</h2>

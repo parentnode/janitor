@@ -17,7 +17,7 @@ $output = new Output();
 
 
 // any actions
-if($page->validateCsrfToken() && isset($action)) {
+if(security()->validateCsrfToken() && isset($action)) {
 
 
 	// SAVE ITEM

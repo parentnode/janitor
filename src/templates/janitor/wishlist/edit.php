@@ -61,7 +61,7 @@ session()->value("return_to_wishlist", $item_id);
 		<h2>Wishes</h2>
 		<div class="all_items i:defaultList wishlist_id:<?= $item["id"]?> taggable filters sortable images width:100"
 			data-csrf-token="<?= session()->value("csrf") ?>"
-			data-item-order="<?= $this->validPath("/janitor/admin/wishlist/updateWishOrder/".$item["id"]) ?>"
+			data-item-order="<?= security()->validPath("/janitor/admin/wishlist/updateWishOrder/".$item["id"]) ?>"
 			>
 	<?		if($ordered_wishes): ?>
 			<ul class="items">

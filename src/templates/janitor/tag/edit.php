@@ -59,7 +59,7 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 					<dd class="status"><?= $item["status"] ? "enabled" : "disabled" ?></dd>
 				</dl>
 			<ul class="actions">
-<? if($this->validatePath($path."/edit")): ?>
+<? if(security()->validatePath($path."/edit")): ?>
 				<?= $model->link("Edit", $path."/edit/".$item["item_id"], array("class" => "button", "wrapper" => "li.edit")) ?>
 <? endif; ?>
 			</ul>

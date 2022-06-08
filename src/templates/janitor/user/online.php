@@ -17,7 +17,7 @@ $users = cache()->getAllDomainSessions();
 <? if(cache()->cache_type != "pseudo"): ?>
 	<div class="all_items users i:defaultList i:flushUserSession filters"
 		data-csrf-token="<?= session()->value("csrf") ?>"
-		data-flush-url="<?= $this->validPath("/janitor/admin/user/flushUserSession") ?>"
+		data-flush-url="<?= security()->validPath("/janitor/admin/user/flushUserSession") ?>"
 		>
 		<ul class="items">
 			<li class="item user_id:<?= session()->value("user_id") ?> current_user">

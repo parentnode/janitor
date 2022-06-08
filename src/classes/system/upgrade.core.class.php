@@ -56,7 +56,6 @@ class UpgradeCore extends Model {
 
 
 		global $model;
-		global $page;
 
 		$query = new Query();
 		$IC = new Items();
@@ -148,6 +147,9 @@ class UpgradeCore extends Model {
 				$this->renameTaglistTable08();
 				
 				$this->removeDeletedItemsFromOrderItems08();
+
+				$this->updateSecurityModel08();
+				$this->updateLogMethod08();
 
 			}
 
@@ -2366,6 +2368,133 @@ class UpgradeCore extends Model {
 		}
 	}
 
+	// Moved security methods to separate class
+	function updateSecurityModel08() {
+	
+		$fs = new FileSystem();
+		// get all php files in theme
+		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+		foreach($php_files as $php_file) {
+
+			$is_code_altered = false;
+			$code_lines = file($php_file);
+			foreach($code_lines as $line_no => $line) {
+
+				// Change $this->validatePath and $this->validatePath to security()->validatePath
+				if(preg_match("/\\\$(this|page)\-\>validatePath\(/", $line)) {
+
+					$line = preg_replace("/\\\$(this|page)\-\>validatePath\(/", "security()->validatePath(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (validatePath) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (validatePath) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Change $this->validPath and $this->validPath to security()->validPath
+				if(preg_match("/\\\$(this|page)\-\>validPath\(/", $line)) {
+
+					$line = preg_replace("/\\\$(this|page)\-\>validPath\(/", "security()->validPath(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (validPath) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (validPath) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Change $this->validateCsrfToken and $this->validateCsrfToken to security()->validateCsrfToken
+				if(preg_match("/\\\$(this|page)\-\>validateCsrfToken\(/", $line)) {
+
+					$line = preg_replace("/\\\$(this|page)\-\>validateCsrfToken\(/", "security()->validateCsrfToken(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (validateCsrfToken) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (validateCsrfToken) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Find logIn, logOff, throwOff and checkPermissions to throw warning
+				if(preg_match("/\\\$(this|page)\-\>(logIn|logOff|throwOff|checkPermissions)\(/", $line)) {
+
+					$this->process(["success" => false, "message" => "FOUND OLD CODE (validateCsrfToken) IN " . $php_file . " in line " . ($line_no+1)], true);
+
+				}
+
+			}
+
+			// Should we write
+			if($is_code_altered) {
+				file_put_contents($php_file, implode("", $code_lines));
+			}
+
+		}
+
+	}
+
+
+	function updateLogMethod08() {
+		// $page->addLog
+		
+		// $page->collectNotification
+
+		$fs = new FileSystem();
+		// get all php files in theme
+		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+		foreach($php_files as $php_file) {
+
+			$is_code_altered = false;
+			$code_lines = file($php_file);
+			foreach($code_lines as $line_no => $line) {
+
+				// Change $this->addLog and $this->addLog to logger()->addLog
+				if(preg_match("/\\\$(this|page)\-\>addLog\(/", $line)) {
+
+					$line = preg_replace("/\\\$(this|page)\-\>addLog\(/", "logger()->addLog(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (addLog) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (addLog) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Change $this->collectNotification and $this->collectNotification to logger()->collectNotification
+				if(preg_match("/\\\$(this|page)\-\>collectNotification\(/", $line)) {
+
+					$line = preg_replace("/\\\$(this|page)\-\>collectNotification\(/", "logger()->collectNotification(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (collectNotification) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (collectNotification) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+			}
+
+			// Should we write
+			if($is_code_altered) {
+				file_put_contents($php_file, implode("", $code_lines));
+			}
+
+		}
+
+	}
+
+
 	// Replace all user-emails with ADMIN_EMAIL
 	// to create local dev version without triggering emails to real users
 	function replaceEmails($action) {
@@ -2404,8 +2533,6 @@ class UpgradeCore extends Model {
 	}
 
 	function bulkItemRemoval($action) {
-		
-		global $page;
 
 
 		// Get posted values to make them available for models

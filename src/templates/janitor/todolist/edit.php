@@ -88,9 +88,9 @@ session()->value("return_to_todolist", $item_id);
 
 		<div class="all_items i:defaultList todolist_id:<?= $item["id"]?> filters"
 			data-csrf-token="<?= session()->value("csrf") ?>"
-			data-tag-get="<?= $this->validPath("/janitor/admin/items/tags") ?>" 
-			data-tag-delete="<?= $this->validPath("/janitor/admin/todo/deleteTag") ?>"
-			data-tag-add="<?= $this->validPath("/janitor/admin/todo/addTag") ?>"
+			data-tag-get="<?= security()->validPath("/janitor/admin/items/tags") ?>" 
+			data-tag-delete="<?= security()->validPath("/janitor/admin/todo/deleteTag") ?>"
+			data-tag-add="<?= security()->validPath("/janitor/admin/todo/addTag") ?>"
 			>
 	<?		if($todos): ?>
 			<ul class="items">

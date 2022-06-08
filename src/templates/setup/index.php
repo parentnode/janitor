@@ -45,7 +45,7 @@ else: ?>
 		</ul>
 	</div>
 
-<?	if($this->validatePath("/janitor/admin/setup/pull")): ?>
+<?	if(security()->validatePath("/janitor/admin/setup/pull")): ?>
 	<div class="option">
 		<h3>Pull project source code</h3>
 		<p>

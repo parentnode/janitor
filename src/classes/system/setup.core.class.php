@@ -1477,7 +1477,6 @@ class SetupCore extends Itemtype {
 		// only continue if all checks OK
 		if($this->checkAllSettings()) {
 
-			global $page;
 
 			// process status
 			$tasks = array("completed" => array(), "failed" => array());

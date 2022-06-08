@@ -36,7 +36,7 @@ if(is_array($action) && count($action)) {
 
 		}
 		// Class interface
-		else if($page->validateCsrfToken() && preg_match("/^(update|finish)[a-zA-Z]+/", $action[1])) {
+		else if(security()->validateCsrfToken() && preg_match("/^(update|finish)[a-zA-Z]+/", $action[1])) {
 
 			// check if custom function exists on User class
 			if($model && method_exists($model, $action[1])) {
@@ -59,7 +59,7 @@ if(is_array($action) && count($action)) {
 	// Reset install process
 	else if(preg_match("/^(pull)$/", $action[0])) {
 
-		if(getPost("pull") == "ok" && $page->validateCsrfToken()) {
+		if(getPost("pull") == "ok" && security()->validateCsrfToken()) {
 
 			$output = new Output();
 			$output->screen($model->pull());
@@ -108,7 +108,7 @@ if(is_array($action) && count($action)) {
 			$upgrade_model = new Upgrade();
 
 			// Class interface
-			if($page->validateCsrfToken() && preg_match("/^[a-zA-Z]+/", $action[1])) {
+			if(security()->validateCsrfToken() && preg_match("/^[a-zA-Z]+/", $action[1])) {
 
 				// check if custom function exists on User class
 				if($upgrade_model && method_exists($upgrade_model, $action[1])) {

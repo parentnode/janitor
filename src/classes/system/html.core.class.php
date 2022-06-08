@@ -95,40 +95,39 @@ class HTMLCore {
 	// data elements for JS interaction
 	// Using default data paths
 	function jsData($_filter = false) {
-		global $page;
 
 		$_ = '';
 
 		$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
 
 		if(!$_filter || array_search("order", $_filter) !== false) {
-			$_ .= ' data-item-order="'.$page->validPath($this->path."/updateOrder").'"'; 
+			$_ .= ' data-item-order="'.security()->validPath($this->path."/updateOrder").'"'; 
 		}
 
 		if(!$_filter || array_search("tags", $_filter) !== false) {
-			$_ .= ' data-tag-get="'.$page->validPath("/janitor/admin/items/tags").'"'; 
-			$_ .= ' data-tag-delete="'.$page->validPath($this->path."/deleteTag").'"';
-			$_ .= ' data-tag-add="'.$page->validPath($this->path."/addTag").'"';
+			$_ .= ' data-tag-get="'.security()->validPath("/janitor/admin/items/tags").'"'; 
+			$_ .= ' data-tag-delete="'.security()->validPath($this->path."/deleteTag").'"';
+			$_ .= ' data-tag-add="'.security()->validPath($this->path."/addTag").'"';
 		}
 
 		if(!$_filter || array_search("media", $_filter) !== false) {
-			$_ .= ' data-media-order="'.$page->validPath($this->path."/updateMediaOrder").'"';
-			$_ .= ' data-media-delete="'.$page->validPath($this->path."/deleteMedia").'"';
-			$_ .= ' data-media-name="'.$page->validPath($this->path."/updateMediaName").'"';
+			$_ .= ' data-media-order="'.security()->validPath($this->path."/updateMediaOrder").'"';
+			$_ .= ' data-media-delete="'.security()->validPath($this->path."/deleteMedia").'"';
+			$_ .= ' data-media-name="'.security()->validPath($this->path."/updateMediaName").'"';
 		}
 
 		if(!$_filter || array_search("comments", $_filter) !== false) {
-			$_ .= ' data-comment-update="'.$page->validPath($this->path."/updateComment").'"';
-			$_ .= ' data-comment-delete="'.$page->validPath($this->path."/deleteComment").'"';
+			$_ .= ' data-comment-update="'.security()->validPath($this->path."/updateComment").'"';
+			$_ .= ' data-comment-delete="'.security()->validPath($this->path."/deleteComment").'"';
 		}
 
 		if(!$_filter || array_search("prices", $_filter) !== false) {
-			$_ .= ' data-price-delete="'.$page->validPath($this->path."/deletePrice").'"';
+			$_ .= ' data-price-delete="'.security()->validPath($this->path."/deletePrice").'"';
 		}
 
 		if(!$_filter || array_search("qna", $_filter) !== false) {
-			$_ .= ' data-qna-update="'.$page->validPath($this->path."/updateQnA").'"';
-			$_ .= ' data-qna-delete="'.$page->validPath($this->path."/deleteQnA").'"';
+			$_ .= ' data-qna-update="'.security()->validPath($this->path."/updateQnA").'"';
+			$_ .= ' data-qna-delete="'.security()->validPath($this->path."/deleteQnA").'"';
 		}
 
 		return $_;
@@ -147,7 +146,6 @@ class HTMLCore {
 	* @return String Start Form element HTML
 	*/
 	function formStart($action, $_options = false) {
-		global $page;
 
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
@@ -155,7 +153,7 @@ class HTMLCore {
 			$action = $this->path."/".$action;
 		}
 
-		if(!$page->validatePath($action)) {
+		if(!security()->validatePath($action)) {
 			return "";
 		}
 
@@ -373,13 +371,13 @@ class HTMLCore {
 		// Special data properties for HTML field
 		if($type === "html") {
 
-			global $page;
+
 
 			// Paths for saving and deleting files
-			$att_file_add = $this->attribute("data-file-add", $page->validPath($file_add));
-			$att_file_delete = $this->attribute("data-file-delete", $page->validPath($file_delete));
-			$att_media_add = $this->attribute("data-media-add", $page->validPath($media_add));
-			$att_media_delete = $this->attribute("data-media-delete", $page->validPath($media_delete));
+			$att_file_add = $this->attribute("data-file-add", security()->validPath($file_add));
+			$att_file_delete = $this->attribute("data-file-delete", security()->validPath($file_delete));
+			$att_media_add = $this->attribute("data-media-add", security()->validPath($media_add));
+			$att_media_delete = $this->attribute("data-media-delete", security()->validPath($media_delete));
 
 		}
 
@@ -813,7 +811,6 @@ class HTMLCore {
 	* Confirm button
 	*/
 	function oneButtonForm($value, $action, $_options = false) {
-		global $page;
 
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
@@ -821,7 +818,7 @@ class HTMLCore {
 			$action = $this->path."/".$action;
 		}
 
-		if(!$page->validatePath($action)) {
+		if(!security()->validatePath($action)) {
 			return "";
 		}
 
@@ -1007,7 +1004,6 @@ class HTMLCore {
 	*/
 	function link($value, $action, $_options = false) {
 
-		global $page;
 
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
@@ -1015,7 +1011,7 @@ class HTMLCore {
 			$action = $this->path."/".$action;
 		}
 
-		if(!$page->validatePath($action)) {
+		if(!security()->validatePath($action)) {
 			return "";
 		}
 
@@ -1088,10 +1084,8 @@ class HTMLCore {
 	*/
 	function navigationLink($node) {
 
-		global $page;
-
-		if(!preg_match("/^http[s]?\:\/\//", $node["link"]) && !$page->validatePath($node["link"])) {
-			if($node["fallback"] && $page->validatePath($node["fallback"])) {
+		if(!preg_match("/^http[s]?\:\/\//", $node["link"]) && !security()->validatePath($node["link"])) {
+			if($node["fallback"] && security()->validatePath($node["fallback"])) {
 				$node["link"] = $node["fallback"];
 			} 
 			else {
@@ -1208,16 +1202,16 @@ class HTMLCore {
 // 		// get default paths if not specif
 // 		global $page;
 // 		if(!$file_add) {
-// 			$file_add = $page->validPath($this->path."/addHTMLFile");
+// 			$file_add = security()->validPath($this->path."/addHTMLFile");
 // 		}
 // 		if(!$file_delete) {
-// 			$file_delete = $page->validPath($this->path."/deleteHTMLFile");
+// 			$file_delete = security()->validPath($this->path."/deleteHTMLFile");
 // 		}
 // 		if(!$media_add) {
-// 			$media_add = $page->validPath($this->path."/addHTMLMedia");
+// 			$media_add = security()->validPath($this->path."/addHTMLMedia");
 // 		}
 // 		if(!$media_delete) {
-// 			$media_delete = $page->validPath($this->path."/deleteHTMLMedia");
+// 			$media_delete = security()->validPath($this->path."/deleteHTMLMedia");
 // 		}
 //
 // 		// paths for saving and deleting files

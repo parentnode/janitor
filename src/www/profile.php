@@ -121,7 +121,7 @@ if(is_array($action) && count($action)) {
 		}
 
 		// Member class interface
-		else if($page->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[1])) {
+		else if(security()->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[1])) {
 
 			// change model to Member
 			$model = new Member();
@@ -138,7 +138,7 @@ if(is_array($action) && count($action)) {
 		}
 	}
 	
-	else if($page->validateCsrfToken() && preg_match("/^(setPassword)$/", $action[0])  && count($action) == 1) {
+	else if(security()->validateCsrfToken() && preg_match("/^(setPassword)$/", $action[0])  && count($action) == 1) {
 		
 		$result = $model->setPassword($action);
 		$output = new Output();
@@ -154,7 +154,7 @@ if(is_array($action) && count($action)) {
 	}
 
 	// Class interface
-	else if($page->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {
+	else if(security()->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {
 
 		// check if custom function exists on User class
 		if($model && method_exists($model, $action[0])) {

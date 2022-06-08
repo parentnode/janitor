@@ -70,6 +70,9 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 	}
 
 
+	include_once("classes/system/security.class.php");
+
+
 	// Load message texts
 	include_once("config/texts-".strtolower($page->language()).".php");
 
@@ -92,6 +95,7 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 
 	include_once("classes/users/member.core.class.php");
 	include_once("classes/users/member.class.php");
+
 
 	// now only included for user controller
 	// include_once("classes/users/superuser.class.php");

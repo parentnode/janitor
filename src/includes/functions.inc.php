@@ -892,6 +892,28 @@ function perf() {
 	return $__perf;
 }
 
+// Shorthand auto initializer for security access
+$__security = false;
+function security() {
+	global $__security;
+	if(!$__security) {
+		include_once("classes/system/security.class.php");
+		$__security = new Security();
+	}
+	return $__security;
+}
+
+// Shorthand auto initializer for log access
+$__logger = false;
+function logger() {
+	global $__logger;
+	if(!$__logger) {
+		include_once("classes/system/log.class.php");
+		$__logger = new Log();
+	}
+	return $__logger;
+}
+
 
 
 /**

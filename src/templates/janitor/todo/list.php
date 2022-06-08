@@ -46,7 +46,7 @@ session()->reset("return_to_todolist");
 		<h2>Todolists</h2>
 		<div class="all_items i:defaultList filters sortable"
 			data-csrf-token="<?= session()->value("csrf") ?>"
-			data-item-order="<?= $this->validPath("/janitor/admin/todolist/updateOrder") ?>"
+			data-item-order="<?= security()->validPath("/janitor/admin/todolist/updateOrder") ?>"
 		>
 	<?		if($todolists): ?>
 			<ul class="items ">

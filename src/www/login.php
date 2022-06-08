@@ -34,7 +34,7 @@ if(is_array($action) && count($action)) {
 		exit();
 	}
 	// login/requestReset
-	else if(count($action) == 1 && $action[0] == "requestReset" && $page->validateCsrfToken()) {
+	else if(count($action) == 1 && $action[0] == "requestReset" && security()->validateCsrfToken()) {
 
 		// request password reset
 		if($model->requestPasswordReset($action)) {

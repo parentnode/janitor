@@ -412,7 +412,6 @@ class JanitorHTMLCore {
 
 	// edit owner form for edit page
 	function editOwner($item, $_options = false) {
-		global $page;
 		global $model;
 
 		$_ = '';
@@ -428,7 +427,7 @@ class JanitorHTMLCore {
 			$_ .= '<p class="current_owner">'.$owner["nickname"]."</p>";
 		$_ .= '</fieldset>';
 
-		if($page->validPath($this->path."/updateOwner")) {
+		if(security()->validPath($this->path."/updateOwner")) {
 			$owner_options = $model->toOptions($IC->getOwners(), "id", "nickname");
 
 			$_ .= '<div class="change_ownership">';
@@ -455,13 +454,12 @@ class JanitorHTMLCore {
 
 	// edit sindex form for edit page (Currently only showing sindex)
 	function editSindex($item, $_options = false) {
-		global $page;
 		global $model;
 
 		$_ = '';
 
 
-		$_ .= '<div class="sindex i:defaultSindex i:collapseHeader item_id:'.$item["id"].'" data-check-sindex="'.$page->validPath($this->path."/checkSindex/".$item["id"]).'">';
+		$_ .= '<div class="sindex i:defaultSindex i:collapseHeader item_id:'.$item["id"].'" data-check-sindex="'.security()->validPath($this->path."/checkSindex/".$item["id"]).'">';
 		$_ .= '<h2>sindex</h2>';
 		$_ .= '<p>The <em>sindex</em> is a Search engine optimized item identified, typically used in URL\'s.</p>';
 		$_ .= '<p>The <em>sindex</em> value is deducted from the item <em>name</em> when you create a new item in Janitor. While the name of the item may be updated later, the <em>sindex</em> value remains the same to avoid breaking links.</p>';
@@ -503,7 +501,6 @@ class JanitorHTMLCore {
 
 	// edit sindex form for edit page (Currently only showing sindex)
 	function editDeveloperSettings($item, $_options = false) {
-		global $page;
 		global $model;
 
 		$title = "Developer settings";
@@ -764,7 +761,7 @@ class JanitorHTMLCore {
 
 			// // does current user have global user privileged
 			// // then ok to list subscriber info
-			// if($page->validatePath("/janitor/admin/user/list")) {
+			// if($security()->validatePath("/janitor/admin/user/list")) {
 			//
 			// 	include_once("classes/users/superuser.class.php");
 			// 	$UC = new SuperUser();
@@ -1193,10 +1190,9 @@ class JanitorHTMLCore {
 	*/
 	function statusButton($enable_label, $disable_label, $action, $item, $_options = false) {
 
-		global $page;
 		global $HTML;
 
-		if(!$page->validatePath($action)) {
+		if(!security()->validatePath($action)) {
 			return "";
 		}
 
@@ -1347,12 +1343,11 @@ class JanitorHTMLCore {
 	// Current user TODOs dashboard
 	function listUserTodos() {
 		global $HTML;
-		global $page;
 
 		$_ = '';
 
 		// only show todos if user has access
-		if($page->validatePath("/janitor/admin/todo")) {
+		if(security()->validatePath("/janitor/admin/todo")) {
 			
 			$IC = new Items();
 			$model = $IC->typeObject("todo");
@@ -1385,13 +1380,12 @@ class JanitorHTMLCore {
 	// Current open questions dashboard
 	function listOpenQuestions() {
 		global $HTML;
-		global $page;
 
 
 		$_ = '';
 
 		// only show todos if user has access
-		if($page->validatePath("/janitor/admin/qna")) {
+		if(security()->validatePath("/janitor/admin/qna")) {
 
 			$IC = new Items();
 			$qnas = $IC->getItems(array("itemtype" => "qna", "where" => "qna.answer IS NULL", "extend" => true));
@@ -1431,12 +1425,11 @@ class JanitorHTMLCore {
 	// Current ORDER STATUS dashboard
 	function listOrderStatus() {
 		global $HTML;
-		global $page;
 
 		$_ = '';
 
 		// only show orders if user has access
-		if($page->validatePath("/janitor/admin/shop/order/list")) {
+		if(security()->validatePath("/janitor/admin/shop/order/list")) {
 
 			include_once("classes/shop/supershop.class.php");
 			$model = new SuperShop();
@@ -1468,14 +1461,12 @@ class JanitorHTMLCore {
 
 	// Current ORDER STATUS dashboard
 	function listMemberStatus() {
-		global $HTML;
-		global $page;
 
 		$_ = '';
 
 
 		// only show orders if user has access
-		if($page->validatePath("/janitor/admin/member/list")) {
+		if(security()->validatePath("/janitor/admin/member/list")) {
 
 			include_once("classes/users/superuser.class.php");
 			include_once("classes/users/supermember.class.php");

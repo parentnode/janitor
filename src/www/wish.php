@@ -30,7 +30,7 @@ if(is_array($action) && count($action)) {
 	}
 
 	// Class interface
-	else if($page->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {
+	else if(security()->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {
 
 		// check if custom function exists on User class
 		if($model && method_exists($model, $action[0])) {
