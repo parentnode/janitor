@@ -246,8 +246,7 @@ class TypeTicketCore extends Itemtype {
 			$user_id = $order["user_id"];
 
 
-			global $page;
-			$page->addLog("ticket->ordered: item_id:$item_id, user_id:$user_id, order_id:".$order["id"].", order_item_id:".$order_item["id"]);
+			logger()->addLog("ticket->ordered: item_id:$item_id, user_id:$user_id, order_id:".$order["id"].", order_item_id:".$order_item["id"]);
 
 
 			// Issue ticket(s)
@@ -346,8 +345,7 @@ class TypeTicketCore extends Itemtype {
 				$ticket_files[] = $this->generateTicket($item_id, $ticket_no, $batch);
 
 
-				global $page;
-				$page->addLog("ticket->issueTicket: item_id:$item_id, user_id:$user_id, order_item_id:".$order_item["id"].", quantity:".$quantity.", ticket_no:".$ticket_no.($batch ? ", batch:".$batch : ""));
+				logger()->addLog("ticket->issueTicket: item_id:$item_id, user_id:$user_id, order_item_id:".$order_item["id"].", quantity:".$quantity.", ticket_no:".$ticket_no.($batch ? ", batch:".$batch : ""));
 
 			}
 
@@ -522,8 +520,7 @@ class TypeTicketCore extends Itemtype {
 					$ticket_nos[] = $ticket_no;
 
 
-					global $page;
-					$page->addLog("ticket->reIssueTicket: item_id:".$ticket["item_id"].", user_id:".$ticket["user_id"].", order_item_id:".$order_item["id"].", quantity:".count($total_order_items).", ticket_no:".$ticket_no.($batch ? ", batch:".$batch : ""));
+					logger()->addLog("ticket->reIssueTicket: item_id:".$ticket["item_id"].", user_id:".$ticket["user_id"].", order_item_id:".$order_item["id"].", quantity:".count($total_order_items).", ticket_no:".$ticket_no.($batch ? ", batch:".$batch : ""));
 
 
 					// Send ticket email

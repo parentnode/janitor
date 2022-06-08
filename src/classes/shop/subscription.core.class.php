@@ -88,7 +88,6 @@ class SubscriptionCore extends Model {
 	 */
 	function getSubscriptions($_options = false) {
 
-		global $page;
 
 		// get current user
 		$user_id = session()->value("user_id");
@@ -317,8 +316,7 @@ class SubscriptionCore extends Model {
 	
 	
 					// add to log
-					global $page;
-					$page->addLog("user->addSubscription: item_id:$item_id, user_id:$user_id");
+					logger()->addLog("user->addSubscription: item_id:$item_id, user_id:$user_id");
 	
 	
 					return $subscription;
@@ -473,8 +471,7 @@ class SubscriptionCore extends Model {
 				if($query->sql($sql)) {	
 	
 					// add to log
-					global $page;
-					$page->addLog("SuperUser->updateSubscription: subscription_id:$subscription_id, item_id:$item_id, user_id:$user_id");
+					logger()->addLog("SuperUser->updateSubscription: subscription_id:$subscription_id, item_id:$item_id, user_id:$user_id");
 	
 	
 					// get new subscription
@@ -541,8 +538,7 @@ class SubscriptionCore extends Model {
 				$sql = "DELETE FROM ".$this->db_subscriptions." WHERE id = $subscription_id AND user_id = $user_id";
 				if($query->sql($sql)) {
 	
-					global $page;
-					$page->addLog("user->deleteSubscription: $subscription_id ($user_id)");
+					logger()->addLog("user->deleteSubscription: $subscription_id ($user_id)");
 	
 					return true;
 				}

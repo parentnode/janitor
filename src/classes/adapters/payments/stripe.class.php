@@ -212,8 +212,6 @@ class JanitorStripe {
 	// Add a new payment method to Stripe account
 	function addPaymentMethod($user_id, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
 
-		global $page;
-
 		include_once("classes/users/superuser.class.php");
 		$UC = new SuperUser();
 
@@ -267,7 +265,7 @@ class JanitorStripe {
 
 				// debug(["new payment_method", $payment_method]);
 
-				$page->addLog("New payment method added: customer_id:".$customer_id, "stripe");
+				logger()->addLog("New payment method added: customer_id:".$customer_id, "stripe");
 				return [
 					"status" => "success", 
 					"type" => "card",
@@ -360,8 +358,7 @@ class JanitorStripe {
 					$query->sql($sql);
 
 					
-					global $page;
-					$page->addLog("Payment method removed: user_id:$user_id, customer_id:".$customer_id.", user_payment_method_id:".$user_payment_method_id, "stripe");
+					logger()->addLog("Payment method removed: user_id:$user_id, customer_id:".$customer_id.", user_payment_method_id:".$user_payment_method_id, "stripe");
 					return true;
 				}
 
@@ -1170,8 +1167,7 @@ class JanitorStripe {
 			else {
 				
 				// Add log entry
-				global $page;
-				$page->addLog("identifyPaymentIntent failed: No cart or order identifier, payment_intent_id: $payment_intent_id", "stripe");
+				logger()->addLog("identifyPaymentIntent failed: No cart or order identifier, payment_intent_id: $payment_intent_id", "stripe");
 
 				// Send mail to admin
 				mailer()->send([
@@ -1443,8 +1439,6 @@ class JanitorStripe {
 	// Register captured payment
 	function registerPayment($order, $payment_intent) {
 
-		global $page;
-
 		include_once("classes/shop/supershop.class.php");
 		$SC = new SuperShop();
 
@@ -1459,7 +1453,7 @@ class JanitorStripe {
 		$payment_id = $SC->registerPayment(array("registerPayment"));
 		if($payment_id) {
 
-			$page->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$payment_intent->charges->data[0]["id"].", amount:".($payment_intent->amount_received/100), "stripe");
+			logger()->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$payment_intent->charges->data[0]["id"].", amount:".($payment_intent->amount_received/100), "stripe");
 
 			return [
 				"status" => "REGISTERED", 
@@ -1469,7 +1463,7 @@ class JanitorStripe {
 		}
 		else {
 
-			$page->addLog("Failed adding payment to Janitor (adding payment): order_id:".$order["id"].", payment_intent_id:".$payment_intent->id.", amount:".($payment_intent->amount_received/100), "stripe");
+			logger()->addLog("Failed adding payment to Janitor (adding payment): order_id:".$order["id"].", payment_intent_id:".$payment_intent->id.", amount:".($payment_intent->amount_received/100), "stripe");
 
 			// Send mail to admin
 			mailer()->send([
@@ -1488,8 +1482,6 @@ class JanitorStripe {
 
 	// Register captured payment
 	function registerPayments($orders, $payment_intent) {
-
-		global $page;
 
 		include_once("classes/shop/supershop.class.php");
 		$SC = new SuperShop();
@@ -1519,12 +1511,12 @@ class JanitorStripe {
 				$payment_ids[] = $payment_id;
 
 				$accounting -= $remaining_order_price["price"];
-				$page->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$payment_intent->charges->data[0]["id"].", amount:".$remaining_order_price["price"], "stripe");
+				logger()->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$payment_intent->charges->data[0]["id"].", amount:".$remaining_order_price["price"], "stripe");
 
 			}
 			else {
 
-				$page->addLog("Failed adding payment to Janitor (adding payment): order_id:".$order["id"].", payment_intent_id:".$payment_intent->id.", amount:".($payment_intent->amount_received/100), "stripe");
+				logger()->addLog("Failed adding payment to Janitor (adding payment): order_id:".$order["id"].", payment_intent_id:".$payment_intent->id.", amount:".($payment_intent->amount_received/100), "stripe");
 				// Notify admin
 
 				// Send mail to admin
@@ -1566,7 +1558,6 @@ class JanitorStripe {
 	// Capture an existing payment intent
 	function capturePayment($payment_intent_id, $payment_amount) {
 
-		global $page;
 		$query = new Query();
 
 		try {
@@ -1595,7 +1586,7 @@ class JanitorStripe {
 						$query->sql($sql);
 
 
-						$page->addLog("Captured payment intent: order_id:".$order["id"].", payment_intent_id:".$payment_intent_id.", amount:".$payment_amount, "stripe");
+						logger()->addLog("Captured payment intent: order_id:".$order["id"].", payment_intent_id:".$payment_intent_id.", amount:".$payment_amount, "stripe");
 
 						$registration = $this->registerPayment($order, $payment_intent);
 						if($registration && $registration["status"] === "REGISTERED") {
@@ -1626,7 +1617,7 @@ class JanitorStripe {
 				];
 			}
 
-			$page->addLog("Failed capturing payment intent: payment_intent_id:".$payment_intent_id.", amount:".$payment_amount, "stripe");
+			logger()->addLog("Failed capturing payment intent: payment_intent_id:".$payment_intent_id.", amount:".$payment_amount, "stripe");
 
 		}
 		// Card error
@@ -1816,7 +1807,6 @@ class JanitorStripe {
 	// Create customer in Stripe account
 	function createCustomer($user_id) {
 
-		global $page;
 
 		include_once("classes/users/superuser.class.php");
 		$UC = new SuperUser();
@@ -1847,7 +1837,7 @@ class JanitorStripe {
 					$customer_id = $customer->id;
 					$this->saveCustomerId($user_id, $customer_id);
 
-					$page->addLog("Customer created: user_id:".$user_id.", email:".$customer->email.", customer_id:".$customer->id, "stripe");
+					logger()->addLog("Customer created: user_id:".$user_id.", email:".$customer->email.", customer_id:".$customer->id, "stripe");
 
 					return $customer_id;
 				}
@@ -1920,8 +1910,7 @@ class JanitorStripe {
 					// delete customer info after 
 					$this->deleteCustomerInfo($user_id, $customer_id);
 
-					global $page;
-					$page->addLog("Customer deleted: user_id:".$user_id.", customer_id:".$response->id, "stripe");
+					logger()->addLog("Customer deleted: user_id:".$user_id.", customer_id:".$response->id, "stripe");
 					return true;
 
 				}
@@ -2093,8 +2082,7 @@ class JanitorStripe {
 		$http_response = $exception->getHttpStatus();
 
 		// Add log entry
-		global $page;
-		$page->addLog($action." failed: type:".$error["type"].", http-response:".$http_response.", message:".$error["message"].", code:".(isset($error["code"]) ? $error["code"] : "N/A").", param:".(isset($error["param"]) ? $error["param"] : "N/A"), "stripe");
+		logger()->addLog($action." failed: type:".$error["type"].", http-response:".$http_response.", message:".$error["message"].", code:".(isset($error["code"]) ? $error["code"] : "N/A").", param:".(isset($error["param"]) ? $error["param"] : "N/A"), "stripe");
 
 		// Send mail to admin
 		mailer()->send([

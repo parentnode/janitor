@@ -943,8 +943,7 @@ class SuperShopCore extends Shop {
 			//			print $sql;
 						$query->sql($sql);
 
-						global $page;
-						$page->addLog("SuperShop->newOrderFromCart: order_no:".$order_no);
+						logger()->addLog("SuperShop->newOrderFromCart: order_no:".$order_no);
 
 
 						return $this->getOrders(array("order_no" => $order_no));
@@ -1733,7 +1732,6 @@ class SuperShopCore extends Shop {
 		// does values validate
 		if(count($action) == 1 && $this->validateList(array("order_id"))) {
 
-			global $page;
 			$query = new Query();
 			$query->checkDbExistence(SITE_DB.".user_log_payment_reminders");
 
@@ -1956,8 +1954,7 @@ class SuperShopCore extends Shop {
 							}
 						}
 
- 						global $page;
-						$page->addLog("SuperShop->cancelOrder: $order_id ($user_id)");
+						logger()->addLog("SuperShop->cancelOrder: $order_id ($user_id)");
 
 						message()->addMessage("Order cancelled");
 						return true;
@@ -2275,8 +2272,7 @@ class SuperShopCore extends Shop {
 					$payment_id = $query->lastInsertId();
 					$this->validateOrder($order["id"]);
 
-					global $page;
-					$page->addLog("SuperShop->addPayment: order_id:$order_id, payment_method_id:$payment_method_id, payment_amount:$payment_amount");
+					logger()->addLog("SuperShop->addPayment: order_id:$order_id, payment_method_id:$payment_method_id, payment_amount:$payment_amount");
 
 					message()->addMessage("Payment added");
 					return $payment_id;

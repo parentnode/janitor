@@ -298,8 +298,7 @@ class SuperMemberCore extends Member {
 		
 				$membership = $this->getMembers(["user_id" => $user_id]);
 		
-				global $page;
-				$page->addLog("SuperMember->addMembership: member_id:".$membership["id"].", user_id:$user_id");
+				logger()->addLog("SuperMember->addMembership: member_id:".$membership["id"].", user_id:$user_id");
 		
 				return $membership;
 			}
@@ -353,8 +352,7 @@ class SuperMemberCore extends Member {
 	
 				if($order) {
 
-					global $page;
-					$page->addLog("Member->addNewMembership: item_id:".$item_id.", user_id:$user_id");		
+					logger()->addLog("Member->addNewMembership: item_id:".$item_id.", user_id:$user_id");		
 
 					return $order;
 				}
@@ -417,8 +415,7 @@ class SuperMemberCore extends Member {
 			// creation sucess
 			if($query->sql($sql)) {
 
-				global $page;
-				$page->addLog("SuperMember->updateMembership: member_id:".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
+				logger()->addLog("SuperMember->updateMembership: member_id:".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
 
 				$membership = $this->getMembers(["user_id" => $user_id]);
 				return $membership;
@@ -467,8 +464,8 @@ class SuperMemberCore extends Member {
 					$SuperSubscriptionClass->deleteSubscription(["deleteSubscription", $user_id, $member["subscription_id"]]);
 	
 	
-					global $page;
-					$page->addLog("SuperMember->cancelMembership: member_id:".$member["id"]);
+					logger()->addLog("SuperMember->cancelMembership: member_id:".$member["id"]);
+
 	
 					message()->addMessage("Membership cancelled");
 					return true;
@@ -529,8 +526,7 @@ class SuperMemberCore extends Member {
 	
 				if($order) {
 
-					global $page;
-					$page->addLog("SuperMember->switchMembership: member_id:".$member["id"].", user_id:$user_id)");
+					logger()->addLog("SuperMember->switchMembership: member_id:".$member["id"].", user_id:$user_id)");
 
 					return $order;
 				}
@@ -675,8 +671,7 @@ class SuperMemberCore extends Member {
 											$this->upgraded($member, $item);
 										}
 
-										global $page;
-										$page->addLog("SuperMember->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
+										logger()->addLog("SuperMember->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
 	
 	
 										return true;

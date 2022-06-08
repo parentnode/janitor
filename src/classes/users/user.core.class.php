@@ -409,8 +409,7 @@ class UserCore extends Model {
 	// will also add subscription for maillist if it is sent along with signup
 	function newUser($action) {
 
-		global $page;
-		$page->addLog("user->newUser: initiated");
+		logger()->addLog("user->newUser: initiated");
 
 		// only attempt user creation if signups are allowed for this site
 		if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
@@ -423,14 +422,14 @@ class UserCore extends Model {
 
 			// if haven't accepted terms, return error
 			if(!$terms) {
-				$page->addLog("user->newUser: missing terms agreement");
+				logger()->addLog("user->newUser: missing terms agreement");
 				return array("status" => "MISSING_TERMS");
 			}
 
 
 			// if user already exists, return error
 			if($this->userExists(array("email" => $email))) {
-				$page->addLog("user->newUser: user exists ($email)");
+				logger()->addLog("user->newUser: user exists ($email)");
 				return array("status" => "USER_EXISTS");
 			}
 
@@ -529,7 +528,7 @@ class UserCore extends Model {
 							// VERIFICATION EMAIL
 
 							// add log
-							$page->addLog("user->newUser: created: " . $email . ", user_id:$user_id");
+							logger()->addLog("user->newUser: created: " . $email . ", user_id:$user_id");
 
 							// success
 							// send activation email
@@ -632,7 +631,7 @@ class UserCore extends Model {
 			}
 		}
 
-		$page->addLog("user->newUser failed: (missing info)");
+		logger()->addLog("user->newUser failed: (missing info)");
 		return false;
 	}
 
@@ -721,8 +720,8 @@ class UserCore extends Model {
 					$sql = "DELETE FROM ".SITE_DB.".user_log_verification_links WHERE username_id = $username_id";
 					$query->sql($sql);
 
-					global $page;
-					$page->addLog("User->confirmUsername: user_id:$user_id, username_id:$username_id");
+
+					logger()->addLog("User->confirmUsername: user_id:$user_id, username_id:$username_id");
 
 					return $user_id;
 				}
@@ -733,8 +732,8 @@ class UserCore extends Model {
 			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE username = '$username' AND verified = 1 AND verification_code = '$verification_code'";
 
 			if($query->sql($sql)) {
-				global $page;
-				$page->addLog("user->confirmUsername: username has already been verified ($username)");
+
+				logger()->addLog("user->confirmUsername: username has already been verified ($username)");
 				return array("status" => "USER_VERIFIED");
 			}
 		}
@@ -856,8 +855,7 @@ class UserCore extends Model {
 							// reset user session
 							session()->reset();
 
-							global $page;
-							$page->addLog("User->cancel: user_id:$user_id");
+							logger()->addLog("User->cancel: user_id:$user_id");
 
 
 							return true;
@@ -1895,7 +1893,6 @@ class UserCore extends Model {
 	// create a new address
 	// /janitor/admin/profile/addAddress (values in POST)
 	function addAddress($action) {
-		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -1927,7 +1924,7 @@ class UserCore extends Model {
 				if($query->sql($sql)) {
 
 					$address_id = $query->lastInsertId();
-					$page->addLog("user->addAddress: user added new address ($user_id, $address_id)");
+					logger()->addLog("user->addAddress: user added new address ($user_id, $address_id)");
 
 					return array("id" => $address_id);
 				}
@@ -2053,7 +2050,6 @@ class UserCore extends Model {
 	// /#controller#/addMaillist
 	// Maillist info i $_POST
 	function addMaillist($action) {
-		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -2070,7 +2066,7 @@ class UserCore extends Model {
 				$sql = "INSERT INTO ".$this->db_maillists." SET user_id=$user_id, maillist_id=$maillist_id";
 				$query->sql($sql);
 
-				$page->addLog("user->addMaillist: user subscribed to maillist, user_id:$user_id, maillist_id:$maillist_id)");
+				logger()->addLog("user->addMaillist: user subscribed to maillist, user_id:$user_id, maillist_id:$maillist_id)");
 			}
 			return true;
 		}
@@ -2102,7 +2098,6 @@ class UserCore extends Model {
 	// #controller#/unsubscribeUserFromMaillist
 	function unsubscribeUserFromMaillist($action) {
 
-		global $page;
 
 		$maillist_id = getPost("maillist_id");
 		$username = getPost("username");
@@ -2122,7 +2117,7 @@ class UserCore extends Model {
 				if($query->sql($sql)) {
 
 					// add to log
-					$page->addLog("user->unsubscribeUserFromMaillist: maillist_id:$maillist_id, user_id:$user_id");
+					logger()->addLog("user->unsubscribeUserFromMaillist: maillist_id:$maillist_id, user_id:$user_id");
 
 					return true;
 				}

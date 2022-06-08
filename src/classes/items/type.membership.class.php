@@ -129,7 +129,6 @@ class TypeMembership extends Itemtype {
 		$SC = new Shop;
 		$IC = new Items;
 		$query = new Query;
-		global $page;
 
 		// get membership cart_item(s)
 		$sql = "SELECT cart_items.* FROM ".SITE_DB.".shop_cart_items AS cart_items JOIN ".SITE_DB.".items AS items ON items.id = cart_items.item_id WHERE items.itemtype = 'membership' AND cart_items.cart_id = ".$cart["id"];
@@ -159,7 +158,7 @@ class TypeMembership extends Itemtype {
 				// delete all membership cart_items except most recently added
 				$sql = "DELETE ".SITE_DB.".shop_cart_items FROM ".SITE_DB.".shop_cart_items INNER JOIN ".SITE_DB.".items i ON i.id = ".SITE_DB.".shop_cart_items.item_id WHERE ".SITE_DB.".shop_cart_items.cart_id = ".$cart["id"]." AND i.itemtype = 'membership' AND ".SITE_DB.".shop_cart_items.id != ".$max_cart_item_id;
 				if($query->sql($sql)) {
-					$page->addLog("membership->addedToCart: enforce single membership in cart - keep only cart_item_id:".$max_cart_item_id);
+					logger()->addLog("membership->addedToCart: enforce single membership in cart - keep only cart_item_id:".$max_cart_item_id);
 				}
 
 				// set remaining membership cart_item quantity to 1 
@@ -170,7 +169,7 @@ class TypeMembership extends Itemtype {
 		}
 
 
-		$page->addLog("membership->addedToCart: added_item:".$added_item_id);
+		logger()->addLog("membership->addedToCart: added_item:".$added_item_id);
 
 	}
 
@@ -276,18 +275,16 @@ class TypeMembership extends Itemtype {
 				return false;
 			}
 		}
-		
-		global $page;
-		$page->addLog("membership->ordered: order_id:".$order["id"]);
-		// print "\n<br>###$item_id### ordered (membership)\n<br>";
+
+		logger()->addLog("membership->ordered: order_id:".$order["id"]);
+
 	}
 
 	function shipped($order_item, $order) {
 
 		$item_id = $order_item["item_id"];		
 
-		global $page;
-		$page->addLog("membership->shipped: order_id:".$order["id"]);
+		logger()->addLog("membership->shipped: order_id:".$order["id"]);
 
 	}
 
@@ -323,8 +320,7 @@ class TypeMembership extends Itemtype {
 				"values" => ["MEMBERSHIP_PRICE" => $price]
 			]);
 
-			global $page;
-			$page->addLog("membership->subscribed: item_id:$item_id, user_id:$user_id, order_id:".$order_id);
+			logger()->addLog("membership->subscribed: item_id:$item_id, user_id:$user_id, order_id:".$order_id);
 
 
 //
@@ -405,8 +401,7 @@ class TypeMembership extends Itemtype {
 		// check for subscription error
 		if($subscription) {
 
-			global $page;
-			$page->addLog("membership->unsubscribed: item_id:".$subscription["item_id"].", user_id:".$subscription["user_id"]);
+			logger()->addLog("membership->unsubscribed: item_id:".$subscription["item_id"].", user_id:".$subscription["user_id"]);
 
 		}
 

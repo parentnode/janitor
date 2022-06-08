@@ -111,8 +111,7 @@ class MemberCore extends Model {
 
 			$membership = $this->getMembership();
 
-			global $page;
-			$page->addLog("Member->addMembership: member_id:".$membership["id"].", user_id:$user_id");
+			logger()->addLog("Member->addMembership: member_id:".$membership["id"].", user_id:$user_id");
 
 			return $membership;
 		}
@@ -156,8 +155,7 @@ class MemberCore extends Model {
 
 			if($order) {
 
-				global $page;
-				$page->addLog("Member->addNewMembership: user_id:$current_user_id)");
+				logger()->addLog("Member->addNewMembership: user_id:$current_user_id)");
 
 				return $order;
 			}
@@ -212,15 +210,13 @@ class MemberCore extends Model {
 
 			// Add condition
 			$sql .= " WHERE user_id = $user_id";
-			
-			
+
 			// creation success
 			if($query->sql($sql)) {
-				
+
 				$membership = $this->getMembership();
-				
-				global $page;
-				$page->addLog("Member->updateMembership: member_id:".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
+
+				logger()->addLog("Member->updateMembership: member_id:".$membership["id"].", user_id:$user_id, subscription_id:".($subscription_id ? $subscription_id : "N/A"));
 	
 				return $membership;
 			}
@@ -265,8 +261,7 @@ class MemberCore extends Model {
 					$SubscriptionClass->deleteSubscription(["deleteSubscription", $member["subscription_id"]]);
 	
 	
-					global $page;
-					$page->addLog("Member->cancelMembership: member_id:".$member["id"]);
+					logger()->addLog("Member->cancelMembership: member_id:".$member["id"]);
 	
 					$UC = new User();
 					$user = $UC->getUser();
@@ -339,8 +334,7 @@ class MemberCore extends Model {
 	
 				if($order) {
 
-					global $page;
-					$page->addLog("Member->switchMembership: member_id:".$member["id"].", user_id:$user_id)");
+					logger()->addLog("Member->switchMembership: member_id:".$member["id"].", user_id:$user_id)");
 
 					return $order;
 				}
@@ -481,8 +475,7 @@ class MemberCore extends Model {
 											$this->upgraded($member, $item);
 										}
 
-										global $page;
-										$page->addLog("Member->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
+										logger()->addLog("Member->upgradeMembership: member_id:".$member["id"].",item_id:$item_id, subscription_id:".$member["subscription_id"]);
 	
 	
 										return true;

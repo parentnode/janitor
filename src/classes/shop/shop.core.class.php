@@ -1648,8 +1648,7 @@ class ShopCore extends Model {
 						$this->sendOrderConfirmation($user, $order);
 				
 
-						global $page;
-						$page->addLog("Shop->newOrderFromCart: order_no:".$order_no);
+						logger()->addLog("Shop->newOrderFromCart: order_no:".$order_no);
 
 
 						return $this->getOrders(array("order_no" => $order_no));
@@ -2025,8 +2024,6 @@ class ShopCore extends Model {
 	// Select user payment method for cart
 	function selectUserPaymentMethodForCart($action) {
 
-		global $page;
-
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
@@ -2147,8 +2144,6 @@ class ShopCore extends Model {
 
 	// Select user payment method for order
 	function selectUserPaymentMethodForOrder($action) {
-
-		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();

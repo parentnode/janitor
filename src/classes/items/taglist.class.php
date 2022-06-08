@@ -251,7 +251,7 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 
 
 	function deleteTaglist($action){
-		global $page;
+
 		if(count($action) == 2) {
 
 			$taglist_id = $action[1];
@@ -271,7 +271,7 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 					message()->addMessage("Taglist deleted");
 
 					// add log
-					$page->addLog("ItemType->delete ($taglist_id)");
+					logger()>addLog("ItemType->delete ($taglist_id)");
 
 					return true;
 

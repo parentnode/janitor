@@ -150,7 +150,6 @@ class ItemtypeCore extends Model {
 	*/
 	# /janitor/[admin/]#itemtype#/status/#item_id#/#new_status#
 	function status($action) {
-		global $page;
 
 		if(count($action) == 3) {
 
@@ -212,7 +211,6 @@ class ItemtypeCore extends Model {
 	# /janitor/[admin/]#itemtype#/save
 	# /#controller#/save
 	function save($action) {
-		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -323,7 +321,7 @@ class ItemtypeCore extends Model {
 						message()->addMessage("Item saved");
 
 						// add log
-						$page->addLog("ItemType->save ($item_id)");
+						logger()->addLog("ItemType->save ($item_id)");
 
 						// return selected data array
 						$IC = new Items();
@@ -388,7 +386,6 @@ class ItemtypeCore extends Model {
 	# /#controller#/update/#item_id#
 	// TODO: implement itemtype checks
 	function update($action) {
-		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -503,7 +500,7 @@ class ItemtypeCore extends Model {
 					message()->addMessage("Item updated");
 
 					// add log
-					$page->addLog("ItemType->update ($item_id)");
+					logger()->addLog("ItemType->update ($item_id)");
 
 					$IC = new Items();
 					return $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
@@ -553,7 +550,6 @@ class ItemtypeCore extends Model {
 	*/
 	# /janitor/[admin/]#itemtype#/delete/#item_id#
 	function delete($action) {
-		global $page;
 
 		if(count($action) == 2) {
 
@@ -594,7 +590,7 @@ class ItemtypeCore extends Model {
 						}
 
 						// add log
-						$page->addLog("ItemType->delete ($item_id)");
+						logger()->addLog("ItemType->delete ($item_id)");
 
 						return true;
 					}
@@ -614,7 +610,6 @@ class ItemtypeCore extends Model {
 	*/
 	# /§controller#/#itemtype#/updateOwner/#item_id#
 	function updateOwner($action) {
-		global $page;
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -644,7 +639,7 @@ class ItemtypeCore extends Model {
 
 
 				// add log
-				$page->addLog("ItemType->owner ($item_id, $new_owner)");
+				logger()->addLog("ItemType->owner ($item_id, $new_owner)");
 
 				$UC = new User();
 				return $UC->getUserInfo(["user_id" => $new_owner]);

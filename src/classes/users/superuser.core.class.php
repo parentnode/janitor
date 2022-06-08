@@ -92,8 +92,7 @@ class SuperUserCore extends User {
 						$this->saved($user_id);
 					}
 
-					global $page;
-					$page->addLog("User created: user_id:" . $user_id . ", created by: " . session()->value("user_id"));
+					logger()->addLog("User created: user_id:" . $user_id . ", created by: " . session()->value("user_id"));
 
 					message()->addMessage("User created");
 					return array("item_id" => $user_id);
@@ -288,8 +287,7 @@ class SuperUserCore extends User {
 
 
 						// add to log
-						global $page;
-						$page->addLog("SuperUser->cancel: user_id:$user_id");
+						logger()->addLog("SuperUser->cancel: user_id:$user_id");
 
 
 						message()->addMessage("Account cancelled");

@@ -801,8 +801,7 @@ class TypeMessageCore extends Itemtype {
 
 					if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "subject" => $message["name"], "html" => $html, "tracking" => true, "attachments" => $attachments])) {
 
-						global $page;
-						$page->addLog("TypeMessage->sendMessage: user_id:".session()->value("user_id").", item_id:".$item_id.", " . ($maillist_id ? "maillist_id:".$maillist_id : "recipients:".implode(";", $recipients)));
+						logger()->addLog("TypeMessage->sendMessage: user_id:".session()->value("user_id").", item_id:".$item_id.", " . ($maillist_id ? "maillist_id:".$maillist_id : "recipients:".implode(";", $recipients)));
 
 						message()->addMessage("Mail(s) sent to ".implode(",", $recipients));
 						return $recipients;

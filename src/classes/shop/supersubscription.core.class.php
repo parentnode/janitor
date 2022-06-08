@@ -41,7 +41,6 @@ class SuperSubscriptionCore extends Subscription {
 	 */
 	function getSubscriptions($_options = false) {
 		$IC = new Items();
-		global $page;
 
 		$user_id = false;
 		$item_id = false;
@@ -296,8 +295,7 @@ class SuperSubscriptionCore extends Subscription {
 					$subscription = $this->getSubscriptions(array("item_id" => $item_id, "user_id" => $user_id));
 
 					// add to log
-					global $page;
-					$page->addLog("SuperUser->addSubscription: item_id:$item_id, user_id:$user_id");
+					logger()->addLog("SuperUser->addSubscription: item_id:$item_id, user_id:$user_id");
 	
 					// perform special action on subscribe
 					$model = $IC->typeObject($item["itemtype"]);
@@ -481,8 +479,7 @@ class SuperSubscriptionCore extends Subscription {
 				if($query->sql($sql)) {
 	
 					// add to log
-					global $page;
-					$page->addLog("SuperUser->updateSubscription: subscription_id:$subscription_id, item_id:$item_id, user_id:$user_id");
+					logger()->addLog("SuperUser->updateSubscription: subscription_id:$subscription_id, item_id:$item_id, user_id:$user_id");
 	
 	
 					// get new subscription
@@ -554,8 +551,7 @@ class SuperSubscriptionCore extends Subscription {
 				$sql = "DELETE FROM ".$this->db_subscriptions." WHERE id = $subscription_id AND user_id = $user_id";
 				if($query->sql($sql)) {
 	
-					global $page;
-					$page->addLog("SuperUser->deleteSubscription: subscription_id:$subscription_id user_id:$user_id");
+					logger()->addLog("SuperUser->deleteSubscription: subscription_id:$subscription_id user_id:$user_id");
 	
 	
 					message()->addMessage("Subscription deleted");
@@ -585,7 +581,6 @@ class SuperSubscriptionCore extends Subscription {
 		// does values validate
 		if(count($action) >= 1) {
 
-			global $page;
 
 			$query = new Query();
 			$IC = new Items();
@@ -726,7 +721,7 @@ class SuperSubscriptionCore extends Subscription {
 
 
 
-							$page->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
+							logger()->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
 
 						}
 						// Failed to update subscription
@@ -738,7 +733,7 @@ class SuperSubscriptionCore extends Subscription {
 								"template" => "system"
 							));
 
-							$page->addLog("SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
+							logger()->addLog("SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
 
 						}
 

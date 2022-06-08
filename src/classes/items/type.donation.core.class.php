@@ -85,8 +85,7 @@ class TypeDonationCore extends Itemtype {
 			$user_id = $order["user_id"];
 
 
-			global $page;
-			$page->addLog("donation->ordered: item_id:$item_id, user_id:$user_id, order_id:".$order["id"].", order_item_id:".$order_item["id"]);
+			logger()->addLog("donation->ordered: item_id:$item_id, user_id:$user_id, order_id:".$order["id"].", order_item_id:".$order_item["id"]);
 
 
 			// Send thank you mail
