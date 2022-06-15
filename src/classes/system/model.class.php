@@ -770,10 +770,9 @@ class Model extends HTML {
 		$max_length = $this->getProperty($name, "max");
 		$pattern = $this->getProperty($name, "pattern");
 		$compare_to = $this->getProperty($name, "compare_to");
-
 		if(($value || $value === "0") && is_string($value) && 
-			(!$min_length || strlen($value) >= $min_length) && 
-			(!$max_length || strlen($value) <= $max_length) &&
+			(!$min_length || mb_strlen($value) >= $min_length) && 
+			(!$max_length || mb_strlen($value) <= $max_length) &&
 			(!$pattern || preg_match("/^".$pattern."$/", $value)) &&
 			(!$compare_to || $value == $this->getProperty($compare_to, "value"))
 		) {
@@ -805,8 +804,8 @@ class Model extends HTML {
 		if(
 			$stripped_value != $value &&
 			($stripped_value || $stripped_value === "0") && is_string($stripped_value) && 
-			(!$min_length || strlen($stripped_value) >= $min_length) && 
-			(!$max_length || strlen($stripped_value) <= $max_length)
+			(!$min_length || mb_strlen($stripped_value) >= $min_length) && 
+			(!$max_length || mb_strlen($stripped_value) <= $max_length)
 		) {
 			$this->setProperty($name, "error", false);
 			return true;
@@ -939,8 +938,8 @@ class Model extends HTML {
 		$compare_to = $this->getProperty($name, "compare_to");
 
 		if(($value || $value === "0") && is_string($value) && 
-			(!$min_length || strlen($value) >= $min_length) && 
-			(!$max_length || strlen($value) <= $max_length) &&
+			(!$min_length || mb_strlen($value) >= $min_length) && 
+			(!$max_length || mb_strlen($value) <= $max_length) &&
 			(!$pattern || preg_match("/^".$pattern."$/", $value)) &&
 			(!$compare_to || $value == $this->getProperty($compare_to, "value"))
 		) {
