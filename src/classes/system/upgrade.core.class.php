@@ -162,6 +162,9 @@ class UpgradeCore extends Model {
 
 			// UPDATING SYSTEM TABLES
 
+			// DB VERSION
+			$this->process($this->createTableIfMissing(UT_VERSION), true);
+
 			// CREATE ANY MISSING SYSTEM TABLES (CRITICAL)
 			$this->process($this->createTableIfMissing(UT_LANGUAGES), true);
 
@@ -775,7 +778,7 @@ class UpgradeCore extends Model {
 	}
 
 	function updateEventModel079() {
-		
+
 		$item_event_hosts = $this->tableInfo(SITE_DB.".item_event_hosts");
 		if($item_event_hosts) {
 
@@ -795,7 +798,7 @@ class UpgradeCore extends Model {
 		}
 
 		$item_events = $this->tableInfo(SITE_DB.".item_event");
-		if($item_events) {
+		if($item_events && isset($item_events["columns"]["host"])) {
 
 			// rename columns
 			$this->process($this->renameColumn(SITE_DB.".item_event", "host", "location"), true);
