@@ -72,10 +72,23 @@
 
 /* PREVIEW */
 #content .scene.defaultEdit > div.media div.preview {position: relative; margin: 0 28px 10px; background-color: #dedede; background-position: center center; background-repeat: no-repeat; height: 120px;}
-#content .scene.defaultEdit > div.media div.preview div.play {padding: 0; position: absolute; top: 0; left: 0; width: 30px; height: 30px; display: block; text-indent: -9999px; border: none; border-radius: 0; cursor: pointer; border-bottom-right-radius: 5px;
-	background-color: #ffffff; background-repeat: no-repeat; background-position: 6px -248px;
-	background-image: url(/janitor/admin/img/bg_icons.png);
-	background-size: 40px auto;
+#content .scene.defaultEdit > div.media div.preview div.controls {padding: 0; position: absolute; top: 0; left: 0; width: 60px; height: 30px; display: block; border-radius: 0; cursor: pointer; border-bottom-right-radius: 5px; overflow: hidden;}
+
+#content .scene.defaultEdit > div.media div.preview div.play {width: 30px; height: 30px; display: inline-block;
+	background-color: #ffffff; background-repeat: no-repeat; background-position: 5px 5px;
+	background-image: url(/janitor/admin/img/bn_play.svg);
+	background-size: 20px auto;
+}
+#content .scene.defaultEdit > div.media div.preview.playing div.play {
+	background-image: url(/janitor/admin/img/bn_pause.svg);
+}
+#content .scene.defaultEdit > div.media div.preview div.mute {width: 30px; height: 30px; display: inline-block;
+	background-color: #ffffff; background-repeat: no-repeat; background-position: 5px 5px;
+	background-image: url(/janitor/admin/img/bn_audio.svg);
+	background-size: 20px auto;
+}
+#content .scene.defaultEdit > div.media div.preview.muted div.mute {
+	background-image: url(/janitor/admin/img/bn_audio_off.svg);
 }
 
 #content .scene.defaultEdit > div.media div.preview.pdf,
@@ -90,7 +103,7 @@
 #content .scene.defaultEdit > div.media ul.previewlist {padding: 0 20px 10px; text-align: left; position: relative;}
 #content .scene.defaultEdit > div.media ul.previewlist > li {margin: 0 10px 20px; position: relative;}
 #content .scene.defaultEdit > div.media ul.previewlist > li.dragged {z-index: 2;}
-#content .scene.defaultEdit > div.media ul.previewlist > li div.preview {height: 100%; margin: 0; width: 100px; min-width: 50px; height: 120px;}
+#content .scene.defaultEdit > div.media ul.previewlist > li div.preview {margin: 0; width: 100px; min-width: 50px; height: 120px;}
 
 
 /* EDIT MEDIA NAME */

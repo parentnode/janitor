@@ -6,6 +6,8 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-basi
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/beta-u-form-onebuttonform.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/beta-u-notifier.js"></script>');
 
+document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-media.js"></script>');
+
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/smartphone/u-form-custom.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/smartphone/m-page.js"></script>');

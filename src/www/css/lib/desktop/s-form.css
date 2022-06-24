@@ -86,6 +86,7 @@ div.field.files ul.filelist {border: 3px dashed #dedede; width: 378px; text-alig
 div.field.files ul.filelist li {box-sizing: border-box; display: block; padding: 2px 0 2px; font-size: 13px; line-height: 17px; text-align: center;}
 div.field.files ul.filelist li.new {font-weight: bold;}
 div.field.files ul.filelist li.label {display: inline-block; padding: 1px 10px 3px; margin: 0 20px 5px; border-radius: 6px; background: #dedede;}
+div.field.files ul.filelist li.uploaded {display: none;}
 
 
 /* LOCATION */

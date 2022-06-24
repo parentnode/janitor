@@ -100,23 +100,23 @@ Util.Modules["addMedia"] = new function() {
 						// set media type
 						if(node.media_format.match(/^(jpg|png|gif)$/i)) {
 
-							this.addImagePreview(node);
+							u.addImagePreview(node);
 						}
 						else if(node.media_format.match(/^(mp3|ogg|wav|aac)$/i)) {
 					
-							this.addAudioPreview(node);
+							u.addAudioPreview(node);
 						}
 						else if(node.media_format.match(/^(mov|mp4|ogv|3gp)$/i)) {
 
-							this.addVideoPreview(node);
+							u.addVideoPreview(node);
 						}
 						else if(node.media_format.match(/^zip$/i)) {
 					
-							this.addZipPreview(node);
+							u.addZipPreview(node);
 						}
 						else if(node.media_format.match(/^pdf$/i)) {
 
-							this.addPdfPreview(node);
+							u.addPdfPreview(node);
 						}
 
 
@@ -164,75 +164,6 @@ Util.Modules["addMedia"] = new function() {
 		}
 
 
-		// IMAGE preview
-		div.addImagePreview = function(node) {
-
-			// Get additional image properties
-			node.media_width = u.cv(node, "width");
-			node.media_height = u.cv(node, "height");
-
-
-			// Adjust preview height
-			u.ass(node.preview, {
-				"width": ((node.preview.offsetHeight/node.media_height) * node.media_width) + "px",
-				"backgroundImage": "url(/images/"+this.item_id+"/"+node.media_variant+"/x"+node.preview.offsetHeight+"."+node.media_format+"?"+u.randomString(4)+")"
-			});
-
-		}
-
-		// PDF preview
-		div.addPdfPreview = function(node) {
-
-			// Adjust preview height
-			u.ass(node.preview, {
-				"backgroundImage": "url(/images/0/pdf/30x.png)"
-			});
-
-		}
-
-		// ZIP preview
-		div.addZipPreview = function(node) {
-
-			// Adjust preview height
-			u.ass(node.preview, {
-				"backgroundImage": "url(/images/0/zip/30x.png)"
-			});
-
-		}
-
-		// AUDIO preview
-		div.addAudioPreview = function(node) {
-
-			// enable playback
-			node.preview.audio_url = "/audios/"+this.item_id+"/"+node.media_variant+"/128."+node.media_format+"?"+u.randomString(4);
-
-			// Add play button
-			u.addPlayMedia(this, node);
-
-		}
-
-		// VIDEO preview
-		div.addVideoPreview = function(node) {
-
-			// Get additional image properties
-			node.media_width = u.cv(node, "width");
-			node.media_height = u.cv(node, "height");
-
-			// Adjust preview height
-			u.ass(node.preview, {
-				"width": ((node.preview.offsetHeight/node.media_height) * node.media_width) + "px",
-			});
-
-
-			// enable playback
-			node.preview.video_url = "/videos/"+this.item_id+"/"+node.media_variant+"/"+this.filelist.offsetWidth+"x."+node.media_format+"?"+u.randomString(4);
-
-			// Add play button
-			u.addPlayMedia(this, node);
-
-		}
-
-
 
 		div.updatePreviews();
 
@@ -242,8 +173,8 @@ Util.Modules["addMedia"] = new function() {
 
 			u.sortable(div.previewlist);
 
-			div.previewlist.picked = function(event) {}
-			div.previewlist.dropped = function(event) {
+			div.previewlist.picked = function(node) {}
+			div.previewlist.dropped = function(node) {
 
 				// Get node order
 				var order = this.getNodeOrder({class_var:"media_id"});
@@ -356,7 +287,7 @@ Util.Modules["addMediaSingle"] = new function() {
 				node.div = this;
 
 				// Create preview node
-				node.preview = u.ae(this, "div", {class: "preview " + node.media_format});
+				node.preview = u.ae(this, "div", {"class": "preview " + node.media_format});
 				node.preview.node = node;
 				// map current preview to div
 				this.preview = node.preview;
@@ -370,23 +301,23 @@ Util.Modules["addMediaSingle"] = new function() {
 				// set media type
 				if(node.media_format.match(/^(jpg|png|gif)$/i)) {
 
-					this.addImagePreview(node);
+					u.addImagePreview(node);
 				}
 				else if(node.media_format.match(/^(mp3|ogg|wav|aac)$/i)) {
 
-					this.addAudioPreview(node);
+					u.addAudioPreview(node);
 				}
 				else if(node.media_format.match(/^(mov|mp4|ogv|3gp)$/i)) {
 
-					this.addVideoPreview(node);
+					u.addVideoPreview(node);
 				}
 				else if(node.media_format.match(/^zip$/i)) {
 
-					this.addZipPreview(node);
+					u.addZipPreview(node);
 				}
 				else if(node.media_format.match(/^pdf$/i)) {
 
-					this.addPdfPreview(node);
+					u.addPdfPreview(node);
 				}
 
 
@@ -414,119 +345,159 @@ Util.Modules["addMediaSingle"] = new function() {
 
 		}
 
-
-		// IMAGE preview
-		div.addImagePreview = function(node) {
-
-			// Get additional image properties
-			node.media_width = u.cv(node, "width");
-			node.media_height = u.cv(node, "height");
-
-			// Adjust preview height
-			u.ass(node.preview, {
-				"height": ((this.filelist.offsetWidth/node.media_width) * node.media_height) + "px",
-				"backgroundImage": "url(/images/"+this.item_id+"/"+node.media_variant+"/"+this.filelist.offsetWidth+"x."+node.media_format+"?"+u.randomString(4)+")"
-			});
-
-		}
-
-		// PDF preview
-		div.addPdfPreview = function(node) {
-
-			// Adjust preview height
-			u.ass(node.preview, {
-				"backgroundImage": "url(/images/0/pdf/30x.png)"
-			});
-
-		}
-
-		// ZIP preview
-		div.addZipPreview = function(node) {
-
-			// Adjust preview height
-			u.ass(node.preview, {
-				"backgroundImage": "url(/images/0/zip/30x.png)"
-			});
-
-		}
-
-		// AUDIO preview
-		div.addAudioPreview = function(node) {
-
-			// enable playback
-			node.preview.audio_url = "/audios/"+this.item_id+"/"+node.media_variant+"/128."+node.media_format+"?"+u.randomString(4);
-
-			// Add play button
-			u.addPlayMedia(this, node);
-
-		}
-
-		// VIDEO preview
-		div.addVideoPreview = function(node) {
-
-			// Get additional image properties
-			node.media_width = u.cv(node, "width");
-			node.media_height = u.cv(node, "height");
-
-			// Adjust preview height
-			u.ass(node.preview, {
-				"height": ((this.filelist.offsetWidth/node.media_width) * node.media_height) + "px"
-			});
-
-
-			// enable playback
-			node.preview.video_url = "/videos/"+this.item_id+"/"+node.media_variant+"/"+this.filelist.offsetWidth+"x."+node.media_format+"?"+u.randomString(4);
-
-			// Add play button
-			u.addPlayMedia(this, node);
-
-		}
-
-
 		// add start preview
 		div.updatePreview();
 
 	}
 }
 
+
+// IMAGE preview
+u.addImagePreview = function(node) {
+
+	u.ac(node, "preview_image");
+
+	// Get additional image properties
+	node.media_width = u.cv(node, "width");
+	node.media_height = u.cv(node, "height");
+
+
+	// Adjust preview height
+	u.ass(node.preview, {
+		"width": ((node.preview.offsetHeight/node.media_height) * node.media_width) + "px",
+		"backgroundImage": "url(/images/"+node.div.item_id+"/"+node.media_variant+"/x"+node.preview.offsetHeight+"."+node.media_format+"?"+u.randomString(4)+")"
+	});
+
+}
+
+// PDF preview
+u.addPdfPreview = function(node) {
+
+	u.ac(node, "preview_pdf");
+
+	// Adjust preview height
+	u.ass(node.preview, {
+		"backgroundImage": "url(/images/0/pdf/30x.png)"
+	});
+
+}
+
+// ZIP preview
+u.addZipPreview = function(node) {
+
+	u.ac(node, "preview_zip");
+
+	// Adjust preview height
+	u.ass(node.preview, {
+		"backgroundImage": "url(/images/0/zip/30x.png)"
+	});
+
+}
+
+// AUDIO preview
+u.addAudioPreview = function(node) {
+
+	u.ac(node, "preview_audio");
+
+	// enable playback
+	node.preview.audio_url = "/audios/"+node.div.item_id+"/"+node.media_variant+"/128."+node.media_format+"?"+u.randomString(4);
+
+	// Add play button
+	u.addPlayMedia(this, node);
+
+}
+
+// VIDEO preview
+u.addVideoPreview = function(node) {
+
+	u.ac(node, "preview_video");
+
+	// Get additional image properties
+	node.media_width = u.cv(node, "width");
+	node.media_height = u.cv(node, "height");
+
+	// Adjust preview height
+	u.ass(node.preview, {
+		"width": ((node.preview.offsetHeight/node.media_height) * node.media_width) + "px",
+	});
+
+
+	// enable playback
+	node.preview.video_url = "/videos/"+node.div.item_id+"/"+node.media_variant+"/"+node.div.filelist.offsetWidth+"x."+node.media_format+"?"+u.randomString(4);
+
+	// Add play button
+	u.addPlayMedia(node.div, node);
+
+	u.e.hover(node.preview);
+	node.preview.over = function() {
+		this.node.play_preview();
+	}
+	node.preview.out = function() {
+		this.node.pause_preview();
+	}
+
+}
+
+
+
 // add play form
 u.addPlayMedia = function(div, node) {
 
+
+	var controls = u.ae(node.preview, "div", {"class":"controls"});
+
 	// Create play button
-	node.bn_play = u.ae(node.preview, "div", {"class":"play"});
-	node.bn_play.preview = node.preview;
+	node.bn_play = u.ae(controls, "div", {"class":"play"});
+	// node.bn_play.preview = node.preview;
+	node.bn_play.node = node;
+
+	if(!node.player) {
+		node.player = node.preview.audio_url ? u.audioPlayer() : u.videoPlayer({"muted":true, "loop":true, "preload":"metadata"});
+		node.player.node = node;
+
+		// inject player
+		u.ae(node.preview, node.player);
+
+		// Load url to show first frame
+		node.player.load(node.preview.audio_url ? node.preview.audio_url : node.preview.video_url);
+	}
 
 	u.ce(node.bn_play);
 	node.bn_play.clicked = function(event) {
-		if(!this.player) {
-			this.player = this.preview.audio_url ? u.audioPlayer() : u.videoPlayer();
-			this.player.bn_play = this;
-			this.player.ended = function() {
-				// remove player
-				u.rc(this.bn_play, "playing");
-
-				delete this.parentNode.player;
-				this.parentNode.removeChild(this);
-			}
-		}
-
-		// inject player
-		u.ae(this.preview, this.player);
-
-
-		if(!u.hc(this, "playing")) {
-			this.player.loadAndPlay(this.preview.audio_url ? this.preview.audio_url : this.preview.video_url);
-			u.ac(this, "playing");
+		if(!u.hc(this.node.preview, "playing")) {
+			this.node.play_preview();
 		}
 		else {
-			this.player.stop();
-			u.rc(this, "playing");
-
-			// remove player
-			this.preview.removeChild(this.player);
-			delete this.player;
+			this.node.pause_preview();
 		}
 	}
+	node.play_preview = function() {
+		this.player.play();
+		u.ac(this.preview, "playing");
+	}
+	node.pause_preview = function() {
+		this.player.pause();
+		u.rc(this.preview, "playing");
+	}
+
+	// Create mute button
+	node.bn_mute = u.ae(controls, "div", {"class":"mute"});
+	// node.bn_play.preview = node.preview;
+	node.bn_mute.node = node;
+
+	u.ce(node.bn_mute);
+	node.bn_mute.clicked = function(event) {
+		if(!u.hc(this.node.preview, "muted")) {
+			this.node.player.mute();
+			u.ac(this.node.preview, "muted");
+		}
+		else {
+			this.node.player.unmute();
+			u.rc(this.node.preview, "muted");
+		}
+	}
+	u.ac(node.preview, "muted");
+
 }
 
 // add delete form
