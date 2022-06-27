@@ -20,8 +20,6 @@ class ItemtypeCore extends Model {
 		// Construct model before adding item defaults (to allow for item defaults to override system defaults)
 		parent::__construct();
 
-		$this->db_editors = SITE_DB.".items_editors";
-		
 
 		// Default settings
 
@@ -2166,12 +2164,12 @@ class ItemtypeCore extends Model {
 			$UC = new User();
 
 			// make sure type tables exist
-			$query->checkDbExistence($this->db_editors);
+			$query->checkDbExistence(UT_ITEMS_EDITORS);
 
 			$item_editor = $this->getProperty("item_editor", "value");
 			
-			if(!$query->sql("SELECT id FROM ".$this->db_editors." WHERE user_id = $item_editor AND item_id = $item_id")) {
-				$sql = "INSERT INTO ".$this->db_editors." SET user_id = $item_editor, item_id = $item_id";
+			if(!$query->sql("SELECT id FROM ".UT_ITEMS_EDITORS." WHERE user_id = $item_editor AND item_id = $item_id")) {
+				$sql = "INSERT INTO ".UT_ITEMS_EDITORS." SET user_id = $item_editor, item_id = $item_id";
 				// debug([$sql]);
 
 				if($query->sql($sql)) {
@@ -2208,7 +2206,7 @@ class ItemtypeCore extends Model {
 			$editor_id = getPost("editor_id");
 			$query = new Query();
 
-			$sql = "DELETE FROM $this->db_editors WHERE id = ".$editor_id;
+			$sql = "DELETE FROM ".UT_ITEMS_EDITORS." WHERE id = ".$editor_id;
 			// debug([$sql]);
 
 			if($query->sql($sql)) {
