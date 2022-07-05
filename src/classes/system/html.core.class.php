@@ -233,6 +233,7 @@ class HTMLCore {
 	* - number
 	* - integer
 	* - text
+	* - json
 	* - files
 	* - html
 	*
@@ -564,6 +565,14 @@ class HTMLCore {
 					$att_min = $this->attribute("minlength", $min);
 
 					$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.'>'.$value.'</textarea>';
+				}
+
+				// JSON
+				else if($type === "json") {
+					$att_max = $this->attribute("maxlength", $max);
+					$att_min = $this->attribute("minlength", $min);
+
+					$_ .= '<textarea'.$att_name.$att_id.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.'>'.$value.'</textarea>';
 				}
 
 				// SELECT

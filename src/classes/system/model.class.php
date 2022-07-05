@@ -257,6 +257,11 @@ class Model extends HTML {
 				return true;
 			}
 		}
+		else if($this->getProperty($name, "type") == "json") {
+			if($this->isJSON($name)) {
+				return true;
+			}
+		}
 		else if($this->getProperty($name, "type") == "files") {
 			if($this->isFiles($name)) {
 				return true;
@@ -787,7 +792,7 @@ class Model extends HTML {
 
 
 	/**
-	* Is string string?
+	* Is string HTML?
 	*
 	* @param string $name Entity name
 	* @return bool
@@ -816,6 +821,35 @@ class Model extends HTML {
 		}
 	}
 
+	/**
+	* Is string JSON?
+	*
+	* @param string $name Entity name
+	* @return bool
+	*/
+	function isJSON($name) {
+
+		$value = $this->getProperty($name, "value");
+		$min_length = $this->getProperty($name, "min");
+		$max_length = $this->getProperty($name, "max");
+
+		// Decode JSON
+		$JSON = json_decode(stripcslashes($value), true);
+
+		if(
+			$JSON != $value &&
+			($JSON !== NULL && $JSON !== false && is_array($JSON)) && 
+			(!$min_length || mb_strlen($value) >= $min_length) && 
+			(!$max_length || mb_strlen($value) <= $max_length)
+		) {
+			$this->setProperty($name, "error", false);
+			return true;
+		}
+		else {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+	}
 
 	/**
 	* Is string numeric?
