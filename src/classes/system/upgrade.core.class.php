@@ -365,7 +365,9 @@ class UpgradeCore extends Model {
 			message()->resetMessages();
 
 		}
-		catch(Exception $exception) {}
+		catch(Exception $exception) {
+			debug(["exception", $exception]);
+		}
 
 	}
 
