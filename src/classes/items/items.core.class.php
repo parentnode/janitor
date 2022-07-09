@@ -1496,7 +1496,8 @@ class ItemsCore {
 		// Find first of specific variant mediae
 		else if(isset($item["mediae"]) && $item["mediae"]) {
 			foreach($item["mediae"] as $m) {
-				if(preg_match("/^".$variant."-/", $m["variant"]) && preg_match("/^(png|gif|jpg)$/", $m["format"])) {
+				if(preg_match("/^".$variant."-/", $m["variant"])) {
+				// if(preg_match("/^".$variant."-/", $m["variant"]) && preg_match("/^(png|gif|jpg|mp4|webm|ogv)$/", $m["format"])) {
 					$media = $m;
 					unset($item["mediae"][$m["variant"]]);
 					break;
