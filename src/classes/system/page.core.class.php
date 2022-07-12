@@ -174,7 +174,7 @@ class PageCore {
 					if(preg_match("/jpg|png/", $image["format"])) {
 
 						// Facebook size
-						if(isset($_SERVER["HTTP_USER_AGENT"]) && strpos($_SERVER["HTTP_USER_AGENT"], "facebookexternalhit") !== false) {
+						if(isset($_SERVER["HTTP_USER_AGENT"]) && strpos($_SERVER["HTTP_USER_AGENT"], "facebook") !== false) {
 							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x630.".$image["format"]);
 						}
 						// Google Plus size
@@ -287,17 +287,17 @@ class PageCore {
 	* @return String page image
 	*/
 	function pageImage($value = false) {
-		// set description
+		// set iamge
 		if($value !== false) {
 			$this->page_image = $value;
 		}
-		// get description
+		// get image
 		else {
-			// if description already set
+			// if image already set
 			if($this->page_image) {
 				return $this->page_image;
 			}
-			// Default page description from config file if available
+			// Default page image from config file if available
 			else if(defined("DEFAULT_PAGE_IMAGE")) {
 				return DEFAULT_PAGE_IMAGE;
 			}
