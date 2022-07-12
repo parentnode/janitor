@@ -174,7 +174,7 @@ class PageCore {
 					if(preg_match("/jpg|png/", $image["format"])) {
 
 						// Facebook size
-						if(isset($_SERVER["HTTP_USER_AGENT"]) && strpos($_SERVER["HTTP_USER_AGENT"], "facebook") !== false) {
+						if(isset($_SERVER["HTTP_USER_AGENT"]) && strpos($_SERVER["HTTP_USER_AGENT"], "facebookexternalhit") !== false) {
 							$this->pageImage("/images/".$item["id"]."/".$image["variant"]."/1200x630.".$image["format"]);
 						}
 						// Google Plus size
