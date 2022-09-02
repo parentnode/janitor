@@ -349,7 +349,7 @@ class SetupCore extends Itemtype {
 
 		$setup_state[$setup_area][$property] = $value;
 
-		session()->value("setup", $setup_state);
+		session()->value("setup_state", $setup_state);
 	}
 
 
