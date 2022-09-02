@@ -1,16 +1,10 @@
 <?php
+
 /**
-* Message handling
+* Message handling via session
 */
 class Message {
 
-	private $errorMessages = array();
-	private $statusMessages = array();
-
-	private $messages = array();
-
-	// TODO: implement message history
-	private $message_history = false;
 
 	/**
 	* Add status message
@@ -29,8 +23,10 @@ class Message {
 			}
 		}
 
+		session_start();
+		$_SESSION["SM"][$type][] = $message;
+		session_write_close();
 
-		$this->messages[$type][] = $message;
 	}
 
 	/**
@@ -51,16 +47,25 @@ class Message {
 			}
 		}
 
-		if($type) {
-			if(isset($this->messages[$type])) {
-				return $this->messages[$type];
+		$messages = [];
+
+		session_start();
+		if(isset($_SESSION["SM"])) {
+
+			if($type) {
+
+				if(isset($_SESSION["SM"][$type])) {
+					$messages = $_SESSION["SM"][$type];
+				}
 			}
 			else {
-				return array();
+				$messages = $_SESSION["SM"];
 			}
+			
 		}
+		session_write_close();
 
-		return $this->messages;
+		return $messages;
 	}
 
 	/**
@@ -80,11 +85,25 @@ class Message {
 			}
 		}
 
-		if($type && isset($this->messages[$type])) {
-			return count($this->messages[$type]);
-		}
+		$count = 0;
 
-		return count($this->messages);
+		session_start();
+		if(isset($_SESSION["SM"])) {
+			if($type) {
+				if(isset($_SESSION["SM"][$type])) {
+					$count = count($_SESSION["SM"][$type]);
+				}
+			}
+			else {
+				foreach($_SESSION["SM"] as $type) {
+					$count += count($type);
+				}
+			}
+
+		}
+		session_write_close();
+
+		return $count;
 	}
 
 
@@ -103,29 +122,24 @@ class Message {
 			}
 		}
 
-		if($type && isset($this->messages[$type])) {
-			$this->messages[$type] = null;
+		session_start();
+		if(isset($_SESSION["SM"])) {
+
+			if($type) {
+				if(isset($_SESSION["SM"][$type])) {
+					unset($_SESSION["SM"][$type]);
+				}
+			}
+			else {
+				unset($_SESSION["SM"]);
+			}
+
 		}
-		else if(!$type && $this->messages) {
-			$this->messages = array();
-		}
+		session_write_close();
 
 	}
 
 }
 
-/**
-* Message handler
-* Controls the existance of the message object and acts as an easy reference
-*
-* @return object Message object from session
-* @uses Message
-*/
-function message() {
-	if(!isset($_SESSION["message"])) {
-		$_SESSION["message"] = new Message();
-	}
-	return $_SESSION["message"];
-}
 
 ?>

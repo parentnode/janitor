@@ -270,12 +270,4 @@ class PseudoCache {
 
 }
 
-
-
-$ccc = new Cache();
-
-function cache() {
-	global $ccc;
-	return $ccc;
-}
 ?>

@@ -759,14 +759,19 @@ class Security {
 		unset($_POST);
 		unset($_FILES);
 
-		// Preserve messages
-		$messages = $_SESSION["message"];
 
-		//$this->user_id = "";
+		// Preserve messages
+		$messages = message()->getMessages();
+
+
 		session()->reset();
 
-		// Restore messages
-		$_SESSION["message"] = $messages;
+
+		foreach($messages as $type => $message_type) {
+			foreach($message_type as $message) {
+				message()->addMessage($message, $type);
+			}
+		}
 
 		session()->value("login_forward", $url);
 		print '<script type="text/javacript">location.href="'.SITE_LOGIN_URL.'?page_status=logoff"</script>';

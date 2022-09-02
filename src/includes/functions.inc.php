@@ -91,7 +91,7 @@ function RESTParams($index=false) {
 
 /**
 * Get a variable which
-* Looking for var in $_SESSION, $_POST, $_GET
+* Looking for var in $_POST, $_GET
 *
 * @param string $which
 * @return string|false
@@ -912,6 +912,40 @@ function logger() {
 		$__logger = new Log();
 	}
 	return $__logger;
+}
+
+// Shorthand auto initializer for message access
+$__message = false;
+function message() {
+	global $__message;
+	if(!$__message) {
+		include_once("classes/system/message.class.php");
+		$__message = new Message();
+	}
+	return $__message;
+}
+
+// Shorthand auto initializer for session access
+$__session = false;
+function session() {
+	global $__session;
+	if(!$__session) {
+		include_once("classes/system/session.class.php");
+		$__session = new Session();
+	}
+	return $__session;
+}
+
+
+// Shorthand auto initializer for cache access
+$__cache = false;
+function cache() {
+	global $__cache;
+	if(!$__cache) {
+		include_once("classes/system/cache.class.php");
+		$__cache = new Cache();
+	}
+	return $__cache;
 }
 
 

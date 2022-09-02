@@ -31,9 +31,8 @@
 
 <h3>Messages:</h3>
 <code style="white-space: pre-wrap;"><?= print_r(message()->getMessages(), true) ?></code>
-
 <h3>_SESSION:</h3>
-<code style="white-space: pre-wrap;"><?= print_r($_SESSION, true) ?></code>
+<code style="white-space: pre-wrap;"><?= print_r(session()->value(), true) ?></code>
 <?
 // Remove passwords before sending
 if(isset($_POST["password"])) {unset($_POST["password"]);}

@@ -326,12 +326,7 @@ class SetupCore extends Itemtype {
 	// reset setup script values
 	function reset() {
 
-		foreach($_SESSION as $key => $value) {
-			// Don't delete main SV storage to maintain potential login
-			if($key != "SV") {
-				unset($_SESSION[$key]);
-			}
-		}
+		session()->reset("setup_state");
 
 		return true;
  	}
@@ -339,13 +334,22 @@ class SetupCore extends Itemtype {
 
 	// Keeping track of data and system checks
 	function get($setup_area, $property) {
-		if(isset($_SESSION[$setup_area]) && isset($_SESSION[$setup_area][$property])) {
-			return $_SESSION[$setup_area][$property];
+
+		$setup_state = session()->value("setup_state");
+
+		if(isset($setup_state[$setup_area]) && isset($setup_state[$setup_area][$property])) {
+			return $setup_state[$setup_area][$property];
 		}
+
 		return false;
 	}
 	function set($setup_area, $property, $value) {
-		$_SESSION[$setup_area][$property] = $value;
+
+		$setup_state = session()->value("setup_state");
+
+		$setup_state[$setup_area][$property] = $value;
+
+		session()->value("setup", $setup_state);
 	}
 
 

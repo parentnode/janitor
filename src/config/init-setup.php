@@ -87,6 +87,9 @@ if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 	}
 
 
+	// Include base functions and classes
+	include_once("includes/functions.inc.php");
+
 
 	// page class + extension
 	include_once("classes/system/queryi.class.php");

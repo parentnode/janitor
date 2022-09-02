@@ -1,40 +1,45 @@
 <?php
 
-
-
 /**
-* Start session
-*/
-
-
-if(!isset($_SESSION)) {
-	session_start();
-}
-
-/**
-* This class contains session value exchange functionality
+* This class contains session value storage functionality
 */
 class Session {
 
 	/**
 	* Set/Get value - omit value to get - state value to set
 	*
-	* @param String $key Key
+	* @param String $key Key – Optional – if key is 
 	* @param String $value Value to save - Optional
 	*/
-	function value($key, $value = false) {
-		if($value !== false) {
+	function value($key = false, $value = false) {
+
+		if($key !== false && $value !== false) {
 
 			// writeToFile("set value:" . $key ."=".$value);
+
+			session_start();
 			$_SESSION["SV"][$key] = json_encode($value);
+			session_write_close();
+
 		}
 		else {
+
 			// writeToFile("get value:" . $key);
 
-			if(!isset($_SESSION["SV"]) || !isset($_SESSION["SV"][$key])) {
-				return false;
+			$return_value = false;
+
+			session_start();
+			if($key) {
+				if(isset($_SESSION["SV"]) && isset($_SESSION["SV"][$key])) {
+					$return_value = json_decode($_SESSION["SV"][$key], true);
+				}
 			}
-			return json_decode($_SESSION["SV"][$key], true);
+			else if(isset($_SESSION["SV"])) {
+				$return_value = $_SESSION["SV"];
+			}
+			session_write_close();
+
+			return $return_value;
 
 		}
 	}
@@ -47,6 +52,7 @@ class Session {
 	function reset($key = false) {
 		// writeToFile("reset:" . $key);
 
+		session_start();
 		if($key) {
 			unset($_SESSION["SV"][$key]);
 		}
@@ -68,14 +74,11 @@ class Session {
 			session_regenerate_id(true);
 
 		}
+		session_write_close();
+
 	}
+
 }
 
-$sss = new Session();
-
-function session() {
-	global $sss;
-	return $sss;
-}
 
 ?>
