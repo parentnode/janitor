@@ -21,6 +21,7 @@ if(is_array($action) && count($action)) {
 	if(count($action) == 1 && $action[0] == "forgot") {
 
 		$page->page(array(
+			"type" => "janitor",
 			"templates" => "pages/forgot_password.php"
 		));
 		exit();
@@ -29,6 +30,7 @@ if(is_array($action) && count($action)) {
 	else if(count($action) == 2 && $action[0] == "forgot" && $action[1] == "receipt") {
 
 		$page->page(array(
+			"type" => "janitor",
 			"templates" => "pages/forgot_password_receipt.php"
 		));
 		exit();
