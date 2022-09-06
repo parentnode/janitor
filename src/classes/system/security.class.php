@@ -456,7 +456,10 @@ class Security {
 
 
 						// regerate Session id
+						session_start();
 						session_regenerate_id(true);
+						session_write_close();
+
 
 						// Special return for ajax logins
 						if(getPost("ajaxlogin")) {
@@ -688,7 +691,10 @@ class Security {
 				session()->value("csrf", gen_uuid());
 
 				// regerate Session id
+				session_start();
 				session_regenerate_id(true);
+				session_write_close();
+
 
 				if(getVar("credentials")) {
 					$output = new Output();
