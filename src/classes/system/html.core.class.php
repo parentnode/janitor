@@ -35,7 +35,7 @@ class HTMLCore {
 				$attribute_value = $attribute_value !== false ? $attribute_value." ".$args[$i] : $args[$i];
 			}
 		}
-		if($attribute_value !== false && $attribute_value != "") {
+		if($attribute_value !== false && $attribute_value !== "") {
 			// make sure we don't get illegal chars in value
 			return ' '.$attribute_name.'="'.htmlentities(stripslashes(trim($attribute_value)), ENT_QUOTES, "UTF-8").'"';
 		}
