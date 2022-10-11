@@ -665,7 +665,7 @@ class HTMLCore {
 
 
 		// Create field div
-		$_ .= '<div'.$att_class.'>';
+		$_ .= '<div'.$att_class.' style="display: none;">';
 
 
 			$att_value = $this->attribute("value", "1");
