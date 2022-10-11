@@ -275,6 +275,13 @@ class UserCore extends Model {
 		));
 
 
+		// Anti robot input
+		$this->addToModel("it_nato_bor", array(
+			"type" => "checkbox",
+			"label" => "I have a pain inside and I take it out on other people",
+			"hint_message" => "Are you in this kind of pain?",
+			"error_message" => "Please state if you are in this kind of pain."
+		));
 		
 
 
@@ -416,6 +423,28 @@ class UserCore extends Model {
 
 			// Get posted values to make them available for models
 			$this->getPostedEntities();
+
+			$it_nato_bor = $this->getProperty("it_nato_bor", "value");
+			if($it_nato_bor) {
+
+				$email = $this->getProperty("email", "value");
+
+				logger()->addLog("user->newUser: signup identified as BOT: $email");
+
+				// send notification email to admin
+				mailer()->send(array(
+					"subject" => SITE_URL . " - BOT SIGNUP DETECTED: " . $email, 
+					"message" => "no user was created",
+					"tracking" => false,
+					"template" => "system"
+				));
+
+				return ["status" => "BOT_SIGNUP"];
+			}
+
+
+			// PASSED bot honeyput
+
 			$terms = $this->getProperty("terms", "value");
 			$email = $this->getProperty("email", "value");
 

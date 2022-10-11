@@ -615,6 +615,84 @@ class HTMLCore {
 		return $_;
 	}
 
+	/**
+	* Generate HTML for anti robot field
+	*
+	* @return String Input element HTML
+	*/
+	function inputRobot() {
+
+		// form security
+		if(!isset($this->valid_form_started) || !$this->valid_form_started) {
+			return "";
+		}
+
+		// Get default settings from model first
+		$name = "it_nato_bor";
+
+		// label
+		$label = $this->getProperty($name, "label");
+
+		// type, value and options
+		$type = $this->getProperty($name, "type");
+		$value = $this->getProperty($name, "value");
+
+		// frontend stuff
+		$class = $this->getProperty($name, "class");
+		$id = $this->getProperty($name, "id");
+
+		// visual feedback
+		$hint_message = $this->getProperty($name, "hint_message");
+		$error_message = $this->getProperty($name, "error_message");
+ 
+
+		// Start generating HTML
+
+		$_ = '';
+
+		$for = stringOr($id, "input_".preg_replace("/\[\]/", "", $name));
+
+		$att_id = $this->attribute("id", $for);
+
+		$att_name = $this->attribute("name", $name);
+
+		// Combine classname for field
+		$att_class = $this->attribute("class", 
+			"field", 
+			$name, 
+			$class
+		);
+
+
+		// Create field div
+		$_ .= '<div'.$att_class.'>';
+
+
+			$att_value = $this->attribute("value", "1");
+
+			$_ .= '<input type="hidden"'.$att_name.' value="0" />';
+			$_ .= '<input type="checkbox"'.$att_name.$att_id.$att_value.' />';
+			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
+
+			// HINT AND ERROR MESSAGE
+			if($hint_message || $error_message) {
+				$_ .= '<div'.$this->attribute("class", "help").'>';
+					if($hint_message) {
+						$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
+					}
+					if($error_message) {
+						$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
+					}
+				$_ .= '</div>';
+			}
+
+
+		$_ .= '</div>'."\n";
+
+
+		return $_;
+	}
+
 
 	/**
 	* Output input like element, but with p or ul instead of input or select
