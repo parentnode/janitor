@@ -1367,11 +1367,11 @@ class UserCore extends Model {
 
 							// send notification email to admin
 							// TODO: consider disabling this once it has proved itself worthy
-							mailer()->send(array(
-								"subject" => "Password reset requested: " . $email,
-								"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
-								"template" => "system"
-							));
+							// mailer()->send(array(
+							// 	"subject" => "Password reset requested: " . $email,
+							// 	"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
+							// 	"template" => "system"
+							// ));
 
 							return true;
 						}
@@ -1431,10 +1431,10 @@ class UserCore extends Model {
 
 						// send notification email to admin
 						// TODO: consider disabling this once it has proved itself worthy
-						mailer()->send(array(
-							"subject" => "Password was resat: " . $user_id,
-							"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id
-						));
+						// mailer()->send(array(
+						// 	"subject" => "Password was resat: " . $user_id,
+						// 	"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id
+						// ));
 
 						message()->addMessage("Password updated");
 						return true;
