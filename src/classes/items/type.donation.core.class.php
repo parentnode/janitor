@@ -85,11 +85,23 @@ class TypeDonationCore extends Itemtype {
 			$user_id = $order["user_id"];
 
 
-			logger()->addLog("donation->ordered: item_id:$item_id, user_id:$user_id, order_id:".$order["id"].", order_item_id:".$order_item["id"]);
+
+			$IC = new Items();
+			$model = $IC->typeObject("message");
+
+			$item = $IC->getItem(["id" => $item_id, "extend" => true]);
+			$message_id = $item["ordered_message_id"];
 
 
 			// Send thank you mail
-			// $donation = $this->issueDonation($item_id, $user_id, ["order" => $order, "order_item" => $order_item]);
+			$model->sendMessage([
+				"item_id" => $message_id, 
+				"user_id" => $user_id, 
+				"values" => ["DONATION" => formatPrice(["price" => $order_item["total_price"], "currency" => $order["currency"]])]
+			]);
+
+
+			logger()->addLog("donation->ordered: item_id:$item_id, user_id:$user_id, order_id:".$order["id"].", order_item_id:".$order_item["id"]);
 
 		}
 
