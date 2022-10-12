@@ -7,7 +7,7 @@ global $itemtype;
 $item_id = $action[1];
 $item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true, "prices" => true, "subscription_method" => true, "comments" => true)));
 
-$messages = $IC->getItems(array("itemtype" => "message", "tags" => "message:Donation", "extend" => true));
+$messages = $IC->getItems(array("itemtype" => "message", "tags" => "mail:Donation", "extend" => true));
 
 ?>
 <div class="scene i:scene defaultEdit <?= $itemtype ?>Edit">
