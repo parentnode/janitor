@@ -212,7 +212,7 @@ class TypeMembership extends Itemtype {
 					}
 					else {
 						$_POST["custom_price"] = null;
-					}					
+					}
 					
 					$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription_id]);
 					unset($_POST);
@@ -229,7 +229,7 @@ class TypeMembership extends Itemtype {
 					}
 					else {
 						$_POST["custom_price"] = null;
-					}					
+					}
 					
 					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 					unset($_POST);
@@ -263,7 +263,8 @@ class TypeMembership extends Itemtype {
 				}
 				else {
 					$_POST["custom_price"] = null;
-				}					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
+				}
+				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
 				$subscription_id = $subscription ? $subscription["id"] : false;
 				unset($_POST);
 	
