@@ -387,7 +387,7 @@ class JanitorHTMLCore {
 
 		// STATUS
 		if($standard["status"]) {
-			$_ .= '<div class="status i:defaultEditStatus item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'">';
+			$_ .= '<div class="status i:defaultEditStatus item_id:'.$item["id"].'" data-csrf-token="'.security()->getValue("csrf").'">';
 			$_ .= '<ul class="actions">';
 			$_ .= $this->statusButton($standard["status"]["label_enable"], $standard["status"]["label_disable"], $standard["status"]["url"], $item, array("js" => true));
 			$_ .= '</ul>';
@@ -813,7 +813,7 @@ class JanitorHTMLCore {
 
 		$_ = '';
 
-		$_ .= '<div class="'.$class.' item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'" data-editor-remove="'.$this->path.'/removeEditor">';
+		$_ .= '<div class="'.$class.' item_id:'.$item["id"].'" data-csrf-token="'.security()->getValue("csrf").'" data-editor-remove="'.$this->path.'/removeEditor">';
 		$_ .= '<h2>Editors ('.($item_editors ? count($item_editors) : 0).')</h2>';
 
 		$_ .= '<fieldset>';
@@ -883,7 +883,7 @@ class JanitorHTMLCore {
 
 		$_ = '';
 
-		$_ .= '<div class="'.$class.' item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'" data-event-remove="'.$this->path.'/removeTicketEvent/'.$item["item_id"].'">';
+		$_ .= '<div class="'.$class.' item_id:'.$item["id"].'" data-csrf-token="'.security()->getValue("csrf").'" data-event-remove="'.$this->path.'/removeTicketEvent/'.$item["item_id"].'">';
 		$_ .= '<h2>Related event</h2>';
 
 		if($ticket_event):
@@ -970,7 +970,7 @@ class JanitorHTMLCore {
 
 		$_ = '';
 
-		$_ .= '<div class="'.$class.' item_id:'.$item["id"].'" data-csrf-token="'.session()->value("csrf").'" data-ticket-remove="'.$this->path.'/removeEventTicket/'.$item["item_id"].'">';
+		$_ .= '<div class="'.$class.' item_id:'.$item["id"].'" data-csrf-token="'.security()->getValue("csrf").'" data-ticket-remove="'.$this->path.'/removeEventTicket/'.$item["item_id"].'">';
 		$_ .= '<h2>Tickets (' . ($event_tickets ? count($event_tickets) : 0) . ')</h2>';
 
 		if($event_tickets):

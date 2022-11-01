@@ -98,7 +98,7 @@ class HTMLCore {
 
 		$_ = '';
 
-		$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
+		$_ .= ' data-csrf-token="'.security()->getValue("csrf").'"';
 
 		if(!$_filter || array_search("order", $_filter) !== false) {
 			$_ .= ' data-item-order="'.security()->validPath($this->path."/updateOrder").'"'; 
@@ -193,7 +193,7 @@ class HTMLCore {
 		$att_enctype = $this->attribute("enctype", $enctype);
 
 		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.$att_enctype.'>'."\n";
-		$_ .= '<input type="hidden" name="csrf-token" value="'.session()->value("csrf").'" />'."\n";
+		$_ .= '<input type="hidden" name="csrf-token" value="'.security()->getValue("csrf").'" />'."\n";
 
 
 		return $_;
@@ -1021,7 +1021,7 @@ class HTMLCore {
 
 			$_ .= ' data-form-action="'.$action.'"';
 			$_ .= $target ? ' data-form-target="'.$target.'"' : '';
-			$_ .= ' data-csrf-token="'.session()->value("csrf").'"';
+			$_ .= ' data-csrf-token="'.security()->getValue("csrf").'"';
 
 		}
 

@@ -26,7 +26,7 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 	<div class="readstates item i:collapseHeader">
 		<h2>Items you have marked as read</h2>
 		<div class="all_items i:defaultList filters"
-			data-csrf-token="<?= session()->value("csrf") ?>"
+			data-csrf-token="<?= security()->getValue("csrf") ?>"
 			>
 	<? 		if($readstates): ?>
 			<ul class="items">
@@ -46,7 +46,7 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 	<div class="content item i:collapseHeader">
 		<h2>Items owned by you</h2>
 		<div class="all_items i:defaultList filters"
-			data-csrf-token="<?= session()->value("csrf") ?>"
+			data-csrf-token="<?= security()->getValue("csrf") ?>"
 			>
 	<? 		if($items): ?>
 			<ul class="items">
@@ -84,7 +84,7 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 	<div class="comments item i:collapseHeader">
 		<h2>Comments you have made</h2>
 		<div class="all_items comments i:defaultList filters"
-			data-csrf-token="<?= session()->value("csrf") ?>"
+			data-csrf-token="<?= security()->getValue("csrf") ?>"
 			>
 	<? 		if($comments): ?>
 			<ul class="items">

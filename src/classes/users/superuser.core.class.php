@@ -485,7 +485,7 @@ class SuperUserCore extends User {
 		else if($user_group_id) {
 
 			$sql = "SELECT * FROM ".$this->db." WHERE user_group_id = $user_group_id";
-//			print $sql;
+			// debug(["sql", $sql]);
 			if($query->sql($sql)) {
 				$users = $query->results();
 				return $users;
@@ -496,7 +496,7 @@ class SuperUserCore extends User {
 		else if($username_id) {
 
 			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE id = $username_id";
-//			print $sql;
+			// debug(["sql", $sql]);
 			if($query->sql($sql)) {
 				$user = $query->result(0);
 				return $user;			}
@@ -506,7 +506,7 @@ class SuperUserCore extends User {
 		else if($email) {
 
 			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE type = 'email' AND username = '$email'";
-//			print $sql;
+			// debug(["sql", $sql]);
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -515,7 +515,7 @@ class SuperUserCore extends User {
 		else if($mobile) {
 
 			$sql = "SELECT user_id FROM ".$this->db_usernames." WHERE type = 'mobile' AND username = '$mobile'";
-//			print $sql;
+			// debug(["sql", $sql]);
 			if($query->sql($sql)) {
 				return $query->results();
 			}
@@ -524,7 +524,9 @@ class SuperUserCore extends User {
 		// return all users
 		else if(!isset($_options["user_id"]) && !isset($_options["user_group_id"]) && !isset($_options["email"]) && !isset($_options["mobile"])) {
 			// Exclude Guest user for all-users list
-			if($query->sql("SELECT * FROM ".$this->db." WHERE id != 1 ORDER BY $order")) {
+			$sql = "SELECT * FROM ".$this->db." WHERE id != 1 ORDER BY $order";
+			// debug(["sql", $sql]);
+			if($query->sql($sql)) {
 				 return $query->results();
 			}
 		}

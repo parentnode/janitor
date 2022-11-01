@@ -9,6 +9,10 @@
 */
 class Security {
 
+
+	private $runtime_cache = [];
+
+
 	function __construct() {
 
 
@@ -75,6 +79,30 @@ class Security {
 	}
 
 
+	// Avoid multiple session and filesystem lookups by allowing values to be cached per runtime
+	function getValue($key) {
+
+		if(!isset($this->runtime_cache[$key])) {
+			if($key === "user_group_id") {
+				$this->runtime_cache[$key] = session()->value("user_group_id");
+			}
+			else if($key === "csrf") {
+				$this->runtime_cache[$key] = session()->value("csrf");
+			}
+			else {
+				return NULL;
+			}
+			
+		}
+		return $this->runtime_cache[$key];
+	}
+	function setValue($key, $value) {
+		$this->runtime_cache[$key] = $value;
+	}
+	function resetRuntimeValues() {
+		$this->runtime_cache = [];
+	}
+
 
 	/**
 	* Validate access permission for full /controller/action path
@@ -84,8 +112,8 @@ class Security {
 	* @return boolean Allowed or not
 	*/
 	function validatePath($path) {
-
-//		print "validatePath:".$path."<br>\n";
+		// debug(["validatePath", $path]);
+		// return true;
 
 		// remove GET parameters from $actions string
 		$path = preg_replace("/\?.+$/", "", $path);
@@ -130,9 +158,14 @@ class Security {
 				// controller is found
 				$controller = $path_test;
 
-				// read access_item of controller
-				$read_access = true;
-				include($controller_test);
+				$access_item = $this->getValue("access_item_".$controller_test);
+				if(!$access_item) {
+					// read access_item of controller
+					$read_access = true;
+					include($controller_test);
+
+					$this->setValue("access_item_".$controller_test, $access_item);
+				}
 
 				// end while loop
 				break;
@@ -142,7 +175,7 @@ class Security {
 			array_pop($fragments);
 		}
 
-
+		// debug(["controller", $controller, "access_item", $access_item]);
 		// both controller and access_item is found
 		if($controller && isset($access_item)) {
 
@@ -153,7 +186,12 @@ class Security {
 			// $action = str_replace($controller, "", $path);
 
 			// check permissions
-			return $this->checkPermissions($controller, $action, $access_item);
+			$permission = $this->getValue("action_".$controller."_".$action);
+			if(!isset($permission)) {
+				$permission = $this->checkPermissions($controller, $action, $access_item);
+				$this->setValue("action_".$controller."_".$action, $permission);
+			}
+			return $permission;
 		}
 
 
@@ -188,6 +226,7 @@ class Security {
 
 
 		global $mysqli_global;
+		// debug(["checkPermissions", "controller:", $controller]);
 		// print "controller:" . $controller . "<br>\n";
 		// print "action:" . $action . "<br>\n";
 		// print_r($access_item);
@@ -240,7 +279,7 @@ class Security {
 		}
 
 		// action should be at least a slash
-		$action_test = $action_test ? $action_test : "/";
+		$action_test = ($action_test ? $action_test : "/");
 
 
 		// no entry found in access_item while iteration action fragments
@@ -261,10 +300,10 @@ class Security {
 		else {
 
 			// get group and permissions from session
-			$user_group_id = session()->value("user_group_id");
+			$user_group_id = $this->getValue("user_group_id"); //session()->value("user_group_id");
+			// debug(["group", $user_group_id]);
 			//$permissions = session()->value("user_group_permissions");
 
-//			print "group: ".$user_group_id."<br>\n";
 
 			// TEMP
 			$permissions = false;
@@ -278,7 +317,7 @@ class Security {
 			}
 
 			$permissions = cache()->value("user_group_".$user_group_id."_permissions");
-
+			// debug(["permissions", $permissions]);
 
 			// if permissions does not exist for this user_group in cache
 			// this requires a database lookup - result is stored in cache 
@@ -302,7 +341,7 @@ class Security {
 
 				cache()->value("user_group_".$user_group_id."_permissions", $permissions);
 				// store permissions in session
-				session()->value("user_group_permissions", $permissions);
+				// session()->value("user_group_permissions", $permissions);
 			}
 
 
@@ -443,7 +482,7 @@ class Security {
 						session()->value("user_group_id", intval($query->result(0, "user_group_id")));
 						session()->value("user_nickname", $query->result(0, "nickname"));
 						session()->value("last_login_at", date("Y-m-d H:i:s"));
-						session()->reset("user_group_permissions");
+						// session()->reset("user_group_permissions");
 
 						// Update login timestamp
 						$sql = "UPDATE ".SITE_DB.".users SET last_login_at=CURRENT_TIMESTAMP WHERE users.id = ".session()->value("user_id");
@@ -453,6 +492,9 @@ class Security {
 
 						// set new csrf token for user
 						session()->value("csrf", gen_uuid());
+
+
+						$this->resetRuntimeValues();
 
 
 						// regerate Session id
@@ -682,13 +724,17 @@ class Security {
 				// add user_id and user_group_id to session
 				session()->value("user_id", $query->result(0, "id"));
 				session()->value("user_group_id", $query->result(0, "user_group_id"));
-				session()->reset("user_group_permissions");
+				// session()->reset("user_group_permissions");
 				session()->value("user_nickname", $query->result(0, "nickname"));
 
 				logger()->addLog("Token login, username: ".$username .", user_id:".session()->value("user_id"));
 
 				// set new csrf token for user
 				session()->value("csrf", gen_uuid());
+
+
+				$this->resetRuntimeValues();
+
 
 				// regerate Session id
 				session_start();
@@ -723,7 +769,7 @@ class Security {
 
 		session()->reset("user_id");
 		session()->reset("user_group_id");
-		session()->reset("user_group_permissions");
+		// session()->reset("user_group_permissions");
 
 		$dev = session()->value("dev");
 		$segment = session()->value("segment");
@@ -734,6 +780,8 @@ class Security {
 		
 		// Reset session (includes destroy, start and regenerate)
 		session()->reset();
+
+		security()->resetRuntimeValues();
 
 		// Remember dev and segment even after logout
 		session()->value("dev", $dev);
