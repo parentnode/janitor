@@ -50,10 +50,10 @@ session()->value("return_to_orderstatus", $status);
 		<ul class="items orders">
 			<? foreach($orders as $order):
 				$total_order_price = $model->getTotalOrderPrice($order["id"]);
-				if($status < 2) {
+				if($status !== "all" && $status < 2) {
 					$payment_intent = payments()->canBeCaptured([
-						"user_id" => $order["user_id"], 
-						"order_id" => $order["id"], 
+						"user_id" => $order["user_id"],
+						"order_id" => $order["id"],
 						"amount" => $total_order_price["price"],
 						"check_validity" => false
 					]);
@@ -103,7 +103,6 @@ session()->value("return_to_orderstatus", $status);
 
 				<? endif; ?>
 
-					<? if($status < 2): ?>
 					<dt class="order_content">Order content</dt>
 					<dd class="order_content"><?
 						$order_content = [];
@@ -116,13 +115,13 @@ session()->value("return_to_orderstatus", $status);
 						endforeach;
 						print implode(", ", $order_content);
 					?></dd>
-					<? endif; ?>
+
 				</dl>
 
 				<ul class="actions">
-					<?= $HTML->link(($status < 2 ? "Edit" : "View"), "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
+					<?= $HTML->link((($status < 2 && $status !== "all") ? "Edit" : "View"), "/janitor/admin/shop/order/edit/".$order["id"], array("class" => "button", "wrapper" => "li.view")) ?>
 
-					<? if($status < 2 && $order["shipping_status"] < 2 && $order["status"] != 3): ?>
+					<? if(($status !== "all" && $status < 2) && $order["shipping_status"] < 2 && $order["status"] != 3): ?>
 					<?= $HTML->oneButtonForm("Ship order", "/janitor/admin/shop/updateShippingStatus/".$order["id"], array(
 						"inputs" => array("shipped" => 1),
 						"class" => "ship primary",
@@ -135,7 +134,7 @@ session()->value("return_to_orderstatus", $status);
 					)) ?>
 					<? endif; ?>
 					
-					<? if($status < 2 && $order["payment_status"] < 2 && $payment_intent): ?>
+					<? if(($status !== "all" && $status < 2) && $order["payment_status"] < 2 && $payment_intent): ?>
 					<?= $HTML->oneButtonForm(
 					"Capture ".formatPrice($total_order_price),
 					"capturePayment",
