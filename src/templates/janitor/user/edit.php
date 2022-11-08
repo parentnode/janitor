@@ -55,6 +55,7 @@ if($item && $item["status"] >= 0) {
 	// get addresses
 	$addresses = $model->getAddresses(array("user_id" => $user_id));
 
+	$can_be_deleted = $model->userCanBeDeleted($user_id);
 
 	$unpaid_orders = false;
 	if(defined("SITE_SHOP") && SITE_SHOP) {
@@ -76,28 +77,32 @@ if($item && $item["status"] >= 0) {
 
 	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("All users", "/janitor/admin/user/list/".$item["user_group_id"], array("class" => "button", "wrapper" => "li.list")) ?>
-<? 
-	// do not allow to delete Anonymous user
+	
+	<? // do not allow to delete or cancel Anonymous user
 	if($user_id != 1): ?>
+
+		<?
+		// Provide delete option if possible (to avoid unnecessary anonymized users)
+		if($can_be_deleted): ?>
 		<?= $HTML->oneButtonForm("Delete account", "/janitor/admin/user/delete/".$user_id, array(
 			"wrapper" => "li.delete",
 			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
 		)) ?>
-<? 	endif; ?>
-<?
-	// do not allow to cancel user with unpaid orders
-	if($unpaid_orders): ?>
+
+		<? // do not allow to cancel user with unpaid orders
+		elseif($unpaid_orders): ?>
 		<?= $HTML->link("Unpaid orders", "/janitor/admin/user/orders/".$user_id, array("class" => "button", "wrapper" => "li.unpaid")) ?>
-<? 
-	// or Anonymous user
-	elseif($user_id != 1): ?>
+		<li class="notice">User has unpaid orders and cannot be cancelled.</li>
+
+		<? // Cancel user
+		else: ?>
 		<?= $HTML->oneButtonForm("Cancel account", "/janitor/admin/user/cancel/".$user_id, array(
 			"wrapper" => "li.cancel",
 			"confirm-value" => "This will anonymise the account. Permanently! Irreversibly!",
 			"success-location" => "/janitor/admin/user/list/".$item["user_group_id"]
 		)) ?>
-			
-<? 	endif; ?>
+		<? endif; ?>
+	<? endif; ?>
 	</ul>
 
 <? 
