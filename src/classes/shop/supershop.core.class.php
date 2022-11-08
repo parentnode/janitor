@@ -821,7 +821,7 @@ class SuperShopCore extends Shop {
 
 					// create base data update sql
 					$sql = "UPDATE ".$this->db_orders." SET user_id=$user_id, country='$country', currency='$currency', cart_reference='$cart_reference'";
-					// print $sql."<br />\n";
+					// debug([$sql]);
 
 					if($delivery_address_id) {
 						// add delivery address
@@ -869,7 +869,7 @@ class SuperShopCore extends Shop {
 
 					// finalize sql
 					$sql .= " WHERE order_no='$order_no'";
-//					print $sql;
+					// debug([$sql]);
 
 
 					// order creation was successful
@@ -909,6 +909,7 @@ class SuperShopCore extends Shop {
 						if($order_comment) {
 							
 							$sql = "UPDATE ".$this->db_orders." SET comment = '".$order_comment."' WHERE order_no='$order_no'";
+							// debug([$sql]);
 							$query->sql($sql);
 						}
 					
@@ -933,6 +934,7 @@ class SuperShopCore extends Shop {
 						$total_order_price = $this->getTotalOrderPrice($order["id"]);
 						if($total_order_price["price"] === 0) {
 							$sql = "UPDATE ".$this->db_orders." SET status = 1, payment_status = 2 WHERE order_no='$order_no'";
+							// debug([$sql]);
 							$query->sql($sql);
 						}
 
@@ -940,7 +942,7 @@ class SuperShopCore extends Shop {
 
 						// delete cart
 						$sql = "DELETE FROM $this->db_carts WHERE id = ".$cart["id"]." AND cart_reference = '".$cart["cart_reference"]."'";
-			//			print $sql;
+						// debug([$sql]);
 						$query->sql($sql);
 
 						logger()->addLog("SuperShop->newOrderFromCart: order_no:".$order_no);
@@ -2247,13 +2249,10 @@ class SuperShopCore extends Shop {
 	# /#controller#/registerPayment
 	function registerPayment($action) {
 
-		// return 1;
-
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
 		if(count($action) == 1 && $this->validateList(array("payment_amount", "payment_method_id", "order_id", "transaction_id"))) {
-
 
 			$order_id = $this->getProperty("order_id", "value");
 			$transaction_id = $this->getProperty("transaction_id", "value");
@@ -2268,6 +2267,7 @@ class SuperShopCore extends Shop {
 
 				// update modified at time
 				$sql = "INSERT INTO ".$this->db_payments." SET order_id=$order_id, currency='".$order["currency"]."', payment_amount=$payment_amount, transaction_id='$transaction_id', payment_method_id=$payment_method_id";
+				// debug([$sql]);
 				if($query->sql($sql)) {
 					$payment_id = $query->lastInsertId();
 					$this->validateOrder($order["id"]);
