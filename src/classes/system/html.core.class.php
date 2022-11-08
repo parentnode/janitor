@@ -1462,6 +1462,111 @@ class HTMLCore {
 	}
 
 
+	// Create pagination element
+	function pagination($pagination_items, $_options = false) {
+
+		// Default both directions
+		$direction = false;
+
+		// Default show total
+		$show_total = true;
+
+		// Default base url
+		$base_url = $this->path;
+
+		// Query and tags parameter
+		$query = false;
+		$tags = false;
+		$params = "";
+
+
+		// Default class
+		$class = "pagination";
+
+		$labels = [
+			"next" => "Next", 
+			"prev" => "Previous", 
+			"total" => "Page {current_page} of {page_count} pages"
+		];
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "direction"         : $direction          = $_value; break;
+
+					case "show_total"        : $show_total         = $_value; break;
+
+					case "base_url"          : $base_url           = $_value; break;
+					case "query"             : $query              = $_value; break;
+					case "tags"              : $tags               = $_value; break;
+
+					case "class"             : $class              = $_value; break;
+
+					case "labels"            : $labels             = $_value; break;
+
+				}
+			}
+		}
+
+
+		$_ = '';
+
+		// No pagination unless matching elements
+		if(($pagination_items["next"] && ($direction === "next" || !$direction)) || ($pagination_items["prev"] && ($direction === "prev" || !$direction))) {
+
+			$_ .= '<div class="'.$class.'">'."\n";
+			$_ .= "\t".'<ul>'."\n";
+
+			if($query || $tags) {
+
+				$params = "?";
+				if($query) {
+					$params .= "query=".$query;
+				}
+				if($tags) {
+					$params .= "tags=".$tags;
+				}
+				
+			}
+
+
+			if(($direction === "prev" || !$direction) && $pagination_items["prev"]) {
+
+				if($pagination_items["current_page"] > 0) {
+					$_ .= "\t\t".'<li class="previous"><a href="'.$base_url.'/page/'.($pagination_items["current_page"]-1).$params.'">'.strip_tags($labels["prev"]).'</a></li>'."\n";
+				}
+
+			}
+
+
+			if($show_total) {
+
+				$labels["total"] = preg_replace("/\{current_page\}/", $pagination_items["current_page"], $labels["total"]);
+				$labels["total"] = preg_replace("/\{page_count\}/", $pagination_items["page_count"], $labels["total"]);
+
+				$_ .= "\t\t".'<li class="pages">'.$labels["total"].'</li>'."\n";
+			}
+
+
+			if(($direction === "next" || !$direction) && $pagination_items["next"]) {
+
+				// Page based
+				if($pagination_items["current_page"] < $pagination_items["page_count"]) {
+					$_ .= "\t\t".'<li class="next"><a href="'.$base_url.'/page/'.($pagination_items["current_page"]+1).$params.'">'.strip_tags($labels["next"]).'</a></li>'."\n";
+				}
+
+			}
+
+
+			$_ .= "\t".'</ul>'."\n";
+			$_ .= '</div>'."\n";
+
+		}
+
+		return $_;
+	}
 
 
 }
