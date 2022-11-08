@@ -4,22 +4,49 @@ global $model;
 
 $user_groups = $model->getUserGroups();
 
-$options = false;
+$options = [
+	"limit" => 200,
+	"pattern" => false
+];
+
+$query = getVar("query");
+if($query) {
+	$options["query"] = $query;
+}
+if(count($action) > 3) {
+	if($action[2] === "page") {
+		$options["page"] = $action[3];
+	}
+	elseif($action[2] === "search") {
+		$options["page"] = $action[3];
+	}
+	
+}
+
+
 $user_group_id = 0;
 
 // show specific group tab?
 if(count($action) > 1 && $action[1]) {
 	$user_group_id = $action[1];
-	$options = array("user_group_id" => $user_group_id);
+	$options["pattern"] = [
+		"user_group_id"	=> $user_group_id,
+	];
 }
 // no user group passed - default to current users own group
 else if(count($action) == 1) {
 	$user_group_id = session()->value("user_group_id");
-	$options = array("user_group_id" => $user_group_id);
+	$options["pattern"] = [
+		"user_group_id"	=> $user_group_id,
+	];
 }
 
 
-$users = $model->getUsers($options);
+// $users = $model->getUsers($options);
+
+$users = $model->paginate($options);
+// debug(["users", $users]);
+
 $current_user_id = session()->value("user_id");
 
 ?>
@@ -34,22 +61,33 @@ $current_user_id = session()->value("user_id");
 		<?= $HTML->link("Online users", "/janitor/admin/user/online", array("class" => "button", "wrapper" => "li.online")) ?>
 	</ul>
 
+
 <?	if($user_groups): ?>
 	<ul class="tabs">
-<?		foreach($user_groups as $user_group): ?>
+<?		foreach($user_groups as $user_group):
+			if($user_group["id"] != 1): ?>
 		<?= $HTML->link($user_group["user_group"], "/janitor/admin/user/list/".$user_group["id"], array("wrapper" => "li".($user_group["id"] == $user_group_id ? ".selected" : ""))) ?>
-<?		endforeach; ?>
-		<?= $HTML->link("All", "/janitor/admin/user/list/0", array("wrapper" => "li.".($options === false ? "selected" : ""))) ?>
+<?			endif;
+		endforeach; ?>
+		<?= $HTML->link("All", "/janitor/admin/user/list/0", array("wrapper" => "li.".(!$user_group_id ? "selected" : ""))) ?>
 	</ul>
 <?	else: ?>
 	<p>You have no user groups. Create at least one user group before you continue.</p>
 <?	endif; ?>
 
 
-	<div class="all_items i:defaultList filters">
-<?		if($users): ?>
+	<div class="all_items i:defaultList filters" <?= $HTML->jsData(["search"], ["filter-search" => $HTML->path."/list/".$user_group_id]) ?>>
+
+
+<?		if($users && $users["range_users"]): ?>
+
+		<?= $HTML->pagination($users, [
+			"base_url" => "/janitor/admin/user/list/".$user_group_id,
+			"query" => $query,
+		]) ?>
+
 		<ul class="items">
-<?			foreach($users as $item): ?>
+<?			foreach($users["range_users"] as $item): ?>
 			<li class="item item_id:<?= $item["id"] ?>">
 
 				<h3><?= $item["nickname"] ?><?= ($item["id"] == $current_user_id ? " (YOU)" : "") ?></h3>
@@ -79,9 +117,17 @@ $current_user_id = session()->value("user_id");
 			 </li>
 <?			endforeach; ?>
 		</ul>
+
+		<?= $HTML->pagination($users, [
+			"base_url" => "/janitor/admin/user/list/".$user_group_id,
+			"query" => $query,
+		]) ?>
+
 <?		else: ?>
 		<p>No users.</p>
 <?		endif; ?>
+
 	</div>
+
 
 </div>
