@@ -94,7 +94,7 @@ class HTMLCore {
 
 	// data elements for JS interaction
 	// Using default data paths
-	function jsData($_filter = false) {
+	function jsData($_filter = false, $_options = false) {
 
 		$_ = '';
 
@@ -128,6 +128,32 @@ class HTMLCore {
 		if(!$_filter || array_search("qna", $_filter) !== false) {
 			$_ .= ' data-qna-update="'.security()->validPath($this->path."/updateQnA").'"';
 			$_ .= ' data-qna-delete="'.security()->validPath($this->path."/deleteQnA").'"';
+		}
+
+		if(!$_filter || array_search("search", $_filter) !== false) {
+			if($_options && isset($_options["filter-search"])) {
+				$_ .= ' data-filter-search="'.security()->validPath($_options["filter-search"]).'"';
+			}
+			else {
+				$_ .= ' data-filter-search="'.security()->validPath($this->path."/list").'"';
+			}
+
+			if($_options && isset($_options["filter-pattern"])) {
+				$_ .= ' data-filter-pattern="'.($_options["filter-pattern"] ? urlencode(json_encode($_options["filter-pattern"])) : "").'"';
+			}
+			if($_options && isset($_options["filter-tag-contexts"])) {
+				$_ .= ' data-filter-tag-contexts="'.($_options["filter-tag-contexts"] ? $_options["filter-tag-contexts"] : "").'"';
+			}
+
+			$search_query = getVar("query");
+			if($search_query) {
+				$_ .= ' data-filter-query="'. urlencode($search_query).'"';
+			}
+			$search_tags = getVar("tags");
+			if($search_tags) {
+				$_ .= ' data-filter-tags="'. urlencode($search_tags).'"';
+			}
+
 		}
 
 		return $_;
