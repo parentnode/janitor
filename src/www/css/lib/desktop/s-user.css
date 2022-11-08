@@ -8,6 +8,7 @@
 
 /* USEREDIT */
 #content .defaultEdit.userEdit > ul.actions li.cancel {float: right; padding: 0 0 10px 10px;}
+#content .defaultEdit.userEdit > ul.actions li.notice {float: right; padding: 8px 0 10px 10px;}
 
 
 
