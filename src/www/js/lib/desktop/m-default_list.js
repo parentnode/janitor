@@ -300,6 +300,9 @@ Util.Modules["defaultList"] = new function() {
 					if(response.cms_status == "success" && response.cms_object) {
 						this.all_tags = response.cms_object;
 
+						if(this.div_filter && fun(this.div_filter.tagsLoaded)) {
+							this.div_filter.tagsLoaded();
+						}
 					}
 					// error getting tags (could be no tags exists in system)
 					else {
@@ -339,7 +342,7 @@ Util.Modules["defaultList"] = new function() {
 
 
 		// add filters to list
-		if(u.hc(div, "filters")) {
+		if(u.hc(div, "filters") && !div.div_filter) {
 
 			u.defaultFilters(div);
 

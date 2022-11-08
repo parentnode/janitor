@@ -106,101 +106,130 @@ u.addCollapseArrow = function(node) {
 
 u.defaultFilters = function(div) {
 
-	div._filter = u.ie(div, "div", {"class":"filter"});
-	div._filter.div = div;
+	div.div_filter = u.ie(div, "div", {"class":"filter"});
+	div.parentNode.insertBefore(div.div_filter, div);
+	div.div_filter.div = div;
+
+
+	div.div_filter.filter_search = div.getAttribute("data-filter-search");
+
+	div.div_filter.filter_pattern = div.getAttribute("data-filter-pattern");
+	div.div_filter.filter_tag_contexts = div.getAttribute("data-filter-tag-contexts");
+
+	div.div_filter.filter_query = div.getAttribute("data-filter-query");
+	div.div_filter.filter_tags = div.getAttribute("data-filter-tags");
+
+	div.div_filter.list_pagination = u.qs(".pagination", this);
+
+	div.div_filter.selected_tags = [];
 
 
 	var i, node, j, text_node;
 
+	// Prepare for js search
+	if(!div.div_filter.list_pagination) {
 
-	// index list, to speed up filtering process
-	// list should be indexed initially to avoid indexing extended content (like tag-options)
-//	for(i = 0; node = div.nodes[i]; i++) {
-	for(i = 0; i < div.nodes.length; i++) {
-		node = div.nodes[i];
-		node._c = "";
+		// index list, to speed up filtering process
+		// list should be indexed initially to avoid indexing extended content (like tag-options)
+		for(i = 0; i < div.nodes.length; i++) {
+			node = div.nodes[i];
+			node._c = "";
 
-		var text_nodes = u.qsa("h2,h3,h4,h5,p,ul.info,dl,li.tag", node);
-//		for(j = 0; text_node = text_nodes[j]; j++) {
-		for(j = 0; j < text_nodes.length; j++) {
-			text_node = text_nodes[j];
-			node._c += u.text(text_node).toLowerCase() + ";"; //.replace(/\n|\t|\r/g, " ").replace(/[ ]+/g, ",");
+			var text_nodes = u.qsa("h2,h3,h4,h5,p,ul.info,dl,li.tag", node);
+			for(j = 0; j < text_nodes.length; j++) {
+				text_node = text_nodes[j];
+				node._c += u.text(text_node).toLowerCase() + ";";
+			}
 		}
-//		u.bug("c:" + node._c)
+
 	}
 
 
-	// create tag filter set
-	// get all tags in list
-	var tags = u.qsa("li.tag", div.list);
-	if(tags) {
+	div.div_filter.tagsLoaded = function() {
+		u.bug("tags are now available", this.div.all_tags);
 
-		var tag, li, used_tags = [];
-		div._filter._tags = u.ie(div._filter, "ul", {"class":"tags"});
+		// create tag filter set
+		// get all tags in list
 
-//		for(i = 0; node = tags[i]; i++) {
-		for(i = 0; i < tags.length; i++) {
-			node = tags[i];
-			tag = u.text(node);
-			if(used_tags.indexOf(tag) == -1) {
-				used_tags.push(tag);
+		var tags = this.div.all_tags;
+		if(tags) {
+
+			var tag, li, used_tags = [];
+			this._tags = u.ie(div.div_filter, "ul", {"class":"tags"});
+
+	//		for(i = 0; node = tags[i]; i++) {
+			for(i = 0; i < tags.length; i++) {
+				u.bug("tag", tags[i]);
+				// node = tags[i];
+				// tag = u.text(node);
+				tag = tags[i];
+				if((!this.tag_contexts || this.filter_tag_contexts.match(tag.context)) && used_tags.indexOf(tag.context+":"+tag.value) == -1) {
+					used_tags.push(tag.context+":"+tag.value);
+				}
+
+			}
+			used_tags.sort();
+
+
+	//		for(i = 0; tag = used_tags[i]; i++) {
+			for(i = 0; i < used_tags.length; i++) {
+				tag = used_tags[i];
+				li = u.ae(this._tags, "li", {"html":tag});
+				li.tag = tag.toLowerCase();
+				li.div_filter = div.div_filter;
+
+				// tag was selected
+				if(!this.filter_tags.match("/(^|;)"+li.tag+"(;|$)/")) {
+					this.selected_tags.push(li.tag);
+					u.ac(li, "selected");
+				}
+
+				u.e.click(li);
+				li.clicked = function(event) {
+					if(u.hc(this, "selected")) {
+						this.div_filter.selected_tags.splice(this.div_filter.selected_tags.indexOf(this.tag), 1);
+						u.rc(this, "selected");
+					}
+					else {
+						this.div_filter.selected_tags.push(this.tag);
+						u.ac(this, "selected");
+					}
+
+					// u.bug("pre filter")
+					// u.xInObject(this.div_filter.selected_tags);
+
+					// update list filtering
+					this.div_filter.form.updated();
+				}
+
 			}
 
 		}
-		used_tags.sort();
-
-
-//		for(i = 0; tag = used_tags[i]; i++) {
-		for(i = 0; i < used_tags.length; i++) {
-			tag = used_tags[i];
-			li = u.ae(div._filter._tags, "li", {"html":tag});
-			li.tag = tag.toLowerCase();
-			li._filter = div._filter;
-
-			u.e.click(li);
-			li.clicked = function(event) {
-				if(u.hc(this, "selected")) {
-					this._filter.selected_tags.splice(this._filter.selected_tags.indexOf(this.tag), 1);
-					u.rc(this, "selected");
-				}
-				else {
-					this._filter.selected_tags.push(this.tag);
-					u.ac(this, "selected");
-				}
-
-				// u.bug("pre filter")
-				// u.xInObject(this._filter.selected_tags);
-
-				// update list filtering
-				this._filter.form.updated();
-			}
-
-		}
-
-		div._filter.selected_tags = [];
 
 	}
+
+
 
 
 	// insert tags filter
-	div._filter.form = u.f.addForm(div._filter, {"name":"filter", "class":"labelstyle:inject"});
-	u.f.addField(div._filter.form, {"name":"filter", "label":"Type to filter"});
+	div.div_filter.form = u.f.addForm(div.div_filter, {"name":"filter", "class":"labelstyle:inject"});
+	u.f.addField(div.div_filter.form, {"name":"filter", "label":"Type to filter", "value": div.div_filter.filter_query});
 
-	u.f.init(div._filter.form);
-	div._filter.form.div = div;
+	u.f.init(div.div_filter.form);
+	div.div_filter.form.div = div;
 
-	div._filter.input = div._filter.form.inputs["filter"];
+	div.div_filter.input = div.div_filter.form.inputs["filter"];
 
-	div._filter.form.updated = function() {
+	div.div_filter.form.updated = function() {
 
 		u.t.resetTimer(this.t_filter);
-		this.t_filter = u.t.setTimer(this.div._filter, "filterItems", 400);
+		this.t_filter = u.t.setTimer(this.div.div_filter, "filterItems", 400);
 
-		u.ac(this.div._filter, "filtering");
+		u.ac(this.div.div_filter, "filtering");
 	}
 
-
-	div._filter.checkTags = function(node) {
+	// check tags in js filter
+	div.div_filter.checkTags = function(node) {
 
 		if(this.selected_tags.length) {
 
@@ -215,27 +244,58 @@ u.defaultFilters = function(div) {
 		return true;
 	}
 
-	div._filter.filterItems = function() {
+	div.div_filter.filterItems = function() {
 
 		var i, node;
 		var query = this.input.val().toLowerCase();
 		if(this.current_filter != query+","+this.selected_tags.join(",")) {
 
 			this.current_filter = query + "," + this.selected_tags.join(",");
-//			for(i = 0; node = this.div.nodes[i]; i++) {
-			for(i = 0; i < this.div.nodes.length; i++) {
-				node = this.div.nodes[i];
-//				u.bug("match:" + node._c.match(query) + ", " + node._c + ", " + query)
-				if(node._c.match(query) && this.checkTags(node)) {
-					node._hidden = false;
-					u.rc(node, "hidden", false);
-					u.as(node, "display", "block", false);
+
+			// List is paginated – filter using server
+			if(this.list_pagination) {
+				// u.bug("filter using server", query, this.selected_tags);
+
+				this.response = function(response, id) {
+					// u.bug("response", response, this[id]);
+					u.h.navigate(this[id].request_url, this, true);
+					var div_all_items = u.qs("div.all_items", response);
+
+					div_all_items.div_filter = this;
+
+					this.div.parentNode.replaceChild(div_all_items, this.div);
+
+					this.div = div_all_items;
+
+					u.init(this.div.parentNode);
 				}
-				else {
-					node._hidden = true;
-					u.ac(node, "hidden", false);
-					u.as(node, "display", "none", false);
+
+				u.request(this, this.filter_search, {
+					data: "query="+query+"&tags="+this.selected_tags.join(","),
+					method: "get"
+				});
+				
+			}
+			// Entire list is shown – filter using js
+			else {
+				// u.bug("filter using js")
+
+	//			for(i = 0; node = this.div.nodes[i]; i++) {
+				for(i = 0; i < this.div.nodes.length; i++) {
+					node = this.div.nodes[i];
+	//				u.bug("match:" + node._c.match(query) + ", " + node._c + ", " + query)
+					if(node._c.match(query) && this.checkTags(node)) {
+						node._hidden = false;
+						u.rc(node, "hidden", false);
+						u.as(node, "display", "block", false);
+					}
+					else {
+						node._hidden = true;
+						u.ac(node, "hidden", false);
+						u.as(node, "display", "none", false);
+					}
 				}
+
 			}
 
 		}

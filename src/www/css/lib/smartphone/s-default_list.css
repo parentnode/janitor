@@ -46,16 +46,16 @@
 
 
 /* FILTERS */
-#content div.all_items div.filter {padding: 10px 0 4px; min-height: 28px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative; overflow: hidden;}
-#content div.all_items div.filter ul.tags {padding-right: 15px;}
-#content div.all_items div.filter ul.tags li {font-size: 15px; background-color: #dedede; color: #313942; cursor: pointer;}
-#content div.all_items div.filter ul.tags li.selected,
-#content div.all_items div.filter ul.tags li:active {background-color: #313942; color: #ffffff;}
-#content div.all_items div.filter.filtering {background: red;}
-#content div.all_items div.filter form {}
-#content div.all_items div.filter .field {padding: 0 13px 6px;}
-#content div.all_items div.filter .field label {display: none;}
-#content div.all_items div.filter .field input {}
+#content div.filter {padding: 10px 0 4px; min-height: 28px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative; overflow: hidden;}
+#content div.filter ul.tags {padding-right: 15px;}
+#content div.filter ul.tags li {font-size: 15px; background-color: #dedede; color: #313942; cursor: pointer;}
+#content div.filter ul.tags li.selected,
+#content div.filter ul.tags li:active {background-color: #313942; color: #ffffff;}
+#content div.filter.filtering {background: red;}
+#content div.filter form {}
+#content div.filter .field {padding: 0 13px 6px;}
+#content div.filter .field label {display: none;}
+#content div.filter .field input {}
 
 
 
