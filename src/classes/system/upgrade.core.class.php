@@ -60,11 +60,9 @@ class UpgradeCore extends Model {
 		$query = new Query();
 		$IC = new Items();
 		include_once("classes/users/superuser.class.php");
-		$UC = new SuperUser();
 
 		if((defined("SITE_SHOP") && SITE_SHOP)) {
 			include_once("classes/shop/supershop.class.php");
-			$SC = new SuperShop();
 		}
 
 
@@ -2300,6 +2298,8 @@ class UpgradeCore extends Model {
 
 			$IC = new Items();
 			$query = new Query();
+			$UC = new SuperUser();
+			$SC = new SuperShop();
 
 			$count = 0;
 			$limit = 5000;
