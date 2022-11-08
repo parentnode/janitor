@@ -5,7 +5,7 @@ $query = new Query();
 
 $users = $model->getUnverifiedUsernames([
 	"type" => "email"
-	]);
+]);
 ?>
 <div class="scene i:scene defaultList usersNotVerified">
 	<h1>Unverified usernames</h1>
