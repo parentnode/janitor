@@ -389,10 +389,14 @@ class UserCore extends Model {
 
 		$order = "nickname ASC";
 
+		$limit = false;
+
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 					case "order"			: $order			= $_value; break;
+
+					case "limit"			: $limit			= $_value; break;
 				}
 			}
 		}
@@ -400,7 +404,7 @@ class UserCore extends Model {
 		$query = new Query();
 
 		// Exclude Guest user for all-users list
-		if($query->sql("SELECT id, nickname FROM ".$this->db." WHERE id != 1 AND status = 1 ORDER BY $order")) {
+		if($query->sql("SELECT id, nickname FROM ".$this->db." WHERE id != 1 AND status = 1 ORDER BY $order".($limit ? " LIMIT $limit" : ""))) {
 			 return $query->results();
 		}
 
@@ -2305,6 +2309,7 @@ class UserCore extends Model {
 
 		return false;
 	}
+
 
 }
 

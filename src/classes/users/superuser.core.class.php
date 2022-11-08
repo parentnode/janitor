@@ -456,6 +456,8 @@ class SuperUserCore extends User {
 	}
 
 
+
+
 	/**
 	* Get users
 	*
@@ -471,11 +473,13 @@ class SuperUserCore extends User {
 		// default values
 		$user_id = false;
 		$user_group_id = false;
-		$order = "status DESC, id DESC";
+		$order = "created_at DESC";
 
 		$username_id = false;
 		$email = false;
 		$mobile = false;
+
+		$limit = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -488,6 +492,8 @@ class SuperUserCore extends User {
 					case "username_id"		: $username_id		= $_value; break;	
 					case "email"			: $email			= $_value; break;
 					case "mobile"			: $mobile			= $_value; break;
+
+					case "limit"			: $limit			= $_value; break;
 				}
 			}
 		}
@@ -498,7 +504,7 @@ class SuperUserCore extends User {
 		if($user_id) {
 
 			$sql = "SELECT * FROM ".$this->db." WHERE id = $user_id";
-//			print $sql;
+			// debug(["sql", $sql]);
 			if($query->sql($sql)) {
 				$user = $query->result(0);
 				return $user;
@@ -508,7 +514,7 @@ class SuperUserCore extends User {
 		// get users for user_group
 		else if($user_group_id) {
 
-			$sql = "SELECT * FROM ".$this->db." WHERE user_group_id = $user_group_id";
+			$sql = "SELECT * FROM ".$this->db." WHERE user_group_id = $user_group_id ORDER BY $order".($limit ? " LIMIT $limit" : "");
 			// debug(["sql", $sql]);
 			if($query->sql($sql)) {
 				$users = $query->results();
@@ -548,7 +554,7 @@ class SuperUserCore extends User {
 		// return all users
 		else if(!isset($_options["user_id"]) && !isset($_options["user_group_id"]) && !isset($_options["email"]) && !isset($_options["mobile"])) {
 			// Exclude Guest user for all-users list
-			$sql = "SELECT * FROM ".$this->db." WHERE id != 1 ORDER BY $order";
+			$sql = "SELECT * FROM ".$this->db." WHERE id != 1 ORDER BY $order".($limit ? " LIMIT $limit" : "");
 			// debug(["sql", $sql]);
 			if($query->sql($sql)) {
 				 return $query->results();
@@ -556,6 +562,346 @@ class SuperUserCore extends User {
 		}
 
 		return false;
+	}
+
+
+
+
+
+	// SEARCH
+
+	function search($_options = false) {
+		// debug(["search", $_options]);
+
+		// $order = "u.status DESC, u.id DESC";
+		// $limit = false;
+
+		$pattern = false;
+
+		$query_string = "";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "pattern"     : $pattern               = $_value; break;
+
+					// case "order"             : $order              = $_value; break;
+					// case "limit"             : $limit              = $_value; break;
+
+					// case "user_group_id"     : $user_group_id      = $_value; break;
+
+					case "query"             : $query_string       = $_value; break;
+				}
+			}
+		}
+
+		$query = new Query();
+
+		$sql = "SELECT u.id, u.nickname, u.last_login_at, u.status, u.modified_at, u.created_at, u.user_group_id FROM ".$this->db." AS u LEFT JOIN ".$this->db_usernames." AS un ON u.id = un.user_id WHERE u.id != 1";
+
+		if($query_string) {
+			$sql .= " AND (u.nickname LIKE '%".$query_string."%'";
+				$sql .= " OR u.firstname LIKE '%".$query_string."%'";
+				$sql .= " OR u.lastname LIKE '%".$query_string."%'";
+				$sql .= " OR un.username LIKE '%".$query_string."%'";
+			$sql .= ")";
+		}
+
+		if($pattern && isset($pattern["user_group_id"]) && $pattern["user_group_id"]) {
+			$sql .= " AND user_group_id = ".$pattern["user_group_id"];
+		}
+
+		$sql .= " GROUP BY u.id";
+
+		if($pattern && isset($pattern["order"]) && $pattern["order"]) {
+			$sql .= " ORDER BY ".$pattern["order"];
+		}
+		// Default order
+		else {
+			$sql .= " ORDER BY u.created_at DESC";
+		}
+		if($pattern && isset($pattern["limit"]) && $pattern["limit"]) {
+		// if($limit) {
+			$sql .= " LIMIT ".$pattern["limit"];
+		}
+
+		// debug(["sql", $sql]);
+		$query->sql($sql);
+		$results = $query->results();
+
+
+		// print_r($results);
+		return $results;
+
+	}
+
+
+
+
+	// PAGINATION STUFF
+
+
+	/**
+	* Get next user(s)
+	*
+	* Can receive users array to use for finding next user(s) 
+	* or receive query syntax to perform getItems request on it own
+	*
+	* @param $user_id user_id to get next from
+	*/
+	function getNext($user_id, $_options = false) {
+
+		$users = false;
+		$limit = 1;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "users"   : $users    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
+
+				}
+			}
+		}
+
+		// debug(["getNext", $user_id, $_options]);
+
+
+		// filtering variables
+		$next_users = array();
+		$user_found = false;
+		$counted = 0;
+
+		// loop through all users, looking for starting point
+		for($i = 0; $i < count($users); $i++) {
+
+			// wait until we find starting point
+			if($user_found) {
+
+				// keep an eye on counter
+				$counted++;
+
+				// add to next scope
+				$next_users[] = $users[$i];
+
+				// end when enough users have been collected
+				if($counted == $limit) {
+					break;
+				}
+			}
+
+			// found starting point
+			else if($user_id === $users[$i]["id"]) {
+				$user_found = true;
+			}
+		}
+
+
+		// return set of next users
+		return $next_users;
+	}
+
+	/**
+	* Get previous user(s)
+	*
+	* Can receive users array to use for finding previous user(s) 
+	* or receive query syntax to perform getItems request on it own
+	* TODO: This implementation is far from performance optimized, but works - consider alternate implementations
+	*/
+	function getPrev($user_id, $_options = false) {
+
+		$users = false;
+		$limit = 1;
+
+		// Other getItems patters properties may also be passed
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "users"   : $users    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
+				}
+			}
+		}
+
+
+		// filtering variables
+		$prev_users = array();
+		$user_found = false;
+		$counted = 0;
+		// loop backwards through all users, looking for starting point
+		for($i = count($users)-1; $i >= 0; $i--) {
+
+			// wait until we find starting point
+			if($user_found) {
+
+				// keep an eye on counter
+				$counted++;
+
+				// add to beginning of prev scope
+				array_unshift($prev_users, $users[$i]);
+
+				// end when enough users have been collected
+				if($counted == $limit) {
+					break;
+				}
+			}
+
+			// found starting point
+			else if($user_id === $users[$i]["id"]) {
+				$user_found = true;
+			}
+		}
+
+
+		// return set of prev users
+		return $prev_users;
+	}
+
+
+	/**
+	 * Paginate a list of users
+	 * 
+	 * Splits a list of users into smaller fragments and returns information required to create meaningful pagination
+	 *
+	 * @param array $_options
+	 * * pattern – array of options to be sent to Item::getItems, which returns the users to be paginated
+	 * * limit – maximal number of users per page. Default: 5.
+	 * * sindex – if passed without the direction parameter, the pagination will start with the associated user
+	 * * direction – can be passed in combination with the sindex parameter
+	 * * * "next" – pagination will start with the user that comes *after* the user with the specified sindex. 
+	 * * * "prev" – pagination will show the users that come immediately *before* the user with the specified sindex.
+	 * 
+	 * 
+	 * @return array
+	 * * range_users (list of users in specified range)
+	 * * next users
+	 * * previous users
+	 * * first id in range
+	 * * last id in range
+	 * * first s_index in range
+	 * * last s_index in range
+	 */
+	function paginate($_options) {
+
+		// Items selected for this pagination range
+		$range_users = false;
+
+
+		// Start range_users from page – Default false
+		$page = false;
+
+		// Search and extend pattern for range_users / pagination
+		$pattern = false;
+
+		// Search query
+		$query_string = false;
+
+		// Limit for range_users - Default 5
+		$limit = 20;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "pattern"              : $pattern         = $_value; break;
+
+					case "limit"                : $limit           = $_value; break;
+					case "page"                 : $page            = $_value; break;
+
+					case "query"             : $query_string       = $_value; break;
+				}
+			}
+		}
+
+
+		// get all users sorted as base for pagination
+		$users = $this->search(["query" => $query_string, "pattern" => $pattern]);
+
+
+		// if there is no user_id or page to start from beginning
+		// Select first N posts
+		if(!$page) {
+
+			// simply add limit to users query
+			$pattern["limit"] = $limit;
+			$range_users = $this->search(["query" => $query_string, "pattern" => $pattern]);
+
+		}
+		// Starting point exists
+		else {
+
+			$start_index = ($page-1) * $limit;
+			if(count($users) >= $start_index) {
+
+				// Find user_id of first element of page 
+				$index_user = $users[$start_index];
+
+				// Include index user (specified by passed sindex or user_id)
+				// Reduce limit to make room
+				// (for page based pagination it doesn't make sense to exclude user)
+				$range_users = $this->getNext($index_user["id"], ["users" => $users, "limit" => $limit-1]);
+				array_unshift($range_users, $index_user);
+
+			}
+
+		}
+
+
+		// Page information
+		$total_count = count($users);
+
+		// Include page count and current page number
+		$page_count = intval(ceil($total_count / $limit));
+		$current_page = false;
+
+		$first_id = false;
+		// $first_sindex = false;
+		$last_id = false;
+		// $last_sindex = false;
+		$prev = false;
+		$next = false;
+
+
+		if($range_users) {
+
+			if(isset($range_users[0])) {
+
+				$first_id = $range_users[0]["id"];
+				// $first_sindex = $range_users[0]["sindex"];
+
+				$prev = $this->getPrev($first_id, ["users" => $users, "limit" => 1]);
+				if($prev) {
+					$prev = $prev[0];
+				}
+
+				// If there is a first id, then there must be a last id (which might be the same, though)
+				$last_id = $range_users[count($range_users)-1]["id"];
+				// $last_sindex = $range_users[count($range_users)-1]["sindex"];
+
+				$next = $this->getNext($last_id, ["users" => $users, "limit" => 1]);
+				if($next) {
+					$next = $next[0];
+				}
+
+				// Locate first_id in page stack
+				$current_position = arrayKeyValue($users, "id", $first_id);
+				$current_page = intval(floor($current_position / $limit)+1);
+
+			}
+
+		}
+
+
+		// return all pagination info
+		// range_users = list of users in specified range
+		// next user
+		// previous user
+		// first id in range
+		// last id in range
+		return array("range_users" => $range_users, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "total" => $total_count, "page_count" => $page_count, "current_page" => $current_page);
 	}
 
 
@@ -607,9 +953,9 @@ class SuperUserCore extends User {
 
 		else if($user_id) {
 
-			// return first username of type
+			// return first username of type (ordered by verification)
 			if($type) {
-				$sql = "SELECT * FROM ".$this->db_usernames." WHERE user_id = $user_id AND type = '$type'";
+				$sql = "SELECT * FROM ".$this->db_usernames." WHERE user_id = $user_id AND type = '$type' ORDER BY verified DESC";
 				if($query->sql($sql)) {
 					return $query->result(0);
 				}
@@ -1757,6 +2103,7 @@ class SuperUserCore extends User {
 		$SELECT[] = "users.id as user_id";
 		$SELECT[] = "usernames.id as username_id";
 		$SELECT[] = "usernames.username as username";
+		$SELECT[] = "usernames.type as type";
 		$SELECT[] = "usernames.verification_code as verification_code";
 		$SELECT[] = "users.nickname as nickname";
 		$SELECT[] = "users.created_at as created_at";
