@@ -950,6 +950,8 @@ class ItemsCore {
 				$SELECT[] = "items.modified_at";
 				$SELECT[] = "items.published_at";
 
+				$SELECT[] = "searchable_string";
+
 				$FROM[] = SITE_DB.".$search_view_id as items";
 
 				$WHERE[] = "searchable_string LIKE '%$query_string%'";
@@ -1248,6 +1250,7 @@ class ItemsCore {
 	 * * last s_index in range
 	 */
 	function paginate($_options) {
+		// debug(["paginate", $_options]);
 
 		// Items selected for this pagination range
 		$range_items = false;
