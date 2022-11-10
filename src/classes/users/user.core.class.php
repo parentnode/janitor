@@ -631,6 +631,7 @@ class UserCore extends Model {
 							if($maillist && $maillist_name) {
 
 								// check if maillist exists
+								global $page;
 								$maillists = $page->maillists();
 								$maillist_match = arrayKeyValue($maillists, "name", $maillist_name);
 								if($maillist_match !== false) {
