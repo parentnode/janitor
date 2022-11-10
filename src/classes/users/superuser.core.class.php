@@ -584,14 +584,10 @@ class SuperUserCore extends User {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "pattern"     : $pattern               = $_value; break;
-
-					// case "order"             : $order              = $_value; break;
-					// case "limit"             : $limit              = $_value; break;
-
-					// case "user_group_id"     : $user_group_id      = $_value; break;
+					case "pattern"           : $pattern            = $_value; break;
 
 					case "query"             : $query_string       = $_value; break;
+
 				}
 			}
 		}
@@ -811,7 +807,7 @@ class SuperUserCore extends User {
 					case "limit"                : $limit           = $_value; break;
 					case "page"                 : $page            = $_value; break;
 
-					case "query"             : $query_string       = $_value; break;
+					case "query"                : $query_string    = $_value; break;
 				}
 			}
 		}

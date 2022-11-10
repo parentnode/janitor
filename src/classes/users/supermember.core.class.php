@@ -204,11 +204,384 @@ class SuperMemberCore extends Member {
 		return false;
 	}	
 
-	
+
+
+	// SEARCH
+
+	function search($_options = false) {
+		// debug(["search", $_options]);
+
+
+		$pattern = false;
+
+		$query_string = "";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "pattern"           : $pattern            = $_value; break;
+
+					case "query"             : $query_string       = $_value; break;
+
+				}
+			}
+		}
+
+		$query = new Query();
+
+		include_once("classes/users/superuser.class.php");
+		$UC = new SuperUser();
+		include_once("classes/shop/supershop.class.php");
+		$SC = new SuperShop();
+
+		$IC = new Items();
+		$membership_model = $IC->typeObject("membership");
+
+		global $page;
+
+
+		// Prepare query parts
+		$SELECT = array();
+		$FROM = array();
+		$LEFTJOIN = array();
+		$WHERE = array();
+		$GROUP_BY = "";
+		$HAVING = "";
+		$ORDER = array();
+		$LIMIT = false;
+
+		// Add base select properties
+		$SELECT[] = "m.id";
+		$SELECT[] = "m.user_id";
+		$SELECT[] = "m.subscription_id";
+
+		$SELECT[] = "s.expires_at";
+		$SELECT[] = "s.custom_price";
+
+		$SELECT[] = "p.price";
+		$SELECT[] = "p.currency";
+
+		$SELECT[] = "mi.name as membership";
+
+		$SELECT[] = "o.payment_status";
+
+		$SELECT[] = "GROUP_CONCAT(DISTINCT un.username SEPARATOR ', ') AS usernames";
+
+		$SELECT[] = "u.nickname";
+
+
+		$FROM[] = $this->db_members." AS m";
+
+
+		if(isset($pattern["item_id"])) {
+			$WHERE[] = "s.item_id = ".$pattern["item_id"];
+		}
+
+
+		$LEFTJOIN[] = $UC->db." AS u ON m.user_id = u.id";
+		$LEFTJOIN[] = $UC->db_usernames." AS un ON m.user_id = un.user_id";
+		$LEFTJOIN[] = $this->db_subscriptions." AS s ON m.subscription_id = s.id";
+		$LEFTJOIN[] = $SC->db_orders." AS o ON s.order_id = o.id";
+		$LEFTJOIN[] = $membership_model->db." AS mi ON s.item_id = mi.item_id";
+		$LEFTJOIN[] = UT_ITEMS_PRICES." AS p ON s.item_id = p.item_id AND p.currency = '".$page->currency()."'";
+
+		if($query_string) {
+			$WHERE[] = "(o.order_no LIKE '%".$query_string."%' OR u.nickname LIKE '%".$query_string."%' OR u.firstname LIKE '%".$query_string."%' OR u.lastname LIKE '%".$query_string."%' OR un.username LIKE '%".$query_string."%' OR mi.name LIKE '%".$query_string."%')";
+		}
+
+		// Use order by from pattern or default order
+		$ORDER[] = isset($pattern["order"]) ? $pattern["order"] : "o.id DESC";
+
+		// Use limit from pattern
+		if(isset($pattern["limit"]) && $pattern["limit"]) {
+			$LIMIT = $pattern["limit"];
+		}
+
+		$GROUP_BY = "m.id";
+
+
+		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER, "LIMIT" => $LIMIT));
+
+		// debug(["sql", $sql]);
+		$query->sql($sql);
+		$results = $query->results();
+
+
+		// print_r($results);
+		return $results;
+
+	}
+
+
+
+
+	// PAGINATION STUFF
+
+
+	/**
+	* Get next member(s)
+	*
+	* Can receive members array to use for finding next member(s) 
+	* or receive query syntax to perform getItems request on it own
+	*
+	* @param $member_id member_id to get next from
+	*/
+	function getNext($member_id, $_options = false) {
+
+		$members = false;
+		$limit = 1;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "members"   : $members    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
+
+				}
+			}
+		}
+
+		// debug(["getNext", $member_id, $_options]);
+
+
+		// filtering variables
+		$next_members = array();
+		$member_found = false;
+		$counted = 0;
+
+		// loop through all members, looking for starting point
+		for($i = 0; $i < count($members); $i++) {
+
+			// wait until we find starting point
+			if($member_found) {
+
+				// keep an eye on counter
+				$counted++;
+
+				// add to next scope
+				$next_members[] = $members[$i];
+
+				// end when enough members have been collected
+				if($counted == $limit) {
+					break;
+				}
+			}
+
+			// found starting point
+			else if($member_id === $members[$i]["id"]) {
+				$member_found = true;
+			}
+		}
+
+
+		// return set of next members
+		return $next_members;
+	}
+
+	/**
+	* Get previous member(s)
+	*
+	* Can receive members array to use for finding previous member(s) 
+	* or receive query syntax to perform getItems request on it own
+	* TODO: This implementation is far from performance optimized, but works - consider alternate implementations
+	*/
+	function getPrev($member_id, $_options = false) {
+
+		$members = false;
+		$limit = 1;
+
+		// Other getItems patters properties may also be passed
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "members"  : $members    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
+				}
+			}
+		}
+
+
+		// filtering variables
+		$prev_members = array();
+		$member_found = false;
+		$counted = 0;
+		// loop backwards through all members, looking for starting point
+		for($i = count($members)-1; $i >= 0; $i--) {
+
+			// wait until we find starting point
+			if($member_found) {
+
+				// keep an eye on counter
+				$counted++;
+
+				// add to beginning of prev scope
+				array_unshift($prev_members, $members[$i]);
+
+				// end when enough members have been collected
+				if($counted == $limit) {
+					break;
+				}
+			}
+
+			// found starting point
+			else if($member_id === $members[$i]["id"]) {
+				$member_found = true;
+			}
+		}
+
+
+		// return set of prev members
+		return $prev_members;
+	}
+
+
+	/**
+	 * Paginate a list of members
+	 * 
+	 * Splits a list of members into smaller fragments and returns information required to create meaningful pagination
+	 *
+	 * @param array $_options
+	 * * pattern – array of options to be sent to SuperShop::search, which returns the members to be paginated
+	 * * limit – maximal number of members per page. Default: 5.
+	 * 
+	 * 
+	 * @return array
+	 * * range_members (list of members in specified range)
+	 * * next members
+	 * * previous members
+	 * * first id in range
+	 * * last id in range
+	 */
+	function paginate($_options) {
+
+		// Items selected for this pagination range
+		$range_members = false;
+
+
+		// Start range_members from page – Default false
+		$page = false;
+
+		// Search and extend pattern for range_members / pagination
+		$pattern = false;
+
+		// Search query
+		$query_string = false;
+
+		// Limit for range_members - Default 5
+		$limit = 20;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "pattern"              : $pattern         = $_value; break;
+
+					case "limit"                : $limit           = $_value; break;
+					case "page"                 : $page            = $_value; break;
+
+					case "query"                : $query_string    = $_value; break;
+				}
+			}
+		}
+
+
+		// get all members sorted as base for pagination
+		$members = $this->search(["query" => $query_string, "pattern" => $pattern]);
+
+
+		// if there is no user_id or page to start from beginning
+		// Select first N posts
+		if(!$page) {
+
+			// simply add limit to members query
+			$pattern["limit"] = $limit;
+			$range_members = $this->search(["query" => $query_string, "pattern" => $pattern]);
+
+		}
+		// Starting point exists
+		else {
+
+			$start_index = ($page-1) * $limit;
+			if(count($members) >= $start_index) {
+
+				// Find user_id of first element of page 
+				$index_user = $members[$start_index];
+
+				// Include index user (specified by passed sindex or user_id)
+				// Reduce limit to make room
+				// (for page based pagination it doesn't make sense to exclude user)
+				$range_members = $this->getNext($index_user["id"], ["members" => $members, "limit" => $limit-1]);
+				array_unshift($range_members, $index_user);
+
+			}
+
+		}
+
+
+		// Page information
+		$total_count = count($members);
+
+		// Include page count and current page number
+		$page_count = intval(ceil($total_count / $limit));
+		$current_page = false;
+
+		$first_id = false;
+		// $first_sindex = false;
+		$last_id = false;
+		// $last_sindex = false;
+		$prev = false;
+		$next = false;
+
+
+		if($range_members) {
+
+			if(isset($range_members[0])) {
+
+				$first_id = $range_members[0]["id"];
+				// $first_sindex = $range_members[0]["sindex"];
+
+				$prev = $this->getPrev($first_id, ["members" => $members, "limit" => 1]);
+				if($prev) {
+					$prev = $prev[0];
+				}
+
+				// If there is a first id, then there must be a last id (which might be the same, though)
+				$last_id = $range_members[count($range_members)-1]["id"];
+				// $last_sindex = $range_members[count($range_members)-1]["sindex"];
+
+				$next = $this->getNext($last_id, ["members" => $members, "limit" => 1]);
+				if($next) {
+					$next = $next[0];
+				}
+
+				// Locate first_id in page stack
+				$current_position = arrayKeyValue($members, "id", $first_id);
+				$current_page = intval(floor($current_position / $limit)+1);
+
+			}
+
+		}
+
+
+		// return all pagination info
+		// range_members = list of members in specified range
+		// next user
+		// previous user
+		// first id in range
+		// last id in range
+		return array("range_members" => $range_members, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "total" => $total_count, "page_count" => $page_count, "current_page" => $current_page);
+	}
+
+
+
+
 	/**
 	 * Get member count
 	 * 
-	 * A shorthand function to get order count for UI
+	 * A shorthand function to get member count for UI
 	 * Can return the total member count, or member count for a specific membership type.
 	 *
 	 * @param array|false $_options
@@ -218,7 +591,7 @@ class SuperMemberCore extends Member {
 	 */
 	function getMemberCount($_options = false) {
 
-		// get all count of orders with status
+		// get all count of members of item_id
 		$item_id = false;
 
 

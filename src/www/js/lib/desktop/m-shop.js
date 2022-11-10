@@ -383,7 +383,7 @@ Util.Modules["orderItemsList"] = new function() {
 
 Util.Modules["orderList"] = new function() {
 	this.init = function(div) {
-		u.bug("orderList", div.nodes);
+		// u.bug("orderList", div.nodes);
 
 		div.pending_count = u.qs("ul.tab li.pending span", div);
 		div.waiting_count = u.qs("ul.tab li.waiting span", div);

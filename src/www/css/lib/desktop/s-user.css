@@ -176,6 +176,14 @@
 #content .defaultEdit.userMember div.orders ul.items {padding-bottom: 25px;}
 
 
+#content .scene.memberList ul.items > li dl.info dt.custom_price {display: none;}
+#content .scene.memberList ul.items > li dl.info dd.custom_price {position: absolute; top: 10px; right: 90px; font-size: 22px;}
+
+#content .scene.memberList ul.items > li dl.info dt.price {display: none;}
+#content .scene.memberList ul.items > li dl.info dd.price {position: absolute; top: 10px; right: 90px; font-size: 22px;}
+
+#content .scene.memberList ul.items > li dl.info dd.custom_price ~ dd.price {text-decoration: line-through; top: 40px; font-size: 18px;}
+
 /* COMMENTS */
 #content .defaultList.userContentList div.comments ul.items > li {}
 

@@ -116,8 +116,10 @@ u.defaultFilters = function(div) {
 	div.div_filter.filter_pattern = div.getAttribute("data-filter-pattern");
 	div.div_filter.filter_tag_contexts = div.getAttribute("data-filter-tag-contexts");
 
-	div.div_filter.filter_query = div.getAttribute("data-filter-query");
-	div.div_filter.filter_tags = div.getAttribute("data-filter-tags");
+	div.div_filter.filter_query = decodeURIComponent((div.getAttribute("data-filter-query") || "").replace(/\+/g, "%20"));
+	div.div_filter.filter_tags = decodeURIComponent((div.getAttribute("data-filter-tags") || "").replace(/\+/g, "%20"));
+
+	// u.bug("v", div.getAttribute("data-filter-query"), decodeURI(div.getAttribute("data-filter-query")), decodeURIComponent(div.getAttribute("data-filter-query")), unescape(div.getAttribute("data-filter-query")));
 
 	div.div_filter.list_pagination = u.qs(".pagination", this);
 
@@ -127,7 +129,7 @@ u.defaultFilters = function(div) {
 	var i, node, j, text_node;
 
 	// Prepare for js search
-	if(!div.div_filter.list_pagination) {
+	if(!div.div_filter.filter_search || !div.div_filter.list_pagination) {
 
 		// index list, to speed up filtering process
 		// list should be indexed initially to avoid indexing extended content (like tag-options)
@@ -146,7 +148,7 @@ u.defaultFilters = function(div) {
 
 
 	div.div_filter.tagsLoaded = function() {
-		u.bug("tags are now available", this.div.all_tags);
+		// u.bug("tags are now available", this.div.all_tags);
 
 		// create tag filter set
 		// get all tags in list
@@ -157,13 +159,12 @@ u.defaultFilters = function(div) {
 			var tag, li, used_tags = [];
 			this._tags = u.ie(div.div_filter, "ul", {"class":"tags"});
 
-	//		for(i = 0; node = tags[i]; i++) {
 			for(i = 0; i < tags.length; i++) {
-				u.bug("tag", tags[i]);
+				// u.bug("tag", tags[i]);
 				// node = tags[i];
 				// tag = u.text(node);
 				tag = tags[i];
-				if((!this.tag_contexts || this.filter_tag_contexts.match(tag.context)) && used_tags.indexOf(tag.context+":"+tag.value) == -1) {
+				if((!this.filter_tag_contexts || this.filter_tag_contexts.match(tag.context)) && used_tags.indexOf(tag.context+":"+tag.value) == -1) {
 					used_tags.push(tag.context+":"+tag.value);
 				}
 
@@ -171,15 +172,16 @@ u.defaultFilters = function(div) {
 			used_tags.sort();
 
 
-	//		for(i = 0; tag = used_tags[i]; i++) {
 			for(i = 0; i < used_tags.length; i++) {
 				tag = used_tags[i];
 				li = u.ae(this._tags, "li", {"html":tag});
 				li.tag = tag.toLowerCase();
 				li.div_filter = div.div_filter;
 
+				// u.bug("ft", this.filter_tags, "t", li.tag, this.filter_tags.match('/(^|,)'+li.tag+'(,|$)/'), this.filter_tags.match('(^|,)'+li.tag+'(,|$)'), this.filter_tags.match(li.tag));
+
 				// tag was selected
-				if(!this.filter_tags.match("/(^|;)"+li.tag+"(;|$)/")) {
+				if(this.filter_tags && this.filter_tags.match('(^|;)'+li.tag+'(;|$)')) {
 					this.selected_tags.push(li.tag);
 					u.ac(li, "selected");
 				}
@@ -206,12 +208,14 @@ u.defaultFilters = function(div) {
 
 		}
 
+		delete this.tagsLoaded;
 	}
 
 
 
 
 	// insert tags filter
+	// u.bug("v", div.div_filter.filter_query);
 	div.div_filter.form = u.f.addForm(div.div_filter, {"name":"filter", "class":"labelstyle:inject"});
 	u.f.addField(div.div_filter.form, {"name":"filter", "label":"Type to filter", "value": div.div_filter.filter_query});
 
@@ -248,12 +252,12 @@ u.defaultFilters = function(div) {
 
 		var i, node;
 		var query = this.input.val().toLowerCase();
-		if(this.current_filter != query+","+this.selected_tags.join(",")) {
+		if(this.current_filter != query+","+this.selected_tags.join(";")) {
 
-			this.current_filter = query + "," + this.selected_tags.join(",");
+			this.current_filter = query + "," + this.selected_tags.join(";");
 
 			// List is paginated – filter using server
-			if(this.list_pagination) {
+			if(this.filter_search && this.list_pagination) {
 				// u.bug("filter using server", query, this.selected_tags);
 
 				this.response = function(response, id) {
@@ -271,12 +275,12 @@ u.defaultFilters = function(div) {
 				}
 
 				u.request(this, this.filter_search, {
-					data: "query="+query+"&tags="+this.selected_tags.join(","),
+					data: "query="+encodeURIComponent(query)+"&tags="+encodeURIComponent(this.selected_tags.join(";")),
 					method: "get"
 				});
 				
 			}
-			// Entire list is shown – filter using js
+			// Serverside filtering not enabled – filter using js
 			else {
 				// u.bug("filter using js")
 

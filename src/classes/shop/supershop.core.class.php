@@ -1458,6 +1458,367 @@ class SuperShopCore extends Shop {
 		return false;
 	}
 
+
+
+
+	// SEARCH
+
+	function searchOrders($_options = false) {
+		// debug(["searchOrders", $_options]);
+
+
+		$pattern = false;
+
+		$query_string = "";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "pattern"           : $pattern            = $_value; break;
+
+					case "query"             : $query_string       = $_value; break;
+
+				}
+			}
+		}
+
+		$query = new Query();
+		include_once("classes/users/superuser.class.php");
+		$UC = new SuperUser();
+
+
+		// Prepare query parts
+		$SELECT = array();
+		$FROM = array();
+		$LEFTJOIN = array();
+		$WHERE = array();
+		$GROUP_BY = "";
+		$HAVING = "";
+		$ORDER = array();
+		$LIMIT = false;
+
+		// Add base select properties
+		$SELECT[] = "o.id";
+		$SELECT[] = "o.user_id";
+		$SELECT[] = "o.order_no";
+		$SELECT[] = "o.shipping_status";
+		$SELECT[] = "o.status";
+		$SELECT[] = "o.created_at";
+		$SELECT[] = "o.payment_status";
+
+		$SELECT[] = "GROUP_CONCAT(DISTINCT un.username SEPARATOR ', ') AS email";
+
+		$SELECT[] = "u.nickname";
+
+		$SELECT[] = "COUNT(DISTINCT oi.name) AS item_count";
+		$SELECT[] = "GROUP_CONCAT(DISTINCT oi.name SEPARATOR ', ') AS order_items";
+
+		$FROM[] = $this->db_orders." AS o";
+
+
+		if(isset($pattern["status"])) {
+			$WHERE[] = "o.status = ".$pattern["status"];
+		}
+
+
+		$LEFTJOIN[] = $UC->db." AS u ON o.user_id = u.id";
+		$LEFTJOIN[] = $UC->db_usernames." AS un ON o.user_id = un.user_id AND un.type = 'email'";
+		$LEFTJOIN[] = $this->db_order_items." AS oi ON o.id = oi.order_id";
+
+		if($query_string) {
+			$WHERE[] = "(o.order_no LIKE '%".$query_string."%' OR u.nickname LIKE '%".$query_string."%' OR u.firstname LIKE '%".$query_string."%' OR u.lastname LIKE '%".$query_string."%' OR un.username LIKE '%".$query_string."%' OR oi.name LIKE '%".$query_string."%' OR oi.total_price LIKE '%".$query_string."%')";
+		}
+
+		// Use order by from pattern or default order
+		$ORDER[] = isset($pattern["order"]) ? $pattern["order"] : "o.id DESC";
+
+		// Use limit from pattern
+		if(isset($pattern["limit"]) && $pattern["limit"]) {
+			$LIMIT = $pattern["limit"];
+		}
+
+		$GROUP_BY = "o.id";
+
+
+		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER, "LIMIT" => $LIMIT));
+
+		// debug(["sql", $sql]);
+		$query->sql($sql);
+		$results = $query->results();
+
+
+		// print_r($results);
+		return $results;
+
+	}
+
+
+
+
+	// PAGINATION STUFF
+
+
+	/**
+	* Get next order(s)
+	*
+	* Can receive orders array to use for finding next order(s) 
+	* or receive query syntax to perform getItems request on it own
+	*
+	* @param $order_id order_id to get next from
+	*/
+	function getNextOrder($order_id, $_options = false) {
+
+		$orders = false;
+		$limit = 1;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "orders"   : $orders    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
+
+				}
+			}
+		}
+
+		// debug(["getNext", $order_id, $_options]);
+
+
+		// filtering variables
+		$next_orders = array();
+		$order_found = false;
+		$counted = 0;
+
+		// loop through all orders, looking for starting point
+		for($i = 0; $i < count($orders); $i++) {
+
+			// wait until we find starting point
+			if($order_found) {
+
+				// keep an eye on counter
+				$counted++;
+
+				// add to next scope
+				$next_orders[] = $orders[$i];
+
+				// end when enough orders have been collected
+				if($counted == $limit) {
+					break;
+				}
+			}
+
+			// found starting point
+			else if($order_id === $orders[$i]["id"]) {
+				$order_found = true;
+			}
+		}
+
+
+		// return set of next orders
+		return $next_orders;
+	}
+
+	/**
+	* Get previous order(s)
+	*
+	* Can receive orders array to use for finding previous order(s) 
+	* or receive query syntax to perform getItems request on it own
+	* TODO: This implementation is far from performance optimized, but works - consider alternate implementations
+	*/
+	function getPrevOrder($order_id, $_options = false) {
+
+		$orders = false;
+		$limit = 1;
+
+		// Other getItems patters properties may also be passed
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "orders"  : $orders    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
+				}
+			}
+		}
+
+
+		// filtering variables
+		$prev_orders = array();
+		$order_found = false;
+		$counted = 0;
+		// loop backwards through all orders, looking for starting point
+		for($i = count($orders)-1; $i >= 0; $i--) {
+
+			// wait until we find starting point
+			if($order_found) {
+
+				// keep an eye on counter
+				$counted++;
+
+				// add to beginning of prev scope
+				array_unshift($prev_orders, $orders[$i]);
+
+				// end when enough orders have been collected
+				if($counted == $limit) {
+					break;
+				}
+			}
+
+			// found starting point
+			else if($order_id === $orders[$i]["id"]) {
+				$order_found = true;
+			}
+		}
+
+
+		// return set of prev orders
+		return $prev_orders;
+	}
+
+
+	/**
+	 * Paginate a list of orders
+	 * 
+	 * Splits a list of orders into smaller fragments and returns information required to create meaningful pagination
+	 *
+	 * @param array $_options
+	 * * pattern – array of options to be sent to SuperShop::search, which returns the orders to be paginated
+	 * * limit – maximal number of orders per page. Default: 5.
+	 * 
+	 * 
+	 * @return array
+	 * * range_orders (list of orders in specified range)
+	 * * next orders
+	 * * previous orders
+	 * * first id in range
+	 * * last id in range
+	 */
+	function paginateOrders($_options) {
+
+		// Items selected for this pagination range
+		$range_orders = false;
+
+
+		// Start range_orders from page – Default false
+		$page = false;
+
+		// Search and extend pattern for range_orders / pagination
+		$pattern = false;
+
+		// Search query
+		$query_string = false;
+
+		// Limit for range_orders - Default 5
+		$limit = 20;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "pattern"              : $pattern         = $_value; break;
+
+					case "limit"                : $limit           = $_value; break;
+					case "page"                 : $page            = $_value; break;
+
+					case "query"                : $query_string    = $_value; break;
+				}
+			}
+		}
+
+
+		// get all orders sorted as base for pagination
+		$orders = $this->searchOrders(["query" => $query_string, "pattern" => $pattern]);
+
+
+		// if there is no user_id or page to start from beginning
+		// Select first N posts
+		if(!$page) {
+
+			// simply add limit to orders query
+			$pattern["limit"] = $limit;
+			$range_orders = $this->searchOrders(["query" => $query_string, "pattern" => $pattern]);
+
+		}
+		// Starting point exists
+		else {
+
+			$start_index = ($page-1) * $limit;
+			if(count($orders) >= $start_index) {
+
+				// Find user_id of first element of page 
+				$index_user = $orders[$start_index];
+
+				// Include index user (specified by passed sindex or user_id)
+				// Reduce limit to make room
+				// (for page based pagination it doesn't make sense to exclude user)
+				$range_orders = $this->getNextOrder($index_user["id"], ["orders" => $orders, "limit" => $limit-1]);
+				array_unshift($range_orders, $index_user);
+
+			}
+
+		}
+
+
+		// Page information
+		$total_count = count($orders);
+
+		// Include page count and current page number
+		$page_count = intval(ceil($total_count / $limit));
+		$current_page = false;
+
+		$first_id = false;
+		// $first_sindex = false;
+		$last_id = false;
+		// $last_sindex = false;
+		$prev = false;
+		$next = false;
+
+
+		if($range_orders) {
+
+			if(isset($range_orders[0])) {
+
+				$first_id = $range_orders[0]["id"];
+				// $first_sindex = $range_orders[0]["sindex"];
+
+				$prev = $this->getPrevOrder($first_id, ["orders" => $orders, "limit" => 1]);
+				if($prev) {
+					$prev = $prev[0];
+				}
+
+				// If there is a first id, then there must be a last id (which might be the same, though)
+				$last_id = $range_orders[count($range_orders)-1]["id"];
+				// $last_sindex = $range_orders[count($range_orders)-1]["sindex"];
+
+				$next = $this->getNextOrder($last_id, ["orders" => $orders, "limit" => 1]);
+				if($next) {
+					$next = $next[0];
+				}
+
+				// Locate first_id in page stack
+				$current_position = arrayKeyValue($orders, "id", $first_id);
+				$current_page = intval(floor($current_position / $limit)+1);
+
+			}
+
+		}
+
+
+		// return all pagination info
+		// range_orders = list of orders in specified range
+		// next user
+		// previous user
+		// first id in range
+		// last id in range
+		return array("range_orders" => $range_orders, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "total" => $total_count, "page_count" => $page_count, "current_page" => $current_page);
+	}
+
+
+
+
+
 	/**
 	* Get total order price
 	*
@@ -2242,6 +2603,372 @@ class SuperShopCore extends Shop {
 
 		return false;
 	}
+
+
+
+
+
+	// SEARCH
+
+	function searchPayments($_options = false) {
+		// debug(["searchPayments", $_options]);
+
+
+		$pattern = false;
+
+		$query_string = "";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "pattern"           : $pattern            = $_value; break;
+
+					case "query"             : $query_string       = $_value; break;
+
+				}
+			}
+		}
+
+		$query = new Query();
+		include_once("classes/users/superuser.class.php");
+		$UC = new SuperUser();
+
+
+		// Prepare query parts
+		$SELECT = array();
+		$FROM = array();
+		$LEFTJOIN = array();
+		$WHERE = array();
+		$GROUP_BY = "";
+		$HAVING = "";
+		$ORDER = array();
+		$LIMIT = false;
+
+		// Add base select properties
+		$SELECT[] = "p.id";
+		$SELECT[] = "p.order_id";
+		$SELECT[] = "p.created_at";
+		$SELECT[] = "p.transaction_id";
+		$SELECT[] = "p.payment_amount";
+		$SELECT[] = "p.currency";
+		$SELECT[] = "p.payment_amount";
+		
+
+		$SELECT[] = "pm.name AS payment_method";
+
+		$SELECT[] = "o.order_no";
+		$SELECT[] = "o.country";
+
+		$SELECT[] = "o.payment_status";
+
+		$SELECT[] = "GROUP_CONCAT(DISTINCT un.username SEPARATOR ', ') AS usernames";
+
+		$SELECT[] = "u.nickname";
+
+		$SELECT[] = "COUNT(DISTINCT oi.name) AS item_count";
+		// $SELECT[] = "GROUP_CONCAT(DISTINCT oi.name SEPARATOR ', ') AS order_items";
+
+		$FROM[] = $this->db_payments." AS p";
+
+
+
+		$LEFTJOIN[] = $this->db_orders." AS o ON p.order_id = o.id";
+		$LEFTJOIN[] = $UC->db." AS u ON o.user_id = u.id";
+		$LEFTJOIN[] = $UC->db_usernames." AS un ON o.user_id = un.user_id";
+		$LEFTJOIN[] = $this->db_order_items." AS oi ON o.id = oi.order_id";
+		$LEFTJOIN[] = UT_PAYMENT_METHODS." AS pm ON p.payment_method_id = pm.id";
+
+		if($query_string) {
+			$WHERE[] = "(o.order_no LIKE '%".$query_string."%' OR u.nickname LIKE '%".$query_string."%' OR u.firstname LIKE '%".$query_string."%' OR u.lastname LIKE '%".$query_string."%' OR un.username LIKE '%".$query_string."%' OR p.transaction_id LIKE '%".$query_string."%' OR pm.name LIKE '%".$query_string."%')";
+		}
+
+		// Use order by from pattern or default order
+		$ORDER[] = isset($pattern["order"]) ? $pattern["order"] : "p.id DESC";
+
+		// Use limit from pattern
+		if(isset($pattern["limit"]) && $pattern["limit"]) {
+			$LIMIT = $pattern["limit"];
+		}
+
+		$GROUP_BY = "p.id";
+
+
+		$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER, "LIMIT" => $LIMIT));
+
+		// debug(["sql", $sql]);
+		$query->sql($sql);
+		$results = $query->results();
+
+
+		// print_r($results);
+		return $results;
+
+	}
+
+
+
+
+	// PAGINATION STUFF
+
+
+	/**
+	* Get next payment(s)
+	*
+	* Can receive payments array to use for finding next payment(s) 
+	* or receive query syntax to perform getItems request on it own
+	*
+	* @param $payment_id payment_id to get next from
+	*/
+	function getNextPayment($payment_id, $_options = false) {
+
+		$payments = false;
+		$limit = 1;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "payments"   : $payments    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
+
+				}
+			}
+		}
+
+		// debug(["getNext", $payment_id, $_options]);
+
+
+		// filtering variables
+		$next_payments = array();
+		$payment_found = false;
+		$counted = 0;
+
+		// loop through all payments, looking for starting point
+		for($i = 0; $i < count($payments); $i++) {
+
+			// wait until we find starting point
+			if($payment_found) {
+
+				// keep an eye on counter
+				$counted++;
+
+				// add to next scope
+				$next_payments[] = $payments[$i];
+
+				// end when enough payments have been collected
+				if($counted == $limit) {
+					break;
+				}
+			}
+
+			// found starting point
+			else if($payment_id === $payments[$i]["id"]) {
+				$payment_found = true;
+			}
+		}
+
+
+		// return set of next payments
+		return $next_payments;
+	}
+
+	/**
+	* Get previous payment(s)
+	*
+	* Can receive payments array to use for finding previous payment(s) 
+	* or receive query syntax to perform getItems request on it own
+	* TODO: This implementation is far from performance optimized, but works - consider alternate implementations
+	*/
+	function getPrevPayment($payment_id, $_options = false) {
+
+		$payments = false;
+		$limit = 1;
+
+		// Other getItems patters properties may also be passed
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "payments"  : $payments    = $_value; break;
+					case "limit"   : $limit    = $_value; break;
+				}
+			}
+		}
+
+
+		// filtering variables
+		$prev_payments = array();
+		$payment_found = false;
+		$counted = 0;
+		// loop backwards through all payments, looking for starting point
+		for($i = count($payments)-1; $i >= 0; $i--) {
+
+			// wait until we find starting point
+			if($payment_found) {
+
+				// keep an eye on counter
+				$counted++;
+
+				// add to beginning of prev scope
+				array_unshift($prev_payments, $payments[$i]);
+
+				// end when enough payments have been collected
+				if($counted == $limit) {
+					break;
+				}
+			}
+
+			// found starting point
+			else if($payment_id === $payments[$i]["id"]) {
+				$payment_found = true;
+			}
+		}
+
+
+		// return set of prev payments
+		return $prev_payments;
+	}
+
+
+	/**
+	 * Paginate a list of payments
+	 * 
+	 * Splits a list of payments into smaller fragments and returns information required to create meaningful pagination
+	 *
+	 * @param array $_options
+	 * * pattern – array of options to be sent to SuperShop::search, which returns the payments to be paginated
+	 * * limit – maximal number of payments per page. Default: 5.
+	 * 
+	 * 
+	 * @return array
+	 * * range_payments (list of payments in specified range)
+	 * * next payments
+	 * * previous payments
+	 * * first id in range
+	 * * last id in range
+	 */
+	function paginatePayments($_options) {
+
+		// Items selected for this pagination range
+		$range_payments = false;
+
+
+		// Start range_payments from page – Default false
+		$page = false;
+
+		// Search and extend pattern for range_payments / pagination
+		$pattern = false;
+
+		// Search query
+		$query_string = false;
+
+		// Limit for range_payments - Default 5
+		$limit = 20;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "pattern"              : $pattern         = $_value; break;
+
+					case "limit"                : $limit           = $_value; break;
+					case "page"                 : $page            = $_value; break;
+
+					case "query"                : $query_string    = $_value; break;
+				}
+			}
+		}
+
+
+		// get all payments sorted as base for pagination
+		$payments = $this->searchPayments(["query" => $query_string, "pattern" => $pattern]);
+
+
+		// if there is no user_id or page to start from beginning
+		// Select first N posts
+		if(!$page) {
+
+			// simply add limit to payments query
+			$pattern["limit"] = $limit;
+			$range_payments = $this->searchPayments(["query" => $query_string, "pattern" => $pattern]);
+
+		}
+		// Starting point exists
+		else {
+
+			$start_index = ($page-1) * $limit;
+			if(count($payments) >= $start_index) {
+
+				// Find user_id of first element of page 
+				$index_user = $payments[$start_index];
+
+				// Include index user (specified by passed sindex or user_id)
+				// Reduce limit to make room
+				// (for page based pagination it doesn't make sense to exclude user)
+				$range_payments = $this->getNextPayment($index_user["id"], ["payments" => $payments, "limit" => $limit-1]);
+				array_unshift($range_payments, $index_user);
+
+			}
+
+		}
+
+
+		// Page information
+		$total_count = count($payments);
+
+		// Include page count and current page number
+		$page_count = intval(ceil($total_count / $limit));
+		$current_page = false;
+
+		$first_id = false;
+		// $first_sindex = false;
+		$last_id = false;
+		// $last_sindex = false;
+		$prev = false;
+		$next = false;
+
+
+		if($range_payments) {
+
+			if(isset($range_payments[0])) {
+
+				$first_id = $range_payments[0]["id"];
+				// $first_sindex = $range_payments[0]["sindex"];
+
+				$prev = $this->getPrevPayment($first_id, ["payments" => $payments, "limit" => 1]);
+				if($prev) {
+					$prev = $prev[0];
+				}
+
+				// If there is a first id, then there must be a last id (which might be the same, though)
+				$last_id = $range_payments[count($range_payments)-1]["id"];
+				// $last_sindex = $range_payments[count($range_payments)-1]["sindex"];
+
+				$next = $this->getNextPayment($last_id, ["payments" => $payments, "limit" => 1]);
+				if($next) {
+					$next = $next[0];
+				}
+
+				// Locate first_id in page stack
+				$current_position = arrayKeyValue($payments, "id", $first_id);
+				$current_page = intval(floor($current_position / $limit)+1);
+
+			}
+
+		}
+
+
+		// return all pagination info
+		// range_payments = list of payments in specified range
+		// next user
+		// previous user
+		// first id in range
+		// last id in range
+		return array("range_payments" => $range_payments, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "total" => $total_count, "page_count" => $page_count, "current_page" => $current_page);
+	}
+
+
 
 
 	// register manual payment

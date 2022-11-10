@@ -561,6 +561,7 @@ class ItemsCore {
 	* @return Array [id][] + [itemtype][]
 	*/
 	function getItems($_options = false) {
+		// debug(["getItems", $_options]);
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -799,6 +800,259 @@ class ItemsCore {
 
 
 
+	// SEARCH
+
+	function search($_options = false) {
+		// debug(["search", $_options]);
+
+		$pattern = false;
+
+		$query_string = "";
+		$query_tags = "";
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "pattern"         : $pattern                = $_value; break;
+
+					case "query"           : $query_string           = $_value; break;
+					case "tags"            : $query_tags             = $_value; break;
+
+				}
+			}
+		}
+
+		// Valid search string
+		if($query_string) {
+
+			$query = new Query();
+			$search_view_id = "search_".randomKey(8);
+
+			$itemtype_queries = [];
+
+			// debug([$pattern]);
+
+			// Specific itemtype
+			if($pattern && $pattern["itemtype"]) {
+
+				// Collect data for this itemtype
+				$model = $this->typeObject($pattern["itemtype"]);
+				if($model) {
+					$entities = $model->getModel();
+
+					$searchable_column = [];
+
+					foreach($entities as $name => $entity) {
+						// debug([$entity]);
+
+						if(isset($entity["searchable"]) && $entity["searchable"]) {
+							$searchable_column[] = "itemtypes.".$name;
+						}
+
+					}
+
+					if($searchable_column) {
+						$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$pattern["itemtype"]." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
+
+						if(isset($pattern["status"])) {
+							$sql .= " AND items.status = " .$pattern["status"];
+						}
+
+						if(isset($pattern["where"]) && $pattern["where"]) {
+							$sql .= " AND (".$pattern["where"].")";
+						}
+						$itemtype_queries[] = $sql;
+					}
+
+				}
+
+			}
+
+			// All itemtypes
+			else {
+
+				// Get used itemtypes
+				$sql = "SELECT itemtype FROM ".UT_ITEMS." GROUP by itemtype";
+				if($query->sql($sql)) {
+
+					$itemtypes = $query->results("itemtype");
+
+					// Collect data for all itemtype
+					foreach($itemtypes as $itemtype) {
+
+						$model = $this->typeObject($itemtype);
+						if($model) {
+							$entities = $model->getModel();
+
+							$searchable_column = [];
+
+							foreach($entities as $name => $entity) {
+								// debug([$entity]);
+
+								if(isset($entity["searchable"]) && $entity["searchable"]) {
+									$searchable_column[] = "itemtypes.".$name;
+								}
+
+							}
+
+							if($searchable_column) {
+								$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$itemtype." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
+
+								if(isset($pattern["status"])) {
+									$sql .= " AND items.status = " .$pattern["status"];
+								}
+
+								if(isset($pattern["where"]) && $pattern["where"]) {
+									$sql .= " AND (".$pattern["where"].")";
+								}
+								$itemtype_queries[] = $sql;
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+			// Data queries available for view creation
+			if($itemtype_queries) {
+
+				// perf()->add("Collected data queries");
+
+				$sql = "CREATE VIEW ".SITE_DB.".".$search_view_id." AS " . (count($itemtype_queries) > 1 ? implode(" UNION ", $itemtype_queries) : $itemtype_queries[0]);
+				// debug([$sql]);
+				$query->sql($sql);
+
+				// perf()->add("View created");
+
+
+				// Prepare query parts
+				$SELECT = array();
+				$FROM = array();
+				$LEFTJOIN = array();
+				$WHERE = array();
+				$GROUP_BY = "";
+				$HAVING = "";
+				$ORDER = array();
+				$LIMIT = false;
+
+				// Add base select properties
+				$SELECT[] = "items.id";
+				$SELECT[] = "items.sindex";
+				$SELECT[] = "items.status";
+				$SELECT[] = "items.itemtype";
+				$SELECT[] = "items.user_id";
+
+				$SELECT[] = "items.created_at";
+				$SELECT[] = "items.modified_at";
+				$SELECT[] = "items.published_at";
+
+				$FROM[] = SITE_DB.".$search_view_id as items";
+
+				$WHERE[] = "searchable_string LIKE '%$query_string%'";
+
+				// Use order by from pattern or default order
+				$ORDER[] = isset($pattern["order"]) ? $pattern["order"] : "published_at DESC";
+
+				// Use limit from pattern
+				if(isset($pattern["limit"]) && $pattern["limit"]) {
+					$LIMIT = $pattern["limit"];
+				}
+
+				// Does query include tags
+				if($query_tags) {
+
+					$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
+					$LEFTJOIN[] = UT_TAG." as tags ON tags.id = taggings.tag_id";
+
+					$tag_array = explode(";", $query_tags);
+					$tag_sql = "";
+
+
+					foreach($tag_array as $tag) {
+						// tag id
+						if($tag) {
+
+							// dechipher tag
+							$exclude = false;
+
+							// negative tag, exclude
+							if(substr($tag, 0, 1) == "!") {
+								$tag = substr($tag, 1);
+								$exclude = true;
+							}
+
+							// if tag has both context and value
+							if(strpos($tag, ":")) {
+								list($context, $value) = explode(":", $tag);
+							}
+							// only context present, value false
+							else {
+								$context = $tag;
+								$value = false;
+							}
+
+							if($context || $value) {
+								// Negative !tag
+								if($exclude) {
+		//							$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = tags.id" . ($context ? " AND tags.context = '$context'" : "") . ($value ? " AND tags.value = '$value'" : "") . ")";
+		//							$WHERE[] = "items.id NOT IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = tags.id" . ($context ? " AND tags.context = '$context'" : "") . ($value ? " AND tags.value = '$value'" : "") . ")";
+								}
+								// positive tag
+								else {
+									if($context && $value) {
+										$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '$context' AND tags.value = '$value'";
+									}
+									else if($context) {
+										$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '$context'";
+									}
+		//							$WHERE[] = "items.id IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = tags.id" . ($context ? " AND tags.context = '$context'" : "") . ($value ? " AND tags.value = '$value'" : "") . ")";
+			//						$WHERE[] = "items.id IN (SELECT item_id FROM ".UT_TAGGINGS." as item_tags, ".UT_TAG." as tags WHERE item_tags.tag_id = '$tag' OR (item_tags.tag_id = tags.id AND tags.name = '$tag'))";
+								}
+							}
+						}
+					}
+					$WHERE[] = "(".$tag_sql.")";
+					$HAVING = "count(*) = ".count($tag_array);
+				}
+
+
+				$GROUP_BY = "items.id";
+
+				$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY, "ORDER" => $ORDER, "LIMIT" => $LIMIT));
+
+
+				// $sql = "SELECT * FROM ".SITE_DB.".".$search_view_id." WHERE searchable_string LIKE '%$query_string%' ORDER BY " . ($pattern["order"] ? $pattern["order"] : "published_at DESC");
+
+
+				// debug(["sql", $sql]);
+				$query->sql($sql);
+				$results = $query->results();
+
+				// perf()->add("Search query executed");
+
+
+				// Remove view after search
+				$query->sql("DROP VIEW IF EXISTS ".SITE_DB.".".$search_view_id);
+
+				// print_r($results);
+				return $results;
+			}
+
+		}
+		// No query string to search for
+		else {
+			// debug(["no query"]);
+			$pattern["tags"] = $query_tags;
+			return $this->getItems($pattern);
+		}
+
+	}
+
+
 
 	// PAGINATION STUFF
 
@@ -976,7 +1230,7 @@ class ItemsCore {
 	 * Splits a list of items into smaller fragments and returns information required to create meaningful pagination
 	 *
 	 * @param array $_options
-	 * * pattern – array of options to be sent to Item::getItems, which returns the items to be paginated
+	 * * pattern – array of options to be sent to Item::search, which returns the items to be paginated
 	 * * limit – maximal number of items per page. Default: 5.
 	 * * sindex – if passed without the direction parameter, the pagination will start with the associated item
 	 * * direction – can be passed in combination with the sindex parameter
@@ -1023,6 +1277,13 @@ class ItemsCore {
 		// Search and extend pattern for range_items / pagination
 		$pattern = false;
 
+		// Search query
+		$query_string = false;
+
+		// Search tags
+		$query_tags = false;
+
+
 		// Limit for range_items - Default 5
 		$limit = 20;
 
@@ -1041,6 +1302,10 @@ class ItemsCore {
 
 					case "direction"            : $direction       = $_value; break;
 					case "include"              : $include         = $_value; break;
+
+					case "query"                : $query_string    = $_value; break;
+					case "tags"                 : $query_tags      = $_value; break;
+
 				}
 			}
 		}
@@ -1083,7 +1348,8 @@ class ItemsCore {
 
 
 		// get all items sorted as base for pagination
-		$items = $this->getItems($pattern);
+		// $items = $this->getItems($pattern);
+		$items = $this->search(["query" => $query_string, "tags" => $query_tags, "pattern" => $pattern]);
 
 
 
@@ -1094,7 +1360,8 @@ class ItemsCore {
 
 			// simply add limit to items query
 			$pattern["limit"] = $limit;
-			$range_items = $this->getItems($pattern);
+			// $range_items = $this->getItems($pattern);
+			$range_items = $this->search(["query" => $query_string, "tags" => $query_tags, "pattern" => $pattern]);
 
 		}
 		// Starting point exists
@@ -1234,151 +1501,6 @@ class ItemsCore {
 		return array("range_items" => $range_items, "next" => $next, "prev" => $prev, "first_id" => $first_id, "last_id" => $last_id, "first_sindex" => $first_sindex, "last_sindex" => $last_sindex, "total" => $total_count, "page_count" => $page_count, "current_page" => $current_page);
 	}
 
-
-
-	// SEARCH
-
-	function search($_options = false) {
-		// debug(["search", $_options]);
-
-		$pattern = false;
-		$query_string = "";
-
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-					// case "itemtype"    : $itemtype        = $_value; break;
-
-					case "pattern"     : $pattern         = $_value; break;
-					case "query"       : $query_string           = $_value; break;
-				}
-			}
-		}
-
-		// Valid search string
-		if($query_string) {
-
-			$query = new Query();
-			$search_view_id = "search_".randomKey(8);
-
-			$itemtype_queries = [];
-
-			// debug([$pattern]);
-
-			// Specific itemtype
-			if($pattern && $pattern["itemtype"]) {
-
-				// Collect data for this itemtype
-				$model = $this->typeObject($pattern["itemtype"]);
-				if($model) {
-					$entities = $model->getModel();
-
-					$searchable_column = [];
-
-					foreach($entities as $name => $entity) {
-						// debug([$entity]);
-
-						if(isset($entity["searchable"]) && $entity["searchable"]) {
-							$searchable_column[] = "itemtypes.".$name;
-						}
-
-					}
-
-					if($searchable_column) {
-						$sql = "SELECT DISTINCT items.id as id, itemtypes.item_id as item_id, items.itemtype as itemtype, items.sindex as sindex, items.published_at as published_at, items.modified_at as modified_at, itemtypes.name as name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') as searchable_string FROM ".SITE_DB.".item_".$pattern["itemtype"]." as itemtypes, ".UT_ITEMS." as items WHERE items.id = itemtypes.item_id";
-
-						if(isset($pattern["status"])) {
-							$sql .= " AND items.status = " .$pattern["status"];
-						}
-
-						if(isset($pattern["where"]) && $pattern["where"]) {
-							$sql .= " AND (".$pattern["where"].")";
-						}
-						$itemtype_queries[] = $sql;
-					}
-
-				}
-
-			}
-
-			// All itemtypes
-			else {
-
-				// Get used itemtypes
-				$sql = "SELECT itemtype FROM ".UT_ITEMS." GROUP by itemtype";
-				if($query->sql($sql)) {
-
-					$itemtypes = $query->results("itemtype");
-
-					// Collect data for all itemtype
-					foreach($itemtypes as $itemtype) {
-
-						$model = $this->typeObject($itemtype);
-						if($model) {
-							$entities = $model->getModel();
-
-							$searchable_column = [];
-
-							foreach($entities as $name => $entity) {
-								// debug([$entity]);
-
-								if(isset($entity["searchable"]) && $entity["searchable"]) {
-									$searchable_column[] = "itemtypes.".$name;
-								}
-
-							}
-
-							if($searchable_column) {
-								$sql = "SELECT DISTINCT items.id as id, itemtypes.item_id as item_id, items.itemtype as itemtype, items.sindex as sindex, items.published_at as published_at, items.modified_at as modified_at, itemtypes.name as name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') as searchable_string FROM ".SITE_DB.".item_".$itemtype." as itemtypes, ".UT_ITEMS." as items WHERE items.id = itemtypes.item_id";
-
-								if(isset($pattern["status"])) {
-									$sql .= " AND items.status = " .$pattern["status"];
-								}
-
-								if(isset($pattern["where"]) && $pattern["where"]) {
-									$sql .= " AND (".$pattern["where"].")";
-								}
-								$itemtype_queries[] = $sql;
-							}
-
-						}
-
-					}
-
-				}
-
-			}
-
-			// Data queries available for view creation
-			if($itemtype_queries) {
-
-				// perf()->add("Collected data queries");
-
-				$sql = "CREATE VIEW ".SITE_DB.".".$search_view_id." AS " . (count($itemtype_queries) > 1 ? implode(" UNION ", $itemtype_queries) : $itemtype_queries[0]);
-				// debug([$sql]);
-				$query->sql($sql);
-
-				// perf()->add("View created");
-
-
-				$sql = "SELECT * FROM ".SITE_DB.".".$search_view_id." WHERE searchable_string LIKE '%$query_string%' ORDER BY published_at DESC";
-				// debug([$sql]);
-				$query->sql($sql);
-				$results = $query->results();
-
-				// perf()->add("Search query executed");
-
-
-				// Remove view after search
-				$query->sql("DROP VIEW IF EXISTS ".SITE_DB.".".$search_view_id);
-
-				// print_r($results);
-				return $results;
-			}
-
-		}
-
-	}
 
 
 

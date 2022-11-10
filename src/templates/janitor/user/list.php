@@ -17,10 +17,6 @@ if(count($action) > 3) {
 	if($action[2] === "page") {
 		$options["page"] = $action[3];
 	}
-	elseif($action[2] === "search") {
-		$options["page"] = $action[3];
-	}
-	
 }
 
 

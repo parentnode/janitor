@@ -2,25 +2,48 @@
 global $action;
 global $model;
 
-$orders = false;
+
+
+$options = [
+	"limit" => 200,
+	"pattern" => false
+];
+
+
+$query = getVar("query");
+if($query) {
+	$options["query"] = $query;
+}
+
+if(count($action) > 4) {
+	if($action[3] === "page") {
+		$options["page"] = $action[4];
+	}
+}
+
 
 // show specific order status
 if(count($action) > 2) {
 	$status = $action[2];
 
-	if($status === "all") {
-		$orders = $model->getOrders();
-	}
-	else {
-		$orders = $model->getOrders(array("status" => $status));
+	if($status !== "all") {
+
+		$options["pattern"] = [
+			"status" => $status,
+		];
+
 	}
 }
 // show default = 0
 else {
 	$status = 0;
-	$orders = $model->getOrders(array("status" => $status));
-
+	$options["pattern"] = [
+		"status" => $status,
+	];
+	
 }
+$orders = $model->paginateOrders($options);
+
 $selected_status_name = isset($model->order_statuses[$status]) ? $model->order_statuses[$status] : false;
 
 session()->value("return_to_orderstatus", $status);
@@ -30,7 +53,6 @@ session()->value("return_to_orderstatus", $status);
 	<h1>Orders</h1>
 
 	<ul class="actions">
-		<?//= $HTML->link("New order", "/janitor/admin/shop/order/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("Carts", "/janitor/admin/shop/cart/list", array("class" => "button", "wrapper" => "li.carts")) ?>
 		<?= $HTML->link("Payments", "/janitor/admin/shop/payment/list", array("class" => "button", "wrapper" => "li.payments")) ?>
 	</ul>
@@ -45,10 +67,16 @@ session()->value("return_to_orderstatus", $status);
 <? endif; ?>
 
 
-	<div class="all_items i:defaultList i:orderList filters <?= superNormalize($selected_status_name) ?>">
-		<? if($orders): ?>
+	<div class="all_items i:defaultList i:orderList filters <?= superNormalize($selected_status_name) ?>" <?= $HTML->jsData(["search"], ["filter-search" => $HTML->path."/order/list/".$status]) ?>>
+		<? if($orders && $orders["range_orders"]): ?>
+
+		<?= $HTML->pagination($orders, [
+			"base_url" => "/janitor/admin/shop/order/list/".$status,
+			"query" => $query,
+		]) ?>
+
 		<ul class="items orders">
-			<? foreach($orders as $order):
+			<? foreach($orders["range_orders"] as $order):
 				$total_order_price = $model->getTotalOrderPrice($order["id"]);
 				if($status !== "all" && $status < 2) {
 					$payment_intent = payments()->canBeCaptured([
@@ -61,11 +89,7 @@ session()->value("return_to_orderstatus", $status);
 			?>
 			<li class="item order<?= ($order["shipping_status"] < 2 && $order["status"] != 3) ? " ship" : ""?>">
 				<h3>
-					<?= $order["order_no"] ?> (<?= pluralize(count($order["items"]), "item", "items") ?>)
-				
-					<? if(!isset($order["user"]) || !$order["items"]): ?>
-					- <span class="system_error">INCOMPLETE ORDER</span>
-					<? endif; ?>
+					<?= $order["order_no"] ?> (<?= pluralize($order["item_count"], "item", "items") ?>)
 				</h3>
 
 				<dl class="info">
@@ -87,13 +111,13 @@ session()->value("return_to_orderstatus", $status);
 					<dt class="price">Total price</dt>
 					<dd class="price"><?= formatPrice($total_order_price) ?></dd>
 
-				<? if(isset($order["user"])): ?>
+				<? if(isset($order["nickname"])): ?>
 					<dt class="nickname">Nickname</dt>
-					<dd class="nickname"><?= $order["user"]["nickname"] ?></dd>
+					<dd class="nickname"><?= $order["nickname"] ?></dd>
 
-					<? if($order["user"]["email"]): ?>
+					<? if($order["email"]): ?>
 					<dt class="email">Email</dt>
-					<dd class="email"><?= $order["user"]["email"] ?></dd>
+					<dd class="email"><?= $order["email"] ?></dd>
 					<? endif; ?>
 
 					<? /*if($order["user"]["mobile"]): ?>
@@ -104,16 +128,16 @@ session()->value("return_to_orderstatus", $status);
 				<? endif; ?>
 
 					<dt class="order_content">Order content</dt>
-					<dd class="order_content"><?
-						$order_content = [];
-						$IC = new Items();
-						foreach($order["items"] as $order_item):
-							$item = $IC->getItem(["id" => $order_item["item_id"]]);
-							if($item && array_search($item["itemtype"], $order_content) === false) {
-								array_push($order_content, $item["itemtype"]);
-							}
-						endforeach;
-						print implode(", ", $order_content);
+					<dd class="order_content"><?= $order["order_items"]
+						// $order_content = [];
+						// $IC = new Items();
+						// foreach($order["items"] as $order_item):
+						// 	$item = $IC->getItem(["id" => $order_item["item_id"]]);
+						// 	if($item && array_search($item["itemtype"], $order_content) === false) {
+						// 		array_push($order_content, $item["itemtype"]);
+						// 	}
+						// endforeach;
+						// print implode(", ", $order_content);
 					?></dd>
 
 				</dl>
@@ -153,6 +177,12 @@ session()->value("return_to_orderstatus", $status);
 			 </li>
 		 	<? endforeach; ?>
 		</ul>
+
+		<?= $HTML->pagination($orders, [
+			"base_url" => "/janitor/admin/shop/order/list/".$status,
+			"query" => $query,
+		]) ?>
+
 		<? else: ?>
 		<p>No orders.</p>
 		<? endif; ?>
