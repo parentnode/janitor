@@ -160,7 +160,9 @@ class Model extends HTML {
 				if($this->getProperty($name, "type") == "files") {
 
 					// indicate value is present for file upload
-					if(isset($_FILES[$name])) {
+					// empty array can also be passed on empty upload
+					// At least one error = 0 index must be present
+					if(isset($_FILES[$name]) && in_array(0, $_FILES[$name]["error"])) {
 						$this->setProperty($name, "value", $_FILES[$name]["tmp_name"]);
 					}
 					else {
