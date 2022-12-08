@@ -3,6 +3,7 @@
 class CurlRequest {
 
 	private $ch;
+	private $stderr_handle;
 
 	public function init($_options = false) {
 
@@ -75,7 +76,7 @@ class CurlRequest {
 			@curl_setopt($this->ch, CURLOPT_NOBODY, 1);
 		}
 		else if($method == "POST") {
-			@curl_setopt($this->ch, CURLOPT_POST, true);
+			@curl_setopt($this->ch, CURLOPT_POST, 1);
 			@curl_setopt($this->ch, CURLOPT_POSTFIELDS, $inputs);
 		}
 		else if($method == "PUT") {
@@ -120,11 +121,16 @@ class CurlRequest {
 
 		if($debug) {
 			@curl_setopt($this->ch, CURLOPT_VERBOSE, 1);
-			@curl_setopt($this->ch, CURLINFO_HEADER_OUT, true);
+			// @curl_setopt($this->ch, CURLINFO_HEADER_OUT, 1);
 
 			// Output to file
-			if(defined(LOCAL_PATH)) {
-				@curl_setopt($this->ch, CURLOPT_STDERR,  fopen(LOCAL_PATH."/library/debug", "a+"));
+			if(defined("LOCAL_PATH")) {
+				$this->stderr_handle = fopen(LOCAL_PATH."/library/debug", "a+");
+				fwrite($this->stderr_handle, "test2");
+				@curl_setopt($this->ch, CURLOPT_STDERR, $this->stderr_handle);
+				@curl_setopt($this->ch, CURLOPT_WRITEHEADER, $this->stderr_handle);
+
+
 			}
 		}
 
@@ -151,9 +157,8 @@ class CurlRequest {
 		$response = curl_exec($this->ch);
 		$error = curl_error($this->ch);
 
-		if($debug) {
-			$information = curl_getinfo($this->ch);
-			$result['information'] = $information;
+		if($this->stderr_handle) {
+			fclose($this->stderr_handle);
 		}
 
 		$result = array(
@@ -163,6 +168,11 @@ class CurlRequest {
 			'http_code' => '',
 			'last_url' => ''
 		);
+
+		if($debug) {
+			$information = curl_getinfo($this->ch);
+			$result['information'] = $information;
+		}
 
 		if($error) {
 			$result['curl_error'] = $error;
