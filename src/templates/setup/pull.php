@@ -5,21 +5,12 @@ global $model;
 $project_path = realpath(LOCAL_PATH."/..");
 
 // Get git origin
-$remote_origin = trim(shell_exec("cd '$project_path' && git config --get remote.origin.url"));
+$remote_origin = trim(shell_exec("cd '$project_path' && sudo /usr/bin/git config --get remote.origin.url"));
 $remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin);
 
 // Get branch
-$branch = trim(shell_exec("cd '$project_path' && git rev-parse --abbrev-ref HEAD"));
+$branch = trim(shell_exec("cd '$project_path' && sudo /usr/bin/git rev-parse --abbrev-ref HEAD"));
 
-
-// Check that git has been set up with project credentials file
-$credential_helper = true; //trim(shell_exec("cd '$project_path' && git config --get credential.helper"));
-// debug([$remote_origin, $credential_helper, PRIVATE_FILE_PATH]);
-
-// $credential_helper_ready = false;
-// if(strpos("store --file ".PRIVATE_FILE_PATH."/.git_credentials", $credential_helper) === 0) {
-// 	$credential_helper_ready = true;
-// }
 
 ?>
 <div class="scene pull i:pull">
@@ -29,7 +20,7 @@ $credential_helper = true; //trim(shell_exec("cd '$project_path' && git config -
 
 <? if($model->get("system", "os") == "unix"): ?>
 
-	<? if($credential_helper_ready): ?>
+	<? if($remote_origin && $branch): ?>
 
 		<p>Your are about to pull the latest source code from:<br /><?= $remote_origin ?> (<?= $branch ?>).</p>
 
