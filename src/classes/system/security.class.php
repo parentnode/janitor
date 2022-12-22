@@ -498,9 +498,9 @@ class Security {
 
 
 						// regerate Session id
-						session_start();
+						sessionStart();
 						session_regenerate_id(true);
-						session_write_close();
+						sessionEnd();
 
 
 						// Special return for ajax logins

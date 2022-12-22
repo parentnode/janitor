@@ -43,11 +43,6 @@ define("SITE_MEMBERS", ###SITE_MEMBERS###);
 define("SITE_COLLECT_NOTIFICATIONS", 50);
 
 
-// Enable session realtime writing for async session read/write
-// Slower but necessary in application with high number of simultaneaous requests that updates sessions values
-define("REALTIME_SESSION_WRITE", false);
-
-
 
 // INSTALL MODE (DISABLES ALL SECURITY) – ONLY USE IN EMERGENCIES AND ONLY TEMPORARILY
 // define("SITE_INSTALL", true);

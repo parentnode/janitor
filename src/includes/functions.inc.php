@@ -713,15 +713,10 @@ function formatPrice($price, $_options=false) {
 
 // Sessions open and close helpers
 function sessionStart() {
-	if(defined("REALTIME_SESSION_WRITE") && REALTIME_SESSION_WRITE) {
-		session_start();
+	session_start();
 
-		// Fix multiple Set Cookie headers from session_start
-		fixDuplicateCookieHeaders();
-	}
-	else if(!session_id()) {
-		session_start();
-	}
+	// Fix multiple Set Cookie headers from session_start
+	fixDuplicateCookieHeaders();
 }
 function fixDuplicateCookieHeaders() {
 
@@ -752,9 +747,7 @@ function fixDuplicateCookieHeaders() {
 
 }
 function sessionEnd($source = false) {
-	if(defined("REALTIME_SESSION_WRITE") && REALTIME_SESSION_WRITE) {
-		session_write_close();
-	}
+	session_write_close();
 }
 
 

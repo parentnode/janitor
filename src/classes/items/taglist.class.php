@@ -271,7 +271,7 @@ class Taglist extends Model {   //Class name always starts with a capital letter
 					message()->addMessage("Taglist deleted");
 
 					// add log
-					logger()>addLog("ItemType->delete ($taglist_id)");
+					logger()->addLog("ItemType->delete ($taglist_id)");
 
 					return true;
 
