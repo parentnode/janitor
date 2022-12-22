@@ -2322,12 +2322,12 @@ class SetupCore extends Itemtype {
 			$project_path = realpath(LOCAL_PATH."/..");
 
 			// Get git origin
-			$remote_origin = trim(shell_exec("cd '$project_path' && git config --get remote.origin.url"));
+			$remote_origin = trim(shell_exec("cd '$project_path' && sudo /usr/bin/git config --get remote.origin.url"));
 			// Remove any existing username:password from remote url
 			$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin);
 
 			// Get branch
-			$branch = trim(shell_exec("cd '$project_path' && git rev-parse --abbrev-ref HEAD"));
+			$branch = trim(shell_exec("cd '$project_path' && sudo /usr/bin/git rev-parse --abbrev-ref HEAD"));
 			// debug([$remote_origin, $branch]);
 
 			// Was git username and password sent
@@ -2353,11 +2353,14 @@ class SetupCore extends Itemtype {
 
 			}
 
+			trim(shell_exec("cd '$project_path' && sudo /usr/bin/git config credential.helper 'store --file ".PRIVATE_FILE_PATH.".git_credentials'"));
+
 
 			// Update git credentials file to allow pull command to execute without credentials in command-line
 			file_put_contents(PRIVATE_FILE_PATH."/.git_credentials", $credentials);
 
-			$command = "cd '$project_path' && sudo git pull '$remote_origin' '$branch' && sudo git submodule update";
+			$command = "cd '$project_path' && sudo /usr/bin/git pull '$remote_origin' '$branch' && sudo /usr/bin/git submodule update";
+
 			// Local test
 			// $command = "cd '$project_path' && git pull '$remote_origin' '$branch' && git submodule update";
 			// debug($command);
@@ -2368,6 +2371,8 @@ class SetupCore extends Itemtype {
 
 			// Remove username:password from credential file (storing is temporary on purpose)
 			unlink(PRIVATE_FILE_PATH."/.git_credentials");
+
+			trim(shell_exec("cd '$project_path' && sudo /usr/bin/git config  credential.helper 'store'"));
 
 			// Return response
 			return $output;
