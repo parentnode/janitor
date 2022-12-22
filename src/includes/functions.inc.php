@@ -540,25 +540,41 @@ function _unichr($o) {
     }
 }
 
-// Emoji handling (unicode out of UTF range)
+
+// POLYFILLS
 // included from php72
- if (!function_exists('mb_ord')): function mb_ord($string) {
-	mb_language('Neutral');
-	mb_internal_encoding('UTF-8');
-	mb_detect_order(array('UTF-8', 'ISO-8859-15', 'ISO-8859-1', 'ASCII'));
-	$result = unpack('N', mb_convert_encoding($string, 'UCS-4BE', 'UTF-8'));
-	if(is_array($result) === true) {
-		return $result[1];
+if(!function_exists('mb_ord')):
+	function mb_ord($string) {
+		mb_language('Neutral');
+		mb_internal_encoding('UTF-8');
+		mb_detect_order(array('UTF-8', 'ISO-8859-15', 'ISO-8859-1', 'ASCII'));
+		$result = unpack('N', mb_convert_encoding($string, 'UCS-4BE', 'UTF-8'));
+		if(is_array($result) === true) {
+			return $result[1];
+		}
+		return ord($string);
 	}
-	return ord($string);
-} endif;
+endif;
+
 // included from php72
-if (!function_exists('mb_chr')): function mb_chr($string) {
-	mb_language('Neutral');
-	mb_internal_encoding('UTF-8');
-	mb_detect_order(array('UTF-8', 'ISO-8859-15', 'ISO-8859-1', 'ASCII'));
-	return mb_convert_encoding('&#' . intval($string) . ';', 'UTF-8', 'HTML-ENTITIES');
-} endif;
+if(!function_exists('mb_chr')):
+	function mb_chr($string) {
+		mb_language('Neutral');
+		mb_internal_encoding('UTF-8');
+		mb_detect_order(array('UTF-8', 'ISO-8859-15', 'ISO-8859-1', 'ASCII'));
+		return mb_convert_encoding('&#' . intval($string) . ';', 'UTF-8', 'HTML-ENTITIES');
+	}
+endif;
+
+if(!function_exists('str_starts_with')):
+	function str_starts_with($haystack, $needle) {
+		return ($needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0);
+	}
+endif;
+
+
+
+// Emoji handling (unicode out of UTF range)
 function decodeEmoji($string, $system) {
 	global $__decode_emoji_system;
 	$__decode_emoji_system = $system;
@@ -693,8 +709,54 @@ function formatPrice($price, $_options=false) {
 
 	return false;
 
+}
+
+// Sessions open and close helpers
+function sessionStart() {
+	if(defined("REALTIME_SESSION_WRITE") && REALTIME_SESSION_WRITE) {
+		session_start();
+
+		// Fix multiple Set Cookie headers from session_start
+		fixDuplicateCookieHeaders();
+	}
+	else if(!session_id()) {
+		session_start();
+	}
+}
+function fixDuplicateCookieHeaders() {
+
+	// Only if headers have not already been sent
+	if(!headers_sent()) {
+
+		$cookies = [];
+		$headers = headers_list();
+
+		// Loop through headers and collect cookies
+		foreach($headers as $header) {
+			// Find cookie headers
+			if(str_starts_with($header, "Set-Cookie:")) {
+				$cookies[] = $header;
+			}
+		}
+
+		// Remove all cookie headers, including duplicates
+		header_remove("Set-Cookie");
+
+		// Restore one copy of each cookie
+		$unique_cookies = array_unique($cookies);
+		foreach($unique_cookies as $cookie) {
+			header($cookie, false);
+		}
+
+	}
 
 }
+function sessionEnd($source = false) {
+	if(defined("REALTIME_SESSION_WRITE") && REALTIME_SESSION_WRITE) {
+		session_write_close();
+	}
+}
+
 
 // Identify ffmpeg path (differs in different systems/installs)
 function ffmpegPath() {

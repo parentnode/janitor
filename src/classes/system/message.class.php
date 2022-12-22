@@ -23,9 +23,9 @@ class Message {
 			}
 		}
 
-		session_start();
+		sessionStart();
 		$_SESSION["SM"][$type][] = $message;
-		session_write_close();
+		sessionEnd();
 
 	}
 
@@ -49,7 +49,7 @@ class Message {
 
 		$messages = [];
 
-		session_start();
+		sessionStart();
 		if(isset($_SESSION["SM"])) {
 
 			if($type) {
@@ -63,7 +63,7 @@ class Message {
 			}
 			
 		}
-		session_write_close();
+		sessionEnd();
 
 		return $messages;
 	}
@@ -87,7 +87,7 @@ class Message {
 
 		$count = 0;
 
-		session_start();
+		sessionStart();
 		if(isset($_SESSION["SM"])) {
 			if($type) {
 				if(isset($_SESSION["SM"][$type])) {
@@ -101,7 +101,7 @@ class Message {
 			}
 
 		}
-		session_write_close();
+		sessionEnd();
 
 		return $count;
 	}
@@ -122,7 +122,7 @@ class Message {
 			}
 		}
 
-		session_start();
+		sessionStart();
 		if(isset($_SESSION["SM"])) {
 
 			if($type) {
@@ -135,7 +135,7 @@ class Message {
 			}
 
 		}
-		session_write_close();
+		sessionEnd();
 
 	}
 

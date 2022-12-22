@@ -17,9 +17,9 @@ class Session {
 
 			// writeToFile("set value:" . $key ."=".$value);
 
-			session_start();
+			sessionStart();
 			$_SESSION["SV"][$key] = json_encode($value);
-			session_write_close();
+			sessionEnd();
 
 		}
 		else {
@@ -28,7 +28,7 @@ class Session {
 
 			$return_value = false;
 
-			session_start();
+			sessionStart();
 			if($key) {
 				if(isset($_SESSION["SV"]) && isset($_SESSION["SV"][$key])) {
 					$return_value = json_decode($_SESSION["SV"][$key], true);
@@ -37,7 +37,7 @@ class Session {
 			else if(isset($_SESSION["SV"])) {
 				$return_value = $_SESSION["SV"];
 			}
-			session_write_close();
+			sessionEnd();
 
 			return $return_value;
 
@@ -52,7 +52,7 @@ class Session {
 	function reset($key = false) {
 		// writeToFile("reset:" . $key);
 
-		session_start();
+		sessionStart();
 		if($key) {
 			unset($_SESSION["SV"][$key]);
 		}
@@ -74,7 +74,7 @@ class Session {
 			session_regenerate_id(true);
 
 		}
-		session_write_close();
+		sessionEnd();
 
 	}
 
