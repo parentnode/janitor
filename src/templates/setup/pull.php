@@ -13,13 +13,13 @@ $branch = trim(shell_exec("cd '$project_path' && git rev-parse --abbrev-ref HEAD
 
 
 // Check that git has been set up with project credentials file
-$credential_helper = trim(shell_exec("cd '$project_path' && git config --get credential.helper"));
+$credential_helper = true; //trim(shell_exec("cd '$project_path' && git config --get credential.helper"));
 // debug([$remote_origin, $credential_helper, PRIVATE_FILE_PATH]);
 
-$credential_helper_ready = false;
-if(strpos("store --file ".PRIVATE_FILE_PATH."/.git_credentials", $credential_helper) === 0) {
-	$credential_helper_ready = true;
-}
+// $credential_helper_ready = false;
+// if(strpos("store --file ".PRIVATE_FILE_PATH."/.git_credentials", $credential_helper) === 0) {
+// 	$credential_helper_ready = true;
+// }
 
 ?>
 <div class="scene pull i:pull">
