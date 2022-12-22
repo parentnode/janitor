@@ -2359,14 +2359,9 @@ class SetupCore extends Itemtype {
 			// Update git credentials file to allow pull command to execute without credentials in command-line
 			file_put_contents(PRIVATE_FILE_PATH."/.git_credentials", $credentials);
 
+
 			$command = "cd '$project_path' && sudo /usr/bin/git pull '$remote_origin' '$branch' && sudo /usr/bin/git submodule update";
-
-			// Local test
-			// $command = "cd '$project_path' && git pull '$remote_origin' '$branch' && git submodule update";
-			// debug($command);
-
 			$output = shell_exec($command);
-			// debug($output);
 
 
 			// Remove username:password from credential file (storing is temporary on purpose)
