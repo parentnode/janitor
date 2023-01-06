@@ -887,7 +887,7 @@ class SuperShopCore extends Shop {
 							$order_item = $this->addCartItemToOrder($cart_item, $order);
 
 							if($order_item) {
-								
+
 								$admin_summary[] = $order_item["item_name"];
 
 								// get item details
@@ -895,25 +895,25 @@ class SuperShopCore extends Shop {
 
 								// add callback to 'ordered'
 								$model = $IC->typeObject($item["itemtype"]);
-								if(method_exists($model, "ordered")) {
-	
+								if(method_exists($model, "ordered")) {	
 									$model->ordered($order_item, $order);
 								}
+
 							}
-							
+
 						}
 						
 						$this->validateOrder($order["id"]);
 
 
 						if($order_comment) {
-							
+
 							$sql = "UPDATE ".$this->db_orders." SET comment = '".$order_comment."' WHERE order_no='$order_no'";
 							// debug([$sql]);
 							$query->sql($sql);
 						}
-					
-						
+
+
 						// only autoship order if every item should be autoshipped
 						$order["autoship"] = true;
 						foreach($cart["items"] as $cart_item) {

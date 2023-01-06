@@ -736,8 +736,6 @@ class TypeMessageCore extends Itemtype {
 							}
 
 
-
-
 							if(array_search("MEMBERSHIP_PRICE", $needed_values) !== false) {
 
 								include_once("classes/shop/supershop.class.php");

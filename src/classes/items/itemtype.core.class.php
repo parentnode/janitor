@@ -2241,10 +2241,10 @@ class ItemtypeCore extends Model {
 
 		// order item can be subscribed to
 		if(SITE_SUBSCRIPTIONS && isset($item["subscription_method"]) && $item["subscription_method"]) {
-			
+
 			$order_id = $order["id"];
 			$user_id = $order["user_id"];
-			
+
 			$subscription = $SuperSubscriptionClass->getSubscriptions(array("user_id" => $user_id, "item_id" => $item_id));
 
 			// user already subscribes to item
@@ -2259,13 +2259,12 @@ class ItemtypeCore extends Model {
 				}
 				else {
 					$_POST["custom_price"] = null;
-				}				
+				}
 				
 				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription["id"]]);
 				unset($_POST);
 
 			}
-			
 			else {
 				// add new subscription
 				// makes callback to 'subscribed'

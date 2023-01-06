@@ -98,6 +98,7 @@ class SuperMemberCore extends Member {
 
 			// membership with subscription
 			$sql = "SELECT members.id as id, subscriptions.id as subscription_id, subscriptions.item_id as item_id, subscriptions.order_id as order_id, members.user_id as user_id, members.created_at as created_at, members.modified_at as modified_at, subscriptions.renewed_at as renewed_at, subscriptions.expires_at as expires_at FROM ".$this->db_subscriptions." as subscriptions, ".$this->db_members." as members WHERE members.user_id = $user_id AND members.subscription_id = subscriptions.id LIMIT 1";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 
 				$member = $query->result(0);
@@ -118,8 +119,6 @@ class SuperMemberCore extends Member {
 					$member["item_id"] = false;
 					$member["expires_at"] = false;
 					$member["renewed_at"] = false;
-					
-						
 	
 					return $member;
 				}
