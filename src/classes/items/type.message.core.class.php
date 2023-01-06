@@ -34,9 +34,10 @@ class TypeMessageCore extends Itemtype {
 		$this->addToModel("name", array(
 			"type" => "string",
 			"label" => "Subject",
+			"max" => 100,
 			"required" => true,
 			"hint_message" => "Subject of your message", 
-			"error_message" => "Name must be filled out."
+			"error_message" => "Name must be filled out and be no more than 100 chars."
 		));
 
 		// description
@@ -632,8 +633,6 @@ class TypeMessageCore extends Itemtype {
 
 					include_once("classes/users/superuser.class.php");
 					$UC = new SuperUser();
-					include_once("classes/users/supermember.class.php");
-					$MC = new SuperMember();
 
 					// get recipients from maillist_id
 					if($maillist_id) {
@@ -718,6 +717,10 @@ class TypeMessageCore extends Itemtype {
 
 						// MEMBERSHIP DATA
 						if(defined("SITE_MEMBERS") && SITE_MEMBERS && preg_match("/MEMBER_ID|MEMBERSHIP|MEMBERSHIP_PRICE|ORDER_NO/", implode(",", $needed_values))) {
+
+							include_once("classes/users/supermember.class.php");
+							$MC = new SuperMember();
+ 
 							$member = $MC->getMembers(["user_id" => $subscriber["user_id"]]);
 
 							if(array_search("MEMBER_ID", $needed_values) !== false) {

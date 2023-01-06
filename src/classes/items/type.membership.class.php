@@ -151,7 +151,7 @@ class TypeMembership extends Itemtype {
 			}
 			// several membership cart_items were found in cart
 			elseif(count($results) > 1) {
-				
+
 				// find most recently added cart_item (highest cart_item_id)
 				$max_cart_item_id = max(array_column($results, "id"));
 
@@ -173,117 +173,10 @@ class TypeMembership extends Itemtype {
 
 	}
 
-	function ordered($order_item, $order) {
-
-		include_once("classes/shop/supersubscription.class.php");
-		include_once("classes/users/supermember.class.php");
-		$SuperSubscriptionClass = new SuperSubscription();
-		$MC = new SuperMember();
-		$IC = new Items();
-
-		$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
-		$item_id = $order_item["item_id"];
-		
-		$order_id = $order ? $order["id"] : false;
-		$user_id = $order["user_id"];
-
-		if(isset($order_item["custom_price"]) && $order_item["custom_price"] !== false) {
-			$custom_price = $order_item["custom_price"];
-		}
-
-		$existing_membership = $MC->getMembers(["user_id" => $user_id]);
-		
-		// user is already member (active or inactive)
-		if($existing_membership) {
-
-			// new membership item has a subscription method
-			if(SITE_SUBSCRIPTIONS && $item["subscription_method"]) {
-				
-				// existing membership is active
-				if($existing_membership["subscription_id"]) {
-					
-					// update subscription
-					$subscription_id = $existing_membership["subscription_id"];
-					$_POST["item_id"] = $item_id;
-					$_POST["user_id"] = $user_id;
-					$_POST["order_id"] = $order_id;
-					if(isset($custom_price) && ($custom_price || $custom_price === "0")) {
-						$_POST["custom_price"] = $custom_price;
-					}
-					else {
-						$_POST["custom_price"] = null;
-					}
-					
-					$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription_id]);
-					unset($_POST);
-				}
-				// existing membership is inactive
-				else {
-
-					// add subscription
-					$_POST["item_id"] = $item_id;
-					$_POST["user_id"] = $user_id;
-					$_POST["order_id"] = $order_id;
-					if(isset($custom_price) && ($custom_price || $custom_price === "0")) {
-						$_POST["custom_price"] = $custom_price;
-					}
-					else {
-						$_POST["custom_price"] = null;
-					}
-					
-					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
-					unset($_POST);
-				}
-
-				// update membership with subscription_id
-				$subscription_id = $subscription ? $subscription["id"] : false;
-				$MC->updateMembership(["user_id" => $user_id, "subscription_id" => $subscription_id]);
-			}
-			
-			// new membership item has no subscription method
-			else {
-				
-				return false;
-			}
-			
-		}
-		
-		// user is not yet a member
-		else {
-
-			// new membership has a subscription method
-			if(SITE_SUBSCRIPTIONS && isset($item["subscription_method"]) && $item["subscription_method"]) {
-				
-				// add subscription
-				$_POST["item_id"] = $item_id;
-				$_POST["user_id"] = $user_id;
-				$_POST["order_id"] = $order_id;
-				if(isset($custom_price) && ($custom_price || $custom_price === "0")) {
-					$_POST["custom_price"] = $custom_price;
-				}
-				else {
-					$_POST["custom_price"] = null;
-				}
-				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
-				$subscription_id = $subscription ? $subscription["id"] : false;
-				unset($_POST);
-	
-				// add membership
-				$MC->addMembership($item_id, $subscription_id, ["user_id" => $user_id]);
-			}
-			else {
-
-				return false;
-			}
-		}
-
-		logger()->addLog("membership->ordered: order_id:".$order["id"]);
-
-	}
 
 	function shipped($order_item, $order) {
 
-		$item_id = $order_item["item_id"];		
+		$item_id = $order_item["item_id"];
 
 		logger()->addLog("membership->shipped: order_id:".$order["id"]);
 
@@ -295,103 +188,37 @@ class TypeMembership extends Itemtype {
 		// check for subscription error
 		if($subscription && $subscription["item_id"] && $subscription["user_id"]) {
 
+			include_once("classes/users/supermember.class.php");
+			$MC = new SuperMember();
+
 			$item_id = $subscription["item_id"];
 			$user_id = $subscription["user_id"];
 			$order_id = NULL;
 			$price = NULL;
-			
-			if(isset($subscription["order"])) {
-				$order = $subscription["order"];
-				$item_key = arrayKeyValue($order["items"], "item_id", $item_id);
-				$order_id = $order ? $order["id"] : false;
-				$order_item = $order["items"][$item_key];
-				
-				// variables for email
-				$price = formatPrice(["price" => $order_item["total_price"], "vat" => $order_item["total_vat"],  "country" => $order["country"], "currency" => $order["currency"]]);
+
+
+			$existing_membership = $MC->getMembers(["user_id" => $user_id]);
+			if($existing_membership) {
+				$MC->updateMembership(["user_id" => $user_id, "subscription_id" => $subscription["id"]]);
+			}
+			else {
+				// add membership
+				$MC->addMembership($item_id, $subscription["id"], ["user_id" => $user_id]);
 			}
 
-			$message_id = $subscription["item"]["subscribed_message_id"];
 
 			$IC = new Items();
 			$model = $IC->typeObject("message");
 
+			$message_id = $subscription["item"]["subscribed_message_id"];
+
 			$model->sendMessage([
 				"item_id" => $message_id, 
 				"user_id" => $user_id, 
-				"values" => ["MEMBERSHIP_PRICE" => $price]
 			]);
 
 			logger()->addLog("membership->subscribed: item_id:$item_id, user_id:$user_id, order_id:".$order_id);
 
-
-//
-//
-// 			$classname = $subscription["item"]["classname"];
-//
-//
-// 			$UC = new User();
-//
-// 			// switch user id to enable user data collection
-// 			$current_user_id = session()->value("user_id");
-// 			session()->value("user_id", $user_id);
-//
-// 			// get user, order and  info
-// 			$user = $UC->getUser();
-//
-// 			// switch back to correct user
-// 			session()->value("user_id", $current_user_id);
-//
-//
-// //			print "subscription:\n";
-// //			print_r($subscription);
-//
-// 			// variables for email
-// 			$nickname = $user["nickname"];
-// 			$email = $user["email"];
-// 			$membership = $user["membership"];
-//
-// 			// print "nickname:" . $nickname."<br>\n";
-// 			// print "email:" . $email."<br>\n";
-// 			// print "classname:" . $classname."<br>\n";
-// 			// print "member no:" . $membership["id"]."<br>\n";
-// 			// print "membership:" . $membership["item"]["name"]."<br>\n";
-// 			// print "price:" . $price."\n";
-//
-//
-// 			//$nickname = false;
-// 			if($nickname && $email && $membership && $price && $classname) {
-//
-// 				mailer()->send(array(
-// 					"values" => array(
-// 						"ORDER_NO" => $order["order_no"],
-// 						"MEMBER_ID" => $membership["id"],
-// 						"MEMBERSHIP" => $membership["item"]["name"],
-// 						"PRICE" => $price,
-// 						"EMAIL" => $email,
-// 						"NICKNAME" => $nickname
-// 					),
-// 					"recipients" => $email,
-// 					"template" => "subscription_".$classname
-// 				));
-//
-// 				// send notification email to admin
-// 				mailer()->send(array(
-// 					"recipients" => SHOP_ORDER_NOTIFIES,
-// 					"subject" => SITE_URL . " - New ".$subscription["item"]["name"].": " . $email,
-// 					"message" => "Do something"
-// 				));
-//
-// 			}
-// 			else {
-//
-// 				// send notification email to admin
-// 				mailer()->send(array(
-// 					"subject" => "ERROR: subscription creation: " . $email,
-// 					"message" => "Do something",
-// 					"template" => "system"
-// 				));
-//
-// 			}
 
 		}
 
