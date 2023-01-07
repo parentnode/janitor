@@ -673,16 +673,21 @@ function formatPrice($price, $_options=false) {
 	if($price) {
 
 		$_ = '';
-	
-		$currency_details = $page->currencies($price["currency"]);
-	
+
+		if(isset($price["currency"])) {
+			$currency_details = $page->currencies($price["currency"]);
+		}
+		else {
+			$currency_details = $page->currencies(defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK");
+		}
+
 		if($conditional_decimals && ctype_digit($price["price"])) {
-			
+
 			// price is an integer; omit decimals
 			$formatted_price = number_format($price["price"], 0, $currency_details["decimal_separator"], $currency_details["grouping_separator"]);
 		}
 		else {
-	
+
 			$formatted_price = number_format($price["price"], $currency_details["decimals"], $currency_details["decimal_separator"], $currency_details["grouping_separator"]);
 		}
 	
