@@ -622,7 +622,7 @@ class SuperSubscriptionCore extends Subscription {
 
 						// Calculate new expiry
 						$new_expiry = $this->calculateSubscriptionExpiry($item["subscription_method"]["duration"], $subscription["expires_at"]);
-						$price = $SC->getPrice($item["item_id"], array("user_id" => $subscription["user_id"], "quantity" => 1));
+						// $price = $SC->getPrice($item["item_id"], array("user_id" => $subscription["user_id"], "quantity" => 1));
 
 						$custom_price = $subscription["custom_price"];
 
@@ -635,7 +635,7 @@ class SuperSubscriptionCore extends Subscription {
 							"custom_name" => $item["name"] . ", ".translate("automatic renewal")." (" . date("d/m/Y", strtotime($subscription["expires_at"])) ." - ". date("d/m/Y", strtotime($new_expiry)).")",
 							"custom_price" => $custom_price
 						]);
-							
+
 						// pass subscription_renewal flag for use in updateSubscription
 						$_POST["subscription_renewal"] = 1;
 						$order = $SC->newOrderFromCart(["newOrderFromCart", $cart["id"], $cart["cart_reference"]]);
