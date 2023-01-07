@@ -735,7 +735,6 @@ class TypeMessageCore extends Itemtype {
 								else {
 									$user_values["ORDER_NO"] = "";
 								}
-
 							}
 
 
@@ -744,12 +743,19 @@ class TypeMessageCore extends Itemtype {
 								include_once("classes/shop/supershop.class.php");
 								$SC = new SuperShop();
 
-								if($member && $member["item"] && $member["item"]["item_id"]) {
+								include_once("classes/shop/supersubscription.class.php");
+								$SUC = new SuperSubscription();
+
+								$subscription = $SUC->getSubscriptions(["user_id" => $member["user_id"], "subscription_id" => $member["subscription_id"]]);
+								if($subscription && $subscription["custom_price"]) {
+									$user_values["MEMBERSHIP_PRICE"] = formatPrice(["price" => $subscription["custom_price"]]);
+								}
+								else if($member && $member["item"] && $member["item"]["item_id"]) {
 									$price = $SC->getPrice($member["item"]["item_id"], ["user_id" => $subscriber["user_id"]]);
 									$user_values["MEMBERSHIP_PRICE"] = formatPrice($price);
 								}
 								else {
-									$user_values["MEMBERSHIP_PRICE"] = formatPrice(["price" => 0, "currency" => defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK"]);
+									$user_values["MEMBERSHIP_PRICE"] = formatPrice(["price" => 0]);
 								}
 
 							}
