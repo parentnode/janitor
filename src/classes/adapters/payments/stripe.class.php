@@ -1807,7 +1807,6 @@ class JanitorStripe {
 	// Create customer in Stripe account
 	function createCustomer($user_id) {
 
-
 		include_once("classes/users/superuser.class.php");
 		$UC = new SuperUser();
 

@@ -360,7 +360,7 @@ class ItemtypeCore extends Model {
 
 		// create item
 		$sql = "INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, 0, '$this->itemtype', ".$user_id.", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".$published_at.")";
-//		print $sql."<br>\n";
+		// debug(["saveItem", $sql]);
 
 		// save root item
 		if($query->sql($sql)) {

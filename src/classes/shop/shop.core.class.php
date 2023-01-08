@@ -863,15 +863,15 @@ class ShopCore extends Model {
 		$this->getPostedEntities();
 
 		$user_id = session()->value("user_id");
-		
+
 		// values are valid
 		if(count($action) == 1 && $user_id) {
-			
+
 			$query = new Query();
-			
+
 			$currency = $this->getProperty("currency", "value");
 			$country = $this->getProperty("country", "value");
-			
+
 			$billing_address_id = $this->getProperty("billing_address_id", "value");
 			$delivery_address_id = $this->getProperty("delivery_address_id", "value");
 			$is_internal = $this->getProperty("is_internal", "value");
@@ -915,7 +915,6 @@ class ShopCore extends Model {
 
 				// cart is internal
 				if($is_internal) {
-					
 					return $this->getCarts(["cart_reference" => $cart_reference]);
 				}
 
@@ -924,10 +923,10 @@ class ShopCore extends Model {
 
 				// add cookie for user
 				setcookie("cart_reference", $cart_reference, time()+60*60*24*60, "/");
-				
+
 				// return cart object
 				return $this->getCart();
-				
+
 			}
 		}
 
@@ -1464,7 +1463,7 @@ class ShopCore extends Model {
 			$user_id = session()->value("user_id");
 
 			$cart = $this->getCart();
-			
+
 			// user cart matches cart received via REST
 			if($cart && $cart["cart_reference"] == $cart_reference) {
 				$cart_match = true;
@@ -1473,7 +1472,7 @@ class ShopCore extends Model {
 			else if($received_cart && $received_cart["user_id"] == $user_id) {
 				$cart_match = true;
 				$cart = $received_cart;
-			}			
+			}
 			// cart mismatch
 			else {
 				$cart_match = false;
