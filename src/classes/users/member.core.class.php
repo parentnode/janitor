@@ -91,7 +91,7 @@ class MemberCore extends Model {
 	 * @return array|false Membership object. False on error. 
 	 */
 	function addMembership($item_id, $subscription_id, $_options = false) {
-		
+
 		// user already has membership – cancel 
 		// (should have been redirected by TypeMembership::ordered)
 		if($this->getMembership()) {
@@ -182,31 +182,30 @@ class MemberCore extends Model {
 
 			// get current user
 			$user_id = session()->value("user_id");
-			
+
 			$subscription_id = false;
 			$SubscriptionClass = new Subscription();
-			
+
 			$query = new Query();
 			$sql = "UPDATE ".$this->db_members." SET modified_at = CURRENT_TIMESTAMP";
 			
 			if($_options !== false) {
 				foreach($_options as $_option => $_value) {
 					switch($_option) {
-						
 						case "subscription_id"			:	$subscription_id			= $_value; break;
 					}
 				}
 			}
 
 			if($subscription_id) {
-				
+
 				// make sure new subscription is valid
 				$subscription = $SubscriptionClass->getSubscriptions(array("subscription_id" => $subscription_id));
 				if($subscription) {
 					$sql .= ", subscription_id = $subscription_id";
 				}
 			}
-			
+
 
 			// Add condition
 			$sql .= " WHERE user_id = $user_id";
@@ -221,7 +220,7 @@ class MemberCore extends Model {
 				return $membership;
 			}
 		}
-		
+
 		// current user has no membership
 		return false;
 

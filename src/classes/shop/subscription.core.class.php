@@ -110,6 +110,7 @@ class SubscriptionCore extends Model {
 		// check for specific subscription for current user
 		if($item_id !== false) {
 			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id AND item_id = $item_id LIMIT 1";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				$subscription = $query->result(0);
 				$subscription["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
@@ -132,6 +133,7 @@ class SubscriptionCore extends Model {
 		// get subscription by subscription id
 		else if($subscription_id !== false) {
 			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id AND id = $subscription_id LIMIT 1";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				$subscription = $query->result(0);
 				$subscription["item"] = $IC->getItem(array("id" => $subscription["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
@@ -155,6 +157,7 @@ class SubscriptionCore extends Model {
 		// get list of all subscriptions for current user
 		else {
 			$sql = "SELECT * FROM ".$this->db_subscriptions." WHERE user_id = $user_id";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				$subscriptions = $query->results();
 				foreach($subscriptions as $i => $subscription) {
@@ -194,7 +197,7 @@ class SubscriptionCore extends Model {
 	 * @return array|false Subscription object. False on error.
 	 */
 	function addSubscription($action) {
-		
+
 		// get current user
 		$user_id = session()->value("user_id");
 
@@ -203,11 +206,11 @@ class SubscriptionCore extends Model {
 
 		// values are valid
 		if(count($action) == 1 && $this->validateList(array("item_id"))) {
-			
+
 			$query = new Query();
 			$IC = new Items();
 			$SC = new Shop; 
-			$MC = new Member();
+			// $MC = new Member();
 	
 			$item_id = $this->getProperty("item_id", "value");
 			$order_id = $this->getProperty("order_id", "value");
@@ -219,23 +222,24 @@ class SubscriptionCore extends Model {
 			// check if subscription already exists (somehow something went wrong)
 			$subscription = $this->getSubscriptions(array("item_id" => $item_id));
 			if($subscription) {
-				
+
 				// forward request to update method
 				return $this->updateSubscription(["updateSubscription", $subscription["id"]]);
 			}
-			
+
+
 			// get item prices and subscription method details to create subscription correctly
 			$item = $IC->getItem(array("id" => $item_id, "extend" => array("subscription_method" => true, "prices" => true)));
 			if($item && $item["subscription_method"]) {
-				
+
 				// order flag
 				$order = false;
 	
 				if(SITE_SHOP) {
-					
+
 					// item has price
 					if($item["prices"]) {
-						
+
 						// no order_id? - don't do anything else
 						if(!$order_id) {
 							return false;
@@ -254,7 +258,7 @@ class SubscriptionCore extends Model {
 					else {
 	
 						if($order_id) {
-							
+
 							// free items can't have orders
 							return false;
 						}
@@ -284,28 +288,13 @@ class SubscriptionCore extends Model {
 				if($custom_price || $custom_price === "0") {
 					$sql .= ", custom_price = $custom_price";
 				}
-	
-	
+
+				// debug(["sql", $sql]);
 				if($query->sql($sql)) {
 	
 					// get created subscription
 					$subscription = $this->getSubscriptions(array("item_id" => $item_id));
-	
-					// if item is membership - update membership/subscription_id information
-					if($item["itemtype"] == "membership") {
-	
-						// add subscription id to post array
-						$_POST["subscription_id"] = $subscription["id"];
-	
-						// check if membership exists
-						$membership = $MC->getMembership();
-	
-						// clear post array
-						unset($_POST);
-	
-					}
-	
-	
+		
 	
 					// perform special action on subscribe
 					// this must be done after membership has been updated with new subscription id
@@ -323,9 +312,8 @@ class SubscriptionCore extends Model {
 				}
 	
 			}
-			
+
 		}
-		
 
 		return false;
 	}

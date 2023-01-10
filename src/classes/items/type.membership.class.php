@@ -193,8 +193,6 @@ class TypeMembership extends Itemtype {
 
 			$item_id = $subscription["item_id"];
 			$user_id = $subscription["user_id"];
-			$order_id = NULL;
-			$price = NULL;
 
 
 			$existing_membership = $MC->getMembers(["user_id" => $user_id]);
@@ -217,8 +215,7 @@ class TypeMembership extends Itemtype {
 				"user_id" => $user_id, 
 			]);
 
-			logger()->addLog("membership->subscribed: item_id:$item_id, user_id:$user_id, order_id:".$order_id);
-
+			logger()->addLog("membership->subscribed: item_id:$item_id, user_id:$user_id");
 
 		}
 

@@ -453,6 +453,7 @@ class Model extends HTML {
 
 		$query = new Query();
 		$sql = "SELECT id FROM ".$db_table." WHERE $name = '".$value."'".($item_id ? " AND item_id != ".$item_id : "");
+		// debug(["sql", $sql]);
 
 		// does other value exist
 		if($query->sql($sql)) {

@@ -2103,23 +2103,23 @@ class ItemtypeCore extends Model {
 				if($subscription_method) {
 					
 					$sql = "SELECT id FROM ".UT_ITEMS_SUBSCRIPTION_METHOD." WHERE item_id = $item_id";
-					//					print $sql;
+					// debug([$sql]);
 					if($query->sql($sql)) {
-						
+
 						if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE item_id = $item_id")) {
 							message()->addMessage("Subscription method updated");
-							
+
 							$IC = new Items();
 							$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
 							return $subscription_method;
 						}
-						
+
 					}
 					else {
-						
+
 						$sql = "INSERT INTO ".UT_ITEMS_SUBSCRIPTION_METHOD." VALUES(DEFAULT, $item_id, $subscription_method)";
-						// print $sql;
-						
+						// debug([$sql]);
+
 						if($query->sql($sql)) {
 							message()->addMessage("Subscription method added");
 
