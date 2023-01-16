@@ -783,8 +783,9 @@ class JanitorHTMLCore {
 		global $model;
 
 		$class = "all_items editors i:defaultEditors i:collapseHeader";
-		$item_editors = false;
+
 		$users = false;
+		$users_options = false;
 
 
 		// overwrite defaults
@@ -792,40 +793,45 @@ class JanitorHTMLCore {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "item_editors"            : $item_editors            = $_value; break;
 					case "users"                   : $users                   = $_value; break;
+					case "users_options"           : $users_options           = $_value; break;
+
 					case "class"                   : $class                   = $_value; break;
 				}
 			}
 		}
 
-		if(!$item_editors) {
-			$item_editors = $IC->getEditors(["item_id" => $item["id"]]);
+		if(!$item["editors"]) {
+			$item["editors"] = $IC->getEditors(["item_id" => $item["id"]]);
 		}
 
-		if(!$users) {
-			$UC = new User();
+		if(!$users_options) {
 
-			$users = $UC->getUsers();
-			$user_options_editors = $model->toOptions($users, "id", "nickname", ["add" => ["" => "Select editor"]]);
+			if(!$users) {
+				$UC = new User();
+
+				$users = $UC->getUsers();
+			}
+
+			$users_options = $model->toOptions($users, "id", "nickname", ["add" => ["" => "Select editor"]]);
 		}
 
 
 		$_ = '';
 
 		$_ .= '<div class="'.$class.' item_id:'.$item["id"].'" data-csrf-token="'.security()->getValue("csrf").'" data-editor-remove="'.$this->path.'/removeEditor">';
-		$_ .= '<h2>Editors ('.($item_editors ? count($item_editors) : 0).')</h2>';
+		$_ .= '<h2>Editors ('.($item["editors"] ? count($item["editors"]) : 0).')</h2>';
 
 		$_ .= '<fieldset>';
 		$_ .= '<h3>Existing editors</h3>';
 		$_ .= '</fieldset>';
 
-		if($item_editors):
+		if($item["editors"]):
 
 			$_ .= '<ul class="items editors">';
 
-			foreach($item_editors as $item_editor) {
-				$_ .= '<li class="item editor editor_id:'.$item_editor["id"].'"><h3>'.$item_editor["nickname"].'</h3></li>';
+			foreach($item["editors"] as $editor) {
+				$_ .= '<li class="item editor editor_id:'.$editor["id"].'"><h3>'.$editor["nickname"].'</h3></li>';
 			}
 			$_ .= '</ul>';
 
@@ -838,7 +844,7 @@ class JanitorHTMLCore {
 		$_ .= $model->formStart($this->path."/addEditor/".$item["id"], array("class" => "editors labelstyle:inject"));
 		$_ .= '<fieldset>';
 		$_ .= '<h3>Add editor</h3>';
-		$_ .= $model->input("item_editor", array("type" => "select", "options" => $user_options_editors));
+		$_ .= $model->input("item_editor", array("type" => "select", "options" => $users_options));
 		$_ .= '</fieldset>';
 
 		$_ .= '<ul class="actions">';
