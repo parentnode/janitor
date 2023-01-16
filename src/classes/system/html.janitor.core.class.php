@@ -801,7 +801,7 @@ class JanitorHTMLCore {
 			}
 		}
 
-		if(!$item["editors"]) {
+		if(!isset($item["editors"])) {
 			$item["editors"] = $IC->getEditors(["item_id" => $item["id"]]);
 		}
 
