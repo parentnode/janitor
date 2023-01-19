@@ -1236,14 +1236,14 @@ class SuperShopCore extends Shop {
 				$sql = "SELECT * FROM ".$this->db_orders." WHERE order_no = '".$order_no."' LIMIT 1";
 			}
 
-//			print $sql."<br>";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				$order = $query->result(0);
 				$order["items"] = array();
 
 				// get items for order
 				$sql = "SELECT * FROM ".$this->db_order_items." as items WHERE items.order_id = ".$order["id"];
-//				print $sql;
+				// debug([$sql]);
 				if($query->sql($sql)) {
 					$order["items"] = $query->results();
 				}
@@ -1289,7 +1289,7 @@ class SuperShopCore extends Shop {
 				// LEFT JOIN ALTERNATIVE
 //				$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items LEFT JOIN ".UT_ITEMS." ON order_items.item_id = ".UT_ITEMS.".id WHERE orders.user_id=$user_id".($status !== false ? " AND status=$status" : "")." AND order_items.order_id = orders.id AND order_items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
 
-//				print $sql;
+				// debug([$sql]);
 				if($query->sql($sql)) {
 					$orders = $query->results();
 
@@ -1308,7 +1308,7 @@ class SuperShopCore extends Shop {
 			else {
 
 				$sql = "SELECT * FROM ".$this->db_orders." WHERE user_id=$user_id".($status !== false ? " AND status=$status" : "")." ORDER BY id DESC";
-//				print $sql;
+				// debug([$sql]);
 				if($query->sql($sql)) {
 					$orders = $query->results();
 
@@ -1330,7 +1330,7 @@ class SuperShopCore extends Shop {
 		else if($itemtype) {
 
 			$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as order_items, ".UT_ITEMS." as items WHERE ".($status !== false ? "status=$status AND " : "")."order_items.order_id = orders.id AND items.itemtype = '$itemtype' AND order_items.item_id = items.id ORDER BY orders.id DESC";
-//			print $sql;
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				$orders = $query->results();
 
@@ -1372,6 +1372,7 @@ class SuperShopCore extends Shop {
 		else if($item_id) {
 
 			$sql = "SELECT orders.* FROM ".$this->db_orders." as orders, ".$this->db_order_items." as items WHERE orders.id = items.order_id AND items.item_id = $item_id GROUP BY order_id";
+			// debug(["all orders", $sql]);
 			if($query->sql($sql)) {
 				$orders = $query->results();
 
@@ -1414,7 +1415,7 @@ class SuperShopCore extends Shop {
 		else {
 
 			$sql = "SELECT * FROM ".$this->db_orders.($status !== false ? " WHERE status=$status" : "")." ORDER BY id DESC";
-//			print $sql;
+			// debug(["all orders", $sql]);
 			if($query->sql($sql)) {
 
 				$orders = $query->results();

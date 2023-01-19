@@ -1350,14 +1350,14 @@ class UserCore extends Model {
 					// insert reset token
 					$sql = "INSERT INTO ".$this->db_password_reset_tokens." VALUES(DEFAULT, $user_id, '$reset_token', '".date("Y-m-d H:i:s")."')";
 					if($query->sql($sql)) {
-						
+
 						$sql = "SELECT nickname FROM ".$this->db." WHERE id = '$user_id'";
-						
+
 						if($query->sql($sql)) {
-							
+
 							// nickname 
 							$nickname = $query->result(0, "nickname");
-						
+
 							// send email
 							mailer()->send(array(
 								"values" => array(

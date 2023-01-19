@@ -58,6 +58,7 @@ class SuperMemberCore extends Member {
 
 			// membership with subscription
 			$sql = "SELECT members.id as id, subscriptions.id as subscription_id, subscriptions.item_id as item_id, subscriptions.order_id as order_id, members.user_id as user_id, members.created_at as created_at, members.modified_at as modified_at, subscriptions.renewed_at as renewed_at, subscriptions.expires_at as expires_at FROM ".$this->db_subscriptions." as subscriptions, ".$this->db_members." as members WHERE members.id = $member_id AND members.subscription_id = subscriptions.id LIMIT 1";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 
 				$member = $query->result(0);
@@ -105,7 +106,12 @@ class SuperMemberCore extends Member {
 				$member["item"] = $IC->getItem(["id" => $member["item_id"], "extend" => ["subscription_method" => true, "prices" => true]]);
 
 				// payment status
-				$member["order"] = $SC->getOrders(["order_id" => $member["order_id"]]);
+				if($member["order_id"]) {
+					$member["order"] = $SC->getOrders(["order_id" => $member["order_id"]]);
+				}
+				else {
+					$member["order"] = false;
+				}
 				return $member;
 			}
 			// membership without subscription
@@ -139,7 +145,12 @@ class SuperMemberCore extends Member {
 					$members[$i]["item"] = $IC->getItem(["id" => $member["item_id"], "extend" => ["subscription_method" => true, "prices" => true]]);
 
 					// payment status
-					$members[$i]["order"] = $SC->getOrders(["order_id" => $member["order_id"]]);
+					if($members[$i]["order_id"]) {
+						$members[$i]["order"] = $SC->getOrders(["order_id" => $member["order_id"]]);
+					}
+					else {
+						$members[$i]["order"] = false;
+					}
 				}
 
 				return $members;
@@ -179,6 +190,7 @@ class SuperMemberCore extends Member {
 					foreach($cancelled_members as $i => $cancelled_member) {
 						$cancelled_members[$i]["user"] = $UC->getUsers(["user_id" => $cancelled_member["user_id"]]);
 						$cancelled_members[$i]["item"] = false;
+						$cancelled_members[$i]["item_id"] = false;
 						$cancelled_members[$i]["order"] = false;
 						$cancelled_members[$i]["order_id"] = false;
 						$cancelled_members[$i]["renewed_at"] = false;
@@ -823,22 +835,20 @@ class SuperMemberCore extends Member {
 			include_once("classes/users/superuser.class.php");
 			$UC = new SuperUser();
 			$query = new Query();
-	
+
 			$user = $UC->getUsers(["user_id" => $user_id]);
 			$member = $this->getMembers(["user_id" => $user_id]);
 			if($user && $member && $member["user_id"] == $user_id) {
-	
+
 				// set subscription_id to NULL - maintains member in system
 				$sql = "UPDATE ".$this->db_members. " SET subscription_id = NULL, modified_at = CURRENT_TIMESTAMP WHERE id = ".$member_id;
 				if($query->sql($sql)) {
-	
+
 					// delete subscription
 					$SuperSubscriptionClass->deleteSubscription(["deleteSubscription", $user_id, $member["subscription_id"]]);
-	
-	
+
 					logger()->addLog("SuperMember->cancelMembership: member_id:".$member["id"]);
 
-	
 					message()->addMessage("Membership cancelled");
 					return true;
 	
