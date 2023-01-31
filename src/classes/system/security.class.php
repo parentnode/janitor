@@ -474,7 +474,7 @@ class Security {
 					// make login query
 					// look for active user with verified username and password
 					$sql = "SELECT users.id as id, users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.status = 1 AND usernames.verified = 1 AND users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND usernames.username='$username'";
-					// print $sql;
+					// debug([$sql]);
 					if($query->sql($sql)) {
 
 						// add user_id and user_group_id to session

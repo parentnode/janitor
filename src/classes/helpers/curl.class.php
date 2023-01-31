@@ -46,7 +46,6 @@ class CurlRequest {
 			}
 		}
 
-		
 
 		$this->ch = curl_init();
 
@@ -126,7 +125,6 @@ class CurlRequest {
 			// Output to file
 			if(defined("LOCAL_PATH")) {
 				$this->stderr_handle = fopen(LOCAL_PATH."/library/debug", "a+");
-				fwrite($this->stderr_handle, "test2");
 				@curl_setopt($this->ch, CURLOPT_STDERR, $this->stderr_handle);
 				@curl_setopt($this->ch, CURLOPT_WRITEHEADER, $this->stderr_handle);
 
