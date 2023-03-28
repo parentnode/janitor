@@ -5,6 +5,10 @@
 */
 class JanitorHTMLCore {
 
+
+	public $path;
+
+
 	function __construct() {
 
 		// current controller path

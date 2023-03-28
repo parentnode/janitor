@@ -5,6 +5,10 @@
 class HTMLCore {
 
 
+	public $path;
+	private $valid_form_started;
+
+
 	function __construct() {
 
 		// current controller path

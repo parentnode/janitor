@@ -6,6 +6,12 @@
 
 class TypeTicketCore extends Itemtype {
 
+
+	public $db;
+	public $db_user_tickets;
+	public $db_editors;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

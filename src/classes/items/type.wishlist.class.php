@@ -6,6 +6,11 @@
 
 class TypeWishlist extends Itemtype {
 
+
+	public $db;
+	public $db_wishes_order;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

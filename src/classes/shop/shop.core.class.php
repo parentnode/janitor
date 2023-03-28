@@ -19,6 +19,20 @@
 */
 class ShopCore extends Model {
 
+
+	public $db_carts;
+	public $db_cart_items;
+	public $db_orders;
+	public $db_order_items;
+	public $db_payments;
+	public $db_cancelled_orders;
+	
+	public $order_statuses;
+	public $payment_statuses;
+	public $shipping_statuses;
+
+
+
 	/**
 	*
 	*/

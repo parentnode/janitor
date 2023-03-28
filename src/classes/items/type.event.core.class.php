@@ -6,6 +6,20 @@
 
 class TypeEventCore extends Itemtype {
 
+
+	public $db;
+	public $db_locations;
+	public $db_performers;
+	public $db_editors;
+	public $db_tickets;
+
+	public $event_status_options;
+	public $event_status_schema_values;
+	public $event_attendance_mode_options;
+	public $event_attendance_mode_schema_values;
+	public $event_location_type_options;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

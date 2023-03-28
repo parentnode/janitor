@@ -6,6 +6,11 @@
 
 class SuperUserCore extends User {
 
+
+	public $db_user_groups;
+	public $db_access;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

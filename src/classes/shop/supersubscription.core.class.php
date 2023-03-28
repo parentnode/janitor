@@ -5,6 +5,10 @@
 
 class SuperSubscriptionCore extends Subscription {
 
+
+	public $db_members;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

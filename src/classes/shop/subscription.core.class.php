@@ -18,6 +18,9 @@
 class SubscriptionCore extends Model {
 
 
+	public $db_subscriptions;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

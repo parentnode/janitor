@@ -1,8 +1,9 @@
 <?php
 
-
-
 class UpgradeCore extends Model {
+
+
+	public $current_janitor_version;
 
 
 	function __construct() {

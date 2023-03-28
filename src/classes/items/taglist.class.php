@@ -11,6 +11,12 @@
 
 class Taglist extends Model {   //Class name always starts with a capital letter
 
+
+	public $db;
+	public $db_taglist_tags;
+	public $db_tags;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

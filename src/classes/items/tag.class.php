@@ -14,6 +14,11 @@
 
 class Tag extends Model {
 
+
+	public $db;
+	public $db_taggings;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

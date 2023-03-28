@@ -6,6 +6,10 @@
 
 class TypeQna extends Itemtype {
 
+
+	public $db;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

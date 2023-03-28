@@ -6,6 +6,13 @@
 
 class TypeMessageCore extends Itemtype {
 
+
+	public $db;
+
+	private $layouts_framework_path;
+	private $layouts_local_path;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

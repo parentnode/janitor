@@ -6,6 +6,12 @@
 
 class TypeTodo extends Itemtype {
 
+
+	public $db;
+	public $todo_priority;
+	public $todo_state;
+	private $users;
+
 	/**
 	* Init, set varnames, validation rules
 	*/

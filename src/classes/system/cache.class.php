@@ -6,6 +6,7 @@
 class Cache {
 
 	public $cache_type;
+	private $cache;
 
 	function __construct() {
 

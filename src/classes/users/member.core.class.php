@@ -15,6 +15,10 @@
 class MemberCore extends Model {
 
 
+	public $db_subscriptions;
+	public $db_members;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

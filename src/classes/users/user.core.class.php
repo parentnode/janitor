@@ -27,6 +27,21 @@
 class UserCore extends Model {
 
 
+	public $db;
+	public $db_usernames;
+	public $db_addresses;
+	public $db_passwords;
+	public $db_password_reset_tokens;
+	public $db_apitokens;
+	public $db_maillists;
+	public $db_payment_methods;
+
+	public $db_subscriptions;
+	public $db_readstates;
+
+	public $db_members;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/
