@@ -4,6 +4,7 @@
 */
 class Model extends HTML {
 
+
 	public $data_defaults;
 	public $data_entities;
 	public $data_errors;
