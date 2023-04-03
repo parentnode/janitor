@@ -22,7 +22,7 @@ $db_check = $model->checkDatabaseSettings();
 <?	if($model->get("database", "passed") && SETUP_TYPE == "existing" && (!defined("SITE_INSTALL") || !SITE_INSTALL)): ?>
 
 	<h3>Database connected</h3>
-	<p>Your database is happy and doesn't want it to change.</p>
+	<p>Your database is happy and doesn't want that to change.</p>
 
 	<ul class="actions">
 		<li class="continue"><a href="/janitor/admin/setup/account" class="button primary">Continue</a></li>

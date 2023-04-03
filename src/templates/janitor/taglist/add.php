@@ -33,9 +33,9 @@ if($taglist && $taglist["tags"]){
 
 <? if($tags): ?>
 
+	<ul class="items">
 	<? foreach($tags as $tag): ?>
 		<? $tag_id = $tag["id"]?>
-		<ul class="items">
 			<li class="item<?= isset($taglist_tag_ids[$tag_id]) ? " added" : "" ?>">
 
 				<h3><?= strip_tags($tag["context"]) ?>:<?= strip_tags($tag["value"]) ?></h3>
@@ -56,9 +56,8 @@ if($taglist && $taglist["tags"]){
 					)) ?>
 				</ul>
 			</li>
-
-		</ul>
 	<? endforeach; ?>
+	</ul>
 
 <? else: ?>
 	<p>No tag.</p>

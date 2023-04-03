@@ -5,6 +5,10 @@
 class SetupCore extends Itemtype {
 
 
+	public $apachectls;
+	public $parentnode_setup;
+
+
 	/**
 	* Get required information
 	*/
@@ -16,7 +20,9 @@ class SetupCore extends Itemtype {
 
 		$this->set("system", "current_user", get_current_user());
 		$this->set("system", "apache_user", trim(shell_exec('whoami')));
-		$this->set("system", "deploy_user", trim(shell_exec('egrep -i "^deploy" /etc/group')) ? "deploy" : (trim(shell_exec('egrep -i "^staff" /etc/group')) ? "staff" : $this->get("system", "current_user")));
+		
+		
+		$this->set("system", "deploy_user", trim(shell_exec('egrep -i "^deploy" /etc/group') ? "deploy" : (shell_exec('egrep -i "^staff" /etc/group') ? "staff" : $this->get("system", "current_user"))));
 
 
 
@@ -347,6 +353,7 @@ class SetupCore extends Itemtype {
 
 		$setup_state = session()->value("setup_state");
 
+		$setup_state = is_array($setup_state) ? $setup_state : [];
 		$setup_state[$setup_area][$property] = $value;
 
 		session()->value("setup_state", $setup_state);
@@ -404,7 +411,7 @@ class SetupCore extends Itemtype {
 
 		// check PHP
 		$this->set("software", 
-			"php", preg_match("/5\.[345678]{1}|7\./", phpversion())
+			"php", preg_match("/5\.[345678]{1}|7\.|8\./", phpversion())
 		);
 
 

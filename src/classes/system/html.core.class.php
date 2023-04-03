@@ -35,11 +35,11 @@ class HTMLCore {
 		$args = func_get_args();
 		$attribute_value = false;
 		for($i = 1; $i < count($args); $i++) {
-			if($args[$i] !== false && $args[$i] !== "") {
+			if($args[$i] !== false && $args[$i] !== "" && $args[$i] !== NULL) {
 				$attribute_value = $attribute_value !== false ? $attribute_value." ".$args[$i] : $args[$i];
 			}
 		}
-		if($attribute_value !== false && $attribute_value !== "") {
+		if($attribute_value !== false) {
 			// make sure we don't get illegal chars in value
 			return ' '.$attribute_name.'="'.htmlentities(stripslashes(trim($attribute_value)), ENT_QUOTES, "UTF-8").'"';
 		}
