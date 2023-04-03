@@ -69,7 +69,7 @@ endif; ?>
 
 	<div id="footer">
 		<ul class="servicenavigation">
-			<li class="copyright">Copyright 2019, parentNode.dk</li>
+			<li class="copyright">Copyright 2023, parentNode.dk</li>
 		</ul>
 	</div>
 
