@@ -179,11 +179,11 @@ class HTMLCore {
 
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
-		if(!preg_match("/^\//", $action)) {
+		if(!preg_match("/^(\/|http[s]:\/\/)/", $action)) {
 			$action = $this->path."/".$action;
 		}
 
-		if(!security()->validatePath($action)) {
+		if(!preg_match("/^(http[s]:\/\/)/", $action) && !security()->validatePath($action)) {
 			return "";
 		}
 
@@ -931,11 +931,11 @@ class HTMLCore {
 
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
-		if(!preg_match("/^\//", $action)) {
+		if(!preg_match("/^(\/|http[s]:\/\/)/", $action)) {
 			$action = $this->path."/".$action;
 		}
 
-		if(!security()->validatePath($action)) {
+		if(!preg_match("/^(http[s]:\/\/)/", $action) && !security()->validatePath($action)) {
 			return "";
 		}
 
