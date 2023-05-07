@@ -1911,7 +1911,7 @@ class SuperUserCore extends User {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "user_id"           : $user_id             = $_value; break;
+					case "user_id"         : $user_id           = $_value; break;
 					case "maillist"        : $maillist          = $_value; break;
 					case "maillist_id"     : $maillist_id       = $_value; break;
 				}

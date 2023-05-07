@@ -25,7 +25,6 @@ class SuperShopCore extends Shop {
 	function __construct() {
 
 
-
 		// order comment
 		$this->addToModel("order_status", array(
 			"type" => "text",
@@ -2298,7 +2297,7 @@ class SuperShopCore extends Shop {
 
 					}
 
-					// update order status and create credit note
+					// update order status
 					$sql = "UPDATE ".$this->db_orders." SET status = 3 WHERE id = ".$order_id." AND user_id = ".$user_id;
 					if($query->sql($sql)) {
 

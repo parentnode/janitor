@@ -1,7 +1,6 @@
 Util.Modules["cacheList"] = new function() {
 	this.init = function(div) {
-
-		u.bug("div cacheList")
+		// u.bug("div cacheList")
 
 		// CMS interaction urls
 		div.csrf_token = div.getAttribute("data-csrf-token");
