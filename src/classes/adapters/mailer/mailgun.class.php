@@ -3,7 +3,7 @@
 * @package janitor.shop
 */
 
-require_once('includes/mailer/mailgun-php-3.0/vendor/autoload.php');
+require_once('includes/mailer/mailgun-php-3.5.5/vendor/autoload.php');
 
 use Mailgun\Mailgun;
 use Mailgun\Exception\HttpClientException;
@@ -16,6 +16,8 @@ class JanitorMailgun {
 	// Mailer settings
 	private $api_key;
 	private $domain;
+	private $endpoint;
+	private $client;
 
 
 
