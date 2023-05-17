@@ -12,19 +12,17 @@ class DOM extends DOMElement {
 	function createDOM($html_string) {
 		
 		// create new dom document
-		$dom = new DOMDocument("1.0", "UTF-8");
+		$dom = new EnhancedDOMDocument("1.0", "UTF-8");
 
 		// prepare for <br> issues in PHP DOM
 		// I cannot load document with <br> tags and when I save HTML it automatically replaces all <br /> with <br> which I then again cannot load.
 		$html_string = preg_replace("/<br>/", "<br />", $html_string);
 
 
+		// When importing string entities will be converted to actual char. 
 		// Double encode any already encoded entity, before encoding all characters (to enable full switch back)
 		// We don't want to encode the "real" HTML, so htmlentities is too much
 		$html_string = preg_replace("/&([#0-9a-zA-Z]{2,6};)/", "&amp;$1", $html_string);
-		// convert entities to avoid broken chars
-		// - the charset handling of the PHP Dom documents seems to be a bit indecisive
-		$html_string = mb_convert_encoding($html_string, "HTML-ENTITIES", "UTF-8");
 
 
 		// ensure correct document creation on html fragments
@@ -218,9 +216,8 @@ class DOM extends DOMElement {
 
 			// TEXT fragment
 			if($child_node->nodeName == "#text") {
-				// trim and remove tabs
+				// double encode for consistancy
 				$child_node->textContent =  preg_replace("/&([#0-9a-zA-Z]{2,6};)/", "&amp;$1", $child_node->textContent);
-				$child_node->textContent =  mb_convert_encoding($child_node->textContent, "HTML-ENTITIES", "UTF-8");
 			}
 			else if($child_node->childNodes){
 				$this->importNodeIterator($child_node);
@@ -252,13 +249,12 @@ class DOM extends DOMElement {
 
 
 			// TEXT fragment
-			if($child_node->nodeName == "#text") {
-				$html_string .= $child_node->textContent;
+			if($child_node->nodeName == "#text" || $child_node->nodeName == "#cdata-section") {
+				$html_string .= preg_replace("/&amp;/", "&", $child_node->textContent);
 			}
 			else if($child_node->childNodes){
 
 				$html_string .= '<'.strtolower($child_node->nodeName);
-				// loop attributes
 				foreach($child_node->attributes as $attribute => $attribute_node) {
 					$html_string .= ' '.$attribute.'="'.$attribute_node->value.'"';
 				}
@@ -282,8 +278,7 @@ class DOM extends DOMElement {
 				$node->removeChild($node->firstChild);
 			}
 
-			$content =  preg_replace("/&([#0-9a-zA-Z]{2,6};)/", "&amp;$1", $content);
-			$content =  mb_convert_encoding($content, "HTML-ENTITIES", "UTF-8");
+			$content = preg_replace("/&([#0-9a-zA-Z]{2,6};)/", "&amp;$1", $content);
 
 			$node->appendChild(new DOMText($content));
 		}
@@ -320,7 +315,7 @@ class DOM extends DOMElement {
 		$html = preg_replace("/%7D/", "}", $html);
 
 		// convert entities back
-		$html = mb_convert_encoding($html, "UTF-8", "HTML-ENTITIES");
+		$html = preg_replace("/&amp;/", "&", $html);
 
 		return $html;
 	}
@@ -457,4 +452,12 @@ class DOM extends DOMElement {
 		return $text_nodes;
 	}
 
+}
+
+// Extending DOMDocument to enable head and body properties (which cannot be created dynamically from PHP 8)
+class EnhancedDOMDocument extends DOMDocument {
+	
+	public $head;
+	public $body;
+	
 }
