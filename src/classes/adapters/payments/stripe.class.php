@@ -5,7 +5,8 @@
 
 
 // require_once("includes/payments/stripe-php-4.1.1/init.php");
-require_once("includes/payments/stripe-php-7.37.1/init.php");
+// require_once("includes/payments/stripe-php-7.37.1/init.php");
+require_once("includes/payments/stripe-php-10.12.1/vendor/autoload.php");
 
 
 class JanitorStripe {
