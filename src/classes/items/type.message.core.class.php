@@ -219,14 +219,7 @@ class TypeMessageCore extends Itemtype {
 						$tag_name = strtolower($node->nodeName);
 						$ref_nodes[$tag_name . ($node->getAttribute("id") ? "#".$node->getAttribute("id") : "") . ($node->getAttribute("class") ? ".".implode(".", explode(" ", $node->getAttribute("class"))) : "")] = $node;
 
-						// get relevant sub nodes for media and lists
-						if($node->nodeName == "div" && $DC->hasClassname($node, "media")) {
-							$node->img_node = $DC->getElement($node, "img");
-							$node->caption_node = $DC->getElement($node, "p");
-						}
-						if($node->nodeName == "ul" || $node->nodeName == "ol") {
-							$node->li_node = $DC->getElement($node, "li");
-						}
+						// debug(["node", $node]);
 
 					}
 
@@ -247,7 +240,7 @@ class TypeMessageCore extends Itemtype {
 						// ignore all text nodes
 						if($node->nodeName != "#text") {
 							// writeToFile($node->nodeName);
-//							print "LOOK FOR:" .$node->nodeName."<br>\n";
+							// debug(["LOOK FOR:" .$node->nodeName]);
 
 							$tag = strtolower($node->nodeName);
 							$tag_id = ($node->getAttribute("id") ? $node->getAttribute("id") : "");
@@ -305,7 +298,7 @@ class TypeMessageCore extends Itemtype {
 
 							// merge attributes if ref_node was found
 							if(isset($ref_nodes[$tag_identifier]) && $ref_nodes[$tag_identifier]) {
-//								print "FOUND:" . $tag_identifier . "::".$tag.($tag_id ? "#".$tag_id : "").($tag_classnames ? ".".implode(".", $tag_classnames) : "")."<br>\n";
+								// debug(["FOUND:" . $tag_identifier . "::".$tag.($tag_id ? "#".$tag_id : "").($tag_classnames ? ".".implode(".", $tag_classnames) : "")]);
 
 
 								// special handling of images
@@ -315,33 +308,37 @@ class TypeMessageCore extends Itemtype {
 									$format = $DC->classVar($node, "format");
 									$variant = $DC->classVar($node, "variant");
 
+
+									$ref_img_node = $DC->getElement($ref_nodes[$tag_identifier], "img");
+									$ref_caption_node = $DC->getElement($ref_nodes[$tag_identifier], "p");
+
+
 									// caption options
 									$name = $DC->classVar($node, "name");
-									$node->caption_node = $DC->getElement($node, "p");
-									$caption = trim($node->caption_node->textContent);
+									$caption_node = $DC->getElement($node, "p");
+									$caption = trim($caption_node->textContent);
 
 									// import img-tag from template HTML
-									$node->img_node = $dom_content->importNode($ref_nodes[$tag_identifier]->img_node, true);
-									$node->insertBefore($node->img_node, $node->caption_node);
+									$img_node = $dom_content->importNode($ref_img_node, true);
+									$node->insertBefore($img_node, $caption_node);
 
 									// set image attributes
-									$node->img_node->setAttribute("src", SITE_URL."/images/$item_id/$variant/600x.$format");
-//									$node->img_node->setAttribute("src", "https://think.dk/images/472/single_media/600x.jpg");
- 									$node->img_node->setAttribute("alt", $caption ? $caption : $name);
+									$img_node->setAttribute("src", SITE_URL."/images/$item_id/$variant/600x.$format");
+ 									$img_node->setAttribute("alt", $caption ? $caption : $name);
 
 									// set caption
-									$node->caption_node = $DC->getElement($node, "p");
+									$caption_node = $DC->getElement($node, "p");
 									if($caption) {
-										$DC->innerHTML($node->caption_node, $caption);
+										$DC->innerHTML($caption_node, $caption);
 
 										// transfer caption attributes
-										foreach($ref_nodes[$tag_identifier]->caption_node->attributes as $attribute) {
-											$node->caption_node->setAttribute($attribute->name, $attribute->value);
+										foreach($ref_caption_node->attributes as $attribute) {
+											$caption_node->setAttribute($attribute->name, $attribute->value);
 										}
 									}
 									// or remove empty caption
 									else {
-										$node->removeChild($node->caption_node);
+										$node->removeChild($caption_node);
 									}
 
 									// transfer div.media attributes
@@ -353,6 +350,8 @@ class TypeMessageCore extends Itemtype {
 								// special handling of lists
 								else if($tag == "ul" || $tag == "ol") {
 
+									$ref_li_node = $DC->getElement($ref_nodes[$tag_identifier], "li");
+
 									// set each available attribute on node
 									foreach($ref_nodes[$tag_identifier]->attributes as $attribute) {
 										$node->setAttribute($attribute->name, $attribute->value);
@@ -361,7 +360,7 @@ class TypeMessageCore extends Itemtype {
 									// set attributes for li-elements
 									$li_tags = $DC->getElements($node, "li");
 									foreach($li_tags as $li_tag) {
-										foreach($ref_nodes[$tag_identifier]->li_node->attributes as $attribute) {
+										foreach($ref_li_node->attributes as $attribute) {
 											$li_tag->setAttribute($attribute->name, $attribute->value);
 										}
 									}
