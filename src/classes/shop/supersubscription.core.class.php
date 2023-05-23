@@ -619,7 +619,10 @@ class SuperSubscriptionCore extends Subscription {
 					// get item with subscription method
 					$item = $IC->getItem(["id" => $subscription["item_id"], "extend" => ["subscription_method" => true]]);
 
+
 					// debug([$item]);
+					logger()->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
+
 
 					// Is expiry relevant (does item still require renewal)
 					if($this->allowRenewal($subscription)) {
@@ -725,7 +728,7 @@ class SuperSubscriptionCore extends Subscription {
 
 
 
-							logger()->addLog("SuperUser->renewSubscriptions: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
+							logger()->addLog("SuperUser->renewSubscriptions – renewed: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
 
 						}
 						// Failed to update subscription
@@ -744,6 +747,9 @@ class SuperSubscriptionCore extends Subscription {
 					}
 					// expiry irrelevant (item no longer expires) - remove old expires_at timestamp
 					else {
+
+						logger()->addLog("SuperUser->renewSubscriptions: renewal not allowed – item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
+
 						$sql = "UPDATE ".$this->db_subscriptions." SET expires_at = NULL WHERE id = ".$subscription["id"];
 						// debug($sql);
 						$query->sql($sql);
