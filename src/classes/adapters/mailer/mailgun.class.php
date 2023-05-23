@@ -3,7 +3,12 @@
 * @package janitor.shop
 */
 
-require_once('includes/mailer/mailgun-php-3.5.5/vendor/autoload.php');
+if(version_compare(phpversion(), "8", "<")) {
+	require_once('includes/mailer/mailgun-php-3.0/vendor/autoload.php');
+}
+else {
+	require_once('includes/mailer/mailgun-php-3.5.5/vendor/autoload.php');
+}
 
 use Mailgun\Mailgun;
 use Mailgun\Exception\HttpClientException;
