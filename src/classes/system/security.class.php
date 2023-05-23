@@ -798,7 +798,9 @@ class Security {
 	*/
 	function throwOff($url=false) {
 
-		$url = $url ? $url : $this->url;
+		global $page;
+
+		$url = $url ? $url : $page->url;
 
 		// Log and send in email
 		logger()->addLog("Throwoff - insufficient privileges:".$url." by ". session()->value("user_id"));
