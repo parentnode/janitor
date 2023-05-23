@@ -1667,6 +1667,7 @@ class ShopCore extends Model {
 						return $this->getOrders(array("order_no" => $order_no));
 
 					}
+
 				}
 
 				// order creation failed, remove unused order number
