@@ -715,18 +715,32 @@ class SuperSubscriptionCore extends Subscription {
 										unset($_POST);
 
 										mailer()->send(array(
-											"subject" => SITE_URL . " - Subscription renewal, payment action required",
-											"message" => "SuperUser->renewSubscriptions: payment action required, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"].", ".print_r($payment_method_result, true)."\n\nWe HAVE sent mail to user",
+											"subject" => SITE_URL . " - Subscription renewal, payment action required (no capture)",
+											"message" => "SuperUser->renewSubscriptions: payment action required (no capture), item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"].", ".print_r($payment_method_result, true)."\n\nWe HAVE sent mail to user",
 											"template" => "system"
 										));
 
 									}
 
 								}
+								// Card is not available
+								else {
+
+									logger()->addLog("SuperUser->renewSubscriptions – card unavailable: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"]);
+
+									$_POST["order_id"] = $order["id"];
+									$SC->sendPaymentReminder(["sendPaymentReminder"]);
+									unset($_POST);
+
+									mailer()->send(array(
+										"subject" => SITE_URL . " - Subscription renewal, payment action required (no valid card)",
+										"message" => "SuperUser->renewSubscriptions: payment action required (no valid card), item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]."\n\nWe HAVE sent mail to user",
+										"template" => "system"
+									));
+
+								}
 
 							}
-
-
 
 							logger()->addLog("SuperUser->renewSubscriptions – renewed: item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]);
 

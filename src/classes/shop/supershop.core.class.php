@@ -2131,7 +2131,7 @@ class SuperShopCore extends Shop {
 				));
 
 				message()->addMessage("Reminder sent to ".$order["user"]["email"]);
-				logger()->addLog("Reminder sent to user_id".$order["user_id"].", email:".$order["user"]["email"]);
+				logger()->addLog("Reminder sent to user_id:".$order["user_id"].", email:".$order["user"]["email"]);
 
 
 				// Add to user log
