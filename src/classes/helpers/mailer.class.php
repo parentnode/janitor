@@ -9,6 +9,7 @@ class MailGateway {
 	private $_settings;
 	private $adapter;
 
+
 	/**
 	*
 	*/

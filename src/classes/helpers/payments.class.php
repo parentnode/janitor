@@ -9,6 +9,7 @@ class PaymentGateway {
 	private $_settings;
 	private $adapter;
 
+
 	/**
 	*
 	*/

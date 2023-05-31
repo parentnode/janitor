@@ -10,8 +10,10 @@
 
 class Performance {
 
+
 	private $start_time;
 	private $measurements;
+
 
 	function __construct() {
 

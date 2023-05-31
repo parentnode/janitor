@@ -2,8 +2,10 @@
 	
 class CurlRequest {
 
+
 	private $ch;
 	private $stderr_handle;
+
 
 	public function init($_options = false) {
 

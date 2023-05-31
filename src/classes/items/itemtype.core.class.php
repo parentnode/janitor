@@ -6,6 +6,7 @@
 
 class ItemtypeCore extends Model {
 
+
 	public $itemtype;
 	public $status_states;
 	public $data_defaults;
