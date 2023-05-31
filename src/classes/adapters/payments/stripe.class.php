@@ -11,6 +11,10 @@ require_once("includes/payments/stripe-php-10.12.1/vendor/autoload.php");
 
 class JanitorStripe {
 
+	private $secret_key;
+	private $publishable_key;
+
+
 	/**
 	*
 	*/

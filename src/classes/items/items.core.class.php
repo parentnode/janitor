@@ -10,6 +10,11 @@
 
 class ItemsCore {
 
+
+	private $UC;
+	private $itemtypes;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/

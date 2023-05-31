@@ -10,6 +10,11 @@
 class Navigation extends Model {
 
 
+	public $db;
+	public $db_nodes;
+	private $level_iterator;
+
+
 	/**
 	* Init, set varnames, validation rules
 	*/
