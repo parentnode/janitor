@@ -1048,6 +1048,7 @@ class ItemsCore {
 		// No query string to search for
 		else {
 			// debug(["no query"]);
+			$pattern = is_array($pattern) ? $pattern : [];
 			$pattern["tags"] = $query_tags;
 			return $this->getItems($pattern);
 		}
@@ -1919,6 +1920,8 @@ class ItemsCore {
 			$sql = "SELECT ratings.id, ratings.rating, ratings.created_at, users.nickname FROM ".UT_ITEMS_RATINGS." as ratings, ".SITE_DB.".users as users WHERE ratings.item_id = $item_id AND ratings.user_id = users.id".($order ? " ORDER BY $order" : "");
 			if($query->sql($sql)) {
 				$results = $query->results();
+
+				$ratings = [];
 				$ratings["item_id"] = $item_id;
 				$ratings["ratings"] = $results;
 				$total = 0;

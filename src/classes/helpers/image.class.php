@@ -350,7 +350,7 @@ class Image {
 
 
 	function info($file) {
-		$image_info = false;
+		$image_info = [];
 
 		$image = new Imagick($file);
 

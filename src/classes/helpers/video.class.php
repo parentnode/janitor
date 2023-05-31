@@ -441,6 +441,7 @@ class Video {
 			if($stream_video && $duration) {
 
 				// get filesize
+				$video_info = [];
 				$video_info["filesize"] = filesize($file);
 
 				// parse Video line

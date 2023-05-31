@@ -2892,6 +2892,7 @@ class SuperShopCore extends Shop {
 		if(!$page) {
 
 			// simply add limit to payments query
+			$pattern = is_array($pattern) ? $pattern : [];
 			$pattern["limit"] = $limit;
 			$range_payments = $this->searchPayments(["query" => $query_string, "pattern" => $pattern]);
 

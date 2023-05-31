@@ -2733,7 +2733,10 @@ class UpgradeCore extends Model {
 
 				preg_match("/`(.+)` \(`(.+)`\)/", $detail, $ukey);
 				if(count($ukey) == 3) {
+
+					$table_info["unique_keys"] = is_array($table_info["unique_keys"]) ? $table_info["unique_keys"] : [];
 					$table_info["unique_keys"][$ukey[2]][] = $ukey[1];
+
 				}
 
 			}
