@@ -1259,7 +1259,7 @@ class ItemsCore {
 		// debug(["paginate", $_options]);
 
 		// Items selected for this pagination range
-		$range_items = false;
+		$range_items = [];
 
 
 		// Start range_items from iten - item_id or sindex - Default false
