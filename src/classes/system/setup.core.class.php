@@ -885,6 +885,9 @@ class SetupCore extends Itemtype {
 		$db_root_pass = $this->get("database", "db_root_pass");
 
 
+		$mysqli = false;
+
+
 		// Start by testing janitor user info
 		// we are doing this because you can use an existing account for a new project
 		// and to do this you don't need to provide root/admin account info, so try user login first
@@ -894,9 +897,17 @@ class SetupCore extends Itemtype {
 			$db_janitor_user && 
 			$db_janitor_pass
 		) {
+
 			// Attempt to make connection
-			$mysqli = @new mysqli($db_host, $db_janitor_user, $db_janitor_pass);
-			if(!$mysqli->connect_errno) {
+			try {
+				$mysqli = new mysqli($db_host, $db_janitor_user, $db_janitor_pass);
+			}
+			catch (mysqli_sql_exception $e) {
+				// Exception is not error – just a result of how we test credentials
+				// error_log("Setup user test project user: " . $e->__toString());
+			}
+
+			if($mysqli && !$mysqli->connect_errno) {
 
 				// correct the database connection setting
 				$mysqli->query("SET NAMES utf8");
@@ -972,8 +983,15 @@ class SetupCore extends Itemtype {
 		) {
 
 			// Attempt to make connection
-			$mysqli = @new mysqli($db_host, $db_root_user, $db_root_pass);
-			if(!$mysqli->connect_errno) {
+			try {
+				$mysqli = new mysqli($db_host, $db_root_user, $db_root_pass);
+			}
+			catch (mysqli_sql_exception $e) {
+				error_log("Setup user test root user: " . $e->__toString());
+			}
+
+
+			if($mysqli && !$mysqli->connect_errno) {
 
 				// correct the database connection setting
 				$mysqli->query("SET NAMES utf8");

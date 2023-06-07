@@ -33,13 +33,6 @@ class PageCore {
 
 
 
-	// DB variables
-	private $db_host;
-	private $db_username;
-	private $db_password;
-
-
-
 	/**
 	* Get required page information
 	*/
@@ -1335,13 +1328,22 @@ class PageCore {
 		// $db["username"] = isset($settings["username"]) ? $settings["username"] : "";
 		// $db["password"] = isset($settings["password"]) ? $settings["password"] : "";
 
-		$this->db_host = isset($settings["host"]) ? $settings["host"] : "";
-		$this->db_username = isset($settings["username"]) ? $settings["username"] : "";
-		$this->db_password = isset($settings["password"]) ? $settings["password"] : "";
+		$db_host = isset($settings["host"]) ? $settings["host"] : "";
+		$db_username = isset($settings["username"]) ? $settings["username"] : "";
+		$db_password = isset($settings["password"]) ? $settings["password"] : "";
 
-		$mysqli = new mysqli("".$this->db_host, $this->db_username, $this->db_password);
+		$mysqli = false;
 
-		if($mysqli->connect_errno) {
+		// Attempt to make connection
+		try {
+			$mysqli = new mysqli($db_host, $db_username, $db_password);
+		}
+		catch (mysqli_sql_exception $e) {
+			error_log("Main MySql connect: " . $e->__toString());
+		}
+
+
+		if(!$mysqli || $mysqli->connect_errno) {
 
 			global $mysqli_global;
 			$mysqli_global = false;

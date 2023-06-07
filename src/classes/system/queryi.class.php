@@ -69,17 +69,23 @@ class Query {
 //		print $query;
 
 		// get result
-		$this->result_object = $this->connection->query($query);
+		try {
+			$this->result_object = $this->connection->query($query);
 
-		// get number of results as a means of validating query success
-		$this->result_count = (is_object($this->result_object)) ? $this->result_object->num_rows : ($this->result_object ? $this->result_object : 0);
+			// get number of results as a means of validating query success
+			$this->result_count = (is_object($this->result_object)) ? $this->result_object->num_rows : ($this->result_object ? $this->result_object : 0);
 
-		if($this->result_count) {
-			return true;
+			if($this->result_count) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
-		else {
-			return false;
+		catch(Exception $e) {
+			logger()->addLog("DB exception: ". $e . " (".$query.")");
 		}
+
 	}
 
 	/**
