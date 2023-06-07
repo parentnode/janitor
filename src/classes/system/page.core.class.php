@@ -1178,7 +1178,7 @@ class PageCore {
 		$IC = new Items();
 
 
-		$nodes = false;
+		$nodes = [];
 
 		// with or without relations (0 when getting 1st level navigation)
 		if(!$relation) {
