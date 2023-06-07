@@ -13,6 +13,8 @@ class DOM extends DOMElement {
 		
 		// create new dom document
 		$dom = new EnhancedDOMDocument("1.0", "UTF-8");
+		$dom->encoding = "UTF-8";
+		$dom->substituteEntities = false;
 
 		// prepare for <br> issues in PHP DOM
 		// I cannot load document with <br> tags and when I save HTML it automatically replaces all <br /> with <br> which I then again cannot load.
@@ -247,7 +249,6 @@ class DOM extends DOMElement {
 		// loop children
 		foreach($node->childNodes as $child_node) {
 
-
 			// TEXT fragment
 			if($child_node->nodeName == "#text" || $child_node->nodeName == "#cdata-section") {
 				$html_string .= preg_replace("/&amp;/", "&", $child_node->textContent);
@@ -304,7 +305,7 @@ class DOM extends DOMElement {
 	// fix broken output from native saveHTML function
 	function saveHTML($dom) {
 
-		$html = $dom->saveHTML();
+		$html = $dom->saveHTML($dom);
 
 		// fix broken tags
 		$html = preg_replace("/\<meta ([^\>]+)>/", "<meta $1 />", $html);
