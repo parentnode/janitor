@@ -89,11 +89,11 @@ class Image {
 
 			// height defined by width
 			if($output_width) {
-				$output_height = $output_width / ($input_width / $input_height);
+				$output_height = round($output_width / ($input_width / $input_height));
 			}
 			// width defined by height
 			else {
-				$output_width = $output_height / ($input_height / $input_width);
+				$output_width = round($output_height / ($input_height / $input_width));
 			}
 
 		}
