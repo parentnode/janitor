@@ -333,9 +333,12 @@ class DOM extends DOMElement {
 	}
 
 	// remove all occurences of attributes from tags in DOM node
-	function stripAttributes($node) {
+	function stripAttributes($dom) {
 
-		$nodes = $node->getElementsByTagName('*');
+		$html = $dom->saveHTML($dom);
+
+
+		$nodes = $dom->getElementsByTagName('*');
 
 		// loop nodes
 		foreach($nodes as $node) {
