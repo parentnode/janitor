@@ -618,7 +618,7 @@ class HTMLCore {
 				// HTML
 				else if($type === "html") {
 
-					$_ .= '<textarea'.$att_name.$att_id.'>'.htmlentities($value, ENT_COMPAT, "UTF-8").'</textarea>';
+					$_ .= '<textarea'.$att_name.$att_id.'>'.($value ? htmlentities($value, ENT_COMPAT, "UTF-8") : "").'</textarea>';
 
 
 				}
