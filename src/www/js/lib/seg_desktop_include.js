@@ -13,6 +13,8 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/manipulato
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-form-field-html.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-form-field-location.js"></script>');
 
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/u-form-custom.js"></script>');
+
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-page.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-scene.js"></script>');

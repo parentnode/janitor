@@ -53,7 +53,7 @@ div.field.boolean label {width: auto; display: inline-block; vertical-align: top
 /* RADIO */
 div.field.radiobuttons {padding-bottom: 15px;}
 div.field.radiobuttons > label {display: block; font-size: 1.077rem; line-height: 1em; padding: 0 0 0 3px;}
-div.field.radiobuttons > label:after {content: ":";}
+/*div.field.radiobuttons > label:after {content: ":";}*/
 div.field.radiobuttons div.item {padding: 8px 0 0;}
 div.field.radiobuttons div.item input {width: auto; height: auto; padding: 0; margin: 1px 10px 0 3px; border: 0;}
 div.field.radiobuttons div.item label {font-size: 1.077rem; line-height: 1em; display: inline-block; vertical-align: top; text-align: left; width: auto;}
@@ -108,6 +108,244 @@ iframe#geolocationmap {width: 300px; height: 300px; position: absolute; top: 0; 
 
 
 
+/* DROPDOWN */
+div.field.dropdown {}
+div.field.dropdown select {display: none;}
+div.field.dropdown div.virtual {
+	vertical-align: top;
+	display: inline-block;
+	box-shadow: inset 0 1px 2px #dedede; background: #ffffff; border: 1px solid #dcdcdc; 
+	border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 1; 
+	width: 366px; height: 24px; padding: 2px 6px;
+}
+div.field.dropdown.focus div.virtual {
+	margin: 0; border: 3px solid #5c5c5c;
+}
+
+div.field.dropdown div.virtual div.input {
+	width: 338px;
+	display: inline-block;
+	vertical-align: top;
+}
+div.field.dropdown div.virtual div.input span.search {
+	display: inline-block;
+	vertical-align: top;
+	font-size: 14px;
+	line-height: 16px;
+	padding: 4px 0;
+	min-width: 2px;
+	border: none;
+	outline: none;
+}
+div.field.dropdown div.virtual div.input:not(.default) span.search.selection {
+	color: green;
+}
+div.field.dropdown div.virtual div.button {
+	vertical-align: top;
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	width: 24px;
+	height: 24px;
+	cursor: pointer;
+	position: relative;
+	z-index: 2;
+}
+div.field.dropdown div.virtual div.button svg {
+	width: 24px; height: 24px; margin: -2px 0 0;
+	fill: #000000; stroke: #000000; stroke-width: 2px;
+}
+
+div.field.dropdown div.virtual div.options {
+	z-index: 1;
+	margin: 3px -9px 0;
+	position: relative;
+/*	top: 0px;
+	right: 17px;
+*/	
+/*	max-width: 100%;
+	min-width: 20px;
+*/	background-color: #ffffff;
+	box-sizing: border-box;
+	height: 0;
+	overflow: hidden;
+}
+div.field.dropdown div.virtual div.options ul.options {
+	border: 3px solid #5c5c5c;
+	border-top: none;
+	display: block;
+}
+div.field.dropdown div.virtual div.options ul.options li {
+/*		text-transform: uppercase;*/
+	padding: 6px 6px;
+	text-align: right;
+/*		white-space: nowrap;*/
+	cursor: pointer;
+	font-size: 14px;
+	display: block;
+/*		display: none;*/
+}
+	/*div.field.select div.virtual div.options ul.options li.default {
+		color: #bbbbbb;
+	}
+	*/
+div.field.dropdown div.virtual div.options ul.options li.hover {
+	background-color: #dedede;
+}
+	
+	
+
+    .AxForm fieldset .field.DropDown div.input_wrapper {
+      vertical-align: top;
+      display: inline-block;
+      width: calc(100% - 251px);
+      position: relative;
+      z-index: 2; }
+    .AxForm fieldset .field.DropDown div.input {
+      display: block;
+      min-height: 32px;
+      padding: 3px 8px 0;
+      line-height: 24px;
+      border: 1px solid #bababa;
+      border-right: none;
+      font-size: 13px;
+      box-sizing: border-box;
+      position: relative;
+      z-index: 2;
+      /* Override Sharepoint search css */
+      float: none;
+      margin: 0; }
+      .AxForm fieldset .field.DropDown div.input span.search {
+        display: inline-block;
+        vertical-align: top;
+        line-height: 16px;
+        padding: 4px 0;
+        min-width: 2px;
+        border: none;
+        outline: none; }
+      .AxForm fieldset .field.DropDown div.input span.search.default {
+        color: #cbcbcb; }
+    .AxForm fieldset .field.DropDown div.input:focus {
+      outline: none; }
+
+
+    .AxForm fieldset .field.DropDown input[type=button].select {
+      vertical-align: top;
+      display: inline-block;
+      margin: 0;
+      padding: 0;
+      width: 34px;
+      height: 32px;
+      border: 1px solid #bababa;
+      border-left: none;
+      background: #dbf1f2 url(/Images/gx_icons_form.png) no-repeat 10px -589px;
+      cursor: pointer;
+      position: relative;
+      z-index: 2; }
+    .AxForm fieldset .field.DropDown div.options {
+      opacity: 0;
+      position: absolute;
+      z-index: 1;
+      width: calc(100% - 217px);
+      max-height: 183px;
+      overflow: auto;
+      background-color: #ffffff;
+      border: 1px solid #bababa;
+      box-sizing: border-box; }
+      .AxForm fieldset .field.DropDown div.options ul.options {
+        padding: 0;
+        margin: 0;
+        display: block;
+        list-style: none; }
+        .AxForm fieldset .field.DropDown div.options ul.options li {
+          display: none;
+          min-height: 17px;
+          padding: 2px 8px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: 400; }
+          .AxForm fieldset .field.DropDown div.options ul.options li span {
+            font-weight: 400; }
+        .AxForm fieldset .field.DropDown div.options ul.options li.noresults {
+          cursor: default;
+          padding: 8px; }
+        .AxForm fieldset .field.DropDown div.options ul.options li.default {
+          color: #cbcbcb; }
+        .AxForm fieldset .field.DropDown div.options ul.options li.selected {
+          background-color: #f4f4f4; }
+    .AxForm fieldset .field.DropDown div.options.active {
+      opacity: 1; }
+
+  .AxForm fieldset .field.DropDown.focus div.input.focus {
+    border: 1px solid #0072c6;
+    border-right: none; }
+
+  .AxForm fieldset .field.DropDown.focus input[type=button].select {
+    border: 1px solid #0072c6;
+    border-left: none; }
+
+  .AxForm fieldset .field.DropDown.focus input[type=button].select.focus {
+    background-color: #0072c6;
+    background-position: 10px -638px; }
+
+  .AxForm fieldset .field.DropDown.focus input[type=button].select::-moz-focus-inner, .AxForm fieldset .field.DropDown.focus input[type=button].select:focus {
+    outline: 0;
+    border: none; }
+
+  .AxForm fieldset .field.DropDown.error div.input, .AxForm fieldset .field.DropDown.error div.input.focus {
+    border-color: #d13737;
+    background: #f7ddde url(/Images/gx_icons_form.png) no-repeat right -1445px; }
+
+  .AxForm fieldset .field.DropDown.error input[type=button].select, .AxForm fieldset .field.DropDown.error input[type=button].select.focus {
+    border-color: #d13737; }
+
+
+
+
+/* DEFAULT STATE - BEFORE TEXT IS MODIFIED */
+div.field input.default,
+div.field select.default,
+div.field textarea.default,
+div.field .pseudolabel,
+div.field div.virtual .input.default,
+div.field div.virtual div.options ul.options li.default {color: #aaaaaa;}
+
+
+
+/* VALIDATION INDICATOR */
+div.field .indicator {position: absolute; top: 4px; left: 415px; width: 25px; height: 25px;
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: 16px auto;
+}
+div.field.required .indicator {
+/*	background: transparent url(/janitor/admin/img/bg_icons.png) no-repeat 0 -292px;*/
+	background-image: url(/janitor/admin/img/bg_required.svg);
+}
+/*div.field.text.required .indicator {background-position: 0 -296px;}*/
+
+/* RADIOBUTTONS + CHECKBOX */
+div.field.radiobuttons .indicator,
+div.field.checkbox .indicator,
+div.field.boolean .indicator {position: static; display: inline-block; vertical-align: top; width: 14px; height: 14px; margin-left: 4px;}
+
+/* FILES */
+div.field.files .indicator {left: 387px; top: 0px;}
+
+
+/* CORRECT */
+div.field.correct .indicator {
+	background-image: url(/janitor/admin/img/bg_correct.svg);
+/*	background-position: 0 -320px;*/
+}
+
+/*div.field.text.correct .indicator {
+	background-image: url(/janitor/admin/img/bg_correct.svg);
+	background-position: 0 -321px;
+}*/
+
+
 
 /* FOCUS */
 div.field.focus input,
@@ -122,7 +360,6 @@ div.field.focus input,
 div.field.focus select,
 div.field.focus textarea {border: 3px solid #5c5c5c;}
 
-
 /* RADIOBUTTONS + CHECKBOX */
 div.field.radiobuttons.focus input,
 div.field.checkbox.focus input,
@@ -136,34 +373,10 @@ div.field.files.focus ul.filelist li.label {background-color: #c8e183;}
 div.field.location.focus input {margin: 2px; border: 1px solid #dcdcdc;}
 div.field.location.focus input.focus {margin: 0; border: 3px solid #5c5c5c;}
 
-
-/* DEFAULT STATE - BEFORE TEXT IS MODIFIED */
-div.field input.default,
-div.field select.default,
-div.field textarea.default,
-div.field .pseudolabel {color: #aaaaaa;}
+/* FOCUS VIRTUAL INPUT */
+div.field.focus div.virtual {margin: 0; border: 3px solid #5c5c5c;}
 
 
-
-/* VALIDATION */
-div.field .indicator {position: absolute; top: 4px; left: 420px; width: 25px; height: 25px;}
-div.field.required .indicator {
-	background: transparent url(/janitor/admin/img/bg_icons.png) no-repeat 0 -292px;
-}
-div.field.text.required .indicator {background-position: 0 -296px;}
-
-/* RADIOBUTTONS + CHECKBOX */
-div.field.radiobuttons .indicator,
-div.field.checkbox .indicator,
-div.field.boolean .indicator {top: -5px;}
-
-/* FILES */
-div.field.files .indicator {left: 392px; top: 0px;}
-
-
-/* CORRECT */
-div.field.correct .indicator {background-position: 0 -320px;}
-div.field.text.correct .indicator {background-position: 0 -321px;}
 
 
 /* ERROR */
@@ -179,7 +392,6 @@ div.field.error textarea {border: 3px solid #f8c9bb;}
 	}
 }
 
-
 /* ERROR - RADIOBUTTONS + CHECKBOX */
 div.field.radiobuttons.error input,
 div.field.checkbox.error input,
@@ -191,6 +403,9 @@ div.field.location.error input.error {margin: 0; border: 3px solid #f8c9bb;}
 
 /* ERROR - FILES */
 div.field.files.error ul.filelist {border-color: #f8c9bb;}
+
+/* ERROR - VIRTUAL INPUT */
+div.field.error div.virtual {margin: 0; border: 3px solid #f8c9bb;}
 
 
 
@@ -239,7 +454,6 @@ ul.actions a.button.primary:hover,
 }
 
 
-
 /* SECONDARY BUTTON */
 ul.actions input.button.secondary,
 ul.actions a.button.secondary,
@@ -267,6 +481,7 @@ ul.actions a.button.secondary:hover,
 #content ul.actions form input.button.loading:hover {padding-left: 35px; background-color: #8c9399; background-image: url(/janitor/admin/img/gx_loader.gif); background-position: 10px center; background-repeat: no-repeat;}
 
 
+
 /* DISABLED BUTTON */
 ul.actions a.button.disabled,
 #content ul.actions a.button.disabled,
@@ -277,9 +492,10 @@ ul.actions a.button.disabled:hover,
 ul.actions input.button.disabled:hover {cursor: default !important; color: #aaaaaa !important; background-color: #eeeeee !important;}
 
 
+
 /* HELP - HINT AND ERROR MESSAGES */
-div.field div.help {position: absolute; left: 455px; top: 0; width: 200px; line-height: 1.2em;}
-div.field.files div.help {left: 422px;}
+div.field div.help {position: absolute; left: 435px; top: 0; width: 200px; line-height: 1.2em;}
+div.field.files div.help {left: 407px;}
 
 div.field > div.help > div.error,
 div.field > div.help > div.hint {display: none; padding: 5px; border-radius: 3px; font-size: 12px;}
@@ -305,7 +521,7 @@ div.field.hover > div.help > div.hint+div.error {border-top-left-radius: 0; bord
 /* HTML EDITOR */
 div.field.html {padding-top: 20px; padding-bottom: 10px; margin-bottom: 10px; z-index: 3;}
 
-div.field.html > div.help {left: 555px;}
+div.field.html > div.help {left: 535px;}
 
 div.field.html.optionsshown {z-index: 60 !important;}
 
@@ -332,7 +548,7 @@ div.field.html > .indicator {top: 33px;}
 /* HTML VIEWER AND EDITOR */
 div.field.html .viewer {display: none;}
 div.field.html .editor {/*width: 382px;*/ width: 482px; position: relative; z-index: 3;}
-div.field.html .editor .indicator {left: 490px;}
+div.field.html .editor .indicator {left: 485px;}
 
 
 /* EDITOR OPTIONS */
