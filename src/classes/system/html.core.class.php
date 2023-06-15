@@ -550,6 +550,20 @@ class HTMLCore {
 					$_ .= '<input type="range"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_step.$att_max.$att_min.' />';
 				}
 
+				// DROPDOWN
+				else if($type === "dropdown") {
+
+					$att_max = $this->attribute("data-maxlength", stringOr($max, 255));
+					$att_min = $this->attribute("data-minlength", $min);
+
+					$_ .= '<select'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.'>';
+					foreach($options as $select_option => $select_value) {
+						$_ .= '<option value="'.$select_option.'"'.($value == $select_option ? ' selected="selected"' : '').'>'.$select_value.'</option>';
+					}
+					$_ .= '</select>';
+
+				}
+
 				// FILES
 				else if($type === "files") {
 
