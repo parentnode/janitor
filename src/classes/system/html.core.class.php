@@ -488,7 +488,7 @@ class HTMLCore {
 					$att_max = $this->attribute("max", $max);
 					$att_min = $this->attribute("min", $min);
 
-					$_ .= '<input type="datetime"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
+					$_ .= '<input type="datetime-local"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_autocomplete.$att_max.$att_min.$att_pattern.' />';
 				}
 
 				// EMAIL
