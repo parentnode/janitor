@@ -694,6 +694,7 @@ class Security {
 
 
 			message()->addMessage("You have been blocked, due to repeated invalid login attempts. Try again in 5 minutes", array("type" => "error"));
+			logger()->addLog("User blocked for 5 minutes: ".$username);
 		}
 		
 
