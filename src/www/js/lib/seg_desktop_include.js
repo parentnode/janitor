@@ -1,17 +1,11 @@
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/merged/seg_desktop.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/merged/seg_desktop.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-settings.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-basics.js"></script>');
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/beta-u-form-onebuttonform.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/beta-u-notifier.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/src/beta-u-form-onebuttonform.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/src/beta-u-notifier.js"></script>');
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-media.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-form.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-form-builder.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-form-labelstyle-inject.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-form-field-html.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-form-field-location.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/u-form-custom.js"></script>');
 

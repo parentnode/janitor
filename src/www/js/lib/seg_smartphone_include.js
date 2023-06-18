@@ -1,14 +1,14 @@
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/merged/seg_smartphone.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/merged/seg_smartphone.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-settings.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-basics.js"></script>');
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/beta-u-form-onebuttonform.js"></script>');
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/beta-u-notifier.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/src/beta-u-form-onebuttonform.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/src/beta-u-notifier.js"></script>');
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_3-janitor/src/u-media.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/smartphone/u-form-custom.js"></script>');
+
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/smartphone/m-page.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/smartphone/m-scene.js"></script>');
@@ -24,12 +24,15 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_tags.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_media.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_comments.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_editors.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_prices.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_subscriptionmethod.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_sindex.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_owner.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_developer.js"></script>');
+
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-event_tickets.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-navigations.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-users.js"></script>');
