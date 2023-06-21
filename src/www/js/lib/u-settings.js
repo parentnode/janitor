@@ -1,1 +1,1 @@
-u.gapi_key = "AIzaSyAVqnYpqFln-qAYsp5rkEGs84mrhmGQB_I";
+u.gapi_key = "";
