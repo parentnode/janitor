@@ -11,12 +11,13 @@ class JanitorPHPMailer {
 
 
 	// Mailer settings
-	private $mail_host;
-	private $mail_port;
-	private $mail_username;
-	private $mail_password;
-	private $mail_smtpauth;
-	private $mail_secure;
+	private $host;
+	private $port;
+	private $username;
+	private $password;
+	private $smtpauth;
+	private $secure;
+
 
 	/**
 	*
