@@ -2378,7 +2378,7 @@ class SetupCore extends Itemtype {
 
 			}
 
-			trim(shell_exec("cd '$project_path' && sudo /usr/bin/git config credential.helper 'store --file ".PRIVATE_FILE_PATH.".git_credentials'"));
+			trim(shell_exec("cd '$project_path' && sudo /usr/bin/git config credential.helper 'store --file ".PRIVATE_FILE_PATH."/.git_credentials'"));
 
 
 			// Update git credentials file to allow pull command to execute without credentials in command-line
@@ -2392,7 +2392,7 @@ class SetupCore extends Itemtype {
 			// Remove username:password from credential file (storing is temporary on purpose)
 			unlink(PRIVATE_FILE_PATH."/.git_credentials");
 
-			trim(shell_exec("cd '$project_path' && sudo /usr/bin/git config  credential.helper 'store'"));
+			trim(shell_exec("cd '$project_path' && sudo /usr/bin/git config credential.helper 'store'"));
 
 			// Return response
 			return $output;
