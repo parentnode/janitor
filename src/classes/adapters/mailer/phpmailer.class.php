@@ -3,6 +3,10 @@
 * @package janitor.shop
 */
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 
 require_once("includes/mailer/PHPMailer-6.8.0/vendor/autoload.php");
 
@@ -17,6 +21,9 @@ class JanitorPHPMailer {
 	private $password;
 	private $smtpauth;
 	private $secure;
+
+	
+	private $mailer;
 
 
 	/**
