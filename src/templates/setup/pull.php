@@ -5,11 +5,15 @@ global $model;
 $project_path = realpath(LOCAL_PATH."/..");
 
 // Get git origin
-$remote_origin = trim(shell_exec("cd '$project_path' && sudo /usr/bin/git config --get remote.origin.url"));
-$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", $remote_origin);
+$remote_origin = shell_exec("cd '$project_path' && sudo /usr/bin/git config --get remote.origin.url");
+if($remote_origin) {
 
-// Get branch
-$branch = trim(shell_exec("cd '$project_path' && sudo /usr/bin/git rev-parse --abbrev-ref HEAD"));
+	$remote_origin = preg_replace("/(http[s]?):\/\/(([^:]+)[:]?([^@]+)@)?/", "$1://", trim($remote_origin));
+
+	// Get branch
+	$branch = shell_exec("cd '$project_path' && sudo /usr/bin/git rev-parse --abbrev-ref HEAD");
+
+}
 
 
 ?>
@@ -18,7 +22,7 @@ $branch = trim(shell_exec("cd '$project_path' && sudo /usr/bin/git rev-parse --a
 	<h1>Pull source code</h1>
 	<h2><?= $project_path ?></h2>
 
-<? if($model->get("system", "os") == "unix"): ?>
+<? if($model->get("system", "os") == "unix" || 1): ?>
 
 	<? if($remote_origin && $branch): ?>
 
