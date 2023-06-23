@@ -929,6 +929,8 @@ class HTMLCore {
 	*/
 	function submit($value, $_options = false) {
 
+		$_options = $_options ? $_options : [];
+
 		$_options["type"] = "submit";
 		return $this->button($value, $_options);
 

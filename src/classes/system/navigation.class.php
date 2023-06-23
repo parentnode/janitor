@@ -518,40 +518,45 @@ class Navigation extends Model {
 		if($query->sql($sql)) {
 
 			$results = $query->results();
-			foreach($results as $i => $node) {
-				$nodes[$i]["id"] = $node["id"];
-				$nodes[$i]["name"] = $node["node_name"];
+			if($results) {
+				$nodes = [];
 
-				$nodes[$i]["target"] = $node["node_target"];
-				$nodes[$i]["classname"] = $node["node_classname"];
-				$nodes[$i]["fallback"] = $node["node_fallback"];
+				foreach($results as $i => $node) {
+					$nodes[$i]["id"] = $node["id"];
+					$nodes[$i]["name"] = $node["node_name"];
 
-				// $nodes[$i]["item_id"] = $node["node_item_id"];
-				// $nodes[$i]["controller"] = $node["node_item_controller"];
+					$nodes[$i]["target"] = $node["node_target"];
+					$nodes[$i]["classname"] = $node["node_classname"];
+					$nodes[$i]["fallback"] = $node["node_fallback"];
 
-				// get create link for page
-				if($node["node_item_id"]) {
-					$page = $IC->getItem(array("id" => $node["node_item_id"]));
+					// $nodes[$i]["item_id"] = $node["node_item_id"];
+					// $nodes[$i]["controller"] = $node["node_item_controller"];
 
-					// create nested link structure
-					$nodes[$i]["link"] = $node["node_item_controller"].$nested_path."/".$page["sindex"];
-				}
-				// absolute static link
-				else {
-					$nodes[$i]["link"] = $node["node_link"];
-				}
+					// get create link for page
+					if($node["node_item_id"]) {
+						$page = $IC->getItem(array("id" => $node["node_item_id"]));
 
-				// go deeper?
-				if($levels === false || $levels > $this->level_iterator) {
-					$_options["relation"] = $node["id"];
+						// create nested link structure
+						$nodes[$i]["link"] = $node["node_item_controller"].$nested_path."/".$page["sindex"];
+					}
+					// absolute static link
+					else {
+						$nodes[$i]["link"] = $node["node_link"];
+					}
 
-					// update nested paths
-					$_options["nested_path"] = $nested_path."/".superNormalize($node["node_name"]);
+					// go deeper?
+					if($levels === false || $levels > $this->level_iterator) {
+						$_options["relation"] = $node["id"];
 
-					// get child nodes
-					$nodes[$i]["nodes"] = $this->getNavigationNodes($navigation_id, $_options);
+						// update nested paths
+						$_options["nested_path"] = $nested_path."/".superNormalize($node["node_name"]);
+
+						// get child nodes
+						$nodes[$i]["nodes"] = $this->getNavigationNodes($navigation_id, $_options);
+					}
 				}
 			}
+
 		}
 
 		$this->level_iterator--;
