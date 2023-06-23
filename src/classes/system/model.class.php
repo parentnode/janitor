@@ -322,6 +322,13 @@ class Model extends HTML {
 			}
 		}
 
+
+		else if($this->getProperty($name, "type") == "dropdown") {
+			if($this->isString($name)) {
+				return true;
+			}
+		}
+
 		else if($this->getProperty($name, "type") == "location") {
 			// No composite validation for location (should look at location, longitude and latitude)
 			if($this->isString($name)) {

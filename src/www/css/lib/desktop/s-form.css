@@ -118,29 +118,30 @@ div.field.dropdown div.virtual {
 	border-radius: 3px; margin: 2px; outline: none; position: relative; z-index: 1; 
 	width: 366px; height: 24px; padding: 2px 6px;
 }
-div.field.dropdown.focus div.virtual {
-	margin: 0; border: 3px solid #5c5c5c;
-}
+div.field.dropdown.focus div.virtual {margin: 0; border: 3px solid #5c5c5c;}
 
-div.field.dropdown div.virtual div.input {
-	width: 338px;
-	display: inline-block;
-	vertical-align: top;
+div.field.dropdown div.virtual div.input {width: 342px; display: inline-block; vertical-align: top;
+
+	font-size: 14px;
+	line-height: 16px;
+	padding: 4px 0;
+	border: none;
+	outline: none;
 }
-div.field.dropdown div.virtual div.input span.search {
+/*div.field.dropdown div.virtual div.input span.search {
 	display: inline-block;
 	vertical-align: top;
 	font-size: 14px;
 	line-height: 16px;
 	padding: 4px 0;
 	min-width: 2px;
-	border: none;
-	outline: none;
 }
-div.field.dropdown div.virtual div.input:not(.default) span.search.selection {
+*/div.field.dropdown div.virtual div.input.selection:not(.default) {
 	color: green;
 }
 div.field.dropdown div.virtual div.button {
+	z-index: 2;
+	position: relative;
 	vertical-align: top;
 	display: inline-block;
 	margin: 0;
@@ -148,157 +149,24 @@ div.field.dropdown div.virtual div.button {
 	width: 24px;
 	height: 24px;
 	cursor: pointer;
-	position: relative;
-	z-index: 2;
 }
-div.field.dropdown div.virtual div.button svg {
-	width: 24px; height: 24px; margin: -2px 0 0;
+div.field.dropdown div.virtual div.button svg {width: 24px; height: 24px; margin: 0;
 	fill: #000000; stroke: #000000; stroke-width: 2px;
 }
 
-div.field.dropdown div.virtual div.options {
-	z-index: 1;
-	margin: 3px -9px 0;
-	position: relative;
-/*	top: 0px;
-	right: 17px;
-*/	
-/*	max-width: 100%;
-	min-width: 20px;
-*/	background-color: #ffffff;
-	box-sizing: border-box;
-	height: 0;
-	overflow: hidden;
-}
-div.field.dropdown div.virtual div.options ul.options {
-	border: 3px solid #5c5c5c;
-	border-top: none;
-	display: block;
-}
+div.field.dropdown div.virtual div.options {z-index: 1; margin: 3px -9px 0; position: relative; background-color: #ffffff; box-sizing: border-box; height: 0; overflow: hidden;}
+div.field.dropdown div.virtual div.options ul.options {border: 3px solid #5c5c5c; border-top: none; display: block;}
 div.field.dropdown div.virtual div.options ul.options li {
-/*		text-transform: uppercase;*/
 	padding: 6px 6px;
 	text-align: right;
-/*		white-space: nowrap;*/
+/*	white-space: nowrap;*/
 	cursor: pointer;
 	font-size: 14px;
 	display: block;
-/*		display: none;*/
 }
-	/*div.field.select div.virtual div.options ul.options li.default {
-		color: #bbbbbb;
-	}
-	*/
 div.field.dropdown div.virtual div.options ul.options li.hover {
 	background-color: #dedede;
 }
-	
-	
-
-    .AxForm fieldset .field.DropDown div.input_wrapper {
-      vertical-align: top;
-      display: inline-block;
-      width: calc(100% - 251px);
-      position: relative;
-      z-index: 2; }
-    .AxForm fieldset .field.DropDown div.input {
-      display: block;
-      min-height: 32px;
-      padding: 3px 8px 0;
-      line-height: 24px;
-      border: 1px solid #bababa;
-      border-right: none;
-      font-size: 13px;
-      box-sizing: border-box;
-      position: relative;
-      z-index: 2;
-      /* Override Sharepoint search css */
-      float: none;
-      margin: 0; }
-      .AxForm fieldset .field.DropDown div.input span.search {
-        display: inline-block;
-        vertical-align: top;
-        line-height: 16px;
-        padding: 4px 0;
-        min-width: 2px;
-        border: none;
-        outline: none; }
-      .AxForm fieldset .field.DropDown div.input span.search.default {
-        color: #cbcbcb; }
-    .AxForm fieldset .field.DropDown div.input:focus {
-      outline: none; }
-
-
-    .AxForm fieldset .field.DropDown input[type=button].select {
-      vertical-align: top;
-      display: inline-block;
-      margin: 0;
-      padding: 0;
-      width: 34px;
-      height: 32px;
-      border: 1px solid #bababa;
-      border-left: none;
-      background: #dbf1f2 url(/Images/gx_icons_form.png) no-repeat 10px -589px;
-      cursor: pointer;
-      position: relative;
-      z-index: 2; }
-    .AxForm fieldset .field.DropDown div.options {
-      opacity: 0;
-      position: absolute;
-      z-index: 1;
-      width: calc(100% - 217px);
-      max-height: 183px;
-      overflow: auto;
-      background-color: #ffffff;
-      border: 1px solid #bababa;
-      box-sizing: border-box; }
-      .AxForm fieldset .field.DropDown div.options ul.options {
-        padding: 0;
-        margin: 0;
-        display: block;
-        list-style: none; }
-        .AxForm fieldset .field.DropDown div.options ul.options li {
-          display: none;
-          min-height: 17px;
-          padding: 2px 8px;
-          cursor: pointer;
-          font-size: 13px;
-          font-weight: 400; }
-          .AxForm fieldset .field.DropDown div.options ul.options li span {
-            font-weight: 400; }
-        .AxForm fieldset .field.DropDown div.options ul.options li.noresults {
-          cursor: default;
-          padding: 8px; }
-        .AxForm fieldset .field.DropDown div.options ul.options li.default {
-          color: #cbcbcb; }
-        .AxForm fieldset .field.DropDown div.options ul.options li.selected {
-          background-color: #f4f4f4; }
-    .AxForm fieldset .field.DropDown div.options.active {
-      opacity: 1; }
-
-  .AxForm fieldset .field.DropDown.focus div.input.focus {
-    border: 1px solid #0072c6;
-    border-right: none; }
-
-  .AxForm fieldset .field.DropDown.focus input[type=button].select {
-    border: 1px solid #0072c6;
-    border-left: none; }
-
-  .AxForm fieldset .field.DropDown.focus input[type=button].select.focus {
-    background-color: #0072c6;
-    background-position: 10px -638px; }
-
-  .AxForm fieldset .field.DropDown.focus input[type=button].select::-moz-focus-inner, .AxForm fieldset .field.DropDown.focus input[type=button].select:focus {
-    outline: 0;
-    border: none; }
-
-  .AxForm fieldset .field.DropDown.error div.input, .AxForm fieldset .field.DropDown.error div.input.focus {
-    border-color: #d13737;
-    background: #f7ddde url(/Images/gx_icons_form.png) no-repeat right -1445px; }
-
-  .AxForm fieldset .field.DropDown.error input[type=button].select, .AxForm fieldset .field.DropDown.error input[type=button].select.focus {
-    border-color: #d13737; }
-
 
 
 

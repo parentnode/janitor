@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.4-janitor Copyright 2023 https://manipulator.parentnode.dk
-js-merged @ 2023-06-18 07:34:41
+js-merged @ 2023-06-22 23:05:32
 */
 
 /*seg_smartphone_include.js*/
@@ -5469,39 +5469,38 @@ Util.Form.customInit["dropdown"] = function(field) {
 	u.e.addEvent(field.input, "change", u.f._changed);
 	u.e.addEvent(field.input, "update", u.f._updated);
 	var virtual_input_wrapper = u.ae(field, "div", {"class": "virtual"});
-	field.virtual_input = u.ae(virtual_input_wrapper, "div", {"class": "input"});
+	field.virtual_input = u.ae(virtual_input_wrapper, "div", {"class": "input", "contentEditable": "true"});
 	field.insertBefore(virtual_input_wrapper, field.input);
 	field.virtual_input._form = field._form;
 	field.virtual_input.field = field;
 	field._value_virtual = function(value) {
 		if(value !== undefined) {
-			if(!this.field.span_search.is_focused) {
-				this.field.span_search.innerHTML = value;
+			if(!this.is_focused) {
+				this.innerHTML = value;
 			}
 			this.field.selected_option = false;
-			u.rc(this.field.span_search, "selection");
+			u.rc(this, "selection");
 			var i, option;
 			for(i = 0; i < this.field.dropdown_options.nodes.length; i++) {
 				option = this.field.dropdown_options.nodes[i];
 				if(option.option_text == value) {
-					u.ac(this.field.span_search, "selection");
+					u.ac(this, "selection");
 					this.field.selected_option = option;
+					this.field.input.dispatchEvent(new Event("change"));
 					return;
 				}
 			}
+			this.field.input.dispatchEvent(new Event("change"));
 		}
 		else {
-			if(this.field.span_search) {
-				return u.text(this.field.span_search);
-			}
-			else {
-				return "";
-			}
+			return u.text(this);
 		}
 	}
 	field.virtual_input.val = field._value_virtual;
 	field.virtual_input.clicked = function(event) {
-		this.field.activateSearchCursor();
+		if(!this.is_focused) {
+			this.field.activateSearchCursor();
+		}
 	}
 	u.e.click(field.virtual_input);
 	field.virtual_input.preKeyEvent = function (event) {
@@ -5517,7 +5516,7 @@ Util.Form.customInit["dropdown"] = function(field) {
 			}
 		}
 		else if(event.shiftKey && event.keyCode == 9) {
-			this.field.span_search._blur({"target": document.body});
+			this._blur({"target": document.body});
 		}
 		else if(event.keyCode == 9) {
 			if(this.field.highlighted_option) {
@@ -5525,7 +5524,7 @@ Util.Form.customInit["dropdown"] = function(field) {
 				this.field.selectOption(this.field.highlighted_option);
 			}
 			else {
-				this.field.span_search._blur({"target": document.body});
+				this._blur({"target": document.body});
 			}
 		}
 		else if(event.keyCode == 32) {
@@ -5549,10 +5548,13 @@ Util.Form.customInit["dropdown"] = function(field) {
 		}
 	}
 	field.virtual_input.postKeyEvent = function(event) {
-		if(event.keyCode == 8 || event.keyCode == 32 || event.keyCode >= 65) {
+		var value = this.field.virtual_input.val();
+		if(!value) {
+			this.field._show_all = true;
+		}
+		else if(event.keyCode == 8 || event.keyCode == 32 || event.keyCode >= 65) {
 			this.field._show_all = false;
 		}
-		var value = this.field.virtual_input.val();
 		if(!this.field.selected_option || this.field.selected_option.option_text != value) {
 			this.field.selected_option = false;
 			var i, option;
@@ -5570,10 +5572,9 @@ Util.Form.customInit["dropdown"] = function(field) {
 	}
 	u.e.addEvent(field.virtual_input, "keyup", field.virtual_input.postKeyEvent);
 	u.e.addEvent(field.virtual_input, "keydown", field.virtual_input.preKeyEvent);
-	field.span_search = u.ae(field.virtual_input, "span", {"class": "search", "contentEditable": "true"});
-	field.span_search._form = field._form;
-	field.span_search.field = field;
-	field.span_search._focus = function(event) {
+	// 
+	// 
+	field.virtual_input._focus = function(event) {
 		if(!this.is_focused) {
 			this.field.blur_event_id = u.e.addWindowStartEvent(this, this._blur);
 		}
@@ -5595,7 +5596,7 @@ Util.Form.customInit["dropdown"] = function(field) {
 			this._form.focused(this);
 		}
 	}
-	field.span_search._blur = function(event) {
+	field.virtual_input._blur = function(event) {
 		if(!u.contains(this.field, event.target)) {
 			u.e.removeWindowStartEvent(this, this.field.blur_event_id);
 			this.field.is_focused = false;
@@ -5620,11 +5621,7 @@ Util.Form.customInit["dropdown"] = function(field) {
 			}
 		}
 	}
-	field.span_search.clicked = function(event) {
-		u.e.kill(event);
-	}
-	u.e.click(field.span_search);
-	u.e.addEvent(field.span_search, "focus", field.span_search._focus);
+	u.e.addEvent(field.virtual_input, "focus", field.virtual_input._focus);
 	field.bn_dropdown = u.ae(virtual_input_wrapper, "div", {"class": "button"});
 	field.bn_dropdown.arrow = u.svg({
 		"name":"arrow",
@@ -5661,7 +5658,7 @@ Util.Form.customInit["dropdown"] = function(field) {
 			this.field._show_all = true;
 			this.field.searchOptions();
 		}
-		this.field.span_search.focus();
+		this.field.virtual_input.focus();
 	}
 	field.bn_dropdown.keyEvent = function(event) {
 		if (event.keyCode == 13 || event.keyCode == 32 || event.keyCode == 40) {
@@ -5674,9 +5671,9 @@ Util.Form.customInit["dropdown"] = function(field) {
 	field.dropdown_options_list = u.ae(field.dropdown_options, "ul", {"class": "options"});
 	field.dropdown_options.field = field;
 	field.activateSearchCursor = function() {
-		this.span_search.focus();
+		this.virtual_input.focus();
 		var range = document.createRange();
-		range.selectNodeContents(this.span_search);
+		range.selectNodeContents(this.virtual_input);
 		if(this.input.val()) {
 			range.collapse(false);
 		}
@@ -5827,7 +5824,7 @@ Util.Form.customInit["dropdown"] = function(field) {
 	}
 	field.selectOption = function(li) {
 		this._show_all = false;
-		this.span_search.innerHTML = li.option_text;
+		this.virtual_input.innerHTML = li.option_text;
 		if(this.highlighted_option) {
 			u.rc(this.highlighted_option, "hover");
 			this.highlighted_option = false;
@@ -5842,8 +5839,11 @@ Util.Form.customInit["dropdown"] = function(field) {
 		if(this.selected_option) {
 			this.input.val(this.selected_option.option_value);
 		}
-		else {
+		else if(value) {
 			this.input.val("new::"+value);
+		}
+		else {
+			this.input.val("");
 		}
 		this.input.dispatchEvent(new Event("change"));
 	}
@@ -5867,16 +5867,17 @@ Util.Form.customInit["dropdown"] = function(field) {
 				u.ac(this, "hover");
 				this.field.highlighted_option = this;
 			}
+			this.dropdown_options.nodes.push(li);
 		}
 	}
 	field.loadOptions = function() {
 		var existing_value = this.input.val();
+		this.dropdown_options.nodes = [];
 		var i, node;
 		for(i = 0; i < this.input.options.length; i++) {
 			node = this.input.options[i];
 			this.addOption(node);
 		}
-		this.dropdown_options.nodes = u.qsa("li", this.dropdown_options);
 		this.input.val(existing_value);
 	}
 	u.f.activateInput(field.input);
