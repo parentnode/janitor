@@ -2015,7 +2015,7 @@ class UpgradeCore extends Model {
 						foreach($model_entities as $name => $value) {
 
 							// Entity name matches variant
-							if(isset($model_entities[$name]) && ($name === $media["variant"] || preg_match("/^".$name."\-/", $media["variant"]))) {
+							if(isset($model_entities[$name]) && ($name === $media["variant"] || preg_match("/^".addCSlashes($name, "()[]")."\-/", $media["variant"]))) {
 
 								$found = true;
 
@@ -2047,7 +2047,7 @@ class UpgradeCore extends Model {
 						}
 
 					}
-					// UPDATED HTML media – CHECK for leftovers (deleted mediea, that wasn't deleted properly)
+					// UPDATED HTML media – CHECK for leftovers (deleted mediae, that wasn't deleted properly)
 					else if(preg_match("/^HTMLEDITOR\-/", $media["variant"])) {
 
 						$found = false;
