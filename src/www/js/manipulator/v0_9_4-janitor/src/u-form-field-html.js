@@ -18,7 +18,26 @@ Util.Form.customInit["html"] = function(field) {
 	field.input.field = field;
 
 	// get/set value function
-	field.input.val = u.f._value;
+	this._html_value = function(value) {
+
+		// Set value? (value could be false or 0)
+		if(value !== undefined) {
+			this.value = value;
+
+			// if actual value, remove default state
+			if(value !== this.default_value) {
+				u.rc(this, "default");
+			}
+
+			// validate after setting value
+			u.f.validate(this);
+		}
+
+		// Return value
+		return (this.value != this.default_value) && u.text(this.field._viewer) ? this.value : "";
+	}
+	field.input.val = this._html_value;
+
 
 	// create textEditor interface
 	u.f.textEditor(field);
@@ -27,6 +46,7 @@ Util.Form.customInit["html"] = function(field) {
 
 // validator
 Util.Form.customValidate["html"] = function(iN) {
+	u.bug("validate", iN, iN.val(), u.text(iN.field._viewer));
 
 	// min and max length
 	min = Number(u.cv(iN.field, "min"));
@@ -2042,7 +2062,7 @@ u.f.textEditor = function(field) {
 
 	// clean pasted content
 	field._pasted_content = function(event) {
-		u.bug("pasted content", event, this);
+		// u.bug("pasted content", event, this);
 
 		u.e.kill(event);
 

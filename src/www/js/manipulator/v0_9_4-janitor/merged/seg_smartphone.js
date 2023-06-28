@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.4-janitor Copyright 2023 https://manipulator.parentnode.dk
-js-merged @ 2023-06-22 23:05:32
+js-merged @ 2023-06-28 14:34:28
 */
 
 /*seg_smartphone_include.js*/
@@ -3623,10 +3623,21 @@ Util.Form.customInit["html"] = function(field) {
 	field.input._form = field._form;
 	field.input.label = u.qs("label[for='"+field.input.id+"']", field);
 	field.input.field = field;
-	field.input.val = u.f._value;
+	this._html_value = function(value) {
+		if(value !== undefined) {
+			this.value = value;
+			if(value !== this.default_value) {
+				u.rc(this, "default");
+			}
+			u.f.validate(this);
+		}
+		return (this.value != this.default_value) && u.text(this.field._viewer) ? this.value : "";
+	}
+	field.input.val = this._html_value;
 	u.f.textEditor(field);
 }
 Util.Form.customValidate["html"] = function(iN) {
+	u.bug("validate", iN, iN.val(), u.text(iN.field._viewer));
 	min = Number(u.cv(iN.field, "min"));
 	max = Number(u.cv(iN.field, "max"));
 	min = min ? min : 1;
@@ -4664,7 +4675,6 @@ u.f.textEditor = function(field) {
 		u.f.positionHint(this.field);
 	}
 	field._pasted_content = function(event) {
-		u.bug("pasted content", event, this);
 		u.e.kill(event);
 		var i, node, text, range, new_tag, current_tag, selection, paste_parts, text_parts, text_nodes;
 		var paste_content = event.clipboardData.getData("text/plain");
