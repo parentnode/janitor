@@ -411,12 +411,12 @@ div.field.html > textarea.show {display: block; height: 200px; width: 470px;}
 
 div.field.html > label {display: block; /*width: 377px;*/ width: 477px; font-size: 12px;}
 div.field.html > label span {font-size: 10px; float: right; padding: 1px 0 0; cursor: pointer;}
-div.field.html > .indicator {top: 33px;}
+div.field.html > .indicator {top: 37px; left: 515px;}
 
 /* HTML VIEWER AND EDITOR */
 div.field.html .viewer {display: none;}
 div.field.html .editor {/*width: 382px;*/ width: 482px; position: relative; z-index: 3;}
-div.field.html .editor .indicator {left: 485px;}
+/*div.field.html .editor .indicator {left: 485px;}*/
 
 
 /* EDITOR OPTIONS */
