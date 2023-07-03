@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.4-janitor Copyright 2023 https://manipulator.parentnode.dk
-js-merged @ 2023-06-28 14:34:28
+js-merged @ 2023-07-03 21:02:59
 */
 
 /*seg_smartphone_include.js*/
@@ -3623,21 +3623,21 @@ Util.Form.customInit["html"] = function(field) {
 	field.input._form = field._form;
 	field.input.label = u.qs("label[for='"+field.input.id+"']", field);
 	field.input.field = field;
-	this._html_value = function(value) {
+	field._html_value = function(value) {
 		if(value !== undefined) {
+			u.bug("set", value);
 			this.value = value;
 			if(value !== this.default_value) {
 				u.rc(this, "default");
 			}
 			u.f.validate(this);
 		}
-		return (this.value != this.default_value) && u.text(this.field._viewer) ? this.value : "";
+		return (this.value != this.default_value && u.text(this.field._viewer)) ? this.value : "";
 	}
-	field.input.val = this._html_value;
+	field.input.val = field._html_value;
 	u.f.textEditor(field);
 }
 Util.Form.customValidate["html"] = function(iN) {
-	u.bug("validate", iN, iN.val(), u.text(iN.field._viewer));
 	min = Number(u.cv(iN.field, "min"));
 	max = Number(u.cv(iN.field, "max"));
 	min = min ? min : 1;
@@ -5106,7 +5106,7 @@ u.f.textEditor = function(field) {
 			this.field.hideSelectionOptions();
 		}
 	}
-	field._viewer.innerHTML = field.input.val();
+	field._viewer.innerHTML = field.input.value;
 	u.sortable(field._editor, {"draggables":"div.tag", "targets":"div.editor"});
 	var value, node, i, tag, j, lis, li;
 	var nodes = u.cn(field._viewer, {"exclude":"br"});
