@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.4-janitor Copyright 2023 https://manipulator.parentnode.dk
-js-merged @ 2023-07-03 21:02:59
+js-merged @ 2023-07-04 12:55:08
 */
 
 /*seg_smartphone_include.js*/
@@ -3617,7 +3617,6 @@ u.f.updateDefaultState = function(iN) {
 
 /*u-form-field-html.js*/
 Util.Form.customInit["html"] = function(field) {
-	u.bug("html field", field);
 	field.type = "html";
 	field.input = u.qs("textarea", field);
 	field.input._form = field._form;
@@ -3625,7 +3624,6 @@ Util.Form.customInit["html"] = function(field) {
 	field.input.field = field;
 	field._html_value = function(value) {
 		if(value !== undefined) {
-			u.bug("set", value);
 			this.value = value;
 			if(value !== this.default_value) {
 				u.rc(this, "default");
