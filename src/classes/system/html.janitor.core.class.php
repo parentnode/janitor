@@ -436,7 +436,7 @@ class JanitorHTMLCore {
 
 			$_ .= '<div class="change_ownership">';
 			
-				$_ .= $model->formStart($this->path."/owner/".$item["id"], array("class" => "labelstyle:inject"));
+				$_ .= $model->formStart($this->path."/updateOwner/".$item["id"], array("class" => "labelstyle:inject"));
 					$_ .= $model->input("return_to", array("type" => "hidden", "value" => $this->path."/edit/".$item["id"]));
 				$_ .= '<fieldset>';
 					$_ .= '<h3>Change owner</h3>';
