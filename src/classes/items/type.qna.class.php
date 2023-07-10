@@ -35,7 +35,7 @@ class TypeQna extends Itemtype {
 		$this->addToModel("about_item_id", array(
 			"type" => "item_id",
 			"label" => "Select item to ask question about",
-			"hint_message" => "Select an item it this question relates to a specific item",
+			"hint_message" => "Select an item if this question relates to a specific item",
 			"error_message" => "Please select an item"
 		));
 
@@ -52,7 +52,7 @@ class TypeQna extends Itemtype {
 		$this->addToModel("answer", array(
 			"type" => "html",
 			"label" => "Answer",
-			"allowed_tags" => "h3,h4,p,ul,ol,jpg,png,download",
+			"allowed_tags" => "p,h3,h4,ul,ol,jpg,png,download",
 			"hint_message" => "Be precise and make it easy to understand.",
 			"error_message" => "Answer must be filled out."
 		));
