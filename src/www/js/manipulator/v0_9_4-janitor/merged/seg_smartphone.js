@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.4-janitor Copyright 2023 https://manipulator.parentnode.dk
-js-merged @ 2023-07-04 12:55:08
+js-merged @ 2023-09-14 23:06:35
 */
 
 /*seg_smartphone_include.js*/
@@ -4158,8 +4158,14 @@ u.f.textEditor = function(field) {
 			tag._height = u.cv(node, "height");
 			tag._input.contentEditable = true;
 			tag._input.innerHTML = u.qs("a", node).innerHTML;
-			tag._image = u.ie(tag, "img");
-			tag._image.src = "/images/"+tag._item_id+"/"+tag._variant+"/400x."+tag._format;
+			if(tag._format.match(/gif|png|jpg|svg|avif|webp/)) {
+				tag._image = u.ie(tag, "img");
+				tag._image.src = "/images/"+tag._item_id+"/"+tag._variant+"/400x."+tag._format;
+			}
+			else if(tag._format.match(/mp4|mov/)) {
+				tag._image = u.ie(tag, "video");
+				tag._image.src = "/videos/"+tag._item_id+"/"+tag._variant+"/400x."+tag._format;
+			}
 			tag._input.val = function(value) {
 				if(value !== undefined) {
 					this.innerHTML = value;
@@ -4225,8 +4231,14 @@ u.f.textEditor = function(field) {
 				this.tag._name = response.cms_object["name"]
 				this.tag._item_id = response.cms_object["item_id"]
 				this.tag._input.contentEditable = true;
-				this.tag._image = u.ie(this.tag, "img");
-				this.tag._image.src = "/images/"+this.tag._item_id+"/"+this.tag._variant+"/400x."+this.tag._format;
+				if(this.tag._format.match(/gif|png|jpg|svg|avif|webp/)) {
+					this.tag._image = u.ie(this.tag, "img");
+					this.tag._image.src = "/images/"+this.tag._item_id+"/"+this.tag._variant+"/400x."+this.tag._format;
+				}
+				else if(this.tag._format.match(/mp4|mov/)) {
+					this.tag._image = u.ie(this.tag, "video");
+					this.tag._image.src = "/videos/"+this.tag._item_id+"/"+this.tag._variant+"/400x."+this.tag._format;
+				}
 				this.tag._input.innerHTML = this.tag._name + " ("+ u.round((this.tag._filesize/1000), 2) +"Kb)";
 				this.tag._input.val = function(value) {
 					if(value !== undefined) {
@@ -6973,7 +6985,7 @@ u._queueLoader = function() {
 				u._preloader_processes++;
 				u.rc(next, "waiting");
 				u.ac(next, "loading");
-				if(next._file.match(/png|jpg|gif|svg/)) {
+				if(next._file.match(/png|jpg|gif|svg|avif|webp/)) {
 					next.loaded = function(event) {
 						this.image = event.target;
 						this._image = this.image;
