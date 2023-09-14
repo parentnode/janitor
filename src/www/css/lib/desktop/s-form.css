@@ -539,7 +539,8 @@ div.field.html .editor div.tag.media input {/*width: 316px;*/width: 416px; opaci
 	/* IE HACK */
 	font-size: 130px;
 }
-div.field.html .editor div.tag.media img {/*width: 344px;*/width: 444px; margin: 2px;}
+div.field.html .editor div.tag.media img,
+div.field.html .editor div.tag.media video {/*width: 344px;*/width: 444px; margin: 2px;}
 
 /* DEFAULT EXTERNAL VIDEO TAG STYLING */
 div.field.html .editor div.tag.vimeo .text,
