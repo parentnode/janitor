@@ -132,6 +132,25 @@ function conversionFailed($reason) {
 	exit();
 }
 
+function bestInputVariant($variant_path) {
+
+	if(file_exists($variant_path."/avif")) {
+		return $variant_path."/avif";
+	}
+	else if(file_exists($variant_path."/webp")) {
+		return $variant_path."/webp";
+	}
+	else if(file_exists($variant_path."/jpg")) {
+		return $variant_path."/jpg";
+	}
+	else if(file_exists($variant_path."/png")) {
+		return $variant_path."/png";
+	}
+	else if(file_exists($variant_path."/gif")) {
+		return $variant_path."/gif";
+	}
+
+}
 
 function checkVariantRedirects($id, $variant) {
 	// debug(["checkVariantRedirects", $id, $variant]);
@@ -268,15 +287,28 @@ if($id === false || !file_exists(PRIVATE_FILE_PATH."/$id/$variant")) {
 
 
 // images
-if($request_type == "images" && ($width || $height) && ($format == "jpg" || $format == "png" || $format == "gif")) {
+if($request_type == "images" && ($width || $height) && ($format == "avif" || $format == "webp" || $format == "jpg" || $format == "png" || $format == "gif")) {
 	include_once("classes/helpers/image.class.php");
 
 	$Image = new Image();
 
 	// check for sources
 
+	// Newest web image formats
+
+	// avif
+	if($format == "avif") {
+		$input_file = bestInputVariant(PRIVATE_FILE_PATH."/$id/$variant");
+	}
+	// webp
+	else if($format == "webp") {
+		$input_file = bestInputVariant(PRIVATE_FILE_PATH."/$id/$variant");
+	}
+
+	// Older web image formats
+
 	// jpg, and source is available
-	if($format == "jpg" && file_exists(PRIVATE_FILE_PATH."/$id$variant/jpg")) {
+	else if($format == "jpg" && file_exists(PRIVATE_FILE_PATH."/$id$variant/jpg")) {
 		$input_file = PRIVATE_FILE_PATH."/$id/$variant/jpg";
 	}
 	// png, and source is available

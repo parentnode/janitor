@@ -312,9 +312,24 @@ class Image {
 //		imagecopyresampled($output_image, $input_image, 0, 0, 0, 0, $output_width, $output_height, $input_width, $input_height);
 //		imagecopyresampled($output_image, $input_image, $output_left, $output_top, $input_left, $input_top, $output_width, $output_height, $input_width, $input_height);
 
-
 		// output image
-		if($output_format == "JPEG") {
+		if($output_format == "AVIF") {
+
+			$image->scaleImage($output_width, $output_height);
+
+			$image->setImageCompressionQuality($output_compression);
+			$image->stripImage();
+			return $image->writeImage($output_file);
+		}
+		else if($output_format == "WEBP") {
+
+			$image->scaleImage($output_width, $output_height);
+
+			$image->setImageCompressionQuality($output_compression);
+			$image->stripImage();
+			return $image->writeImage($output_file);
+		}
+		else if($output_format == "JPEG") {
 
 			$image->scaleImage($output_width, $output_height);
 

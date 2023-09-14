@@ -598,6 +598,9 @@ function mimetypeToExtension($mimetype) {
 		"image/jpg" => "jpg",
 		"image/png" => "png",
 
+		"image/avif" => "avif",
+		"image/webp" => "webp",
+
 		"audio/mpeg" => "mp3",
 		"audio/x-wav" => "wav",
 		"audio/x-aac" => "aac",
