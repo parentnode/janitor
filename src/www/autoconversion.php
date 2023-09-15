@@ -292,6 +292,10 @@ if($request_type == "images" && ($width || $height) && ($format == "avif" || $fo
 
 	$Image = new Image();
 
+	// default compression
+	$compression = 93;
+
+
 	// check for sources
 
 	// Newest web image formats
@@ -299,10 +303,12 @@ if($request_type == "images" && ($width || $height) && ($format == "avif" || $fo
 	// avif
 	if($format == "avif") {
 		$input_file = bestInputVariant(PRIVATE_FILE_PATH."/$id/$variant");
+		$compression = 60;
 	}
 	// webp
 	else if($format == "webp") {
 		$input_file = bestInputVariant(PRIVATE_FILE_PATH."/$id/$variant");
+		$compression = 75;
 	}
 
 	// Older web image formats
@@ -341,7 +347,7 @@ if($request_type == "images" && ($width || $height) && ($format == "avif" || $fo
 //	print $input_file . ":" . $output_file . "<br>";
 
 	// scale image (will autoconvert)
-	if($Image->convert($input_file, $output_file, array("compression" => 93, "allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
+	if($Image->convert($input_file, $output_file, array("compression" => $compression, "allow_cropping" => true, "width" => $width, "height" => $height, "format" => $format, "max_pixels" => $max_pixels))) {
 
 		// collect log autoconvertion for bundled notification
 		logger()->collectNotification($_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"], "autoconversion");
