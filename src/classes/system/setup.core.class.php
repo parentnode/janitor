@@ -469,7 +469,7 @@ class SetupCore extends Itemtype {
 						"curl --version"
 					),
 					array(
-						"curl [67]{1}.[0-9]"
+						"curl [6789]{1}.[0-9]"
 					)
 				)
 			)
