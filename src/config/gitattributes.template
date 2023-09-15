@@ -5,6 +5,8 @@
 *.jpg	binary
 *.gif	binary
 *.png	binary
+*.avif	binary
+*.webp	binary
 *.mp3	binary
 *.wav	binary
 *.ogg	binary
@@ -44,5 +46,7 @@ ogv		binary
 ogg		binary
 m4v		binary
 webm	binary
+webp	binary
+avif	binary
 pdf		binary
 zip		binary
