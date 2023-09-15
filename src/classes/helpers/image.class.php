@@ -83,9 +83,16 @@ class Image {
 		$image->setImageFormat($output_format);
 
 
+		// Nor width or height is stated
+		// use input size for output
+		if(!$output_width && !$output_height) {
+			$output_width = $input_width;
+			$output_height = $input_height;
+		}
+
 		// only width OR height stated
 		// use source proportions to calculate other value
-		if((!$output_width && $output_height) || ($output_width && !$output_height)) {
+		else if((!$output_width && $output_height) || ($output_width && !$output_height)) {
 
 			// height defined by width
 			if($output_width) {
