@@ -1521,7 +1521,7 @@ class SetupCore extends Itemtype {
 			if(SETUP_TYPE == "new") {
 
 				// INSTALL THEME FROM GITHUB IF THEME DOES NOT EXIST (OR IS EMPTY)
-				if(!file_exists(PROJECT_PATH."/theme") || scandir(PROJECT_PATH."/theme") == array(".", "..") || (scandir(PROJECT_PATH."/theme") == array(".", "..", "www") && scandir(PROJECT_PATH."/theme/www") == array(".", "..", "index.php"))) {
+				if(!file_exists(PROJECT_PATH."/theme") || scandir(PROJECT_PATH."/theme") == array(".", "..") || (scandir(PROJECT_PATH."/theme") == array(".", "..", "library", "www") && scandir(PROJECT_PATH."/theme/www") == array(".", "..", "index.php"))) {
 
 					// Download theme
 					$url = "https://github.com/parentnode/janitor-theme-minimal/archive/master.tar.gz";
@@ -1556,10 +1556,10 @@ class SetupCore extends Itemtype {
 
 					// Replace existing theme
 					$fs->removeDirRecursively(PROJECT_PATH."/theme");
-					$fs->copy(PROJECT_PATH."/janitor-theme-minimal-master", PROJECT_PATH."/theme");
+					$fs->copy(PROJECT_PATH."/janitor-theme-minimal-main", PROJECT_PATH."/theme");
 
 					// Clean up
-					$fs->removeDirRecursively(PROJECT_PATH."/janitor-theme-minimal-master");
+					$fs->removeDirRecursively(PROJECT_PATH."/janitor-theme-minimal-main");
 					unlink(PROJECT_PATH."/theme.tar.gz");
 
 
