@@ -321,6 +321,10 @@ class HTMLCore {
 		$hint_message = $this->getProperty($name, "hint_message");
 		$error_message = $this->getProperty($name, "error_message");
  
+
+		// Custom datasets
+		$datasets = [];
+
  
 		// overwrite model/defaults
 		if($_options !== false) {
@@ -357,6 +361,11 @@ class HTMLCore {
 					case "file_delete"     : $file_delete      = $_value; break;
 					case "media_add"       : $media_add        = $_value; break;
 					case "media_delete"    : $media_delete     = $_value; break;
+
+
+					// Custom dataset property
+					case (preg_match("/^data\-/", $_option) ? true : false) : $datasets[$_option]   = $_value; break;
+
 
 				}
 			}
@@ -402,8 +411,6 @@ class HTMLCore {
 		// Special data properties for HTML field
 		if($type === "html") {
 
-
-
 			// Paths for saving and deleting files
 			$att_file_add = $this->attribute("data-file-add", security()->validPath($file_add));
 			$att_file_delete = $this->attribute("data-file-delete", security()->validPath($file_delete));
@@ -411,6 +418,16 @@ class HTMLCore {
 			$att_media_delete = $this->attribute("data-media-delete", security()->validPath($media_delete));
 
 		}
+
+
+		// Is any datasets specified
+		$att_datasets = "";
+		if($datasets) {
+			foreach($datasets as $data_key => $data_value) {
+				$att_datasets .= " ".$data_key.'="'.$data_value.'"';
+			}
+		}
+
 
 		// Attribute strips value for slashes etc - cannot be used for pattern regex
 		$att_pattern = $pattern ? ' pattern="'.$pattern.'"' : '';
@@ -428,7 +445,7 @@ class HTMLCore {
 
 
 		// Create field div
-		$_ .= '<div'.$att_class.($type === "html" ? ($att_file_add.$att_file_delete.$att_media_add.$att_media_delete) : "").'>';
+		$_ .= '<div'.$att_class.($type === "html" ? ($att_file_add.$att_file_delete.$att_media_add.$att_media_delete) : "").$att_datasets.'>';
 
 
 			// CHECKBOX/BOOLEAN
