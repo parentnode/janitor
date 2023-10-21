@@ -108,7 +108,7 @@ class UserCore extends Model {
 			"hint_message" => "Accept the terms and conditions to continue.", 
 			"error_message" => "You must accept the terms and conditions to continue"
 		));
-		
+
 
 
 		// USERNAMES AND PASSWORD
