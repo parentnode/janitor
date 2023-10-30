@@ -301,6 +301,8 @@ class HTMLCore {
 		$min = $this->getProperty($name, "min");
 		$max = $this->getProperty($name, "max");
 		$step = $this->getProperty($name, "step");
+		$locale = $this->getProperty($name, "locale");
+		$postfix = $this->getProperty($name, "postfix");
 		$required = $this->getProperty($name, "required");
 		$pattern = $this->getProperty($name, "pattern");
 
@@ -346,6 +348,8 @@ class HTMLCore {
 					case "min"             : $min              = $_value; break;
 					case "max"             : $max              = $_value; break;
 					case "step"            : $step             = $_value; break;
+					case "locale"          : $locale           = $_value; break;
+					case "postfix"         : $postfix          = $_value; break;
 					case "required"        : $required         = $_value; break;
 					case "pattern"         : $pattern          = $_value; break;
 
@@ -564,7 +568,10 @@ class HTMLCore {
 					$att_min = $this->attribute("min", $min);
 					$att_step = $this->attribute("step", $step);
 
-					$_ .= '<input type="range"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_step.$att_max.$att_min.' />';
+					$att_locale = $this->attribute("locale", $locale);
+					$att_postfix = $this->attribute("postfix", $postfix);
+
+					$_ .= '<input type="range"'.$att_name.$att_id.$att_value.$att_disabled.$att_readonly.$att_step.$att_max.$att_min.$att_postfix.$att_locale.' />';
 				}
 
 				// DROPDOWN
