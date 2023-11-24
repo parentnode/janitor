@@ -101,10 +101,10 @@ class ItemsCore {
 		$query = new Query();
 		$sql = false;
 		if($id) {
-			$sql = "SELECT * FROM ".UT_ITEMS." WHERE id = '$id'" . (isset($status) ? " AND status = $status" : "") . (isset($itemtype) ? " AND itemtype = '$itemtype'" : "");
+			$sql = "SELECT * FROM ".UT_ITEMS." WHERE id = '$id'" . (isset($status) ? " AND status = $status" : "") . ($itemtype ? " AND itemtype = '$itemtype'" : "");
 		}
 		else if($sindex) {
-			$sql = "SELECT * FROM ".UT_ITEMS." WHERE sindex = '$sindex'" . (isset($status) ? " AND status = $status" : "") . (isset($itemtype) ? " AND itemtype = '$itemtype'" : "");
+			$sql = "SELECT * FROM ".UT_ITEMS." WHERE sindex = '$sindex'" . (isset($status) ? " AND status = $status" : "") . ($itemtype ? " AND itemtype = '$itemtype'" : "");
 		}
 		else if($tags || $where) {
 			
