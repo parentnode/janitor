@@ -6,8 +6,8 @@
 
 // require_once("includes/payments/stripe-php-4.1.1/init.php");
 // require_once("includes/payments/stripe-php-7.37.1/init.php");
-require_once("includes/payments/stripe-php-10.12.1/vendor/autoload.php");
-
+// require_once("includes/payments/stripe-php-10.12.1/vendor/autoload.php");
+require_once("includes/payments/stripe-php-13.4.0/vendor/autoload.php");
 
 class JanitorStripe {
 
@@ -24,8 +24,9 @@ class JanitorStripe {
 		$this->publishable_key = $_settings["public-key"];
 
 		\Stripe\Stripe::setApiKey($this->secret_key);
-		\Stripe\Stripe::setApiVersion("2020-03-02");
-	
+		// \Stripe\Stripe::setApiVersion("2020-03-02");
+		\Stripe\Stripe::setApiVersion("2023-10-16");
+
 	}
 
 
