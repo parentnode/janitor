@@ -736,6 +736,7 @@ class JanitorStripe {
 	function createPaymentSession($customer_id, $success_url, $cancel_url, $currency, $_options = false) {
 
 
+		global $page;
 		$metadata = false;
 		$custom_text = false;
 
@@ -759,7 +760,7 @@ class JanitorStripe {
 				"success_url" => $success_url,
 				"cancel_url" => $cancel_url,
 			];
-			
+
 			if($custom_text) {
 				$request_options["custom_text"] = [
 					"submit" => [
@@ -771,6 +772,9 @@ class JanitorStripe {
 				$request_options["metadata"] = $metadata;
 			}
 
+			if($page->language()) {
+				$request_options["locale"] = strtolower($page->language());
+			}
 			// debug([$request_options]);
 
 			$checkout_session = \Stripe\Checkout\Session::create($request_options);
