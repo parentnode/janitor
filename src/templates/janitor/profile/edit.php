@@ -94,6 +94,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		</div>
 	</div>
 
+	<? if(defined("SITE_SHOP") && SITE_SHOP): ?>
 	<div class="payment_methods i:paymentMethods i:collapseHeader">
 		<h2>Payment methods</h2>
 
@@ -164,6 +165,8 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		<? endif; ?>
 
 	</div>
+	<? endif; ?>
+
 
 	<div class="apitoken i:apitokenProfile i:collapseHeader">
 		<h2>API Token</h2>

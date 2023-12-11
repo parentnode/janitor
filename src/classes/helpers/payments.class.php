@@ -154,18 +154,86 @@ class PaymentGateway {
 
 
 
-	function processCardForCart($cart, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
-		// debug(["processCardForCart payments"]);
+
+
+	function createCartPaymentSession($cart, $success_url, $cancel_url, $_options = false) {
+		// debug(["createCartPaymentSession payments"]);
 
 		// only load payment adapter when needed
 		$this->init_adapter();
 
 		// Only attempt with valid adapter
 		if($this->adapter) {
-			return $this->adapter->processCardForCart($cart, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+			return $this->adapter->createCartPaymentSession($cart, $success_url, $cancel_url, $_options);
 		}
 
 	}
+
+	function createOrderPaymentSession($order, $success_url, $cancel_url, $_options = false) {
+		// debug(["createOrderPaymentSession payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->createOrderPaymentSession($order, $success_url, $cancel_url, $_options);
+		}
+
+	}
+
+	function createOrdersPaymentSession($orders, $success_url, $cancel_url, $_options = false) {
+		// debug(["createOrdersPaymentSession payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->createOrdersPaymentSession($orders, $success_url, $cancel_url, $_options);
+		}
+
+	}
+
+	function processPaymentSession($action) {
+		// debug(["processPaymentSession payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->processPaymentSession($action);
+		}
+
+	}
+
+	function retrieveCheckoutSession($session_id) {
+		// debug(["retrieveCheckoutSession payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->retrieveCheckoutSession($session_id);
+		}
+
+	}
+
+	function retrieveSetupIntent($intent_id) {
+		// debug(["retrieveSetupIntent payments"]);
+
+		// only load payment adapter when needed
+		$this->init_adapter();
+
+		// Only attempt with valid adapter
+		if($this->adapter) {
+			return $this->adapter->retrieveSetupIntent($intent_id);
+		}
+
+	}
+
 
 	function requestPaymentIntentForCart($cart, $payment_method, $return_url) {
 		// debug(["requestPaymentIntentForCart payments"]);
@@ -176,21 +244,6 @@ class PaymentGateway {
 		// Only attempt with valid adapter
 		if($this->adapter) {
 			return $this->adapter->requestPaymentIntentForCart($cart, $payment_method, $return_url);
-		}
-
-	}
-
-
-
-	function processCardForOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
-		// debug(["processCardForOrder payments"]);
-
-		// only load payment adapter when needed
-		$this->init_adapter();
-
-		// Only attempt with valid adapter
-		if($this->adapter) {
-			return $this->adapter->processCardForOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
 		}
 
 	}
@@ -208,21 +261,6 @@ class PaymentGateway {
 
 	}
 
-
-
-	function processCardForOrders($orders, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
-		// debug(["processCardForOrders payments"]);
-
-		// only load payment adapter when needed
-		$this->init_adapter();
-
-		// Only attempt with valid adapter
-		if($this->adapter) {
-			return $this->adapter->processCardForOrders($orders, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
-		}
-
-	}
-
 	function requestPaymentIntentForOrders($orders, $payment_method, $return_url) {
 		// debug(["requestPaymentIntentForOrders payments"]);
 
@@ -235,6 +273,7 @@ class PaymentGateway {
 		}
 
 	}
+
 
 
 	function identifyPaymentIntent($payment_intent_id) {

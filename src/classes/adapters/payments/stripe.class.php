@@ -215,130 +215,130 @@ class JanitorStripe {
 		return false;
 	}
 
-	// Add a new payment method to Stripe account
-	function addPaymentMethod($user_id, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
-
-		include_once("classes/users/superuser.class.php");
-		$UC = new SuperUser();
-
-		// does customer already exist in Stripe account
-		$customer_id = $this->getCustomerId($user_id);
-
-		try {
-
-			$payment_method = \Stripe\PaymentMethod::create([
-				"type" => "card",
-				"card" => [
-					"number" => $card_number,
-					"exp_month" => $card_exp_month,
-					"exp_year" => $card_exp_year,
-					"cvc" => $card_cvc,
-				],
-			]);
-
-			if($payment_method && $payment_method->id) {
-
-				// Check if this card already exists
-				$existing_payment_methods = $this->getPaymentMethods($user_id);
-				$card_exists = false;
-
-				if($existing_payment_methods) {
-					foreach($existing_payment_methods as $card) {
-						if($card["fingerprint"] === $payment_method->card->fingerprint) {
-
-							// Return matching card
-							return [
-								"status" => "success",
-								"type" => "card",
-								"card" => $card,
-								"existing_card" => true
-							];
-
-						}
-					}
-				}
-
-				// Attach method to customer, if it didn't exist already
-				$attached = $payment_method->attach([
-					"customer" => $customer_id,
-				]);
-
-				// Add user payment method
-				$UC->addPaymentMethod([
-					"payment_method_id" => $this->getStripePaymentMethodId(),
-					"user_id" => $user_id,
-				]);
-
-				// debug(["new payment_method", $payment_method]);
-
-				logger()->addLog("New payment method added: customer_id:".$customer_id, "stripe");
-				return [
-					"status" => "success", 
-					"type" => "card",
-					"card" => [
-						"id" => $payment_method->id,
-						"fingerprint" => $payment_method->card->fingerprint,
-						"last4" => $payment_method->card->last4,
-						"exp_month" => $payment_method->card->exp_month,
-						"exp_year" => $payment_method->card->exp_year,
-					], 
-				];
-			}
-
-		}
-		// Card error
-		catch(\Stripe\Exception\CardException $exception) {
-
-			$this->exceptionHandler("PaymentMethod::create", $exception);
-			return $this->exceptionResponder($exception);
-
-		}
-		// Too many requests made to the API too quickly
-		catch (\Stripe\Exception\RateLimitException $exception) {
-
-			$this->exceptionHandler("PaymentMethod::create", $exception);
-			return false;
-
-		}
-		// Invalid parameters were supplied to Stripe's API
-		catch (\Stripe\Exception\InvalidRequestException $exception) {
-
-			$this->exceptionHandler("PaymentMethod::create", $exception);
-			return $this->exceptionResponder($exception);
-
-		}
-		// Authentication with Stripe's API failed
-		catch (\Stripe\Exception\AuthenticationException $exception) {
-
-			$this->exceptionHandler("PaymentMethod::create", $exception);
-			return $this->exceptionResponder($exception);
-
-		}
-		// Network communication with Stripe failed
-		catch (\Stripe\Exception\ApiConnectionException $exception) {
-
-			$this->exceptionHandler("PaymentMethod::create", $exception);
-			return $this->exceptionResponder($exception);
-
-		}
-		// Generic error
-		catch (\Stripe\Exception\ApiErrorException $exception) {
-
-			$this->exceptionHandler("PaymentMethod::create", $exception);
-			return $this->exceptionResponder($exception);
-
-		}
-		// Something else happened, completely unrelated to Stripe
-		catch (Exception $exception) {
-
-			$this->exceptionHandler("PaymentMethod::create", $exception);
-			return $this->exceptionResponder($exception);
-
-		}
-
-
-		return false;
-	}
+	// // Add a new payment method to Stripe account
+	// function addPaymentMethod($user_id, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
+	//
+	// 	include_once("classes/users/superuser.class.php");
+	// 	$UC = new SuperUser();
+	//
+	// 	// does customer already exist in Stripe account
+	// 	$customer_id = $this->getCustomerId($user_id);
+	//
+	// 	try {
+	//
+	// 		$payment_method = \Stripe\PaymentMethod::create([
+	// 			"type" => "card",
+	// 			"card" => [
+	// 				"number" => $card_number,
+	// 				"exp_month" => $card_exp_month,
+	// 				"exp_year" => $card_exp_year,
+	// 				"cvc" => $card_cvc,
+	// 			],
+	// 		]);
+	//
+	// 		if($payment_method && $payment_method->id) {
+	//
+	// 			// Check if this card already exists
+	// 			$existing_payment_methods = $this->getPaymentMethods($user_id);
+	// 			$card_exists = false;
+	//
+	// 			if($existing_payment_methods) {
+	// 				foreach($existing_payment_methods as $card) {
+	// 					if($card["fingerprint"] === $payment_method->card->fingerprint) {
+	//
+	// 						// Return matching card
+	// 						return [
+	// 							"status" => "success",
+	// 							"type" => "card",
+	// 							"card" => $card,
+	// 							"existing_card" => true
+	// 						];
+	//
+	// 					}
+	// 				}
+	// 			}
+	//
+	// 			// Attach method to customer, if it didn't exist already
+	// 			$attached = $payment_method->attach([
+	// 				"customer" => $customer_id,
+	// 			]);
+	//
+	// 			// Add user payment method
+	// 			$UC->addPaymentMethod([
+	// 				"payment_method_id" => $this->getStripePaymentMethodId(),
+	// 				"user_id" => $user_id,
+	// 			]);
+	//
+	// 			// debug(["new payment_method", $payment_method]);
+	//
+	// 			logger()->addLog("New payment method added: customer_id:".$customer_id, "stripe");
+	// 			return [
+	// 				"status" => "success",
+	// 				"type" => "card",
+	// 				"card" => [
+	// 					"id" => $payment_method->id,
+	// 					"fingerprint" => $payment_method->card->fingerprint,
+	// 					"last4" => $payment_method->card->last4,
+	// 					"exp_month" => $payment_method->card->exp_month,
+	// 					"exp_year" => $payment_method->card->exp_year,
+	// 				],
+	// 			];
+	// 		}
+	//
+	// 	}
+	// 	// Card error
+	// 	catch(\Stripe\Exception\CardException $exception) {
+	//
+	// 		$this->exceptionHandler("PaymentMethod::create", $exception);
+	// 		return $this->exceptionResponder($exception);
+	//
+	// 	}
+	// 	// Too many requests made to the API too quickly
+	// 	catch (\Stripe\Exception\RateLimitException $exception) {
+	//
+	// 		$this->exceptionHandler("PaymentMethod::create", $exception);
+	// 		return false;
+	//
+	// 	}
+	// 	// Invalid parameters were supplied to Stripe's API
+	// 	catch (\Stripe\Exception\InvalidRequestException $exception) {
+	//
+	// 		$this->exceptionHandler("PaymentMethod::create", $exception);
+	// 		return $this->exceptionResponder($exception);
+	//
+	// 	}
+	// 	// Authentication with Stripe's API failed
+	// 	catch (\Stripe\Exception\AuthenticationException $exception) {
+	//
+	// 		$this->exceptionHandler("PaymentMethod::create", $exception);
+	// 		return $this->exceptionResponder($exception);
+	//
+	// 	}
+	// 	// Network communication with Stripe failed
+	// 	catch (\Stripe\Exception\ApiConnectionException $exception) {
+	//
+	// 		$this->exceptionHandler("PaymentMethod::create", $exception);
+	// 		return $this->exceptionResponder($exception);
+	//
+	// 	}
+	// 	// Generic error
+	// 	catch (\Stripe\Exception\ApiErrorException $exception) {
+	//
+	// 		$this->exceptionHandler("PaymentMethod::create", $exception);
+	// 		return $this->exceptionResponder($exception);
+	//
+	// 	}
+	// 	// Something else happened, completely unrelated to Stripe
+	// 	catch (Exception $exception) {
+	//
+	// 		$this->exceptionHandler("PaymentMethod::create", $exception);
+	// 		return $this->exceptionResponder($exception);
+	//
+	// 	}
+	//
+	//
+	// 	return false;
+	// }
 
 	// Delete payment method from Stripe account
 	function deletePaymentMethod($user_id, $user_payment_method_id) {
@@ -456,9 +456,7 @@ class JanitorStripe {
 
 			// debug([$details]);
 			if($details) {
-
 				return $details;
-
 			}
 
 		}
@@ -541,10 +539,12 @@ class JanitorStripe {
 
 					$payment_intent = $this->getPaymentIntent($payment_intent_id);
 					if($payment_intent && $payment_intent->status === "requires_capture") {
+
+						$payment_method = $this->getPaymentMethod($user_id, $payment_intent["payment_method"]);
 						if($amount <= $payment_intent->amount_capturable/100) {
 							return [
 								"payment_intent_id" => $payment_intent_id,
-								"last4" => $payment_intent->charges->data[0]->payment_method_details->card->last4
+								"last4" => $payment_method ? $payment_method["last4"] : "N/A"
 							];
 						}
 					}
@@ -570,9 +570,23 @@ class JanitorStripe {
 	}
 
 
-	// Process payment method for cart
-	function processCardForCart($cart, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
-		// debug(["processCartAndPayment stripe"]);
+
+	// Prepare user for payment session for cart
+	function createCartPaymentSession($cart, $success_url, $cancel_url, $_options) {
+		// debug(["createCartPaymentSession stripe"]);
+
+		$metadata = [];
+		$custom_text = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "metadata"          : $metadata            = $_value; break;
+					case "custom_text"       : $custom_text         = $_value; break;
+				}
+			}
+		}
+
 
 		if($cart && $cart["user_id"]) {
 
@@ -587,21 +601,17 @@ class JanitorStripe {
 			// customer created or found
 			if($customer_id) {
 
-				// create payment method for card
-				$payment_method = $this->addPaymentMethod($cart["user_id"], $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+				// Add cart reference to metadata
+				$metadata["cart_reference"] = $cart["cart_reference"];
 
-				// if payment method was created (or found)
-				if($payment_method && $payment_method["status"] == "success") {
+				$checkout_session = $this->createPaymentSession($customer_id, $success_url, $cancel_url, $cart["currency"], [
+					"custom_text" => $custom_text,
+					"metadata" => $metadata,
+				]);
 
-					$payment_method["cart"] = $cart;
-					return $payment_method;
+				// debug([$checkout_session]);
+				return $checkout_session;
 
-				}
-				else {
-
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"], "decline_code" => (isset($payment_method["decline_code"]) ?  $payment_method["decline_code"] : false)];
-
-				}
 			}
 			else {
 
@@ -612,6 +622,467 @@ class JanitorStripe {
 
 		return ["status" => "CART_NOT_FOUND", "message" => "Cart not found"];
 	}
+
+	// Prepare user for payment session for order
+	function createOrderPaymentSession($order, $success_url, $cancel_url, $_options) {
+		// debug(["createOrderPaymentSession stripe"]);
+
+		$metadata = [];
+		$custom_text = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "metadata"          : $metadata            = $_value; break;
+					case "custom_text"       : $custom_text         = $_value; break;
+				}
+			}
+		}
+
+
+		if($order && $order["user_id"]) {
+
+			// does customer already exist in Stripe account
+			$customer_id = $this->getCustomerId($order["user_id"]);
+
+			// create customer, if it doesn't exist
+			if(!$customer_id) {
+				$customer_id = $this->createCustomer($order["user_id"]);
+			}
+
+			// customer created or found
+			if($customer_id) {
+
+				// Add cart reference to metadata
+				$metadata["order_no"] = $order["order_no"];
+
+				$checkout_session = $this->createPaymentSession($customer_id, $success_url, $cancel_url, $order["currency"], [
+					"custom_text" => $custom_text,
+					"metadata" => $metadata,
+				]);
+
+				// debug([$checkout_session]);
+				return $checkout_session;
+
+			}
+			else {
+
+				return ["status" => "STRIPE_ERROR", "message" => "There was an error processing your payment"];
+
+			}
+		}
+
+		return ["status" => "ORDER_NOT_FOUND", "message" => "Order not found"];
+	}
+
+	// Prepare user for payment session for orders
+	function createOrdersPaymentSession($orders, $success_url, $cancel_url, $_options) {
+		// debug(["createOrdersPaymentSession stripe"]);
+
+		$metadata = [];
+		$custom_text = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "metadata"          : $metadata            = $_value; break;
+					case "custom_text"       : $custom_text         = $_value; break;
+				}
+			}
+		}
+
+
+		if($orders && $orders[0]["user_id"]) {
+
+			// does customer already exist in Stripe account
+			$customer_id = $this->getCustomerId($orders[0]["user_id"]);
+
+			// create customer, if it doesn't exist
+			if(!$customer_id) {
+				$customer_id = $this->createCustomer($orders[0]["user_id"]);
+			}
+
+			// customer created or found
+			if($customer_id) {
+
+				$order_ids = [];
+				foreach($orders as $order) {
+					$order_ids[] = $order["id"];
+				}
+
+				// Add orders reference to metadata
+				$metadata["order_ids"] = implode(",", $order_ids);
+
+				$checkout_session = $this->createPaymentSession($customer_id, $success_url, $cancel_url, $orders[0]["currency"], [
+					"custom_text" => $custom_text,
+					"metadata" => $metadata,
+				]);
+
+				// debug([$checkout_session]);
+				return $checkout_session;
+
+			}
+			else {
+
+				return ["status" => "STRIPE_ERROR", "message" => "There was an error processing your payment"];
+
+			}
+		}
+
+		return ["status" => "ORDERS_NOT_FOUND", "message" => "Orders not found"];
+	}
+
+
+	function createPaymentSession($customer_id, $success_url, $cancel_url, $currency, $_options = false) {
+
+
+		$metadata = false;
+		$custom_text = false;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "metadata"          : $metadata            = $_value; break;
+					case "custom_text"       : $custom_text         = $_value; break;
+				}
+			}
+		}
+
+
+		try {
+
+			$request_options = [
+				"payment_method_types" => ["card"],
+				"customer" => $customer_id,
+				"currency" => $currency,
+				"mode" => "setup",
+				"success_url" => $success_url,
+				"cancel_url" => $cancel_url,
+			];
+			
+			if($custom_text) {
+				$request_options["custom_text"] = [
+					"submit" => [
+						"message" => $custom_text
+					]
+				];
+			}
+			if($metadata) {
+				$request_options["metadata"] = $metadata;
+			}
+
+			// debug([$request_options]);
+
+			$checkout_session = \Stripe\Checkout\Session::create($request_options);
+
+			// debug([$checkout_session]);
+			if($checkout_session && $checkout_session["url"]) {
+
+				return $checkout_session;
+
+			}
+
+		}
+		// Too many requests made to the API too quickly
+		catch (\Stripe\Exception\RateLimitException $exception) {
+
+			$this->exceptionHandler("Session::create", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Invalid parameters were supplied to Stripe's API
+		catch (\Stripe\Exception\InvalidRequestException $exception) {
+
+			$this->exceptionHandler("Session::create", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Authentication with Stripe's API failed
+		catch (\Stripe\Exception\AuthenticationException $exception) {
+
+			$this->exceptionHandler("Session::create", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Network communication with Stripe failed
+		catch (\Stripe\Exception\ApiConnectionException $exception) {
+
+			$this->exceptionHandler("Session::create", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Generic error
+		catch (\Stripe\Exception\ApiErrorException $exception) {
+
+			$this->exceptionHandler("Session::create", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Something else happened, completely unrelated to Stripe
+		catch (Exception $exception) {
+
+			$this->exceptionHandler("Session::create", $exception);
+			return $this->exceptionResponder($exception);
+		}
+
+		return false;
+	}
+
+	function processPaymentSession($action) {
+		// debug(["processPaymentSession", $action]);
+
+		$session_id = $action[3];
+		$gateway = $action[1];
+
+
+		include_once("classes/users/superuser.class.php");
+		$UC = new SuperUser();
+
+		include_once("classes/shop/supershop.class.php");
+		$SC = new SuperShop();
+
+
+		$checkout_session = $this->retrieveCheckoutSession($session_id);
+		if($checkout_session) {
+
+			$result = [];
+
+			// Look for checkout reference (payment for cart, order or orders)
+			$result["reference"] = false;
+
+			if(isset($checkout_session["metadata"])) {
+
+				if(isset($checkout_session["metadata"]["cart_reference"])) {
+
+					$result["reference"] = "cart";
+					$result["cart_reference"] = $checkout_session["metadata"]["cart_reference"];
+
+				}
+				else if(isset($checkout_session["metadata"]["order_no"])) {
+
+					$result["reference"] = "order";
+					$result["order_no"] = $checkout_session["metadata"]["order_no"];
+		
+				}
+				else if(isset($checkout_session["metadata"]["order_ids"])) {
+
+					$result["reference"] = "orders";
+					$result["order_ids"] = $checkout_session["metadata"]["order_ids"];
+		
+				}
+
+			}
+
+			// Session reference not found
+			// We cannot map any payment to any order or cart without the reference
+			if(!$result["reference"]) {
+
+				return ["status" => "REFERENCE_NOT_FOUND", "message" => "Cart or Order could not found."];
+
+			}
+
+
+			// Is setup intent complete
+			if(isset($checkout_session["setup_intent"]) && $checkout_session["setup_intent"]) {
+
+
+				$setup_intent = $this->retrieveSetupIntent($checkout_session["setup_intent"]);
+				// debug([$setup_intent]);
+
+				if($setup_intent && isset($setup_intent["payment_method"]) && $setup_intent["payment_method"]) {
+
+					$payment_method = $setup_intent["payment_method"];
+					if($payment_method) {
+
+
+						if($result["reference"] === "cart") {
+
+							$result["cart"] =  $SC->getCarts(["cart_reference" => $result["cart_reference"]]);
+							$result["user_id"] = $result["cart"]["user_id"];
+
+							$result["return_url"] = str_replace("{GATEWAY}", $gateway, SITE_PAYMENT_REGISTER_INTENT);
+							$intent_result = payments()->requestPaymentIntentForCart(
+								$result["cart"], 
+								$setup_intent["payment_method"], 
+								$result["return_url"]
+							);
+				
+						}
+						else if($result["reference"] === "order") {
+
+							$result["order"] =  $SC->getOrders(["order_no" => $result["order_no"]]);
+							$result["user_id"] = $result["order"]["user_id"];
+
+							$result["return_url"] = str_replace("{GATEWAY}", $gateway, SITE_PAYMENT_REGISTER_PAID_INTENT);
+							$intent_result = payments()->requestPaymentIntentForOrder(
+								$result["order"], 
+								$setup_intent["payment_method"], 
+								$result["return_url"]
+							);
+
+
+						}
+						else if($result["reference"] === "orders") {
+
+							$order_ids = explode(",", $result["order_ids"]);
+							$orders = [];
+							foreach($order_ids as $order_id) {
+
+								$order = $SC->getOrders(["order_id" => $order_id]);
+								if($order) {
+									$orders[] = $order;
+								}
+							}
+							$result["orders"] = $orders;
+							$result["user_id"] = $result["orders"][0]["user_id"];
+
+							$result["return_url"] = str_replace("{GATEWAY}", $gateway, SITE_PAYMENT_REGISTER_PAID_INTENT);
+							$intent_result = payments()->requestPaymentIntentForOrders(
+								$result["orders"],
+								$setup_intent["payment_method"], 
+								$result["return_url"]
+							);
+
+
+						}
+
+
+						if($intent_result) {
+
+							// Add user payment method
+							$UC->addPaymentMethod([
+								"payment_method_id" => $this->getStripePaymentMethodId(),
+								"user_id" => $result["user_id"],
+							]);
+
+							$result = array_merge($result, $intent_result);
+							return $result;
+						}
+
+					}
+				}
+				else {
+
+					return ["status" => "CARD_NOT_FOUND", "message" => "Card not found"];
+
+				}
+
+			}
+
+		}
+
+	}
+
+	function retrieveCheckoutSession($session_id) {
+
+		try {
+
+			$checkout_session = \Stripe\Checkout\Session::retrieve($session_id
+			// Should be possible to expand returned result – but it is not producing meaningful response
+			// [
+			// 	"expand" => ["setup_intent", "customer", "SetupIntent"],
+			// ]
+			);
+			// debug(["checkout_session", $checkout_session]);
+
+			if($checkout_session && $checkout_session["status"] === "complete") {		
+				return $checkout_session;
+			}
+
+			// Some Stripe endpoint did not respond correctly
+			return ["status" => "STRIPE_ERROR", "message" => "There was an error processing your payment"];
+
+
+		}
+		// Too many requests made to the API too quickly
+		catch (\Stripe\Exception\RateLimitException $exception) {
+
+			$this->exceptionHandler("Session::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Invalid parameters were supplied to Stripe's API
+		catch (\Stripe\Exception\InvalidRequestException $exception) {
+
+			$this->exceptionHandler("Session::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Authentication with Stripe's API failed
+		catch (\Stripe\Exception\AuthenticationException $exception) {
+
+			$this->exceptionHandler("Session::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Network communication with Stripe failed
+		catch (\Stripe\Exception\ApiConnectionException $exception) {
+
+			$this->exceptionHandler("Session::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Generic error
+		catch (\Stripe\Exception\ApiErrorException $exception) {
+
+			$this->exceptionHandler("Session::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Something else happened, completely unrelated to Stripe
+		catch (Exception $exception) {
+
+			$this->exceptionHandler("Session::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+
+		return false;
+
+	}
+
+	function retrieveSetupIntent($intent_id) {
+
+		try {
+
+			$setup_intent = \Stripe\SetupIntent::retrieve($intent_id, [
+				"expand" => ["payment_method"]
+			]);
+			// debug([$setup_intent]);
+
+			return $setup_intent;
+
+		}
+		// Too many requests made to the API too quickly
+		catch (\Stripe\Exception\RateLimitException $exception) {
+
+			$this->exceptionHandler("SetupIntent::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Invalid parameters were supplied to Stripe's API
+		catch (\Stripe\Exception\InvalidRequestException $exception) {
+
+			$this->exceptionHandler("SetupIntent::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Authentication with Stripe's API failed
+		catch (\Stripe\Exception\AuthenticationException $exception) {
+
+			$this->exceptionHandler("SetupIntent::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Network communication with Stripe failed
+		catch (\Stripe\Exception\ApiConnectionException $exception) {
+
+			$this->exceptionHandler("SetupIntent::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Generic error
+		catch (\Stripe\Exception\ApiErrorException $exception) {
+
+			$this->exceptionHandler("SetupIntent::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+		// Something else happened, completely unrelated to Stripe
+		catch (Exception $exception) {
+
+			$this->exceptionHandler("SetupIntent::retrieve", $exception);
+			return $this->exceptionResponder($exception);
+		}
+
+		return false;
+
+	}
+
 
 	// Request payment intent for cart
 	function requestPaymentIntentForCart($cart, $payment_method_id, $return_url) {
@@ -741,50 +1212,6 @@ class JanitorStripe {
 	}
 
 
-
-	// Process payment method for order
-	function processCardForOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
-		// debug(["processCartAndPayment stripe"]);
-
-		if($order && $order["user_id"]) {
-
-			// does customer already exist in Stripe account
-			$customer_id = $this->getCustomerId($order["user_id"]);
-
-			// create customer, if it doesn't exist
-			if(!$customer_id) {
-				$customer_id = $this->createCustomer($order["user_id"]);
-			}
-
-			// customer created or found
-			if($customer_id) {
-
-				// create payment method for card
-				$payment_method = $this->addPaymentMethod($order["user_id"], $card_number, $card_exp_month, $card_exp_year, $card_cvc);
-
-				// if payment method was created (or found)
-				if($payment_method && $payment_method["status"] == "success") {
-
-					$payment_method["order"] = $order;
-					return $payment_method;
-
-				}
-				else {
-
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"], "decline_code" => (isset($payment_method["decline_code"]) ?  $payment_method["decline_code"] : false)];
-
-				}
-			}
-			else {
-
-				return ["status" => "STRIPE_ERROR", "message" => "There was an error processing your payment"];
-
-			}
-		}
-
-		return ["status" => "ORDER_NOT_FOUND", "message" => "Order not found"];
-	}
-
 	// Request payment intent for order
 	// Charges now – allows for future charging
 	function requestPaymentIntentForOrder($order, $gateway_payment_method_id, $return_url) {
@@ -797,7 +1224,7 @@ class JanitorStripe {
 		$currency = $order["currency"];
 		$customer_id = $this->getCustomerId($order["user_id"]);
 
-				$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
+		$payment_prefix = defined("PAYMENT_PREFIX") ? PAYMENT_PREFIX : SITE_UID;
 
 		try {
 
@@ -919,50 +1346,6 @@ class JanitorStripe {
 
 	}
 
-
-
-	// Process payment method for orders
-	function processCardForOrders($orders, $card_number, $card_exp_month, $card_exp_year, $card_cvc) {
-		// debug(["processCartAndPayment stripe"]);
-
-		if($orders && $orders[0]["user_id"]) {
-
-			// does customer already exist in Stripe account
-			$customer_id = $this->getCustomerId($orders[0]["user_id"]);
-
-			// create customer, if it doesn't exist
-			if(!$customer_id) {
-				$customer_id = $this->createCustomer($orders[0]["user_id"]);
-			}
-
-			// customer created or found
-			if($customer_id) {
-
-				// create payment method for card
-				$payment_method = $this->addPaymentMethod($orders[0]["user_id"], $card_number, $card_exp_month, $card_exp_year, $card_cvc);
-
-				// if payment method was created (or found)
-				if($payment_method && $payment_method["status"] == "success") {
-
-					$payment_method["orders"] = $orders;
-					return $payment_method;
-
-				}
-				else {
-
-					return ["status" => "CARD_ERROR", "message" => $payment_method["message"], "code" => $payment_method["code"], "decline_code" => (isset($payment_method["decline_code"]) ?  $payment_method["decline_code"] : false)];
-
-				}
-			}
-			else {
-
-				return ["status" => "STRIPE_ERROR", "message" => "There was an error processing your payment"];
-
-			}
-		}
-
-		return ["status" => "ORDER_NOT_FOUND", "message" => "Orders not found"];
-	}
 
 	// Request payment intent for orders
 	// Charges now
@@ -1455,11 +1838,11 @@ class JanitorStripe {
 		$_POST["payment_amount"] = $payment_intent->amount_received/100;
 		$_POST["payment_method_id"] = $payment_method_id;
 		$_POST["order_id"] = $order["id"];
-		$_POST["transaction_id"] = $payment_intent->charges->data[0]["id"];
+		$_POST["transaction_id"] = $payment_intent["payment_method"];
 		$payment_id = $SC->registerPayment(array("registerPayment"));
 		if($payment_id) {
 
-			logger()->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$payment_intent->charges->data[0]["id"].", amount:".($payment_intent->amount_received/100), "stripe");
+			logger()->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$payment_intent["payment_method"].", amount:".($payment_intent->amount_received/100), "stripe");
 
 			return [
 				"status" => "REGISTERED", 
@@ -1511,13 +1894,13 @@ class JanitorStripe {
 			$_POST["payment_amount"] = $remaining_order_price["price"];
 			$_POST["payment_method_id"] = $payment_method_id;
 			$_POST["order_id"] = $order["id"];
-			$_POST["transaction_id"] = $payment_intent->charges->data[0]["id"]." (".($payment_intent->amount_received/100).")";
+			$_POST["transaction_id"] = $payment_intent["payment_method"]." (".($payment_intent->amount_received/100).")";
 			$payment_id = $SC->registerPayment(array("registerPayment"));
 			if($payment_id) {
 				$payment_ids[] = $payment_id;
 
 				$accounting -= $remaining_order_price["price"];
-				logger()->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$payment_intent->charges->data[0]["id"].", amount:".$remaining_order_price["price"], "stripe");
+				logger()->addLog("Payment added to Janitor: order_id:".$order["id"].", transaction_id:".$payment_intent["payment_method"].", amount:".$remaining_order_price["price"], "stripe");
 
 			}
 			else {
@@ -1990,7 +2373,70 @@ class JanitorStripe {
 
 		$sql = "SELECT * FROM ".SITE_DB.".user_gateway_stripe_customer WHERE user_id = $user_id";
 		if($query->sql($sql)) {
-			return $query->result(0, "customer_id");
+
+			$customer_id = $query->result(0, "customer_id");
+
+
+			// API communication
+			try {
+
+				$customer = \Stripe\Customer::retrieve($customer_id);
+
+				if($customer) {
+					return $customer_id;
+				}
+
+			}
+			// Card error
+			catch(\Stripe\Exception\CardException $exception) {
+
+				$this->exceptionHandler("Customer::retrieve/get", $exception);
+				return false;
+
+			}
+			// Too many requests made to the API too quickly
+			catch (\Stripe\Exception\RateLimitException $exception) {
+
+				$this->exceptionHandler("Customer::retrieve/get", $exception);
+				return false;
+
+			}
+			// Invalid parameters were supplied to Stripe's API
+			catch (\Stripe\Exception\InvalidRequestException $exception) {
+
+				$this->exceptionHandler("Customer::retrieve/get", $exception);
+				return false;
+
+			}
+			// Authentication with Stripe's API failed
+			catch (\Stripe\Exception\AuthenticationException $exception) {
+
+				$this->exceptionHandler("Customer::retrieve/get", $exception);
+				return false;
+
+			}
+			// Network communication with Stripe failed
+			catch (\Stripe\Exception\ApiConnectionException $exception) {
+
+				$this->exceptionHandler("Customer::retrieve/get", $exception);
+				return false;
+
+			}
+			// Generic error
+			catch (\Stripe\Exception\ApiErrorException $exception) {
+
+				$this->exceptionHandler("Customer::retrieve/get", $exception);
+				return false;
+
+			}
+			// Something else happened, completely unrelated to Stripe
+			catch (Exception $exception) {
+
+				$this->exceptionHandler("Customer::retrieve/get", $exception);
+				return false;
+
+			}
+
 		}
 
 		return false;
@@ -2002,7 +2448,18 @@ class JanitorStripe {
 		$query = new Query();
 		$query->checkDBExistence(SITE_DB.".user_gateway_stripe_customer");
 
-		$sql = "INSERT INTO ".SITE_DB.".user_gateway_stripe_customer SET user_id=$user_id, customer_id='$customer_id'";
+		// Update if old customer id exists
+		$sql = "SELECT id FROM ".SITE_DB.".user_gateway_stripe_customer WHERE user_id=$user_id";
+		// debug([$sql]);
+		if($query->sql($sql)) {
+			$id = $query->result(0, "id");
+			$sql = "UPDATE ".SITE_DB.".user_gateway_stripe_customer SET customer_id='$customer_id' WHERE id = $id";
+		}
+		else {
+			$sql = "INSERT INTO ".SITE_DB.".user_gateway_stripe_customer SET user_id=$user_id, customer_id='$customer_id'";
+		}
+		// debug([$sql]);
+
 		if($query->sql($sql)) {
 			return true;
 		}
@@ -2060,6 +2517,8 @@ class JanitorStripe {
 	// Respond with exception data
 	function exceptionResponder($exception) {
 		$error_body = $exception->getJsonBody();
+		// debug([$exception, $error_body]);
+
 		if($error_body && isset($error_body["error"])) {
 			$error = $error_body["error"];
 		}
@@ -2069,7 +2528,12 @@ class JanitorStripe {
 			$error["code"] = $exception->getCode();
 		}
 
-		return ["status" => "error", "message" => $error["message"], "code" => $error["code"], "decline_code" => isset($error["decline_code"]) ? $error["decline_code"] : false];
+		return [
+			"status" => "error", 
+			"message" => $error["message"], 
+			"code" => isset($error["code"]) ? $error["code"] : "N/A", 
+			"decline_code" => isset($error["decline_code"]) ? $error["decline_code"] : false
+		];
 	}
 
 	// Handle any stripe exception and notify Admin
@@ -2097,7 +2561,6 @@ class JanitorStripe {
 		]);
 
 	}
-
 
 }
 

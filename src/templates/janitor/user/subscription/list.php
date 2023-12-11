@@ -70,7 +70,7 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 						$default = arrayKeyValue($subscription["item"]["prices"], "type", "default");
 						?>
 
-						<? if(isset($custom_price) && $custom_price !== false): ?>
+						<? if(isset($custom_price) && $custom_price !== false && $custom_price != $subscription["item"]["prices"][$default]): ?>
 						<dt class="price default">Normal price</dt>
 						<dd class="price default"><?= formatPrice($subscription["item"]["prices"][$default]).($subscription["item"]["subscription_method"] ? " / " . $subscription["item"]["subscription_method"]["name"] : "") ?></dd>
 						<dt class="price custom">Your price</dt>

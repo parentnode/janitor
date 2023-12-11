@@ -866,13 +866,29 @@ function wkhtmltoPath() {
 
 
 // Enable dynamic message texts
-function translate($id) {
+function translate($id, $variables = false) {
 	global $__translations;
 	
 	if(isset($__translations[$id])) {
-		return $__translations[$id];
+
+		$string = $__translations[$id];
+
+		if($variables) {
+			foreach($variables as $key => $value) {
+				$string = str_replace("{".$key."}", $value, $string);
+			}
+		}
+
+		return $string;
 	}
-	
+
+	// If translation does not exist, replace variables in string id
+	if($variables) {
+		foreach($variables as $key => $value) {
+			$id = str_replace("{".$key."}", $value, $id);
+		}
+	}
+
 	return $id;
 }
 

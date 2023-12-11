@@ -1443,7 +1443,14 @@ class SuperUserCore extends User {
 					$result["gateway"] = $payment_methods[$key]["gateway"];
 
 					if($result["gateway"] && $gateway_payment_method_id) {
-						$result["card"] = payments()->getPaymentMethod($user_id, $gateway_payment_method_id);
+						$card = payments()->getPaymentMethod($user_id, $gateway_payment_method_id);
+						if($card) {
+							$result["card"] = $card;
+						}
+						// Gateway without cards – remove option
+						else {
+							$result = false;
+						}
 					}
 					else {
 						$result["card"] = false;
@@ -1475,7 +1482,14 @@ class SuperUserCore extends User {
 					$result["gateway"] = $payment_methods[$key]["gateway"];
 
 					if($result["gateway"]) {
-						$result["cards"] = payments()->getPaymentMethods($user_id);
+						$cards = payments()->getPaymentMethods($user_id);
+						if($cards) {
+							$result["cards"] = $cards;
+						}
+						// Gateway without cards – remove option
+						else {
+							$result = false;
+						}
 					}
 					else {
 						$result["cards"] = false;
@@ -1511,7 +1525,14 @@ class SuperUserCore extends User {
 
 
 						if($results[$index]["gateway"]) {
-							$results[$index]["cards"] = payments()->getPaymentMethods($user_id);
+							$cards = payments()->getPaymentMethods($user_id);
+							if($cards) {
+								$results[$index]["cards"] = $cards;
+							}
+							// Gateway without cards – remove option
+							else {
+								unset($results[$index]);
+							}
 						}
 						else {
 							$results[$index]["cards"] = false;
@@ -1676,6 +1697,49 @@ class SuperUserCore extends User {
 		return false;
 	}
 
+
+	// Delete payment_method
+	// /janitor/admin/user/deletePaymentMethod/card
+	function deletePaymentMethod($action) {
+
+		$user_id = getPost("user_id");
+
+		// debug(["deletePaymentMethod", $action, $user_id]);
+
+		$user_payment_method_id = getPost("user_payment_method_id");
+		$gateway_payment_method_id = getPost("gateway_payment_method_id");
+
+		if(count($action) === 2 && $action[1] === "card" && $user_id && $gateway_payment_method_id) {
+
+			$result = payments()->deletePaymentMethod($user_id, $gateway_payment_method_id);
+			if($result) {
+
+				// there are no more cards stored with Stripe
+				if(!payments()->getPaymentMethods($user_id)) {
+					
+					// delete user payment method
+					$query = new Query();
+					$sql = "DELETE FROM $this->db_payment_methods WHERE id = $user_payment_method_id AND user_id = $user_id";
+					$query->sql($sql);
+				}
+
+				message()->addMessage("PaymentMethod deleted");
+				return $result;
+			}
+		}
+		else if(count($action) === 1 && $user_id && $user_payment_method_id) {
+			$query = new Query();
+			$sql = "DELETE FROM $this->db_payment_methods WHERE id = $user_payment_method_id AND user_id = $user_id";
+			// debug([$sql]);
+			if($query->sql($sql)) {
+				message()->addMessage("PaymentMethod deleted");
+				return true;
+			}
+		}
+
+		message()->addMessage("PaymentMethod could not be deleted", ["type" => "error"]);
+		return false;
+	}
 
 
 	// API TOKEN

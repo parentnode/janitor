@@ -1737,6 +1737,7 @@ class SuperShopCore extends Shop {
 		if(!$page) {
 
 			// simply add limit to orders query
+			$pattern = is_array($pattern) ? $pattern : [];
 			$pattern["limit"] = $limit;
 			$range_orders = $this->searchOrders(["query" => $query_string, "pattern" => $pattern]);
 

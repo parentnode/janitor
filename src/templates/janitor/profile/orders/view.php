@@ -31,6 +31,11 @@ if($order) {
 	$payable_amount = $SC->getRemainingOrderPrice($order_id);
 	$total_order_price = $SC->getTotalOrderPrice($order_id);
 
+	$payment_intent = false;
+	if($payable_amount && $order["payment_status"] < 2 && $order["status"] != 3) {
+		$payment_intent = payments()->canBeCaptured(["user_id" => $user_id, "order_id" => $order["id"], "amount" => $payable_amount["price"]]);
+	}
+
 }
 
 
@@ -46,7 +51,7 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 
 		<?= $HTML->link("Your orders", "/janitor/admin/profile/orders/list", array("class" => "button", "wrapper" => "li.list")) ?>
 
-		<? if($order["payment_status"] < 2 && $order["status"] != 3): ?>
+		<? if(!$payment_intent && $order["payment_status"] < 2 && $order["status"] != 3): ?>
 		<?= $HTML->link("Pay now", "/shop/payment/".$order["order_no"], array("class" => "button primary", "wrapper" => "li.pay")) ?>
 		<? endif; ?>
 
@@ -179,7 +184,9 @@ $return_to_orderstatus = session()->value("return_to_orderstatus");
 		<p>No payments</p>
 		<? endif; ?>
 
-		<? if($order["payment_status"] < 2 && $order["status"] != 3): ?>
+		<? if($payment_intent): ?>
+		<h3>Payment of <?= formatPrice($payable_amount) ?></span> is being processed</h3>
+		<? elseif($order["payment_status"] < 2 && $order["status"] != 3): ?>
 		<h3>Still to be paid: <span class="system_error"><?= formatPrice($payable_amount) ?></span></h3>
 		<ul class="actions">
 			<?= $HTML->link("Pay order", "/shop/payment/".$order["order_no"], array("class" => "button primary", "wrapper" => "li.pay")) ?>

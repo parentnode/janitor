@@ -1550,7 +1550,14 @@ class UserCore extends Model {
 					$result["gateway"] = $payment_methods[$key]["gateway"];
 
 					if($result["gateway"] && $gateway_payment_method_id) {
-						$result["card"] = payments()->getPaymentMethod($user_id, $gateway_payment_method_id);
+						$card = payments()->getPaymentMethod($user_id, $gateway_payment_method_id);
+						if($card) {
+							$result["card"] = $card;
+						}
+						// Gateway without cards – remove option
+						else {
+							$result = false;
+						}
 					}
 					else {
 						$result["card"] = false;
@@ -1582,7 +1589,14 @@ class UserCore extends Model {
 					$result["gateway"] = $payment_methods[$key]["gateway"];
 
 					if($result["gateway"]) {
-						$result["cards"] = payments()->getPaymentMethods($user_id);
+						$cards = payments()->getPaymentMethods($user_id);
+						if($cards) {
+							$result["cards"] = $cards;
+						}
+						// Gateway without cards – remove option
+						else {
+							$result = false;
+						}
 					}
 					else {
 						$result["cards"] = false;
@@ -1618,7 +1632,14 @@ class UserCore extends Model {
 
 
 						if($results[$index]["gateway"]) {
-							$results[$index]["cards"] = payments()->getPaymentMethods($user_id);
+							$cards = payments()->getPaymentMethods($user_id);
+							if($cards) {
+								$results[$index]["cards"] = $cards;
+							}
+							// Gateway without cards – remove option
+							else {
+								unset($results[$index]);
+							}
 						}
 						else {
 							$results[$index]["cards"] = false;

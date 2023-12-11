@@ -22,6 +22,10 @@ $access_item["/apitoken"] = true;
 $access_item["/renewToken"] = "/apitoken";
 $access_item["/disableToken"] = "/apitoken";
 
+
+$access_item["/deletePaymentMethod"] = false;
+
+
 // USER ADDRESS INTERFACE
 $access_item["/address"] = true;
 $access_item["/addAddress"] = "/address";

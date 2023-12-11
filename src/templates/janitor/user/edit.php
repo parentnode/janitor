@@ -49,6 +49,9 @@ if($item && $item["status"] >= 0) {
 	// get password state
 	$has_password = $model->hasPassword(["user_id" => $user_id]);
 
+	// payment methods
+	$user_payment_methods = $model->getPaymentMethods(["user_id" => $user_id, "extend" => true]);
+
 	// get api token
 	$apitoken = $model->getToken($user_id);
 
@@ -232,6 +235,81 @@ if($item && $item["status"] >= 0) {
 	</div>
 <? 	endif; ?>
 
+
+	<? if(defined("SITE_SHOP") && SITE_SHOP && $user_id != 1): ?>
+	<div class="payment_methods i:paymentMethods i:collapseHeader">
+		<h2>Payment methods</h2>
+
+		<? if($user_payment_methods):
+			$method_exists = false; ?>
+		<ul class="payment_methods">
+
+			<? foreach($user_payment_methods as $user_payment_method): ?>
+
+				<? if(isset($user_payment_method["cards"]) && $user_payment_method["cards"]):
+				$method_exists = true;
+				?>
+
+					<? foreach($user_payment_method["cards"] as $card): ?>
+				<li class="payment_method user_payment_method<?= $user_payment_method["classname"] ? " ".$user_payment_method["classname"] : "" ?><?= $card["default"] ? " default" : "" ?>">
+					<h3><?= $user_payment_method["name"] ?> – card ending in <?= $card["last4"] ?><?= $card["default"] ? ' <span class="default">(default)</span>' : '' ?></h3>
+					<p><?= $user_payment_method["description"] ?></p>
+					<ul class="actions">
+						<?= $HTML->oneButtonForm(
+						"Delete", 
+						"deletePaymentMethod/card",
+						array(
+							"inputs" => array(
+								"user_id" => $user_id,
+								"user_payment_method_id" => $user_payment_method["id"], 
+								"gateway_payment_method_id" => $card["id"]
+							),
+							"confirm-value" => "Yes, I'm serious",
+							"class" => "",
+							"name" => "delete",
+							"wrapper" => "li.delete.".$user_payment_method["classname"],
+						)) ?>
+					</ul>
+				</li>
+					<? endforeach; ?>
+
+				<? elseif(!$user_payment_method["gateway"]):
+					$method_exists = true;
+				?>
+				<li class="payment_method user_payment_method<?= $user_payment_method["classname"] ? " ".$user_payment_method["classname"] : "" ?><?= $user_payment_method["default_method"] ? " default" : "" ?>">
+					<h3><?= $user_payment_method["name"] ?></h3>
+					<p><?= $user_payment_method["description"] ?><?= $user_payment_method["default_method"] ? ' <span class="default">(default)</span>' : '' ?></p>
+					<ul class="actions">
+						<?= $HTML->oneButtonForm(
+						"Delete", 
+						"deletePaymentMethod",
+						array(
+							"inputs" => array(
+								"user_id" => $user_id,
+								"user_payment_method_id" => $user_payment_method["id"], 
+							),
+							"confirm-value" => false,
+							"static" => true,
+							"class" => "",
+							"name" => "continue",
+							"wrapper" => "li.delete.".$user_payment_method["classname"],
+						)) ?>
+					</ul>
+				</li>
+				<? endif; ?>
+
+			<? endforeach; ?>
+
+		</ul>
+
+		<? endif; ?>
+
+		<? if(!isset($method_exists) || !$method_exists): ?>
+		<p>No payment methods.</p>
+		<? endif; ?>
+
+	</div>
+	<? endif; ?>
 
 <? 
 	// do not allow to create api token for Anonymous user

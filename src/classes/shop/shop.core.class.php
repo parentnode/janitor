@@ -1982,14 +1982,13 @@ class ShopCore extends Model {
 			$cart_id = $this->getProperty("cart_id", "value");
 			$payment_method_id = $this->getProperty("payment_method_id", "value");
 
-			// $payment_object["cart"] = $this->getCarts(array("cart_id" => $cart_id));
 			$cart = $this->getCarts(array("cart_id" => $cart_id));
 
-			// $payment_object["payment_method"] = $page->paymentMethods($payment_method_id);
 			$payment_method = $page->paymentMethods($payment_method_id);
 
 			if($payment_method && $payment_method["state"] === "public") {
 
+				// Gateway is available
 				if($payment_method["gateway"]) {
 
 					return [
@@ -2025,7 +2024,6 @@ class ShopCore extends Model {
 					}
 				}
 
-				// return $payment_method;
 			}
 
 			return false;
@@ -2130,6 +2128,7 @@ class ShopCore extends Model {
 
 			if($payment_method && $payment_method["state"] === "public") {
 
+				// Gateway is available
 				if($payment_method["gateway"]) {
 
 					return [
@@ -2232,6 +2231,7 @@ class ShopCore extends Model {
 
 			if($payment_method && $payment_method["state"] === "public") {
 
+				// Gateway is available
 				if($payment_method["gateway"]) {
 
 					return [
@@ -2335,34 +2335,21 @@ class ShopCore extends Model {
 	}
 
 
+	// Create payment/checkout session for cart
+	function createCartPaymentSession($cart_reference, $success_url, $cancel_url) {
+		// debug(["getCartPaymentSession shop"]);
 
-	// Process gateway data for cart
-	function processCardForCart($action) {
-		// debug(["processCardForCart shop"]);
-		global $page;
+		$cart = $this->getCarts(["cart_reference" => $cart_reference]);
 
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
+		if($cart) {
 
+			$amount = $this->getTotalCartPrice($cart["id"]);
+			$custom_text = translate("For the payment of {AMOUNT} upon shipment of order.", ["AMOUNT" => formatPrice($amount)]);
 
-		// does values validate
-		if(count($action) == 5 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
-
-			// $gateway = $action[1];
-			$cart_reference = $action[3];
-			$cart = $this->getCarts(["cart_reference" => $cart_reference]);
-
-			if($cart) {
-
-				$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
-				$card_exp_month = $this->getProperty("card_exp_month", "value");
-				$card_exp_year = $this->getProperty("card_exp_year", "value");
-				$card_cvc = $this->getProperty("card_cvc", "value");
-
-				// Use payment gateway for further processing
-				return payments()->processCardForCart($cart, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
-
-			}
+			// Use payment gateway for further preparation
+			return payments()->createCartPaymentSession($cart, $success_url, $cancel_url, [
+				"custom_text" => $custom_text
+			]);
 
 		}
 
@@ -2370,82 +2357,63 @@ class ShopCore extends Model {
 
 	}
 
-	// Process gateway data for order
-	function processCardForOrder($action) {
-		// debug(["processCardForCart shop"]);
-		global $page;
 
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
+	// Create payment/checkout session for order (one order only)
+	function createOrderPaymentSession($order_no, $success_url, $cancel_url) {
+		// debug(["getOrderPaymentSession shop"]);
 
+		$order = $this->getOrders(["order_no" => $order_no]);
 
-		// does values validate
-		if(count($action) == 5 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
+		if($order) {
 
-			// $gateway = $action[1];
-			$order_no = $action[3];
-			$order = $this->getOrders(["order_no" => $order_no]);
+			$amount = $this->getRemainingOrderPrice($order["id"]);
+			$custom_text = translate("For the payment of {AMOUNT} for order {ORDER_NO}.", ["AMOUNT" => formatPrice($amount), "ORDER_NO" => $order["order_no"]]);
 
+			// Use payment gateway for further preparation
+			return payments()->createOrderPaymentSession($order, $success_url, $cancel_url, [
+				"custom_text" => $custom_text
+			]);
+
+		}
+
+		return false;
+
+	}
+
+	// Create payment/checkout session for orders (multiple)
+	function createOrdersPaymentSession($order_list, $success_url, $cancel_url) {
+		// debug(["createOrdersPaymentSession shop"]);
+
+		$order_ids = explode(",", $order_list);
+		$orders = [];
+		$amount = 0;
+		foreach($order_ids as $order_id) {
+
+			$order = $this->getOrders(["order_id" => $order_id]);
 			if($order) {
-
-				$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
-				$card_exp_month = $this->getProperty("card_exp_month", "value");
-				$card_exp_year = $this->getProperty("card_exp_year", "value");
-				$card_cvc = $this->getProperty("card_cvc", "value");
-
-				// Use payment gateway for further processing
-				return payments()->processCardForOrder($order, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
-
-			}
-
-		}
-
-		return false;
-
-	}
-
-	// Process gateway data for orders
-	function processCardForOrders($action) {
-		// debug(["processCardForCart shop"]);
-		global $page;
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-
-		// does values validate
-		if(count($action) == 5 && $this->validateList(array("card_number", "card_exp_month", "card_exp_year", "card_cvc"))) {
-
-			// $gateway = $action[1];
-			$order_ids = explode(",", $action[3]);
-			$orders = [];
-			foreach($order_ids as $order_id) {
-
-				$order = $this->getOrders(["order_id" => $order_id]);
-				if($order) {
-					$orders[] = $order;
+				$orders[] = $order;
+				$price = $this->getRemainingOrderPrice($order["id"]);
+				if($price && $price["price"]) {
+					$amount += $price["price"];
 				}
 			}
-			
+		}
 
-			if($orders) {
 
-				$card_number = preg_replace("/ /", "", $this->getProperty("card_number", "value"));
-				$card_exp_month = $this->getProperty("card_exp_month", "value");
-				$card_exp_year = $this->getProperty("card_exp_year", "value");
-				$card_cvc = $this->getProperty("card_cvc", "value");
+		if($orders) {
 
-				// Use payment gateway for further processing
-				return payments()->processCardForOrders($orders, $card_number, $card_exp_month, $card_exp_year, $card_cvc);
+			$custom_text = translate("For the payment of {AMOUNT} for the following orders: {ORDER_IDS}.", ["AMOUNT" => formatPrice($amount), "ORDER_IDS" => $order_list]);
 
-			}
+			// Use payment gateway for further preparation
+			return payments()->createOrdersPaymentSession($orders, $success_url, $cancel_url, [
+				"custom_text" => $custom_text
+			]);
 
 		}
 
 		return false;
 
 	}
-
 
 
 	// PAYMENTS
