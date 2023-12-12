@@ -2399,10 +2399,12 @@ class ShopCore extends Model {
 			}
 		}
 
+		// Create simple price object for formatting
+		$orders_price = ["price" => $amount];
 
 		if($orders) {
 
-			$custom_text = translate("For the payment of {AMOUNT} for the following orders: {ORDER_IDS}.", ["AMOUNT" => formatPrice($amount), "ORDER_IDS" => $order_list]);
+			$custom_text = translate("For the payment of {AMOUNT} for the following orders: {ORDER_IDS}.", ["AMOUNT" => formatPrice($orders_price), "ORDER_IDS" => $order_list]);
 
 			// Use payment gateway for further preparation
 			return payments()->createOrdersPaymentSession($orders, $success_url, $cancel_url, [
