@@ -661,6 +661,28 @@ class UserCore extends Model {
 
 							}
 
+
+							// Update cart user_id if user has cart_reference with out user_id
+							if(defined("SITE_SHOP") && SITE_SHOP) {
+
+								$cart_reference = session()->value("cart_reference");
+								if($cart_reference) {
+
+									include_once("classes/shop/shop.core.class.php");
+									$SC = new Shop();
+
+									$cart = $SC->getCarts(["cart_reference" => $cart_reference]);
+									if(!$cart["user_id"]) {
+
+										$_POST["user_id"] = $user_id;
+										$SC->updateCart(["updateCart"]);
+
+									}
+
+								}
+							}
+
+
 							// itemtype post save handler?
 							// TODO: Consider if failed postSave should have consequences
 							if(method_exists($this, "saved")) {
@@ -813,7 +835,7 @@ class UserCore extends Model {
 				if($hashed_password && password_verify($password, $hashed_password)) {
 
 
-				// check for unpaid orders
+					// check for unpaid orders
 					$unpaid_orders = false;
 					if(defined("SITE_SHOP") && SITE_SHOP) {
 						include_once("classes/shop/shop.core.class.php");

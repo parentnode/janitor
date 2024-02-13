@@ -1478,6 +1478,13 @@ class ShopCore extends Model {
 
 			$cart = $this->getCart();
 
+			// Session expired (while waiting for paymant or similar)
+			// Attempt to get correct user_id from received_cart
+			if(!$user_id || $user_id === 1 && $received_cart["user_id"] && $received_cart["user_id"] !== 1) {
+				$user_id = $received_cart["user_id"];
+			}
+
+
 			// user cart matches cart received via REST
 			if($cart && $cart["cart_reference"] == $cart_reference) {
 				$cart_match = true;
@@ -1613,7 +1620,6 @@ class ShopCore extends Model {
 						setcookie("order_no", $order_no, time()+60*60*24*60, "/");
 
 						if($order_comment) {
-							
 							$sql = "UPDATE ".$this->db_orders." SET comment = '".$order_comment."' WHERE order_no='$order_no'";
 							$query->sql($sql);
 						}
