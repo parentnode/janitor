@@ -826,6 +826,7 @@ class SuperUserCore extends User {
 		// Select first N posts
 		if(!$page) {
 
+			$pattern = is_array($pattern) ? $pattern : [];
 			// simply add limit to users query
 			$pattern["limit"] = $limit;
 			$range_users = $this->search(["query" => $query_string, "pattern" => $pattern]);

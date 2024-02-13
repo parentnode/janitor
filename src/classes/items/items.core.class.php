@@ -1367,6 +1367,7 @@ class ItemsCore {
 		// if(!$page && (!$item_id || !$this->getItem(["id" => $item_id])) && (!$sindex || !$this->getItem(["sindex" => $sindex]))) {
 		if(!$page && !$item_id) {
 
+			$pattern = is_array($pattern) ? $pattern : [];
 			// simply add limit to items query
 			$pattern["limit"] = $limit;
 			// $range_items = $this->getItems($pattern);
