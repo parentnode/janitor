@@ -76,6 +76,9 @@ class ItemsCore {
 		$where = false;
 		$itemtype = false;
 
+		// Use historic sindex' if item could not be found with sindex (only with sindex)
+		$historic = false;
+
 		// Dont declare status – less chars to detect 0 value
 		// $status = false;
 
@@ -91,6 +94,8 @@ class ItemsCore {
 					case "where"     : $where          = $_value; break;
 					case "itemtype"  : $itemtype       = $_value; break;
 					case "status"    : $status         = $_value; break;
+
+					case "historic"  : $historic       = $_value; break;
 
 					case "extend"    : $extend         = $_value; break;
 				}
@@ -181,9 +186,39 @@ class ItemsCore {
 			}
 			return $item;
 		}
+		// Look for item in sindex history (only for sindex queries with historic flag set to true)
+		else if($sindex && $historic) {
+
+			$item_id = $this->historicSindex($sindex);
+
+			// found historic item
+			if($item_id) {
+
+				// Update query options – use item_id instead of sindex
+				$_options["id"] = $item_id;
+				unset($_options["sindex"]);
+				// execute request again
+				$item = $this->getItem($_options);
+				$item["historic_sindex"] = $sindex;
+				return $item;
+
+			}
+		}
 
 		return false;
 	}
+
+	function historicSindex($sindex) {
+
+		$query = new Query();
+		$sql = "SELECT item_id FROM ".UT_ITEMS_SINDEX_HISTORY." WHERE sindex = '$sindex' ORDER BY obsolete_at DESC";
+		if($query->sql($sql)) {
+			return $query->result(0, "item_id"); 
+		}
+
+		return false;
+	}
+
 
 	/**
 	* Get ID of item based on sindex

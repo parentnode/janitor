@@ -37,6 +37,9 @@ define("UT_ITEMS_SUBSCRIPTION_METHOD",  SITE_DB.".items_subscription_method");  
 // EDITORS
 define("UT_ITEMS_EDITORS",              SITE_DB.".items_editors");                     // Items Editors
 
+// EDITORS
+define("UT_ITEMS_SINDEX_HISTORY",       SITE_DB.".items_sindex_history");              // Items Sindex history
+
 
 
 // TAGS

@@ -688,6 +688,9 @@ class ItemtypeCore extends Model {
 		// (It always makes sense to use the cleanest possible sindex, as that is what you would typically hope for)
 		if(array_search($sindex, $excluded) === false && !$query->sql($sql)) {
 
+			// Add existing value to history before updating
+			$this->sindexHistory($item_id, $sindex);
+
 			$sql = "UPDATE ".UT_ITEMS." SET sindex = '$sindex' WHERE id = $item_id";
 			// debug([$sql]);
 
@@ -900,6 +903,57 @@ class ItemtypeCore extends Model {
 		}
 
 		return false;
+
+	}
+
+
+	/**
+	* sindex versioning for link/sindex backwards compatibility
+	*
+	* Make a reference for old sindex' to enable lookup with old links
+	*/
+	function sindexHistory($item_id, $new_sindex) {
+
+		$query = new Query();
+		$query->checkDbExistence(UT_ITEMS_SINDEX_HISTORY);
+
+		// get current sindex
+		$sql = "SELECT sindex FROM ".UT_ITEMS." WHERE id = $item_id";
+		// debug([$sql]);
+		if($query->sql($sql)) {
+
+
+			$sindex = $query->result(0, "sindex");
+			// debug([$sindex]);
+			if($sindex && $sindex !== $new_sindex) {
+
+				// Old sindex already exists in history table
+				$sql = "SELECT id FROM ".UT_ITEMS_SINDEX_HISTORY." WHERE sindex = '$sindex' AND item_id = $item_id";
+				// debug([$sql]);
+				if($query->sql($sql)) {
+
+					$id = $query->result(0, "id");
+					$sql = "UPDATE ".UT_ITEMS_SINDEX_HISTORY." SET obsolete_at = CURRENT_TIMESTAMP WHERE id = $id";
+					// debug([$sql]);
+					$query->sql($sql);
+
+				}
+				else {
+
+					$sql = "INSERT INTO ".UT_ITEMS_SINDEX_HISTORY." SET item_id = $item_id, sindex = '$sindex'";
+					// debug([$sql]);
+					$query->sql($sql);
+
+				}
+
+			}
+
+		}
+
+		// Remove any entries for item with new sindex (it is no longer obsolete for this item)
+		// A means for keeping sindex history reasonably trimmed
+		
+		$query->sql("DELETE FROM ".UT_ITEMS_SINDEX_HISTORY." WHERE sindex = '$new_sindex' AND item_id = $item_id");
 
 	}
 
