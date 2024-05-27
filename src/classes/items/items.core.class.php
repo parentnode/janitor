@@ -510,7 +510,7 @@ class ItemsCore {
 			// create tag SQL
 			$tag_sql = "";
 			foreach($tags as $tag) {
-				$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '".$tag["context"]."' AND tags.value = '".$tag["value"]."'";
+				$tag_sql .= ($tag_sql ? " OR " : "") .  "tags.context = '".$tag["context"]."' AND tags.value = '".addslashes($tag["value"])."'";
 			}
 			$WHERE[] = "(".$tag_sql.")";
 
