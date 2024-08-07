@@ -2212,7 +2212,7 @@ class SuperShopCore extends Shop {
 	}
 
 
-	// Delete order (only allowed if ststus is still 0)
+	// Delete order (only allowed if status is still 0)
 	# /janitor/admin/shop/deleteOrder/#order_id#/#user_id#
 	function deleteOrder($action) {
 
