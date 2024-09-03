@@ -18,7 +18,7 @@
 #content .scene.userEdit > div.usernames form.email {font-size: 0; display: inline-block; vertical-align: top;}
 
 #content .scene.userEdit > div.usernames div.send_verification_link {position: absolute; right: 30px; top: 4px; width: auto; text-align: right;}
-#content .scene.userEdit > div.usernames div.send_verification_link p {font-size: 11px; padding: 0px; padding-bottom: 4px;}
+#content .scene.userEdit > div.usernames div.send_verification_link p {font-size: 11px; padding: 0px; padding-bottom: 4px; width: auto;}
 
 #content .scene.userEdit > div.usernames form.email fieldset div.field {display: inline-block; vertical-align: top; position: static;}
 #content .scene.userEdit > div.usernames form.email .field.checkbox {padding-top: 10px; padding-right: 24px; padding-left: 12px;}

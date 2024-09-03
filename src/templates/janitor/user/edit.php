@@ -21,7 +21,7 @@ if($item && $item["status"] >= 0) {
 		$mobile = $username_mobile["username"]; 
 	}
 	else {
-		$mobile = "Not available";
+		$mobile = false;
 	}
 
 

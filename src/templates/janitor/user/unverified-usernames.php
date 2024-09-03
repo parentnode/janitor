@@ -45,7 +45,7 @@ $users = $model->getUnverifiedUsernames([
 					<? 
 					// if last reminder is less than 5 days ago (indicate dont send yet)
 					?>
-					<dd class="reminded_at<?= strtotime($user["reminded_at"]) < time()-(60*60*24*5) ? "" : " system_warning" ?>"><?= $user["reminded_at"] ?><? if($user["reminded_at"]): ?> (<?= round((time() - strtotime($user["reminded_at"])) / (24 * 60 * 60)) ?> days ago) <? else: print "N/A"; endif; ?></dd>
+					<dd class="reminded_at<?= (($user["reminded_at"] && strtotime($user["reminded_at"]) < time()-(60*60*24*5)) ? "" : " system_warning") ?>"><?= $user["reminded_at"] ?><? if($user["reminded_at"]): ?> (<?= round((time() - strtotime($user["reminded_at"])) / (24 * 60 * 60)) ?> days ago) <? else: print "N/A"; endif; ?></dd>
 					<? 
 					// if total_reminders is 5 or more (indicate consider deleting user)
 					?>
