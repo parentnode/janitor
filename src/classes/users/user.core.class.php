@@ -1478,7 +1478,7 @@ class UserCore extends Model {
 						// 	"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id
 						// ));
 
-						message()->addMessage("Password updated");
+						message()->addMessage("Your password was updated.");
 						return true;
 					}
 				}
