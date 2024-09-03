@@ -668,7 +668,7 @@ class Security {
 	//			print $sql;
 				$query->sql($sql);
 
-				message()->addMessage("The account does not have a password yet. Create one via the <em>Forgot my passord</em> link below.", array("type" => "error"));
+				message()->addMessage("The account does not have a password yet. Create one via the <em>Forgot passord</em> link below.", array("type" => "error"));
 				return ["status" => "NO_PASSWORD", "email" => $email];
 
 			}
