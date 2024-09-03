@@ -644,6 +644,7 @@ class Security {
 		//			print $sql;
 					$query->sql($sql);
 
+					message()->addMessage("The account has not yet been verified. We have re-sent the verification email just now.", array("type" => "error"));
 					return ["status" => "NOT_VERIFIED", "email" => $email];
 
 				}
@@ -655,7 +656,7 @@ class Security {
 				if($query->sql($sql)) {
 					logger()->addLog("Login error: ".$username);
 
-					message()->addMessage("You could not be logged in.", array("type" => "error"));
+					message()->addMessage("You could not be logged in. Contact your administrator on ".ADMIN_EMAIL." to resolve the issue.", array("type" => "error"));
 					return false;
 
 				}
@@ -667,7 +668,7 @@ class Security {
 	//			print $sql;
 				$query->sql($sql);
 
-				message()->addMessage("The user could not be logged in.", array("type" => "error"));
+				message()->addMessage("The account does not have a password yet. Create one via the <em>Forgot my passord</em> link below.", array("type" => "error"));
 				return ["status" => "NO_PASSWORD", "email" => $email];
 
 			}
