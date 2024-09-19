@@ -2189,7 +2189,7 @@ class UserCore extends Model {
 
 	// #controller#/unsubscribeUserFromMaillist
 	function unsubscribeUserFromMaillist($action) {
-
+		global $page;
 
 		$maillist_id = getPost("maillist_id");
 		$username = getPost("username");
