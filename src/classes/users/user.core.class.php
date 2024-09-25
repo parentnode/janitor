@@ -726,14 +726,23 @@ class UserCore extends Model {
 			foreach($entities as $name => $entity) {
 				if($entity["value"] !== false && preg_match("/^(firstname|lastname|nickname|language)$/", $name)) {
 					$names[] = $name;
-					$values[] = $name."='".$entity["value"]."'";
+
+					// if value is posted
+					if($entity["value"] !== false && $entity["value"] !== "") {
+						$values[] = $name."='".$entity["value"]."'";
+					}
+					// no value is posted – reset to default value
+					else {
+						$values[] = $name."=DEFAULT";
+					}
+
 				}
 			}
 
 			if($this->validateList($names, $user_id)) {
 				if($values) {
 					$sql = "UPDATE ".$this->db." SET ".implode(",", $values).",modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
-//					print $sql;
+					debug([$sql]);
 				}
 
 				if(!$values || $query->sql($sql)) {
