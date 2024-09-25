@@ -5,6 +5,7 @@ class CurlRequest {
 
 	private $ch;
 	private $stderr_handle;
+	private $file_pointer;
 
 
 	public function init($_options = false) {
@@ -20,6 +21,8 @@ class CurlRequest {
 		$cookie = false;
 		$cookiejar = false;
 		$cookiefile = false;
+
+		$download = false;
 
 		$debug = false;
 
@@ -42,6 +45,8 @@ class CurlRequest {
 					// Backwards compatibility
 					case "post_fields"      : $inputs            = $_value; break;
 
+					case "download"         : $download          = $_value; break;
+
 					case "debug"            : $debug             = $_value; break;
 
 				}
@@ -51,8 +56,15 @@ class CurlRequest {
 
 		$this->ch = curl_init();
 
-		@curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
-		@curl_setopt($this->ch, CURLOPT_HEADER, 1);
+		if($download) {
+			@curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 0);
+			@curl_setopt($this->ch, CURLOPT_HEADER, 0);
+		}
+		else {
+			@curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
+			@curl_setopt($this->ch, CURLOPT_HEADER, 1);
+		}
+
 		@curl_setopt($this->ch, CURLOPT_FOLLOWLOCATION, 1);
 		@curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, 0);
 		@curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, 0);
@@ -118,6 +130,19 @@ class CurlRequest {
 		}
 
 
+		// TO FILE
+		if($download) {
+
+			// Open file pointer
+			$this->file_pointer = fopen($download, "w");
+
+			@curl_setopt($this->ch, CURLOPT_BINARYTRANSFER, true);
+			@curl_setopt($this->ch, CURLOPT_FILE, $this->file_pointer);
+
+		}
+
+		
+
 		// DEBUG
 
 		if($debug) {
@@ -160,6 +185,12 @@ class CurlRequest {
 		if($this->stderr_handle) {
 			fclose($this->stderr_handle);
 		}
+
+		// Close file pointer, if exists
+		if($this->file_pointer) {
+			fclose($this->file_pointer);
+		}
+
 
 		$result = array(
 			'header' => '',
