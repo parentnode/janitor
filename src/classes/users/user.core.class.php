@@ -742,7 +742,7 @@ class UserCore extends Model {
 			if($this->validateList($names, $user_id)) {
 				if($values) {
 					$sql = "UPDATE ".$this->db." SET ".implode(",", $values).",modified_at=CURRENT_TIMESTAMP WHERE id = ".$user_id;
-					debug([$sql]);
+					// debug([$sql]);
 				}
 
 				if(!$values || $query->sql($sql)) {
