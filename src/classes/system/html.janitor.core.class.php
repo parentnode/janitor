@@ -508,6 +508,7 @@ class JanitorHTMLCore {
 		global $model;
 
 		$title = "Developer settings";
+		$paragraph = false;
 
 		// overwrite defaults
 		if($_options !== false) {
