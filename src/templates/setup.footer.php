@@ -19,6 +19,12 @@ global $model;
 			</li>
 			<? if(defined("SETUP_TYPE") && SETUP_TYPE == "existing"): ?>
 			<li class="upgrade">
+				<h3>Modules</h3>
+				<ul class="subjects">
+					<li class="module"><a href="/janitor/admin/setup/modules">Modules</a></li>
+				</ul>
+			</li>
+			<li class="upgrade">
 				<h3>Upgrade</h3>
 				<ul class="subjects">
 					<li class="upgrade"><a href="/janitor/admin/setup/upgrade">Upgrades</a></li>
