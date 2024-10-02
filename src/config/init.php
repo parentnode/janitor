@@ -46,6 +46,7 @@ include_once("config/config.php");
 
 // Include base functions and classes
 include_once("includes/functions.inc.php");
+include_once("includes/shorthands.inc.php");
 
 
 // page class + extension
