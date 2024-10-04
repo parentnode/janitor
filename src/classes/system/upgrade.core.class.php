@@ -3357,22 +3357,25 @@ class UpgradeCore extends Model {
 					$query->sql($alter_sql);
 				}
 
-				$sql = "UPDATE $db_table SET ";
-				// value is function (current_timestamp) or (new) column is integer
-				if(preg_match("/current_timestamp/i", $new_default_value) || preg_match("/int\([\d]+\)/i", $declaration)) {
-					$sql .=	"$name = $new_default_value";
+				if($new_default_value) {
+					$sql = "UPDATE $db_table SET ";
+					// value is function (current_timestamp) or (new) column is integer
+					if(preg_match("/current_timestamp/i", $new_default_value) || preg_match("/int\([\d]+\)/i", $declaration)) {
+						$sql .=	"$name = $new_default_value";
+					}
+					// string - encapsulate column value in quotes (they have been stripped in parsing)
+					else {
+						$sql .=	"$name = '$new_default_value'";
+					}
+					$sql .= " WHERE $name IS NULL";
+					// don't look for empty strings on int columns
+					if(preg_match("/text|varchar/i", $declaration)) {
+						$sql .= " OR $name = ''";
+					}
+	//				print "NOT NULL: " . $sql."<br>\n";
+					$query->sql($sql);
 				}
-				// string - encapsulate column value in quotes (they have been stripped in parsing)
-				else {
-					$sql .=	"$name = '$new_default_value'";
-				}
-				$sql .= " WHERE $name IS NULL";
-				// don't look for empty strings on int columns
-				if(preg_match("/text|varchar/i", $declaration)) {
-					$sql .= " OR $name = ''";
-				}
-//				print "NOT NULL: " . $sql."<br>\n";
-				$query->sql($sql);
+
 			}
 			// If NULL is allowed, replace all empty values with default value (which might be NULL)
 			else if($allow_null) {
