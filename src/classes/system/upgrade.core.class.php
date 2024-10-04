@@ -2673,16 +2673,25 @@ class UpgradeCore extends Model {
 	function tableInfo($db_table) {
 		
 		$query = new Query();
-		
-		$sql = "SHOW CREATE TABLE ".$db_table;
+
+		list($db, $table) = explode(".", $db_table);
+
+		// check if database exists (SHOW query will throw error on missing tables)
+		$sql = "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'";
 		if($query->sql($sql)) {
+
+
+			$sql = "SHOW CREATE TABLE ".$db_table;
+			if($query->sql($sql)) {
 			
-			$create_syntax = $query->result(0);
-//			print_r($create_syntax);
+				$create_syntax = $query->result(0);
+	//			print_r($create_syntax);
 
-			if($create_syntax["Create Table"]) {
+				if($create_syntax["Create Table"]) {
 
-				return $this->parseCreateSQL($create_syntax["Create Table"]);
+					return $this->parseCreateSQL($create_syntax["Create Table"]);
+
+				}
 
 			}
 
