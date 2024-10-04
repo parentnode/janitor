@@ -3358,6 +3358,7 @@ class UpgradeCore extends Model {
 					$query->sql($alter_sql);
 				}
 
+				// Only update if default value is found
 				if($new_default_value) {
 					$sql = "UPDATE $db_table SET ";
 					// value is function (current_timestamp) or (new) column is integer
@@ -3391,9 +3392,26 @@ class UpgradeCore extends Model {
 
 				}
 
-				$sql = "UPDATE $db_table SET $name = ".($new_default_value === "NULL" ? "NULL" : "'$new_default_value'")." WHERE $name = ''";
-//				print "NULL: " . $sql."<br>\n";
-				$query->sql($sql);
+				// Only reset values that are possible
+				if(preg_match("/(text|varchar|datatime|date|timestamp)/i", $declaration)) {
+
+					$sql = "UPDATE $db_table SET $name = ".($new_default_value === "NULL" ? "NULL" : "'$new_default_value'")." WHERE ";
+
+					if(preg_match("/(varchar|text)/i", $declaration)) {
+						$sql .=	"$name = ''";
+					}
+					else if(preg_match("/(datetime|timestamp)/i", $declaration)){
+						$sql .=	"$name = '0000-00-00 00:00:00.0'";
+					}
+					else if(preg_match("/(date)/i", $declaration)){
+						$sql .=	"$name = '0000-00-00'";
+					}
+				
+
+	//				print "NULL: " . $sql."<br>\n";
+					$query->sql($sql);
+				}
+
 			}
 
 
