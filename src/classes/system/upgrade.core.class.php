@@ -180,6 +180,7 @@ class UpgradeCore extends Model {
 				$this->process($this->createTableIfMissing(UT_ITEMS_COMMENTS), true);
 				$this->process($this->createTableIfMissing(UT_ITEMS_RATINGS), true);
 				$this->process($this->createTableIfMissing(UT_ITEMS_MEDIAE), true);
+				$this->process($this->createTableIfMissing(UT_ITEMS_EDITORS), true);
 
 				$this->process($this->createTableIfMissing(SITE_DB.".user_item_readstates"), true);
 			}
