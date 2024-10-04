@@ -1,6 +1,7 @@
 <?php
 $access_item["/"] = true;
 $access_item["/pull"] = true;
+$access_item["/modules"] = true;
 if(isset($read_access) && $read_access) {
 	return;
 }
@@ -83,6 +84,99 @@ if(is_array($action) && count($action)) {
 
 		print 1;
 		exit();
+
+	}
+	else if(preg_match("/^(modules)$/", $action[0])) {
+
+		$page->pageTitle("Janitor modules");
+
+		include_once("classes/system/module.class.php");
+		$module_model = new Module();
+
+		if(count($action) == 1) {
+
+			$page->page(array(
+				"body_class" => "modules",
+				"type" => "setup",
+				"templates" => "modules/index.php"
+			));
+			exit();
+			
+		}
+		else if(count($action) == 4 && $action[1] === "view") {
+
+			$module_group = $action[2];
+			$module_name = $action[3];
+
+			$page->page(array(
+				"body_class" => "modules",
+				"type" => "setup",
+				"templates" => "modules/view_module.php"
+			));
+			exit();
+
+		}
+		else if(count($action) == 4 && $action[1] === "install" && security()->validateCsrfToken()) {
+
+			// check if custom function exists on User class
+			if($module_model && method_exists($module_model, "API_installModule")) {
+
+				$output = new Output();
+				$output->screen($module_model->API_installModule($action));
+				exit();
+			}
+			exit();
+
+		}
+		else if(count($action) == 4 && $action[1] === "uninstall" && security()->validateCsrfToken()) {
+
+			// check if custom function exists on User class
+			if($module_model && method_exists($module_model, "API_uninstallModule")) {
+
+				$output = new Output();
+				$output->screen($module_model->API_uninstallModule($action));
+				exit();
+			}
+			exit();
+
+		}
+		else if(count($action) == 4 && $action[1] === "updateSettings" && security()->validateCsrfToken()) {
+
+			// check if custom function exists on User class
+			if($module_model && method_exists($module_model, "API_updateSettings")) {
+
+				$output = new Output();
+				$output->screen($module_model->API_updateSettings($action));
+				exit();
+			}
+			exit();
+
+		}
+		else if(count($action) == 4 && $action[1] === "upgrade" && security()->validateCsrfToken()) {
+
+			// check if custom function exists on User class
+			if($module_model && method_exists($module_model, "API_upgradeModule")) {
+
+				$output = new Output();
+				$output->screen($module_model->API_upgradeModule($action));
+				exit();
+			}
+			exit();
+
+		}
+		else if(count($action) == 3) {
+
+			$module_group = $action[1];
+			$module_name = $action[2];
+
+			$page->page(array(
+				"body_class" => "modules ".$module_name,
+				"type" => "setup",
+				"templates" => "janitor/modules/$module_group/$module_name/index.php"
+			));
+			exit();
+
+		}
 
 	}
 	else if(preg_match("/^(upgrade)$/", $action[0])) {

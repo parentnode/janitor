@@ -80,6 +80,11 @@ body.pull #content ul.actions input.button.confirm:hover {color: #ffffff; backgr
 
 
 
+body.modules #content div.modules h3 {font-size: 20px; text-transform: uppercase; padding-top: 20px; padding-bottom: 20px;}
+body.modules #content div.modules ul.modules {border-top: 1px solid #dedede;}
+body.modules #content div.modules ul.modules h4 {font-size: 16px; padding-top: 20px; padding-bottom: 10px;}
+
+
 /* NAVIGATION */
 #navigation li.done {
 	background: transparent url(/janitor/admin/img/bg_done.png) no-repeat 200px 12px;

@@ -9,4 +9,7 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/setup/desk
 document.write('<script type="text/javascript" src="/janitor/admin/js/setup/desktop/m-upgrade.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/setup/desktop/m-pull.js"></script>');
 
+document.write('<script type="text/javascript" src="/janitor/admin/js/setup/desktop/m-modules.js"></script>');
+
+document.write('<script type="text/javascript" src="/janitor/admin/js/setup/modules/include.js"></script>');
 

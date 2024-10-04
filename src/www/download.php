@@ -76,11 +76,11 @@ if(count($action) == 3 && isset($_SERVER["HTTP_REFERER"]) && strpos($_SERVER["HT
 		ob_end_flush();
 		readfile($file);
 
-		mailer()->send([
-			"subject" => "File downloaded on ".SITE_URL." ($file_name)", 
-			"message" => "File was downloaded:<br>$file",
-			"template" => "system"
-		]);
+		// mailer()->send([
+		// 	"subject" => "File downloaded on ".SITE_URL." ($file_name)",
+		// 	"message" => "File was downloaded:<br>$file",
+		// 	"template" => "system"
+		// ]);
 
 		exit();
 	}

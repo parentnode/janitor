@@ -508,6 +508,7 @@ class JanitorHTMLCore {
 		global $model;
 
 		$title = "Developer settings";
+		$paragraph = false;
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -515,6 +516,7 @@ class JanitorHTMLCore {
 				switch($_option) {
 
 					case "title"             : $title              = $_value; break;
+					case "paragraph"         : $paragraph          = $_value; break;
 
 				}
 			}
@@ -524,6 +526,10 @@ class JanitorHTMLCore {
 
 		$_ .= '<div class="developer i:defaultDeveloper i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["comments"]).'>';
 		$_ .= '<h2>'.$title.'</h2>';
+
+		if($paragraph) {
+			$_ .= '<p>'.$paragraph.'</p>';
+		}
 
 		$_ .= $model->formStart($this->path."/update/".$item["id"], array("class" => "labelstyle:inject"));
 		$_ .= '<fieldset>';
