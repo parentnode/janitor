@@ -150,6 +150,8 @@ class UpgradeCore extends Model {
 				$this->updateSecurityModel08();
 				$this->updateLogMethod08();
 
+				$this->updateModuleNames08();
+
 			}
 
 			// Run any project specific post-upgade tasks
@@ -1045,28 +1047,7 @@ class UpgradeCore extends Model {
 
 		}
 
-		// Check UI build constant
-		if(!defined("UI_BUILD")) {
-
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"UI_BUILD\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"UI_BUILD\"/", "define(\"UI_BUILD\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after VERSION
-				if(preg_match("/define\(\"VERSION\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"VERSION\"[^\n]+)/", "$1\ndefine(\"UI_BUILD\", \"UN-BUILT\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"UI_BUILD\", \"\");\n";
-				}
-			}
-
-			$this->process(["success" => false, "message" => "Missing UI_BUILD constant added to config.php"], false);
-
-		}
+		$config_info = $this->configStructureHelper($config_info, "UI_BUILD", "\"UN-BUILT\"", "VERSION", false);
 
 
 		// Correct package comment
@@ -1080,370 +1061,68 @@ class UpgradeCore extends Model {
 		$config_info = preg_replace("/\/\/ Define current version[^\n]*/i", "", $config_info);
 
 
-		// Check page description constant
-		if(!defined("DEFAULT_PAGE_DESCRIPTION")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"DEFAULT_PAGE_DESCRIPTION\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"DEFAULT_PAGE_DESCRIPTION\"/", "define(\"DEFAULT_PAGE_DESCRIPTION\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after SITE_EMAIL
-				if(preg_match("/define\(\"SITE_EMAIL\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_EMAIL\"[^\n]+)/", "$1\ndefine(\"DEFAULT_PAGE_DESCRIPTION\", \"\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"DEFAULT_PAGE_DESCRIPTION\", \"\");\n";
-				}
-			}
+		$config_info = $this->configStructureHelper($config_info, "DEFAULT_PAGE_DESCRIPTION", "\"\"", "SITE_EMAIL", true);
 
-			$this->process(["success" => true, "message" => "Missing DEFAULT_PAGE_DESCRIPTION constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"SITE_EMAIL\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "DEFAULT_PAGE_IMAGE", "\"/img/logo.png\"", "DEFAULT_PAGE_DESCRIPTION", false);
 
-		// Check page image constant
-		if(!defined("DEFAULT_PAGE_IMAGE")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"DEFAULT_PAGE_IMAGE\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"DEFAULT_PAGE_IMAGE\"/", "define(\"DEFAULT_PAGE_IMAGE\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after DEFAULT_PAGE_DESCRIPTION
-				if(preg_match("/define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+)/", "$1\ndefine(\"DEFAULT_PAGE_IMAGE\", \"/img/logo.png\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"DEFAULT_PAGE_IMAGE\", \"/img/logo.png\");\n";
-				}
-			}
+		$config_info = $this->configStructureHelper($config_info, "DEFAULT_LANGUAGE_ISO", "\"EN\"", "DEFAULT_PAGE_IMAGE", false);
 
-			$this->process(["success" => true, "message" => "Missing DEFAULT_PAGE_IMAGE constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"DEFAULT_PAGE_DESCRIPTION\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "DEFAULT_COUNTRY_ISO", "\"DK\"", "DEFAULT_LANGUAGE_ISO", false);
+
+		$config_info = $this->configStructureHelper($config_info, "DEFAULT_CURRENCY_ISO", "\"DKK\"", "DEFAULT_COUNTRY_ISO", false);
 
 
-		// Check language constant
-		if(!defined("DEFAULT_LANGUAGE_ISO")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"DEFAULT_LANGUAGE_ISO\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"DEFAULT_LANGUAGE_ISO\"/", "define(\"DEFAULT_LANGUAGE_ISO\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after DEFAULT_PAGE_IMAGE
-				if(preg_match("/define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+)/", "$1\n\ndefine(\"DEFAULT_LANGUAGE_ISO\", \"EN\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"DEFAULT_LANGUAGE_ISO\", \"EN\");\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing DEFAULT_LANGUAGE_ISO constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"DEFAULT_PAGE_IMAGE\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "SITE_LOGIN_URL", (file_exists(LOCAL_PATH."/www/login.php") ? "/login" : "/janitor/admin/login"), "DEFAULT_CURRENCY_ISO", true);
 
-		// Check country constant
-		if(!defined("DEFAULT_COUNTRY_ISO")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"DEFAULT_COUNTRY_ISO\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"DEFAULT_COUNTRY_ISO\"/", "define(\"DEFAULT_COUNTRY_ISO\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after DEFAULT_LANGUAGE_ISO
-				if(preg_match("/define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+)/", "$1\ndefine(\"DEFAULT_COUNTRY_ISO\", \"DK\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"DEFAULT_COUNTRY_ISO\", \"DK\");\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing DEFAULT_COUNTRY_ISO constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"DEFAULT_LANGUAGE_ISO\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
-		}
-
-		// Check currency constant
-		if(!defined("DEFAULT_CURRENCY_ISO")) {
-
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"DEFAULT_CURRENCY_ISO\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"DEFAULT_CURRENCY_ISO\"/", "define(\"DEFAULT_CURRENCY_ISO\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after DEFAULT_COUNTRY_ISO
-				if(preg_match("/define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+)/", "$1\ndefine(\"DEFAULT_CURRENCY_ISO\", \"DKK\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"DEFAULT_CURRENCY_ISO\", \"DKK\");\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing DEFAULT_CURRENCY_ISO constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"DEFAULT_COUNTRY_ISO\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "SITE_AUTO_LOGIN", "false", "SITE_LOGIN_URL", false);
 
 
-		// Check login url constant
-		if(!defined("SITE_LOGIN_URL")) {
+		$config_info = $this->configStructureHelper($config_info, "SITE_SIGNUP", "false", "SITE_AUTO_LOGIN", true);
 
-			// Check for obvious frontend login controller
-			$project_login_controller = file_exists(LOCAL_PATH."/www/login.php");
-
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"SITE_LOGIN_URL\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_LOGIN_URL\", [^\)]+/", "define(\"SITE_LOGIN_URL\", \"".($project_login_controller ? "/login" : "/janitor/admin/login")."\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after DEFAULT_CURRENCY_ISO
-				if(preg_match("/define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+)/", "$1\n\ndefine(\"SITE_LOGIN_URL\", \"".($project_login_controller ? "/login" : "/janitor/admin/login")."\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"SITE_LOGIN_URL\", \"".($project_login_controller ? "/login" : "/janitor/admin/login")."\");\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing SITE_LOGIN_URL constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"SITE_LOGIN_URL\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"SITE_LOGIN_URL\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"DEFAULT_CURRENCY_ISO\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "SITE_SIGNUP_URL", "\"/signup\"", "SITE_SIGNUP", false);
 
 
-		// Check singup constant
-		if(!defined("SITE_SIGNUP")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"SITE_SIGNUP\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SIGNUP\", [^\)]+/", "define(\"SITE_SIGNUP\", false" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after SITE_LOGIN_URL
-				if(preg_match("/define\(\"SITE_LOGIN_URL\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_LOGIN_URL\"[^\n]+)/", "$1\n\ndefine(\"SITE_SIGNUP\", false);\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"SITE_SIGNUP\", false);\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing SITE_SIGNUP constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"SITE_SIGNUP\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"SITE_SIGNUP\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"SITE_LOGIN_URL\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
-		}
-
-		// Check signup url constant
-		if(!defined("SITE_SIGNUP_URL")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"SITE_SIGNUP_URL\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SIGNUP_URL\"/", "define(\"SITE_SIGNUP_URL\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after SITE_SIGNUP
-				if(preg_match("/define\(\"SITE_SIGNUP\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_SIGNUP\"[^\n]+)/", "$1\ndefine(\"SITE_SIGNUP_URL\", \"/signup\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"SITE_SIGNUP_URL\", \"signup\");\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing SITE_SIGNUP_URL constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"SITE_SIGNUP_URL\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"SITE_SIGNUP_URL\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"SITE_SIGNUP\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "SITE_ITEMS", "false", "SITE_SIGNUP_URL", true);
 
 
-		// Check items constant
-		if(!defined("SITE_ITEMS")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"SITE_ITEMS\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_ITEMS\",[^\)]+/", "define(\"SITE_ITEMS\", false" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after SITE_SIGNUP_URL
-				if(preg_match("/define\(\"SITE_SIGNUP_URL\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_SIGNUP_URL\"[^\n]+)/", "$1\n\ndefine(\"SITE_ITEMS\", false);\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"SITE_ITEMS\", false);\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing SITE_ITEMS constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"SITE_ITEMS\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"SITE_ITEMS\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"SITE_SIGNUP_URL\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "SITE_SHOP", "false", "SITE_ITEMS", true);
 
 
-		// Check shop constant
-		if(!defined("SITE_SHOP")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"SITE_SHOP\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SHOP\",[^\)]+/", "define(\"SITE_SHOP\", false" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after SITE_ITEMS
-				if(preg_match("/define\(\"SITE_ITEMS\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_ITEMS\"[^\n]+)/", "$1\n\ndefine(\"SITE_SHOP\", false);\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"SITE_SHOP\", false);\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing SITE_SHOP constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"SITE_SHOP\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"SITE_SHOP\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"SITE_ITEMS\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "SHOP_ORDER_NOTIFIES", "\"\"", "SITE_SHOP", false);
 
-		// Check order notifies constant
-		if(!defined("SHOP_ORDER_NOTIFIES")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"SHOP_ORDER_NOTIFIES\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SHOP_ORDER_NOTIFIES\"/", "define(\"SHOP_ORDER_NOTIFIES\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after SITE_SHOP
-				if(preg_match("/define\(\"SITE_SHOP\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_SHOP\"[^\n]+)/", "$1\ndefine(\"SHOP_ORDER_NOTIFIES\", \"\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"SHOP_ORDER_NOTIFIES\", \"\");\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing SHOP_ORDER_NOTIFIES constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"SITE_SHOP\"[^\n]+)/", "$1\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "SITE_SUBSCRIPTIONS", "false", "SHOP_ORDER_NOTIFIES", true);
 
 
-		// Check subscription constant
-		if(!defined("SITE_SUBSCRIPTIONS")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"SITE_SUBSCRIPTIONS\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_SUBSCRIPTIONS\", [^\)]+/", "define(\"SITE_SUBSCRIPTIONS\", false" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after SITE_EMAIL
-				if(preg_match("/define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+)/", "$1\n\ndefine(\"SITE_SUBSCRIPTIONS\", false);\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"SITE_SUBSCRIPTIONS\", false);\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing SITE_SUBSCRIPTIONS constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"SITE_SUBSCRIPTIONS\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"SITE_SUBSCRIPTIONS\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"SHOP_ORDER_NOTIFIES\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "SITE_MEMBERS", "false", "SITE_SUBSCRIPTIONS", true);
 
 
-		// Check members constant
-		if(!defined("SITE_MEMBERS")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"SITE_MEMBERS\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_MEMBERS\", [^\)]+/", "define(\"SITE_MEMBERS\", false" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after SITE_EMAIL
-				if(preg_match("/define\(\"SITE_SUBSCRIPTIONS\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_SUBSCRIPTIONS\"[^\n]+)/", "$1\n\ndefine(\"SITE_MEMBERS\", false);\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"SITE_MEMBERS\", false);\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing SITE_MEMBERS constant added to config.php"], false);
-		}
-		// Check line position
-		if(preg_match("/define\(\"SITE_MEMBERS\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"SITE_MEMBERS\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"SITE_SUBSCRIPTIONS\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
-		}
+		$config_info = $this->configStructureHelper($config_info, "SITE_LOGGING_DISABLED", "false", "SITE_MEMBERS", true);
+
+		$config_info = $this->configStructureHelper($config_info, "SITE_ADMIN_NOTIFICATIONS", "true", "SITE_LOGGING_DISABLED", false);
+
+		$config_info = $this->configStructureHelper($config_info, "SITE_ADMIN_NOTIFICATION_THRESHOLD", 10, "SITE_ADMIN_NOTIFICATIONS", false);
+
+		$config_info = $this->configStructureHelper($config_info, "SITE_DOWNLOAD_NOTIFICATIONS", "false", "SITE_ADMIN_NOTIFICATION_THRESHOLD", false);
 
 
-		// Check collect notifications constant
-		if(!defined("SITE_COLLECT_NOTIFICATIONS")) {
-			// Line is commented out
-			if(preg_match("/\/\/[ ]*define\(\"SITE_COLLECT_NOTIFICATIONS\"/", $config_info)) {
-				$config_info = preg_replace("/\/\/[ ]*define\(\"SITE_COLLECT_NOTIFICATIONS\"/", "define(\"SITE_COLLECT_NOTIFICATIONS\"" , $config_info);
-			}
-			// Insert line
-			else {
-				// Insert after SITE_EMAIL
-				if(preg_match("/define\(\"SITE_MEMBERS\"[^\n]+/", $config_info)) {
-					$config_info = preg_replace("/(define\(\"SITE_MEMBERS\"[^\n]+)/", "$1\n\ndefine(\"SITE_COLLECT_NOTIFICATIONS\", \"50\");\n" , $config_info);
-				}
-				// Append to file
-				else {
-					$config_info .= "\ndefine(\"SITE_COLLECT_NOTIFICATIONS\", \"50\");\n";
-				}
-			}
-			$this->process(["success" => true, "message" => "Missing SITE_COLLECT_NOTIFICATIONS constant added to config.php"], false);
+
+		$config_info = $this->configStructureHelper($config_info, "SITE_AUTOCONVERSION_THRESHOLD", 100, "SITE_DOWNLOAD_NOTIFICATIONS", true);
+
+		// Check for constant – SITE_COLLECT_NOTIFICATIONS has been renamed to SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS
+		// Replace if only old version exists
+		if(defined("SITE_COLLECT_NOTIFICATIONS") && !defined("SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS")) {
+			$config_info = preg_replace("/SITE_COLLECT_NOTIFICATIONS/", "SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS", $config_info);
+			define("SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS", SITE_COLLECT_NOTIFICATIONS);
 		}
-		// Check line position
-		if(preg_match("/define\(\"SITE_COLLECT_NOTIFICATIONS\"[^\n]+/", $config_info, $line_match)) {
-			$config_info = preg_replace("/define\(\"SITE_COLLECT_NOTIFICATIONS\"[^\n]+/", "" , $config_info);
-			$config_info = preg_replace("/(define\(\"SITE_MEMBERS\"[^\n]+)/", "$1\n\n".$line_match[0]."\n" , $config_info);
+		// Remove if new version already exists
+		else if(defined("SITE_COLLECT_NOTIFICATIONS") && defined("SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS")) {
+			$config_info = preg_replace("/define\(\"SITE_COLLECT_NOTIFICATIONS[^$]+/", "", $config_info);
 		}
+
+		$config_info = $this->configStructureHelper($config_info, "SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS", 100, "SITE_AUTOCONVERSION_THRESHOLD", false);
+
+		$config_info = $this->configStructureHelper($config_info, "SITE_AUTOCONVERSION_ERROR_NOTIFICATIONS", "true", "SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS", false);
+
 
 
 		// Remove leftover comments
@@ -2498,6 +2177,63 @@ class UpgradeCore extends Model {
 
 		}
 
+	}
+
+
+	// Code update
+	function updateModuleNames08() {
+
+		$fs = new FileSystem();
+
+		// correct mail config
+		if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
+
+			$config_info = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
+
+			// Remove closing PHP tag
+			if(preg_match("/\>mail_connection/", $config_info)) {
+				$config_info = preg_replace("/\>mail_connection/", ">email_connection", $config_info);
+
+			}
+
+			file_put_contents(LOCAL_PATH."/config/connect_email.php", trim($config_info)."\n\n");
+			unlink(LOCAL_PATH."/config/connect_mail.php");
+
+			$this->process(["success" => true, "message" => "connect_email.php updated"], false);
+
+		}
+	}
+
+
+	// Config file structure helper
+	function configStructureHelper($config_info, $constant, $default_value, $after_constant, $extra_space = false) {
+
+		// Check for constant
+		if(!defined($constant)) {
+			// Line is commented out
+			if(preg_match("/\/\/[ ]*define\(\"".$constant."\"/", $config_info)) {
+				$config_info = preg_replace("/\/\/[ ]*define\(\"".$constant."\"/", "define(\"".$constant."\"" , $config_info);
+			}
+			// Insert line
+			else {
+				// Insert after
+				if(preg_match("/define\(\"".$after_constant."\"[^\n]+/", $config_info)) {
+					$config_info = preg_replace("/(define\(\"".$after_constant."\"[^\n]+)/", "$1\n".($extra_space ? "\n" : "")."define(\"".$constant."\", $default_value);\n" , $config_info);
+				}
+				// Append to file
+				else {
+					$config_info .= "\ndefine(\"".$constant."\", $default_value);\n";
+				}
+			}
+			$this->process(["success" => true, "message" => "Missing ".$constant." constant added to config.php"], false);
+		}
+		// Check line position
+		if(preg_match("/define\(\"".$constant."\"[^\n]+/", $config_info, $line_match)) {
+			$config_info = preg_replace("/define\(\"".$constant."\"[^\n]+/", "" , $config_info);
+			$config_info = preg_replace("/(define\(\"".$after_constant."\"[^\n]+)/", "$1\n".($extra_space ? "\n" : "")."".$line_match[0]."\n" , $config_info);
+		}
+
+		return $config_info;
 	}
 
 
