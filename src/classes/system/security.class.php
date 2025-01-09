@@ -36,7 +36,7 @@ class Security {
 			$_SERVER["REQUEST_METHOD"] == "POST"
 			&&
 			(
-				session()->value("ip") !== (getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR"))
+				session()->value("ip") !== security()->getRequestIp()
 				||
 				session()->value("useragent") !== ((isset($_SERVER["HTTP_USER_AGENT"]) && $_SERVER["HTTP_USER_AGENT"]) ? stripslashes($_SERVER["HTTP_USER_AGENT"]) : "Unknown")
 			)
@@ -44,7 +44,7 @@ class Security {
 
 			// Make sure to block session stored IP and resolved IP
 			cache()->value("blocked-".session()->value("ip"), true, 3600);
-			cache()->value("blocked-".(getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR")), true, 3600);
+			cache()->value("blocked-".security()->getRequestIp(), true, 3600);
 
 			// Notify admin
 			mailer()->send([
@@ -862,5 +862,11 @@ class Security {
 
 	}
 
+	/**
+	* Get IP used for current request
+	*/
+	function getRequestIp() {
+		return (getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR"));
+	}
 
 }
