@@ -18,7 +18,7 @@ class PaymentGateway {
 		// no adapter selected yet
 		$this->adapter = false;
 
-		// mailer connection info
+		// payment gateway connection info
 		@include_once("config/connect_payment.php");
 
 	}
@@ -35,15 +35,15 @@ class PaymentGateway {
 
 		if(!$this->adapter) {
 
-			if(isset($this->_settings["type"]) && preg_match("/^stripe$/i", $this->_settings["type"])) {
+			if($this->_settings["type"]) {
 
-				@include_once("classes/adapters/payments/stripe.class.php");
-				$this->adapter = new JanitorStripe($this->_settings);
+				if(file_exists(LOCAL_PATH."/classes/adapters/payment/".$this->_settings["type"].".class.php") || file_exists(FRAMEWORK_PATH."/classes/adapters/payment/".$this->_settings["type"].".class.php")) {
 
-			}
-			// Other options
-			else {
+					@include_once("classes/adapters/payment/".$this->_settings["type"].".class.php");
+					$adapter_class = "Janitor".ucfirst($this->_settings["type"]);
+					$this->adapter = new $adapter_class($this->_settings);
 
+				}
 
 			}
 
