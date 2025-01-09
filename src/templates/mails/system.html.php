@@ -16,7 +16,7 @@
 	<dd><?= ($_SERVER["HTTPS"] ? "https" : "http") ?>://<?= $_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"] ?></dd>
 
 	<dt>From IP:</dt>
-	<dd><?= (getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR")) ?></dd>
+	<dd><?= security()->getRequestIp() ?></dd>
 
 	<dt>Referer:</dt>
 	<dd><?= $_SERVER["HTTP_REFERER"] ?></dd>
