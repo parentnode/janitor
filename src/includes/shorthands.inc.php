@@ -1,14 +1,21 @@
 <?php
 
-// Shorthand auto initializer for mailer access
-$__mail = false;
-function mailer() {
-	global $__mail;
-	if(!$__mail) {
-		include_once("classes/helpers/mailer.class.php");
-		$__mail = new MailGateway();
+
+
+
+// Shorthand auto initializer for email access
+$__email = false;
+function email() {
+	global $__email;
+	if(!$__email) {
+		include_once("classes/helpers/email.class.php");
+		$__email = new EmailGateway();
 	}
-	return $__mail;
+	return $__email;
+}
+// Deprecated, keep until it has been cleaned out
+function mailer() {
+	return email();
 }
 
 
