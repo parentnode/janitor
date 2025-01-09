@@ -7,7 +7,7 @@
 */
 define("ADMIN_EMAIL", "###ADMIN_EMAIL###");
 
-$this->mail_connection(
+$this->email_connection(
 	array(
 		// Different settings for different setups (will be added by setup script)
 	)

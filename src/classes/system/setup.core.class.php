@@ -1210,9 +1210,9 @@ class SetupCore extends Itemtype {
 
 
 		// if we do not have stored mail info, attempt to read existing connect_db.php
-		if(!$this->get("mail", "mail_type") && file_exists(LOCAL_PATH."/config/connect_mail.php")) {
+		if(!$this->get("mail", "mail_type") && file_exists(LOCAL_PATH."/config/connect_email.php")) {
 
-			$connection_info = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
+			$connection_info = file_get_contents(LOCAL_PATH."/config/connect_email.php");
 
 			preg_match("/\"ADMIN_EMAIL\", \"([a-zA-Z0-9\.\-\_\@]+)\"/", $connection_info, $matches);
 			if($matches) {
@@ -1796,23 +1796,23 @@ class SetupCore extends Itemtype {
 			if(!$this->get("mail", "skipped")) {
 
 				// Use existing connect_mail.php
-				if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
+				if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
 
-					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_mail.php");
+					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_email.php");
 					$existing_mail_conf = true;
 
 				}
 				// If template exists, use that
-				else if(file_exists(FRAMEWORK_PATH."/config/connect_mail.template.php")) {
+				else if(file_exists(FRAMEWORK_PATH."/config/connect_email.template.php")) {
 
-					$file_mail = file_get_contents(FRAMEWORK_PATH."/config/connect_mail.template.php");
+					$file_mail = file_get_contents(FRAMEWORK_PATH."/config/connect_email.template.php");
 					$existing_mail_conf = false;
 
 				}
 				else {
 
 					// Status for updating config.php
-					$tasks["failed"][] = "connect_mail.php not found (FAILED)";
+					$tasks["failed"][] = "connect_email.php not found (FAILED)";
 					return $tasks;
 
 				}
@@ -1853,22 +1853,22 @@ class SetupCore extends Itemtype {
 				// Replace settings
 				$file_mail = preg_replace("/array\([^$]+\t\)/", $file_mail_settings, $file_mail);
 
-				file_put_contents(LOCAL_PATH."/config/connect_mail.php", $file_mail);
+				file_put_contents(LOCAL_PATH."/config/connect_email.php", $file_mail);
 
 				// Make sure file remains writeable even if it is edited manually
-				chmod(LOCAL_PATH."/config/connect_mail.php", 0777);
+				chmod(LOCAL_PATH."/config/connect_email.php", 0777);
 
 
 				// Status for creating connect_mail.php
-				$tasks["completed"][] = "Project connect_mail.php " . ($existing_mail_conf ? "updated" : "created");
+				$tasks["completed"][] = "Project connect_email.php " . ($existing_mail_conf ? "updated" : "created");
 
 			}
 			// Skip mail setup
 			else {
 
 				// Delete existing connect_mail.php
-				if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
-					unlink(LOCAL_PATH."/config/connect_mail.php");
+				if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
+					unlink(LOCAL_PATH."/config/connect_email.php");
 				}
 
 				$tasks["completed"][] = "Mail setup skipped";
@@ -1987,6 +1987,7 @@ class SetupCore extends Itemtype {
 			// Can only be included after SITE_DB has been declared
 			include_once("classes/users/superuser.class.php");
 			$UC = new SuperUser();
+
 
 
 
