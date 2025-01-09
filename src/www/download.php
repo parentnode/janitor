@@ -76,11 +76,14 @@ if(count($action) == 3 && isset($_SERVER["HTTP_REFERER"]) && strpos($_SERVER["HT
 		ob_end_flush();
 		readfile($file);
 
-		// mailer()->send([
-		// 	"subject" => "File downloaded on ".SITE_URL." ($file_name)",
-		// 	"message" => "File was downloaded:<br>$file",
-		// 	"template" => "system"
-		// ]);
+
+		if(defined("SITE_DOWNLOAD_NOTIFICATIONS") && SITE_DOWNLOAD_NOTIFICATIONS) {
+			admin()->notify([
+				"subject" => "File downloaded on ".SITE_URL." ($file_name)",
+				"message" => "File was downloaded:<br>$file",
+				"template" => "system"
+			]);
+		}
 
 		exit();
 	}
@@ -89,13 +92,12 @@ if(count($action) == 3 && isset($_SERVER["HTTP_REFERER"]) && strpos($_SERVER["HT
 
 http_response_code(403);
 
-// Disable notification mail
-// mailer()->send([
-// 	"subject" => "File download FAILED on ".SITE_URL,
-// 	"message" => "File download was attempted but failed:<br>".implode("/", $action),
-// 	"template" => "system"
-// ]);
+if(defined("SITE_DOWNLOAD_NOTIFICATIONS") && SITE_DOWNLOAD_NOTIFICATIONS) {
+	admin()->notify([
+		"subject" => "File download FAILED on ".SITE_URL,
+		"message" => "File download was attempted but failed:<br>".implode("/", $action),
+		"template" => "system"
+	]);
+}
 
 exit;
-
-?>
