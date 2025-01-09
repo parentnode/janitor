@@ -70,7 +70,7 @@ class Log {
 
 
 		$timestamp = time();
-		$user_ip = getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR");
+		$user_ip = security()->getRequestIp();
 		$user_id = session()->value("user_id");
 
 		$log = date("Y-m-d H:i:s", $timestamp). " $user_id $user_ip $message";
