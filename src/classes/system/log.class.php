@@ -30,10 +30,17 @@ class Log {
 	*/
 	function addLog($message, $collection="framework") {
 
+
+		// Do not gather and save information if logging is disabled
+		if(defined("SITE_LOGGING_DISABLED") && SITE_LOGGING_DISABLED === true) {
+			return;
+		}
+
+
 		$fs = new FileSystem();
 
 		$timestamp = time();
-		$user_ip = getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR");
+		$user_ip = security()->getRequestIp();
 		$user_id = session()->value("user_id");
 
 		$log = date("Y-m-d H:i:s", $timestamp). " $user_id $user_ip $message";
@@ -49,8 +56,8 @@ class Log {
 		fclose($fp);
 
 	}
-	
-	
+
+
 	/**
 	* collect message for bundled notification
 	* Set collection size in config
@@ -58,6 +65,13 @@ class Log {
 	* Automatically formats collection from template (if available) before sending
 	*/
 	function collectNotification($message, $collection="framework") {
+
+
+		// Do not gather and save information if collect notifications are turned off OR logging is disabled
+		if((defined("SITE_LOGGING_DISABLED") && SITE_LOGGING_DISABLED === true) || (defined("SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS") && SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS === false)) {
+			return;
+		}
+
 
 		$fs = new FileSystem();
 
@@ -87,7 +101,7 @@ class Log {
 		}
 
 		// send report and reset collection
-		if(count($notifications) >= (defined("SITE_COLLECT_NOTIFICATIONS") ? SITE_COLLECT_NOTIFICATIONS : 10)) {
+		if(count($notifications) >= (defined("SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS") ? SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS : 10)) {
 
 			$message = implode("\n", $notifications);
 
