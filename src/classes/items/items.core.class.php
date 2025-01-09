@@ -328,13 +328,13 @@ class ItemsCore {
 
 
 			// add prices (only prices in current currency)
-			if($all || $prices) {
+			if(($all || $prices) && defined("SITE_SHOP") && SITE_SHOP) {
 				global $page;
 				$item["prices"] = $this->getPrices(array("item_id" => $item["id"], "currency" => $page->currency()));
 			}
 
 			// add subscription method (for item)
-			if($all || $subscription_method) {
+			if(($all || $subscription_method) && defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
 				$item["subscription_method"] = $this->getSubscriptionMethod(array("item_id" => $item["id"]));
 			}
 

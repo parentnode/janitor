@@ -182,6 +182,7 @@ class UpgradeCore extends Model {
 				$this->process($this->createTableIfMissing(UT_ITEMS_COMMENTS), true);
 				$this->process($this->createTableIfMissing(UT_ITEMS_RATINGS), true);
 				$this->process($this->createTableIfMissing(UT_ITEMS_MEDIAE), true);
+				$this->process($this->createTableIfMissing(UT_ITEMS_EDITORS), true);
 
 				$this->process($this->createTableIfMissing(SITE_DB.".user_item_readstates"), true);
 			}
@@ -2408,16 +2409,25 @@ class UpgradeCore extends Model {
 	function tableInfo($db_table) {
 		
 		$query = new Query();
-		
-		$sql = "SHOW CREATE TABLE ".$db_table;
+
+		list($db, $table) = explode(".", $db_table);
+
+		// check if database exists (SHOW query will throw error on missing tables)
+		$sql = "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'";
 		if($query->sql($sql)) {
+
+
+			$sql = "SHOW CREATE TABLE ".$db_table;
+			if($query->sql($sql)) {
 			
-			$create_syntax = $query->result(0);
-//			print_r($create_syntax);
+				$create_syntax = $query->result(0);
+	//			print_r($create_syntax);
 
-			if($create_syntax["Create Table"]) {
+				if($create_syntax["Create Table"]) {
 
-				return $this->parseCreateSQL($create_syntax["Create Table"]);
+					return $this->parseCreateSQL($create_syntax["Create Table"]);
+
+				}
 
 			}
 
@@ -3093,22 +3103,26 @@ class UpgradeCore extends Model {
 					$query->sql($alter_sql);
 				}
 
-				$sql = "UPDATE $db_table SET ";
-				// value is function (current_timestamp) or (new) column is integer
-				if(preg_match("/current_timestamp/i", $new_default_value) || preg_match("/int\([\d]+\)/i", $declaration)) {
-					$sql .=	"$name = $new_default_value";
+				// Only update if default value is found
+				if($new_default_value) {
+					$sql = "UPDATE $db_table SET ";
+					// value is function (current_timestamp) or (new) column is integer
+					if(preg_match("/current_timestamp/i", $new_default_value) || preg_match("/int\([\d]+\)/i", $declaration)) {
+						$sql .=	"$name = $new_default_value";
+					}
+					// string - encapsulate column value in quotes (they have been stripped in parsing)
+					else {
+						$sql .=	"$name = '$new_default_value'";
+					}
+					$sql .= " WHERE $name IS NULL";
+					// don't look for empty strings on int columns
+					if(preg_match("/text|varchar/i", $declaration)) {
+						$sql .= " OR $name = ''";
+					}
+	//				print "NOT NULL: " . $sql."<br>\n";
+					$query->sql($sql);
 				}
-				// string - encapsulate column value in quotes (they have been stripped in parsing)
-				else {
-					$sql .=	"$name = '$new_default_value'";
-				}
-				$sql .= " WHERE $name IS NULL";
-				// don't look for empty strings on int columns
-				if(preg_match("/text|varchar/i", $declaration)) {
-					$sql .= " OR $name = ''";
-				}
-//				print "NOT NULL: " . $sql."<br>\n";
-				$query->sql($sql);
+
 			}
 			// If NULL is allowed, replace all empty values with default value (which might be NULL)
 			else if($allow_null) {
@@ -3123,9 +3137,26 @@ class UpgradeCore extends Model {
 
 				}
 
-				$sql = "UPDATE $db_table SET $name = ".($new_default_value === "NULL" ? "NULL" : "'$new_default_value'")." WHERE $name = ''";
-//				print "NULL: " . $sql."<br>\n";
-				$query->sql($sql);
+				// Only reset values that are possible
+				if(preg_match("/(text|varchar|datatime|date|timestamp)/i", $declaration)) {
+
+					$sql = "UPDATE $db_table SET $name = ".($new_default_value === "NULL" ? "NULL" : "'$new_default_value'")." WHERE ";
+
+					if(preg_match("/(varchar|text)/i", $declaration)) {
+						$sql .=	"$name = ''";
+					}
+					else if(preg_match("/(datetime|timestamp)/i", $declaration)){
+						$sql .=	"$name = '0000-00-00 00:00:00.0'";
+					}
+					else if(preg_match("/(date)/i", $declaration)){
+						$sql .=	"$name = '0000-00-00'";
+					}
+				
+
+	//				print "NULL: " . $sql."<br>\n";
+					$query->sql($sql);
+				}
+
 			}
 
 
