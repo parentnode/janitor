@@ -2,10 +2,10 @@
 	
 
 
-class MailGateway {
+class EmailGateway {
 
 
-	// Mailer settings
+	// Email settings
 	private $_settings;
 	private $adapter;
 
@@ -18,12 +18,12 @@ class MailGateway {
 		// no adapter selected yet
 		$this->adapter = false;
 
-		// mailer connection info
-		@include_once("config/connect_mail.php");
+		// email connection info
+		@include_once("config/connect_email.php");
 			
 	}
 
-	function mail_connection($_settings) {
+	function email_connection($_settings) {
 
 		// set type to default, SMTP, if not defined in configs
 		$_settings["type"] = isset($_settings["type"]) ? $_settings["type"] : "smtp";
@@ -36,17 +36,15 @@ class MailGateway {
 
 		if(!$this->adapter) {
 
-			if($this->_settings && preg_match("/^mailgun$/i", $this->_settings["type"])) {
+			if($this->_settings) {
 
-				@include_once("classes/adapters/mailer/mailgun.class.php");
-				$this->adapter = new JanitorMailgun($this->_settings);
+				if(file_exists(LOCAL_PATH."/classes/adapters/email/".$this->_settings["type"].".class.php") || file_exists(FRAMEWORK_PATH."/classes/adapters/email/".$this->_settings["type"].".class.php")) {
 
-			}
-			// default smtp
-			else {
+					@include_once("classes/adapters/email/".$this->_settings["type"].".class.php");
+					$adapter_class = "Janitor".ucfirst($this->_settings["type"]);
+					$this->adapter = new $adapter_class($this->_settings);
 
-				@include_once("classes/adapters/mailer/phpmailer.class.php");
-				$this->adapter = new JanitorPHPMailer($this->_settings);
+				}
 
 			}
 
@@ -226,7 +224,6 @@ class MailGateway {
 
 
 				return $this->adapter->send([
-	//			return $mailer->send([
 					"subject" => $subject,
 
 
@@ -419,7 +416,6 @@ class MailGateway {
 				list($from_email, $from_name) = $this->getSender($from_name, $from_email, $from_current_user);
 
 				return $this->adapter->sendBulk([
-	//			return $mailer->send([
 					"subject" => $subject,
 
 
