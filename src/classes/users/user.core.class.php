@@ -583,7 +583,7 @@ class UserCore extends Model {
 							if($verification_code) {
 
 								// send verification email to user
-								mailer()->send(array(
+								email()->send(array(
 									"values" => array(
 										"NICKNAME" => $nickname, 
 										"EMAIL" => $email, 
@@ -606,13 +606,13 @@ class UserCore extends Model {
 							// error
 							else {
 								// send error email notification
-								mailer()->send(array(
+								email()->send(array(
 									"recipients" => $email, 
 									"template" => "signup_error"
 								));
 
 								// send notification email to admin
-								mailer()->send(array(
+								notify()->send(array(
 									"subject" => "New User created ERROR: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
 									"tracking" => false
@@ -1116,7 +1116,7 @@ class UserCore extends Model {
 
 		$user = $this->getUser();
 		
-		mailer()->send([
+		email()->send([
 			"values" => [
 				"NICKNAME" => $user["nickname"], 
 				"EMAIL" => $email, 
@@ -1133,7 +1133,7 @@ class UserCore extends Model {
 		
 		$user = $this->getUser();
 
-		mailer()->send(array(
+		email()->send(array(
 			"values" => array(
 				"NICKNAME" => $user["nickname"], 
 				"EMAIL" => $new_email, 
@@ -1405,7 +1405,7 @@ class UserCore extends Model {
 							$nickname = $query->result(0, "nickname");
 
 							// send email
-							mailer()->send(array(
+							email()->send(array(
 								"values" => array(
 									"TOKEN" => $reset_token,
 									"USERNAME" => $username,
