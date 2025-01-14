@@ -13,7 +13,7 @@ if($item && $item["status"] >= 0) {
 	$user_groups_options = $model->toOptions($model->getUserGroups(), "id", "user_group");
 
 	// get languages for select
-	$language_options = $model->toOptions($this->languages(), "id", "name");
+	$language_options = $model->toOptions($this->languages(), "id", "name", ["add" => ["" => "Choose preferred language"]]);
 
 	// get existing usernames
 	$username_mobile = $model->getUsernames(array("user_id" => $user_id, "type" => "mobile"));
