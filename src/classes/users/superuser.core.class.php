@@ -1384,7 +1384,7 @@ class SuperUserCore extends User {
 
 				$password = password_hash($this->getProperty("password", "value"), PASSWORD_DEFAULT);
 				if($this->hasPassword(["user_id" => $user_id, "include_empty" => true])) {
-					$sql = "UPDATE ".$this->db_passwords." SET password = '$password' WHERE user_id = $user_id";
+					$sql = "UPDATE ".$this->db_passwords." SET password = '$password', created_at = CURRENT_TIMESTAMP WHERE user_id = $user_id";
 				}
 				else {
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
