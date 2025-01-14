@@ -1,8 +1,6 @@
 <?php
 
 
-
-
 // Shorthand auto initializer for email access
 $__email = false;
 function email() {
@@ -43,7 +41,7 @@ function payment() {
 }
 // Deprecated, keep until it has been cleaned out
 function payments() {
-	return email();
+	return payment();
 }
 
 // Shorthand auto initializer for qr code generator access
