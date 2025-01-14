@@ -109,7 +109,7 @@ class Log {
 			@include("templates/mails/notifications/$collection.php");
 
 			// send and reset collection
-			if(mailer()->send(array(
+			if(notify()->send(array(
 				"subject" => "NOTIFICATION: $collection on ".$_SERVER["SERVER_ADDR"], 
 				"message" => $message,
 				"tracking" => false

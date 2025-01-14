@@ -1563,7 +1563,7 @@ class JanitorStripe {
 				logger()->addLog("identifyPaymentIntent failed: No cart or order identifier, payment_intent_id: $payment_intent_id", "stripe");
 
 				// Send mail to admin
-				mailer()->send([
+				notify()->send([
 					"subject" => SITE_URL." - identifyPaymentIntent failed (".$payment_intent_id.")", 
 					"message" => "identifyPaymentIntent failed: No cart or order identifier, payment_intent_id: $payment_intent_id",
 					"template" => "system"
@@ -1859,7 +1859,7 @@ class JanitorStripe {
 			logger()->addLog("Failed adding payment to Janitor (adding payment): order_id:".$order["id"].", payment_intent_id:".$payment_intent->id.", amount:".($payment_intent->amount_received/100), "stripe");
 
 			// Send mail to admin
-			mailer()->send([
+			notify()->send([
 				"subject" => SITE_URL." - Error adding Stripe payment", 
 				"message" => "Failed adding payment from Stripe capture. This needs to be handled manually.\n\npayment_intent_id: ".$payment_intent->id."\norder_id: ".$order["id"]."\norder_no: ".$order["order_no"],
 				"template" => "system"
@@ -1913,7 +1913,7 @@ class JanitorStripe {
 				// Notify admin
 
 				// Send mail to admin
-				mailer()->send([
+				notify()->send([
 					"subject" => SITE_URL." - Error adding Stripe payment", 
 					"message" => "Failed adding payments from Stripe capture. This needs to be handled manually.\n\npayment_intent_id: ".$payment_intent->id."\norder_id: ".$order["id"]."\norder_no: ".$order["order_no"],
 					"template" => "system"
@@ -1935,7 +1935,7 @@ class JanitorStripe {
 
 
 		// Send mail to admin
-		mailer()->send([
+		notify()->send([
 			"subject" => SITE_URL." - registerPayments accounting error", 
 			"message" => "Failed adding payments from Stripe capture. This needs to be handled manually.\n\npayment_intent_id: ".$payment_intent->id."\norder_nos: ".implode(",", $order_no_list),
 			"template" => "system"
@@ -2558,7 +2558,7 @@ class JanitorStripe {
 		logger()->addLog($action." failed: type:".$error["type"].", http-response:".$http_response.", message:".$error["message"].", code:".(isset($error["code"]) ? $error["code"] : "N/A").", param:".(isset($error["param"]) ? $error["param"] : "N/A"), "stripe");
 
 		// Send mail to admin
-		mailer()->send([
+		notify()->send([
 			"subject" => SITE_URL." - $action - Stripe exception (".$error["type"].")", 
 			"message" => "Exception thrown when $action: \n" . print_r($error, true),
 			"template" => "system"

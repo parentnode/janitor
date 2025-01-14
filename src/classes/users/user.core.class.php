@@ -451,7 +451,7 @@ class UserCore extends Model {
 				logger()->addLog("user->newUser: signup identified as BOT: $email");
 
 				// send notification email to admin
-				mailer()->send(array(
+				notify()->send(array(
 					"subject" => SITE_URL . " - BOT SIGNUP DETECTED: " . $email, 
 					"message" => "no user was created",
 					"tracking" => false,
@@ -596,7 +596,7 @@ class UserCore extends Model {
 								));
 
 								// send notification email to admin
-								mailer()->send(array(
+								notify()->send(array(
 									"subject" => SITE_URL . " - New User: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
 									"tracking" => false,
@@ -1418,7 +1418,7 @@ class UserCore extends Model {
 
 							// send notification email to admin
 							// TODO: consider disabling this once it has proved itself worthy
-							// mailer()->send(array(
+							// notify()->send(array(
 							// 	"subject" => "Password reset requested: " . $email,
 							// 	"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
 							// 	"template" => "system"
@@ -1482,7 +1482,7 @@ class UserCore extends Model {
 
 						// send notification email to admin
 						// TODO: consider disabling this once it has proved itself worthy
-						// mailer()->send(array(
+						// notify()->send(array(
 						// 	"subject" => "Password was resat: " . $user_id,
 						// 	"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id
 						// ));
