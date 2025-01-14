@@ -705,7 +705,7 @@ class Security {
 	/**
 	* Log in using token
 	*/
-	function tokenLogIn() {
+	function apiTokenLogIn() {
 
 		// Allow GET parameters
 		$token = getVar("token");

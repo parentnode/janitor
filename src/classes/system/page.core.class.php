@@ -66,7 +66,7 @@ class PageCore {
 		}
 		// login in progress
 		if(getVar("token") && getVar("username")) {
-			security()->tokenLogIn();
+			security()->apiTokenLogIn();
 		}
 		// logoff
 		if(getVar("logoff") == "true") {

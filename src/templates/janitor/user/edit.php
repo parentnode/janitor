@@ -52,8 +52,14 @@ if($item && $item["status"] >= 0) {
 	// payment methods
 	$user_payment_methods = $model->getPaymentMethods(["user_id" => $user_id, "extend" => true]);
 
-	// get api token
-	$apitoken = $model->getToken($user_id);
+	
+	$api_token_access = false;
+	if(security()->validatePath("/janitor/admin/user/apitoken")) {
+		$api_token_access = true;
+		// get api token
+		$api_token = $model->getApiToken($user_id);
+	}
+
 
 	// get addresses
 	$addresses = $model->getAddresses(array("user_id" => $user_id));
@@ -312,20 +318,21 @@ if($item && $item["status"] >= 0) {
 	<? endif; ?>
 
 <? 
-	// do not allow to create api token for Anonymous user
-	if($user_id != 1): ?>
+	// do not allow to create api token for Anonymous user AND only show panel if user has priviledge
+	if($user_id != 1 && $api_token_access): ?>
 	<div class="apitoken i:apitoken i:collapseHeader">
 		<h2>API Token</h2>
-		<p class="token"><?= stringOr($apitoken, "N/A") ?></p>
+		<p>The API token can be used for programatic logins.</p>
+		<p class="token"><?= stringOr($api_token, "N/A") ?></p>
 
-		<?= $model->formStart("renewToken/".$user_id, array("class" => "renew")) ?>
+		<?= $model->formStart("renewApiToken/".$user_id, array("class" => "renew")) ?>
 			<ul class="actions">
-				<?= $model->submit(($apitoken ? "Renew API token" : "Create API token"), array("class" => "primary", "name" => "renew", "wrapper" => "li.renew")) ?>
+				<?= $model->submit(($api_token ? "Renew API token" : "Create API token"), array("class" => "primary", "name" => "renew", "wrapper" => "li.renew")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
-		<?= $model->formStart("disableToken/".$user_id, array("class" => "disable")) ?>
+		<?= $model->formStart("disableApiToken/".$user_id, array("class" => "disable")) ?>
 			<ul class="actions">
-				<?= $model->submit("Disable token", array("class" => "secondary".($apitoken ? "" : " disabled"), "name" => "disable", "wrapper" => "li.renew")) ?>
+				<?= $model->submit("Disable API token", array("class" => "secondary".($api_token ? "" : " disabled"), "name" => "disable", "wrapper" => "li.renew")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
 	</div>

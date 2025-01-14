@@ -1871,8 +1871,8 @@ class UserCore extends Model {
 
 	// API TOKEN
 
-	// get users api token
-	function getToken($user_id = false) {
+	// get user's api token
+	function getApiToken($user_id = false) {
 
 		$user_id = session()->value("user_id");
 
@@ -1889,7 +1889,7 @@ class UserCore extends Model {
 
 	// create new api token
 	// /janitor/admin/profile/renewToken
-	function renewToken($action) {
+	function renewApiToken($action) {
 
 
 		$user_id = session()->value("user_id");
@@ -1918,7 +1918,7 @@ class UserCore extends Model {
 
 	// disable api token
 	// /janitor/admin/profile/disableToken
-	function disableToken($action) {
+	function disableApiToken($action) {
 
 
 		$user_id = session()->value("user_id");

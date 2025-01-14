@@ -1755,7 +1755,7 @@ class SuperUserCore extends User {
 	// API TOKEN
 
 	// get users api token
-	function getToken($user_id = false) {
+	function getApiToken($user_id = false) {
 
 		$query = new Query();
 		// make sure type tables exist
@@ -1769,8 +1769,8 @@ class SuperUserCore extends User {
 	}
 
 	// create new api token
-	// user/renewToken/#user_id#
-	function renewToken($action) {
+	// user/renewApiToken/#user_id#
+	function renewApiToken($action) {
 
 		$user_id = $action[1];
 
@@ -1796,7 +1796,7 @@ class SuperUserCore extends User {
 
 	// disable api token
 	// /janitor/admin/profile/disableToken
-	function disableToken($action) {
+	function disableApiToken($action) {
 
 
 		$user_id = $action[1];
