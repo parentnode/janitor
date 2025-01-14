@@ -558,7 +558,7 @@ class Security {
 							$verification_code = $query->result(0, "verification_code");
 
 							// send verification reminder email
-							mailer()->send(array(
+							email()->send(array(
 								"values" => array(
 									"NICKNAME" => $nickname, 
 									"EMAIL" => $email, 
@@ -623,7 +623,7 @@ class Security {
 
 				if($query->sql($sql)) {
 					// send verification reminder email
-					mailer()->send(array(
+					email()->send(array(
 						"values" => array(
 							"NICKNAME" => $nickname, 
 							"EMAIL" => $email, 

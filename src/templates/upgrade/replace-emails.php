@@ -2,7 +2,7 @@
 global $model;
 global $upgrade_model;
 
-mailer();
+email();
 ?>
 <div class="scene i:scene">
 	<h1>Replace emails</h1>

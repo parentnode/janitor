@@ -609,10 +609,10 @@ class UpgradeCore extends Model {
 			$code_lines = file($php_file);
 			foreach($code_lines as $line_no => $line) {
 
-				// Change page->mail to mailer()->send
+				// Change page->mail to email()->send
 				if(preg_match("/[\$](page|this)\-\>mail\(/", $line)) {
 
-					$line = preg_replace("/[\$](page|this)\-\>mail\(/", "mailer()->send(", $line);
+					$line = preg_replace("/[\$](page|this)\-\>mail\(/", "email()->send(", $line);
 					if($code_lines[$line_no] != $line) {
 
 						$code_lines[$line_no] = $line;
@@ -2203,6 +2203,56 @@ class UpgradeCore extends Model {
 			$this->process(["success" => true, "message" => "connect_email.php updated"], false);
 
 		}
+
+
+		// Update module shorthand usage
+
+		$fs = new FileSystem();
+		// get all php files in theme
+		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+		foreach($php_files as $php_file) {
+
+			$is_code_altered = false;
+			$code_lines = file($php_file);
+			foreach($code_lines as $line_no => $line) {
+
+				// Change mailer() to email()
+				if(preg_match("/mailer\(\)/", $line)) {
+
+					$line = preg_replace("/mailer\(\)/", "email()", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (mailer()) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (mailer()) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Change payments() to payment()
+				if(preg_match("/payments\(\)/", $line)) {
+
+					$line = preg_replace("/payments\(\)/", "payment()", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (payments()) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (payments()) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+			}
+
+			// Should we write
+			if($is_code_altered) {
+				file_put_contents($php_file, implode("", $code_lines));
+			}
+
+		}
+
 	}
 
 
@@ -2243,7 +2293,7 @@ class UpgradeCore extends Model {
 	function replaceEmails($action) {
 
 		$query = new Query();
-		mailer()->init_adapter();
+		email()->init_adapter();
 
 		$replacement = getPost("replacement", "value");
 		$exclude = getPost("exclude", "value");

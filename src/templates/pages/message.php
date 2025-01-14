@@ -16,7 +16,7 @@ if(count($action) == 1) {
 	if($message_details && $message_details["item_id"]) {
 
 		// init mailer to expose ADMIN_EMAIL
-		mailer();
+		email();
 
 		// get message item
 		$message_item = $IC->getItem(array("id" => $message_details["item_id"], "extend" => true));

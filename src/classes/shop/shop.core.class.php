@@ -1654,7 +1654,7 @@ class ShopCore extends Model {
 
 
 						// send notification email to admin
-						mailer()->send(array(
+						email()->send(array(
 							"recipients" => SHOP_ORDER_NOTIFIES,
 							"subject" => SITE_URL . " - New order ($order_no) created by: $user_id",
 							"message" => "Check out the new order: " . SITE_URL . "/janitor/admin/user/orders/" . $user_id . "\n\nOrder content: ".implode(", ", $admin_summary),
@@ -1756,7 +1756,7 @@ class ShopCore extends Model {
 		
 		$total_order_price = $this->getTotalOrderPrice($order["id"]);
 
-		mailer()->send(array(
+		email()->send(array(
 			"recipients" => $user["email"],
 			"values" => array(
 				"NICKNAME" => $user["nickname"], 
