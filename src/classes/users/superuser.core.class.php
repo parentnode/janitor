@@ -2255,7 +2255,7 @@ class SuperUserCore extends User {
 				// use current user as sender for this reminder
 				$current_user = $this->getUser();
 				if(
-					mailer()->send(array(
+					email()->send(array(
 					"from_current_user" => true,
 					"values" => array(
 						"FROM" => $current_user["nickname"],
