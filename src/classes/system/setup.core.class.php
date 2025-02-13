@@ -508,7 +508,7 @@ class SetupCore extends Itemtype {
 					"/srv/installed-packages/ffmpeg/bin/ffmpeg -version"
 				),
 				array(
-					"ffmpeg version (2\.[1-9]{1}|3\.|4\.)",
+					"ffmpeg version (2\.[1-9]{1}|[3-9]\.|1[0-9]\.)",
 					"ffmpeg version N-[6-9][0-9]"
 				)
 			) !== false)
