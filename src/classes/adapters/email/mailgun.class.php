@@ -1,13 +1,13 @@
 <?php
 /**
-* @package janitor.shop
+* @package janitor.adapters
 */
 
 if(version_compare(phpversion(), "8", "<")) {
-	require_once('includes/mailer/mailgun-php-3.0/vendor/autoload.php');
+	require_once('includes/email/mailgun-php-3.0/vendor/autoload.php');
 }
 else {
-	require_once('includes/mailer/mailgun-php-3.5.5/vendor/autoload.php');
+	require_once('includes/email/mailgun-php-3.5.5/vendor/autoload.php');
 }
 
 use Mailgun\Mailgun;
@@ -18,7 +18,7 @@ use Buzz\Exception\NetworkException;
 class JanitorMailgun {
 
 
-	// Mailer settings
+	// Email settings
 	private $api_key;
 	private $domain;
 	private $endpoint;
@@ -162,10 +162,12 @@ class JanitorMailgun {
 			return $this->client->messages()->send($this->domain, $mail_options);
 		}
 		catch(HttpClientException $e) {
+			// debug(["HttpClientException", $e]);
 			return false;
 		}
 		// Catch general exception
 		catch(Exception $e) {
+			// debug(["Exception", $e]);
 			return false;
 		}
 

@@ -1,14 +1,21 @@
 <?php
 
-// Shorthand auto initializer for mailer access
-$__mail = false;
-function mailer() {
-	global $__mail;
-	if(!$__mail) {
-		include_once("classes/helpers/mailer.class.php");
-		$__mail = new MailGateway();
+
+
+
+// Shorthand auto initializer for email access
+$__email = false;
+function email() {
+	global $__email;
+	if(!$__email) {
+		include_once("classes/helpers/email.class.php");
+		$__email = new EmailGateway();
 	}
-	return $__mail;
+	return $__email;
+}
+// Deprecated, keep until it has been cleaned out
+function mailer() {
+	return email();
 }
 
 
@@ -25,25 +32,33 @@ function DOM() {
 
 
 // Shorthand auto initializer for payment access
-$__pay = false;
-function payments() {
-	global $__pay;
-	if(!$__pay) {
-		include_once("classes/helpers/payments.class.php");
-		$__pay = new PaymentGateway();
+$__payment = false;
+function payment() {
+	global $__payment;
+	if(!$__payment) {
+		include_once("classes/helpers/payment.class.php");
+		$__payment = new PaymentGateway();
 	}
-	return $__pay;
+	return $__payment;
+}
+// Deprecated, keep until it has been cleaned out
+function payments() {
+	return email();
 }
 
 // Shorthand auto initializer for qr code generator access
-$__qr = false;
-function qr_codes() {
-	global $__qr;
-	if(!$__qr) {
+$__qrcode = false;
+function qrcode() {
+	global $__qrcode;
+	if(!$__qrcode) {
 		include_once("classes/helpers/qr_codes.class.php");
-		$__qr = new QrCodesGateway();
+		$__qrcode = new QrCodesGateway();
 	}
-	return $__qr;
+	return $__qrcode;
+}
+// Deprecated, keep until it has been cleaned out
+function qr_codes() {
+	return qrcode();
 }
 
 // Shorthand auto initializer for sms gateway access
@@ -55,6 +70,17 @@ function sms() {
 		$__sms = new SMSGateway();
 	}
 	return $__sms;
+}
+
+// Shorthand auto initializer for instantmessage gateway access
+$__instantmessage = false;
+function instantmessage() {
+	global $__instantmessage;
+	if(!$__instantmessage) {
+		include_once("classes/helpers/instantmessage.class.php");
+		$__instantmessage = new InstantMessageGateway();
+	}
+	return $__instantmessage;
 }
 
 // curl
@@ -78,6 +104,10 @@ function perf() {
 	}
 	return $__perf;
 }
+
+
+
+// SYSTEM MODULES
 
 // Shorthand auto initializer for security access
 $__security = false;
@@ -123,7 +153,6 @@ function session() {
 	return $__session;
 }
 
-
 // Shorthand auto initializer for cache access
 $__cache = false;
 function cache() {
@@ -133,5 +162,16 @@ function cache() {
 		$__cache = new Cache();
 	}
 	return $__cache;
+}
+
+// Shorthand auto initializer for admin access
+$__admin = false;
+function admin() {
+	global $__admin;
+	if(!$__admin) {
+		include_once("classes/system/admin.class.php");
+		$__admin = new Admin();
+	}
+	return $__admin;
 }
 

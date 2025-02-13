@@ -8,13 +8,13 @@ use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 
-require_once("includes/mailer/PHPMailer-6.8.0/vendor/autoload.php");
+require_once("includes/email/PHPMailer-6.8.0/vendor/autoload.php");
 
 
-class JanitorPHPMailer {
+class JanitorSmtp {
 
 
-	// Mailer settings
+	// Email settings
 	private $host;
 	private $port;
 	private $username;

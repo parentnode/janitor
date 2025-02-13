@@ -893,6 +893,7 @@ function translate($id, $variables = false) {
 }
 
 
+
 /**
 * Converts dd:mm:yyyy hh:mm to yyyy:mm:dd hh:mm:ss
 */

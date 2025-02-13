@@ -26,6 +26,7 @@ define("DEFAULT_COUNTRY_ISO", "DK");
 define("DEFAULT_CURRENCY_ISO", "DKK");
 
 define("SITE_LOGIN_URL",  "/janitor/admin/login");
+define("SITE_AUTO_LOGIN",  false);
 
 define("SITE_SIGNUP", ###SITE_SIGNUP###);
 define("SITE_SIGNUP_URL", "/signup");
@@ -39,8 +40,14 @@ define("SITE_SUBSCRIPTIONS", ###SITE_SUBSCRIPTIONS###);
 
 define("SITE_MEMBERS", ###SITE_MEMBERS###);
 
-// send collection email after N rows
-define("SITE_COLLECT_NOTIFICATIONS", 50);
+define("SITE_LOGGING_DISABLED", false);
+define("SITE_ADMIN_NOTIFICATIONS", true);
+define("SITE_ADMIN_NOTIFICATION_THRESHOLD", 10);
+define("SITE_DOWNLOAD_NOTIFICATIONS", false);
+
+define("SITE_AUTOCONVERSION_THRESHOLD", 100);
+define("SITE_AUTOCONVERSION_COLLECT_NOTIFICATIONS", 100);
+define("SITE_AUTOCONVERSION_ERROR_NOTIFICATIONS", true);
 
 
 
