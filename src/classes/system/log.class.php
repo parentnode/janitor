@@ -108,19 +108,47 @@ class Log {
 
 
 
-	// get tag, optionally based on item_id, limited to context, or just check if specific tag exists
-	function getLogs() {
+	// get log entries, 
+	// optionally based on date span, log type, item_id or user_id
+	function getLogs($_options = false) {
+
+		$from = false;
+		$to = false;
+
+		$type = false;
+
+		$item_id = false;
+
+		$user_id = false;
+
 
 		$fs = new FileSystem();
-		$log_files = $fs->files(LOG_FILE_PATH);
+		$all_log_files = $fs->files(LOG_FILE_PATH);
+		$log_files = [];
 
-// 		$query = new Query();
-// 		$sql = "SELECT tags.id as id, tags.context as context, tags.value as value, count(taggings.id) as tag_count FROM ".UT_TAG." as tags LEFT JOIN ".UT_TAGGINGS."  as taggings ON tags.id = taggings.tag_id GROUP BY tags.id ORDER BY tags.context, tags.value";
-// //		print $sql;
-// 		if($query->sql($sql)) {
-//
-// 			return $query->results();
-// 		}
+
+		if($options !== false) {
+			foreach($options as $option => $value) {
+				switch($option) {
+
+					case "from"         : $from        = $value; break;
+					case "to"           : $to.         = $value; break;
+
+					case "type"         : $type        = $value; break;
+
+					case "item_id"      : $item_id     = $value; break;
+					case "user_id"      : $user_id     = $value; break;
+
+				}
+			}
+		}
+
+
+		if($from && $to) {
+			
+		}
+
+
 
 		return $log_files;
 	}

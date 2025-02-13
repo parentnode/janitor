@@ -8,6 +8,12 @@ arsort($logs);
 <div class="scene i:scene defaultList logList">
 	<h1>Logs</h1>
 
+	<?= $HTML->formStart(); ?>
+
+	<?= $HTML->formEnd(); ?>
+
+
+
 	<div class="all_items i:defaultList filters">
 <?		if($logs): ?>
 		<ul class="items">
