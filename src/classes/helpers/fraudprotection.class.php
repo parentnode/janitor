@@ -49,7 +49,7 @@ class FraudProtectionGateway {
 	}
 
 
-	function getSiteKey($_options) {
+	function getSiteKey($_options = false) {
 		// debug(["getEvaluation", $_options]);
 
 		// only load payment adapter when needed
@@ -65,7 +65,7 @@ class FraudProtectionGateway {
 	}
 
 
-	function getEvaluation($_options) {
+	function getEvaluation($_options = false) {
 		// debug(["getEvaluation", $_options]);
 
 		// only load payment adapter when needed
