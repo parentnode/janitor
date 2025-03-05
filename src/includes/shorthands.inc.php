@@ -81,6 +81,17 @@ function instantmessage() {
 	return $__instantmessage;
 }
 
+// Shorthand auto initializer for fraudprotection gateway access
+$__fraudprotection = false;
+function fraudprotection() {
+	global $__fraudprotection;
+	if(!$__fraudprotection) {
+		include_once("classes/helpers/fraudprotection.class.php");
+		$__fraudprotection = new FraudProtectionGateway();
+	}
+	return $__fraudprotection;
+}
+
 // curl
 $__curl = false;
 function curl() {
