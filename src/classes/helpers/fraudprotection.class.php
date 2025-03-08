@@ -1,6 +1,7 @@
 <?php
 
-	 
+include_once("classes/system/module.class.php");
+
 class FraudProtectionGateway {
 
 
