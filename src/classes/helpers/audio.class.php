@@ -56,7 +56,7 @@ class Audio {
 
 		}
 
-		notify()->send(array(
+		admin()->notify(array(
 			"subject" => "ffmpeg failed", 
 			"message" => "Could not output audio file (could be missing codec or filepermissions issue)", 
 			"template" => "system"

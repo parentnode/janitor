@@ -59,7 +59,7 @@ class Image {
 		// not able to read input_file properly
 		if(!$input_width || !$input_height || !$input_format) {
 			// critical error - report to admin
-			notify()->send([
+			admin()->notify([
 				"subject" => "getImageFormat, getImageWidth or getImageHeight failed", 
 				"message" => "ImageMagick failed to read source image proporties", 
 				"template" => "system"
@@ -108,7 +108,7 @@ class Image {
 		// max pixels detection
 		if($max_pixels && $output_width * $output_height > $max_pixels) {
 			// critical error - report to admin
-			notify()->send(array(
+			admin()->notify(array(
 				"subject" => "Image failed ($output_width x $output_height)", 
 				"message" => "Image size too big", 
 				"template" => "system"
@@ -170,7 +170,7 @@ class Image {
 				else if($allow_padding) {
 //					print "allow padding<br>";
 
-					notify()->send(array(
+					admin()->notify(array(
 						"subject" => "Image failed ($output_width x $output_height)", 
 						"message" => "Image padding attempted - not supported yet", 
 						"template" => "system"
@@ -243,7 +243,7 @@ class Image {
 				else if($allow_padding) {
 //					print "allow padding<br>";
 
-					notify()->send(array(
+					admin()->notify(array(
 						"subject" => "Image failed ($output_width x $output_height)", 
 						"message" => "Image padding attempted - not supported yet", 
 						"template" => "system"

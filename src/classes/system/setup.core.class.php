@@ -2320,7 +2320,7 @@ class SetupCore extends Itemtype {
 			// If this is a new setup
 			// Send welcome email with password 
 			if(SETUP_TYPE == "new" && $this->get("account", "account_username") && $this->get("account", "account_password")) {
-				notify()->send(array(
+				admin()->notify(array(
 					"subject" => "Welcome to Janitor", 
 					"message" => "Your Janitor project is ready.\n\nLog in to your new Janitor project: ".SITE_URL."/janitor\n\nUsername: ".$this->get("account", "account_username")."\nPassword: ".$this->get("account", "account_password")."\n\nSee you soon,\n\nJanitor",
 					"tracking" => false

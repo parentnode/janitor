@@ -56,7 +56,7 @@ class Video {
 		if($input_format != $output_format && !$allow_conversion) {
 			// critical error - report to admin
 
-			notify()->send(array(
+			admin()->notify(array(
 				"subject" => "ffmpeg failed", 
 				"messsage" => "ffmpeg failed to read source video proporties", 
 				"template" => "system"
@@ -85,7 +85,7 @@ class Video {
 		if($max_pixels && $output_width * $output_height > $max_pixels) {
 			// critical error - report to admin
 
-			notify()->send(array(
+			admin()->notify(array(
 				"subject" => "Video failed ($output_width x $output_height)", 
 				"message" => "Video size too big", 
 				"template" => "system"
@@ -394,7 +394,7 @@ class Video {
 
 		}
 
-		notify()->send(array(
+		admin()->notify(array(
 			"subject" => "ffmpeg failed", 
 			"message" => "Could not output video file (could be missing codec or filepermissions issue)", 
 			"template" => "system"

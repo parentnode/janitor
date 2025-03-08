@@ -451,7 +451,7 @@ class UserCore extends Model {
 				logger()->addLog("user->newUser: signup identified as BOT: $email");
 
 				// send notification email to admin
-				notify()->send(array(
+				admin()->notify(array(
 					"subject" => SITE_URL . " - BOT SIGNUP DETECTED: " . $email, 
 					"message" => "no user was created",
 					"tracking" => false,
@@ -596,7 +596,7 @@ class UserCore extends Model {
 								));
 
 								// send notification email to admin
-								notify()->send(array(
+								admin()->notify(array(
 									"subject" => SITE_URL . " - New User: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
 									"tracking" => false,
@@ -612,7 +612,7 @@ class UserCore extends Model {
 								));
 
 								// send notification email to admin
-								notify()->send(array(
+								admin()->notify(array(
 									"subject" => "New User created ERROR: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
 									"tracking" => false
@@ -700,9 +700,12 @@ class UserCore extends Model {
 
 				}
 			}
+
+			logger()->addLog("user->newUser failed: (missing info)");
+			return false;
 		}
 
-		logger()->addLog("user->newUser failed: (missing info)");
+		logger()->addLog("user->newUser failed: (not allowed)");
 		return false;
 	}
 
@@ -1356,6 +1359,7 @@ class UserCore extends Model {
 	}
 
 
+
 	// start reset password procedure
 	function requestPasswordReset($action) {
 
@@ -1418,7 +1422,7 @@ class UserCore extends Model {
 
 							// send notification email to admin
 							// TODO: consider disabling this once it has proved itself worthy
-							// notify()->send(array(
+							// admin()->notify(array(
 							// 	"subject" => "Password reset requested: " . $email,
 							// 	"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
 							// 	"template" => "system"
@@ -1480,9 +1484,14 @@ class UserCore extends Model {
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 					if($query->sql($sql)) {
 
+
+						// Delete all access tokens on password reset
+						security()->deleteAccessTokens(["user_id" => $user_id]);
+
+
 						// send notification email to admin
 						// TODO: consider disabling this once it has proved itself worthy
-						// notify()->send(array(
+						// admin()->notify(array(
 						// 	"subject" => "Password was resat: " . $user_id,
 						// 	"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id
 						// ));
