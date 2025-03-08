@@ -1,7 +1,6 @@
 <?php
-	
 
-
+	 
 class FraudProtectionGateway {
 
 
@@ -38,7 +37,7 @@ class FraudProtectionGateway {
 
 					@include_once("classes/adapters/fraudprotection/".$this->_settings["type"].".class.php");
 					$adapter_class = "Janitor".ucfirst($this->_settings["type"]);
-					$this->adapter = new $adapter_class();
+					$this->adapter = new $adapter_class($this->_settings);
 
 				}
 
