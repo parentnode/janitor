@@ -7,8 +7,9 @@ $access_item["/reset"] = false;
 $access_item["/resetPassword"] = "/reset";
 
 $access_item["/apitoken"] = true;
-$access_item["/renewToken"] = "/apitoken";
-$access_item["/disableToken"] = "/apitoken";
+$access_item["/renewApiToken"] = "/apitoken";
+$access_item["/disableApiToken"] = "/apitoken";
+
 
 $access_item["/readstates"] = true;
 $access_item["/addReadstate"] = "/readstates";

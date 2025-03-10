@@ -37,6 +37,16 @@ $jam_sources = [
 			],
 		] 
 	],
+	"fraudprotection" => [
+		"name" => "Fraud protections systems",
+		"modules" => [
+			"recaptcha" => [
+				"name" => "reCAPTCHA",
+				"info_link" => "https://www.google.com/recaptcha/intro/v3",
+				"repos" => "https://github.com/parentnode/jam-fraudprotection-recaptcha",
+			],
+		] 
+	],
 	
 ];
 

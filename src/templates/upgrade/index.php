@@ -35,7 +35,7 @@ global $upgrade_model;
 
 <? if(preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL)):
 	// initialize mailer to make ADMIN_EMAIL available
-		mailer();
+		email();
 		if(defined("ADMIN_EMAIL")):
  ?>
 	<h2>Development tools</h2>

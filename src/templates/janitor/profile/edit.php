@@ -8,8 +8,14 @@ $item = $model->getUser();
 // get languages for select
 $language_options = $model->toOptions($this->languages(), "id", "name");
 
-// api token
-$apitoken = $model->getToken();
+
+$api_token_access = false;
+if(security()->validatePath("/janitor/admin/profile/apitoken")) {
+	$api_token_access = true;
+
+	// get api token
+	$api_token = $model->getAPIToken();
+}
 
 // payment methods
 $user_payment_methods = $model->getPaymentMethods(["extend" => true]);
@@ -168,21 +174,26 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	<? endif; ?>
 
 
+	<? if($api_token_access): ?>
 	<div class="apitoken i:apitokenProfile i:collapseHeader">
 		<h2>API Token</h2>
-		<p class="token"><?= stringOr($apitoken, "N/A") ?></p>
+		<p>The API token can be used for programatic logins.</p>
+		<p class="token"><?= stringOr($api_token, "N/A") ?></p>
 
-		<?= $model->formStart("renewToken", array("class" => "renew")) ?>
+		<?= $model->formStart("renewApiToken", array("class" => "renew")) ?>
 			<ul class="actions">
-				<?= $model->submit(($apitoken ? "Renew API token" : "Create API token"), array("class" => "primary", "wrapper" => "li.renew")) ?>
+				<?= $model->submit(($api_token ? "Renew API token" : "Create API token"), array("class" => "primary", "wrapper" => "li.renew")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
-		<?= $model->formStart("disableToken", array("class" => "disable")) ?>
+		<?= $model->formStart("disableApiToken", array("class" => "disable")) ?>
 			<ul class="actions">
-				<?= $model->submit("Disable token", array("class" => "secondary".($apitoken ? "" : " disabled"), "wrapper" => "li.renew")) ?>
+				<?= $model->submit("Disable token", array("class" => "secondary".($api_token ? "" : " disabled"), "wrapper" => "li.renew")) ?>
 			</ul>
 		<?= $model->formEnd() ?>
 	</div>
+	<? endif; ?>
+
+
 
 	<div class="addresses i:collapseHeader">
 		<h2>Addresses</h2>

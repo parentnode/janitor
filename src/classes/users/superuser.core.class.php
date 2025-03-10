@@ -1384,7 +1384,7 @@ class SuperUserCore extends User {
 
 				$password = password_hash($this->getProperty("password", "value"), PASSWORD_DEFAULT);
 				if($this->hasPassword(["user_id" => $user_id, "include_empty" => true])) {
-					$sql = "UPDATE ".$this->db_passwords." SET password = '$password' WHERE user_id = $user_id";
+					$sql = "UPDATE ".$this->db_passwords." SET password = '$password', created_at = CURRENT_TIMESTAMP WHERE user_id = $user_id";
 				}
 				else {
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
@@ -1755,7 +1755,7 @@ class SuperUserCore extends User {
 	// API TOKEN
 
 	// get users api token
-	function getToken($user_id = false) {
+	function getApiToken($user_id = false) {
 
 		$query = new Query();
 		// make sure type tables exist
@@ -1769,8 +1769,8 @@ class SuperUserCore extends User {
 	}
 
 	// create new api token
-	// user/renewToken/#user_id#
-	function renewToken($action) {
+	// user/renewApiToken/#user_id#
+	function renewApiToken($action) {
 
 		$user_id = $action[1];
 
@@ -1796,7 +1796,7 @@ class SuperUserCore extends User {
 
 	// disable api token
 	// /janitor/admin/profile/disableToken
-	function disableToken($action) {
+	function disableApiToken($action) {
 
 
 		$user_id = $action[1];
@@ -2255,7 +2255,7 @@ class SuperUserCore extends User {
 				// use current user as sender for this reminder
 				$current_user = $this->getUser();
 				if(
-					mailer()->send(array(
+					email()->send(array(
 					"from_current_user" => true,
 					"values" => array(
 						"FROM" => $current_user["nickname"],

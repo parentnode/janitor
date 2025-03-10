@@ -698,7 +698,7 @@ class SuperSubscriptionCore extends Subscription {
 											// failed registration of payment
 											if(!$payment_registration_result || $payment_registration_result["status"] !== "REGISTERED") {
 
-												mailer()->send(array(
+												admin()->notify(array(
 													"subject" => SITE_URL . " - Subscription renewal, payment registration failed",
 													"message" => "SuperUser->renewSubscriptions: FAILED REGISTERING PAYMENT, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"],
 													"template" => "system"
@@ -714,7 +714,7 @@ class SuperSubscriptionCore extends Subscription {
 										$SC->sendPaymentReminder(["sendPaymentReminder"]);
 										unset($_POST);
 
-										mailer()->send(array(
+										admin()->notify(array(
 											"subject" => SITE_URL . " - Subscription renewal, payment action required (no capture)",
 											"message" => "SuperUser->renewSubscriptions: payment action required (no capture), item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"].", payment_method:".$payment_method_result["card"]["id"].", payment_intent:".$result["payment_intent_id"].", ".print_r($payment_method_result, true)."\n\nWe HAVE sent mail to user",
 											"template" => "system"
@@ -732,7 +732,7 @@ class SuperSubscriptionCore extends Subscription {
 									$SC->sendPaymentReminder(["sendPaymentReminder"]);
 									unset($_POST);
 
-									mailer()->send(array(
+									admin()->notify(array(
 										"subject" => SITE_URL . " - Subscription renewal, payment action required (no valid card)",
 										"message" => "SuperUser->renewSubscriptions: payment action required (no valid card), item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"]."\n\nWe HAVE sent mail to user",
 										"template" => "system"
@@ -748,7 +748,7 @@ class SuperSubscriptionCore extends Subscription {
 						// Failed to update subscription
 						else {
 
-							mailer()->send(array(
+							admin()->notify(array(
 								"subject" => SITE_URL . " - Subscription renewal failed",
 								"message" => "SuperUser->renewSubscriptions: FAILED, item_id:".$subscription["item_id"].", subscription_id:".$subscription["id"].", user_id:".$subscription["user_id"].", expires_at:".$subscription["expires_at"],
 								"template" => "system"

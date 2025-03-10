@@ -451,7 +451,7 @@ class UserCore extends Model {
 				logger()->addLog("user->newUser: signup identified as BOT: $email");
 
 				// send notification email to admin
-				mailer()->send(array(
+				admin()->notify(array(
 					"subject" => SITE_URL . " - BOT SIGNUP DETECTED: " . $email, 
 					"message" => "no user was created",
 					"tracking" => false,
@@ -583,7 +583,7 @@ class UserCore extends Model {
 							if($verification_code) {
 
 								// send verification email to user
-								mailer()->send(array(
+								email()->send(array(
 									"values" => array(
 										"NICKNAME" => $nickname, 
 										"EMAIL" => $email, 
@@ -596,7 +596,7 @@ class UserCore extends Model {
 								));
 
 								// send notification email to admin
-								mailer()->send(array(
+								admin()->notify(array(
 									"subject" => SITE_URL . " - New User: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
 									"tracking" => false,
@@ -606,13 +606,13 @@ class UserCore extends Model {
 							// error
 							else {
 								// send error email notification
-								mailer()->send(array(
+								email()->send(array(
 									"recipients" => $email, 
 									"template" => "signup_error"
 								));
 
 								// send notification email to admin
-								mailer()->send(array(
+								admin()->notify(array(
 									"subject" => "New User created ERROR: " . $email, 
 									"message" => "Check out the new user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id, 
 									"tracking" => false
@@ -700,9 +700,12 @@ class UserCore extends Model {
 
 				}
 			}
+
+			logger()->addLog("user->newUser failed: (missing info)");
+			return false;
 		}
 
-		logger()->addLog("user->newUser failed: (missing info)");
+		logger()->addLog("user->newUser failed: (not allowed)");
 		return false;
 	}
 
@@ -1116,7 +1119,7 @@ class UserCore extends Model {
 
 		$user = $this->getUser();
 		
-		mailer()->send([
+		email()->send([
 			"values" => [
 				"NICKNAME" => $user["nickname"], 
 				"EMAIL" => $email, 
@@ -1133,7 +1136,7 @@ class UserCore extends Model {
 		
 		$user = $this->getUser();
 
-		mailer()->send(array(
+		email()->send(array(
 			"values" => array(
 				"NICKNAME" => $user["nickname"], 
 				"EMAIL" => $new_email, 
@@ -1356,6 +1359,7 @@ class UserCore extends Model {
 	}
 
 
+
 	// start reset password procedure
 	function requestPasswordReset($action) {
 
@@ -1405,7 +1409,7 @@ class UserCore extends Model {
 							$nickname = $query->result(0, "nickname");
 
 							// send email
-							mailer()->send(array(
+							email()->send(array(
 								"values" => array(
 									"TOKEN" => $reset_token,
 									"USERNAME" => $username,
@@ -1418,7 +1422,7 @@ class UserCore extends Model {
 
 							// send notification email to admin
 							// TODO: consider disabling this once it has proved itself worthy
-							// mailer()->send(array(
+							// admin()->notify(array(
 							// 	"subject" => "Password reset requested: " . $email,
 							// 	"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id,
 							// 	"template" => "system"
@@ -1480,9 +1484,14 @@ class UserCore extends Model {
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 					if($query->sql($sql)) {
 
+
+						// Delete all access tokens on password reset
+						security()->deleteAccessTokens(["user_id" => $user_id]);
+
+
 						// send notification email to admin
 						// TODO: consider disabling this once it has proved itself worthy
-						// mailer()->send(array(
+						// admin()->notify(array(
 						// 	"subject" => "Password was resat: " . $user_id,
 						// 	"message" => "Check out the user: " . SITE_URL . "/janitor/admin/user/edit/" . $user_id
 						// ));
@@ -1871,8 +1880,8 @@ class UserCore extends Model {
 
 	// API TOKEN
 
-	// get users api token
-	function getToken($user_id = false) {
+	// get user's api token
+	function getApiToken($user_id = false) {
 
 		$user_id = session()->value("user_id");
 
@@ -1889,7 +1898,7 @@ class UserCore extends Model {
 
 	// create new api token
 	// /janitor/admin/profile/renewToken
-	function renewToken($action) {
+	function renewApiToken($action) {
 
 
 		$user_id = session()->value("user_id");
@@ -1918,7 +1927,7 @@ class UserCore extends Model {
 
 	// disable api token
 	// /janitor/admin/profile/disableToken
-	function disableToken($action) {
+	function disableApiToken($action) {
 
 
 		$user_id = session()->value("user_id");

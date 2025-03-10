@@ -85,7 +85,7 @@ class Admin {
 			else {
 
 				// debug(["do the notification"]);
-				$query->sql("INSERT INTO ".$this->db_admin_notifications." SET invoked_by_ip = '".getRequestIp()."'");
+				$query->sql("INSERT INTO ".$this->db_admin_notifications." SET invoked_by_ip = '".security()->getRequestIp()."'");
 
 				if(defined("ADMIN_NOTIFICATIONS") && ADMIN_NOTIFICATIONS === "instantmessage") {
 					return instantmessage()->send($_options);

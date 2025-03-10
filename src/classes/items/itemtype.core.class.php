@@ -2031,6 +2031,72 @@ class ItemtypeCore extends Model {
 
 
 
+	// FAVORITES
+
+	// add item as favorite
+	// item_id is sent in $_POST
+	// /janitor/[admin/]#itemtype#/addAsFavorite/#item_id#
+	function addAsFavorite($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2) {
+
+			$query = new Query();
+
+			if($this->validateList(array("item_id"))) {
+
+				$user_id = session()->value("user_id");
+				$item_id = $this->getProperty("item_id", "value");
+
+				$sql = "INSERT INTO ".UT_ITEMS_FAVEROTES." VALUES(DEFAULT, $item_id, $user_id, DEFAULT)";
+				// debug($sql);
+				if($query->sql($sql)) {
+					message()->addMessage("Favorite added");
+
+					$favorite_id = $query->lastInsertId();
+					$IC = new Items();
+					$new_favorite = $IC->getFavorites(array("favorite_id" => $favorite_id));
+					$new_favorite["created_at"] = date("Y-m-d, H:i", strtotime($new_favorite["created_at"]));
+					return $new_favorite;
+				}
+
+
+			}
+
+		}
+
+		message()->addMessage("Favorite could not be added", array("type" => "error"));
+		return false;
+	}
+
+	// delete favorite
+	// /janitor/[admin/]#itemtype#/deleteFavorite
+	// TODO: implement itemtype checks
+ 	function deleteFavorite($action) {
+
+		if(count($action) == 3) {
+
+			$query = new Query();
+
+			if($this->validateList(array("item_id", "favorite_id"))) {
+
+				$user_id = session()->value("user_id");
+				$item_id = $this->getProperty("item_id", "value");
+				$favorite_id = $this->getProperty("favorite_id", "value");
+
+				if($query->sql("DELETE FROM ".UT_ITEMS_FAVORITES." WHERE item_id = $item_id AND id = $favorite_id AND user_id = $user_id")) {
+
+					message()->addMessage("Favorite deleted");
+					return true;
+				}
+			}
+		}
+
+		message()->addMessage("Favorite could not be deleted", array("type" => "error"));
+		return false;
+	}
 
 
 	// PRICES

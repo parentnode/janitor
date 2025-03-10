@@ -47,9 +47,7 @@ class Security {
 			cache()->value("blocked-".security()->getRequestIp(), true, 3600);
 
 			// Notify admin
-			mailer()->send([
-				// "recipients" => "martin@think.dk,anders@greenspeak.dk",
-				"recipients" => ADMIN_EMAIL,
+			admin()->notify([
 				"subject" => "USER BLOCKED DUE TO SUSPICIOUS ACTIVITY",
 				"message" => "User attempted a POST while either IP or UA changed during session",
 				"tracking" => false,
@@ -560,7 +558,7 @@ class Security {
 							$verification_code = $query->result(0, "verification_code");
 
 							// send verification reminder email
-							mailer()->send(array(
+							email()->send(array(
 								"values" => array(
 									"NICKNAME" => $nickname, 
 									"EMAIL" => $email, 
@@ -625,7 +623,7 @@ class Security {
 
 				if($query->sql($sql)) {
 					// send verification reminder email
-					mailer()->send(array(
+					email()->send(array(
 						"values" => array(
 							"NICKNAME" => $nickname, 
 							"EMAIL" => $email, 
@@ -707,7 +705,7 @@ class Security {
 	/**
 	* Log in using token
 	*/
-	function tokenLogIn() {
+	function apiTokenLogIn() {
 
 		// Allow GET parameters
 		$token = getVar("token");
@@ -806,7 +804,7 @@ class Security {
 
 		// Log and send in email
 		logger()->addLog("Throwoff - insufficient privileges:".$url." by ". session()->value("user_id"));
-		mailer()->send(array(
+		admin()->notify(array(
 			"subject" => "Throwoff - " . SITE_URL, 
 			"message" => "insufficient privileges:".$url, 
 			"template" => "system"

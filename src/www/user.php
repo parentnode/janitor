@@ -19,8 +19,8 @@ $access_item["/setPassword"] = true;
 
 
 $access_item["/apitoken"] = true;
-$access_item["/renewToken"] = "/apitoken";
-$access_item["/disableToken"] = "/apitoken";
+$access_item["/renewApiToken"] = "/apitoken";
+$access_item["/disableApiToken"] = "/apitoken";
 
 
 $access_item["/deletePaymentMethod"] = false;

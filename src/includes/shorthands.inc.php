@@ -1,8 +1,6 @@
 <?php
 
 
-
-
 // Shorthand auto initializer for email access
 $__email = false;
 function email() {
@@ -43,7 +41,7 @@ function payment() {
 }
 // Deprecated, keep until it has been cleaned out
 function payments() {
-	return email();
+	return payment();
 }
 
 // Shorthand auto initializer for qr code generator access
@@ -81,6 +79,17 @@ function instantmessage() {
 		$__instantmessage = new InstantMessageGateway();
 	}
 	return $__instantmessage;
+}
+
+// Shorthand auto initializer for fraudprotection gateway access
+$__fraudprotection = false;
+function fraudprotection() {
+	global $__fraudprotection;
+	if(!$__fraudprotection) {
+		include_once("classes/helpers/fraudprotection.class.php");
+		$__fraudprotection = new FraudProtectionGateway();
+	}
+	return $__fraudprotection;
 }
 
 // curl

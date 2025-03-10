@@ -152,6 +152,70 @@ function getPostPassword($which) {
 	}
 }
 
+function getCookie($name) {
+	if(isset($_COOKIES[$name])) {
+		return prepareForDB($_COOKIES[$name]);
+	}
+	else {
+		return false;
+	}
+}
+
+function saveCookie($name, $value, $_options = false) {
+
+	$expires = false;
+
+	$path = "/";
+	$domain = $_SERVER["SERVER_NAME"];
+
+	$secure = true;
+	$httponly = true;
+
+	if($_options !== false) {
+		foreach($_options as $_option => $_value) {
+			switch($_option) {
+				case "expires"         : $expires           = $_value; break;
+
+				case "path"            : $path              = $_value; break;
+				case "domain"          : $domain            = $_value; break;
+
+				case "secure"          : $secure            = $_value; break;
+				case "httponly"        : $httponly          = $_value; break;
+			}
+		}
+	}
+
+	$options = [
+		"path" => $path,
+		"domain" => $domain,
+	];
+
+	if($expires) {
+		$options["expires"] = strtotime($expires);
+	}
+
+	if($secure) {
+		$options["secure"] = $secure;
+	}
+
+	if($httponly) {
+		$options["httponly"] = $httponly;
+	}
+
+	debug([$name, $value, $options]);
+	exit();
+
+	setcookie($name, $value);
+	// setcookie($name, $value, $options);
+
+}
+
+function deleteCookie($name, ) {
+
+	setcookie($name, "", time() - 360);
+
+}
+
 
 /**
 * Prepare variables to be returned to page (because of error or like)

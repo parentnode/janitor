@@ -28,6 +28,9 @@ define("UT_ITEMS_COMMENTS",             SITE_DB.".items_comments");             
 // RATINGS
 define("UT_ITEMS_RATINGS",              SITE_DB.".items_ratings");                     // Items Ratings
 
+// FAVORITES
+define("UT_ITEMS_FAVORITES",            SITE_DB.".items_favorites");                   // Items Favorites
+
 // PRICES
 define("UT_ITEMS_PRICES",               SITE_DB.".items_prices");                      // Items Prices
 

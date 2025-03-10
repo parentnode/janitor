@@ -164,7 +164,7 @@ class TypeMessageCore extends Itemtype {
 		}
 
 		if($recipients) {
-			if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "template" => $template])) {
+			if(email()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "template" => $template])) {
 
 				message()->addMessage("Mail(s) sent to ".implode(",", $recipients));
 				return $recipients;
@@ -812,7 +812,7 @@ class TypeMessageCore extends Itemtype {
 					// print_r($recipients);
 					// print_r($recipient_values);
 
-					if(mailer()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "subject" => $message["name"], "html" => $html, "tracking" => true, "attachments" => $attachments])) {
+					if(email()->sendBulk(["recipients" => $recipients, "values" => $recipient_values, "subject" => $message["name"], "html" => $html, "tracking" => true, "attachments" => $attachments])) {
 
 						logger()->addLog("TypeMessage->sendMessage: user_id:".session()->value("user_id").", item_id:".$item_id.", " . ($maillist_id ? "maillist_id:".$maillist_id : "recipients:".implode(";", $recipients)));
 

@@ -2116,7 +2116,7 @@ class SuperShopCore extends Shop {
 
 				$order_content = $this->getOrderContentString($order["items"]);
 
-				mailer()->send(array(
+				email()->send(array(
 					// "from_current_user" => true,
 					"values" => array(
 						"FROM" => SITE_NAME,

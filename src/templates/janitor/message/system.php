@@ -6,7 +6,7 @@ global $itemtype;
 
 $template = getVar("template");
 
-$template_options = mailer()->getTemplate($template);
+$template_options = email()->getTemplate($template);
 $values = [];
 //print_r($template_options);
 
