@@ -50,7 +50,7 @@ class FraudProtectionGateway {
 
 
 	function getSiteKey($_options = false) {
-		// debug(["getEvaluation", $_options]);
+		// debug(["getSiteKey", $_options]);
 
 		// only load payment adapter when needed
 		$this->init_adapter();
