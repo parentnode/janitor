@@ -4,6 +4,7 @@ CREATE TABLE `SITE_DB`.`items_favorites` (
   `user_id` int(11) NOT NULL,
 
   `ip` varchar(50) NOT NULL,
+  `email` varchar(255) NOT NULL,
 
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

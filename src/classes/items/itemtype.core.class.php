@@ -69,6 +69,17 @@ class ItemtypeCore extends Model {
 			"error_message" => "Rating cannot be empty."
 		));
 
+
+		// Favorites
+		$this->addToModel("favorite_id", array(
+			"type" => "integer",
+			"label" => "Favorite ID",
+			"required" => true,
+			"hint_message" => "Favorite ID.",
+			"error_message" => "Favorite ID must be filled out."
+		));
+
+
 		// Prices
 		$this->addToModel("item_price", array(
 			"type" => "string",
@@ -2033,68 +2044,158 @@ class ItemtypeCore extends Model {
 
 	// FAVORITES
 
-	// add item as favorite
-	// item_id is sent in $_POST
-	// /janitor/[admin/]#itemtype#/addAsFavorite/#item_id#
-	function addAsFavorite($action) {
+	function API_addFavorite($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if(count($action) == 2) {
+		if(count($action) == 1 && $this->validateList(array("item_id"))) {
 
-			$query = new Query();
+			$item_id = $this->getProperty("item_id", "value");
 
-			if($this->validateList(array("item_id"))) {
-
-				$user_id = session()->value("user_id");
-				$item_id = $this->getProperty("item_id", "value");
-
-				$sql = "INSERT INTO ".UT_ITEMS_FAVEROTES." VALUES(DEFAULT, $item_id, $user_id, DEFAULT)";
-				// debug($sql);
-				if($query->sql($sql)) {
-					message()->addMessage("Favorite added");
-
-					$favorite_id = $query->lastInsertId();
-					$IC = new Items();
-					$new_favorite = $IC->getFavorites(array("favorite_id" => $favorite_id));
-					$new_favorite["created_at"] = date("Y-m-d, H:i", strtotime($new_favorite["created_at"]));
-					return $new_favorite;
-				}
-
-
+			$result = $this->addFavorite($item_id);
+			if($result) {
+				message()->addMessage("Favorite added");
+				return $result;
 			}
 
 		}
 
-		message()->addMessage("Favorite could not be added", array("type" => "error"));
+		message()->addMessage("Favorite could not be added", ["type" => "error"]);
 		return false;
 	}
 
-	// delete favorite
-	// /janitor/[admin/]#itemtype#/deleteFavorite
-	// TODO: implement itemtype checks
- 	function deleteFavorite($action) {
+	// add item as favorite
+	// For current user unless user_id is specified
+	// Optional email and IP for anonymous favorite adding (simple like)
+	function addFavorite($item_id, $_options = false) {
 
-		if(count($action) == 3) {
+		$user_id = session()->value("user_id");
+		$email = "";
 
-			$query = new Query();
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
 
-			if($this->validateList(array("item_id", "favorite_id"))) {
+					case "user_id"          : $user_id           = $_value; break;
+					case "email"            : $email             = $_value; break;
 
-				$user_id = session()->value("user_id");
-				$item_id = $this->getProperty("item_id", "value");
-				$favorite_id = $this->getProperty("favorite_id", "value");
-
-				if($query->sql("DELETE FROM ".UT_ITEMS_FAVORITES." WHERE item_id = $item_id AND id = $favorite_id AND user_id = $user_id")) {
-
-					message()->addMessage("Favorite deleted");
-					return true;
 				}
 			}
 		}
 
-		message()->addMessage("Favorite could not be deleted", array("type" => "error"));
+
+		$query = new Query();
+		$favorite_id = false;
+
+		// Anonymous favorite
+		if($user_id === 1) {
+
+			$ip = security()->getRequestIp();
+
+			// Look for existing favorite
+			$sql = "SELECT id FROM ".UT_ITEMS_FAVORITES." WHERE item_id = $item_id AND user_id = $user_id";
+			if($email) {
+				$sql .= "AND (email = '$email' OR ip = '$ip)";
+			}
+			else {
+				$sql .= "AND ip = '$ip'";
+			}
+
+			// debug([$sql]);
+			if($query->sql($sql)) {
+				$favorite_id = $query->result(0, "id");
+			}
+			else {
+
+				$sql = "INSERT INTO ".UT_ITEMS_FAVORITES." VALUES(DEFAULT, $item_id, $user_id, '$ip', '$email', DEFAULT)";
+				// debug([$sql]);
+				if($query->sql($sql)) {
+					$favorite_id = $query->lastInsertId();
+				}
+
+			}
+
+		}
+		// Actual user
+		else {
+
+			// Look for existing favorite
+			$sql = "SELECT id FROM ".UT_ITEMS_FAVORITES." WHERE item_id = $item_id AND user_id = $user_id";
+			// debug([$sql]);
+			if($query->sql($sql)) {
+				$favorite_id = $query->result(0, "id");
+			}
+			else {
+
+				$sql = "INSERT INTO ".UT_ITEMS_FAVORITES." VALUES(DEFAULT, $item_id, $user_id, '', '', DEFAULT)";
+				// debug([$sql]);
+				if($query->sql($sql)) {
+					$favorite_id = $query->lastInsertId();
+				}
+			}
+		}
+
+		if($favorite_id) {
+
+			$IC = new Items();
+			return $IC->getFavorites(array("favorite_id" => $favorite_id));
+
+		}
+
+		return false;
+	}
+
+
+	function API_removeFavorite($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 1 && $this->validateList(array("item_id", "favorite_id"))) {
+
+			$item_id = $this->getProperty("item_id", "value");
+			$favorite_id = $this->getProperty("favorite_id", "value");
+
+			$result = $this->removeFavorite($item_id, $favorite_id);
+			if($result) {
+				message()->addMessage("Favorite removed");
+				return $result;
+			}
+
+		}
+
+		message()->addMessage("Favorite could not be removed", ["type" => "error"]);
+		return false;
+	}
+
+	// remove favorite
+	// Must pass integritycheck
+	// – item_id and favorite item must be same item
+	// – user_id and favorite user must be same user
+	function removeFavorite($item_id, $favorite_id, $_options = false) {
+
+		$user_id = session()->value("user_id");
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "user_id"          : $user_id           = $_value; break;
+
+				}
+			}
+		}
+
+		$query = new Query();
+		$sql = "DELETE FROM ".UT_ITEMS_FAVORITES." WHERE item_id = $item_id AND id = $favorite_id AND user_id = $user_id";
+		// debug([$sql]);
+		if($query->sql($sql)) {
+			return true;
+		}
+
 		return false;
 	}
 

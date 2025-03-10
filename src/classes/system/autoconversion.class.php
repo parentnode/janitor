@@ -483,7 +483,7 @@ class AutoConversion {
 			else {
 
 				// debug(["do the autoconversion"]);
-				$query->sql("INSERT INTO ".$this->db_autoconversions." SET invoked_by_ip = '".getRequestIp()."'");
+				$query->sql("INSERT INTO ".$this->db_autoconversions." SET invoked_by_ip = '".security()->getRequestIp()."'");
 
 				return true;
 

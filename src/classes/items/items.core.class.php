@@ -373,7 +373,7 @@ class ItemsCore {
 				$item["ratings"] = $this->getRatings(array("item_id" => $item["id"]));
 			}
 			if($all || $favorites) {
-				$item["favorites"] = $this->getFavorites(array("item_id" => $item["id"]));
+				$item["favorites"] = $this->getFavorites(["item_id" => $item["id"], "extend" => ["user" => true]]);
 			}
 
 			return $item;
@@ -2020,12 +2020,14 @@ class ItemsCore {
 
 
 	// get ratings, optionally based on item_id, user_id or rating_id
-	function getFavorites($_options=false) {
-		debug(["comon"]);
+	function getFavorites($_options = false) {
+
 		$item_id = false;
 		$rating_id = false;
 		$user_id = false;
 		$order = false;
+
+		$extend = false;
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -2035,6 +2037,8 @@ class ItemsCore {
 					case "user_id"       : $user_id        = $_value; break;
 
 					case "order"         : $order          = $_value; break;
+
+					case "extend"        : $extend         = $_value; break;
 				}
 			}
 		}
@@ -2046,48 +2050,76 @@ class ItemsCore {
 		if($item_id !== false) {
 
 			$sql = "SELECT count(*) AS total FROM ".UT_ITEMS_FAVORITES." AS favorites WHERE favorites.item_id = $item_id";
-			debug([$sql]);
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				$total = $query->result(0, "total");
 
 				$favorites = [];
 				$favorites["total"] = $total;
 
-				$user_id = session()->value("user_id");
-				if($user_id) {
-					$sql = "SELECT id, created_at FROM ".UT_ITEMS_FAVORITES." AS favorites WHERE favorites.item_id = $item_id AND user_id = $user_id";
-					if($query->sql($sql)) {
-						$favorites["created_at"] = $query->result(0, "created_at");
-						$favorites["favorite_id"] = $query->result(0, "id");
+				if($extend && isset($extend["user"]) && $extend["user"]) {
+
+					$user_id = session()->value("user_id");
+					if($user_id > 1) {
+						$sql = "SELECT id, created_at FROM ".UT_ITEMS_FAVORITES." AS favorites WHERE favorites.item_id = $item_id AND user_id = $user_id";
+						if($query->sql($sql)) {
+							$favorites["created_at"] = $query->result(0, "created_at");
+							$favorites["favorite_id"] = $query->result(0, "id");
+							$favorites["iso_timestamp"] = date("Y-m-d, H:i", strtotime($favorites["created_at"]));
+							return $favorites;
+						}
 					}
 					else {
-						$favorites["created_at"] = false;
-						$favorites["favorite_id"] = false;
+						$ip = security()->getRequestIp();
+						$sql = "SELECT id, created_at FROM ".UT_ITEMS_FAVORITES." AS favorites WHERE favorites.item_id = $item_id AND user_id = $user_id && ip = '$ip'";
+						if($query->sql($sql)) {
+							$favorites["created_at"] = $query->result(0, "created_at");
+							$favorites["favorite_id"] = $query->result(0, "id");
+							$favorites["iso_timestamp"] = date("Y-m-d, H:i", strtotime($favorites["created_at"]));
+							return $favorites;
+						}
+					}
+
+					$favorites["created_at"] = false;
+					$favorites["favorite_id"] = false;
+				}
+
+				return $favorites;
+
+			}
+
+		}
+
+
+		// Get all favorites by user_id and related items
+		else if($user_id !== false) {
+			if($query->sql("SELECT * FROM ".UT_ITEMS_FAVORITES." AS favorites WHERE user_id = $user_id".($order ? " ORDER BY $order" : ""))) {
+				$favorites = $query->results();
+
+				if($extend && isset($extend["item"]) && $extend["item"]) {
+					foreach($favorites as $index => $favorite) {
+						$favorites[$index]["iso_timestamp"] = date("Y-m-d, H:i", strtotime($favorite["created_at"]));
+						$favorites[$index]["item"] = $this->getItem(array("id" => $favorite["item_id"], "extend" => true));
 					}
 				}
 
 				return $favorites;
 			}
 		}
-		// Get all favorites by user_id and related items
-		else if($user_id !== false) {
-			if($query->sql("SELECT * FROM ".UT_ITEMS_FAVORITES." AS favorites WHERE user_id = $user_id".($order ? " ORDER BY $order" : ""))) {
-				$favorites = $query->results();
-				foreach($favorites as $index => $favorite) {
-					$favorites[$index]["item"] = $this->getItem(array("id" => $favorite["item_id"], "extend" => true));
-				}
-				return $favorites;
-			}
-		}
+
+
 		// get favorite using favorite_id
 		else if($favorite_id !== false) {
-			if($query->sql("SELECT favorites.id, favorites.created_at, users.nickname FROM ".UT_ITEMS_FAVORITES." AS favorites, ".SITE_DB.".users AS users WHERE favorites.id = '$favorite_id' AND favorites.user_id = users.id")) {
-				return $query->result(0);
+			if($query->sql("SELECT favorites.id AS favorite_id, favorites.created_at FROM ".UT_ITEMS_FAVORITES." AS favorites WHERE favorites.id = '$favorite_id'")) {
+				$favorite = $query->result(0);
+				// Add readable timestamp for conveninience
+				$favorite["iso_timestamp"] = date("Y-m-d, H:i", strtotime($favorite["created_at"]));
+				return $favorite;
 			}
 		}
 		// get all favorites
 		else {
-			if($query->sql("SELECT favorites.id, favorites.created_at, users.nickname FROM ".UT_ITEMS_FAVORITES." AS favorites, ".SITE_DB.".users AS users WHERE favorites.user_id = users.id" . ($order ? " ORDER BY $order" : " ORDER BY created_at"))) {
+			if($query->sql("SELECT favorites.id, favorites.created_at, favorites.user_id FROM ".UT_ITEMS_FAVORITES." AS favorites" . ($order ? " ORDER BY $order" : " ORDER BY created_at"))) {
 				$favorites = $query->results();
 			}
 		}
