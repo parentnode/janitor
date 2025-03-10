@@ -47,7 +47,7 @@ class Security {
 			cache()->value("blocked-".security()->getRequestIp(), true, 3600);
 
 			// Notify admin
-			notify()->send([
+			admin()->notify([
 				"subject" => "USER BLOCKED DUE TO SUSPICIOUS ACTIVITY",
 				"message" => "User attempted a POST while either IP or UA changed during session",
 				"tracking" => false,
@@ -804,7 +804,7 @@ class Security {
 
 		// Log and send in email
 		logger()->addLog("Throwoff - insufficient privileges:".$url." by ". session()->value("user_id"));
-		notify()->send(array(
+		admin()->notify(array(
 			"subject" => "Throwoff - " . SITE_URL, 
 			"message" => "insufficient privileges:".$url, 
 			"template" => "system"
