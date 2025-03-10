@@ -708,14 +708,14 @@ class ShopCore extends Model {
 
 		// no luck, then look in cookie
 		if(!$cart_reference) {
-			$cart_reference = isset($_COOKIE["cart_reference"]) ? $_COOKIE["cart_reference"] : false;
+			$cart_reference = getCookie("cart_reference");
 		}
 
 		// debug(["cart ref", $cart_reference]);
 		if($cart_reference) {
 
 			$cart = $this->getCarts(array("cart_reference" => $cart_reference));
-			if ($cart) {
+			if($cart) {
 
 				// This is the current session cart now
 				session()->value("cart_reference", $cart_reference);
