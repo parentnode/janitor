@@ -146,7 +146,7 @@ class Log {
 				switch($option) {
 
 					case "from"         : $from        = $value; break;
-					case "to"           : $to.         = $value; break;
+					case "to"           : $to          = $value; break;
 
 					case "type"         : $type        = $value; break;
 
