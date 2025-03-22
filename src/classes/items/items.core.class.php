@@ -2044,7 +2044,7 @@ class ItemsCore {
 		}
 
 		$query = new Query();
-		$ratings = false;
+		$favorites = false;
 
 		// Get all favorite info for item_id
 		if($item_id !== false) {
