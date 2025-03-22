@@ -100,6 +100,16 @@ class ModuleCore extends Model {
 
 	function installModule($module_group_id, $module_id) {
 
+		$SetupClass = new Setup();
+
+		if(!$SetupClass->readWriteTest()) {
+			$result["message"] = "<p>You need to allow Apache to modify files in your project folder.<br />Run this command in your terminal to continue:</p>";
+			$result["message"] .= "<code>sudo chown -R ".$SetupClass->get("system", "apache_user").":".$SetupClass->get("system", "deploy_user")." ".PROJECT_PATH."</code>";
+			$result["success"] = false;
+			return $result;
+		}
+
+
 		$fs = new FileSystem();
 
 		$module = $this->getModule($module_group_id, $module_id);

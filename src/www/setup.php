@@ -90,6 +90,21 @@ if(is_array($action) && count($action)) {
 
 		$page->pageTitle("Janitor modules");
 
+
+		$SetupClass = new Setup();
+
+		if(!$SetupClass->readWriteTest()) {
+
+			$page->page(array(
+				"body_class" => "modules",
+				"type" => "setup",
+				"templates" => "modules/read-write-error.php"
+			));
+			exit();
+
+		}
+
+
 		include_once("classes/system/module.class.php");
 		$module_model = new Module();
 

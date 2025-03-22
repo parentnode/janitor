@@ -84,6 +84,14 @@ body.modules #content div.modules h3 {font-size: 20px; text-transform: uppercase
 body.modules #content div.modules ul.modules {border-top: 1px solid #dedede;}
 body.modules #content div.modules ul.modules h4 {font-size: 16px; padding-top: 20px; padding-bottom: 10px;}
 
+body.modules #content div.open-system {
+	background: #ffffff;
+	border-top: 1px solid #df0000;
+	border-bottom: 1px solid #df0000;
+	margin-bottom: 20px;
+}
+
+
 
 /* NAVIGATION */
 #navigation li.done {

@@ -3,6 +3,14 @@ global $module_model;
 global $action;
 
 $module_list = $module_model->getAvailableModules();
+
+$modules_locked = false;
+
+$SetupClass = new Setup();
+if(!$SetupClass->readWriteTest() || preg_match("/\.local$/", SITE_URL)) {
+	$modules_locked = true;
+}
+
 ?>
 <div class="scene module i:modules">
 	<h1>Janitor modules</h1>
@@ -12,6 +20,19 @@ $module_list = $module_model->getAvailableModules();
 		Janitor modules are indenpendent code modules that extend and connect Janitor with third party features, 
 		such as mail or sms services, maps, payment gateways and others.
 	</p>
+
+<? if(!$modules_locked): ?>
+
+	<div class="modules open-system">
+		<h3>You system is currently open</h3>
+		<p>Remember to lock down your system when you have modified your modules. <br />Run these command in your terminal when you are done:</p>
+		<code>sudo chown -R root:<?= $SetupClass->get("system", "deploy_user") ?> <?= PROJECT_PATH ?> && 
+sudo chmod -R 755 <?= PROJECT_PATH ?> && 
+sudo chown -R <?= $SetupClass->get("system", "apache_user") ?>:<?= $SetupClass->get("system", "deploy_user") ?> <?= LOCAL_PATH ?>/library && 
+sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
+	</div>
+
+<? endif; ?>
 
 	<div class="modules all_items">
 		<h2>Available modules</h2>

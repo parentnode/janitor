@@ -14,7 +14,7 @@ Util.Modules["modules"] = new function() {
 			if(module.bn_install) {
 
 				module.bn_install.installed = function(response) {
-					// u.bug("installed", response);
+					u.bug("installed", response);
 
 					if(response && response.cms_status === "success") {
 						u.t.setTimer(this, function() {location.reload(true)}, 1000);
@@ -43,7 +43,7 @@ Util.Modules["modules"] = new function() {
 			if(module.bn_uninstall) {
 
 				module.bn_uninstall.uninstalled = function(response) {
-					// u.bug("uninstalled");
+					u.bug("uninstalled", response);
 
 					if(response && response.cms_status === "success") {
 						u.t.setTimer(this, function() {location.reload(true)}, 1000);
