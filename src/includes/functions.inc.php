@@ -871,7 +871,13 @@ function ffmpegAACCodec() {
 		else if(preg_match("/A\.\.\.\.\. aac/i", shell_exec($ffmpeg_path . " -encoders 2>&1"))) {
 			$ffmpeg_aac = "aac";
 		}
+		else if(preg_match("/A\.\.\.\.D aac/i", shell_exec($ffmpeg_path . " -encoders 2>&1"))) {
+			$ffmpeg_aac = "aac";
+		}
 		else if(preg_match("/A\.\.\.\.\. libfaac/i", shell_exec($ffmpeg_path . " -encoders 2>&1"))) {
+			$ffmpeg_aac = "libfaac";
+		}
+		else if(preg_match("/A\.\.\.\.D libfaac/i", shell_exec($ffmpeg_path . " -encoders 2>&1"))) {
 			$ffmpeg_aac = "libfaac";
 		}
 
