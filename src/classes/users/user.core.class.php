@@ -1486,7 +1486,7 @@ class UserCore extends Model {
 
 
 						// Delete all access tokens on password reset
-						security()->deleteAccessTokens(["user_id" => $user_id]);
+						// security()->deleteAccessTokens(["user_id" => $user_id]);
 
 
 						// send notification email to admin
