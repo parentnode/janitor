@@ -2099,7 +2099,7 @@ class ItemsCore {
 				if($extend && isset($extend["item"]) && $extend["item"]) {
 					foreach($favorites as $index => $favorite) {
 						$favorites[$index]["iso_timestamp"] = date("Y-m-d, H:i", strtotime($favorite["created_at"]));
-						$favorites[$index]["item"] = $this->getItem(array("id" => $favorite["item_id"], "extend" => true));
+						$favorites[$index]["item"] = $this->getItem(array("id" => $favorite["item_id"], "extend" => ["all" => true]));
 					}
 				}
 
