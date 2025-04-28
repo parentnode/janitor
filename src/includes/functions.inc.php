@@ -210,7 +210,7 @@ function saveCookie($name, $value, $_options = false) {
 
 }
 
-function deleteCookie($name, ) {
+function deleteCookie($name) {
 
 	setcookie($name, "", time() - 360);
 
