@@ -255,7 +255,7 @@ class AutoConversion {
 
 
 				// redirect to new image
-				// header("Location: /".$this->request_type."/".$this->id."/".$this->variant."/".$this->width."x".$this->height.".".$this->format, true, 307);
+				header("Location: /".$this->request_type."/".$this->id."/".$this->variant."/".$this->width."x".$this->height.".".$this->format, true, 307);
 				exit();
 
 			}
