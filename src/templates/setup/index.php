@@ -25,13 +25,25 @@ else: ?>
 		You are running setup for an existing project in <em><?= PROJECT_PATH ?></em>. You have two options:
 	</p>
 
+<?	if(security()->validatePath("/janitor/admin/setup/modules")): ?>
+	<div class="option">
+		<h3>Manage modules</h3>
+		<p>
+			Choose this option to install or remove modules or change modules settings.
+		</p>
+		<ul class="actions">
+			<li class="modules"><a href="/janitor/admin/setup/modules" class="button primary">Manage modules</a></li>
+		</ul>
+	</div>
+<? endif; ?>
+
 	<div class="option">
 		<h3>Change configuration</h3>
 		<p>
 			Choose this option to change database/mail/payment configuration.
 		</p>
 		<ul class="actions">
-			<li class="start"><a href="/janitor/admin/setup/software" class="button primary">Edit configuration</a></li>
+			<li class="config"><a href="/janitor/admin/setup/software" class="button primary">Edit configuration</a></li>
 		</ul>
 	</div>
 
