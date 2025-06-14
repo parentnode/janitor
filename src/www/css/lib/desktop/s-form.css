@@ -5,7 +5,7 @@ div.field {padding: 0 28px 10px; position: relative; font-size: 0; z-index: 1;}
 
 
 /* INLINE LABELS */
-div.field label {display: none; padding-left: 2px;}
+div.field label {display: block; font-size: 9px; font-weight: bold; text-transform: uppercase; padding-left: 2px;}
 
 
 /* BASIC FORM INPUTS */
@@ -169,6 +169,8 @@ div.field.dropdown div.virtual div.options ul.options li.hover {
 }
 
 
+div.field.output p {padding: 5px 6px; width: 366px !important; border-radius: 3px; margin: 3px; background: #ffffff;}
+
 
 /* DEFAULT STATE - BEFORE TEXT IS MODIFIED */
 div.field input.default,
@@ -181,7 +183,7 @@ div.field div.virtual div.options ul.options li.default {color: #aaaaaa;}
 
 
 /* VALIDATION INDICATOR */
-div.field .indicator {position: absolute; top: 4px; left: 415px; width: 25px; height: 25px;
+div.field .indicator {position: absolute; top: 16px; left: 415px; width: 25px; height: 25px;
 	background-color: transparent;
 	background-repeat: no-repeat;
 	background-position: left center;
@@ -409,8 +411,8 @@ div.field.html > textarea {display: none;}
 div.field.html.focus > textarea {margin: 2px; border: 1px solid #dcdcdc;}
 div.field.html > textarea.show {display: block; height: 200px; width: 470px;}
 
-div.field.html > label {display: block; /*width: 377px;*/ width: 477px; font-size: 12px;}
-div.field.html > label span {font-size: 10px; float: right; padding: 1px 0 0; cursor: pointer;}
+div.field.html > label {width: 477px;}
+div.field.html > label span {float: right; padding: 1px 0 0; cursor: pointer;}
 div.field.html > .indicator {top: 37px; left: 515px;}
 
 /* HTML VIEWER AND EDITOR */

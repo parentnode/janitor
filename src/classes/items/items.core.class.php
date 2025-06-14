@@ -173,7 +173,7 @@ class ItemsCore {
 
 			$sql = $query->compileQuery($SELECT, $FROM, array("LEFTJOIN" => $LEFTJOIN, "WHERE" => $WHERE, "HAVING" => $HAVING, "GROUP_BY" => $GROUP_BY));
 		}
-		
+
 		// debug([$sql]);
 
 		if($sql && $query->sql($sql)) {

@@ -822,12 +822,12 @@ class HTMLCore {
 		$att_name = $this->attribute("name", $name);
 
 		// combine classname for field
-		$att_class = $this->attribute("class", "field", $type, $class);
+		$att_class = $this->attribute("class", "field output", $class);
 		$att_value = $this->attribute("value", $value);
 
 
 		$_ .= '<div'.$att_class.'>';
-			$_ .= '<input type="hidden"'.$att_name.$att_id.$att_value.' />';
+			// $_ .= '<input type="hidden"'.$att_name.$att_id.$att_value.' />';
 
 			$_ .= '<label>'.$label.'</label>';
 

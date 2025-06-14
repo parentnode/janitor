@@ -69,6 +69,7 @@
 #content div.filter.filtering {background: red;}
 #content div.filter form {position: absolute; right: 30px; top: 9px;}
 #content div.filter .field {padding: 0 0 6px;}
+#content div.filter .field label {display: none;}
 #content div.filter .field input {width: 100px; height: 16px; font-size: 12px;}
 
 
