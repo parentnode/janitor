@@ -20,7 +20,7 @@
 #content div.tagoptions fieldset .field input[type=text] {width: 262px;}
 
 #content div.tagoptions ul.actions {display: inline-block; vertical-align: top; padding: 0;}
-#content div.tagoptions ul.actions li {padding-left: 0;}
+#content div.tagoptions ul.actions li {padding-left: 0; padding-top: 13px;}
 #content div.tagoptions ul.actions li input {margin-top: 4px;}
 
 
@@ -41,7 +41,7 @@
 /* TAGGABLE LIST ADJUSTMENTS */
 #content div.all_items div.tagoptions {padding-top: 8px;}
 #content div.all_items ul.items > li div.tagoptions ul.actions {position: static; right: auto; top: auto;}
-#content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 1px;}
+#content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 13px;}
 #content div.sortable div.tagoptions .field {padding-left: 48px;}
 
 

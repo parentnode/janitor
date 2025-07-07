@@ -47,7 +47,7 @@ div.field.boolean {padding-bottom: 15px;}
 div.field.checkbox input,
 div.field.boolean input {display: inline-block; vertical-align: top; width: auto; height: auto; padding: 0; margin: 1px 10px 0 3px; border: 0;}
 div.field.checkbox label,
-div.field.boolean label {width: auto; display: inline-block; vertical-align: top; font-size: 1.077rem; line-height: 1em;}
+div.field.boolean label {width: auto; display: inline-block; vertical-align: top; text-transform: none; font-weight: normal; font-size: 1.077rem; line-height: 1em;}
 
 
 /* RADIO */
@@ -56,7 +56,7 @@ div.field.radiobuttons > label {display: block; font-size: 1.077rem; line-height
 /*div.field.radiobuttons > label:after {content: ":";}*/
 div.field.radiobuttons div.item {padding: 8px 0 0;}
 div.field.radiobuttons div.item input {width: auto; height: auto; padding: 0; margin: 1px 10px 0 3px; border: 0;}
-div.field.radiobuttons div.item label {font-size: 1.077rem; line-height: 1em; display: inline-block; vertical-align: top; text-align: left; width: auto;}
+div.field.radiobuttons div.item label {font-size: 1.077rem; line-height: 1em; text-transform: none; font-weight: normal; display: inline-block; vertical-align: top; text-align: left; width: auto;}
 
 
 /* NUMBER TYPE - remove spinbutton */
