@@ -420,6 +420,11 @@ class DOM extends DOMElement {
 					// trim and remove tabs
 					$text .= trim(preg_replace("/\t/", "", $child_node->textContent))."\n\n";
 				}
+				# Comment
+				else if($child_node->nodeName == "#comment") {
+					// trim and remove tabs
+					$text .= trim(preg_replace("/\t/", "", $child_node->textContent))."\n\n";
+				}
 				// only include node text if it is not specified to be ignored
 				else if(!$this->hasClassname($child_node, "ignore_text")) {
 
