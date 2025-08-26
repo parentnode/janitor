@@ -40,7 +40,7 @@ class PageCore {
 
 
 		// Auto login (restore login if possible – before doing anything else)
-		security()->autoLoginCheck();
+		// security()->autoLoginCheck();
 
 
 		// database connection
