@@ -4,10 +4,10 @@
 */
 
 
-// require_once("includes/payments/stripe-php-4.1.1/init.php");
-// require_once("includes/payments/stripe-php-7.37.1/init.php");
-// require_once("includes/payments/stripe-php-10.12.1/vendor/autoload.php");
-require_once("includes/payments/stripe-php-13.4.0/vendor/autoload.php");
+// require_once("includes/payment/stripe-php-4.1.1/init.php");
+// require_once("includes/payment/stripe-php-7.37.1/init.php");
+// require_once("includes/payment/stripe-php-10.12.1/vendor/autoload.php");
+require_once("includes/payment/stripe-php-13.4.0/vendor/autoload.php");
 
 class JanitorStripe {
 
