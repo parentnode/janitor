@@ -79,6 +79,9 @@ class Model extends HTML {
 
 					case "step"                  : $this->setProperty($name, "step",                 $_value); break;
 
+					// TODO: Thought to be validation of array content, Not yet implemented
+					case "allowed_values"        : $this->setProperty($name, "allowed_values",       $_value); break;
+
 
 					case "min_width"             : $this->setProperty($name, "min_width",            $_value); break;
 					case "min_height"            : $this->setProperty($name, "min_height",           $_value); break;
@@ -336,11 +339,11 @@ class Model extends HTML {
 			}
 		}
 
-		// else if($this->getProperty($name, "type") == "array") {
-		// 	if($this->isArray($name)) {
-		// 		return true;
-		// 	}
-		// }
+		else if($this->getProperty($name, "type") == "array") {
+			if($this->isArray($name)) {
+				return true;
+			}
+		}
 		// else if($this->getProperty($name, "type") == "prices") {
 		// 	if($this->isPrices($name)) {
 		// 		return true;
@@ -1099,30 +1102,67 @@ class Model extends HTML {
 		}
 	}
 
-	// /**
-	// * Is value array?
-	// *
-	// * @param string $name Entity name
-	// * @return bool
-	// */
-	// function isArray($name) {
-	//
-	// 	$value = $this->getProperty($name, "value");
-	// 	$min_length = $this->getProperty($name, "min");
-	// 	$max_length = $this->getProperty($name, "max");
-	//
-	// 	if($value && is_array($value) &&
-	// 		(!$min_length || count($value) >= $min_length) &&
-	// 		(!$max_length || count($value) <= $max_length)
-	// 	) {
-	// 		$this->setProperty($name, "error", false);
-	// 		return true;
-	// 	}
-	// 	else {
-	// 		$this->setProperty($name, "error", true);
-	// 		return false;
-	// 	}
-	// }
+	/**
+	* Is value array?
+	*
+	* @param string $name Entity name
+	* @return bool
+	*/
+	function isArray($name) {
+
+		$array = $this->getProperty($name, "value");
+		$min_length = $this->getProperty($name, "min");
+		$max_length = $this->getProperty($name, "max");
+
+		// allowed array values
+		// $allowed_values = $this->getProperty($name, "allowed_values");
+
+		if($array && is_array($array) &&
+			(!$min_length || count($array) >= $min_length) &&
+			(!$max_length || count($array) <= $max_length)
+		) {
+			foreach($array as $value) {
+
+				// validate for type
+				// if($allowed_values) {
+				//
+				// 	$passed_validation = false;
+				// 	foreach($allowed_values as $allowed_value) {
+				// 		if($allowed_value == "integer") {
+				//
+				// 		}
+				// 		else if($allowed_value == "number") {
+				//
+				// 		}
+				// 		else if($allowed_value == "string") {
+				//
+				// 		}
+				//
+				// 	}
+				// 	if(!$passed_validation) {
+				// 		$this->setProperty($name, "error", true);
+				// 		return false;
+				// 	}
+				// }
+				
+				// Only validate for value
+				// else {
+					if($value === "") {
+						$this->setProperty($name, "error", true);
+						return false;
+					}
+				// }
+
+			}
+
+			$this->setProperty($name, "error", false);
+			return true;
+		}
+		else {
+			$this->setProperty($name, "error", true);
+			return false;
+		}
+	}
 
 
 	// // TODO: Faulty price validation
