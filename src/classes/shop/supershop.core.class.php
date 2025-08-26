@@ -1950,7 +1950,7 @@ class SuperShopCore extends Shop {
 				// use membership-specific price if applicable
 				$membership = $MC->getMembers(["user_id" => $user_id]);
 				if($membership && $membership["item"]) {
-					$price_types = $page->price_types();
+					$price_types = $page->priceTypes();
 					$where_pricetype_matches_membership = arrayKeyValue($price_types, "item_id", $membership["item"]["item_id"]);
 					$membership_price_type_id = $price_types[$where_pricetype_matches_membership]["id"];
 					$where_price_matches_membership_price_type = arrayKeyValue($prices, "type_id", $membership_price_type_id);

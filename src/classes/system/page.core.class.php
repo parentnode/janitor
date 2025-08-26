@@ -38,6 +38,11 @@ class PageCore {
 	*/
 	function __construct() {
 
+
+		// Auto login (restore login if possible – before doing anything else)
+		security()->autoLoginCheck();
+
+
 		// database connection
 		$this->loadDBConfiguration();
 
@@ -824,7 +829,7 @@ class PageCore {
 	*
 	* @return Array of price_types or array of price_type details
 	*/
-	function price_types($_options = false) {
+	function priceTypes($_options = false) {
 
 		$IC = new Items();
 

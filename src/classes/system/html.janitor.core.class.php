@@ -703,7 +703,7 @@ class JanitorHTMLCore {
 
 		$vatrate_options = $model->toOptions($page->vatrates(), "id", "name");
 
-		$type_options = $model->toOptions($page->price_types(["exclude_id" => $item["id"]]), "id", "description");
+		$type_options = $model->toOptions($page->priceTypes(["exclude_id" => $item["id"]]), "id", "description");
 
 		
 
