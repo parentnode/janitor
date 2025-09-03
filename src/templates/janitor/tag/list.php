@@ -5,14 +5,41 @@ global $model;
 $tags = $model->getTags();
 
 ?>
-<div class="scene i:scene defaultList tagList">
+<div class="scene i:scene defaultList tagList i:tagList">
 	<h1>Tags</h1>
+	<ul class="actions">
+		<?= $JML->listNew(array("label" => "New tag")) ?>
+	</ul>
+
+	<? if(message()->hasMessages()): ?>
+	<div class="messages">
+	<?
+	$all_messages = message()->getMessages();
+	message()->resetMessages();
+	foreach($all_messages as $type => $messages):
+		foreach($messages as $message): ?>
+		<p class="<?= $type ?>"><?= $message ?></p>
+		<? endforeach;?>
+	<? endforeach;?>
+	</div>
+	<? endif; ?>
+
 	<p>
-		Tags are used to index the content of the website and some tags are required for
-		certain pages. You should NOT delete or edit tags, unless you know what you are doing.
+		Tags are used to index the content of the website in a very flexible way.
+		A tag is made up of a <em>context</em> and a <em>value</em>, and you are 
+		free to make up both contexts and values to fit your specific indexing purposes.
 	</p>
 	<p>
-		New tags should be created when editing your items.
+		When written out the context and value is separated by a kolon (:), ie. <em>category:Wormhole equipment</em>. 
+		Typically the context is only used internally, while the value is shown to the user in specific contexts.
+	</p>
+	<p>
+		It makes sense to devise a structured tag collection, with meaningful contexts for different use cases. Use coherent values 
+		to make the information more easily available to the end users.
+	</p>
+	<p>
+		Some tags are required for
+		certain pages. You should NOT delete or edit tags, unless you know what you are doing.
 	</p>
 
 	<div class="all_items i:defaultList filters">

@@ -4,7 +4,7 @@
 */
 
 /**
-* This class holds Tag functionallity.
+* This class holds global Tag functionallity.
 *
 */
 
@@ -70,58 +70,206 @@ class Tag extends Model {
 		return false;
 	}
 
-	// delete tag globally 
- 	function deleteTag($action) {
 
-		if(count($action) == 2) {
-
-			$tag_id = $action[1];
-
-			$query = new Query();
-
-			if($query->sql("DELETE FROM ".UT_TAG." WHERE id = $tag_id")) {
-				message()->addMessage("Tag deleted");
-				return true;
-			}
-		}
-		message()->addMessage("Tag could not be deleted", array("type" => "error"));
-		return false;
- 	}
-
-	// update tag globally
- 	function updateTag($action) {
+	// add tag globally
+ 	function API_addTag($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if(count($action) == 2) {
+		if(count($action) == 1 && $this->validateList(["context", "value", "description"])) {
 
-			$tag_id = $action[1];
-			$query = new Query();
+			$context = $this->getProperty("context", "value");
+			$value = $this->getProperty("value", "value");
+			$description = $this->getProperty("description", "value");
 
-			if($this->validateList(["context", "value", "description"], $tag_id)) {
+			$result = $this->addTag([
+				"context" => $context,
+				"value" => $value,
+				"description" => $description,
+			]);
 
-				$context = $this->getProperty("context", "value");
-				$value = $this->getProperty("value", "value");
-				$description = $this->getProperty("description", "value");
+			if($result === true) {
+				message()->addMessage("Tag added.");
+				return true;
+			}
 
-				$sql = "UPDATE ".$this->db." SET context = '$context', value = '$value', description = '$description' WHERE id = ".$tag_id;
-				// debug([$sql]);
-
-				if($query->sql($sql)) {
-					message()->addMessage("Tag updated");
-					return true;
-				}
-
+			else if($result === "EXISTS") {
+				message()->addMessage("Tag already exists.");
+				return true;
 			}
 
 		}
 
-		message()->addMessage("Updating tag failed", array("type" => "error"));
+		message()->addMessage("Tag could not be added.", ["type" => "error"]);
+		return false;
+	}
+
+ 	function addTag($_options) {
+
+		$context = false;
+		$value = false;
+		$description = "";
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "context"          : $context           = $_value; break;
+					case "value"            : $value             = $_value; break;
+					case "description"      : $description       = $_value; break;
+
+				}
+			}
+		}
+
+		if($context && $value) {
+
+			$query = new Query();
+
+			// Check for existance
+			$sql = "SELECT id FROM ".$this->db." WHERE context = '$context' AND value = '$value'";
+			if(!$query->sql($sql)) {
+
+				$sql = "INSERT INTO ".$this->db." SET context = '$context', value = '$value', description = '$description'";
+				// debug([$sql]);
+
+				if($query->sql($sql)) {
+					return true;
+				}
+
+			}
+			else {
+				return "EXISTS";
+			}
+
+		}
+
+		return false;
+
+ 	}
+
+
+	// delete tag globally 
+ 	function API_deleteTag($action) {
+
+		if(count($action) == 2) {
+
+			$tag_id = $action[1];
+
+			$result = $this->deleteTag([
+				"tag_id" => $tag_id,
+			]);
+
+			if($result === true) {
+				message()->addMessage("Tag deleted");
+				return true;
+			}
+
+		}
+
+		message()->addMessage("Tag could not be deleted.", ["type" => "error"]);
+		return false;
+	}
+
+ 	function deleteTag($_options) {
+
+		$tag_id = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "tag_id"      : $tag_id       = $_value; break;
+
+				}
+			}
+		}
+
+		if($tag_id) {
+			$query = new Query();
+
+			if($query->sql("DELETE FROM ".UT_TAG." WHERE id = $tag_id")) {
+				return true;
+			}
+
+		}
+
+		return false;
+ 	}
+
+
+	// update tag globally
+ 	function API_updateTag($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 2 && $this->validateList(["context", "value", "description"])) {
+
+			$tag_id = $action[1];
+
+			$context = $this->getProperty("context", "value");
+			$value = $this->getProperty("value", "value");
+			$description = $this->getProperty("description", "value");
+
+			$result = $this->updateTag([
+				"tag_id" => $tag_id,
+				"context" => $context,
+				"value" => $value,
+				"description" => $description,
+			]);
+
+			if($result === true) {
+				message()->addMessage("Tag updated.");
+				return true;
+			}
+
+		}
+
+		message()->addMessage("Tag could not be updated.", ["type" => "error"]);
+		return false;
+	}
+
+ 	function updateTag($_options) {
+
+		$tag_id = false;
+		$context = false;
+		$value = false;
+		$description = "";
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "tag_id"           : $tag_id            = $_value; break;
+
+					case "context"          : $context           = $_value; break;
+					case "value"            : $value             = $_value; break;
+					case "description"      : $description       = $_value; break;
+
+				}
+			}
+		}
+
+		if($tag_id && $context && $value) {
+
+			$query = new Query();
+
+			$sql = "UPDATE ".$this->db." SET context = '$context', value = '$value', description = '$description' WHERE id = $tag_id";
+			// debug([$sql]);
+
+			if($query->sql($sql)) {
+				return true;
+			}
+
+		}
+
 		return false;
 
  	}
 
 }
-
-?>

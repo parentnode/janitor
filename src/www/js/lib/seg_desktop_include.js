@@ -40,4 +40,5 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-system.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-profile.js"></script>');
 
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-tags.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-taglist_tags.js"></script>');

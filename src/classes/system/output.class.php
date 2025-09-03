@@ -32,9 +32,9 @@ class Output {
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "format"        : $format =   $_value; break;
-					case "type"          : $type =     $_value; break;
-					case "reset_messages"     : $reset_messages =  $_value; break;
+					case "format"             : $format           = $_value; break;
+					case "type"               : $type             = $_value; break;
+					case "reset_messages"     : $reset_messages   = $_value; break;
 
 				}
 			}
