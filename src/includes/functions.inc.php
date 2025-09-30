@@ -152,13 +152,18 @@ function getPostPassword($which) {
 	}
 }
 
+
+// COOKIE HELPERS
+
 function getCookie($name) {
-	if(isset($_COOKIES[$name])) {
-		return prepareForDB($_COOKIES[$name]);
+
+	if(isset($_COOKIE[$name])) {
+		return prepareForDB($_COOKIE[$name]);
 	}
 	else {
 		return false;
 	}
+
 }
 
 function saveCookie($name, $value, $_options = false) {
@@ -171,6 +176,9 @@ function saveCookie($name, $value, $_options = false) {
 	$secure = true;
 	$httponly = true;
 
+	$samesite = "Lax";
+
+
 	if($_options !== false) {
 		foreach($_options as $_option => $_value) {
 			switch($_option) {
@@ -181,6 +189,8 @@ function saveCookie($name, $value, $_options = false) {
 
 				case "secure"          : $secure            = $_value; break;
 				case "httponly"        : $httponly          = $_value; break;
+
+				case "samesite"        : $samesite          = $_value; break;
 			}
 		}
 	}
@@ -202,11 +212,11 @@ function saveCookie($name, $value, $_options = false) {
 		$options["httponly"] = $httponly;
 	}
 
-	debug([$name, $value, $options]);
-	exit();
+	if($samesite) {
+		$options["samesite"] = $samesite;
+	}
 
-	setcookie($name, $value);
-	// setcookie($name, $value, $options);
+	setcookie($name, $value, $options);
 
 }
 
