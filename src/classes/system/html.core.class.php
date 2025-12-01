@@ -180,8 +180,16 @@ class HTMLCore {
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
 		if(!preg_match("/^(\/|http[s]:\/\/)/", $action)) {
-			$action = $this->path."/".$action;
+			if(preg_match("/^\?/", $action)) {
+				global $page;
+				$action = $page->url."/".$action;
+			}
+			else {
+				$action = $this->path."/".$action;
+			}
 		}
+
+		// debug(["formStart", $action]);
 
 		if(!preg_match("/^(http[s]:\/\/)/", $action) && !security()->validatePath($action)) {
 			return "";
@@ -972,7 +980,13 @@ class HTMLCore {
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
 		if(!preg_match("/^(\/|http[s]:\/\/)/", $action)) {
-			$action = $this->path."/".$action;
+			if(preg_match("/^\?/", $action)) {
+				global $page;
+				$action = $page->url."/".$action;
+			}
+			else {
+				$action = $this->path."/".$action;
+			}
 		}
 
 		if(!preg_match("/^(http[s]:\/\/)/", $action) && !security()->validatePath($action)) {
@@ -1165,7 +1179,13 @@ class HTMLCore {
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
 		if($action && !preg_match("/^\//", $action)) {
-			$action = $this->path."/".$action;
+			if(preg_match("/^\?/", $action)) {
+				global $page;
+				$action = $page->url."/".$action;
+			}
+			else {
+				$action = $this->path."/".$action;
+			}
 		}
 
 		if(!security()->validatePath($action)) {

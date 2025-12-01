@@ -1,8 +1,7 @@
 <?php
 /**
-* This file contains HTML-element output functions
-* TODO: Implement html.core (this) and let new html.class be the one developers can add customized inputs to
-*
+* This file is a placeholder for project specific HTML-element output functions
+* Note: Snippets can also be used for HTML output 
 */
 class HTML extends HTMLCore {
 
