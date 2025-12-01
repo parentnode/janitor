@@ -173,7 +173,7 @@ function saveCookie($name, $value, $_options = false) {
 	$path = "/";
 	$domain = $_SERVER["SERVER_NAME"];
 
-	$secure = true;
+	$secure = isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] ? true : false;
 	$httponly = true;
 
 	$samesite = "Lax";
@@ -216,13 +216,40 @@ function saveCookie($name, $value, $_options = false) {
 		$options["samesite"] = $samesite;
 	}
 
+	// debug([$name, $value, $options]);
 	setcookie($name, $value, $options);
+
+	// exit();
 
 }
 
-function deleteCookie($name) {
+function deleteCookie($name, $_options = false) {
 
-	setcookie($name, "", time() - 360);
+	$expires = time() - 360;
+
+	$path = "/";
+	$domain = $_SERVER["SERVER_NAME"];
+
+
+	if($_options !== false) {
+		foreach($_options as $_option => $_value) {
+			switch($_option) {
+
+				case "path"            : $path              = $_value; break;
+				case "domain"          : $domain            = $_value; break;
+
+			}
+		}
+	}
+
+
+	$options = [
+		"path" => $path,
+		"domain" => $domain,
+		"expires" => $expires
+	];
+
+	setcookie($name, "", $options);
 
 }
 
