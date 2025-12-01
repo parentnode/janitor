@@ -98,6 +98,8 @@ class TypeMembership extends Itemtype {
 		$normalized_item_name = superNormalize(substr($item_name, 0, 60));
 		$sql = "INSERT INTO ".UT_PRICE_TYPES." (item_id, name, description) VALUES ($item_id, '$normalized_item_name', 'Price for \\'$item_name\\' members')";
 		$query->sql($sql);
+
+		cache()->reset("price_types");
 	}
 	
 	function deleting($item_id) {
@@ -109,7 +111,8 @@ class TypeMembership extends Itemtype {
 		
 		$sql = "DELETE FROM ".UT_PRICE_TYPES." WHERE item_id = '$item_id'";
 		if($query->sql($sql)) {
-			 return true;
+			cache()->reset("price_types");
+			return true;
 		}
 		
 		message()->addMessage("Can't delete. Could not delete associated price type.", ["type" => "error"]);
