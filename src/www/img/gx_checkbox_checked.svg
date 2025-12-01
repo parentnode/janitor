@@ -1,0 +1,6 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve" class="checkbox checked">
+	<rect class="box" fill="#dcdcdc" x="0" width="24" y="0" height="24" />
+	<rect class="box" fill="#FFFFFF" x="2" width="20" y="2" height="20" />
+	<line stroke="#5c5c5c" stroke-width="3px" stroke-linecap="round" stroke-linejoin="round" x1="17.80645161" y1="5.71019355" x2="10.23483873" y2="18.4322581"/>
+	<line stroke="#5c5c5c" stroke-width="3px"  stroke-linecap="round" stroke-linejoin="round" x1="5.18709678" y1="11.01987099" x2="10.23483873" y2="18.4322581"/>
+</svg>
