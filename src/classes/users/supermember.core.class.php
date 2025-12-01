@@ -508,6 +508,7 @@ class SuperMemberCore extends Member {
 		if(!$page) {
 
 			// simply add limit to members query
+			$pattern = is_array($pattern) ? $pattern : [];
 			$pattern["limit"] = $limit;
 			$range_members = $this->search(["query" => $query_string, "pattern" => $pattern]);
 
