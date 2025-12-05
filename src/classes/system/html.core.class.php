@@ -316,7 +316,15 @@ class HTMLCore {
 
 		// Compare password with other input
 		$compare_to = $this->getProperty($name, "compare_to"); 
+
  
+		// File validation rules
+		$allowed_formats = $this->getProperty($name, "allowed_formats");
+		$allowed_proportions = $this->getProperty($name, "allowed_proportions");
+		$allowed_sizes = $this->getProperty($name, "allowed_sizes");
+		$min_width = $this->getProperty($name, "min_width");
+		$min_height = $this->getProperty($name, "min_height");
+
  
 		// tags for HTML editor
 		$allowed_tags = $this->getProperty($name, "allowed_tags");
@@ -365,6 +373,14 @@ class HTMLCore {
 
 					case "error_message"   : $error_message    = $_value; break;
 					case "hint_message"    : $hint_message     = $_value; break;
+
+
+					// Files specific
+					case "allowed_formats"       : $allowed_formats        = $_value; break;
+					case "allowed_proportions"   : $allowed_proportions    = $_value; break;
+					case "allowed_sizes"         : $allowed_sizes          = $_value; break;
+					case "min_width"             : $min_width              = $_value; break;
+					case "min_height"            : $min_height             = $_value; break;
 
 
 					// HTML specific
@@ -603,21 +619,13 @@ class HTMLCore {
 					$att_name = $this->attribute("name", $name . "[]");
 
 					// Create accept attribute
-					$allowed_formats = $this->getProperty($name, "allowed_formats");
 					$att_accept = $this->attribute("accept", $allowed_formats ? ".".implode(",.", explode(",", $allowed_formats)) : "");
 
 					// Image/video size validation rules
-					$min_width = $this->getProperty($name, "min_width");
 					$att_min_width = $this->attribute("data-min-width", $min_width);
-
-					$min_height = $this->getProperty($name, "min_height");
 					$att_min_height = $this->attribute("data-min-height", $min_height);
-
-					$proportions = $this->getProperty($name, "allowed_proportions");
-					$att_proportions = $this->attribute("data-allowed-proportions", $proportions);
-
-					$sizes = $this->getProperty($name, "allowed_sizes");
-					$att_sizes = $this->attribute("data-allowed-sizes", $sizes);
+					$att_proportions = $this->attribute("data-allowed-proportions", $allowed_proportions);
+					$att_sizes = $this->attribute("data-allowed-sizes", $allowed_sizes);
 
 
 					// Create file-input
