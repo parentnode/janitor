@@ -65,7 +65,8 @@ class Query {
 			}
 		}
 		catch(Exception $e) {
-			logger()->addLog("DB exception: ". $e . " (".$query.")");
+			admin()->notify(["message" => "DB Exception: ". $e . " (".$query.")"]);
+			logger()->addLog("DB exception: ". $e . " (".$query.")", "db-errors");
 		}
 
 	}
