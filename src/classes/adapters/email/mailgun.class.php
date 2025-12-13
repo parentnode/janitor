@@ -162,11 +162,13 @@ class JanitorMailgun {
 			return $this->client->messages()->send($this->domain, $mail_options);
 		}
 		catch(HttpClientException $e) {
+			logger()->addLog("Mailgun Send HttpClientException: ".print_r($e, true), "email-errors");
 			// debug(["HttpClientException", $e]);
 			return false;
 		}
 		// Catch general exception
 		catch(Exception $e) {
+			logger()->addLog("Mailgun Send Exception: ".print_r($e, true), "email-errors");
 			// debug(["Exception", $e]);
 			return false;
 		}
@@ -300,10 +302,12 @@ class JanitorMailgun {
 			return $this->client->messages()->send($this->domain, $mail_options); 
 		}
 		catch(HttpClientException $e) {
+			logger()->addLog("Mailgun SendBulk HttpClientException: ".print_r($e, true), "email-errors");
 			return false;
 		}
 		// Catch general exception
 		catch(Exception $e) {
+			logger()->addLog("Mailgun SendBulk Exception: ".print_r($e, true), "email-errors");
 			return false;
 		}
 
