@@ -36,24 +36,6 @@ class Query {
 			$this->connected = false;
 		}
 
-
-
-		// ALTERNATIVE IMPLEMENTATION - TOO SLOW
-		// global $db;
-		//
-		// $this->con = new mysqli($db["host"], $db["username"], $db["password"]);
-		//
-		// if($this->con->connect_errno) {
-		//     echo "Failed to connect to MySQL: " . $this->con->connect_error;
-		// 	exit();
-		// }
-		//
-		// // correct the database connection setting
-		// $this->con->query("SET NAMES utf8");
-		// $this->con->query("SET CHARACTER SET utf8");
-		// $this->con->set_charset("utf8");
-
-//		print "verify";
 	}
 
 
