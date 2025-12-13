@@ -47,9 +47,9 @@ class Log {
 
 		// year-month as folder
 		// day as file
-		$log_position = LOG_FILE_PATH."/".$collection."/".date("Y/m", $timestamp);
-		$log_cursor = LOG_FILE_PATH."/".$collection."/".date("Y/m/Y-m-d", $timestamp);
-		$fs->makeDirRecursively($log_position);
+		$log_location = LOG_FILE_PATH."/".$collection;
+		$log_cursor = LOG_FILE_PATH."/".$collection."/".date("Y-m-d", $timestamp).".log";
+		$fs->makeDirRecursively($log_location);
 
 		$fp = fopen($log_cursor, "a+");
 		fwrite($fp, $log."\n");
@@ -80,7 +80,7 @@ class Log {
 
 
 		// notifications file
-		$collection_file = $collection_path.$collection;
+		$collection_file = $collection_path.$collection.".log";
 
 
 		$timestamp = time();
@@ -120,10 +120,24 @@ class Log {
 		}
 	}
 
+	// get available log types (folders in log path)
+	function getLogTypes() {
 
+		$folders = [];
+
+		$handle = opendir(LOG_FILE_PATH);
+		while(($file = readdir($handle)) !== false) {
+			if($file != "." && $file != ".." && $file != "notifications") {
+				$folders[] = $file;
+			}
+		}
+
+		return $folders;
+	}
 
 	// get log entries, 
-	// optionally based on date span, log type, item_id or user_id
+	// optionally based on date span, log type
+	// item_id or user_id could also be options in the future
 	function getLogs($_options = false) {
 
 		$from = false;
@@ -131,38 +145,81 @@ class Log {
 
 		$type = false;
 
-		$item_id = false;
-
-		$user_id = false;
-
-
-		$fs = new FileSystem();
-		$all_log_files = $fs->files(LOG_FILE_PATH);
-		$log_files = [];
+		// $item_id = false;
+		// $user_id = false;
 
 
-		if($options !== false) {
-			foreach($options as $option => $value) {
-				switch($option) {
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
 
-					case "from"         : $from        = $value; break;
-					case "to"           : $to          = $value; break;
+					case "from"         : $from        = $_value; break;
+					case "to"           : $to          = $_value; break;
 
-					case "type"         : $type        = $value; break;
+					case "type"         : $type        = $_value; break;
 
-					case "item_id"      : $item_id     = $value; break;
-					case "user_id"      : $user_id     = $value; break;
+					// case "item_id"      : $item_id     = $_value; break;
+					// case "user_id"      : $user_id     = $_value; break;
 
 				}
 			}
 		}
 
-
-		if($from && $to) {
-			
+		if(!$from) {
+			$from = strtotime("-1 month");
 		}
 
+		// debug(["getLogs", $from, $to, $type]);
 
+		$fs = new FileSystem();
+
+		// Do not include notification logs in regular log listing
+		$all_log_files = $fs->files(LOG_FILE_PATH, [
+			"deny_folders" => "notifications",
+		]);
+		// debug(["all_log_files", $all_log_files]);
+
+
+		// Filter log files based on from/to and type
+		$log_files = [];
+
+		foreach($all_log_files as $log_file) {
+
+			$filename = basename($log_file);
+			$log_type = preg_match("/^\/([a-zA-Z0-9_-]+)\//", str_replace(LOG_FILE_PATH, "", $log_file), $matches) ? $matches[1] : "unknown";
+			$date = strtotime(str_replace(".log", "", $filename));
+
+			// debug(["log_file", $log_file, $filename, $date, $log_type]);
+
+			if(!$type || $type === $log_type) {
+
+				if($from && $to) {
+					
+					if($from <= $date && $to >= $date) {
+						$log_files[$log_type][] = $log_file;
+					}
+
+				}
+				else if($from) {
+
+					if($from <= $date) {
+						$log_files[$log_type][] = $log_file;
+					}
+					
+				}
+				else if($to) {
+
+					if($to >= $date) {
+						$log_files[$log_type][] = $log_file;
+					}
+	
+				}
+				else {
+					$log_files[$log_type][] = $log_file;
+				}
+			}
+
+		}
 
 		return $log_files;
 	}

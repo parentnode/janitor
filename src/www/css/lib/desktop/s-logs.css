@@ -1,3 +1,14 @@
-#content .defaultList.logList h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}
+/* #content .defaultList.logList h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;} */
 
-#content .defaultList.logList ul.items > li ul.loglines li {padding: 0 30px; display: block;}
+#content .defaultList.logList ul.items {padding-bottom: 30px}
+#content .defaultList.logList ul.items > li {}
+
+#content .defaultList.logList ul.items > li.log_type h2 {padding-top: 30px; padding-bottom: 10px; font-size: 20px; line-height: 24px;}
+
+#content .defaultList.logList ul.items > li.log_file {border: none;}
+#content .defaultList.logList ul.items > li.log_file h3 {padding-top: 20px; padding-bottom: 10px;
+	font-size: 16px; line-height: 20px;
+}
+
+#content .defaultList.logList ul.items > li.log_line {border: none;}
+#content .defaultList.logList ul.items > li.log_line p {padding-top: 0; padding-bottom: 0;}
