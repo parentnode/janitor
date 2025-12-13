@@ -48,7 +48,7 @@ class Query {
 	function sql($query) {
 		$this->last_query = $query;
 
-//		print $query;
+		// debug([$query]);
 
 		// get result
 		try {
@@ -357,17 +357,15 @@ class Query {
 	function checkDbExistence($table) {
 
 		list($db, $table) = explode(".", $table);
-//		$query = new Query();
 
-//		print $db."-".$table."<br>";
+		// debug([$db, $table]);
 
 		// check if database exists
-//		print "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'";
 		$sql = "SELECT * FROM information_schema.TABLES WHERE TABLE_SCHEMA = '$db' AND TABLE_NAME = '$table'";
 		// debug([$sql]);
 		if(!$this->sql($sql)) {
 
-//			print "dont exist";
+			// print "dont exist";
 
 			$db_file = false;
 
@@ -382,22 +380,10 @@ class Query {
 				$db_file = FRAMEWORK_PATH.'/config/db/items/'.$table.'.sql';
 			}
 
-			// if(file_exists($_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql')) {
-			// 	$db_file = $_SERVER["LOCAL_PATH"].'/config/db/'.$table.'.sql';
-			// }
-			// else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql')) {
-			// 	$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/'.$table.'.sql';
-			// }
-			// else if(file_exists($_SERVER["FRAMEWORK_PATH"].'/config/db/items/'.$table.'.sql')) {
-			// 	$db_file = $_SERVER["FRAMEWORK_PATH"].'/config/db/items/'.$table.'.sql';
-			// }
-
 
 			if($db_file) {
-//				print $db_file."<br>";
 				$sql = file_get_contents($db_file);
 				$sql = str_replace("SITE_DB", SITE_DB, $sql);
-				//$sql = str_replace("REGIONAL_DB", DB_REG, $sql);
 				// debug([$sql]);
 				if($this->sql($sql)) {
 					return true;
