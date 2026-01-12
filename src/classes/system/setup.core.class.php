@@ -1159,7 +1159,22 @@ class SetupCore extends Itemtype {
 			$UC = new SuperUser();
 
 			// check if database already contains users
-			$users = $UC->getUsers();
+			$query = new Query();
+			$users = false;
+
+			// Does DB exist
+			if($query->sql("SHOW DATABASES LIKE '".SITE_DB."'")) {
+
+				// USE DB for SHWO TABLES to work without throwing exception
+				$query->sql("USE '".SITE_DB."'");
+
+				// Does users table exist
+				if($query->sql("SHOW TABLES LIKE 'users'")) {
+					$users = $UC->getUsers();
+				}
+
+			}
+
 			if($users) {
 
 				$this->set("account", "exists", true);
