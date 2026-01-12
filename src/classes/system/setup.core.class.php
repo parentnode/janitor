@@ -923,7 +923,9 @@ class SetupCore extends Itemtype {
 				if($query->connected) {
 
 					// check if database exists
-					if($query->sql("USE `".$db_janitor_db."`")) {
+					if($query->sql("SHOW DATABASES LIKE '".$db_janitor_db."'")) {
+
+						$query->sql("USE '".$db_janitor_db."'");
 
 
 						$this->set("database", "exists", true);
@@ -931,7 +933,7 @@ class SetupCore extends Itemtype {
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-//						print $sql."<br>\n";
+						// debug([$sql]);
 						if($query->sql($sql)) {
 
 							// Creation was successful, clean up again
@@ -948,7 +950,7 @@ class SetupCore extends Itemtype {
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `".$db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-//						print $sql."<br>\n";
+						// debug([$sql]);
 						if($query->sql($sql)) {
 
 							// Creation successful, clean up again
@@ -1022,14 +1024,17 @@ class SetupCore extends Itemtype {
 
 
 					// check if database exists
-					if($query->sql("USE `".$db_janitor_db."`")) {
+					if($query->sql("SHOW DATABASES LIKE '".$db_janitor_db."'")) {
+
+						$query->sql("USE '".$db_janitor_db."'");
+
 
 						$this->set("database", "exists", true);
-//						$this->db_exists = true;
+
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-//						print $sql."<br>\n";
+						// debug([$sql]);
 						if($query->sql($sql)) {
 
 							// Creation successful, clean up again
@@ -1047,7 +1052,7 @@ class SetupCore extends Itemtype {
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `".$db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-//						print $sql."<br>\n";
+						// debug([$sql]);
 						if($query->sql($sql)) {
 
 							// Creation successful, clean up again
@@ -1067,7 +1072,6 @@ class SetupCore extends Itemtype {
 			}
 
 			$this->set("database", "admin_error", true);
-//			$this->db_admin_error = true;
 
 		}
 
