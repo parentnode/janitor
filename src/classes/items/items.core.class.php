@@ -2288,9 +2288,13 @@ class ItemsCore {
 			$dependencies = [];
 
 			// check for dependencies in order_items
-			$sql = "SELECT order_items.id FROM ".SITE_DB.".shop_order_items AS order_items WHERE order_items.item_id = $item_id"; 
-			if($query->sql($sql)) {
-				$dependencies["order_items"] = $query->results("id");
+			if(defined("SITE_SHOP") && SITE_SHOP) {
+
+				$sql = "SELECT order_items.id FROM ".SITE_DB.".shop_order_items AS order_items WHERE order_items.item_id = $item_id"; 
+				if($query->sql($sql)) {
+					$dependencies["order_items"] = $query->results("id");
+				}
+
 			}
 
 			return $dependencies;

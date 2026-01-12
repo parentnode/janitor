@@ -172,7 +172,7 @@ class ItemtypeCore extends Model {
 
 			$item_id = $action[1];
 			$status = $action[2];
-			
+
 			$query = new Query();
 			$IC = new Items();
 
@@ -286,7 +286,10 @@ class ItemtypeCore extends Model {
 
 						// item cannot be enabled without datacheck
 						// use internal check to ensure datacheck
-						$this->status(array("status", $item_id, getPost("status")));
+						$status = getPost("status");
+						if($status === 1 || $status === 0) {
+							$this->status(array("status", $item_id, $status));
+						}
 
 
 						// implementing files, tags, comments etc in basic save?

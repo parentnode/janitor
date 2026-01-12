@@ -187,7 +187,7 @@ class TypeEventCore extends Itemtype {
 			"type" => "string",
 			"label" => "Location url",
 			"pattern" => "http[s]?:\/\/[^$]+",
-			"hint_message" => "Url of location.",
+			"hint_message" => "Url of location if available.",
 			"error_message" => "State the url of the location if available (including http:// or https://)."
 		));
 
@@ -294,6 +294,8 @@ class TypeEventCore extends Itemtype {
 		}
 
 		$query = new Query();
+		$query->checkDbExistence(UT_CURRENCIES);
+		$query->checkDbExistence(UT_COUNTRIES);
 		$query->checkDbExistence($this->db_locations);
 
 
@@ -341,6 +343,8 @@ class TypeEventCore extends Itemtype {
 			$query = new Query();
 
 			// make sure type tables exist
+			$query->checkDbExistence(UT_CURRENCIES);
+			$query->checkDbExistence(UT_COUNTRIES);
 			$query->checkDbExistence($this->db_locations);
 
 			$entities = $this->getModel();

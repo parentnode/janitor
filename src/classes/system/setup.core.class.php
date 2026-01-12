@@ -592,11 +592,11 @@ class SetupCore extends Itemtype {
 		}
 
 		// Check if we can update existing mail connect file
-		$connect_mail_handle = true;
-		if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
-			$connect_mail_handle = @fopen(LOCAL_PATH."/config/connect_mail.php", "a+");
-			if($connect_mail_handle) {
-				fclose($connect_mail_handle);
+		$connect_email_handle = true;
+		if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
+			$connect_email_handle = @fopen(LOCAL_PATH."/config/connect_email.php", "a+");
+			if($connect_email_handle) {
+				fclose($connect_email_handle);
 			}
 		}
 
@@ -611,7 +611,7 @@ class SetupCore extends Itemtype {
 
 
 		// Don't try to set owner, group and permissions, unless initial permission probing was successful
-		if($handle && $config_handle && $connect_db_handle && $connect_mail_handle && $git_handle) {
+		if($handle && $config_handle && $connect_db_handle && $connect_email_handle && $git_handle) {
 
 			// Set owner, group and permissions for all project files and folders
 			if(
@@ -840,7 +840,7 @@ class SetupCore extends Itemtype {
 			$this->set("database", "db_host", stringOr($this->get("database", "db_host"), "127.0.0.1"));
 			$this->set("database", "db_root_user", stringOr($this->get("database", "db_root_user"), "root"));
 
-			$this->set("database", "db_janitor_db",  stringOr($this->get("database", "db_janitor_db"), preg_replace("/[-]/", "_", superNormalize($_SERVER["SERVER_NAME"]))));
+			$this->set("database", "db_janitor_db",  stringOr($this->get("database", "db_janitor_db"), preg_replace("/[-]/", "_", superNormalize(basename(PROJECT_PATH)))));
 			$this->set("database", "db_janitor_user", stringOr($this->get("database", "db_janitor_user"), substr(preg_replace("/[-]/", "", superNormalize($this->get("config", "site_name"))), 0, 16)));
 
 		}
@@ -923,7 +923,9 @@ class SetupCore extends Itemtype {
 				if($query->connected) {
 
 					// check if database exists
-					if($query->sql("USE `".$db_janitor_db."`")) {
+					if($query->sql("SHOW DATABASES LIKE '".$db_janitor_db."'")) {
+
+						$query->sql("USE '".$db_janitor_db."'");
 
 
 						$this->set("database", "exists", true);
@@ -931,7 +933,7 @@ class SetupCore extends Itemtype {
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-//						print $sql."<br>\n";
+						// debug([$sql]);
 						if($query->sql($sql)) {
 
 							// Creation was successful, clean up again
@@ -948,7 +950,7 @@ class SetupCore extends Itemtype {
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `".$db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-//						print $sql."<br>\n";
+						// debug([$sql]);
 						if($query->sql($sql)) {
 
 							// Creation successful, clean up again
@@ -1022,14 +1024,17 @@ class SetupCore extends Itemtype {
 
 
 					// check if database exists
-					if($query->sql("USE `".$db_janitor_db."`")) {
+					if($query->sql("SHOW DATABASES LIKE '".$db_janitor_db."'")) {
+
+						$query->sql("USE '".$db_janitor_db."'");
+
 
 						$this->set("database", "exists", true);
-//						$this->db_exists = true;
+
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-//						print $sql."<br>\n";
+						// debug([$sql]);
 						if($query->sql($sql)) {
 
 							// Creation successful, clean up again
@@ -1047,7 +1052,7 @@ class SetupCore extends Itemtype {
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `".$db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-//						print $sql."<br>\n";
+						// debug([$sql]);
 						if($query->sql($sql)) {
 
 							// Creation successful, clean up again
@@ -1067,7 +1072,6 @@ class SetupCore extends Itemtype {
 			}
 
 			$this->set("database", "admin_error", true);
-//			$this->db_admin_error = true;
 
 		}
 
@@ -1155,7 +1159,22 @@ class SetupCore extends Itemtype {
 			$UC = new SuperUser();
 
 			// check if database already contains users
-			$users = $UC->getUsers();
+			$query = new Query();
+			$users = false;
+
+			// Does DB exist
+			if($query->sql("SHOW DATABASES LIKE '".SITE_DB."'")) {
+
+				// USE DB for SHWO TABLES to work without throwing exception
+				$query->sql("USE '".SITE_DB."'");
+
+				// Does users table exist
+				if($query->sql("SHOW TABLES LIKE 'users'")) {
+					$users = $UC->getUsers();
+				}
+
+			}
+
 			if($users) {
 
 				$this->set("account", "exists", true);
@@ -1792,10 +1811,10 @@ class SetupCore extends Itemtype {
 
 
 			// MAIL
-			// connect_mail.php
+			// connect_email.php
 			if(!$this->get("mail", "skipped")) {
 
-				// Use existing connect_mail.php
+				// Use existing connect_email.php
 				if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
 
 					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_email.php");
@@ -1859,14 +1878,14 @@ class SetupCore extends Itemtype {
 				chmod(LOCAL_PATH."/config/connect_email.php", 0777);
 
 
-				// Status for creating connect_mail.php
+				// Status for creating connect_email.php
 				$tasks["completed"][] = "Project connect_email.php " . ($existing_mail_conf ? "updated" : "created");
 
 			}
 			// Skip mail setup
 			else {
 
-				// Delete existing connect_mail.php
+				// Delete existing connect_email.php
 				if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
 					unlink(LOCAL_PATH."/config/connect_email.php");
 				}
@@ -1881,7 +1900,7 @@ class SetupCore extends Itemtype {
 			// connect_payment.php
 			if(!$this->get("payment", "skipped")) {
 
-				// Use existing connect_mail.php
+				// Use existing connect_payment.php
 				if(file_exists(LOCAL_PATH."/config/connect_payment.php")) {
 
 					$file_payment = file_get_contents(LOCAL_PATH."/config/connect_payment.php");
@@ -2023,6 +2042,8 @@ class SetupCore extends Itemtype {
 				$query->checkDbExistence(UT_ITEMS_MEDIAE);
 				$query->checkDbExistence(UT_ITEMS_COMMENTS);
 				$query->checkDbExistence(UT_ITEMS_RATINGS);
+				$query->checkDbExistence(UT_ITEMS_FAVORITES);
+				$query->checkDbExistence(UT_ITEMS_EDITORS);
 
 				$query->checkDbExistence(SITE_DB.".user_item_readstates");
 			}
