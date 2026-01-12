@@ -2042,6 +2042,8 @@ class SetupCore extends Itemtype {
 				$query->checkDbExistence(UT_ITEMS_MEDIAE);
 				$query->checkDbExistence(UT_ITEMS_COMMENTS);
 				$query->checkDbExistence(UT_ITEMS_RATINGS);
+				$query->checkDbExistence(UT_ITEMS_FAVORITES);
+				$query->checkDbExistence(UT_ITEMS_EDITORS);
 
 				$query->checkDbExistence(SITE_DB.".user_item_readstates");
 			}
