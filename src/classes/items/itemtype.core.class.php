@@ -171,7 +171,7 @@ class ItemtypeCore extends Model {
 //			$itemtype = $action[0];
 
 			$item_id = $action[1];
-			$status = $action[2];
+			$status = $action[2] || 0;
 			
 			$query = new Query();
 			$IC = new Items();
