@@ -1409,18 +1409,30 @@ class ItemtypeCore extends Model {
 
 					// Add new assets
 					// $query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$upload["name"]."', '".$upload["format"]."', '".$upload["variant"]."', '".$upload["width"]."', '".$upload["height"]."', '".$upload["filesize"]."', 0)");
-					$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', ".($width ? "'$width'" : "DEFAULT").", ".($height ? "'$height'" : "DEFAULT").", '$filesize', 0)");
+					// $query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', ".($width ? "'$width'" : "DEFAULT").", ".($height ? "'$height'" : "DEFAULT").", '$filesize', 0)");
+
+					$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+					$sql .= "item_id='".$item_id."',";
+					$sql .= "name='".$name."',";
+					$sql .= "format='".$format."',";
+					$sql .= "variant='".$variant."',";
+					$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
+					$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
+					$sql .= "filesize='".$filesize."',";
+					$sql .= "position=0";
+
+					$query->sql($sql);
 
 					// return upload data in standard mediae array
-					$return_values[$upload["variant"]] = array(
+					$return_values[$variant] = array(
 						"id" => $query->lastInsertId(), 
 						"item_id" => $item_id, 
-						"name" => $upload["name"], 
-						"variant" => $upload["variant"], 
-						"format" => $upload["format"], 
-						"width" => $upload["width"], 
-						"height" => $upload["height"],
-						"filesize" => $upload["filesize"]
+						"name" => $name, 
+						"variant" => $variant, 
+						"format" => $format, 
+						"width" => $width, 
+						"height" => $height,
+						"filesize" => $filesize
 					);
 
 				}
@@ -1468,7 +1480,19 @@ class ItemtypeCore extends Model {
 
 				// Replace assets
 				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '$variant'");
-				$query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', ".($width ? "'$width'" : "DEFAULT").", ".($height ? "'$height'" : "DEFAULT").", '$filesize', 0)");
+				// $query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', ".($width ? "'$width'" : "DEFAULT").", ".($height ? "'$height'" : "DEFAULT").", '$filesize', 0)");
+
+				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+				$sql .= "item_id='".$item_id."',";
+				$sql .= "name='".$name."',";
+				$sql .= "format='".$format."',";
+				$sql .= "variant='".$variant."',";
+				$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
+				$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
+				$sql .= "filesize='".$filesize."',";
+				$sql .= "position=0";
+
+				$query->sql($sql);
 
 				// return upload data in standard mediae array
 				return ["mediae" => [$variant => [
@@ -1535,7 +1559,8 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 			$name = getPost("name");
 
-			$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET name = '$name' WHERE item_id = ".$item_id." AND variant = '".$variant."'";
+			$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET name = '$name', modified_at = CURRENT_TIMESTAMP WHERE item_id = ".$item_id." AND variant = '".$variant."'";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				message()->addMessage("Media name updated");
 				return true;
@@ -1722,21 +1747,43 @@ class ItemtypeCore extends Model {
 
 			// Successful upload
 			if($uploads) {
-				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'";
+
+				$name = $uploads[0]["name"];
+				$variant = $uploads[0]["variant"];
+				$format = $uploads[0]["format"];
+				$width = $uploads[0]["width"];
+				$height = $uploads[0]["height"];
+				$filesize = $uploads[0]["filesize"];
+
+
+				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '$variant'";
 				$query->sql($sql);
 
-				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)";
+
+
+				// $sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)";
+
+				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+				$sql .= "item_id='".$item_id."',";
+				$sql .= "name='".$name."',";
+				$sql .= "format='".$format."',";
+				$sql .= "variant='".$variant."',";
+				$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
+				$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
+				$sql .= "filesize='".$filesize."',";
+				$sql .= "position=0";
+
 				$query->sql($sql);
 
 				return array(
 					"id" => $query->lastInsertId(), 
 					"item_id" => $item_id, 
-					"name" => $uploads[0]["name"], 
-					"variant" => $uploads[0]["variant"], 
-					"format" => $uploads[0]["format"], 
-					"width" => $uploads[0]["width"],
-					"height" => $uploads[0]["height"],
-					"filesize" => $uploads[0]["filesize"]
+					"name" => $name,
+					"variant" => $variant, 
+					"format" => $format, 
+					"width" => $width,
+					"height" => $height,
+					"filesize" => $filesize
 				);
 			}
 		}
@@ -1799,19 +1846,37 @@ class ItemtypeCore extends Model {
 			// Successful upload
 			if($uploads) {
 
-				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'";
-				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '".$uploads[0]["variant"]."'");
+				$name = $uploads[0]["name"];
+				$variant = $uploads[0]["variant"];
+				$format = $uploads[0]["format"];
+				$width = $uploads[0]["width"];
+				$height = $uploads[0]["height"];
+				$filesize = $uploads[0]["filesize"];
 
-				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', ".($uploads[0]["width"] ? "'".$uploads[0]["width"]."'" : "NULL").", ".($uploads[0]["height"] ? "'".$uploads[0]["height"]."'" : "NULL") . ", '".$uploads[0]["filesize"]."', 0)";
+				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '$variant'";
+				$query->sql($sql);
+
+				// $sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', ".($uploads[0]["width"] ? "'".$uploads[0]["width"]."'" : "NULL").", ".($uploads[0]["height"] ? "'".$uploads[0]["height"]."'" : "NULL") . ", '".$uploads[0]["filesize"]."', 0)";
+
+				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+				$sql .= "item_id='".$item_id."',";
+				$sql .= "name='".$name."',";
+				$sql .= "format='".$format."',";
+				$sql .= "variant='".$variant."',";
+				$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
+				$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
+				$sql .= "filesize='".$filesize."',";
+				$sql .= "position=0";
+
 				$query->sql($sql);
 
 				return array(
 					"item_id" => $item_id, 
 					"media_id" => $query->lastInsertId(), 
-					"name" => $uploads[0]["name"], 
-					"variant" => $uploads[0]["variant"], 
-					"format" => $uploads[0]["format"], 
-					"filesize" => $uploads[0]["filesize"]
+					"name" => $name,
+					"variant" => $variant, 
+					"format" => $format, 
+					"filesize" => $filesize
 				);
 			}
 		}
