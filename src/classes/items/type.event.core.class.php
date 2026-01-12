@@ -294,6 +294,7 @@ class TypeEventCore extends Itemtype {
 		}
 
 		$query = new Query();
+		$query->checkDbExistence(UT_COUNTRIES);
 		$query->checkDbExistence($this->db_locations);
 
 
@@ -341,6 +342,7 @@ class TypeEventCore extends Itemtype {
 			$query = new Query();
 
 			// make sure type tables exist
+			$query->checkDbExistence(UT_COUNTRIES);
 			$query->checkDbExistence($this->db_locations);
 
 			$entities = $this->getModel();
