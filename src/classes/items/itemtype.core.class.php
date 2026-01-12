@@ -1600,6 +1600,14 @@ class ItemtypeCore extends Model {
 
 	}
 
+	// API to get file info
+	// to validate files which cannot be validated clientside
+	// - .mov missing width height
+	function getMediaInfo($action) {
+
+		return $this->identifyUploads("video");
+
+	}
 
 	// upload to item_id/variant
 	// checks content of $_FILES, looks for uploaded file where type matches $type and uploads
