@@ -592,11 +592,11 @@ class SetupCore extends Itemtype {
 		}
 
 		// Check if we can update existing mail connect file
-		$connect_mail_handle = true;
-		if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
-			$connect_mail_handle = @fopen(LOCAL_PATH."/config/connect_mail.php", "a+");
-			if($connect_mail_handle) {
-				fclose($connect_mail_handle);
+		$connect_email_handle = true;
+		if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
+			$connect_email_handle = @fopen(LOCAL_PATH."/config/connect_email.php", "a+");
+			if($connect_email_handle) {
+				fclose($connect_email_handle);
 			}
 		}
 
@@ -611,7 +611,7 @@ class SetupCore extends Itemtype {
 
 
 		// Don't try to set owner, group and permissions, unless initial permission probing was successful
-		if($handle && $config_handle && $connect_db_handle && $connect_mail_handle && $git_handle) {
+		if($handle && $config_handle && $connect_db_handle && $connect_email_handle && $git_handle) {
 
 			// Set owner, group and permissions for all project files and folders
 			if(
@@ -1796,10 +1796,10 @@ class SetupCore extends Itemtype {
 
 
 			// MAIL
-			// connect_mail.php
+			// connect_email.php
 			if(!$this->get("mail", "skipped")) {
 
-				// Use existing connect_mail.php
+				// Use existing connect_email.php
 				if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
 
 					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_email.php");
@@ -1863,14 +1863,14 @@ class SetupCore extends Itemtype {
 				chmod(LOCAL_PATH."/config/connect_email.php", 0777);
 
 
-				// Status for creating connect_mail.php
+				// Status for creating connect_email.php
 				$tasks["completed"][] = "Project connect_email.php " . ($existing_mail_conf ? "updated" : "created");
 
 			}
 			// Skip mail setup
 			else {
 
-				// Delete existing connect_mail.php
+				// Delete existing connect_email.php
 				if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
 					unlink(LOCAL_PATH."/config/connect_email.php");
 				}
@@ -1885,7 +1885,7 @@ class SetupCore extends Itemtype {
 			// connect_payment.php
 			if(!$this->get("payment", "skipped")) {
 
-				// Use existing connect_mail.php
+				// Use existing connect_payment.php
 				if(file_exists(LOCAL_PATH."/config/connect_payment.php")) {
 
 					$file_payment = file_get_contents(LOCAL_PATH."/config/connect_payment.php");
