@@ -1667,6 +1667,45 @@ class HTMLCore {
 	}
 
 
+
+	function renderSnippet($snippet, $_options = false) {
+
+		$buffer = true;
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "buffer"            : $buffer = $_value; break;
+				}
+			}
+		}
+
+
+		if(file_exists(LOCAL_PATH."/templates/".$snippet)) {
+			$file = LOCAL_PATH."/templates/".$snippet;
+		}
+		else if(file_exists(FRAMEWORK_PATH."/templates/".$snippet)) {
+			$file = FRAMEWORK_PATH."/templates/".$snippet;
+		}
+
+		if(isset($file)) {
+			if($buffer) {
+//				print "buffering:" . $file;
+				ob_start();
+				include($file);
+				$output = ob_get_contents();
+				ob_end_clean();
+				return $output;
+			}
+			else {
+				return include($file);
+			}
+		}
+
+		return "";
+
+	}
+
 }
 
 ?>
