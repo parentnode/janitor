@@ -187,7 +187,7 @@ class TypeEventCore extends Itemtype {
 			"type" => "string",
 			"label" => "Location url",
 			"pattern" => "http[s]?:\/\/[^$]+",
-			"hint_message" => "Url of location.",
+			"hint_message" => "Url of location if available.",
 			"error_message" => "State the url of the location if available (including http:// or https://)."
 		));
 
