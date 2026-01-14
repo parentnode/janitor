@@ -55,7 +55,7 @@ if($item && $url): ?>
 		<span class="image_height" itemprop="height" content="675"></span>
 <?	endif; ?>
 	</li>
-<?	if(isset($item["location"]) && $item["location"] && $item["latitude"] && $item["longitude"]): ?>
+<?	if(isset($item["location"]) && $item["location"] && isset($item["latitude"]) && $item["latitude"] && isset($item["longitude"]) && $item["longitude"]): ?>
 	<li class="place" itemprop="contentLocation" itemscope itemtype="http://schema.org/Place">
 		<ul class="geo" itemprop="geo" itemscope itemtype="http://schema.org/GeoCoordinates">
 			<li class="name" itemprop="name"><?= $item["location"] ?></li>
