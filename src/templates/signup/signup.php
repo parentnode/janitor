@@ -21,7 +21,8 @@ $email = $model->getProperty("email", "value");
 		<? endif; ?>
 
 
-		<?= $HTML->articleTags($page_item, [
+		<?= $HTML->renderSnippet("snippets/tags.php", [
+			"item" => $page_item,
 			"context" => false
 		]) ?>
 
@@ -33,8 +34,10 @@ $email = $model->getProperty("email", "value");
 		<? endif; ?>
 
 
-		<?= $HTML->articleInfo($page_item, SITE_SIGNUP_URL, [
-			"media" => $media, 
+		<?= $HTML->renderSnippet("snippets/info.php", [
+			"item" => $page_item,
+			"url" => SITE_SIGNUP_URL,
+			"media" => $media,
 		]) ?>
 
 
@@ -43,6 +46,7 @@ $email = $model->getProperty("email", "value");
 			<?= $page_item["html"] ?>
 		</div>
 		<? endif; ?>
+
 	</div>
 <? else:?>
 	<h1>Sign up</h1>
@@ -50,15 +54,11 @@ $email = $model->getProperty("email", "value");
 
 	<?= $model->formStart("save", array("class" => "signup labelstyle:inject")) ?>
 
-<?	if(message()->hasMessages(array("type" => "error"))): ?>
-		<p class="errormessage">
-<?		$messages = message()->getMessages(array("type" => "error"));
-		message()->resetMessages();
-		foreach($messages as $message): ?>
-			<?= $message ?><br>
-<?		endforeach;?>
-		</p>
-<?	endif; ?>
+
+		<?= $HTML->renderSnippet("snippets/messaged.php", [
+			"type" => "error",
+		]) ?>
+	
 
 		<?= $model->input("maillist", array("type" => "hidden", "value" => 1)); ?>
 		<?= $model->input("maillist_name", array("type" => "hidden", "value" => "curious")); ?>

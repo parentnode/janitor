@@ -21,7 +21,8 @@ if($page_item) {
 		<? endif; ?>
 
 
-		<?= $HTML->articleTags($page_item, [
+		<?= $HTML->renderSnippet("snippets/tags.php", [
+			"item" => $page_item,
 			"context" => false
 		]) ?>
 
@@ -33,8 +34,10 @@ if($page_item) {
 		<? endif; ?>
 
 
-		<?= $HTML->articleInfo($page_item, "/verify/confirm/receipt", [
-			"media" => $media, 
+		<?= $HTML->renderSnippet("snippets/info.php", [
+			"item" => $page_item,
+			"url" => "/verify/confirm/receipt",
+			"media" => $media,
 		]) ?>
 
 
@@ -43,6 +46,7 @@ if($page_item) {
 			<?= $page_item["html"] ?>
 		</div>
 		<? endif; ?>
+
 	</div>
 
 <? else:?>

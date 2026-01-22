@@ -20,7 +20,8 @@ if($page_item) {
 		<? endif; ?>
 
 
-		<?= $HTML->articleTags($page_item, [
+		<?= $HTML->renderSnippet("snippets/tags.php", [
+			"item" => $page_item,
 			"context" => false
 		]) ?>
 
@@ -32,8 +33,10 @@ if($page_item) {
 		<? endif; ?>
 
 
-		<?= $HTML->articleInfo($page_item, "/verify/confirm/receipt", [
-			"media" => $media, 
+		<?= $HTML->renderSnippet("snippets/info.php", [
+			"item" => $page_item,
+			"url" => "/verify/confirm/receipt",
+			"media" => $media,
 		]) ?>
 
 
@@ -42,6 +45,7 @@ if($page_item) {
 			<?= $page_item["html"] ?>
 		</div>
 		<? endif; ?>
+
 	</div>
 
 <? else:?>
@@ -56,15 +60,11 @@ if($page_item) {
 
 	<?= $model->formStart("/verify/confirm", ["class" => "verify_code"]) ?>
 
-<?	if(message()->hasMessages(array("type" => "error"))): ?>
-		<p class="errormessage">
-<?		$messages = message()->getMessages(array("type" => "error"));
-		message()->resetMessages();
-		foreach($messages as $message): ?>
-			<?= $message ?><br>
-<?		endforeach;?>
-		</p>
-<?	endif; ?>
+
+		<?= $HTML->renderSnippet("snippets/messaged.php", [
+			"type" => "error",
+		]) ?>
+
 
 		<fieldset>
 			<?= $model->input("verification_code"); ?>

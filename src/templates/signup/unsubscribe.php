@@ -35,15 +35,10 @@ if(count($action) == 4) {
 	<p>If you click the <em>unsubscribe</em> button below, <em><?= $username ?></em> will be permanently removed from the mailing list.</p>
 
 
-<?	if(message()->hasMessages(array("type" => "error"))): ?>
-		<p class="errormessage">
-<?		$messages = message()->getMessages(array("type" => "error"));
-		message()->resetMessages();
-		foreach($messages as $message): ?>
-			<?= $message ?><br>
-<?		endforeach;?>
-		</p>
-<?	endif; ?>
+	<?= $HTML->renderSnippet("snippets/messaged.php", [
+		"type" => "error",
+	]) ?>
+
 
 	<ul class="actions">
 		<?= $HTML->oneButtonForm("Unsubscribe from ".$maillist["name"], SITE_SIGNUP_URL . "/unsubscribe", array(

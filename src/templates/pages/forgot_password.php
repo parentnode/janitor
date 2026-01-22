@@ -10,15 +10,11 @@ $this->pageTitle("Forgot password?");
 
 	<?= $model->formStart("requestReset", array("class" => "labelstyle:inject")) ?>
 
-<?	if(message()->hasMessages(array("type" => "error"))): ?>
-		<p class="errormessage">
-<?		$messages = message()->getMessages(array("type" => "error"));
-		message()->resetMessages();
-		foreach($messages as $message): ?>
-			<?= $message ?><br>
-<?		endforeach;?>
-		</p>
-<?	endif; ?>
+
+		<?= $HTML->renderSnippet("snippets/messaged.php", [
+			"type" => "error",
+		]) ?>
+
 
 		<fieldset>
 			<?= $model->input("username", array("type" => "string", "label" => "Email", "required" => true, "pattern" => "[\w\.\-_\+]+@[\w\-\.]+\.\w{2,10}", "hint_message" => "Type your email.", "error_message" => "Invalid email.")); ?>
