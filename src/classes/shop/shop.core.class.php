@@ -643,7 +643,6 @@ class ShopCore extends Model {
 
 			$default = arrayKeyValue($prices, "type", "default");
 			if($default !== false) {
-
 				$default_price = $prices[arrayKeyValue($prices, "type", "default")];
 			}
 
@@ -681,11 +680,10 @@ class ShopCore extends Model {
 			if(isset($bulk_price) && (!isset($return_price) || $return_price["price"] > $bulk_price["price"])) {
 				$return_price = $bulk_price;
 			}
-			
+
 			if(isset($membership_price) && (!isset($return_price) || $return_price["price"] > $membership_price["price"])) {
 				$return_price = $membership_price;
 			}
-			
 
 			if(isset($return_price)) {
 				return $return_price;

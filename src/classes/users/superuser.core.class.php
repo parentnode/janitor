@@ -282,21 +282,6 @@ class SuperUserCore extends User {
 								// we should also delete user account at payment gateway
 								payments()->deleteGatewayUserId($user_id);
 
-								// // TODO: keep updated when more gateways are added
-								// include_once("classes/adapters/stripe.class.php");
-								// $GC = new JanitorStripe();
-								// $payment_methods = $page->paymentMethods();
-								//
-								// foreach($payment_methods as $payment_method) {
-								//
-								// 	if($payment_method["gateway"] == "stripe") {
-								//
-								// 		$GC->deleteCustomer($user_id);
-								//
-								// 	}
-								//
-								// }
-
 							}
 
 							// flush user session when user is deleted
@@ -453,15 +438,18 @@ class SuperUserCore extends User {
 		$query = new Query();
 		$user_constraints = array();
 
+		// User has content
 		if($query->sql("SELECT * FROM ".UT_ITEMS." WHERE user_id = $user_id")) {
 			$user_constraints["items"] = $query->results();
 		}
 
 		if(class_exists("Shop")) {
 			$shop = new Shop();
+			// User has orders
 			if($query->sql("SELECT * FROM ".$shop->db_orders." WHERE user_id = $user_id")) {
 				$user_constraints["orders"] = $query->results();
 			}
+			// User has carts
 			if($query->sql("SELECT * FROM ".$shop->db_carts." WHERE user_id = $user_id")) {
 				$user_constraints["carts"] = $query->results();
 			}
@@ -1399,6 +1387,7 @@ class SuperUserCore extends User {
 		message()->addMessage("Password could not be saved", array("type" => "error"));
 		return false;
 	}
+
 
 
 
