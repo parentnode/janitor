@@ -46,7 +46,7 @@ if(count($action) > 1) {
 	}
 }
 // show default = 0
-else {
+else if($memberships) {
 	$membership_id = $memberships[0]["id"];
 
 
