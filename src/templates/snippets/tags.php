@@ -56,8 +56,6 @@ if($item["tags"] && $editing):
 	endif;
 endif;
 
-debug([$editing_tag, $item["tags"]]);
-
 // Has default tag
 if(is_array($default)):
 	$default_tag = $default;
