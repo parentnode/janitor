@@ -21,18 +21,10 @@ $username = stringOr(getPost("username"));
 
 	<?= $model->formStart("?login=true", array("class" => "labelstyle:inject")) ?>
 		<?= $model->input("login_forward", ["type" => "hidden", "value" => $login_forward]); ?>
-		<? if(message()->hasMessages()): ?>
-		<div class="messages">
-		<?
-		$all_messages = message()->getMessages();
-		message()->resetMessages();
-		foreach($all_messages as $type => $messages):
-			foreach($messages as $message): ?>
-			<p class="<?= $type ?>"><?= $message ?></p>
-			<? endforeach;?>
-		<? endforeach;?>
-		</div>
-		<? endif; ?>
+
+
+		<?= $HTML->renderSnippet("snippets/server-messages.php")?>
+
 
 		<fieldset>
 			<?= $model->input("username", array("required" => true, "value" => $username)); ?>
