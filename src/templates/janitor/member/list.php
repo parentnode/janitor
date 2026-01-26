@@ -75,6 +75,8 @@ $members = $MC->paginate($options);
 <?		endforeach; ?>
 		<?= $HTML->link("All (".$MC->getMemberCount().")", "/janitor/admin/member/list/0", array("wrapper" => "li.".($membership_id == 0 ? "selected" : ""))) ?>
 	</ul>
+<?	else:?>
+	<p>No memberships</p>
 <?	endif; ?>
 
 
