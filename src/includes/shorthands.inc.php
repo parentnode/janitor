@@ -118,6 +118,28 @@ function perf() {
 
 // SYSTEM MODULES
 
+// testing these for ease of use
+function page() {
+	global $page;
+	return $page;
+}
+
+function HTML() {
+	global $HTML;
+	return $HTML;
+}
+
+$__module = false;
+function module() {
+	global $__module;
+	if(!$__module) {
+		include_once("classes/system/module.class.php");
+		$__module = new Module();
+	}
+	return $__module;
+}
+
+
 // Shorthand auto initializer for security access
 $__security = false;
 function security() {
@@ -182,5 +204,36 @@ function admin() {
 		$__admin = new Admin();
 	}
 	return $__admin;
+}
+
+// Shorthand auto initializer for Image class access
+$__image = false;
+function image() {
+	global $__image;
+	if(!$__image) {
+		include_once("classes/helpers/image.class.php");
+		$__image = new Image();
+	}
+	return $__image;
+}
+// Shorthand auto initializer for Video class access
+$__video = false;
+function video() {
+	global $__video;
+	if(!$__video) {
+		include_once("classes/helpers/video.class.php");
+		$__video = new Video();
+	}
+	return $__video;
+}
+// Shorthand auto initializer for Audio class access
+$__audio = false;
+function audio() {
+	global $__audio;
+	if(!$__audio) {
+		include_once("classes/helpers/audio.class.php");
+		$__audio = new Audio();
+	}
+	return $__audio;
 }
 
