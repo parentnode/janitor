@@ -62,12 +62,14 @@ if(is_array($default)):
 endif;
 
 // item tag list
+// context is specified – filter by context
 if($item["tags"] && $context):
 	foreach($item["tags"] as $item_tag):
 		if(array_search($item_tag["context"], $context) !== false):
 			$item_tags[] = $item_tag;
 		endif;
 	endforeach;
+// context is empty array – show all tags
 elseif(is_array($context) && !$context):
 	$item_tags = $item["tags"];
 endif;
