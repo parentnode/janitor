@@ -23,7 +23,7 @@ $username = stringOr(getPost("username"));
 		<?= $model->input("login_forward", ["type" => "hidden", "value" => $login_forward]); ?>
 
 
-		<?= $HTML->renderSnippet("snippets/server-messages.php")?>
+		<?= $HTML->renderSnippet("snippets/messages.php")?>
 
 
 		<fieldset>
