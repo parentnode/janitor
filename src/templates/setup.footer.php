@@ -45,7 +45,7 @@ global $model;
 			<li class="totop"><a href="#header">To top</a></li>
 		</ul>
 
-		<p class="copyright">Copyright 2019, parentNode.dk</p>
+		<p class="copyright">Copyright 2026, parentNode.dk</p>
 	</div>
 
 </div>
