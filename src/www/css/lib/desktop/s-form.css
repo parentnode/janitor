@@ -343,12 +343,20 @@ ul.actions a.button.secondary:hover,
 #content ul.actions li.status.enabled form.enable {display: none;}
 #content ul.actions li.status.disabled form.disable {display: none;}
 
-/* CUSTOM DELETE BUTTON */
+/* CUSTOM DELETE/WARNING BUTTON */
+ul.actions input.button.warning,
+ul.actions a.button.warning,
+#content ul.actions a.button.warning {color: #ffffff; background-color: #df0000;}
+ul.actions input.button.warning:hover,
+ul.actions a.button.warning:hover,
+#content ul.actions a.button.warning:hover {background-color: #bf0000;}
+
 #content ul.actions form input.button.confirm,
 #content ul.actions form input.button.confirm:hover {color: #ffffff; background-color: #df0000;}
 
 #content ul.actions form input.button.loading,
 #content ul.actions form input.button.loading:hover {padding-left: 35px; background-color: #8c9399; background-image: url(/janitor/admin/img/gx_loader.gif); background-position: 10px center; background-repeat: no-repeat;}
+
 
 
 
