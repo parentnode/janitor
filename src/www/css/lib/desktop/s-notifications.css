@@ -1,5 +1,36 @@
-#notifications {z-index: 1001; position: fixed; left: 50%; margin-left: -100px; top: 0; border-left: 1px solid #888888; border-right: 1px solid #888888; border-bottom: 1px solid #888888; background-color: #b0b0b0; width: 200px;}
-#notifications div {padding: 10px 65px 10px 15px;}
+#notifications {z-index: 1001; position: fixed; left: 50%; margin-left: -200px; top: 0; 
+	padding: 5px 0;
+	/* border-left: 1px solid #888888; 
+	border-right: 1px solid #888888; 
+	border-bottom: 1px solid #888888; 
+	background-color: #b0b0b0;  */
+	
+	width: 400px;
+}
+#notifications div {
+	border-radius: 3px;
+	margin: 0 30px 5px;
+	padding: 15px;
+	line-height: 1.45;
 
-#notifications .notice {color: #333333;}
-#notifications .error {background-color: #df0000; color: #ffffff;}
+}
+
+#notifications div.message {
+	background-color: #cfead9;
+	border: 1px solid #b2d8b9;
+	color: #006b38;
+}
+#notifications div.notice,
+#notifications div.warning {
+	background-color: #fff3e0; border: 1px solid #ffcc99; 
+	color: #b85a00;
+	/* color: #333333; */
+}
+
+/* ERROR - RED */
+#notifications div.error {
+	background-color: #ffdede;
+	border: 1px solid #ffb3b3;
+	color: #b30000;
+
+}

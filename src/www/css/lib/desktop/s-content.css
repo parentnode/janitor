@@ -92,6 +92,48 @@
 /*#content .scene > div.item {padding: 10px 0 10px; border-bottom: 1px solid #aaaaaa;}*/
 
 
+body #content div.messages {
+	background-color: #f6f6f6;
+	padding: 0 0 25px;
+}
+
+body #content div.messages p {
+	border-radius: 3px;
+	margin: 0 30px 5px;
+	padding: 15px;
+	line-height: 1.45;
+}
+
+/* ERROR - RED */
+body #content div.messages p.error {
+	background-color: #ffdede;
+	border: 1px solid #ffb3b3;
+	color: #b30000;
+}
+
+/* WARNING - ORANGE */
+body #content div.messages p.warning {
+	background-color: #fff3e0; border: 1px solid #ffcc99; 
+	color: #b85a00;
+}
+
+/* MESSAGE - GREEN */
+body #content div.messages p.message {
+	background-color: #cfead9;
+	border: 1px solid #b2d8b9;
+	color: #006b38;
+}
+
+body #content div.warning {
+	background-color: #fff3e0; border: 1px solid #ffcc99;
+	padding: 15px 0 0; margin: 0 30px 20px;
+}
+body #content div.warning * {
+	color: #b85a00;
+}
+body #content div.warning p {padding: 0 15px 15px;}
+body #content div.warning ul.modified_files {margin: 0; padding: 0 27px 15px; list-style: disc;}
+body #content div.warning ul.modified_files li {display: list-item; padding-bottom: 2px;}
 
 
 /* DEV AID */

@@ -88,7 +88,9 @@ Util.Modules["page"] = new function() {
 				this.initHeader();
 
 				// adds notifier and page.notify function
-				u.notifier(this);
+				u.notifier(this, {
+					"scrape":true
+				});
 
 				// adds popstate navigation and page.cN.navigate callback
 				u.navigation();
