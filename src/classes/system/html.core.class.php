@@ -898,6 +898,9 @@ class HTMLCore {
 		$formaction = false;
 		$class = false;
 
+		// Include confirmation dialog
+		$confirm = false;
+
 		$wrapper = false;
 
 		// overwrite defaults
@@ -911,9 +914,16 @@ class HTMLCore {
 
 					case "class"         : $class          = $_value; break;
 
+					case "confirm"       : $confirm        = $_value; break;
+
 					case "wrapper"       : $wrapper        = $_value; break;
 				}
 			}
+		}
+
+		// default confirm message if none is applied
+		if($confirm === true) {
+			$confirm = "Are you sure?";
 		}
 
 		$_ = "";
@@ -923,6 +933,8 @@ class HTMLCore {
 		$att_class = $this->attribute("class", "button", $class);
 		$att_name = $this->attribute("name", $name);
 		$att_formaction = $this->attribute("formaction", $formaction);
+
+		$att_confirm = $this->attribute("data-confirm", $confirm);
 
 		$att_wrap_id = "";
 		$att_wrap_class = "";
@@ -951,7 +963,7 @@ class HTMLCore {
 	
 		}
 
-		$_ .= '<input'.$att_value.$att_name.$att_type.$att_formaction.$att_class.' />';
+		$_ .= '<input'.$att_value.$att_name.$att_type.$att_formaction.$att_confirm.$att_class.' />';
 
 		if($wrapper) {
 			$_ .= '</'.$wrap_node.'>'."\n";

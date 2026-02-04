@@ -105,9 +105,6 @@ if(is_array($action) && count($action)) {
 		}
 
 
-		include_once("classes/system/module.class.php");
-		$module_model = new Module();
-
 		if(count($action) == 1) {
 
 			$page->page(array(
@@ -118,27 +115,14 @@ if(is_array($action) && count($action)) {
 			exit();
 			
 		}
-		else if(count($action) == 4 && $action[1] === "view") {
-
-			$module_group = $action[2];
-			$module_name = $action[3];
-
-			$page->page(array(
-				"body_class" => "modules",
-				"type" => "setup",
-				"templates" => "modules/view_module.php"
-			));
-			exit();
-
-		}
 		else if(count($action) == 4 && $action[1] === "install" && security()->validateCsrfToken()) {
 
 			// check if custom function exists on User class
-			if($module_model && method_exists($module_model, "API_installModule")) {
+			if(module() && method_exists(module(), "API_installModule")) {
 
 				$output = new Output();
-				$output->screen($module_model->API_installModule($action));
-				exit();
+				$output->screen(module()->API_installModule($action));
+ 				exit();
 			}
 			exit();
 
@@ -146,10 +130,12 @@ if(is_array($action) && count($action)) {
 		else if(count($action) == 4 && $action[1] === "uninstall" && security()->validateCsrfToken()) {
 
 			// check if custom function exists on User class
-			if($module_model && method_exists($module_model, "API_uninstallModule")) {
+			if(module() && method_exists(module(), "API_uninstallModule")) {
 
 				$output = new Output();
-				$output->screen($module_model->API_uninstallModule($action));
+				$output->screen(module()->API_uninstallModule($action), [
+					"reset_messages" => false,
+				]);
 				exit();
 			}
 			exit();
@@ -158,10 +144,10 @@ if(is_array($action) && count($action)) {
 		else if(count($action) == 4 && $action[1] === "updateSettings" && security()->validateCsrfToken()) {
 
 			// check if custom function exists on User class
-			if($module_model && method_exists($module_model, "API_updateSettings")) {
+			if(module() && method_exists(module(), "API_updateSettings")) {
 
 				$output = new Output();
-				$output->screen($module_model->API_updateSettings($action));
+				$output->screen(module()->API_updateSettings($action));
 				exit();
 			}
 			exit();
@@ -170,10 +156,10 @@ if(is_array($action) && count($action)) {
 		else if(count($action) == 4 && $action[1] === "upgrade" && security()->validateCsrfToken()) {
 
 			// check if custom function exists on User class
-			if($module_model && method_exists($module_model, "API_upgradeModule")) {
+			if(module() && method_exists(module(), "API_upgradeModule")) {
 
 				$output = new Output();
-				$output->screen($module_model->API_upgradeModule($action));
+				$output->screen(module()->API_upgradeModule($action));
 				exit();
 			}
 			exit();
@@ -181,15 +167,24 @@ if(is_array($action) && count($action)) {
 		}
 		else if(count($action) == 3) {
 
-			$module_group = $action[1];
-			$module_name = $action[2];
+			$module_group_id = $action[1];
+			$module_id = $action[2];
 
-			$page->page(array(
-				"body_class" => "modules ".$module_name,
-				"type" => "setup",
-				"templates" => "janitor/modules/$module_group/$module_name/index.php"
-			));
-			exit();
+			// Check that module settings actually exists
+			if(file_exists(LOCAL_PATH."/templates/janitor/modules/$module_group_id/$module_id/index.php")) {
+				$page->page(array(
+					"body_class" => "modules ".$module_id,
+					"type" => "setup",
+					"templates" => "janitor/modules/$module_group_id/$module_id/index.php",
+				));
+				exit();
+			}
+			// Returning to module setting after deletion (browser back) – go to main modules page
+			else {
+				message()->addMessage("Module $module_id was not found");
+				header("Location: /janitor/admin/setup/modules");
+				exit();
+			}
 
 		}
 

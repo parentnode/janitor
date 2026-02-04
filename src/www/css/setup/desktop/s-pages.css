@@ -79,10 +79,39 @@ body.pull #content ul.actions input.button.confirm,
 body.pull #content ul.actions input.button.confirm:hover {color: #ffffff; background-color: #df0000;}
 
 
+body.modules #content div.scene {padding-bottom: 50px;}
 
-body.modules #content div.modules h3 {font-size: 20px; text-transform: uppercase; padding-top: 20px; padding-bottom: 20px;}
-body.modules #content div.modules ul.modules {border-top: 1px solid #dedede;}
-body.modules #content div.modules ul.modules h4 {font-size: 16px; padding-top: 20px; padding-bottom: 10px;}
+
+body.modules #content div.modules,
+body.modules #content div.upgrade,
+body.modules #content div.uninstall {
+	border-top: 1px solid #dedede;
+	border-bottom: 1px solid #dedede;
+}
+body.modules #content div.upgrade,
+body.modules #content div.modules.installed_items {border-bottom: none;}
+
+body.modules #content div.upgrade ul.actions,
+body.modules #content div.uninstall ul.actions {padding-bottom: 10px; text-align: right;}
+
+
+body.modules #content div.modules h3 {font-size: 20px; text-transform: uppercase; padding-top: 25px; padding-bottom: 5px;}
+body.modules #content div.modules ul.modules {padding-bottom: 30px;}
+body.modules #content div.modules ul.modules li.module {display: block; position: relative;
+	border-top: 1px solid #dedede;
+}
+body.modules #content div.modules ul.modules h4 {font-size: 12px; text-transform: uppercase; padding-bottom: 25px;}
+body.modules #content div.modules ul.modules li.module ul.actions {z-index: 5; position: absolute; top: 20px; right: 0px;}
+
+body.modules #content div.modules ul.modules li.module div.updating {
+	z-index: 7;
+	position: absolute; top: 0; left: 0;
+	width: 100%; height: 100%;
+	background-color: rgba(255, 255, 255, 0.7);
+	background-image: url(/janitor/admin/img/gx_loader.gif);
+	background-repeat: no-repeat;
+	background-position: center center;
+}
 
 body.modules #content div.open-system {
 	background: #ffffff;
