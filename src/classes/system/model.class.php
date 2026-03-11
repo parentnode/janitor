@@ -366,6 +366,11 @@ class Model extends HTML {
 				return true;
 			}
 		}
+		else if($this->getProperty($name, "type") == "file_variant") {
+			if($this->isVariant($name)) {
+				return true;
+			}
+		}
 
 		// either type was not found or validation failed
 		$error_message = $this->getProperty($name, "error_message");
@@ -510,6 +515,33 @@ class Model extends HTML {
 		if(!$IC->getItem(array("id" => $value))) {
 			$this->setProperty($name, "error", true);
 			return false;
+		}
+
+		$this->setProperty($name, "error", false);
+		return true;
+	}
+
+	/**
+	* Check if variant is valid
+	* Requires item_id to be present
+	*
+	* @param string $name Entity name
+	* @return bool
+	*/
+	function isVariant($name) {
+
+		$value = $this->getProperty($name, "value");
+		$item_id = $this->getProperty($item_id, "value");
+
+		if($value && $item_id) {
+			$IC = new Items();
+			if(!$IC->getMediae([
+				"variant" => $value,
+				"item_id" => $item_id
+			])) {
+				$this->setProperty($name, "error", true);
+				return false;
+			}
 		}
 
 		$this->setProperty($name, "error", false);
