@@ -437,7 +437,7 @@ class AutoConversion {
 			// Disk check
 			$total_diskspace = disk_total_space("/");
 			$available_diskspace = disk_free_space("/");
-
+			
 
 			// Check autoconversions repetition threshold to avoid data overload (with potential disk failure)
 			$query = new Query();
@@ -459,7 +459,7 @@ class AutoConversion {
 
 				$_halted_options = [
 					"subject" => "Autoconversions from ".SITE_URL." halted due to disk overload risk",
-					"message" => "Available diskspace on ".SITE_URL." is below the specified threshold of 5%. Autoconversions have been halted to avoid disk exhaustion."
+					"message" => "Available diskspace on ".SITE_URL." is below the specified threshold of 5%.\n".formatBytes($total_diskspace)." in total with ".formatBytes($available_diskspace)." available.\n\n Autoconversions have been halted to avoid disk exhaustion."
 				];
 
 				admin()->notify($_halted_options);
