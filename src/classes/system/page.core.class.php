@@ -396,6 +396,10 @@ class PageCore {
 					else if(preg_match("/\.css($|\?)/", $include)) {
 						$_ .= '<link type="text/css" rel="stylesheet" media="all" href="'.$include.'" />';
 					}
+					else if(preg_match("/\.(woff|woff2|avif|jpg|png)($|\?)/", $include, $match)){
+						$type = preg_match("/^(avif|jpg|png)$/", $match[1]) ? "image" : "font"; 
+						$_ .= '<link rel="preload" href="'.$include.'" as="'.$type.'" type="'.$type.'/'.$match[1].'" crossorigin>';
+					}
 				}
 
 				return $_."\n";
