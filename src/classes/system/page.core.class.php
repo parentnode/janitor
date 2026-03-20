@@ -398,7 +398,7 @@ class PageCore {
 					}
 					else if(preg_match("/\.(woff|woff2|avif|jpg|png)($|\?)/", $include, $match)){
 						$type = preg_match("/^(avif|jpg|png)$/", $match[1]) ? "image" : "font";
-						$_ .= '<link rel="prefetch" href="'.$include.'" as="'.$type.'" type="'.$type.'/'.$match[1].'" fetchpriority="high" />';
+						$_ .= '<link rel="preload" href="'.$include.'" as="'.$type.'" type="'.$type.'/'.$match[1].'" fetchpriority="high" />';
 					}
 				}
 
