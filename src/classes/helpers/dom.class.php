@@ -351,11 +351,11 @@ class DOM extends DOMElement {
 			foreach($node->attributes as $attribute => $attribute_node) {
 
 				// check for allowed attribute
-				if(preg_match("/href|class|width|height|alt|charset|target|content|itemscope|itemprop|itemtype/i", $attribute)) {
+				if(preg_match("/href|class|width|height|alt|charset|target|content|itemscope|itemprop|itemtype|data[\-a-z]+/i", $attribute)) {
 
 					// if href, only allow absolute http links (no javascript or other crap)
 					// if($attribute == "href" && strpos($attribute_node->value, "http://") !== 0) {
-					if($attribute == "href" && !preg_match("/^((http[s]?\:\/)?\/|mailto\:|tel\:)/", $attribute_node->value, $match)) {
+					if($attribute == "href" && !preg_match("/^((http[s]?\:\/)?\/|mailto\:|tel\:|\/|#)/", $attribute_node->value, $match)) {
 						$remove_attributes[] = $attribute;
 					}
 				}
