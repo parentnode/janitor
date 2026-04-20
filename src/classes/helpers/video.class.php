@@ -420,6 +420,7 @@ class Video {
 			preg_match("/Duration: [^\n]+/", $output, $duration);
 			preg_match("/Stream #?.*\: Video: [^\n]+/", $output, $stream_video);
 			preg_match("/Stream #?.*\: Audio: [^\n]+/", $output, $stream_audio);
+			preg_match("/displaymatrix: rotation[^\n]+/", $output, $displaymatrix_rotation);
 
 			// print "<br>ffmpeg_out<br>";
 			// print(nl2br($output));
@@ -437,11 +438,16 @@ class Video {
 			// print_r($stream_audio);
 			// print "<br>";
 
+			// Video is rotated via metadata
+			// Correct this by re-encoding video correctly
+			// debug([$displaymatrix_rotation, $file]);
+
 
 			if($stream_video && $duration) {
 
-				// get filesize
 				$video_info = [];
+
+				// get filesize
 				$video_info["filesize"] = filesize($file);
 
 				// parse Video line
@@ -455,8 +461,27 @@ class Video {
 				}
 
 				if($matches) {
-					$video_info["width"] = intval($matches["width"]);
-					$video_info["height"] = intval($matches["height"]);
+
+					$video_info["rotation"] = 0;
+
+					// Does video have rotation metadata
+					if($displaymatrix_rotation) {
+						if(preg_match("/displaymatrix: rotation of (?P<rotation>.*) degrees/", $displaymatrix_rotation[0], $rotation_match)) {
+							$video_info["rotation"] = $rotation_match["rotation"];
+						}
+					}
+
+					// Does video have displaymatrix rotation
+					// If rotation is 90 or 270 degrees width and height should be switched
+					if(preg_match("/90|270/", $video_info["rotation"])) {
+						$video_info["width"] = intval($matches["height"]);
+						$video_info["height"] = intval($matches["width"]);
+					}
+					else {
+						$video_info["width"] = intval($matches["width"]);
+						$video_info["height"] = intval($matches["height"]);
+					}
+
 					$video_info["codec"] = $matches["codec"];
 					$video_info["format"] = $matches["format"];
 					$video_info["fps"] = $matches["fps"];
@@ -464,7 +489,8 @@ class Video {
 				}
 				// print_r($matches);
 				// print "<br>";
-				
+
+
 				// parse duration line
 				if(!preg_match("/Duration: (?P<hours>\d{1,3}):(?P<minutes>\d{2}):(?P<seconds>\d{2})(.(?P<fractions>\d{1,3}))(.*), bitrate: (?P<bitrate>\d+(\.\d+)?) (?P<bitrateunit>[\w\(\)]+)\/s/", $duration[0], $matches)) {
 					if(!preg_match("/Duration: (?P<hours>\d{1,3}):(?P<minutes>\d{2}):(?P<seconds>\d{2})(.(?P<fractions>\d{1,3}))/", $duration[0], $matches)) {
@@ -474,6 +500,7 @@ class Video {
 
 					}
 				}
+
 
 				if($matches) {
 					$video_info["hours"] = parseInt($matches["hours"]);
@@ -489,6 +516,10 @@ class Video {
 				}
 				 // print_r($matches);
 				 // print "<br>";
+
+
+
+
 			}
 
 
