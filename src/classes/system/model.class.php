@@ -531,7 +531,7 @@ class Model extends HTML {
 	function isVariant($name) {
 
 		$value = $this->getProperty($name, "value");
-		$item_id = $this->getProperty($item_id, "value");
+		$item_id = $this->getProperty("item_id", "value");
 
 		if($value && $item_id) {
 			$IC = new Items();
@@ -710,6 +710,7 @@ class Model extends HTML {
 						$info = $Video->info($file);
 						if($info) {
 
+
 							// TODO: add better bitrate detection to Video Class
 							// TODO: add duration
 							// $upload["bitrate"] = $info["bitrate"];
@@ -821,6 +822,7 @@ class Model extends HTML {
 		$max_length = $this->getProperty($name, "max");
 		$pattern = $this->getProperty($name, "pattern");
 		$compare_to = $this->getProperty($name, "compare_to");
+
 		if(($value || $value === "0") && is_string($value) && 
 			(!$min_length || mb_strlen($value) >= $min_length) && 
 			(!$max_length || mb_strlen($value) <= $max_length) &&
