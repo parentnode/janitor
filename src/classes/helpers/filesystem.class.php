@@ -7,16 +7,15 @@ class FileSystem {
 	/**
 	* Iterate recursively through folder
 	*
-	* @param string $start_path Start path for folder iteration
-	* @param string $iteration_path Current progress of folder iteration
-	* @param Array $exclude Exclude these folders in iteration
-	* @param Array $extensions Only allow these file extensions. Optional.
-	* @param Array $files The matching files. Optional. Should be skipped when starting a folder iteration
+	* @param string $path Start path for folder iteration
+	* @param String $deny_folders Comma-separated list of denied folders
+	* @param String $allow_folders Comma-separated list of allowed extensions
+	* @param String $deny_extensions Comma-separated list of denied extensions
+	* @param String $allow_extensions Comma-separated list of allowed extensions
 	* @return Array Array of matching files
 	*
 	* @uses FileSystem::valid
 	*/
-//	function folderIterator($start_path, $iteration_path="", $exclude=array(), $extensions=false, $files=false) {
 	function files($path, $_options = false) {
 //		print $path."<br>";
 
