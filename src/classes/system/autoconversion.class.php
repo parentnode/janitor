@@ -39,6 +39,7 @@ class AutoConversion {
 	private $width;
 	private $height;
 	private $format;
+	private $bitrate;
 
 	private $max_pixels;
 
@@ -58,6 +59,8 @@ class AutoConversion {
 		$this->width = false;
 		$this->height = false;
 		$this->format = false;
+
+		$this->bitrate = false;
 
 		$this->max_pixels = 4000000;
 
@@ -354,7 +357,7 @@ class AutoConversion {
 		}
 
 		// audio
-		else if($this->request_type === "audios" && $bitrate && preg_match("/^(mp3|ogg|wav)$/", $this->format)) {
+		else if($this->request_type === "audios" && $this->bitrate && preg_match("/^(mp3|ogg|wav)$/", $this->format)) {
 			include_once("classes/helpers/audio.class.php");
 
 			$Audio = new Audio();
