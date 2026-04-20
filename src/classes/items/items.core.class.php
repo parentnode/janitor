@@ -1559,6 +1559,7 @@ class ItemsCore {
 	// TODO: implement get media function like getTags (needs testing)
 	// get mediae, optionally based on item_id
 	function getMediae($_options=false) {
+		// debug(["getMediae", $_options]);
 
 		$item_id = false;
 		$media_id = false;
@@ -1586,7 +1587,10 @@ class ItemsCore {
 
 			// specific media variant?
 			if($variant) {
-				if($query->sql("SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE variant = '$variant' AND item_id = $item_id")) {
+				$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE variant = '$variant' AND item_id = $item_id";
+				// debug([$sql]);
+
+				if($query->sql($sql)) {
 					return $query->result(0);
 				}
 			}
@@ -1595,7 +1599,7 @@ class ItemsCore {
 			else {
 
 				$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant NOT LIKE 'HTML-%' ORDER BY position ASC, id DESC";
-//				print $sql."<br>\n";
+				// debug([$sql]);
 
 				if($query->sql($sql)) {
 					$mediae = array();
