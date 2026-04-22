@@ -52,7 +52,9 @@ $current_user_id = session()->value("user_id");
 	<ul class="actions">
 		<?= $HTML->link("New user", "/janitor/admin/user/new", array("class" => "button primary", "wrapper" => "li.new")) ?>
 		<?= $HTML->link("User groups", "/janitor/admin/user/group/list", array("class" => "button", "wrapper" => "li.usergroup")) ?>
+		<? if(defined("SITE_MEMBERS") && SITE_MEMBERS): ?>
 		<?= $HTML->link("Members", "/janitor/admin/member/list", array("class" => "button", "wrapper" => "li.member")) ?>
+		<? endif; ?>
 		<?= $HTML->link("Unverified usernames", "/janitor/admin/user/unverified-usernames", array("class" => "button", "wrapper" => "li.unverified_usernames")) ?>
 		<?= $HTML->link("Online users", "/janitor/admin/user/online", array("class" => "button", "wrapper" => "li.online")) ?>
 	</ul>

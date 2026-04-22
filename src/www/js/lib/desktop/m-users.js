@@ -346,6 +346,27 @@ Util.Modules["apitoken"] = new function() {
 	}
 }
 
+// Access token
+Util.Modules["accesstoken"] = new function() {
+	this.init = function(div) {
+
+		div.tokens = u.qsa("li.token", div);
+		var i, li_token;
+		for(i = 0; i < div.tokens.length; i++) {
+			li_token = div.tokens[i];
+			li_token.li_delete = u.qs("li.delete", li_token);
+			li_token.li_delete.li_token = li_token;
+			li_token.li_delete.confirmed = function(response) {
+				// u.bug("response", response, this);
+
+				this.li_token.parentNode.removeChild(this.li_token);
+
+			}
+		}
+
+	}
+}
+
 // Update address
 Util.Modules["editAddress"] = new function() {
 	this.init = function(form) {
@@ -372,7 +393,7 @@ Util.Modules["editAddress"] = new function() {
 
 }
 
-// Update address
+// Set custom price
 Util.Modules["customPrice"] = new function() {
 	this.init = function(div) {
 

@@ -44,40 +44,44 @@ class MemberCore extends Model {
 		// get current user
 		$user_id = session()->value("user_id");
 
-		$query = new Query();
-		$IC = new Items();
-		$SC = new Shop();
+		if($user_id > 1) {
+
+			$query = new Query();
+			$IC = new Items();
+			$SC = new Shop();
 
 
-		// membership with subscription (active)
-		$sql = "SELECT members.id as id, subscriptions.id as subscription_id, subscriptions.item_id as item_id, subscriptions.order_id as order_id, members.user_id as user_id, members.created_at as created_at, members.modified_at as modified_at, subscriptions.renewed_at as renewed_at, subscriptions.expires_at as expires_at FROM ".$this->db_subscriptions." as subscriptions, ".$this->db_members." as members WHERE members.user_id = $user_id AND members.subscription_id = subscriptions.id LIMIT 1";
-		if($query->sql($sql)) {
-			$membership = $query->result(0);
-			$membership["item"] = $IC->getItem(array("id" => $membership["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
-			if($membership["order_id"]) {
-				$membership["order"] = $SC->getOrders(array("order_id" => $membership["order_id"]));
-			}
-			else {
-				$membership["order"] = false;
-			}
-
-			return $membership;
-		}
-		// membership without subscription (inactive)
-		else {
-			$sql = "SELECT * FROM ".$this->db_members." WHERE user_id = $user_id LIMIT 1";
+			// membership with subscription (active)
+			$sql = "SELECT members.id as id, subscriptions.id as subscription_id, subscriptions.item_id as item_id, subscriptions.order_id as order_id, members.user_id as user_id, members.created_at as created_at, members.modified_at as modified_at, subscriptions.renewed_at as renewed_at, subscriptions.expires_at as expires_at FROM ".$this->db_subscriptions." as subscriptions, ".$this->db_members." as members WHERE members.user_id = $user_id AND members.subscription_id = subscriptions.id LIMIT 1";
 			if($query->sql($sql)) {
 				$membership = $query->result(0);
-
-				$membership["item"] = false;
-				$membership["order"] = false;
-				$membership["order_id"] = false;
-				$membership["item_id"] = false;
-				$membership["expires_at"] = false;
-				$membership["renewed_at"] = false;
+				$membership["item"] = $IC->getItem(array("id" => $membership["item_id"], "extend" => array("prices" => true, "subscription_method" => true)));
+				if($membership["order_id"]) {
+					$membership["order"] = $SC->getOrders(array("order_id" => $membership["order_id"]));
+				}
+				else {
+					$membership["order"] = false;
+				}
 
 				return $membership;
 			}
+			// membership without subscription (inactive)
+			else {
+				$sql = "SELECT * FROM ".$this->db_members." WHERE user_id = $user_id LIMIT 1";
+				if($query->sql($sql)) {
+					$membership = $query->result(0);
+
+					$membership["item"] = false;
+					$membership["order"] = false;
+					$membership["order_id"] = false;
+					$membership["item_id"] = false;
+					$membership["expires_at"] = false;
+					$membership["renewed_at"] = false;
+
+					return $membership;
+				}
+			}
+
 		}
 
 		return false;

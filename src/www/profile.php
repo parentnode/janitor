@@ -10,6 +10,9 @@ $access_item["/apitoken"] = true;
 $access_item["/renewApiToken"] = "/apitoken";
 $access_item["/disableApiToken"] = "/apitoken";
 
+$access_item["/accesstoken"] = true;
+$access_item["/deleteAccessToken"] = "/accesstoken";
+
 
 $access_item["/readstates"] = true;
 $access_item["/addReadstate"] = "/readstates";
@@ -34,6 +37,7 @@ if(isset($read_access) && $read_access) {
 include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
+
 $action = $page->actions();
 $model = new User();
 
@@ -42,8 +46,21 @@ $page->bodyClass("profile");
 $page->pageTitle("Profile");
 
 
-if(is_array($action) && count($action)) {
+// Controller requires elevated authentication
+if(!security()->validateAuthetication("profile")) {
 
+	// Redirect to reautheticate login
+	// page will set login_forward to return to process after login is completed
+	$page->page(array(
+		"type" => "janitor",
+		"templates" => "pages/login-reauthenticate.php"
+	));
+	exit();
+
+}
+
+
+if(is_array($action) && count($action)) {
 
 	// CONTENT OVERVIEW
 	if(preg_match("/^(content|maillists)$/", $action[0])) {
@@ -140,7 +157,7 @@ if(is_array($action) && count($action)) {
 	}
 	
 	else if(security()->validateCsrfToken() && preg_match("/^(setPassword)$/", $action[0])  && count($action) == 1) {
-		
+
 		$result = $model->setPassword($action);
 		$output = new Output();
 		// Old password was not validated successfully. New password was not saved. 
@@ -164,6 +181,14 @@ if(is_array($action) && count($action)) {
 			$output->screen($model->{$action[0]}($action));
 			exit();
 		}
+		// check if custom function exists on User class
+		else if($model && method_exists($model, "API_".$action[0])) {
+
+			$output = new Output();
+			$output->screen($model->{"API_".$action[0]}($action));
+			exit();
+		}
+
 	}
 
 }

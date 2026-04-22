@@ -1377,7 +1377,16 @@ class SuperUserCore extends User {
 				else {
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$password'";
 				}
+
+
+
 				if($query->sql($sql)) {
+
+
+					// Delete all access tokens on password reset
+					security()->deleteAccessTokens(["user_id" => $user_id]);
+
+
 					message()->addMessage("Password saved");
 					return true;
 				}
@@ -1750,9 +1759,11 @@ class SuperUserCore extends User {
 		// make sure type tables exist
 		$query->checkDbExistence($this->db_apitokens);
 
-		$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
-		if($query->sql($sql)) {
-			return $query->result(0, "token");
+		if($user_id) {
+			$sql = "SELECT token FROM ".$this->db_apitokens." WHERE user_id = $user_id";
+			if($query->sql($sql)) {
+				return $query->result(0, "token");
+			}
 		}
 		return false;
 	}
@@ -1804,6 +1815,48 @@ class SuperUserCore extends User {
 		return false;
 	}
 
+	// ACCESS TOKENS
+	// get user's access tokens
+	function getAccessTokens($user_id = false) {
+
+		security()->deleteExpiredAccessTokens();
+
+		$query = new Query();
+		// make sure type tables exist
+		$query->checkDbExistence($this->db_accesstokens);
+
+		if($user_id) {
+			$sql = "SELECT * FROM ".$this->db_accesstokens." WHERE user_id = $user_id";
+			if($query->sql($sql)) {
+				return $query->results();
+			}
+		}
+
+		return false;
+	}
+
+	function API_deleteAccessToken($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 1 && $this->validateList(array("public_token"))) {
+
+			$public_token = $this->getProperty("public_token", "value");
+
+			$result = security()->deleteAccessTokens([
+				"public_token" => $public_token,
+			]);
+			if($result) {
+				message()->addMessage("Token deleted");
+				return $result;
+			}
+
+		}
+
+		message()->addMessage("Token could not be deleted", ["type" => "error"]);
+		return false;
+	}
 
 
 	// ADDRESSES

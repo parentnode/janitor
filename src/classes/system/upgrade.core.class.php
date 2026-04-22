@@ -230,8 +230,8 @@ class UpgradeCore extends Model {
 				$this->process($this->checkDefaultValues(UT_PRICE_TYPES), true);
 				$this->process($this->checkDefaultValues(UT_VATRATES), true);
 				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS), true);
-
 			}
+
 			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS), true);
 			}
@@ -380,6 +380,7 @@ class UpgradeCore extends Model {
 
 	// Version 0.7
 
+	// Convert old mediae storage forms to global mediae
 	function restructureItemsMediae() {
 
 		$query = new Query();
@@ -395,6 +396,7 @@ class UpgradeCore extends Model {
 
 		foreach($itemtypes as $itemtype) {
 
+			// Convert inline files column to global mediae element
 			$item_table = $this->tableInfo(SITE_DB.".item_".$itemtype);
 			// $this->dump($item_table);
 			if($item_table && isset($item_table["columns"]["files"])) {
@@ -453,8 +455,18 @@ class UpgradeCore extends Model {
 						$filesize = filesize($file);
 
 						// insert into new table
-						$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', '$width', '$height', '$filesize', 0)";
+						// $sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', '$width', '$height', '$filesize', 0)";
 		//				print $sql."<br>";
+
+						$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+						$sql .= "item_id='".$item_id."',";
+						$sql .= "name='".$name."',";
+						$sql .= "format='".$format."',";
+						$sql .= "variant='".$variant."',";
+						$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
+						$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
+						$sql .= "filesize='".$filesize."',";
+						$sql .= "position=0";
 
 						$query->sql($sql);
 
@@ -476,7 +488,7 @@ class UpgradeCore extends Model {
 
 			}
 
-
+			// Convert itemtype specific mediae tables to global mediae element
 			$item_table = $this->tableInfo(SITE_DB.".item_".$itemtype."_mediae");
 			if($item_table) {
 				$this->dump("Mediae table found for $itemtype");
@@ -532,8 +544,19 @@ class UpgradeCore extends Model {
 						if(copy($file, $new_file)) {
 							$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$item_variant);
 
-							$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET item_id=$item_id, format='$item_format', variant='$new_item_variant', name='$item_name', filesize=$item_filesize, width=$item_width, height=$item_height, position='$item_position'";
+							// $sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET item_id=$item_id, format='$item_format', variant='$new_item_variant', name='$item_name', filesize=$item_filesize, width=$item_width, height=$item_height, position='$item_position'";
 							// $this->dump($sql);
+
+							$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+							$sql .= "item_id='".$item_id."',";
+							$sql .= "name='".$item_name."',";
+							$sql .= "format='".$item_format."',";
+							$sql .= "variant='".$new_item_variant."',";
+							$sql .= "width=".($item_width ? "'$item_width'" : "DEFAULT").",";
+							$sql .= "height=".($item_height ? "'$item_height'" : "DEFAULT").",";
+							$sql .= "filesize='".$item_filesize."',";
+							$sql .= "position='".$item_position."'";
+
 							$query->sql($sql);
 
 							$this->process(["message" => "Media for item_id: $item_id, variant: $item_variant transferred to items_mediae", "success" => true], true);
@@ -1740,7 +1763,14 @@ class UpgradeCore extends Model {
 							if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
 
 								// Is variant used in this HTML input (item can have several HTML inputs)
+								// Look for classvar variant statement
 								if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
+
+									$found = true;
+
+								}
+								// Look for url reference
+								else if(preg_match("/".$media["item_id"]."\/".$media["variant"]."\//", $value)) {
 
 									$found = true;
 
@@ -1793,45 +1823,56 @@ class UpgradeCore extends Model {
 					$files = $fs->files(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 					// $this->dump("files:");
 					// $this->dump($files);
-					if($files && (!file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"]) || count($files) > 1)) {
-						if(count($files) > 1) {
-							$this->process(["message" => "MULTIPLE PRIVATE FILES FOR media_id: ".$media["id"]." - SOMETHING IS WRONG)", "success" => false], true);
+
+					// Check file count
+					// More than one file in private path
+					if($files && count($files) > 1) {
+						// Allowed if one is poster
+						if(count($files) == 2 && $media["format"] && $media["poster"] && $media["poster"] !== $media["format"] &&
+							file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"]) &&
+							file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["poster"])
+						) {
+							$this->process(["message" => "MULTIPLE PRIVATE FILES VALID media_id: ".$media["id"]." - OK", "success" => true], true);
 						}
 						else {
-							$file = array_pop($files);
+							$this->process(["message" => "MULTIPLE PRIVATE FILES FOR media_id: ".$media["id"]." - SOMETHING IS WRONG", "success" => false], true);
+						}
+					}
+					// File does not have correct format
+					if($files && !file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
 
-							// zip, pdf, jpg, gif, png file
-							if(preg_match("/\.(zip|pdf|png|gif|jpg)$/", $file, $match)) {
+						$file = array_pop($files);
 
-								// Rename
-								if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
-									unlink($file);
+						// zip, pdf, jpg, gif, png file
+						if(preg_match("/\.(zip|pdf|png|gif|jpg)$/", $file, $match)) {
 
-									// Just rename
-									$this->process(["success" => true, "message" => "RENAMED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
-								}
-								// Rename failed
-								else {
-									$this->process(["success" => false, "message" => "FAILED RENAMING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
-								}
+							// Rename
+							if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
+								unlink($file);
 
+								// Just rename
+								$this->process(["success" => true, "message" => "RENAMED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
+							}
+							// Rename failed
+							else {
+								$this->process(["success" => false, "message" => "FAILED RENAMING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
+							}
+
+						}
+						else {
+
+							// Zip file as "zip"
+							$zip = new ZipArchive();
+							$zip->open(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip", ZipArchive::CREATE);
+							$zip->addFile($file, basename($file));
+							$zip->close();
+
+							if(file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip")) {
+								unlink($file);
+								$this->process(["success" => true, "message" => "REPACKAGED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> zip"], true);
 							}
 							else {
-
-								// Zip file as "zip"
-								$zip = new ZipArchive();
-								$zip->open(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip", ZipArchive::CREATE);
-								$zip->addFile($file, basename($file));
-								$zip->close();
-
-								if(file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip")) {
-									unlink($file);
-									$this->process(["success" => true, "message" => "REPACKAGED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> zip"], true);
-								}
-								else {
-									$this->process(["success" => false, "message" => "FAILED REPACKAGING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)], true);
-								}
-
+								$this->process(["success" => false, "message" => "FAILED REPACKAGING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)], true);
 							}
 
 						}
@@ -2288,6 +2329,9 @@ class UpgradeCore extends Model {
 		return $config_info;
 	}
 
+
+
+	// Developer helper tools
 
 	// Replace all user-emails with ADMIN_EMAIL
 	// to create local dev version without triggering emails to real users

@@ -3,6 +3,21 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/manipulato
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-settings.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/u-basics.js"></script>');
 
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-dom.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-builder.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-labelstyle-inject.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-field-html.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-field-location.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-field-dropdown.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-form-field-range.js"></script>');
+
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-keyboard.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-object.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-date.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-overlay.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/u-sortable.js"></script>');
+
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/src/beta-u-form-onebuttonform.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/src/beta-u-notifier.js"></script>');
 
@@ -42,5 +57,3 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-tags.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-taglist_tags.js"></script>');
-
-document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-log_list.js"></script>');

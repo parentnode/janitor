@@ -33,6 +33,7 @@ class UserCore extends Model {
 	public $db_passwords;
 	public $db_password_reset_tokens;
 	public $db_apitokens;
+	public $db_accesstokens;
 	public $db_maillists;
 	public $db_payment_methods;
 
@@ -57,6 +58,7 @@ class UserCore extends Model {
 		$this->db_passwords = SITE_DB.".user_passwords";
 		$this->db_password_reset_tokens = SITE_DB.".user_password_reset_tokens";
 		$this->db_apitokens = SITE_DB.".user_apitokens";
+		$this->db_accesstokens = SITE_DB.".user_accesstokens";
 		$this->db_maillists = SITE_DB.".user_maillists";
 		$this->db_payment_methods = SITE_DB.".user_payment_methods";
 
@@ -198,13 +200,27 @@ class UserCore extends Model {
 			"error_message" => "The entered value is not a valid verification code."
 		));
 
-		//verification status
+		// verification status
 		$this->addToModel("verification_status", array(
 			"type" => "checkbox",
 			"label" => 'Verified',
 			"hint_message" => "Check to verify the user"
 		));
 
+		// Auto login option
+		$this->addToModel("auto_login", array(
+			"type" => "checkbox",
+			"label" => 'Keep me logged in on current device and network',
+			"hint_message" => "Check the box to enable automatic login on this device while on the current network. If your device or network profile changes, you will be required to login again."
+		));
+		// Public token
+		$this->addToModel("public_token", array(
+			"type" => "string",
+			"required" => true,
+			"label" => 'Public access token',
+			"hint_message" => "Public token",
+			"error_message" => "Public token must be filled out"
+		));
 
 
 		// ADDRESS INFO
@@ -339,7 +355,7 @@ class UserCore extends Model {
 
 			$user["maillists"] = $this->getMaillists();
 
-			if((defined("SITE_SHOP") && SITE_SHOP)) {
+			if((defined("SITE_MEMBERS") && SITE_MEMBERS)) {
 				$MC = new Member();
 
 				$user["membership"] = $MC->getMembership();
@@ -443,6 +459,7 @@ class UserCore extends Model {
 			// Get posted values to make them available for models
 			$this->getPostedEntities();
 
+			// Simple honey pot check
 			$it_nato_bor = $this->getProperty("it_nato_bor", "value");
 			if($it_nato_bor) {
 
@@ -1304,6 +1321,11 @@ class UserCore extends Model {
 								$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 								if($query->sql($sql)) {
 
+
+									// Delete all access tokens on password reset
+									security()->deleteAccessTokens(["user_id" => $user_id]);
+
+
 									// add callback to 'password_changed'
 									if(method_exists($this, "password_changed")) {
 		
@@ -1340,6 +1362,11 @@ class UserCore extends Model {
 					// SAVE NEW PASSWORD
 					$sql = "INSERT INTO ".$this->db_passwords." SET user_id = $user_id, password = '$new_password'";
 					if($query->sql($sql)) {
+
+
+						// Delete all access tokens on password reset
+						security()->deleteAccessTokens(["user_id" => $user_id]);
+
 
 						// add callback to 'password_created'
 						if(method_exists($this, "password_created")) {
@@ -1486,7 +1513,7 @@ class UserCore extends Model {
 
 
 						// Delete all access tokens on password reset
-						// security()->deleteAccessTokens(["user_id" => $user_id]);
+						security()->deleteAccessTokens(["user_id" => $user_id]);
 
 
 						// send notification email to admin
@@ -1946,6 +1973,47 @@ class UserCore extends Model {
 		return false;
 	}
 
+
+
+	// ACCESS TOKENS
+	// get user's access tokens
+	function getAccessTokens($user_id = false) {
+
+		security()->deleteExpiredAccessTokens();
+
+		$user_id = session()->value("user_id");
+
+		$query = new Query();
+		// make sure type tables exist
+		$query->checkDbExistence($this->db_accesstokens);
+
+		$sql = "SELECT * FROM ".$this->db_accesstokens." WHERE user_id = $user_id";
+		if($query->sql($sql)) {
+			return $query->results();
+		}
+		return false;
+	}
+
+	function API_deleteAccessToken($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 1 && $this->validateList(array("public_token"))) {
+
+			$public_token = $this->getProperty("public_token", "value");
+
+			$result = security()->deleteAccessTokens(["public_token" => $public_token]);
+			if($result) {
+				message()->addMessage("Token deleted");
+				return $result;
+			}
+
+		}
+
+		message()->addMessage("Token could not be deleted", ["type" => "error"]);
+		return false;
+	}
 
 
 	// ADDRESSES

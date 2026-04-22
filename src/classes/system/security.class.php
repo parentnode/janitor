@@ -12,11 +12,17 @@ class Security {
 
 	private $runtime_cache = [];
 
+	// Access token cookie name
+	private $access_token_cookie_name;
+
 
 	function __construct() {
 
 
 		// $this->crossCheckUserData();
+
+		// Access token cookie name
+		$this->access_token_cookie_name = "accesstoken";
 
 	}
 
@@ -86,6 +92,9 @@ class Security {
 			}
 			else if($key === "csrf") {
 				$this->runtime_cache[$key] = session()->value("csrf");
+			}
+			else if($key === "soft_login") {
+				$this->runtime_cache[$key] = session()->value("soft_login");
 			}
 			else {
 				return NULL;
@@ -173,7 +182,7 @@ class Security {
 			array_pop($fragments);
 		}
 
-		// debug(["controller", $controller, "access_item", $access_item]);
+		// debug(["controller", $controller, "path", $path, "access_item", $access_item]);
 		// both controller and access_item is found
 		if($controller && isset($access_item)) {
 
@@ -222,9 +231,9 @@ class Security {
 	*/
 	function checkPermissions($controller, $action, $access_item) {
 
-
 		global $mysqli_global;
-		// debug(["checkPermissions", "controller:", $controller]);
+
+		// debug(["checkPermissions", "controller:", $controller, $action]);
 		// print "controller:" . $controller . "<br>\n";
 		// print "action:" . $action . "<br>\n";
 		// print_r($access_item);
@@ -284,7 +293,7 @@ class Security {
 		// must be an illegal controller/action path
 		// - deny access
 		if(!isset($access_item[$action_test])) {
-//			print "no access item entry<br>\n";
+			debug(["no access item entry ($action_test)"]);
 
 			return false;
 		}
@@ -410,6 +419,26 @@ class Security {
 	}
 
 
+	// Validate authentication level
+	// Test if current login-method is suffiecient for accessing a specific data type
+	function validateAuthetication($type) {
+
+		switch($type) {
+
+			case "user":
+			case "setup":
+			case "profile":
+			case "payment":
+				if($this->getValue("soft_login")) {
+					return false;
+				}
+				break;
+
+		}
+
+		return true;
+	}
+
 
 	/**
 	* Log in
@@ -427,7 +456,8 @@ class Security {
 		if($username && $password) {
 			$query = new Query();
 
-			// password table check
+
+			// Check for password upgrade requitement
 			// password table has not been upgraded
 			if(!$query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = 'upgrade_password' AND TABLE_NAME = 'user_passwords' AND TABLE_SCHEMA = '".SITE_DB."'")) {
 
@@ -475,12 +505,31 @@ class Security {
 					// debug([$sql]);
 					if($query->sql($sql)) {
 
+						$user_id = intval($query->result(0, "id"));
+
+						// Enable auto login
+						if(getPost("auto_login")) {
+
+							// Creating auto login failed – fail login to inform user
+							if(!$this->createAccessToken($user_id)) {
+								message()->addMessage("Autologin could not be enabled. Your browser is hiding vital identification information.", ["type" => "error"]);
+								return false;
+							}
+
+						}
+
+
+
 						// add user_id and user_group_id to session
-						session()->value("user_id", intval($query->result(0, "id")));
+						session()->value("user_id", $user_id);
 						session()->value("user_group_id", intval($query->result(0, "user_group_id")));
 						session()->value("user_nickname", $query->result(0, "nickname"));
 						session()->value("last_login_at", date("Y-m-d H:i:s"));
+
+						// Reset potential soft login flag
+						session()->reset("soft_login");
 						// session()->reset("user_group_permissions");
+
 
 						// Update login timestamp
 						$sql = "UPDATE ".SITE_DB.".users SET last_login_at=CURRENT_TIMESTAMP WHERE users.id = ".session()->value("user_id");
@@ -758,6 +807,363 @@ class Security {
 		return false;
 	}
 
+	// Chech for valid login, or accesstoken
+	// If user is not logged in and accesstoken exists, then automatically log in user (if token is valid).
+	function autoLoginCheck() {
+
+		// User is logged in, all good
+		if(session()->value("user_id") > 1 || !defined("SITE_AUTO_LOGIN") || !SITE_AUTO_LOGIN) {
+			return;
+		}
+
+		// Check for access token and attempt login if found
+		$public_accesstoken = getCookie("accesstoken");
+		if($public_accesstoken) {
+			$this->accessTokenLogin($public_accesstoken);
+		}
+
+	}
+
+
+	// Login based on accessToken
+	function accessTokenLogin($public_token) {
+
+		$this->deleteExpiredAccessTokens();
+
+		$query = new Query();
+
+		// Get private token for public_token 
+		$sql = "SELECT user_id, private_token FROM ".SITE_DB.".user_accesstokens WHERE public_token = '$public_token'";
+		// debug([$sql]);
+		// Do no continue if it does not exist
+		if($query->sql($sql)) {
+
+			$existing_private_token = $query->result(0, "private_token");
+
+			// Create new private token based on available information to compare with stored private token
+			$private_token_data = $this->createRawPrivateAccessToken($public_token);
+
+			// debug([$existing_private_token, $private_token_data, password_verify($private_token_data["raw_private_token"], $existing_private_token), password_hash($private_token_data["raw_private_token"], PASSWORD_DEFAULT)]);
+			// exit();
+
+			// Compare
+			// If match, then log user in (Update all relevant session data)
+			if(password_verify($private_token_data["raw_private_token"], $existing_private_token)) {
+
+				$user_id = $query->result(0, "user_id");
+
+				// Get login data
+				$sql = "SELECT users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users WHERE users.status = 1 AND users.id = $user_id";
+	//			print $sql;
+				if($query->sql($sql)) {
+
+
+					// add user_id and user_group_id to session
+					session()->value("user_id", $user_id);
+					session()->value("user_group_id", $query->result(0, "user_group_id"));
+					session()->value("user_nickname", $query->result(0, "nickname"));
+
+					// Set soft login flag
+					session()->value("soft_login", true);
+
+					// Update access token used_at value
+					$sql = "UPDATE ".SITE_DB.".user_accesstokens SET used_at=CURRENT_TIMESTAMP WHERE public_token = '$public_token'";
+					$query->sql($sql);
+
+
+					logger()->addLog("AccessToken login, public token: ".$public_token .", user_id:".$user_id);
+
+					// set new csrf token for user
+					session()->value("csrf", gen_uuid());
+
+
+					$this->resetRuntimeValues();
+
+
+					// regerate Session id
+					session_start();
+					session_regenerate_id(true);
+					session_write_close();
+
+					return true;
+				}
+
+			}
+
+			$this->deleteAccessTokens([
+				"public_token" => $public_token,
+				"recursive" => true
+			]);
+
+		}
+
+		// Invalid access token – cleanup
+		deleteCookie($this->access_token_cookie_name);
+
+	}
+
+	// Create raw Private access token information
+	function createRawPrivateAccessToken($public_token) {
+
+
+		$useragent = "";
+
+		$accept = "";
+		$accept_language = "";
+		$accept_encoding = "";
+
+		$http_x_forward_for = "";
+		$remote_addr = "";
+		$server_port = "";
+
+		$hostname = "";
+
+		$request_ip = security()->getRequestIp();
+
+
+		if(isset($_SERVER["HTTP_USER_AGENT"]) && $_SERVER["HTTP_USER_AGENT"]) {
+			$useragent = $_SERVER["HTTP_USER_AGENT"];
+		}
+
+		if(isset($_SERVER["HTTP_ACCEPT"]) && $_SERVER["HTTP_ACCEPT"]) {
+			$accept = $_SERVER["HTTP_ACCEPT"];
+		}
+		if(isset($_SERVER["HTTP_ACCEPT_LANGUAGE"]) && $_SERVER["HTTP_ACCEPT_LANGUAGE"]) {
+			$accept_language = $_SERVER["HTTP_ACCEPT_LANGUAGE"];
+		}
+		if(isset($_SERVER["HTTP_ACCEPT_ENCODING"]) && $_SERVER["HTTP_ACCEPT_ENCODING"]) {
+			$accept_encoding = $_SERVER["HTTP_ACCEPT_ENCODING"];
+		}
+
+		if(isset($_SERVER["HTTP_X_FORWARDED_FOR"]) && $_SERVER["HTTP_X_FORWARDED_FOR"]) {
+			$http_x_forward_for = $_SERVER["HTTP_X_FORWARDED_FOR"];
+		}
+		if(isset($_SERVER["REMOTE_ADDR"]) && $_SERVER["REMOTE_ADDR"]) {
+			$remote_addr = $_SERVER["REMOTE_ADDR"];
+		}
+		if(isset($_SERVER["SERVER_PORT"]) && $_SERVER["SERVER_PORT"]) {
+			$server_port = $_SERVER["SERVER_PORT"];
+		}
+
+
+		if(gethostbyaddr($request_ip)) {
+			$hostname = gethostbyaddr($request_ip);
+		}
+
+		// debug([$_SERVER, $useragent, $http_x_forward_for, $remote_addr]);
+
+		if($useragent && ($http_x_forward_for || $remote_addr) && $request_ip) {
+
+			$raw_private_token = $public_token;
+			$raw_private_token .= $useragent;
+			$raw_private_token .= $accept;
+			$raw_private_token .= $accept_language;
+			$raw_private_token .= $accept_encoding;
+			$raw_private_token .= $http_x_forward_for;
+			$raw_private_token .= $remote_addr;
+			$raw_private_token .= $server_port;
+			$raw_private_token .= $hostname;
+
+			return [
+				"raw_private_token" => $raw_private_token,
+				"useragent" => $useragent,
+				"request_ip" => $request_ip
+			];
+
+		}
+
+		return false;	
+
+	}
+
+
+	// Create access token for user
+	function createAccessToken($user_id) {
+
+		$this->deleteExpiredAccessTokens();
+
+		$query = new Query();
+		// make sure type tables exist
+		$query->checkDbExistence(SITE_DB.".user_accesstokens");
+
+
+
+
+		// Should not occur, since an existing token should have logged user in automatically
+		$existing_token_cookie = getCookie($this->access_token_cookie_name);
+		if($existing_token_cookie) {
+			$this->deleteAccessTokens(["public_token" => $existing_token_cookie]);
+		}
+
+		$public_token = bin2hex(random_bytes(64));
+
+		$private_token_data = $this->createRawPrivateAccessToken($public_token);
+		if($private_token_data) {
+
+			// Basic cleanup to avoid redundant tokens
+			// These can be removed with a more relaxed approach, where user might be allowed to have several tokens for each IP and useragent, but as of first draft this is not supported
+			$this->deleteAccessTokens(["user_agent" => $private_token_data["useragent"]]);
+			$this->deleteAccessTokens(["ip" => $private_token_data["request_ip"]]);
+
+
+			$private_token = password_hash($private_token_data["raw_private_token"], PASSWORD_DEFAULT);
+
+
+			$sql = "INSERT INTO ".SITE_DB.".user_accesstokens SET user_id = $user_id, public_token = '$public_token', private_token = '$private_token', useragent = '".$private_token_data["useragent"]."', ip = '".$private_token_data["request_ip"]."'";
+			// debug([$sql]);
+			if($query->sql($sql)) {
+
+				saveCookie($this->access_token_cookie_name, $public_token, [
+					"expires" => "1 month",
+					"samesite" => "Strict"
+				]);
+
+				return $query->affected();
+			}
+
+		}
+
+		return false;
+
+	}
+
+	function deleteAccessTokens($_options) {
+
+		$this->deleteExpiredAccessTokens();
+
+		$query = new Query();
+
+		// Defaults to current user
+		$user_id = session()->value("user_id");
+
+		$public_token = false;
+		$user_agent = false;
+		$ip = false;
+
+		$recursive = false;
+
+
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+					case "user_id"            : $user_id              = $_value; break;
+
+					case "public_token"       : $public_token         = $_value; break;
+					case "user_agent"         : $user_agent           = $_value; break;
+					case "ip"                 : $ip                   = $_value; break;
+
+					case "recursive"          : $recursive            = $_value; break;
+				}
+			}
+		}
+
+
+		// if token is passed, then look up user_id and delete by user_id
+		if($public_token) {
+
+			$sql = "SELECT * FROM ".SITE_DB.".user_accesstokens WHERE public_token = '$public_token'";
+			// debug([$sql]);
+			if($query->sql($sql)) {
+
+				if($recursive) {
+					$user_id = $query->result(0, "user_id");
+
+					deleteCookie($this->access_token_cookie_name);
+
+					// Will include above public_token entry
+					$sql = "DELETE FROM ".SITE_DB.".user_accesstokens WHERE user_id = $user_id";
+					// debug([$sql]);
+					$query->sql($sql);
+					return true;
+
+				}
+				else {
+ 
+					$sql = "DELETE FROM ".SITE_DB.".user_accesstokens WHERE public_token = '$public_token'";
+					// debug([$sql]);
+					$query->sql($sql);
+					return true;
+
+				}
+
+			}
+
+		}
+		// delete access_token for IP
+		else if($ip) {
+
+			// Will delete all access tokens for user AND for IP
+			if($recursive) {
+
+				deleteCookie($this->access_token_cookie_name);
+
+				$sql = "DELETE FROM ".SITE_DB.".user_accesstokens WHERE user_id = $user_id";
+				// debug([$sql]);
+				$query->sql($sql);
+
+				$sql = "DELETE FROM ".SITE_DB.".user_accesstokens WHERE ip = '$ip'";
+				// debug([$sql]);
+				$query->sql($sql);
+
+				return true;
+
+			}
+			// Will only delete access tokens for user on IP
+			else {
+
+				$sql = "DELETE FROM ".SITE_DB.".user_accesstokens WHERE ip = '$ip' AND user_id = $user_id";
+				// debug([$sql]);
+				$query->sql($sql);
+				return true;
+
+			}
+
+		}
+
+		// delete access_tokens for user with specific user_agent
+		else if($user_agent) {
+
+			$sql = "DELETE FROM ".SITE_DB.".user_accesstokens WHERE user_agent = '$user_agent' AND user_id = $user_id";
+			// debug([$sql]);
+			$query->sql($sql);
+			return true;
+
+		}
+
+		// delete all access_tokens for user_id
+		else if($user_id) {
+
+			$sql = "DELETE FROM ".SITE_DB.".user_accesstokens WHERE user_id = $user_id";
+			// debug([$sql]);
+			$query->sql($sql);
+
+
+			deleteCookie($this->access_token_cookie_name);
+			return true;
+
+		}
+
+
+		// delete access token cookie in current browser
+		deleteCookie($this->access_token_cookie_name);
+
+
+
+		return false;
+
+	}
+
+
+	function deleteExpiredAccessTokens() {
+
+		$query = new Query();
+		$sql = "DELETE FROM ".SITE_DB.".user_accesstokens WHERE created_at < '".date("Y-m-d H:i:s", strtotime("- 1 month"))."'";
+		// debug([$sql]);
+		$query->sql($sql);
+
+	}
+
+
 	/**
 	* Simple logoff
 	* Logoff user and redirect to login page
@@ -765,10 +1171,15 @@ class Security {
 	function logOff() {
 
 		logger()->addLog("Logoff: user_id:".session()->value("user_id"));
-		//$this->user_id = "";
+
+
+		$this->deleteAccessTokens(["user_id" => session()->value("user_id")]);
+
 
 		session()->reset("user_id");
 		session()->reset("user_group_id");
+		session()->reset("soft_login");
+
 		// session()->reset("user_group_permissions");
 
 		$dev = session()->value("dev");
@@ -782,6 +1193,7 @@ class Security {
 		session()->reset();
 
 		security()->resetRuntimeValues();
+
 
 		// Remember dev and segment even after logout
 		session()->value("dev", $dev);
@@ -799,11 +1211,15 @@ class Security {
 	function throwOff($url=false) {
 
 		global $page;
-
 		$url = $url ? $url : $page->url;
 
 		// Log and send in email
 		logger()->addLog("Throwoff - insufficient privileges:".$url." by ". session()->value("user_id"));
+
+
+		$this->deleteAccessTokens(["user_id" => session()->value("user_id")]);
+
+
 		admin()->notify(array(
 			"subject" => "Throwoff - " . SITE_URL, 
 			"message" => "insufficient privileges:".$url, 

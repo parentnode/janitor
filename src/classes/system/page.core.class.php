@@ -39,12 +39,11 @@ class PageCore {
 	function __construct() {
 
 
-		// Auto login (restore login if possible – before doing anything else)
-		// security()->autoLoginCheck();
-
-
 		// database connection
 		$this->loadDBConfiguration();
+
+		// Auto login (restore login if possible – before doing anything else)
+		security()->autoLoginCheck();
 
 
 		// set guest user group if no user group is defined (user is not logged in)

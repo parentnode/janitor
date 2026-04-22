@@ -8,6 +8,7 @@ CREATE TABLE `SITE_DB`.`user_accesstokens` (
   `ip` varchar(60) NOT NULL,
 
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `used_at` timestamp NULL DEFAULT NULL,
 
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),

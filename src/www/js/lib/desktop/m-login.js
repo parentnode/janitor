@@ -16,9 +16,10 @@ Util.Modules["login"] = new function() {
 			page.cN.scene = this;
 
 			this._form = u.qs("form", this);
-			u.f.init(this._form);
-
-			this._form.inputs["username"].focus();
+			if(this._form) {
+				u.f.init(this._form);
+				this._form.inputs["username"].focus();
+			}
 
 			page.resized();
 		}

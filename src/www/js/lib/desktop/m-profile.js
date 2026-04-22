@@ -208,6 +208,26 @@ Util.Modules["apitokenProfile"] = new function() {
 	}
 }
 
+// Access token
+Util.Modules["accesstokenProfile"] = new function() {
+	this.init = function(div) {
+
+		div.tokens = u.qsa("li.token", div);
+		var i, li_token;
+		for(i = 0; i < div.tokens.length; i++) {
+			li_token = div.tokens[i];
+			li_token.li_delete = u.qs("li.delete", li_token);
+			li_token.li_delete.li_token = li_token;
+			li_token.li_delete.confirmed = function(response) {
+				// u.bug("response", response, this);
+
+				this.li_token.parentNode.removeChild(this.li_token);
+
+			}
+		}
+
+	}
+}
 
 // Update address
 Util.Modules["addressProfile"] = new function() {

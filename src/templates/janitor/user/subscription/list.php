@@ -1,8 +1,12 @@
 <?php
 global $action;
 global $model;
-include_once("classes/shop/supershop.class.php");
-$SC = new SuperShop();
+
+if(defined("SITE_SHOP") && SITE_SHOP) {
+	include_once("classes/shop/supershop.class.php");
+	$SC = new SuperShop();
+}
+
 include_once("classes/shop/supersubscription.class.php");
 $SubscriptionClass = new SuperSubscription();
 
@@ -32,21 +36,7 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 			<? if($subscriptions): ?>
 
 			<ul class="items subscriptions">
-				<? foreach($subscriptions as $subscription): 
-
-					$price = $SC->getPrice($subscription["item_id"], ["user_id" => $user_id]);
-
-					$payment_method = $model->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"], "user_id" => $user_id]);
-
-					if($subscription["custom_price"] || $subscription["custom_price"] === "0") {
-						$custom_price = $price;
-						$custom_price["price"] = $subscription["custom_price"];
-					}
-					else {
-						$custom_price = false;
-					}
-
-				?>
+				<? foreach($subscriptions as $subscription): ?>
 				<li class="item subscription">
 					<h3><?= $subscription["item"]["name"] ?></h3>
 				
@@ -68,6 +58,19 @@ $subscriptions = $SubscriptionClass->getSubscriptions(array("user_id" => $user_i
 					<? if($subscription["item"]["prices"]):
 						$offer = arrayKeyValue($subscription["item"]["prices"], "type", "offer");
 						$default = arrayKeyValue($subscription["item"]["prices"], "type", "default");
+
+						$price = $SC->getPrice($subscription["item_id"], ["user_id" => $user_id]);
+
+						$payment_method = $model->getPaymentMethodForSubscription(["subscription_id" => $subscription["id"], "user_id" => $user_id]);
+
+						if($subscription["custom_price"] || $subscription["custom_price"] === "0") {
+							$custom_price = $price;
+							$custom_price["price"] = $subscription["custom_price"];
+						}
+						else {
+							$custom_price = false;
+						}
+
 						?>
 
 						<? if(isset($custom_price) && $custom_price !== false && $custom_price != $subscription["item"]["prices"][$default]): ?>

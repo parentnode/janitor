@@ -20,6 +20,20 @@ $model = new Setup();
 $page->pageTitle("Janitor setup guide");
 
 
+// Controller requires elevated authentication
+if(!security()->validateAuthetication("setup")) {
+
+	// Redirect to reautheticate login
+	// page will set login_forward to return to process after login is completed
+	$page->page(array(
+		"type" => "janitor",
+		"templates" => "pages/login-reauthenticate.php"
+	));
+	exit();
+
+}
+
+
 if(is_array($action) && count($action)) {
 
 	// Setup process

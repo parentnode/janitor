@@ -17,6 +17,16 @@ if(security()->validatePath("/janitor/admin/profile/apitoken")) {
 	$api_token = $model->getAPIToken();
 }
 
+
+$access_token_access = false;
+if(security()->validatePath("/janitor/admin/profile/accesstoken")) {
+	$access_token_access = true;
+
+	// access tokens
+	$access_tokens = $model->getAccessTokens();
+}
+
+
 // payment methods
 $user_payment_methods = $model->getPaymentMethods(["extend" => true]);
 // debug(["user_payment_methods", $user_payment_methods]);
@@ -193,6 +203,52 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 	</div>
 	<? endif; ?>
 
+
+	<? if($access_token_access): ?>
+	<div class="accesstoken i:accesstokenProfile i:collapseHeader">
+		<h2>Access Tokens</h2>
+		<p>
+			Access Tokens are used for automatic login effectively overruling session timeout.
+			A token can be used from one device only and it is locked to one IP-address. If you change your IP you will be asked to login again.
+		</p>
+		<p>
+			 You may have multiple tokens here if you have enabled the "keep me logged in" feature on several devices. 
+			 However, note that only one token per UserAgent is allowed. All restrictions are kept to minimize vulnerabilities.
+		</p>
+		<p>New tokens can only be created upon login, but you can delete any of the tokens here. If you delete a token the device using this token will request full login upon your next visit.</p>
+
+		<h3>Your Access Tokens</h3>
+		<? if($access_tokens): ?>
+		<ul class="tokens">
+			<? foreach($access_tokens as $access_token): ?>
+			<li class="token">
+				<dl>
+					<dt>Useragent</dt>
+					<dd><?= $access_token["useragent"] ?></dd>
+					<dt>IP</dt>
+					<dd><?= $access_token["ip"] ?></dd>
+					<dt>Token</dt>
+					<dd><?= $access_token["public_token"] ?></dd>
+				</dl>
+
+				<ul class="actions">
+					<?= $model->oneButtonForm("Delete this token", "deleteAccessToken", [
+						"confirm-value" => "Are you sure you want to delete this token?",
+						"wrapper" => "li.delete",
+						"inputs" => ["public_token" => $access_token["public_token"]],
+					]) ?>
+				</ul>
+			</li>
+			<? endforeach;?>
+		</ul>
+
+		<? else: ?>
+
+			<p>You do not have any active Access Tokens.</p>
+
+		<? endif; ?>
+	</div>
+	<? endif; ?>
 
 
 	<div class="addresses i:collapseHeader">

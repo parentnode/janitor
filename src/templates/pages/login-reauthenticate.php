@@ -1,26 +1,20 @@
 <?php
 global $action;
-global $model;
+//global $model;
 
-
-$login_forward = getVar("login_forward");
-if(!$login_forward && !session()->value("login_forward")) {
-	$login_forward = "/janitor";
-// 	session()->value("login_forward", $login_forward);
-}
-
-
+$model = new User();
 $username = stringOr(getPost("username"));
+
 ?>
 <div class="scene login i:login">
-	<h1>Login</h1>
-
-<?	if(defined("SITE_SIGNUP") && SITE_SIGNUP): ?>
-	<p>Not registered yet? <a href="<?= SITE_SIGNUP_URL ?>">Create your account now</a>.</p>
-<?	endif; ?>
+	<h1>Re-authenticate</h1>
 
 	<?= $model->formStart("?login=true", array("class" => "labelstyle:inject")) ?>
-		<?= $model->input("login_forward", ["type" => "hidden", "value" => $login_forward]); ?>
+		<?= $model->input("login_forward", ["type" => "hidden", "value" => $this->url]); ?>
+
+		<p class="reautenticate">
+			You are currently authenticated by your access token. This is insufficient to access the selected area. You must re-autenticate to continue.
+		</p>
 
 
 		<?= $HTML->renderSnippet("snippets/server-messages.php")?>
@@ -29,9 +23,6 @@ $username = stringOr(getPost("username"));
 		<fieldset>
 			<?= $model->input("username", array("required" => true, "value" => $username)); ?>
 			<?= $model->input("password", array("required" => true)); ?>
-<?	if(defined("SITE_AUTO_LOGIN") && SITE_AUTO_LOGIN): ?>
-			<?= $model->input("auto_login") ?>
-<? endif; ?>
 		</fieldset>
 
 		<ul class="actions">

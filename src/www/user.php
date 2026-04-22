@@ -22,6 +22,9 @@ $access_item["/apitoken"] = true;
 $access_item["/renewApiToken"] = "/apitoken";
 $access_item["/disableApiToken"] = "/apitoken";
 
+$access_item["/accesstoken"] = true;
+$access_item["/deleteAccessToken"] = "/accesstoken";
+
 
 $access_item["/deletePaymentMethod"] = false;
 
@@ -87,6 +90,21 @@ $model = new SuperUser();
 
 $page->bodyClass("user");
 $page->pageTitle("User management");
+
+
+
+// Controller requires elevated authentication
+if(!security()->validateAuthetication("user")) {
+
+	// Redirect to reautheticate login
+	// page will set login_forward to return to process after login is completed
+	$page->page(array(
+		"type" => "janitor",
+		"templates" => "pages/login-reauthenticate.php"
+	));
+	exit();
+
+}
 
 
 if(is_array($action) && count($action)) {
@@ -231,6 +249,14 @@ if(is_array($action) && count($action)) {
 
 			$output = new Output();
 			$output->screen($model->{$action[0]}($action));
+			exit();
+		}
+
+		// check if custom function exists on User class
+		if($model && method_exists($model, "API_".$action[0])) {
+
+			$output = new Output();
+			$output->screen($model->{"API_".$action[0]}($action));
 			exit();
 		}
 	}
