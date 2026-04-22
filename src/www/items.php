@@ -92,6 +92,18 @@ if(security()->validateCsrfToken() && isset($action)) {
 		exit();
 	}
 
+	// Class interface
+	// else if(preg_match("/[a-zA-Z]+/", $action[0])) {
+	//
+	// 	$ITC = new Itemtype();
+	// 	// check if custom function exists on User class
+	// 	if($ITC && method_exists($ITC, "API_".$action[0])) {
+	//
+	// 		$output = new Output();
+	// 		$output->screen($ITC->{"API_".$action[0]}($action));
+	// 		exit();
+	// 	}
+	// }
 
 
 	// PRICES
