@@ -3,29 +3,32 @@ Util.Modules["addMedia"] = new function() {
 	this.init = function(div) {
 		// u.bug("addMedia init:", div);
 
+		// return;
+		
+		
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
 
 
 		// base media info
-		div.item_id = u.cv(div, "item_id");
-		div.variant = u.cv(div, "variant");
+		// div.item_id = u.cv(div, "item_id");
+		// div.variant = u.cv(div, "variant");
 
 
 		u.f.init(div.form);
 
 
-		div.csrf_token = div.form.inputs["csrf-token"].val();
-		div.delete_url = div.getAttribute("data-media-delete");
-		div.update_name_url = div.getAttribute("data-media-name");
-		div.save_order_url = div.getAttribute("data-media-order");
-
-
-		// Create easy reference to file input
-		div.media_input = div.form.inputs[div.variant+"[]"];
-		div.filelist = div.media_input.field.filelist;
-		div.previewlist = u.ae(div, "ul", {class:"previewlist"});
-		div.previewlist.div = div;
+		// div.csrf_token = div.form.inputs["csrf-token"].val();
+		// div.delete_url = div.getAttribute("data-media-delete");
+		// div.update_name_url = div.getAttribute("data-media-name");
+		// div.save_order_url = div.getAttribute("data-media-order");
+		//
+		//
+		// // Create easy reference to file input
+		// div.media_input = div.form.inputs[div.variant+"[]"];
+		// div.filelist = div.media_input.field.filelist;
+		// div.previewlist = u.ae(div, "ul", {class:"previewlist"});
+		// div.previewlist.div = div;
 
 
 		// Submit on change
@@ -35,12 +38,12 @@ Util.Modules["addMedia"] = new function() {
 
 		// upload form submitted
 		div.form.submitted = function() {
-
-			this.div.media_input.blur();
-			// Enter loading state
-			u.ac(this.div.media_input.field, "loading");
-
-
+		//
+		// 	this.div.media_input.blur();
+		// 	// Enter loading state
+		// 	u.ac(this.div.media_input.field, "loading");
+		//
+		//
 			this.response = function(response) {
 				page.notify(response);
 
@@ -48,151 +51,153 @@ Util.Modules["addMedia"] = new function() {
 				if(response.cms_status == "success" && response.cms_object) {
 
 					// Update file list status
-					u.f.updateFilelistStatus(this, response);
+					u.f.updateFormAfterResponse(this, response);
 
 					// update preview
-					this.div.updatePreviews();
+					// this.div.updatePreviews();
 
 				}
 
 				// Leave loading state
-				u.rc(this.div.media_input.field, "loading");
+				// u.rc(this.div.media_input.field, "loading");
 				// Reset file queue
-				this.div.media_input.val("");
+				// this.reset();
+				// this.div.media_input.val("");
 
 			}
 			u.request(this, this.action, {"method":"post", "data":this.getData()});
 
 		}
-
-
-		// set media type for form
-		// previews are different for different types
-		// add preview based on current media format
-		div.updatePreviews = function() {
-
-			// Look for something to preview
-			var nodes = u.qsa("li.uploaded,li.new", this.filelist);
-			if(nodes) {
-
-				var i, node, li;
-				for(i = 0; i < nodes.length; i++) {
-
-					node = nodes[i];
-
-					// Only do something if node doesn't already have preview
-					if(!node.li_preview) {
-
-
-						// Get base properties
-						node.media_format = u.cv(node, "format");
-						node.media_variant = u.cv(node, "variant");
-						node.media_id = u.cv(node, "media_id");
-						node.media_name = node.innerHTML;
-						node.div = this;
-
-
-						node.li_preview = u.ae(this.previewlist, "li", {class: "preview media_id:" + node.media_id});
-						node.preview = u.ae(node.li_preview, "div", {class: "preview " + node.media_format});
-						node.preview.node = node;
-
-
-						// set media type
-						if(node.media_format.match(/^(jpg|png|gif)$/i)) {
-
-							u.addImagePreview(node);
-						}
-						else if(node.media_format.match(/^(mp3|ogg|wav|aac)$/i)) {
-					
-							u.addAudioPreview(node);
-						}
-						else if(node.media_format.match(/^(mov|mp4|ogv|3gp)$/i)) {
-
-							u.addVideoPreview(node);
-						}
-						else if(node.media_format.match(/^zip$/i)) {
-					
-							u.addZipPreview(node);
-						}
-						else if(node.media_format.match(/^pdf$/i)) {
-
-							u.addPdfPreview(node);
-						}
-
-
-						// Add rename form
-						u.addRenameMediaForm(div, node);
-
-						// Add delete form
-						u.addDeleteMediaForm(div, node);
-
-
-						// Callback on successful delete
-						node.delete_form.deleted = function(response) {
-
-							// Remove from filelist
-							this.node.div.filelist.removeChild(this.node);
-
-							// Remove from preview list
-							this.node.div.previewlist.removeChild(this.node.li_preview);
-
-							// Update uploaded_files list
-							this.node.div.media_input.field.uploaded_files = u.qsa("li.uploaded", this.node.div.filelist);
-
-							// Update sortable
-							if(fun(this.node.div.previewlist.updateDraggables)) {
-								this.node.div.previewlist.updateDraggables();
-							}
-
-						}
-
-					}
-					// Maintain order
-					else {
-						u.ae(this.previewlist, node.li_preview);
-					}
-
-				}
-
-			}
-
-			// Update sortable
-			if(fun(this.previewlist.updateDraggables)) {
-				this.previewlist.updateDraggables();
-			}
-
-		}
-
-
-
-		div.updatePreviews();
-
-
-		// sortable list
-		if(u.hc(div, "sortable") && div.save_order_url) {
-
-			u.sortable(div.previewlist);
-
-			div.previewlist.picked = function(node) {}
-			div.previewlist.dropped = function(node) {
-
-				// Get node order
-				var order = this.getNodeOrder({class_var:"media_id"});
-
-				this.response = function(response) {
-					// Notify of event
-					page.notify(response);
-				}
-				u.request(this, this.div.save_order_url+"/"+this.div.item_id, {
-					"method":"post", 
-					"data":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")
-				});
-			}
-		}
-		// no save url
-		else {
-			u.rc(div, "sortable");
-		}
+		//
+		//
+		// // set media type for form
+		// // previews are different for different types
+		// // add preview based on current media format
+		// div.updatePreviews = function() {
+		//
+		// 	// Look for something to preview
+		// 	var nodes = u.qsa("li.uploaded,li.new", this.filelist);
+		// 	if(nodes) {
+		//
+		// 		var i, node, li;
+		// 		for(i = 0; i < nodes.length; i++) {
+		//
+		// 			node = nodes[i];
+		//
+		// 			// Only do something if node doesn't already have preview
+		// 			if(!node.li_preview) {
+		//
+		//
+		// 				// Get base properties
+		// 				node.media_format = u.cv(node, "format");
+		// 				node.media_variant = u.cv(node, "variant");
+		// 				node.media_id = u.cv(node, "media_id");
+		// 				node.media_name = node.innerHTML;
+		// 				node.media_description = "";
+		// 				node.div = this;
+		//
+		//
+		// 				node.li_preview = u.ae(this.previewlist, "li", {class: "preview media_id:" + node.media_id});
+		// 				node.preview = u.ae(node.li_preview, "div", {class: "preview " + node.media_format});
+		// 				node.preview.node = node;
+		//
+		//
+		// 				// set media type
+		// 				if(node.media_format.match(/^(jpg|png|gif)$/i)) {
+		//
+		// 					u.addImagePreview(node);
+		// 				}
+		// 				else if(node.media_format.match(/^(mp3|ogg|wav|aac)$/i)) {
+		//
+		// 					u.addAudioPreview(node);
+		// 				}
+		// 				else if(node.media_format.match(/^(mov|mp4|ogv|3gp)$/i)) {
+		//
+		// 					u.addVideoPreview(node);
+		// 				}
+		// 				else if(node.media_format.match(/^zip$/i)) {
+		//
+		// 					u.addZipPreview(node);
+		// 				}
+		// 				else if(node.media_format.match(/^pdf$/i)) {
+		//
+		// 					u.addPdfPreview(node);
+		// 				}
+		//
+		//
+		// 				// Add rename form
+		// 				u.addRenameMediaForm(div, node);
+		//
+		// 				// Add delete form
+		// 				u.addDeleteMediaForm(div, node);
+		//
+		//
+		// 				// Callback on successful delete
+		// 				node.delete_form.deleted = function(response) {
+		//
+		// 					// Remove from filelist
+		// 					this.node.div.filelist.removeChild(this.node);
+		//
+		// 					// Remove from preview list
+		// 					this.node.div.previewlist.removeChild(this.node.li_preview);
+		//
+		// 					// Update uploaded_files list
+		// 					this.node.div.media_input.field.uploaded_files = u.qsa("li.uploaded", this.node.div.filelist);
+		//
+		// 					// Update sortable
+		// 					if(fun(this.node.div.previewlist.updateDraggables)) {
+		// 						this.node.div.previewlist.updateDraggables();
+		// 					}
+		//
+		// 				}
+		//
+		// 			}
+		// 			// Maintain order
+		// 			else {
+		// 				u.ae(this.previewlist, node.li_preview);
+		// 			}
+		//
+		// 		}
+		//
+		// 	}
+		//
+		// 	// Update sortable
+		// 	if(fun(this.previewlist.updateDraggables)) {
+		// 		this.previewlist.updateDraggables();
+		// 	}
+		//
+		// }
+		//
+		//
+		//
+		// div.updatePreviews();
+		//
+		//
+		// // sortable list
+		// if(u.hc(div, "sortable") && div.save_order_url) {
+		//
+		// 	u.sortable(div.previewlist);
+		//
+		// 	div.previewlist.picked = function(node) {}
+		// 	div.previewlist.dropped = function(node) {
+		//
+		// 		// Get node order
+		// 		var order = this.getNodeOrder({class_var:"media_id"});
+		//
+		// 		this.response = function(response) {
+		// 			// Notify of event
+		// 			page.notify(response);
+		// 		}
+		// 		u.request(this, this.div.save_order_url+"/"+this.div.item_id, {
+		// 			"method":"post",
+		// 			"data":"csrf-token=" + this.div.csrf_token + "&order=" + order.join(",")
+		// 		});
+		// 	}
+		// }
+		// // no save url
+		// else {
+		// 	u.rc(div, "sortable");
+		// }
 
 	}
 }
@@ -201,26 +206,29 @@ Util.Modules["addMedia"] = new function() {
 Util.Modules["addMediaSingle"] = new function() {
 	this.init = function(div) {
 		// u.bug("addMediaSingle init:", div);
+		
+		// return;
 
 		div.form = u.qs("form.upload", div);
 		div.form.div = div;
 
 		// base media info
-		div.item_id = u.cv(div, "item_id");
-		div.variant = u.cv(div, "variant");
+		// div.item_id = u.cv(div, "item_id");
+		// div.variant = u.cv(div, "variant");
 
 
 		u.f.init(div.form);
 
 
-		div.csrf_token = div.form.inputs["csrf-token"].val();
-		div.delete_url = div.getAttribute("data-media-delete");
-		div.update_name_url = div.getAttribute("data-media-name");
-
-
-		// Create easy reference to file input
-		div.media_input = div.form.inputs[div.variant+"[]"];
-		div.filelist = div.media_input.field.filelist;
+		// div.csrf_token = div.form.inputs["csrf-token"].val();
+		// div.delete_url = div.getAttribute("data-media-delete");
+		// div.update_name_url = div.getAttribute("data-media-name");
+		// div.media_info_url = div.getAttribute("data-media-info");
+		//
+		//
+		// // Create easy reference to file input
+		// div.media_input = div.form.inputs[div.variant+"[]"];
+		// div.filelist = div.media_input.field.filelist;
 
 		// Submit on change
 		div.form.changed = function() {
@@ -229,10 +237,11 @@ Util.Modules["addMediaSingle"] = new function() {
 
 		// Handle upload
 		div.form.submitted = function() {
+			u.bug("subm");
 
-			this.div.media_input.blur();
-			// Enter loading state
-			u.ac(this.div.media_input.field, "loading");
+			// this.div.media_input.blur();
+			// // Enter loading state
+			// u.ac(this.div.media_input.field, "loading");
 
 
 			// hide existing preview while waiting for response
@@ -247,106 +256,107 @@ Util.Modules["addMediaSingle"] = new function() {
 				if(response.cms_status == "success" && response.cms_object) {
 
 					// Update file list status
-					u.f.updateFilelistStatus(this, response);
+					u.f.updateFormAfterResponse(this, response);
 
-					// update preview
-					this.div.updatePreview();
+					// // update preview
+					// this.div.updatePreview();
 
 				}
 
 				// Leave loading state
-				u.rc(this.div.media_input.field, "loading");
-				// Reset file queue
-				this.div.media_input.val("");
+				// u.rc(this.div.media_input.field, "loading");
+				// // Reset file queue
+				// this.div.media_input.val("");
 
 			}
 			u.request(this, this.action, {"method":"post", "data":this.getData()});
 		}
 
 
-		// set media type for form
-		// previews are different for different types
-		// add preview based on current media format
-		div.updatePreview = function() {
-
-			// remove existing preview
-			if(this.preview) {
-				this.preview.parentNode.removeChild(this.preview);
-				delete this.preview;
-			}
-
-			// Look for something to preview
-			var node = u.qs("li.uploaded", this.filelist);
-			if(node) {
-
-
-				// Get base properties
-				node.media_format = u.cv(node, "format");
-				node.media_variant = u.cv(node, "variant");
-				node.media_name = node.innerHTML;
-				node.div = this;
-
-				// Create preview node
-				node.preview = u.ae(this, "div", {"class": "preview " + node.media_format});
-				node.preview.node = node;
-				// map current preview to div
-				this.preview = node.preview;
-
-				// Adjust preview width
-				u.ass(node.preview, {
-					"width": this.filelist.offsetWidth + "px"
-				});
-
-
-				// set media type
-				if(node.media_format.match(/^(jpg|png|gif)$/i)) {
-
-					u.addImagePreview(node);
-				}
-				else if(node.media_format.match(/^(mp3|ogg|wav|aac)$/i)) {
-
-					u.addAudioPreview(node);
-				}
-				else if(node.media_format.match(/^(mov|mp4|ogv|3gp)$/i)) {
-
-					u.addVideoPreview(node);
-				}
-				else if(node.media_format.match(/^zip$/i)) {
-
-					u.addZipPreview(node);
-				}
-				else if(node.media_format.match(/^pdf$/i)) {
-
-					u.addPdfPreview(node);
-				}
-
-
-				// Add rename form
-				u.addRenameMediaForm(div, node);
-
-				// Add delete form
-				u.addDeleteMediaForm(div, node);
-
-				// Callback on successful delete
-				node.delete_form.deleted = function(response) {
-
-					// Reset uploaded files list
-					this.node.div.media_input.field.uploaded_files = false;
-
-					// Force validation
-					this.node.div.media_input.val("");
-
-					// Update preview
-					this.node.div.updatePreview();
-
-				}
-
-			}
-
-		}
-
-		// add start preview
-		div.updatePreview();
+		// // set media type for form
+		// // previews are different for different types
+		// // add preview based on current media format
+		// div.updatePreview = function() {
+		//
+		// 	// remove existing preview
+		// 	if(this.preview) {
+		// 		this.preview.parentNode.removeChild(this.preview);
+		// 		delete this.preview;
+		// 	}
+		//
+		// 	// Look for something to preview
+		// 	var node = u.qs("li.uploaded", this.filelist);
+		// 	if(node) {
+		//
+		//
+		// 		// Get base properties
+		// 		node.media_format = u.cv(node, "format");
+		// 		node.media_variant = u.cv(node, "variant");
+		// 		node.media_name = node.innerHTML;
+		// 		node.media_description = "";
+		// 		node.div = this;
+		//
+		// 		// Create preview node
+		// 		node.preview = u.ae(this, "div", {"class": "preview " + node.media_format});
+		// 		node.preview.node = node;
+		// 		// map current preview to div
+		// 		this.preview = node.preview;
+		//
+		// 		// Adjust preview width
+		// 		// u.ass(node.preview, {
+		// 		// 	"width": this.filelist.offsetWidth + "px"
+		// 		// });
+		//
+		//
+		// 		// set media type
+		// 		if(node.media_format.match(/^(jpg|png|gif)$/i)) {
+		//
+		// 			u.addImagePreview(node);
+		// 		}
+		// 		else if(node.media_format.match(/^(mp3|ogg|wav|aac)$/i)) {
+		//
+		// 			u.addAudioPreview(node);
+		// 		}
+		// 		else if(node.media_format.match(/^(mov|mp4|ogv|3gp)$/i)) {
+		//
+		// 			u.addVideoPreview(node);
+		// 		}
+		// 		else if(node.media_format.match(/^zip$/i)) {
+		//
+		// 			u.addZipPreview(node);
+		// 		}
+		// 		else if(node.media_format.match(/^pdf$/i)) {
+		//
+		// 			u.addPdfPreview(node);
+		// 		}
+		//
+		//
+		// 		// Add rename form
+		// 		u.addRenameMediaForm(div, node);
+		//
+		// 		// Add delete form
+		// 		u.addDeleteMediaForm(div, node);
+		//
+		// 		// Callback on successful delete
+		// 		node.delete_form.deleted = function(response) {
+		//
+		// 			// Reset uploaded files list
+		// 			this.node.div.media_input.field.uploaded_files = false;
+		//
+		// 			// Force validation
+		// 			this.node.div.media_input.val("");
+		//
+		// 			// Update preview
+		// 			this.node.div.updatePreview();
+		//
+		// 		}
+		//
+		// 	}
+		//
+		// }
+		//
+		// // add start preview
+		// div.updatePreview();
 
 	}
 }
@@ -362,10 +372,13 @@ u.addImagePreview = function(node) {
 	node.media_height = u.cv(node, "height");
 
 
+	node.media = u.ie(node, "div", {"class":"view"});
+
+
 	// Adjust preview height
-	u.ass(node.preview, {
-		"width": ((node.preview.offsetHeight/node.media_height) * node.media_width) + "px",
-		"backgroundImage": "url(/images/"+node.div.item_id+"/"+node.media_variant+"/x"+node.preview.offsetHeight+"."+node.media_format+"?"+u.randomString(4)+")"
+	u.ass(node.media, {
+		"width": ((node.media.offsetHeight/node.media_height) * node.media_width) + "px",
+		"backgroundImage": "url(/images/"+node.div.item_id+"/"+node.media_variant+"/x"+node.media.offsetHeight+"."+node.media_format+"?"+u.randomString(4)+")"
 	});
 
 }
@@ -375,8 +388,12 @@ u.addPdfPreview = function(node) {
 
 	u.ac(node, "preview_pdf");
 
+
+	node.media = u.ie(node, "div", {"class":"view"});
+
+
 	// Adjust preview height
-	u.ass(node.preview, {
+	u.ass(node.media, {
 		"backgroundImage": "url(/images/0/pdf/30x.png)"
 	});
 
@@ -387,8 +404,12 @@ u.addZipPreview = function(node) {
 
 	u.ac(node, "preview_zip");
 
+
+	node.media = u.ie(node, "div", {"class":"view"});
+
+
 	// Adjust preview height
-	u.ass(node.preview, {
+	u.ass(node.media, {
 		"backgroundImage": "url(/images/0/zip/30x.png)"
 	});
 
@@ -416,25 +437,17 @@ u.addVideoPreview = function(node) {
 	node.media_width = u.cv(node, "width");
 	node.media_height = u.cv(node, "height");
 
-	// Adjust preview height
-	u.ass(node.preview, {
-		"width": ((node.preview.offsetHeight/node.media_height) * node.media_width) + "px",
-	});
-
-
 	// enable playback
-	node.preview.video_url = "/videos/"+node.div.item_id+"/"+node.media_variant+"/"+node.div.filelist.offsetWidth+"x."+node.media_format+"?"+u.randomString(4);
+	node.video_url = "/videos/"+node.div.item_id+"/"+node.media_variant+"/x300x."+node.media_format+"?"+u.randomString(4);
 
 	// Add play button
 	u.addPlayMedia(node.div, node);
 
-	u.e.hover(node.preview);
-	node.preview.over = function() {
-		this.node.play_preview();
-	}
-	node.preview.out = function() {
-		this.node.pause_preview();
-	}
+	// Adjust preview height
+	// u.ass(node.preview, {
+	// 	"width": ((node.preview.offsetHeight/node.media_height) * node.media_width) + "px",
+	// });
+
 
 }
 
@@ -443,24 +456,28 @@ u.addVideoPreview = function(node) {
 // add play form
 u.addPlayMedia = function(div, node) {
 
+	if(!node.media) {
+		node.media = node.preview.audio_url ? u.audioPlayer() : u.videoPlayer({"muted":true, "loop":true, "preload":"metadata"});
+		node.media.node = node;
+		u.ac(node.media, "view");
 
-	var controls = u.ae(node.preview, "div", {"class":"controls"});
+		// inject player
+		u.ae(node.preview, node.media);
+
+	}
+
+
+	// Load url to show first frame
+	node.media.load(node.preview.audio_url ? node.preview.audio_url : node.preview.video_url);
+
+	// var controls = u.ae(node.preview, "div", {"class":"controls"});
+	var controls = u.ae(node.media, "div", {"class":"controls"});
 
 	// Create play button
 	node.bn_play = u.ae(controls, "div", {"class":"play"});
 	// node.bn_play.preview = node.preview;
 	node.bn_play.node = node;
 
-	if(!node.player) {
-		node.player = node.preview.audio_url ? u.audioPlayer() : u.videoPlayer({"muted":true, "loop":true, "preload":"metadata"});
-		node.player.node = node;
-
-		// inject player
-		u.ae(node.preview, node.player);
-
-		// Load url to show first frame
-		node.player.load(node.preview.audio_url ? node.preview.audio_url : node.preview.video_url);
-	}
 
 	u.ce(node.bn_play);
 	node.bn_play.clicked = function(event) {
@@ -480,6 +497,15 @@ u.addPlayMedia = function(div, node) {
 		u.rc(this.preview, "playing");
 	}
 
+	u.e.hover(node.media);
+	node.media.over = function() {
+		this.node.play_preview();
+	}
+	node.preview.out = function() {
+		this.node.pause_preview();
+	}
+
+
 	// Create mute button
 	node.bn_mute = u.ae(controls, "div", {"class":"mute"});
 	// node.bn_play.preview = node.preview;
@@ -487,16 +513,17 @@ u.addPlayMedia = function(div, node) {
 
 	u.ce(node.bn_mute);
 	node.bn_mute.clicked = function(event) {
-		if(!u.hc(this.node.preview, "muted")) {
-			this.node.player.mute();
-			u.ac(this.node.preview, "muted");
+		if(!u.hc(this.node.media, "muted")) {
+			this.node.media.mute();
+			u.ac(this.node.media, "muted");
 		}
 		else {
-			this.node.player.unmute();
-			u.rc(this.node.preview, "muted");
+			this.node.media.unmute();
+			u.rc(this.node.media, "muted");
 		}
 	}
-	u.ac(node.preview, "muted");
+	u.ac(node.media, "muted");
+
 
 }
 
@@ -552,6 +579,13 @@ u.addRenameMediaForm = function(div, node) {
 		"name":"name", 
 		"value":node.media_name, 
 		"required":true
+	});
+	// Add name input
+	u.f.addField(node.update_name_form, {
+		"type":"text",
+		"name":"description", 
+		"value":node.media_description, 
+		"required":false
 	});
 
 	// init form

@@ -45,7 +45,7 @@ Util.Modules["defaultEdit"] = new function() {
 				page.notify(response);
 
 				// Update any potential filelists
-				u.f.updateFilelistStatus(this, response);
+				u.f.updateFormAfterResponse(this, response);
 
 
 				// Update values typically shown in edit page

@@ -31,13 +31,17 @@ class ItemtypeCore extends Model {
 
 		// Files
 		$this->data_defaults["allowed_formats"] = "gif,jpg,png,mp4,mov,m4v,mp3,pdf,zip";
+		$this->data_defaults["file_order"] = $this->path."/updateFileOrder";
 
-		// Html
+		// HTML AND Files
+		$this->data_defaults["file_delete"] = $this->path."/deleteFile";
+		$this->data_defaults["file_update_metadata"] = $this->path."/updateFileMetadata";
+		$this->data_defaults["file_media_info"] = $this->path."/getMediaInfo";
+
+		// HTML
 		$this->data_defaults["allowed_tags"] = "p,h1,h2,h3,h4,h5,h6,code,ul,ol,download";
-		$this->data_defaults["file_add"] = $this->path."/addHTMLFile";
-		$this->data_defaults["file_delete"] = $this->path."/deleteHTMLFile";
-		$this->data_defaults["media_add"] = $this->path."/addHTMLMedia";
-		$this->data_defaults["media_delete"] = $this->path."/deleteHTMLMedia";
+		$this->data_defaults["file_add"] = $this->path."/addFile";
+
 
 
 
@@ -155,6 +159,38 @@ class ItemtypeCore extends Model {
 		));
 
 
+		// File name
+		$this->addToModel("file_name", array(
+			"type" => "string",
+			"label" => "File name",
+			"required" => true,
+			"hint_message" => "Update the name associated with this file.",
+			"error_message" => "A valid name must be specified."
+		));
+		// File description
+		$this->addToModel("file_description", array(
+			"type" => "text",
+			"label" => "File description",
+			"hint_message" => "Add a description of this file.",
+			"error_message" => "The description is not valid."
+		));
+		// File variant
+		$this->addToModel("file_variant", array(
+			"type" => "file_variant",
+			"label" => "File variant",
+			"hint_message" => "State file variant identifier.",
+			"error_message" => "File variant is not valid."
+		));
+		// File poster
+		$this->addToModel("file_poster", array(
+			"type" => "files",
+			"label" => "File poster",
+			"allowed_formats" => "jpg,png,gif",
+			"max" => 1,
+			"hint_message" => "Poster to use for file preview.",
+			"error_message" => "File poster is not valid."
+		));
+
 	}
 
 
@@ -251,7 +287,7 @@ class ItemtypeCore extends Model {
 				$files_inputs = array();
 
 				foreach($entities as $name => $entity) {
-					if($entity["value"] !== false && !preg_match("/^(published_at|status|htmleditor_file|htmleditor_media)$/", $name)) {
+					if($entity["value"] !== false && !preg_match("/^(published_at|status|htmleditor_file|htmleditor_poster)$/", $name)) {
 
 						if(!preg_match("/^(files|tags)$/", $entity["type"])) {
 
@@ -306,11 +342,20 @@ class ItemtypeCore extends Model {
 
 								if(!$files_max_count || $files_max_count === 1) {
 
-									$this->addSingleMedia(["addSingleMedia", $item_id, $files_input]);
+									$this->addFile([
+										"item_id" => $item_id,
+										"input_name" => $files_input,
+										"variant" => $files_input,
+									]);
+
 								}
 								else {
 
-									$this->addMedia(["addMedia", $item_id, $files_input]);
+									$this->addFile([
+										"item_id" => $item_id,
+										"input_name" => $files_input,
+									]);
+
 								}
 							}
 						}
@@ -425,7 +470,7 @@ class ItemtypeCore extends Model {
 			$files_inputs = array();
 
 			foreach($entities as $name => $entity) {
-				if($entity["value"] !== false && !preg_match("/^(published_at|status|user_id|htmleditor_file|htmleditor_media)$/", $name)) {
+				if($entity["value"] !== false && !preg_match("/^(published_at|status|user_id|htmleditor_file|htmleditor_poster)$/", $name)) {
 
 					if(!preg_match("/^(files|tags)$/", $entity["type"])) {
 
@@ -479,11 +524,20 @@ class ItemtypeCore extends Model {
 
 							if(!$files_max_count || $files_max_count === 1) {
 
-								$this->addSingleMedia(["addSingleMedia", $item_id, $files_input]);
+								$this->addFile([
+									"item_id" => $item_id,
+									"input_name" => $files_input,
+									"variant" => $files_input,
+								]);
+
 							}
 							else {
 
-								$this->addMedia(["addMedia", $item_id, $files_input]);
+								$this->addFile([
+									"item_id" => $item_id,
+									"input_name" => $files_input,
+								]);
+
 							}
 						}
 					}
@@ -1108,11 +1162,13 @@ class ItemtypeCore extends Model {
 							$sql .= "item_id='".$new_item_id."',";
 							
 							$sql .= "name='".$media["name"]."',";
+							$sql .= "description='".$media["description"]."',";
 							$sql .= "format='".$media["format"]."',";
 							$sql .= "variant='".$media["variant"]."',";
 							$sql .= "width='".$media["width"]."',";
 							$sql .= "height='".$media["height"]."',";
 							$sql .= "filesize='".$media["filesize"]."',";
+							$sql .= "poster='".$media["poster"]."',";
 							$sql .= "position=".$media["position"];
 
 							// Insert media
@@ -1120,8 +1176,8 @@ class ItemtypeCore extends Model {
 
 								// Copy media
 								$fs->copy(
-									PRIVATE_FILE_PATH."/".$media["item_id"].($media["variant"] ? "/".$media["variant"] : "")."/".$media["format"], 
-									PRIVATE_FILE_PATH."/".$new_item_id.($media["variant"] ? "/".$media["variant"] : "")."/".$media["format"]
+									PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"], 
+									PRIVATE_FILE_PATH."/".$new_item_id."/".$media["variant"]."/".$media["format"]
 								);
 
 							}
@@ -1173,13 +1229,15 @@ class ItemtypeCore extends Model {
 												// Create insert statement
 												$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
 												$sql .= "item_id='".$new_item_id."',";
-							
+
 												$sql .= "name='".$media["name"]."',";
+												$sql .= "description='".$media["description"]."',";
 												$sql .= "format='".$media["format"]."',";
 												$sql .= "variant='".$new_variant."',";
 												$sql .= "width='".$media["width"]."',";
 												$sql .= "height='".$media["height"]."',";
 												$sql .= "filesize='".$media["filesize"]."',";
+												$sql .= "poster=".$media["poster"];
 												$sql .= "position=".$media["position"];
 
 												// debug($sql);
@@ -1375,7 +1433,7 @@ class ItemtypeCore extends Model {
 
 	// custom function to add media
 	// /#controller#/addMedia/#item_id#/#variant#
-	function addMedia($action) {
+	function _addMedia($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -1452,7 +1510,7 @@ class ItemtypeCore extends Model {
 
 	// custom function to add single media
 	// /#controller#/addSingleMedia/#item_id#/#variant#
-	function addSingleMedia($action) {
+	function _addSingleMedia($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
@@ -1494,7 +1552,7 @@ class ItemtypeCore extends Model {
 				$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
 				$sql .= "filesize='".$filesize."',";
 				$sql .= "position=0";
-
+				debug(["addSingleMedia", $sql]);
 				$query->sql($sql);
 
 				// return upload data in standard mediae array
@@ -1521,7 +1579,7 @@ class ItemtypeCore extends Model {
 	// /janitor/[admin/]#itemtype#/deleteImage/#item_id#/#variant#
 	// TODO: implement itemtype checks
 	// DEBATE: PROS/CONS of itemtype checks
-	function deleteMedia($action) {
+	function _deleteMedia($action) {
 
 		if(count($action) == 3) {
 
@@ -1552,7 +1610,7 @@ class ItemtypeCore extends Model {
 	// /janitor/post/updateMediaName
 	// TODO: implement itemtype checks
 	// /janitor/[admin/]#itemtype#/updateMediaName/#item_id#/#variant#
-	function updateMediaName($action) {
+	function _updateMediaName($action) {
 
 		if(count($action) == 3) {
 
@@ -1578,7 +1636,7 @@ class ItemtypeCore extends Model {
 	// update media order
 	// TODO: implement itemtype checks
 	// /janitor/[admin/]#itemtype#/updateMediaOrder (comma-separated order in POST)
-	function updateMediaOrder($action) {
+	function _updateMediaOrder($action) {
 
 		$order_list = getPost("order");
 		if(count($action) == 2 && $order_list) {
@@ -1606,10 +1664,71 @@ class ItemtypeCore extends Model {
 	// API to get file info
 	// to validate files which cannot be validated clientside
 	// - .mov missing width height
-	function getMediaInfo($action) {
+	// to get existing file info for updating HTMLEditor data
+	function API_getMediaInfo($action) {
 
-		return $this->identifyUploads("video");
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
 
+		if(count($action) == 1 && $this->validateList(["item_id", "file_variant"])) {
+
+			// Get info from existing file
+			$item_id = $this->getProperty("item_id", "value");
+			$variant = $this->getProperty("file_variant", "value");
+
+			// Identify new file for frontend validation
+			$input_name = getPost("input_name");
+
+			return $this->getMediaInfo([
+				"input_name" => $input_name,
+				"item_id" => $item_id,
+				"variant" => $variant
+			]);
+
+		}
+
+	}
+
+	// API to get file info
+	// to validate files which cannot be validated clientside
+	// - .mov missing width height
+	function getMediaInfo($_options = false) {
+
+		$item_id = false;
+		$variant = false;
+
+		$input_name = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"              : $item_id                 = $_value; break;
+					case "variant"              : $variant                 = $_value; break;
+					
+					case "input_name"           : $input_name              = $_value; break;
+
+				}
+			}
+		}
+
+		if($item_id && $variant) {
+
+			$query = new Query();
+			$IC = new Items();
+
+			return $IC->getMediae([
+				"item_id" => $item_id,
+				"variant" => $variant
+			]);
+
+		}
+		else if($input_name) {
+			return $this->identifyUploads($input_name);
+		}
+
+		return false;
 	}
 
 	// upload to item_id/variant
@@ -1627,6 +1746,8 @@ class ItemtypeCore extends Model {
 
 		$auto_add_variant = false;            // automatically add variant-key for each file
 
+		$append_to_variant = false;           // append to existing variant as poster
+
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -1636,6 +1757,8 @@ class ItemtypeCore extends Model {
 					case "variant"             : $variant             = $_value; break;
 
 					case "auto_add_variant"    : $auto_add_variant    = $_value; break;
+
+					case "append_to_variant"   : $append_to_variant   = $_value; break;
 				}
 			}
 		}
@@ -1647,18 +1770,22 @@ class ItemtypeCore extends Model {
 
 		// Validate input
 		if($this->validateList([$input_name], $item_id)) {
-			// debug(["validated", $_FILES[$input_name]]);
+			// debug(["validated", $input_name, $_FILES, $_FILES[$input_name]]);
 
 			$fs = new FileSystem();
 
 			// Get upload information
 			$identified_uploads = $this->identifyUploads($input_name);
-
+			// debug(["identified_uploads", $identified_uploads]);
 
 			foreach($identified_uploads as $upload) {
 
 				// define variant value
-				if($auto_add_variant) {
+				if($append_to_variant) {
+					$variant = $append_to_variant;
+					$upload["variant"] = $append_to_variant;
+				}
+				else if($auto_add_variant) {
 					$variant = $input_name . "-" . randomKey(8);
 					$upload["variant"] = $variant;
 				}
@@ -1677,8 +1804,11 @@ class ItemtypeCore extends Model {
 
 					$output_file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$upload["format"];
 
-					$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
-					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+					// Only delete existing files if this is NOT a poster upload
+					if(!$append_to_variant) {
+						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+					}
 
 					$fs->makeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
 					copy($upload["file"], $output_file);
@@ -1696,8 +1826,11 @@ class ItemtypeCore extends Model {
 
 					$output_file = PRIVATE_FILE_PATH."/".$item_id."/".$variant."/zip";
 
-					$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
-					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+					// Only delete existing files if this is NOT a poster upload
+					if(!$append_to_variant) {
+						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+					}
 
 					$fs->makeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
 
@@ -1736,7 +1869,7 @@ class ItemtypeCore extends Model {
 	// custom function to add html media
 	// TODO: implement itemtype checks
 	// /janitor/[admin/]#itemtype#/addHTMLMedia/#item_id#
-	function addHTMLMedia($action) {
+	function _addHTMLMedia($action) {
 
 		if(count($action) == 2) {
 			$query = new Query();
@@ -1805,7 +1938,7 @@ class ItemtypeCore extends Model {
 	// delete media from HTML editor - 3 parameters exactly
 	// TODO: implement itemtype checks
 	// /janitor/[admin/]#itemtype#/deleteHTMLMedia/#item_id#/#variant#
-	function deleteHTMLMedia($action) {
+	function _deleteHTMLMedia($action) {
 
 		if(count($action) == 3) {
 
@@ -1831,64 +1964,216 @@ class ItemtypeCore extends Model {
 
 
 
-	// custom function to add html file
-	// TODO: implement itemtype checks
-	// /janitor/[admin/]#itemtype#/addHTMLFile/#item_id#
-	function addHTMLFile($action) {
+	// custom function to add file
+	// Can upload files and media for HTML input
+	// – poster for external video tag
+	// - image file for media tag
+	// - video file for media tag
+	// - poster file for media tag
+	// - file for file tag
+	function API_addFile($action) {
 
-		if(count($action) == 2) {
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 1 && $this->validateList(["item_id", "file_variant"])) {
+
+			// debug(["this far"]);
+			$item_id = $this->getProperty("item_id", "value");
+
+			// Existing variant for media poster (the poster is then sub element of existing media)
+			$variant = $this->getProperty("file_variant", "value");
+
+			// Get name of related HTML input
+			$input_name = getPost("input_name");
+			// $field_name = getPost("field_name");
+
+
+			// Is file new variant (fx. ext_poster)
+			if(!$variant) {
+				$variant = getPost("new_variant");
+			}
+
+			// Get type of the upload (media, poster, file)
+			$type = getPost("type");
+
+			// Create HTMLEDITOR specific variant if type is pssed
+			if(!$variant && $type) {
+				$variant = "HTMLEDITOR-".$type."-".randomKey(8);
+			}
+
+
+			if($item_id && $input_name) {
+
+				$result = $this->addFile([
+					"item_id" => $item_id,
+					"input_name" => $input_name,
+					"type" => $type,
+					"variant" => $variant,
+				]);
+
+				if($result) {
+					message()->addMessage("File added");
+					return $result;
+				}
+			}
+		}
+
+		message()->addMessage("File could not be uploaded", array("type" => "error"));
+		return false;
+
+	}
+
+
+	function addFile($_options = false) {
+
+		$item_id = false;
+		$input_name = false;
+
+
+		// Add to existing variant (for posters)
+		$variant = false;
+
+
+		$type = false;
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"              : $item_id                 = $_value; break;
+					case "input_name"           : $input_name              = $_value; break;
+					// case "field_name"           : $field_name              = $_value; break;
+
+					case "type"                 : $type                    = $_value; break;
+
+					case "variant"              : $variant                 = $_value; break;
+
+				}
+			}
+		}
+
+		if($item_id && $input_name) {
+
 			$query = new Query();
 			$IC = new Items();
-			$item_id = $action[1];
 
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
+			// Append poster to existing media
+			if($variant && $type === "poster") {
 
-			// Get name of related HTML input
-			$input_name = getPost("input-name");
+				// Upload poster, appending to existing variant
+				$uploads = $this->upload($item_id, [
+					"input_name" => $input_name, 
+					"append_to_variant" => $variant,
+				]);
 
+			}
+			// 
+			else if($variant) {
 
-			// Upload media
-			$uploads = $this->upload($item_id, [
-				"input_name" => "htmleditor_file", 
-				"variant" => "HTMLEDITOR-".$input_name."-".randomKey(8)
-			]);
+				// Upload poster, appending to existing variant
+				$uploads = $this->upload($item_id, [
+					"input_name" => $input_name, 
+					"variant" => $variant,
+				]);
+
+			}
+
+			// New media / file / ext video poster
+
+			else {
+
+				// Upload media as new variant
+				$uploads = $this->upload($item_id, [
+					"input_name" => $input_name, 
+					"auto_add_variant" => true,
+				]);
+
+			}
+
 
 			// Successful upload
 			if($uploads) {
 
-				$name = $uploads[0]["name"];
-				$variant = $uploads[0]["variant"];
-				$format = $uploads[0]["format"];
-				$width = $uploads[0]["width"];
-				$height = $uploads[0]["height"];
-				$filesize = $uploads[0]["filesize"];
+				// Appending poster to existing video
+				if($type === "poster") {
 
-				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '$variant'";
-				$query->sql($sql);
+					$name = $uploads[0]["name"];
+					$variant = $uploads[0]["variant"];
+					$format = $uploads[0]["format"];
+					$width = $uploads[0]["width"];
+					$height = $uploads[0]["height"];
+					$filesize = $uploads[0]["filesize"];
 
-				// $sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', ".($uploads[0]["width"] ? "'".$uploads[0]["width"]."'" : "NULL").", ".($uploads[0]["height"] ? "'".$uploads[0]["height"]."'" : "NULL") . ", '".$uploads[0]["filesize"]."', 0)";
 
-				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
-				$sql .= "item_id='".$item_id."',";
-				$sql .= "name='".$name."',";
-				$sql .= "format='".$format."',";
-				$sql .= "variant='".$variant."',";
-				$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
-				$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
-				$sql .= "filesize='".$filesize."',";
-				$sql .= "position=0";
+					$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET ";
+					$sql .= "poster='".$format."'";
+					$sql .= " WHERE ";
+					$sql .= "item_id='".$item_id."' AND ";
+					$sql .= "variant='".$variant."'";
+					// debug(["sql", $sql]);
+					
+					if($query->sql($sql)) {
 
-				$query->sql($sql);
+						return array(
+							"item_id" => $item_id, 
+							"media_id" => $query->lastInsertId(), 
+							"variant" => $variant, 
+							"format" => $format
+						);
 
-				return array(
-					"item_id" => $item_id, 
-					"media_id" => $query->lastInsertId(), 
-					"name" => $name,
-					"variant" => $variant, 
-					"format" => $format, 
-					"filesize" => $filesize
-				);
+					}
+
+				}
+				// Adding new media, file or ext_video poster
+				else {
+
+					$IC = new Items();
+					$completed_uploads = [];
+
+					foreach($uploads as $i => $upload) {
+
+						$name = $upload["name"];
+						$variant = $upload["variant"];
+						$format = $upload["format"];
+						$width = $upload["width"];
+						$height = $upload["height"];
+						$filesize = $upload["filesize"];
+
+						$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '$variant'";
+						$query->sql($sql);
+
+
+						$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+						$sql .= "item_id='".$item_id."',";
+						$sql .= "name='".$name."',";
+						$sql .= "format='".$format."',";
+						$sql .= "variant='".$variant."',";
+						$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
+						$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
+						$sql .= "filesize='".$filesize."',";
+						$sql .= "position=0";
+						// debug(["sql", $sql]);
+
+						if($query->sql($sql)) {
+							$completed_uploads[] = $IC->getMediae(["media_id" => $query->lastInsertId()]);
+						}
+
+					}
+
+					return $completed_uploads;
+					// $uploads;
+					// $IC->getMediae(["item_id" => $item_id]);
+					// $IC->getItem([
+					// 	"item_id" => $item_id, "extend" => ["mediae" => true]
+					// ]);
+
+				}
+
 			}
 		}
 
@@ -1898,7 +2183,7 @@ class ItemtypeCore extends Model {
 	// delete file from HTML editor - 3 parameters exactly
 	// TODO: implement itemtype checks
 	// /janitor/[admin/]#itemtype#/deleteHTMLFile/#item_id#/#variant#
-	function deleteHTMLFile($action) {
+	function _deleteHTMLFile($action) {
 
 		if(count($action) == 3) {
 
@@ -1919,6 +2204,341 @@ class ItemtypeCore extends Model {
 		}
 
 		message()->addMessage("File could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+
+	// API Method
+	// delete file from HTML editor
+	function API_deleteFile($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 1 && $this->validateList(["item_id", "file_variant"])) {
+
+			$item_id = $this->getProperty("item_id", "value");
+			$variant = $this->getProperty("file_variant", "value");
+
+			$is_poster = getPost("is_poster");
+
+			if($item_id && $variant) {
+				$result = $this->deleteFile([
+					"item_id" => $item_id,
+					"variant" => $variant,
+					"poster_only" => $is_poster
+				]);
+
+				if($result) {
+					message()->addMessage("File deleted");
+					return $result;
+				}
+			}
+		}
+
+		message()->addMessage("File could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+	// delete file from item
+	// - item_id
+	// - variant
+	function deleteFile($_options = false) {
+
+		$item_id = false;
+		$variant = false;
+
+		// Only delete posterfile
+		$poster_only = false;
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"          : $item_id           = $_value; break;
+					case "variant"          : $variant           = $_value; break;
+
+					case "poster_only"      : $poster_only       = $_value; break;
+
+				}
+			}
+		}
+
+		if($item_id && $variant) {
+
+			$query = new Query();
+			$fs = new FileSystem();
+
+			// Only delete poster file
+			if($poster_only) {
+
+				$sql = "SELECT format, poster FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
+				if($query->sql($sql)) {
+					$format = $query->result(0, "format");
+					$poster = $query->result(0, "poster");
+
+					// Make sure we only delete poster source file
+					// For posters, mediae format should be non image
+					if($poster && preg_match("/gif|png|jpg/", $poster) && (!$format || !preg_match("/gif|png|jpg/", $format))) {
+
+						$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET poster = NULL WHERE item_id = ".$item_id." AND variant = '".$variant."'";
+						if($query->sql($sql)) {
+							// Delete specific poster file
+							unlink(PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$poster);
+
+							// Clean up public files
+							$files = $fs->files(PUBLIC_FILE_PATH."/".$item_id."/".$variant, [
+								"allow_extensions" => "png,jpg,gif"
+							]);
+							foreach($files as $file) {
+								unlink($file);
+							}
+
+							return true;
+						}
+
+					}
+
+				}
+
+			}
+			// Delete entire media, including metadata and poster
+			else {
+
+				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
+				if($query->sql($sql)) {
+					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+					$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+
+					return true;
+				}
+
+			}
+
+		}
+
+		return false;
+	}
+
+	// API Method
+	// Update file metadata
+	function API_updateFileMetadata($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		if(count($action) == 1 && $this->validateList(["item_id", "file_variant", "file_name", "file_description", "file_poster"])) {
+
+			$item_id = $this->getProperty("item_id", "value");
+			$variant = $this->getProperty("file_variant", "value");
+
+			$name = $this->getProperty("file_name", "value");
+			$description = $this->getProperty("file_description", "value");
+
+			$poster = $this->getProperty("file_poster", "value");
+
+			$created_at = getPost("created_at");
+			$type = getPost("type");
+
+
+			// Look for new variant name (updating media entry for non-existent media, fx ext_video)
+			if(!$variant) {
+				$variant = getPost("new_variant");
+			}
+
+
+			if($item_id && $variant && $name) {
+				$result = $this->updateFileMetadata([
+					"item_id" => $item_id,
+					"variant" => $variant,
+
+					"name" => $name,
+					"description" => $description,
+					"created_at" => $created_at,
+
+					"poster" => $poster,
+					"type" => $type,
+				]);
+
+				if($result) {
+					message()->addMessage("File metadata updated");
+					return $result;
+				}
+			}
+
+		}
+
+		message()->addMessage("File metadata could not be updated - please refresh your browser", array("type" => "error"));
+		return false;
+	}
+
+	// Update file metadata
+	// Metadata are handled differently for different file types
+	// file, HTML Downloadable file, HTML media or regular file input
+	// - Metadata belongs to already uploaded media and always has variant, poster can be added to existing media
+	// ext_video
+	// – Metadata does not necesarily exist, must be checked and created. Poster can be added as media with all properties
+	function updateFileMetadata($_options = false) {
+
+		$item_id = false;
+		$variant = false;
+
+		$nane = false;
+		$description = false;
+		$created_at = false;
+
+		$poster = false;
+		$type = "file";
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"          : $item_id           = $_value; break;
+					case "variant"          : $variant           = $_value; break;
+
+					case "name"             : $name              = $_value; break;
+					case "description"      : $description       = $_value; break;
+					case "created_at"       : $created_at        = $_value; break;
+
+					case "poster"           : $poster            = $_value; break;
+					case "type"             : $type              = $_value; break;
+
+				}
+			}
+		}
+
+		$query = new Query();
+
+		// Special conditions
+		if($type === "ext_video") {
+
+			// Media might not yet exist
+
+			// Media was passed, upload poster as regular image, to get expected proportion for external image
+			// Theoretically, expecting poster to be same proportions as external video
+			if($poster) {
+
+				$media = $this->addFile([
+					"item_id" => $item_id,
+					"input_name" => "file_poster",
+					"variant" => $variant,
+				]);
+
+				if($media && count($media) === 1) {
+					// Move assigned format to poster column
+					$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET format = NULL, poster = '".$media[0]["format"]."' WHERE item_id = ".$item_id." AND variant = '".$variant."'";
+					// debug([$sql]);
+					$query->sql($sql);
+				}
+
+			}
+			// Create pseudo media
+			else {
+
+				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET item_id = ".$item_id.", variant = '".$variant."', name = '$name'";
+				// debug([$sql]);
+				$query->sql($sql);
+
+			}
+
+		}
+
+		if($item_id && $variant && $name) {
+
+			$IC = new Items();
+
+			$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET name = '$name'";
+			$sql .= ($description !== false ? ", description = '$description'" : "");
+			$sql .= ($created_at ? ", created_at = '$created_at'" : "");
+			$sql .=	", modified_at = CURRENT_TIMESTAMP WHERE item_id = ".$item_id." AND variant = '".$variant."'";
+			// debug([$sql]);
+
+			if($query->sql($sql)) {
+
+				if($poster && $type !== "ext_video") {
+					$this->addFile([
+						"item_id" => $item_id,
+						"input_name" => "file_poster",
+						"variant" => $variant,
+						"type" => "poster"
+					]);
+				}
+
+				return $IC->getMediae(["variant" => $variant, "item_id" => $item_id]);
+			}
+
+		}
+
+		return false;
+	}
+
+
+	// update file order
+	// order in comma-separated list of IDs
+	function API_updateFileOrder($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		$order_list = getPost("order");
+		if(count($action) === 1 && $order_list && $this->validateList(["item_id"])) {
+
+			$item_id = $this->getProperty("item_id", "value");
+			$order = explode(",", $order_list);
+
+			if($item_id && $order) {
+				$result = $this->updateFileOrder([
+					"item_id" => $item_id,
+					"order" => $order,
+				]);
+
+				if($result) {
+					message()->addMessage("File order updated");
+					return $result;
+				}
+			}
+		}
+
+		message()->addMessage("File order could not be updated", array("type" => "error"));
+		return false;
+
+	}
+
+	function updateFileOrder($_options = false) {
+
+		$item_id = false;
+		$order = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"          : $item_id           = $_value; break;
+					case "order"       : $order        = $_value; break;
+
+				}
+			}
+		}
+
+		if($item_id && $order) {
+
+			$query = new Query();
+
+			for($i = 0; $i < count($order); $i++) {
+				$media_id = $order[$i];
+				$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET position = ".($i+1)." WHERE id = $media_id AND item_id = $item_id";
+				$query->sql($sql);
+			}
+
+			return true;
+		}
+
 		return false;
 	}
 

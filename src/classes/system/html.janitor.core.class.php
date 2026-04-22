@@ -601,16 +601,21 @@ class JanitorHTMLCore {
 
 		$_ = '';
 
-		$_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' sortable item_id:'.$item["id"].'"'.$model->jsData(["media"]).'>';
+		// $_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' sortable item_id:'.$item["id"].'"'.$model->jsData(["media"]).'>';
+		$_ .= '<div class="'.$class.'"'.$model->jsData(["media"]).'>';
 
 		$_ .= '<h2>'.$label.' ('.count($file_input_value).')</h2>';
-		$_ .= $model->formStart($this->path."/addMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject"));
+		$_ .= $model->formStart($this->path."/addFile", ["class" => "upload labelstyle:inject", "item_id" => $item["id"]]);
+		$_ .= $model->input("item_id", ["type" => "hidden", "value" => $item["id"]]);
+		//$_ .= $model->input("file_variant", ["type" => "hidden", "value" => $variant]);
+		$_ .= $model->input("input_name", ["type" => "hidden", "value" => $variant]);
+
 		$_ .= '<fieldset>';
 		$_ .= $model->input($variant, ["value" => $file_input_value]);
 		$_ .= '</fieldset>';
 
 		$_ .= '<ul class="actions">';
-		$_ .= $model->submit("Add mediae", array("class" => "primary", "wrapper" => "li.save"));
+		$_ .= $model->submit("Add mediae", ["class" => "primary", "wrapper" => "li.save"]);
 		$_ .= '</ul>';
 		$_ .= $model->formEnd();
 

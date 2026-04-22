@@ -114,11 +114,12 @@ class HTMLCore {
 			$_ .= ' data-tag-add="'.security()->validPath($this->path."/addTag").'"';
 		}
 
-		if(!$_filter || array_search("media", $_filter) !== false) {
-			$_ .= ' data-media-order="'.security()->validPath($this->path."/updateMediaOrder").'"';
-			$_ .= ' data-media-delete="'.security()->validPath($this->path."/deleteMedia").'"';
-			$_ .= ' data-media-name="'.security()->validPath($this->path."/updateMediaName").'"';
-		}
+		// if(!$_filter || array_search("media", $_filter) !== false) {
+		// 	$_ .= ' data-media-order="'.security()->validPath($this->path."/updateMediaOrder").'"';
+		// 	$_ .= ' data-media-delete="'.security()->validPath($this->path."/deleteMedia").'"';
+		// 	$_ .= ' data-media-name="'.security()->validPath($this->path."/updateMediaName").'"';
+		// 	$_ .= ' data-media-info="'.security()->validPath($this->path."/getMediaInfo").'"';
+		// }
 
 		if(!$_filter || array_search("comments", $_filter) !== false) {
 			$_ .= ' data-comment-update="'.security()->validPath($this->path."/updateComment").'"';
@@ -204,6 +205,7 @@ class HTMLCore {
 		$method = "post";
 		$target = false;
 		$enctype = "application/x-www-form-urlencoded";
+		$item_id = false;
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -217,6 +219,9 @@ class HTMLCore {
 
 					case "method"        : $method         = $_value; break;
 					case "enctype"       : $enctype        = $_value; break;
+
+					case "item_id"       : $item_id        = $_value; break;
+
 				}
 			}
 		}
@@ -230,7 +235,9 @@ class HTMLCore {
 		$att_action = $this->attribute("action", $action);
 		$att_enctype = $this->attribute("enctype", $enctype);
 
-		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.$att_enctype.'>'."\n";
+		$att_item_id = $this->attribute("data-item_id", $item_id);
+
+		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.$att_enctype.$att_item_id.'>'."\n";
 		$_ .= '<input type="hidden" name="csrf-token" value="'.security()->getValue("csrf").'" />'."\n";
 
 
@@ -325,14 +332,18 @@ class HTMLCore {
 		$min_width = $this->getProperty($name, "min_width");
 		$min_height = $this->getProperty($name, "min_height");
 
+		// Files order
+		$file_order = $this->getProperty($name, "file_order");
  
 		// tags for HTML editor
 		$allowed_tags = $this->getProperty($name, "allowed_tags");
-
 		$file_add = $this->getProperty($name, "file_add");
+
+
+		// For HTML editor and Files input
 		$file_delete = $this->getProperty($name, "file_delete");
-		$media_add = $this->getProperty($name, "media_add");
-		$media_delete = $this->getProperty($name, "media_delete");
+		$file_update_metadata = $this->getProperty($name, "file_update_metadata");
+		$file_media_info = $this->getProperty($name, "file_media_info");
 
 
 		// visual feedback
@@ -376,19 +387,22 @@ class HTMLCore {
 
 
 					// Files specific
-					case "allowed_formats"       : $allowed_formats        = $_value; break;
-					case "allowed_proportions"   : $allowed_proportions    = $_value; break;
-					case "allowed_sizes"         : $allowed_sizes          = $_value; break;
-					case "min_width"             : $min_width              = $_value; break;
-					case "min_height"            : $min_height             = $_value; break;
+					case "allowed_formats"        : $allowed_formats           = $_value; break;
+					case "allowed_proportions"    : $allowed_proportions       = $_value; break;
+					case "allowed_sizes"          : $allowed_sizes             = $_value; break;
+					case "min_width"              : $min_width                 = $_value; break;
+					case "min_height"             : $min_height                = $_value; break;
+					case "file_order"             : $file_order                = $_value; break;
 
 
 					// HTML specific
-					case "allowed_tags"    : $allowed_tags     = $_value; break;
-					case "file_add"        : $file_add         = $_value; break;
-					case "file_delete"     : $file_delete      = $_value; break;
-					case "media_add"       : $media_add        = $_value; break;
-					case "media_delete"    : $media_delete     = $_value; break;
+					case "allowed_tags"           : $allowed_tags              = $_value; break;
+					case "file_add"               : $file_add                  = $_value; break;
+
+					// HTML and FILES specific
+					case "file_delete"            : $file_delete               = $_value; break;
+					case "file_update_metadata"   : $file_update_metadata      = $_value; break;
+					case "file_media_info.    "   : $file_media_info           = $_value; break;
 
 
 					// Custom dataset property
@@ -436,14 +450,25 @@ class HTMLCore {
 		);
 
 
+		// Special data properties for FILES field
+		if($type === "files") {
+
+			// Paths for deleting files
+			$att_file_delete = $this->attribute("data-file-delete", security()->validPath($file_delete));
+			$att_file_order = $this->attribute("data-file-order", security()->validPath($file_order));
+			$att_file_update_metadata = $this->attribute("data-file-update-metadata", security()->validPath($file_update_metadata));
+			$att_file_media_info = $this->attribute("data-file-media-info", security()->validPath($file_media_info));
+
+		}
+
 		// Special data properties for HTML field
-		if($type === "html") {
+		else if($type === "html") {
 
 			// Paths for saving and deleting files
 			$att_file_add = $this->attribute("data-file-add", security()->validPath($file_add));
 			$att_file_delete = $this->attribute("data-file-delete", security()->validPath($file_delete));
-			$att_media_add = $this->attribute("data-media-add", security()->validPath($media_add));
-			$att_media_delete = $this->attribute("data-media-delete", security()->validPath($media_delete));
+			$att_file_update_metadata = $this->attribute("data-file-update-metadata", security()->validPath($file_update_metadata));
+			$att_file_media_info = $this->attribute("data-file-media-info", security()->validPath($file_media_info));
 
 		}
 
@@ -473,7 +498,10 @@ class HTMLCore {
 
 
 		// Create field div
-		$_ .= '<div'.$att_class.($type === "html" ? ($att_file_add.$att_file_delete.$att_media_add.$att_media_delete) : "").$att_datasets.'>';
+		$_ .= '<div'.$att_class;
+			$_ .= ($type === "html" ? ($att_file_add.$att_file_delete.$att_file_update_metadata.$att_file_media_info) : "");
+			$_ .= ($type === "files" ? ($att_file_delete.$att_file_update_metadata.$att_file_media_info.($att_multiple ? $att_file_order : "")) : "");
+		$_ .= $att_datasets.'>';
 
 
 			// CHECKBOX/BOOLEAN
@@ -636,7 +664,16 @@ class HTMLCore {
 					$_ .= '<ul class="filelist">';
 					if($value) {
 						foreach($value as $selected_file) {
-							$_ .= '<li class="uploaded media_id:'.$selected_file["id"].' variant:'.$selected_file["variant"].' format:'.$selected_file["format"].' width:'.$selected_file["width"].' height:'.$selected_file["height"].'">'.$selected_file["name"].'</li>';
+							$_ .= '<li class="uploaded"';
+								$_ .= $this->attribute("data-media_id", isset($selected_file["id"]) ? $selected_file["id"] : false);
+								$_ .= $this->attribute("data-variant", isset($selected_file["variant"]) ? $selected_file["variant"] : false);
+								$_ .= $this->attribute("data-format", isset($selected_file["format"]) ? $selected_file["format"] : false);
+								$_ .= $this->attribute("data-width", isset($selected_file["width"]) ? $selected_file["width"] : false);
+								$_ .= $this->attribute("data-height", isset($selected_file["height"]) ? $selected_file["height"] : false);
+								$_ .= $this->attribute("data-description", isset($selected_file["description"]) ? $selected_file["description"] : false);
+								$_ .= $this->attribute("data-poster", isset($selected_file["poster"]) ? $selected_file["poster"] : false);
+								$_ .= $this->attribute("data-created_at", isset($selected_file["created_at"]) ? $selected_file["created_at"] : false);
+							$_ .= '>'.$selected_file["name"].'</li>';
 						}
 					}
 					$_ .= '</ul>';
@@ -1147,22 +1184,6 @@ class HTMLCore {
 		$_ .= '</'.$wrap_node.'>'."\n";
 
 
-
-		//
-		// if($js) {
-		// 	$_ = '<li class="confirm i:confirmAction'.($class ? " ".$class : "").'"';
-		//
-		// }
-		// else {
-		// 	$_ = '<li class="confirm i:confirmAction'.($class ? " ".$class : "").'">';
-		//
-		// 	$_ .= $this->formStart($action);
-		// 	$_ .= '<input type="submit" value="'.$name.'" name="delete" class="button delete" />';
-		// 	$_ .= $HTML->formEnd();
-		// }
-		//
-		// $_ .= '</li>';
-
 		return $_;
 	}
 
@@ -1324,112 +1345,6 @@ class HTMLCore {
 
 		return $this->input($name, $_options);
 
-// 		// Get default settings from model first
-//
-// 		// label
-// 		$label = $this->getProperty($name, "label");
-// 		$value = $this->getProperty($name, "value");
-//
-// 		// frontend stuff
-// 		$class = $this->getProperty($name, "class");
-// 		$id = $this->getProperty($name, "id");
-//
-// 		// tags for HTML editor
-// 		$allowed_tags = $this->getProperty($name, "allowed_tags");
-//
-// 		// visual feedback
-// 		$hint_message = $this->getProperty($name, "hint_message");
-// 		$error_message = $this->getProperty($name, "error_message");
-//
-//
-// 		$file_add = $this->getProperty($name, "file_add");
-// 		$file_delete = $this->getProperty($name, "file_delete");
-// 		$media_add = $this->getProperty($name, "media_add");
-// 		$media_delete = $this->getProperty($name, "media_delete");
-//
-//
-// 		// overwrite model/defaults
-// 		if($_options !== false) {
-// 			foreach($_options as $_option => $_value) {
-// 				switch($_option) {
-//
-// 					case "label"           : $label            = $_value; break;
-// 					case "value"           : $value            = $_value; break;
-//
-// 					case "class"           : $class            = $_value; break;
-// 					case "id"              : $id               = $_value; break;
-//
-// 					case "allowed_tags"    : $allowed_tags     = $_value; break;
-//
-// 					case "error_message"   : $error_message    = $_value; break;
-// 					case "hint_message"    : $hint_message     = $_value; break;
-//
-// 					case "file_add"        : $file_add         = $_value; break;
-// 					case "file_delete"     : $file_delete      = $_value; break;
-//
-// 					case "media_add"       : $media_add        = $_value; break;
-// 					case "media_delete"    : $media_delete     = $_value; break;
-// 				}
-// 			}
-// 		}
-//
-//
-// 		// Start generating HTML
-// 		$_ = '';
-//
-//
-// 		$for = stringOr($id, "input_".$name);
-// 		$att_id = $this->attribute("id", $for);
-// 		$att_name = $this->attribute("name", $name);
-//
-// 		$att_class = $this->attribute("class", "field", "html", $class, "tags:".$allowed_tags);
-//
-// 		// get default paths if not specif
-// 		global $page;
-// 		if(!$file_add) {
-// 			$file_add = security()->validPath($this->path."/addHTMLFile");
-// 		}
-// 		if(!$file_delete) {
-// 			$file_delete = security()->validPath($this->path."/deleteHTMLFile");
-// 		}
-// 		if(!$media_add) {
-// 			$media_add = security()->validPath($this->path."/addHTMLMedia");
-// 		}
-// 		if(!$media_delete) {
-// 			$media_delete = security()->validPath($this->path."/deleteHTMLMedia");
-// 		}
-//
-// 		// paths for saving and deleting files
-// 		$att_file_add = $this->attribute("data-file-add", $file_add);
-// 		$att_file_delete = $this->attribute("data-file-delete", $file_delete);
-// 		$att_media_add = $this->attribute("data-media-add", $media_add);
-// 		$att_media_delete = $this->attribute("data-media-delete", $media_delete);
-//
-// //		print $att_file_add . "," . $att_file_delete;
-// //		$att_html_item_id = $this->attribute("data-item_id", $_options["item_id"]);
-//
-//
-// 		$_ .= '<div'.$att_class.$att_file_add.$att_file_delete.$att_media_add.$att_media_delete.'>';
-//
-// 			$_ .= '<label'.$this->attribute("for", $for).'>'.$label.'</label>';
-// 			// entity values in textarea will be interpreted, so double encode them
-// 			$_ .= '<textarea'.$att_name.$att_id.'>'.htmlentities($value, ENT_COMPAT, "UTF-8").'</textarea>';
-//
-// 			// Hint and error message
-// 			if($hint_message || $error_message) {
-// 				$_ .= '<div'.$this->attribute("class", "help").'>';
-// 				if($hint_message) {
-// 					$_ .= '<div'.$this->attribute("class", "hint").'>'.$hint_message.'</div>';
-// 				}
-// 				if($error_message) {
-// 					$_ .= '<div'.$this->attribute("class", "error").'>'.$error_message.'</div>';
-// 				}
-// 				$_ .= '</div>';
-// 			}
-//
-// 		$_ .= '</div>'."\n";
-//
-// 		return $_;
 	}
 
 
