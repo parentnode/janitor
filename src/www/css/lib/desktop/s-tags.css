@@ -1,13 +1,13 @@
 /* BASIC TAGS */
 #content ul.tags {padding: 0 125px 4px 30px;}
-#content ul.tags li {display: inline-block; vertical-align: top; margin: 0 6px 6px 0; border-radius: 12px; background-color: #313942; padding: 4px 7px 6px; color: #ffffff; font-size: 0;}
-#content ul.tags li.add {padding: 4px 4px 6px; cursor: pointer; width: 13px; text-align: center;}
-#content ul.tags li.add:hover {background-color: #64ad8e;}
-#content ul.tags li span {font-size: 11px; line-height: 1em; color: #ffffff;}
+#content ul.tags li {display: inline-block; vertical-align: top; margin: 0 6px 6px 0; border-radius: 13px; background-color: #313942; padding: 6px 14px 8px; color: #ffffff; font-size: 0;}
+#content ul.tags li.add {padding: 6px 4px 8px; cursor: pointer; width: 19px; text-align: center;}
+#content ul.tags li.add:hover {background-color: #64ad8e; color: #ffffff;}
+#content ul.tags li span {font-size: 13px; line-height: 1em; color: #ffffff;}
 #content ul.tags li span.context {text-transform: lowercase;}
 #content ul.tags li span.context:after {content: ":";}
 #content ul.tags li span.value {}
-#content ul.tags li.add {font-size: 11px; background-color: #dedede;}
+#content ul.tags li.add {font-size: 13px; background-color: #dedede; color: #333333;}
 
 
 #content .scene > div.tags {padding: 0; border-bottom: 1px solid #aaaaaa; overflow: hidden;}
@@ -19,7 +19,7 @@
 #content div.tagoptions fieldset .field {padding-right: 12px;}
 #content div.tagoptions fieldset .field input[type=text] {width: 262px;}
 
-#content div.tagoptions ul.actions {display: inline-block; vertical-align: top; padding: 0;}
+#content div.tagoptions ul.actions {display: inline-block; vertical-align: top; padding: 3px 0 0;}
 #content div.tagoptions ul.actions li {padding-left: 0; padding-top: 13px;}
 #content div.tagoptions ul.actions li input {margin-top: 4px;}
 
@@ -41,8 +41,8 @@
 /* TAGGABLE LIST ADJUSTMENTS */
 #content div.all_items div.tagoptions {padding-top: 8px;}
 #content div.all_items ul.items > li div.tagoptions ul.actions {position: static; right: auto; top: auto;}
-#content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 13px;}
-#content div.sortable div.tagoptions .field {padding-left: 48px;}
+#content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 14px;}
+#content div.sortable div.tagoptions .field {padding-left: 55px; padding-bottom: 25px;}
 
 
 

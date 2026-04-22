@@ -13,7 +13,7 @@
 #content .scene div.togglable > h4,
 #content .scene li.togglable > h2,
 #content .scene li.togglable > h3,
-#content .scene li.togglable > h4 {position: relative; cursor: ns-resize;}
+#content .scene li.togglable > h4 {position: relative; cursor: ns-resize; }
 #content .scene div.togglable > h2 svg,
 #content .scene div.togglable > h3 svg,
 #content .scene div.togglable > h4 svg,
@@ -26,9 +26,9 @@
 /* EDIT VIEW - STATUS */
 #content .scene.defaultEdit > div.status {border-bottom: 1px solid #bbbbbb;}
 #content .scene.defaultEdit > div.status .actions {padding: 0;}
-#content .scene.defaultEdit > div.status .actions li.status {display: block; padding: 10px 0px; text-align: right; height: 27px;}
+#content .scene.defaultEdit > div.status .actions li.status {display: block; padding: 10px 0px; text-align: right; height: 36px;}
 #content .scene.defaultEdit > div.status .actions li.status form {display: inline-block; vertical-align: top; padding-right: 30px;}
-#content .scene.defaultEdit > div.status .actions li.status form.disable:after {left: 3px;}
+/*#content .scene.defaultEdit > div.status .actions li.status form.disable:after {left: 3px;}*/
 /*#content .scene.defaultEdit > div.status .actions li.status form h3 {padding-top: 5px; padding-bottom: 0; font-size: 13px;}*/
 /*#content .scene.defaultEdit > div.status .actions li.status.disabled {background: orange;}*/
 
@@ -36,7 +36,7 @@
 #content .scene.defaultEdit > div.status .actions li.status.enabled form.enable {display: none;}
 
 /*#content .scene.defaultEdit > div.status .actions li.status h3 {display: inline-block; vertical-align: top;}*/
-#content .scene.defaultEdit > div.status .actions li.status input {display: inline-block; vertical-align: top;}
+/*#content .scene.defaultEdit > div.status .actions li.status input {display: inline-block; vertical-align: top;}*/
 
 
 /* EDIT VIEW - ITEM */
@@ -52,6 +52,7 @@
 /* EDIT/VIEW SINDEX */
 #content .scene.defaultEdit > div.sindex {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.sindex form {padding-bottom: 15px;}
+#content .scene.defaultEdit > div.sindex ul.actions + form {padding-top: 20px;}
 
 /* Developer settings */
 #content .scene.defaultEdit > div.developer {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
@@ -60,18 +61,34 @@
 
 
 /* EDIT MEDIA */
+
 #content .scene.defaultEdit > div.media {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.media form.upload {text-align: left; position: relative; z-index: 2;}
+
 #content .scene.defaultEdit > div.media form.upload .actions {display: none;}
 
+/*
 #content .scene.defaultEdit > div.media form.upload div.field.files ul.filelist li.label {margin-bottom: 0; display: inline-block;}
 #content .scene.defaultEdit > div.media form.upload div.field.files.loading ul.filelist {
 	background: transparent url(/janitor/admin/img/gx_loader.gif) no-repeat center center;
 }
 #content .scene.defaultEdit > div.media form.upload div.field.files.loading ul.filelist li {visibility: hidden;}
+*/
 
 /* PREVIEW */
-#content .scene.defaultEdit > div.media div.preview {position: relative; margin: 0 28px 10px; background-color: #dedede; background-position: center center; background-repeat: no-repeat; height: 120px;}
+/*#content .scene.defaultEdit > div.media div.preview {position: relative; margin: 0 28px 10px;
+	display: flex;
+	align-items: start;
+	gap: 0 20px;
+}
+
+#content .scene.defaultEdit > div.media div.preview div.view {}
+
+#content .scene.defaultEdit > div.media div.preview div.view {
+	background-color: #dedede; background-position: center center; background-repeat: no-repeat;
+	height: 120px; width: 214px;
+}
+
 #content .scene.defaultEdit > div.media div.preview div.controls {padding: 0; position: absolute; top: 0; left: 0; width: 60px; height: 30px; display: block; border-radius: 0; cursor: pointer; border-bottom-right-radius: 5px; overflow: hidden;}
 
 #content .scene.defaultEdit > div.media div.preview div.play {width: 30px; height: 30px; display: inline-block;
@@ -97,27 +114,36 @@
 }
 #content .scene.defaultEdit > div.media div.preview video,
 #content .scene.defaultEdit > div.media div.preview audio {width: 100%; height: 100%; display: block;}
-
+*/
 
 /* MULTIPLE FILE UPLOAD */
-#content .scene.defaultEdit > div.media ul.previewlist {padding: 0 20px 10px; text-align: left; position: relative;}
-#content .scene.defaultEdit > div.media ul.previewlist > li {margin: 0 10px 20px; position: relative;}
+/*#content .scene.defaultEdit > div.media ul.previewlist {padding: 0 20px 10px; text-align: left; position: relative;}
+#content .scene.defaultEdit > div.media ul.previewlist > li {
+	margin: 10px; position: relative;
+
+	display: block;
+}
 #content .scene.defaultEdit > div.media ul.previewlist > li.dragged {z-index: 2;}
-#content .scene.defaultEdit > div.media ul.previewlist > li div.preview {margin: 0; width: 100px; min-width: 50px; height: 120px;}
+#content .scene.defaultEdit > div.media ul.previewlist > li div.preview {margin: 0;}
+*/
 
 
 /* EDIT MEDIA NAME */
-#content .scene.defaultEdit > div.media div.preview form.edit {background-color: rgba(0,0,0, 0.7); position: absolute; bottom: 0; left: 0; width: 100%;}
+/*
+#content .scene.defaultEdit > div.media div.preview form.edit {background-color: rgba(0,0,0, 0.7);
+	width: 300px;
+}
 #content .scene.defaultEdit > div.media div.preview form.edit div.field {padding: 0px 3px;}
 #content .scene.defaultEdit > div.media div.preview form.edit div.field input {font-size: 13px; width: calc(100% - 18px);}
 #content .scene.defaultEdit > div.media div.preview form.edit div.field div.indicator {left: 392px;}
 
 #content .scene.defaultEdit > div.media div.preview:not(.edit) form.edit div.field input {color: #ffffff; margin: 3px; border: 0; background: none; box-shadow: none;}
 #content .scene.defaultEdit > div.media div.preview:not(.edit) form.edit div.field div.indicator {display: none;}
-
+*/
 
 /* DELETE MEDIA STANDARD */
-#content .scene.defaultEdit > div.media div.preview form.delete {padding: 0; position: absolute; top: 0; right: 0;}
+/*
+#content .scene.defaultEdit > div.media div.preview form.delete {padding: 0;}
 #content .scene.defaultEdit > div.media div.preview form.delete ul.actions {padding: 0;}
 #content .scene.defaultEdit > div.media div.preview form.delete ul.actions li {padding: 0;}
 #content .scene.defaultEdit > div.media div.preview form.delete input {font-size: 12px; color: #df0000; width: 30px; height: 30px; display: block; text-indent: -9999px; border: none; border-radius: 0; cursor: pointer; border-bottom-left-radius: 5px;
@@ -126,18 +152,20 @@
 }
 #content .scene.defaultEdit > div.media div.preview form.delete input:hover {background-position: 8px -67px;}
 #content .scene.defaultEdit > div.media div.preview form.delete input.confirm {text-indent: 0; width: auto; padding-left: 24px;}
-
+*/
 
 /* SORTABLE MEDIA */
+/*
 #content .scene.defaultEdit > div.media.sortable ul.previewlist > li {cursor: move;}
 #content .scene.defaultEdit > div.media.sortable ul.previewlist > li.shadow {opacity: 0.8; z-index: 100;}
 #content .scene.defaultEdit > div.media.sortable ul.previewlist > li.dragged {background: #64ad8e;}
 #content .scene.defaultEdit > div.media.sortable ul.previewlist > li.dragged .preview {opacity: 0.7;}
-
+*/
 /* SINGLE MEDIA EXCEPTION */
+/*
 #content .scene.defaultEdit > div.single_media div.preview {margin-bottom: 30px;}
 #content .scene.defaultEdit > div.single_media form.upload:last-child {padding-bottom: 20px;}
-
+*/
 
 
 /* COMMENTS */

@@ -21,7 +21,7 @@
 /* LIST */
 #content div.all_items ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede; overflow: hidden;}
 #content div.all_items ul.items > li:hover {background-color: #edf0f2;}
-#content div.all_items ul.items > li h3 {padding: 10px 250px 10px 30px;}
+#content div.all_items ul.items > li h3 {padding: 15px 250px 15px 30px; font-size: 16px;}
 
 
 /* LIST WITH IMAGE - PADDING CALCULATED BY JS */
@@ -46,14 +46,16 @@
 
 /* ADDITIONAL INFO */
 #content div.all_items ul.items > li p.description {padding-bottom: 10px; margin-top: -5px; font-size: 12px; line-height: 1em;}
-#content div.all_items ul.items > li dl.info {margin-top: -5px;}
+#content div.all_items ul.items > li dl.info {margin-top: -5px; padding-bottom: 10px;}
 
 /* ACTIONS ALIGN RIGHT */
 #content div.all_items ul.items > li ul.actions {position: absolute; top: 0px; padding: 0; right: 30px;}
 #content p + div.all_items {border-top: 1px solid #bbbbbb;}
 #content div.all_items ul.items > li ul.actions li {padding: 5px 0 5px 5px;}
+/*
 #content div.all_items ul.items > li ul.actions li a.button {padding: 4px 12px 6px;}
-#content div.all_items ul.items > li ul.actions li input.button {height: 24px;}
+#content div.all_items ul.items > li ul.actions li input.button {height: 32px;}
+*/
 /* MORE ACTION PADDING IF ROW CONTAINS ADDITIONAL INFO */
 #content div.all_items ul.items > li dl.info+ul.actions li,
 #content div.all_items ul.items > li ul.info+ul.actions li,
@@ -63,7 +65,7 @@
 
 
 /* FILTERS */
-#content div.filter {padding: 10px 0 4px; min-height: 28px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative; overflow: hidden;}
+#content div.filter {padding: 10px 0 4px; min-height: 32px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative; overflow: hidden;}
 #content div.filter ul.tags {padding-bottom: 0; padding-right: 150px;}
 #content div.filter ul.tags li {font-size: 12px; background-color: #dedede; color: #333333; cursor: pointer;}
 #content div.filter ul.tags li.selected,
@@ -72,7 +74,7 @@
 #content div.filter form {position: absolute; right: 30px; top: 9px;}
 #content div.filter .field {padding: 0 0 6px;}
 #content div.filter .field label {display: none;}
-#content div.filter .field input {width: 100px; height: 16px; font-size: 12px;}
+#content div.filter .field input {width: 100px; height: 30px; font-size: 12px;}
 
 
 
@@ -111,7 +113,7 @@
 
 
 /* SORTABLE LIST WITH IMAGE, AUDIO OR VIDEO */
-#content div.all_items.sortable.images ul.items > li {background-position: 50px center;}
+#content div.all_items.sortable.images ul.items > li {background-position: 50px top;}
 #content div.all_items.sortable.audios ul.items > li div.audioplayer {left: 55px;}
 #content div.all_items.sortable.videos ul.items > li div.videoplayer {left: 45px;}
 

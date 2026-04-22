@@ -1,0 +1,53 @@
+div.overlay_protection {z-index: 1000; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+	background: rgba(255, 255, 255, 0.4); 
+}
+div.overlay {z-index: 1001; position: fixed;  
+	margin: 0 auto; outline: none; 
+	border: 1px solid #5c5c5c;
+	background: #f5f7f8;
+	border-radius: 3px;
+}
+div.overlay .close {z-index: 10;
+	position: absolute; right: 15px; top: 15px; width: 32px; height: 32px; cursor: pointer;
+}
+div.overlay .close:before, div.overlay .close:after {position: absolute; left: 15px; content: ' '; height: 20px; width: 2px; background-color: #ffffff;}
+div.overlay .close:before {transform: rotate(45deg);}
+div.overlay .close:after {transform: rotate(-45deg);}
+
+div.overlay .header {
+	height: auto;
+	background-color: #313942;
+}
+div.overlay .header h2 {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	margin-right: 60px;
+	padding: 15px 30px; font-size: 20px;
+	font-weight: bold;
+	color: #ffffff;
+}
+/*div.overlay .content a {text-decoration: underline;}
+div.overlay .content p.legal {font-size: 10px; padding-top: 15px;}
+*/
+
+div.overlay .content {
+	overflow: auto;
+}
+div.overlay .content form {
+	padding: 20px 0;
+}
+/*
+div.overlay .content div.field .help {
+	display: none;
+}
+div.overlay .content div.field.checkbox {
+	padding-bottom: 10px;
+}
+div.overlay .content ul.actions {
+	overflow: hidden;
+	padding-left: 14px;
+}
+*/
+div.overlay .footer {
+}

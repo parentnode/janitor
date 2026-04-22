@@ -22,9 +22,9 @@
 	background-repeat: no-repeat;
 }
 #content .scene.navigationEdit div.all_items ul.items li.item {overflow: visible;}
-#content .scene.navigationEdit div.all_items ul.items li.item ul.actions {top: 5px;}
+/*#content .scene.navigationEdit div.all_items ul.items li.item ul.actions {top: 5px;}
 #content .scene.navigationEdit div.all_items ul.items li.item div.drag {top: 5px;}
-
+*/
 /* AVOID HOVER ON NESTED LI'S */
 #content .scene.navigationEdit div.all_items ul.items > li.item:hover:not(.shadow) {background-color: transparent;}
 

@@ -66,6 +66,37 @@
 #content .scene.userEdit > div.apitoken form.disable ul.actions {padding-left: 0;}
 
 
+/* ACCESS TOKEN */
+#content .scene.userEdit > div.accesstoken {/*padding: 0 0 10px 0;*/border-bottom: 1px solid #bbbbbb;}
+#content .scene.userEdit > div.accesstoken ul.tokens {
+	padding-bottom: 20px;
+}
+#content .scene.userEdit > div.accesstoken ul.tokens li.token {
+	display: block;
+	border-top: 1px solid #dedede;
+	padding-top: 10px;
+}
+#content .scene.userEdit > div.accesstoken ul.tokens li.token ul.actions {
+}
+	
+
+#content .scene.userEdit > div.accesstoken dl {
+	padding: 0 30px 10px;
+}
+#content .scene.userEdit > div.accesstoken dl dt,
+#content .scene.userEdit > div.accesstoken dl dd {
+	display: block;
+	font-size: 13px;
+	line-height: 16px
+}
+#content .scene.userEdit > div.accesstoken dl dt {font-weight: bold;}
+#content .scene.userEdit > div.accesstoken dl dd {padding-bottom: 5px;}
+
+
+/*#content .scene.userEdit > div.accesstoken form {display: inline-block; vertical-align: top; padding-bottom: 15px;}
+#content .scene.userEdit > div.accesstoken form.delete {padding-right: 0;}
+*/
+
 /* ADDRESSES */
 #content .scene.userEdit > div.addresses {/*padding: 0 0 10px 0;*/border-bottom: 1px solid #bbbbbb;}
 #content .scene.userEdit > div.addresses ul.addresses {padding: 0 30px;}
