@@ -14,7 +14,9 @@
 #content .scene.navigationEdit .sortable ul.items > li.item li.item li.item li.item li h3 {margin-left: 90px;}
 #content .scene.navigationEdit .sortable ul.items > li.item li.item li.item li.item li.item li.item h3 {margin-left: 110px;}
 #content .scene.navigationEdit .sortable ul.items > li li h3 {
-	background-image: url(/janitor/admin/img/bg_angle.png);
+/*	background-image: url(/janitor/admin/img/bg_angle.png);*/
+	background-image: url("/janitor/admin/img/gx_angle.svg");
+	background-size: 10px auto;
 	background-position: 23px 15px;
 	background-color: transparent;
 	background-repeat: no-repeat;

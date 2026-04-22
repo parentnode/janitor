@@ -61,7 +61,14 @@
 
 /* SORTABLE */
 #content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 4px; left: 7px; 
-	background: transparent url(/janitor/admin/img/bg_icons2.png) no-repeat 10px -440px; cursor: move;
+	cursor: move;
+
+/*	background: transparent url(/janitor/admin/img/bg_icons2.png) no-repeat 10px -440px;*/
+	background-image: url("/janitor/admin/img/gx_drag-ns.svg");
+	background-repeat: no-repeat;
+	background-position: 10px 15px;
+	background-size: 12px auto;
+
 }
 #content div.all_items.sortable ul.items > li.item .text {padding: 0 0 0 25px;}
 

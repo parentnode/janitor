@@ -76,19 +76,19 @@
 
 #content .scene.defaultEdit > div.media div.preview div.play {width: 30px; height: 30px; display: inline-block;
 	background-color: #ffffff; background-repeat: no-repeat; background-position: 5px 5px;
-	background-image: url(/janitor/admin/img/bn_play.svg);
+	background-image: url(/janitor/admin/img/gx_play.svg);
 	background-size: 20px auto;
 }
 #content .scene.defaultEdit > div.media div.preview.playing div.play {
-	background-image: url(/janitor/admin/img/bn_pause.svg);
+	background-image: url(/janitor/admin/img/gx_pause.svg);
 }
 #content .scene.defaultEdit > div.media div.preview div.mute {width: 30px; height: 30px; display: inline-block;
 	background-color: #ffffff; background-repeat: no-repeat; background-position: 5px 5px;
-	background-image: url(/janitor/admin/img/bn_audio.svg);
+	background-image: url(/janitor/admin/img/gx_audio.svg);
 	background-size: 20px auto;
 }
 #content .scene.defaultEdit > div.media div.preview.muted div.mute {
-	background-image: url(/janitor/admin/img/bn_audio_off.svg);
+	background-image: url(/janitor/admin/img/gx_audio_off.svg);
 }
 
 #content .scene.defaultEdit > div.media div.preview.pdf,

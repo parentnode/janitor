@@ -30,14 +30,16 @@
 /* LIST WITH AUDIOPLAYER - PADDING CALCULATED BY JS */
 #content div.all_items.audios ul.items > li {}
 #content div.all_items.audios ul.items > li div.audioplayer {z-index: 10; position: absolute; top: 7px; left: 25px; width: 20px; height: 20px; 
-	background: transparent url(/janitor/admin/img/bg_bn_play_small.png) no-repeat 0px 0px;
+/*	background: transparent url(/janitor/admin/img/bg_bn_play_small.png) no-repeat 0px 0px;*/
+	background: transparent url(/janitor/admin/img/gx_play.svg) no-repeat 0px 0px;
 }
 #content div.all_items.audios ul.items > li.playing div.audioplayer {background-position: 0px -100px;}
 
 /* LIST WITH VIDEO - NOT IMPLEMENTED YET */
 #content div.all_items.videos ul.items > li {}
 #content div.all_items.videos ul.items > li div.videoplayer {z-index: 10; position: absolute; top: 10px; left: 20px; width: 50px; height: 50px; 
-	background: transparent url(/janitor/admin/img/bg_bn_play_medium.png) no-repeat 0px 0px;
+/*	background: transparent url(/janitor/admin/img/bg_bn_play_medium.png) no-repeat 0px 0px;*/
+	background: transparent url(/janitor/admin/img/gx_play.svg) no-repeat 0px 0px;
 }
 #content div.all_items.videos ul.items > li.playing div.videoplayer {background-position: 0px -100px;}
 
@@ -76,7 +78,13 @@
 
 /* SORTABLE */
 #content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 0px; left: 15px; 
-	background: transparent url(/janitor/admin/img/bg_icons2.png) no-repeat 10px -440px; cursor: move;
+/*	background: transparent url(/janitor/admin/img/bg_icons2.png) no-repeat 10px -440px; cursor: move;*/
+	background-color: transparent;
+	background-image: url("/janitor/admin/img/gx_drag-ns.svg");
+	background-repeat: no-repeat;
+	background-position: 10px 15px;
+	background-size: 12px auto;
+	cursor: move;
 }
 #content div.all_items.sortable ul.items > li.item h3,
 #content div.all_items.sortable ul.items > li.item p,

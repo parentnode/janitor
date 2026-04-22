@@ -23,7 +23,10 @@ div.field select option {padding: 5px 3px 2px 6px;}
 /* SET BACKGROUND IMAGE FOR WEBKIT SELECTS */
 @media all and (-webkit-min-device-pixel-ratio:0) {
 	div.field select {padding: 2px 3px 2px 7px;
-		background: #ffffff url(/janitor/admin/img/bg_icons.png) no-repeat calc(100% + 17px) -977px;
+		background-image: url(/janitor/admin/img/gx_select.svg);
+		background-color: #ffffff; background-position: right 11px top 14px; background-size: 20px auto; background-repeat: no-repeat;
+
+/*		background: #ffffff url(/janitor/admin/img/bg_icons.png) no-repeat calc(100% + 17px) -977px;*/
 		-webkit-appearance: none;
 	}
 }
@@ -130,10 +133,22 @@ div.field .pseudolabel {color: #aaaaaa;}
 
 
 /* VALIDATION */
-div.field .indicator {/*position: absolute; top: 18px; left: 1px;*/ display: inline-block; vertical-align: top; width: 20px; height: 18px;}
+div.field .indicator {/*position: absolute; top: 18px; left: 1px;*/ display: inline-block; vertical-align: top; width: 20px; height: 18px;
+
+	background-color: transparent;
+	background-repeat: no-repeat;
+	background-position: left center;
+	background-size: 18px auto;
+}
 div.field.required .indicator {
+	background-image: url("/janitor/admin/img/gx_required.svg");
+}
+
+
+/*div.field.required .indicator {
 	background: transparent url(/janitor/admin/img/bg_icons.png) no-repeat 5px -299px;
 }
+*/
 div.field.text.required .indicator {background-position: 5px -299px;}
 
 /* RADIOBUTTONS + CHECKBOX */
@@ -322,7 +337,9 @@ ul.actions a.button.secondary:hover {background-color: #fed76e;}
 #content .field.html .editor div.tag .drag {display: none; position: absolute; top: 0px; left: -20px; border-top-left-radius: 15px; border-bottom-left-radius: 15px; background: #dedede; width: 30px; height: 30px; cursor: move;}
 #content .field.html .editor div.tag:hover .drag {display: block;}
 #content .field.html .editor div.tag .remove {display: none; position: absolute; top: 0px; right: -10px; border-radius: 15px; background: #dedede; width: 30px; height: 30px; cursor: pointer;
-	background: #dedede url(/janitor/admin/img/bg_icons.png) no-repeat 8px -42px;
+	background: #dedede url("/janitor/admin/img/gx_trash.svg") no-repeat 8px 7px;
+	background-size: 15px auto;
+/*	background: #dedede url(/janitor/admin/img/bg_icons.png) no-repeat 8px -42px;*/
 }
 #content .field.html .editor div.tag:hover .remove {display: block;}
 
