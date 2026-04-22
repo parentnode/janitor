@@ -1,4 +1,6 @@
-#content .scene div > h2 {font-size: 1.9em; text-transform: uppercase; padding-top: 17px; padding-bottom: 15px; margin: 0 0 20px;}
+#content .scene div > h2 {font-size: 1.9em; text-transform: uppercase; padding-top: 17px; padding-bottom: 15px; margin: 0 0 20px;
+	background: #efefef;
+}
 
 #content .scene div.togglable,
 #content .scene li.togglable {overflow: hidden;}

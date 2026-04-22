@@ -1,8 +1,9 @@
 <?php
-global $module_model;
 global $action;
 
-$module_list = $module_model->getAvailableModules();
+
+$modules_installed = module()->getInstalledModules();
+$modules_available = module()->getAvailableModules();
 
 $modules_locked = false;
 
@@ -11,15 +12,18 @@ if(!$SetupClass->readWriteTest() || preg_match("/\.local$/", SITE_URL)) {
 	$modules_locked = true;
 }
 
+
 ?>
 <div class="scene module i:modules">
 	<h1>Janitor modules</h1>
 	<h2>Extending the system</h2>
 
 	<p>
-		Janitor modules are indenpendent code modules that extend and connect Janitor with third party features, 
-		such as mail or sms services, maps, payment gateways and others.
+		Janitor modules are indenpendent code modules that extend Janitor with new content models and functionality 
+		or connect Janitor with third party features, such as mail or sms services, maps, payment gateways and others.
 	</p>
+
+	<?= HTML()->renderSnippet("snippets/messages.php") ?>
 
 <? if(!$modules_locked): ?>
 
@@ -34,66 +38,83 @@ sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
 
 <? endif; ?>
 
-	<div class="modules all_items">
-		<h2>Available modules</h2>
-		<p>
-			Here is the list of the currently available modules for Janitor.
-		</p>
-
-		<? foreach($module_list as $module_group_id => $module_group): ?>
-		<h3><?= $module_group["name"] ?></h3>
+	<div class="modules modules_installed">
+		<h2>Installed modules</h2>
+<?	if($modules_installed): ?>
+		<p>These modules are currently installed on your system.</p>
 		<ul class="items modules">
-			<? foreach($module_group["modules"] as $module_id => $module): ?>
-			<li class="item module <?= $module_id ?>">
-				<h4><?= $module["name"] ?></h4>
-				<p>Read more on: 
-					<a href="<?= $module["info_link"] ?>"><?= $module["info_link"] ?></a><br />
-					Module source code: <a href="<?= $module["repos"] ?>"><?= $module["repos"] ?></a>
-				</p>
+<?
+		foreach($modules_installed as $module_group_id => $modules):
+			$module_group = module()->getModuleGroup($module_group_id);
 
-				<?
-				$installed_version = $module_model->getLocalVersion($module_group_id, $module_id);
-				if($installed_version): ?>
+			foreach($modules as $module):
+				// Remove from available modules list
+				if(isset($modules_available[$module_group_id])) {
+					$i = arrayKeyValue($modules_available[$module_group_id], "id", $module["id"]);
+					if($i !== false) {
+						unset($modules_available[$module_group_id][$i]);
+					}
+				}
+?>
+			<li class="module <?= $module["id"] ?> <?= $module_group_id ?>">
+				<h3><?= $module["name"] ?></h3>
+				<h4><?= $module_group["name"] ?></h4>
 
-				<p>Version <?= $installed_version ?> is currently installed</p>
+				<?= HTML()->renderSnippet("snippets/modules/panel-info.php", [
+					"module" => $module,
+				]) ?>
+				<?= HTML()->renderSnippet("snippets/modules/panel-version.php", [
+					"module" => $module,
+				]) ?>
+
 				<ul class="actions">
-					<?= $HTML->link("Settings", "/janitor/admin/setup/modules/$module_group_id/$module_id", ["wrapper" => "li.settings", "class" => "button"]) ?>
-
-					<? if($module_model->updateAvailable($module_group_id, $module_id)): ?>
-					<?//= $HTML->link("Upgrade", "/janitor/admin/setup/modules/upgrade/$module_group_id/$module_id", ["wrapper" => "li.upgrade", "class" => "button"]) ?>
-					<?= $HTML->oneButtonForm("Upgrade", "/janitor/admin/setup/modules/upgrade/$module_group_id/$module_id", array(
-						"wrapper" => "li.upgrade",
-						"confirm-value" => "Are you sure you want to upgrade",
-						"success-function" => "upgrade",
-					)) ?>
-
-					<? endif; ?>
-
-					<?//= $HTML->link("Uninstall", "/janitor/admin/setup/modules/uninstall/$module_group_id/$module_id", ["wrapper" => "li.uninstall", "class" => "button"]) ?>
-					<?= $HTML->oneButtonForm("Uninstall", "/janitor/admin/setup/modules/uninstall/$module_group_id/$module_id", array(
-						"wrapper" => "li.uninstall",
-						"confirm-value" => "Are you sure you want to uninstall?",
-						"success-function" => "uninstalled",
-					)) ?>
+					<?= HTML()->link("Settings", "/janitor/admin/setup/modules/".$module_group_id."/".$module["id"], ["wrapper" => "li.settings", "class" => "button primary"]) ?>
 				</ul>
 
-				<? else:?>
+			</li>
+			<? endforeach; ?>
+		<? endforeach; ?>
+		</ul>
+<?	else: ?>
+		<p class="no_modules">No modules are currently installed on your system.</p>
+<?	endif; ?>	
+	</div>
 
-				<p>This module is not installed</p>
+	<div class="modules modules_available i:collapseHeader">
+		<h2>Available modules</h2>
+		<p>These modules are currently available to be installed on your system.</p>
+		<ul class="items modules">
+
+<?
+		foreach($modules_available as $module_group_id => $modules):
+			if($modules):
+				$module_group = module()->getModuleGroup($module_group_id);
+
+				foreach($modules as $module):
+?>
+			<li class="module <?= $module["id"] ?> <?= $module_group_id ?>">
+				<h3><?= $module["name"] ?></h3>
+				<h4><?= $module_group["name"] ?></h4>
+
+				<?= HTML()->renderSnippet("snippets/modules/panel-info.php", [
+					"module" => $module,
+				]) ?>
+
 				<ul class="actions">
-					<? //= $HTML->link("Install", "/janitor/admin/setup/modules/install/$module_group_id/$module_id", ["wrapper" => "li.install", "class" => "button"]) ?>
-					<?= $HTML->oneButtonForm("Install", "/janitor/admin/setup/modules/install/$module_group_id/$module_id", array(
+					<?= HTML()->oneButtonForm("Install", "/janitor/admin/setup/modules/install/$module_group_id/".$module["id"], array(
 						"wrapper" => "li.install",
 						"confirm-value" => "Are you sure you want to install?",
 						"success-function" => "installed",
 					)) ?>
 				</ul>
 
-				<? endif; ?>
 			</li>
-			<? endforeach; ?>
+<?
+				endforeach;
+			endif;
+		endforeach;
+?>
 		</ul>
-		<? endforeach; ?>
 
 	</div>
 

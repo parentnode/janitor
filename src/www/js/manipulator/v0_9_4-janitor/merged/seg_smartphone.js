@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.4-janitor Copyright 2023 https://manipulator.parentnode.dk
-js-merged @ 2023-09-14 23:06:35
+js-merged @ 2026-02-04 10:07:26
 */
 
 /*seg_smartphone_include.js*/
@@ -302,6 +302,7 @@ Util.Animation = u.a = new function() {
 	// 	
 	this._animationqueue = {};
 	this.requestAnimationFrame = function(node, callback, duration) {
+		duration = duration || false;
 		if(!u.a.__animation_frame_start) {
 			u.a.__animation_frame_start = Date.now();
 		}
@@ -311,7 +312,9 @@ Util.Animation = u.a = new function() {
 		u.a._animationqueue[id].node = node;
 		u.a._animationqueue[id].callback = callback;
 		u.a._animationqueue[id].duration = duration;
-		u.t.setTimer(u.a, function() {u.a.finalAnimationFrame(id)}, duration);
+		if(duration) {
+			u.t.setTimer(u.a, function() {u.a.finalAnimationFrame(id)}, duration);
+		}
 		if(!u.a._animationframe) {
 			window._requestAnimationFrame = eval(u.vendorProperty("requestAnimationFrame"));
 			window._cancelAnimationFrame = eval(u.vendorProperty("cancelAnimationFrame"));
@@ -323,7 +326,7 @@ Util.Animation = u.a = new function() {
 						animation["__animation_frame_start_"+id] = timestamp;
 					}
 					if(fun(animation.node[animation.callback])) {
-						animation.node[animation.callback]((timestamp-animation["__animation_frame_start_"+id]) / animation.duration);
+						animation.node[animation.callback]((timestamp-animation["__animation_frame_start_"+id]) / (animation.duration ? animation.duration : 1));
 					}
 				}
 				if(Object.keys(u.a._animationqueue).length) {
@@ -1498,7 +1501,7 @@ u.e.addOnloadEvent = function(action) {
 				delete window["_Onload_" + this.id];
 			}
 		}
-		eval('window["_Onload_' + id + '"].eventCallback = function() {u.bug("load");window["_Onload_'+id+'"].callback(event);}');
+		eval('window["_Onload_' + id + '"].eventCallback = function() {window["_Onload_'+id+'"].callback(event);}');
 		u.e.addEvent(window, "load", window["_Onload_" + id].eventCallback);
 	}
 }
@@ -2302,6 +2305,7 @@ Util.Form = u.f = new function() {
 	this.initButton = function(_form, action) {
 		action._form = _form;
 		action.setAttribute("tabindex", 0);
+		action.confirm = action.getAttribute("data-confirm");
 		this.buttonOnEnter(action);
 		this.activateButton(action);
 	}
@@ -2737,8 +2741,26 @@ Util.Form = u.f = new function() {
 		}
 		u.ce(action);
 		if(!action.clicked) {
+			if(action.confirm) {
+				action.restore = function() {
+					u.rc(this, "confirm");
+					this.wait_for_confirm = false;
+					this.value = this.confirm_default_value;
+				}
+			}
 			action.clicked = function(event) {
 				if(!u.hc(this, "disabled")) {
+					if(this.confirm && !this.wait_for_confirm) {
+						this.wait_for_confirm = true;
+						u.ac(this, "confirm");
+						this.confirm_default_value = this.value;
+						this.value = this.confirm;
+						this.t_confirm = u.t.setTimer(this, this.restore, 3000);
+						return;
+					}
+					else if(this.confirm && this.t_confirm) {
+						u.t.resetTimer(this.t_confirm);
+					}
 					if(this.type && this.type.match(/submit/i)) {
 						this._form._submit_button = this;
 						this._form._submit_input = false;
