@@ -1157,28 +1157,54 @@ class ItemtypeCore extends Model {
 						
 						foreach($item["mediae"] as $media) {
 
+							$new_variant = preg_replace("/-[^-]+$/", "-".randomKey(8), $media["variant"]);
+							// debug(["new_variant", $media["variant"]." -> ".$new_variant]);
+
 							// Create insert statement
 							$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
 							$sql .= "item_id='".$new_item_id."',";
 							
 							$sql .= "name='".$media["name"]."',";
 							$sql .= "description='".$media["description"]."',";
-							$sql .= "format='".$media["format"]."',";
-							$sql .= "variant='".$media["variant"]."',";
-							$sql .= "width='".$media["width"]."',";
-							$sql .= "height='".$media["height"]."',";
+							$sql .= "variant='".$new_variant."',";
 							$sql .= "filesize='".$media["filesize"]."',";
-							$sql .= "poster='".$media["poster"]."',";
+
+							if($media["format"]) {
+								$sql .= "format='".$media["format"]."',";
+							}
+							if($media["width"]) {
+								$sql .= "width='".$media["width"]."',";
+							}
+							if($media["height"]) {
+								$sql .= "height='".$media["height"]."',";
+							}
+							if($media["poster"]) {
+								$sql .= "poster='".$media["poster"]."',";
+							}
+
 							$sql .= "position=".$media["position"];
 
 							// Insert media
 							if($query->sql($sql)) {
 
+								// debug(["copy file", PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"]]);
+
 								// Copy media
 								$fs->copy(
-									PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"], 
-									PRIVATE_FILE_PATH."/".$new_item_id."/".$media["variant"]."/".$media["format"]
+									PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"], 
+									PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant."/".$media["format"]
 								);
+
+								// If poster is available
+								if($media["poster"]) {
+
+									// debug(["copy poster", PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"]]);
+
+									$fs->copy(
+										PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["poster"], 
+										PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant."/".$media["poster"]
+									);
+								}
 
 							}
 
@@ -1186,96 +1212,110 @@ class ItemtypeCore extends Model {
 
 					}
 
-					// Copy/add "dynamic" mediae
-					// We need model to find HTML input types
-					$model = $IC->typeObject($item["itemtype"]);
-
-					// Prepare POST array for updating HTML
-					unset($_POST);
+					$html_mediae = $IC->getMediae(["item_id" => $item_id, "variant_filter" => "HTMLEDITOR"]);
+					if($html_mediae) {
+						// debug(["found html mediae", $html_mediae]);
 
 
-					// Look for media/files in HTML fields
-					// – HTML must be updated and content must be copied to new item
-					foreach($item as $property => $value) {
-						if(is_string($value) && !preg_match("/^(id|status|sindex|itemtype|user_id|item_id|published_at|created_at|modified_at|tags|mediae)$/", $property)) {
+						// Copy/add "dynamic" mediae
+						// We need model to find HTML input types
+						$model = $IC->typeObject($item["itemtype"]);
 
-							// Type is HTML
-							if($model->getProperty($property, "type") === "html") {
-
-								// Look for media div's
-								preg_match_all("/\<div class\=\"(media|file) item_id\:[\d]+ variant\:HTMLEDITOR-[A-Za-z0-9\-_]+ name/", $value, $mediae_matches);
-								if($mediae_matches) {
-
-									// Loop over media div's
-									foreach($mediae_matches[0] as $media_match) {
-
-										// debug($media_match);
-
-										preg_match("/(file|media) item_id\:([\d]+) variant\:(HTMLEDITOR-[A-Za-z0-9\-_]+)/", $media_match, $media_details);
-										if($media_details) {
-											// Get item_id and variant for each embedded media
-											list(,$type, $old_item_id, $old_variant) = $media_details;
+						// Prepare POST array for updating HTML
+						unset($_POST);
 
 
-											// Get full media data set
-											$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $old_item_id AND variant = '$old_variant'";
-											if($query->sql($sql)) {
-												$media = $query->result(0);
+						// Look for media/files in HTML fields
+						// – HTML must be updated and content must be copied to new item
+						foreach($item as $property => $value) {
+							if(is_string($value) && !preg_match("/^(id|status|sindex|itemtype|user_id|item_id|published_at|created_at|modified_at|tags|mediae)$/", $property)) {
+
+								// Type is HTML
+								if($model->getProperty($property, "type") === "html") {
+
+									// debug(["found HTML block"]);
+
+									$modified_value = $value;
 
 
-												$new_variant = "HTMLEDITOR-".$property."-".randomKey(8);
+									foreach($html_mediae as $media) {
+										if(strpos($value, $media["variant"])) {
+											// debug(["media was found", $media["variant"], $value]);
+
+											$new_variant = preg_replace("/-[^-]+$/", "-".randomKey(8), $media["variant"]);
+
+											// debug(["new_variant", $media["variant"]." -> ".$new_variant]);
 
 
-												// Create insert statement
-												$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
-												$sql .= "item_id='".$new_item_id."',";
+											// Create insert statement
+											$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
+											$sql .= "item_id='".$new_item_id."',";
 
-												$sql .= "name='".$media["name"]."',";
-												$sql .= "description='".$media["description"]."',";
+											$sql .= "name='".$media["name"]."',";
+											$sql .= "description='".$media["description"]."',";
+											$sql .= "variant='".$new_variant."',";
+											$sql .= "filesize='".$media["filesize"]."',";
+
+											if($media["format"]) {
 												$sql .= "format='".$media["format"]."',";
-												$sql .= "variant='".$new_variant."',";
+											}
+											if($media["width"]) {
 												$sql .= "width='".$media["width"]."',";
+											}
+											if($media["height"]) {
 												$sql .= "height='".$media["height"]."',";
-												$sql .= "filesize='".$media["filesize"]."',";
-												$sql .= "poster=".$media["poster"];
-												$sql .= "position=".$media["position"];
+											}
+											if($media["poster"]) {
+												$sql .= "poster='".$media["poster"]."',";
+											}
 
-												// debug($sql);
+											$sql .= "position=".$media["position"];
 
-												// Insert media
-												if($query->sql($sql)) {
+											// debug([$sql]);
 
-													// Update HTML block
-													// Div properties
-													$value = str_replace("item_id:$old_item_id variant:$old_variant", "item_id:$new_item_id variant:$new_variant", $value);
-													// a-href link
-													$value = str_replace("/$old_item_id/$old_variant/", "/$new_item_id/$new_variant/", $value);
+											// Insert media
+											if($query->sql($sql)) {
 
-													// Add to POST array
-													$_POST[$property] = $value;
+												// debug(["copy html media", PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"]]);
 
-													// Copy private media
+												// Copy media
+												$fs->copy(
+													PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"], 
+													PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant."/".$media["format"]
+												);
+
+												// If poster is available
+												if($media["poster"]) {
+
+													// debug(["copy poster", PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"]]);
+
 													$fs->copy(
-														PRIVATE_FILE_PATH."/".$old_item_id."/".$old_variant, 
-														PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant
+														PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["poster"], 
+														PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant."/".$media["poster"]
 													);
-
-													// Extra action for files
-													if($type === "file") {
-
-														// Copy public files (because public zip/pdf files are not yet auto re-generated)
-														$fs->copy(
-															PUBLIC_FILE_PATH."/".$old_item_id."/".$old_variant, 
-															PUBLIC_FILE_PATH."/".$new_item_id."/".$new_variant
-														);
-
-													}
-
 												}
+
+												// Update html value
+												// Update file paths
+												$modified_value = str_replace($item_id."/".$media["variant"], $new_item_id."/".$new_variant, $modified_value);
+												// Update stand alone variant strings
+												$modified_value = str_replace($media["variant"], $new_variant, $modified_value);
+
+												// Backwards compatibility, update item_id values that might be present in HTML
+												// TODO: Would be better to handle this in Upgrade
+												$modified_value = str_replace("item_id:$item_id", "item_id:$new_item_id", $modified_value);
 
 											}
 
 										}
+
+									}
+
+									// Was value updated
+									if($modified_value != $value) {
+
+										// Add to POST array
+										$_POST[$property] = $modified_value;
 
 									}
 
@@ -1285,14 +1325,14 @@ class ItemtypeCore extends Model {
 
 						}
 
-					}
+						// Do we have update HTML values
+						if(isset($_POST)) {
+							// Update item
+							$this->update(["update", $new_item_id]);
+						}
+						unset($_POST);
 
-					// Do we have update HTML values
-					if(isset($_POST)) {
-						// Update item
-						$this->update(["update", $cloned_item["id"]]);
 					}
-					unset($_POST);
 
 
 					message()->resetMessages();
