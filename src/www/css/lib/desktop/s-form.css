@@ -278,9 +278,14 @@ div.field.files div.droparea {position: relative;}
 
 div.field.files ul.actions {z-index: 11; position: absolute; top: 7px; right: 7px;
 	padding: 0 !important; box-shadow: 0 0 2px #333333; border-radius: 3px; overflow: hidden;
+	display: none;
 }
 div.field.files div.droparea ul.actions {right: 27px;}
 
+div.field.files .preview:hover ul.actions,
+div.field.files .droparea:hover ul.actions {
+	display: block;
+}
 
 div.field ul.controls li.play,
 div.field ul.controls li.mute,
@@ -291,6 +296,7 @@ div.field.files ul.actions li.delete {box-sizing: border-box; padding: 7px !impo
 	background-repeat: no-repeat;
 	background-color: #ffffff;
 }
+
 div.field.files ul.actions li.edit {
 	background-image: url("/janitor/admin/img/gx_edit.svg");
 	background-size: 13px auto;
@@ -320,6 +326,12 @@ div.field.files ul.actions li.delete:hover {
 
 div.field ul.controls {z-index: 11; position: absolute; top: 7px; left: 7px; 
 	padding: 0; cursor: pointer; border-bottom-right-radius: 5px; box-shadow: 0 0 2px #333333; border-radius: 3px; overflow: hidden;
+	display: none;
+}
+div.field .text.hover ul.controls,
+div.field .droparea:hover ul.controls,
+div.field .preview:hover ul.controls {
+	display: block;
 }
 div.field ul.controls li:hover {
 	background-color: #5c5c5c;

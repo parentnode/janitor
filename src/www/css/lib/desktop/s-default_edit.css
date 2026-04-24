@@ -30,15 +30,9 @@
 #content .scene.defaultEdit > div.status .actions {padding: 0;}
 #content .scene.defaultEdit > div.status .actions li.status {display: block; padding: 10px 0px; text-align: right; height: 36px;}
 #content .scene.defaultEdit > div.status .actions li.status form {display: inline-block; vertical-align: top; padding-right: 30px;}
-/*#content .scene.defaultEdit > div.status .actions li.status form.disable:after {left: 3px;}*/
-/*#content .scene.defaultEdit > div.status .actions li.status form h3 {padding-top: 5px; padding-bottom: 0; font-size: 13px;}*/
-/*#content .scene.defaultEdit > div.status .actions li.status.disabled {background: orange;}*/
-
 #content .scene.defaultEdit > div.status .actions li.status.disabled form.disable {display: none;}
 #content .scene.defaultEdit > div.status .actions li.status.enabled form.enable {display: none;}
 
-/*#content .scene.defaultEdit > div.status .actions li.status h3 {display: inline-block; vertical-align: top;}*/
-/*#content .scene.defaultEdit > div.status .actions li.status input {display: inline-block; vertical-align: top;}*/
 
 
 /* EDIT VIEW - ITEM */
@@ -56,7 +50,7 @@
 #content .scene.defaultEdit > div.sindex form {padding-bottom: 15px;}
 #content .scene.defaultEdit > div.sindex ul.actions + form {padding-top: 20px;}
 
-/* Developer settings */
+/* DEVELOPER SETTINGS */
 #content .scene.defaultEdit > div.developer {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.developer form {padding-bottom: 15px;}
 
@@ -71,9 +65,11 @@
 
 /* COMMENTS */
 #content .scene.defaultEdit > div.comments {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
-#content .scene.defaultEdit > div.comments ul.comments {border-top: 1px solid #dedede; padding-top: 15px;}
-#content .scene.defaultEdit > div.comments ul.comments > li {display: block; border-bottom: 1px solid #dedede; margin-bottom: 15px; position: relative;}
-#content .scene.defaultEdit > div.comments ul.comments > li > ul.actions {position: absolute; top: 0; right: 0;}
+#content .scene.defaultEdit > div.comments ul.comments {padding-bottom: 20px;}
+#content .scene.defaultEdit > div.comments ul.comments > li {display: block; border-bottom: 1px solid #dedede; position: relative; padding: 15px 0 5px;}
+#content .scene.defaultEdit > div.comments ul.comments > li:last-child {border: none;}
+#content .scene.defaultEdit > div.comments ul.comments > li ul.info {padding-bottom: 5px;}
+#content .scene.defaultEdit > div.comments ul.comments > li > ul.actions {position: absolute; top: 15px; right: 0;}
 #content .scene.defaultEdit > div.comments ul.comments > li > ul.actions li {display: inline-block; vertical-align: top;}
 
 #content .scene.defaultEdit > div.comments > form,
