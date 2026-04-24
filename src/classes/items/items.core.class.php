@@ -1565,12 +1565,17 @@ class ItemsCore {
 		$media_id = false;
 		$variant = false;
 
+		// Only get mediae matching this variant filter
+		$variant_filter = false;
+
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
-					case "item_id"    : $item_id        = $_value; break;
-					case "media_id"   : $media_id       = $_value; break;
-					case "variant"    : $variant        = $_value; break;
+					case "item_id"            : $item_id                = $_value; break;
+					case "media_id"           : $media_id               = $_value; break;
+					case "variant"            : $variant                = $_value; break;
+
+					case "variant_filter"     : $variant_filter         = $_value; break;
 				}
 			}
 		}
@@ -1595,10 +1600,21 @@ class ItemsCore {
 				}
 			}
 
-			// all mediae (not HTML-editor media)
+			// mediae matching specific variant filter
+			else if($variant_filter) {
+
+				$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant LIKE '$variant_filter-%' ORDER BY position ASC, id ASC";
+				// debug([$sql]);
+
+				if($query->sql($sql)) {
+					return $query->results();
+				}
+			}
+
+			// all mediae (not HTMLEDITOR media)
 			else {
 
-				$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant NOT LIKE 'HTML-%' ORDER BY position ASC, id DESC";
+				$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant NOT LIKE 'HTMLEDITOR-%' ORDER BY position ASC, id ASC";
 				// debug([$sql]);
 
 				if($query->sql($sql)) {
@@ -1615,9 +1631,25 @@ class ItemsCore {
 		// get all mediae
 		else {
 
-			if($query->sql("SELECT * FROM ".UT_ITEMS_MEDIAE)) {
-				return $query->results();
+			// mediae matching specific variant filter
+			if($variant_filter) {
+
+				$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." WHERE variant LIKE '$variant_filter-%' ORDER BY position ASC, id ASC";
+				// debug([$sql]);
+
+				if($query->sql($sql)) {
+					return $query->results();
+				}
+
 			}
+			else {
+
+				if($query->sql("SELECT * FROM ".UT_ITEMS_MEDIAE)) {
+					return $query->results();
+				}
+
+			}
+
 			
 		}
 		return false;
