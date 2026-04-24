@@ -269,7 +269,7 @@ class Model extends HTML {
 			}
 		}
 		else if($this->getProperty($name, "type") == "files") {
-			if($this->isFiles($name)) {
+			if($this->isFiles($name, $item_id)) {
 				return true;
 			}
 		}
@@ -554,7 +554,7 @@ class Model extends HTML {
 	* @param string $name Entity name
 	* @return bool
 	*/
-	function isFiles($name) {
+	function isFiles($name, $item_id) {
 
 		$value = $this->getProperty($name, "value");
 
@@ -574,12 +574,23 @@ class Model extends HTML {
 
 		// Get upload information
 		$uploads = $this->identifyUploads($name);
+		$total_files = count($uploads);
+
+
+		// Enable correct file count, including already existing uploads
+		if($item_id) {
+			$IC = new Items();
+			$mediae = $IC->getMediae(["item_id" => $item_id, "variant_filter" => $name]);
+			if($mediae) {
+				$total_files += count($mediae);
+			}
+		}
 
 		if(
 			$uploads &&
-			(!$min || count($uploads) >= $min) && 
+			(!$min || $total_files >= $min) && 
 			// Max defaults to one file on file inputs
-			((!$max && count($uploads) <= 1)|| count($uploads) <= $max) &&
+			((!$max && $total_files <= 1)|| $total_files <= $max) &&
 
 			(!$min_width || $this->filesMinWidthTest($uploads, $min_width)) &&
 			(!$min_height || $this->filesMinHeightTest($uploads, $min_height)) &&
