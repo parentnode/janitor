@@ -601,13 +601,11 @@ class JanitorHTMLCore {
 
 		$_ = '';
 
-		// $_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' sortable item_id:'.$item["id"].'"'.$model->jsData(["media"]).'>';
-		$_ .= '<div class="'.$class.'"'.$model->jsData(["media"]).'>';
-
+		$_ .= '<div class="'.$class.'">';
 		$_ .= '<h2>'.$label.' ('.count($file_input_value).')</h2>';
+
 		$_ .= $model->formStart($this->path."/addFile", ["class" => "upload labelstyle:inject", "item_id" => $item["id"]]);
 		$_ .= $model->input("item_id", ["type" => "hidden", "value" => $item["id"]]);
-		//$_ .= $model->input("file_variant", ["type" => "hidden", "value" => $variant]);
 		$_ .= $model->input("input_name", ["type" => "hidden", "value" => $variant]);
 
 		$_ .= '<fieldset>';
@@ -652,10 +650,13 @@ class JanitorHTMLCore {
 		$_ = "";
 
 		// default view
-		$_ .= '<div class="'.$variant.' '.$class.' variant:'.$variant.' item_id:'.$item["id"].'"'.$model->jsData(["media"]).'>';
+		$_ .= '<div class="'.$class.'">';
 		$_ .= '<h2>'.$label.'</h2>';
 
-		$_ .= $model->formStart($this->path."/addSingleMedia/".$item["id"]."/".$variant, array("class" => "upload labelstyle:inject"));
+		$_ .= $model->formStart($this->path."/addFile", ["class" => "upload labelstyle:inject", "item_id" => $item["id"]]);
+		$_ .= $model->input("item_id", ["type" => "hidden", "value" => $item["id"]]);
+		$_ .= $model->input("input_name", ["type" => "hidden", "value" => $variant]);
+
 		$_ .= '<fieldset>';
 		$_ .= $model->input($variant, array("value" => $file_input_value));
 		$_ .= '</fieldset>';
@@ -695,6 +696,7 @@ class JanitorHTMLCore {
 
 		return $_;
 	}
+
 
 	// edit Prices form for edit page
 	function editPrices($item, $_options = false) {
