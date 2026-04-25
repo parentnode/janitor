@@ -210,8 +210,8 @@ class UserCore extends Model {
 		// Auto login option
 		$this->addToModel("auto_login", array(
 			"type" => "checkbox",
-			"label" => 'Keep me logged in on current device and network',
-			"hint_message" => "Check the box to enable automatic login on this device while on the current network. If your device or network profile changes, you will be required to login again."
+			"label" => 'Keep me logged in on this device and network',
+			"hint_message" => "If your device or network profile changes, you will be required to login again."
 		));
 		// Public token
 		$this->addToModel("public_token", array(

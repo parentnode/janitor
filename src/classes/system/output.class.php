@@ -48,20 +48,11 @@ class Output {
 		}
 		
 		else {
-//			print_r(message()->getMessages());
-		//if($type == "success") {
 			$output["cms_status"] = "success";
-//			print_r(message()->getMessages());
 			$output["cms_message"] = message()->getMessages();
 
 			// Add possible return_to value
 			$output["return_to"] = getPost("return_to");
-			// $messages = message()->getMessages();
-			// foreach($messages as $type => $message) {
-			// 	$object["cms_"] = implode(", ", $message);
-			// 	
-			// }
-			// 	
 		}
 	
 		if($reset_messages) {

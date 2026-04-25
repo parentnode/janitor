@@ -582,7 +582,7 @@ class Security {
 					// make login query and
 					// look for user with status 0, verified = 0, password exists
 					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames, ".SITE_DB.".user_passwords as passwords WHERE users.id = usernames.user_id AND usernames.user_id = passwords.user_id AND passwords.id = $password_id AND username='$username' AND verified = 0";
-					// print $sql;
+					// debug([$sql]);
 					if($query->sql($sql)) {
 
 						// Make sure we have the email username
@@ -591,7 +591,7 @@ class Security {
 
 							// Look for user email
 							$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames WHERE users.id = usernames.user_id AND usernames.type='email' AND users.id = ".$login_user["id"];
-		//					print "$sql<br />\n";
+							// debug([$sql]);
 							if($query->sql($sql)) {
 								$login_user = $query->result(0);
 							}
@@ -621,7 +621,7 @@ class Security {
 
 							// Add to user log
 							$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
-				//			print $sql;
+							// debug([$sql]);
 							$query->sql($sql);
 
 
@@ -640,7 +640,7 @@ class Security {
 			// make login query and
 			// look for user without password
 			$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames WHERE users.id = usernames.user_id AND usernames.user_id NOT IN (SELECT user_id FROM ".SITE_DB.".user_passwords as passwords) AND usernames.username='$username'";
-//					print $sql;
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				$login_user = $query->result(0);
 				
@@ -649,7 +649,7 @@ class Security {
 					
 					// Look for user email
 					$sql = "SELECT users.id, users.nickname, usernames.username, usernames.type, usernames.verification_code FROM ".SITE_DB.".users as users, ".SITE_DB.".user_usernames as usernames WHERE users.id = usernames.user_id AND usernames.type='email' AND users.id = ".$login_user["id"];
-					// print "$sql<br />\n";
+					// debug([$sql]);
 					if($query->sql($sql)) {
 						$login_user = $query->result(0);
 					}
@@ -688,7 +688,7 @@ class Security {
 					
 					// Add to user log
 					$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
-		//			print $sql;
+					// debug([$sql]);
 					$query->sql($sql);
 
 					message()->addMessage("The account has not yet been verified. We have re-sent the verification email just now.", array("type" => "error"));
@@ -712,7 +712,7 @@ class Security {
 				
 				// Add to user log
 				$sql = "INSERT INTO ".SITE_DB.".user_log_verification_links SET user_id = ".$user_id.", username_id = ".$username_id;
-	//			print $sql;
+				// debug([$sql]);
 				$query->sql($sql);
 
 				message()->addMessage("The account does not have a password yet. Create one via the <em>Forgot passord</em> link below.", array("type" => "error"));
@@ -807,9 +807,10 @@ class Security {
 		return false;
 	}
 
-	// Chech for valid login, or accesstoken
+	// Check for valid login, or accesstoken
 	// If user is not logged in and accesstoken exists, then automatically log in user (if token is valid).
 	function autoLoginCheck() {
+		// debug(["autoLoginCheck", session()->value("user_id")]);
 
 		// User is logged in, all good
 		if(session()->value("user_id") > 1 || !defined("SITE_AUTO_LOGIN") || !SITE_AUTO_LOGIN) {
@@ -827,6 +828,7 @@ class Security {
 
 	// Login based on accessToken
 	function accessTokenLogin($public_token) {
+		// debug(["accessTokenLogin"]);
 
 		$this->deleteExpiredAccessTokens();
 
@@ -854,7 +856,7 @@ class Security {
 
 				// Get login data
 				$sql = "SELECT users.user_group_id as user_group_id, users.nickname as nickname FROM ".SITE_DB.".users as users WHERE users.status = 1 AND users.id = $user_id";
-	//			print $sql;
+				// debug([$sql]);
 				if($query->sql($sql)) {
 
 
