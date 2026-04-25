@@ -879,6 +879,17 @@ class Security {
 					session()->value("csrf", gen_uuid());
 
 
+					// If request is POST, with syntax-valid csrf-token present, then user submitted expired form
+					if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["csrf-token"]) && preg_match("/^[0-9a-f]{8}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{4}\b-[0-9a-f]{12}$/", $_POST["csrf-token"])) {
+
+						// Update csrf-token to match expired session to pass csrf-token validation
+						// This allows expired session to continue working
+						logger()->addLog("Updating csrf-token to match previous session: user_id: ".$user_id.", csrf: ".$_POST["csrf-token"]);
+						session()->value("csrf", $_POST["csrf-token"]);
+
+					}
+
+
 					$this->resetRuntimeValues();
 
 
