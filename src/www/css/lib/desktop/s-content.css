@@ -143,5 +143,9 @@ body #content div.warning ul.modified_files li {display: list-item; padding-bott
 
 
 /*#content .scene.login h1 {padding-bottom: 74px; border-bottom: 1px solid #bbbbbb;}*/
-#content .scene.login form {padding-top: 30px;}
+#content .scene.login form {
+/*	padding-top: 30px;*/
+	max-width: 450px;
+}
+#content .scene.login form div.field.checkbox div.indicator {display: none;}
 #content .scene.login form li.forgot {padding-top: 6px; padding-left: 15px;}

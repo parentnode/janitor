@@ -42,7 +42,7 @@ div.field textarea.autoexpand {overflow: hidden;}
 /* PSEUDO LABEL - FAKE PLACEHOLDER FOR INTERGER AND NUMBER INPUTS */
 
 div.field .pseudolabel {z-index: 2; position: absolute;
-	display: none; font-size: 16px; padding: 6px 5px; margin: 10px 0 0 8px; background-color: #ffffff;
+	display: none; font-size: 16px; padding: 6px 5px; margin: 7px 0 0 8px; background-color: #ffffff;
 }
 div.field input.default ~ .pseudolabel {display: inline-block;}
 
@@ -65,8 +65,8 @@ div.field.list label {}
 
 div.field.checkbox {}
 div.field.checkbox label {
-	display: inline-block; vertical-align: top; padding: 1px 0 0 36px; margin: 0;
-	text-transform: none; font-size: 16px; line-height: 26px; color: #5c5c5c; font-weight: normal;
+	display: inline-block; vertical-align: top; padding: 3px 0 0 36px; margin: 0;
+	text-transform: none; font-size: 16px; line-height: 22px; color: #5c5c5c; font-weight: normal;
 	background: transparent url("/janitor/admin/img/gx_checkbox_unchecked.svg") no-repeat left 2px;
 	background-size: 24px 24px;
 }
@@ -84,7 +84,7 @@ div.field.radiobuttons > label {color: #dcdcdc; padding-bottom: 8px;}
 div.field.radiobuttons .item {position: relative;}
 div.field.radiobuttons .item label {
 	display: inline-block; vertical-align: top; padding: 2px 0 11px 36px; margin: 0;
-	text-transform: none; font-size: 16px; line-height: 20px; font-weight: normal; color: #313942;
+	text-transform: none; font-size: 16px; line-height: 22px; font-weight: normal; color: #313942;
 	background: transparent url("/janitor/admin/img/gx_radiobutton_unchecked.svg") no-repeat left 2px;
 	background-size: 24px 24px;
 }
