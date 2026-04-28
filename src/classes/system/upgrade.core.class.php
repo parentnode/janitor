@@ -1624,12 +1624,16 @@ class UpgradeCore extends Model {
 			$IC = new Items();
 			$fs = new FileSystem();
 
-			// Update mediae tables with extended variant names
-			// - cross-reference stored mediae with HTML-value – does all "HTML" mediae exist in HTML-text
-			// - fix "free-text" name classVars (containing spaces)
+
+			// Update mediae table
+			// - cross-reference stored mediae
+			// – check that variant names correspond with files input
+			// - check HTMLEDITOR-value – does all "HTMLEDITOR" mediae exist in HTMLEDITOR-text
+
 			$sql = "SELECT * FROM ".UT_ITEMS_MEDIAE." ORDER BY item_id";
 			// debug([$sql]);
 			if($query->sql($sql)) {
+
 				$mediae = $query->results();
 
 				// Ensure items_mediae variant definition has been updated to fit the new variant names
@@ -1651,75 +1655,78 @@ class UpgradeCore extends Model {
 					// $this->dump($model_entities);
 
 
-					// OLD HTML editor media
-					if(preg_match("/^HTML\-/", $media["variant"])) {
+					// // OLD HTML editor media
+					// if(preg_match("/^HTML\-/", $media["variant"])) {
+					//
+					// 	$found = false;
+					// 	// debug([$item]);
+					//
+					// 	// Look for HTML inputs to check values for media occurence
+					// 	foreach($item as $name => $value) {
+					//
+					//
+					// 		if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
+					//
+					// 			// Is variant used in this HTML input (item can have several HTML inputs)
+					// 			if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
+					//
+					// 				$new_variant = "HTMLEDITOR-".$name."-".randomKey(8);
+					// 				$new_value = str_replace($media["variant"], $new_variant, $value);
+					// 				$new_value = str_replace($media["name"], urlencode($media["name"]), $new_value);
+					// 				$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
+					// 				// $this->dump($sql);
+					// 				if($query->sql($sql)) {
+					//
+					// 					$sql = "UPDATE ".$item_model->db." SET $name = '".preg_replace("/'/", "\'", $new_value)."' WHERE item_id = ".$media["item_id"];
+					// 					// $this->dump($sql);
+					// 					if($query->sql($sql)) {
+					//
+					// 						$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
+					// 						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 					}
+					// 				}
+					//
+					// 				$media["variant"] = $new_variant;
+					// 				$found = true;
+					//
+					// 			}
+					//
+					// 		}
+					//
+					// 	}
+					//
+					// 	// Media not found – must be a leftover – clean up
+					// 	if(!$found) {
+					//
+					// 		$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
+					// 		// debug([$sql]);
+					// 		if($query->sql($sql)) {
+					// 			$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 			$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					//
+					// 			$this->process(array("success" => true, "message" => "Deleted HTML media remnant: " . $media["id"]), true);
+					// 			$media = false;
+					// 			continue;
+					// 		}
+					//
+					// 	}
+					//
+					// }
 
-						$found = false;
-						// debug([$item]);
-
-						// Look for HTML inputs to check values for media occurence
-						foreach($item as $name => $value) {
-
-
-							if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
-
-								// Is variant used in this HTML input (item can have several HTML inputs)
-								if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
-
-									$new_variant = "HTMLEDITOR-".$name."-".randomKey(8);
-									$new_value = str_replace($media["variant"], $new_variant, $value);
-									$new_value = str_replace($media["name"], urlencode($media["name"]), $new_value);
-									$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
-									// $this->dump($sql);
-									if($query->sql($sql)) {
-
-										$sql = "UPDATE ".$item_model->db." SET $name = '".preg_replace("/'/", "\'", $new_value)."' WHERE item_id = ".$media["item_id"];
-										// $this->dump($sql);
-										if($query->sql($sql)) {
-
-											$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
-											$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-											$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-										}
-									}
-
-									$media["variant"] = $new_variant;
-									$found = true;
-
-								}
-
-							}
-
-						}
-
-						// Media not found – must be a leftover – clean up
-						if(!$found) {
-
-							$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
-							// debug([$sql]);
-							if($query->sql($sql)) {
-								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-
-								$this->process(array("success" => true, "message" => "Deleted HTML media remnant: " . $media["id"]), true);
-								$media = false;
-								continue;
-							}
-
-						}
-
-					}
 					// Regular media
-					else if(!preg_match("/^HTMLEDITOR\-/", $media["variant"])) {
+					// else
+					if(!preg_match("/^HTMLEDITOR\-/", $media["variant"])) {
 
 						$found = false;
-						$file_inputs = [];
+						// $file_inputs = [];
 					
 						// Look for HTML inputs to check values for media occurence
-						foreach($model_entities as $name => $value) {
+						foreach($model_entities as $name => $model) {
 
 							// Entity name matches variant
-							if(isset($model_entities[$name]) && ($name === $media["variant"] || preg_match("/^".addCSlashes($name, "()[]")."\-/", $media["variant"]))) {
+							if($model && isset($model["type"]) && $model["type"] === "files" && ($name === $media["variant"] || preg_match("/^$name\-/", $media["variant"]))) {
+							// if(isset($model_entities[$name]) && ($name === $media["variant"] || preg_match("/^".addCSlashes($name, "()[]")."\-/", $media["variant"]))) {
 
 								$found = true;
 
@@ -1742,7 +1749,7 @@ class UpgradeCore extends Model {
 								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 
-								$this->process(array("success" => true, "message" => "Assign media to mediae-variant: " . $media["id"]), true);
+								$this->process(array("success" => true, "message" => "Assign media to mediae-variant (this should not occur on repeated upgrades), media_id: ".$media["id"].", variant: ".$media["variant"]), true);
 
 							}
 							$media = false;
@@ -1763,17 +1770,8 @@ class UpgradeCore extends Model {
 							if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
 
 								// Is variant used in this HTML input (item can have several HTML inputs)
-								// Look for classvar variant statement
-								if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
-
+								if(preg_match("/".$media["variant"]."/", $value)) {
 									$found = true;
-
-								}
-								// Look for url reference
-								else if(preg_match("/".$media["item_id"]."\/".$media["variant"]."\//", $value)) {
-
-									$found = true;
-
 								}
 
 							}
@@ -1790,7 +1788,7 @@ class UpgradeCore extends Model {
 								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 
-								$this->process(array("success" => true, "message" => "Deleted HTMLEDITOR media remnant: " . $media["id"]), true);
+								$this->process(array("success" => true, "message" => "Deleted HTMLEDITOR media remnant, media_id: " . $media["id"].", variant: ".$media["variant"]), true);
 								$media = false;
 								continue;
 							}
@@ -1819,64 +1817,72 @@ class UpgradeCore extends Model {
 
 					}
 
-					// Rename previously uncompressed files (downloadable files)
+
+					// Cross-reference existing files
 					$files = $fs->files(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 					// $this->dump("files:");
 					// $this->dump($files);
 
 					// Check file count
 					// More than one file in private path
-					if($files && count($files) > 1) {
-						// Allowed if one is poster
-						if(count($files) == 2 && $media["format"] && $media["poster"] && $media["poster"] !== $media["format"] &&
-							file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"]) &&
-							file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["poster"])
-						) {
-							$this->process(["message" => "MULTIPLE PRIVATE FILES VALID media_id: ".$media["id"]." - OK", "success" => true], true);
-						}
-						else {
-							$this->process(["message" => "MULTIPLE PRIVATE FILES FOR media_id: ".$media["id"]." - SOMETHING IS WRONG", "success" => false], true);
-						}
-					}
-					// File does not have correct format
-					if($files && !file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
+					if($files) {
 
-						$file = array_pop($files);
+						if(count($files) > 1) {
 
-						// zip, pdf, jpg, gif, png file
-						if(preg_match("/\.(zip|pdf|png|gif|jpg)$/", $file, $match)) {
-
-							// Rename
-							if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
-								unlink($file);
-
-								// Just rename
-								$this->process(["success" => true, "message" => "RENAMED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
-							}
-							// Rename failed
-							else {
-								$this->process(["success" => false, "message" => "FAILED RENAMING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
-							}
-
-						}
-						else {
-
-							// Zip file as "zip"
-							$zip = new ZipArchive();
-							$zip->open(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip", ZipArchive::CREATE);
-							$zip->addFile($file, basename($file));
-							$zip->close();
-
-							if(file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip")) {
-								unlink($file);
-								$this->process(["success" => true, "message" => "REPACKAGED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> zip"], true);
+							// Allowed if one is poster
+							if(count($files) == 2 && $media["format"] && $media["poster"] && $media["poster"] !== $media["format"] &&
+								file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"]) &&
+								file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["poster"])
+							) {
+								$this->process(["message" => "MULTIPLE PRIVATE FILES VALID media_id: ".$media["id"]." - OK", "success" => true], true);
 							}
 							else {
-								$this->process(["success" => false, "message" => "FAILED REPACKAGING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)], true);
+								$this->process(["message" => "MULTIPLE PRIVATE FILES FOR media_id: ".$media["id"]." - SOMETHING IS WRONG", "success" => false], true);
 							}
 
 						}
+						// Only one file
+						else {
 
+							$file = array_pop($files);
+
+							// Both format and poster is present, two files should exist but only one found
+							if($media["format"] && $media["poster"]) {
+								$this->process(["success" => false, "message" => "MISSING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
+
+							}
+							// Format is stated, but file does not match
+							else if($media["format"] && !file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
+
+								if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
+									unlink($file);
+
+									// Just rename
+									$this->process(["success" => true, "message" => "RENAMED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$media["format"]], true);
+								}
+								// Rename failed
+								else {
+									$this->process(["success" => false, "message" => "FAILED RENAMING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$media["format"]], true);
+								}
+
+							}
+							// Poster is stated, but file does not match
+							else if($media["poster"] && !file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["poster"])) {
+
+								if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["poster"])) {
+									unlink($file);
+
+									// Just rename
+									$this->process(["success" => true, "message" => "RENAMED PRIVATE POSTER FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$media["poster"]], true);
+								}
+								// Rename failed
+								else {
+									$this->process(["success" => false, "message" => "FAILED RENAMING PRIVATE POSTER FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$media["poster"]], true);
+								}
+
+							}
+
+						}
 					}
 					// Missing file
 					else if(!$files) {
@@ -1884,6 +1890,51 @@ class UpgradeCore extends Model {
 						$this->process(["success" => false, "message" => "NOT FOUND - PRIVATE FILE MISSING: media_id: ".$media["id"].", item_id: ".$media["item_id"]], false);
 
 					}
+					
+					//
+					//
+					// // Rename previously uncompressed files (downloadable files)
+					//
+					// // File does not have correct format
+					// if($files && !file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
+					//
+					// 	$file = array_pop($files);
+					//
+					// 	// zip, pdf, jpg, gif, png file
+					// 	if(preg_match("/\.(zip|pdf|png|gif|jpg)$/", $file, $match)) {
+					//
+					// 		// Rename
+					// 		if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
+					// 			unlink($file);
+					//
+					// 			// Just rename
+					// 			$this->process(["success" => true, "message" => "RENAMED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
+					// 		}
+					// 		// Rename failed
+					// 		else {
+					// 			$this->process(["success" => false, "message" => "FAILED RENAMING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> ".$match[1]], true);
+					// 		}
+					//
+					// 	}
+					// 	else {
+					//
+					// 		// Zip file as "zip"
+					// 		$zip = new ZipArchive();
+					// 		$zip->open(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip", ZipArchive::CREATE);
+					// 		$zip->addFile($file, basename($file));
+					// 		$zip->close();
+					//
+					// 		if(file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/zip")) {
+					// 			unlink($file);
+					// 			$this->process(["success" => true, "message" => "REPACKAGED PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)." -> zip"], true);
+					// 		}
+					// 		else {
+					// 			$this->process(["success" => false, "message" => "FAILED REPACKAGING PRIVATE FILE: media_id: ".$media["id"]." - ".basename($file)], true);
+					// 		}
+					//
+					// 	}
+					//
+					// }
 
 				}
 
