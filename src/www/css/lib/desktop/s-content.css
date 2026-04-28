@@ -148,4 +148,4 @@ body #content div.warning ul.modified_files li {display: list-item; padding-bott
 	max-width: 450px;
 }
 #content .scene.login form div.field.checkbox div.indicator {display: none;}
-#content .scene.login form li.forgot {padding-top: 6px; padding-left: 15px;}
+#content .scene.login form li.forgot {padding-top: 10px; padding-left: 15px;}
