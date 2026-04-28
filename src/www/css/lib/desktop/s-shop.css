@@ -25,7 +25,7 @@
 /* CART/ORDER DATA SECTION FORMS */
 #content .scene.shopView div > h2 + div > form {display: none; padding-bottom: 10px;}
 
-#content .scene.shopView div > h2 span {color: #7d848c; cursor: pointer; font-size: 12px; vertical-align: top; padding-top: 1px;}
+#content .scene.shopView div > h2 span {color: #7d848c; cursor: pointer; font-size: 14px; vertical-align: top; padding: 1px 0 0 3px;}
 #content .scene.shopView div > h2 span:before {content: "\00a0-\00a0";}
 
 /* CART/ORDER DETAILS LISTINGS */
@@ -63,29 +63,32 @@
 
 
 /* CART/ORDER ROW */
-#content .scene.shopView ul.items li h3 {font-size: 0; overflow: hidden; padding-right: 30px; padding-top: 3px; padding-bottom: 3px;}
-#content .scene.shopView ul.items li h3 span {font-size: 14px; line-height: 1em; padding: 9px 5px 5px 0; display: inline-block; vertical-align: top;}
-#content .scene.shopView ul.items li h3 span.total_price {float: right;  padding: 8px 0; display: inline-block; font-size: 16px;}
+#content .scene.shopView ul.items li h3 {font-size: 0; overflow: hidden; padding-right: 30px; padding-top: 7px; padding-bottom: 7px;}
+#content .scene.shopView ul.items li h3 span {font-size: 14px; line-height: 1em; padding: 8px 0 8px 5px; display: inline-block; vertical-align: top;}
+#content .scene.shopView ul.items li h3 span.total_price {float: right;  padding-left: 0; display: inline-block; font-size: 16px;}
 
 
 /* QUANTITY FORM */
 /* CURRENTLY ONLY IN CART */
 #content .scene.shopView ul.items li h3 form {display: inline-block; vertical-align: top; position: relative;}
 #content .scene.shopView ul.items li h3 form div.field {padding: 0;}
+#content .scene.shopView ul.items li h3 form div.field label {display: none;}
 #content .scene.shopView ul.items li h3 form div.field .indicator {display: none;}
 #content .scene.shopView ul.items li h3 form div.field .help {left: 47px; display: none;}
-#content .scene.shopView ul.items li h3 form div.field input {height: 22px; width: 25px; text-align: right;}
+#content .scene.shopView ul.items li h3 form div.field input {height: 30px; width: 40px; text-align: right;}
+#content .scene.shopView ul.items li h3 form div.field span.pseudolabel {display: none;}
 #content .scene.shopView ul.items li h3 form > ul.actions {padding: 0; right: 45px;}
 #content .scene.shopView ul.items li h3 form > ul.actions li {padding: 8px 0 0;}
 #content .scene.shopView ul.items li h3 form > ul.actions input.button {width: 16px; height: 16px; padding: 0; text-indent: -9999px; border-radius: 15px;
-	background-image: url(/janitor/admin/img/gx_refresh.png);
+	background-image: url("/janitor/admin/img/gx_refresh.svg");
 	background-position: center center;
 	background-repeat: no-repeat;
+	background-size: 15px auto;
 }
 
 /* ROW BUTTONS */
 /* CURRENTLY ONLY IN CART */
-#content .scene.shopView ul.items li ul.actions {padding-top: 2px;}
+/*#content .scene.shopView ul.items li ul.actions {padding-top: 2px;}*/
 /*
 #content .scene.shopView ul.items li.item ul.actions li.shipped {display: none;}
 #content .scene.shopView ul.items li.item ul.actions li.not_shipped {}
@@ -106,7 +109,7 @@
 
 
 /* CART MAKE ROOM FOR DELETE BUTTON */
-#content .scene.cartView ul.items li h3 {padding-right: 110px;}
+#content .scene.cartView ul.items li h3 {padding-right: 130px;}
 /* CONVERT CART TO ORDER */
 #content .scene.cartView div.order {border-bottom: 1px solid #bbbbbb;}
 #content .scene.cartView div.order ul.actions {padding-bottom: 15px;}

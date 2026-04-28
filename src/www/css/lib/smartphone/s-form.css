@@ -87,7 +87,11 @@ div.field.location div.longitude input {width: 173px;}
 
 /* WITH GEOLOCATION BUTTON */
 div.field.location.geolocation div.geolocation {width: 30px; height: 30px; display: inline-block; vertical-align: top; cursor: pointer;
-	background: transparent url(/janitor/admin/img/gx_geolocation.png) no-repeat 5px 8px;
+	background-color: transparent;
+	background-image: url("/janitor/admin/img/gx_geolocation.svg");
+	background-repeat: no-repeat;
+	background-position: 5px 6px;
+	background-size: 18px auto;
 }
 div.field.location.geolocation div.latitude input,
 div.field.location.geolocation div.longitude input {width: 158px;}

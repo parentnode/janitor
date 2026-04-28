@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 141.73 141.73" stroke-width="8.5">
+  <line stroke="#dadada" x1="70.87" y1="3.54" x2="70.87" y2="138.19"/>
+  <line stroke="#dadada" x1="3.54" y1="70.87" x2="138.19" y2="70.87"/>
+  <circle stroke="#dadada" fill="#ffffff" cx="70.87" cy="70.87" r="47.97"/>
+  <circle fill="#878787" cx="70.87" cy="70.87" r="28.07"/>
+</svg>
