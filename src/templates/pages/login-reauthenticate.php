@@ -9,12 +9,13 @@ $username = stringOr(getPost("username"));
 <div class="scene login i:login">
 	<h1>Re-authenticate</h1>
 
+	<p class="reautenticate">
+		You are currently authenticated by your access token. This is insufficient to access the selected area. You must re-autenticate to continue.
+	</p>
+
+
 	<?= $model->formStart("?login=true", array("class" => "labelstyle:inject")) ?>
 		<?= $model->input("login_forward", ["type" => "hidden", "value" => $this->url]); ?>
-
-		<p class="reautenticate">
-			You are currently authenticated by your access token. This is insufficient to access the selected area. You must re-autenticate to continue.
-		</p>
 
 
 		<?= $HTML->renderSnippet("snippets/server-messages.php")?>

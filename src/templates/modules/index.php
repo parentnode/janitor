@@ -48,6 +48,7 @@ sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
 			$module_group = module()->getModuleGroup($module_group_id);
 
 			foreach($modules as $module):
+
 				// Remove from available modules list
 				if(isset($modules_available[$module_group_id])) {
 					$i = arrayKeyValue($modules_available[$module_group_id], "id", $module["id"]);
@@ -72,12 +73,13 @@ sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
 				</ul>
 
 			</li>
-			<? endforeach; ?>
-		<? endforeach; ?>
+<? 			endforeach; ?>
+
+<? 		endforeach; ?>
 		</ul>
 <?	else: ?>
 		<p class="no_modules">No modules are currently installed on your system.</p>
-<?	endif; ?>	
+<?	endif; ?>
 	</div>
 
 	<div class="modules modules_available i:collapseHeader">
