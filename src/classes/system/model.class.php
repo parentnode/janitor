@@ -862,8 +862,8 @@ class Model extends HTML {
 		$min_length = $this->getProperty($name, "min");
 		$max_length = $this->getProperty($name, "max");
 
-		// remove all HTML tags
-		$stripped_value = strip_tags($value);
+		// remove all HTML tags, and trim spaces and linebreak before and after HTML
+		$stripped_value = strip_tags(trim($value));
 
 		if(
 			$stripped_value != $value &&
@@ -1216,7 +1216,6 @@ class Model extends HTML {
 	//
 	// 	return true;
 	// }
-
 
 }
 
