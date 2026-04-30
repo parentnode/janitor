@@ -2348,6 +2348,38 @@ class UpgradeCore extends Model {
 
 	}
 
+	// Code update
+	function updateControllerAPIInterface08() {
+
+		$fs = new FileSystem();
+
+
+		$match_string = "\t// Class interface\n\telse if(security()->validateCsrfToken() && preg_match(\"/[a-zA-Z]+/\", \$action[0])) {\n\n\t\t// check if custom function exists on User class\n\t\tif(\$model && method_exists(\$model, \$action[0])) {\n\n\t\t\t\$output = new Output();\n\t\t\t\$output->screen(\$model->{\$action[0]}(\$action));\n\t\t\texit();\n\t\t}\n\t}";
+		$replace_string = "\t// Handle possible API request\n\telse {\n\t\tsecurity()->API_request(\$model, \$action);\n\t}";
+
+		// get all php files in theme
+		$controllers = $fs->files(LOCAL_PATH."/www", ["allow_extensions" => "php"]);
+		foreach($controllers as $controller) {
+
+			$is_code_altered = false;
+			$code = file_get_contents($controller);
+
+			if(strpos($code, $match_string) !== false) {
+				$updated_code = str_replace($match_string, $replace_string, $code);
+
+				file_put_contents($controller, $updated_code);
+
+				$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (API_request) IN $controller"]);
+
+			}
+
+		}
+
+	}
+
+
+
+
 
 	// Config file structure helper
 	function configStructureHelper($config_info, $constant, $default_value, $after_constant, $extra_space = false) {

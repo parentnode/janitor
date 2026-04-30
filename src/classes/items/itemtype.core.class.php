@@ -440,6 +440,7 @@ class ItemtypeCore extends Model {
 
 
 
+
 	// UPDATE
 
 
@@ -617,15 +618,57 @@ class ItemtypeCore extends Model {
 		return true;
 	}
 
+
+	/**
+	* Delete item, API function
+	*/
+	function API_delete($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) === 1 && $this->validateList(array("item_id"))) {
+
+			$item_id = $this->getProperty("item_id", "value");
+
+
+			$result = $this->delete([
+				"item_id" => $item_id,
+			]);
+
+			if($result) {
+				message()->addMessage("Item deleted");
+				return $result;
+			}
+
+		}
+
+		message()->addMessage("Item could not be deleted", array("type" => "error"));
+		return false;
+	}
+
 	/**
 	* Delete item function
 	*/
-	# /janitor/[admin/]#itemtype#/delete/#item_id#
-	function delete($action) {
+	function delete($_options = false) {
 
-		if(count($action) == 2) {
+		$item_id = false;
 
-			$item_id = $action[1];
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"              : $item_id                 = $_value; break;
+
+				}
+			}
+		}
+
+
+		if($item_id) {
+
 
 			$query = new Query();
 			$fs = new FileSystem();
@@ -653,9 +696,6 @@ class ItemtypeCore extends Model {
 						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
 						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
 
-						message()->addMessage("Item deleted");
-
-
 						// itemtype post delete handler?
 						if(method_exists($this, "deleted")) {
 							$this->deleted($item_id);
@@ -670,7 +710,6 @@ class ItemtypeCore extends Model {
 			}
 		}
 
-		message()->addMessage("Item could not be deleted", array("type" => "error"));
 		return false;
 	}
 
@@ -1058,16 +1097,56 @@ class ItemtypeCore extends Model {
 	// DUPLICATE
 
 
+	function API_duplicate($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) === 1 && $this->validateList(array("item_id"))) {
+
+			$item_id = $this->getProperty("item_id", "value");
+
+
+			$result = $this->duplicate([
+				"item_id" => $item_id,
+			]);
+
+			if($result) {
+				message()->resetMessages();
+				message()->addMessage("Item duplicated");
+				return $result;
+			}
+
+		}
+
+		message()->resetMessages();
+		message()->addMessage("Item could not be duplicated", ["type" => "error"]);
+		return false;
+	}
+
+
 	// Duplicate item
 	# /#controller#/duplicate/#item_id#
-	function duplicate($action) {
+	function duplicate($_options = false) {
 
-		$IC = new Items();
+		$item_id = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"              : $item_id                 = $_value; break;
+
+				}
+			}
+		}
 
 
-		if(count($action) == 2) {
-			$item_id = $action[1];
+		if($item_id) {
 
+			$IC = new Items();
 			$item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true, "prices" => true, "subscription_method" => true)));
 
 			if($item) {
@@ -1335,9 +1414,6 @@ class ItemtypeCore extends Model {
 					}
 
 
-					message()->resetMessages();
-					message()->addMessage("Item duplicated");
-
 					// get and return new device (id will be used to redirect to new item page)
 					$item = $IC->getItem(array("id" => $cloned_item["id"]));
 					return $item;
@@ -1347,9 +1423,7 @@ class ItemtypeCore extends Model {
 			}
 
 		}
-		
-		message()->resetMessages();
-		message()->addMessage("Item could not be duplicated", ["type" => "error"]);
+
 		return false;
 	}
 

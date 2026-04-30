@@ -165,7 +165,10 @@ class JanitorHTMLCore {
 				"label" => "Delete",
 				"wrapper" => "li.delete",
 				"static" => true,
-				"url" => $this->path."/delete/".$item["id"],
+				"inputs" => [
+					"item_id" => $item["id"]
+				],
+				"url" => $this->path."/delete",
 				"success-location" => false,
 				"class" => "",
 			),
@@ -233,6 +236,7 @@ class JanitorHTMLCore {
 				if(isset($data["type"]) && $data["type"] == "onebuttonform") {
 					$_ .= $model->oneButtonForm($data["label"], $data["url"], array(
 						"wrapper" => $data["wrapper"],
+						"inputs" => isset($data["inputs"]) ? $data["inputs"] : false,
 						"success-function" => $data["success-function"]
 					));
 				}
@@ -253,6 +257,7 @@ class JanitorHTMLCore {
 				"js" => true,
 				"wrapper" => $standard["delete"]["wrapper"],
 				"static" => $standard["delete"]["static"],
+				"inputs" => isset($standard["delete"]["inputs"]) ? $standard["delete"]["inputs"] : false,
 				"success-location" => $standard["delete"]["success-location"],
 				"class" => $standard["delete"]["class"],
 			));
@@ -287,13 +292,19 @@ class JanitorHTMLCore {
 			"duplicate" => array(
 				"label" => "Duplicate",
 				"wrapper" => "li.duplicate",
-				"url" => $this->path."/duplicate/".$item["id"],
-				"success-function" => "duplicated"
+				"url" => $this->path."/duplicate",
+				"success-function" => "duplicated",
+				"inputs" => [
+					"item_id" => $item["id"]
+				],
 			),
 			"delete" => array(
 				"label" => "Delete",
 				"wrapper" => "li.delete",
-				"url" => $this->path."/delete/".$item["id"],
+				"url" => $this->path."/delete",
+				"inputs" => [
+					"item_id" => $item["id"]
+				],
 				"success-location" => $this->path."/list",
 				"class" => ""
 			),
@@ -362,6 +373,7 @@ class JanitorHTMLCore {
 			$_ .= $model->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
 				"wrapper" => $standard["delete"]["wrapper"],
 				"success-location" => $standard["delete"]["success-location"],
+				"inputs" => isset($standard["delete"]["inputs"]) ? $standard["delete"]["inputs"] : false,
 				"class" => $standard["delete"]["class"]
 			));
 		}
@@ -369,7 +381,8 @@ class JanitorHTMLCore {
 		if($standard["duplicate"]) {
 			$_ .= $model->oneButtonForm($standard["duplicate"]["label"], $standard["duplicate"]["url"], array(
 				"wrapper" => $standard["duplicate"]["wrapper"],
-				"success-function" => $standard["duplicate"]["success-function"]
+				"success-function" => $standard["duplicate"]["success-function"],
+				"inputs" => isset($standard["duplicate"]["inputs"]) ? $standard["duplicate"]["inputs"] : false,
 			));
 		}
 
@@ -378,7 +391,8 @@ class JanitorHTMLCore {
 				if(isset($data["type"]) && $data["type"] == "onebuttonform") {
 					$_ .= $model->oneButtonForm($data["label"], $data["url"], array(
 						"wrapper" => $data["wrapper"],
-						"success-function" => $data["success-function"]
+						"success-function" => $data["success-function"],
+						"inputs" => isset($data["inputs"]) ? $data["inputs"] : false,
 					));
 				}
 				else {

@@ -28,16 +28,9 @@ if(is_array($action) && count($action)) {
 		exit();
 	}
 
-	// Class interface
-	else if(security()->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {
-
-		// check if custom function exists on User class
-		if($model && method_exists($model, $action[0])) {
-
-			$output = new Output();
-			$output->screen($model->{$action[0]}($action));
-			exit();
-		}
+	// Handle possible API request
+	else {
+		security()->API_request($model, $action);
 	}
 
 }

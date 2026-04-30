@@ -16,11 +16,19 @@ $navigations = $model->getNavigations(array("levels" => 0));
 	<div class="all_items i:defaultList filters"<?= $HTML->jsData(["search"]) ?>>
 <?		if($navigations): ?>
 		<ul class="items">
-<?			foreach($navigations as $item): ?>
-			<li class="item item_id:<?= $item["id"] ?>">
-				<h3><?= $item["name"] ?></h3>
+<?			foreach($navigations as $navigation): ?>
+			<li class="item item_id:<?= $navigation["id"] ?>">
+				<h3><?= $navigation["name"] ?></h3>
 
-				<?= $JML->listActions($item) ?>
+				<?= $JML->listActions($navigation, [
+					"modify" => [
+						"delete" => [
+							"inputs" => [
+								"navigation_id" => $navigation["id"]
+							]
+						]
+					]
+				]) ?>
 			 </li>
 <?			endforeach; ?>
 		</ul>

@@ -1296,4 +1296,32 @@ class Security {
 		return (getenv("HTTP_X_FORWARDED_FOR") ? getenv("HTTP_X_FORWARDED_FOR") : getenv("REMOTE_ADDR"));
 	}
 
+
+	// API request handler, envoked from controllers designed to accept API requests
+	function API_request($model, $action) {
+
+		// Secure Class interface
+		if($this->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {
+
+			// check if custom function exists on User class
+			if($model && method_exists($model, "API_".$action[0])) {
+
+				$output = new Output();
+				$output->screen($model->{"API_".$action[0]}($action));
+				exit();
+			}
+
+			// Fallback Class interface [DEPRECATED] but available until all ItemType API methods have been updated
+			// check if custom function exists on User class
+			else if($model && method_exists($model, $action[0])) {
+
+				$output = new Output();
+				$output->screen($model->{$action[0]}($action));
+				exit();
+			}
+
+		}
+
+	}
+
 }

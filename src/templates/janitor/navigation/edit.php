@@ -75,9 +75,10 @@ function recurseNodes($nodes) {
 		<?= $HTML->link("Navigations list", "/janitor/admin/navigation/list", array("class" => "button", "wrapper" => "li.cancel")) ?>
 		<?= $HTML->link("New node", "/janitor/admin/navigation/new_node/".$navigation_id, array("class" => "button primary", "wrapper" => "li.cancel")) ?>
 
-		<?= $HTML->oneButtonForm("Delete navigation", "/janitor/admin/navigation/delete/".$navigation_id, array(
+		<?= $HTML->oneButtonForm("Delete navigation", "/janitor/admin/navigation/delete", array(
 			"wrapper" => "li.delete",
-			"success-location" => "/janitor/admin/navigation/list"
+			"success-location" => "/janitor/admin/navigation/list",
+			"inputs" => ["navigation_id" => $navigation_id],
 		)) ?>
 	</ul>
 
