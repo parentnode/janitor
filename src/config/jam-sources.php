@@ -1,6 +1,18 @@
 <?php
 	
 $jam_sources = [
+	"item" => [
+		"name" => "Itemtypes",
+		"description" => "Itemtypes define the data structure for basic content items in Janitor.",
+		"modules" => [
+			"service" => [
+				"name" => "Service itemtype",
+				"description" => "The simplest content item for describing the services offered.",
+				"info_link" => "https://github.com/parentnode/jam-item-service-simplest",
+				"repos" => "https://github.com/parentnode/jam-item-service-simplest",
+			],
+		] 
+	],
 	"instantmessage" => [
 		"name" => "Instant message gateways",
 		"description" => "Modules to send instant messages via popular messaging platforms.",
@@ -53,18 +65,6 @@ $jam_sources = [
 				"description" => "Google reCAPTCHA v3 protection system",
 				"info_link" => "https://www.google.com/recaptcha/intro/v3",
 				"repos" => "https://github.com/parentnode/jam-fraudprotection-recaptcha",
-			],
-		] 
-	],
-	"item" => [
-		"name" => "Itemtypes",
-		"description" => "Itemtypes define the data structure for basic content items in Janitor.",
-		"modules" => [
-			"service" => [
-				"name" => "Service itemtype",
-				"description" => "The simplest content item for describing the services offered.",
-				"info_link" => "https://github.com/parentnode/jam-item-service-simplest",
-				"repos" => "https://github.com/parentnode/jam-item-service-simplest",
 			],
 		] 
 	],
