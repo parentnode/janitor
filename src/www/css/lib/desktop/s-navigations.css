@@ -1,10 +1,11 @@
 
-#content .defaultEdit.navigationNodeEdit form > fieldset,
+/*#content .defaultEdit.navigationNodeEdit form > fieldset,
 #content .defaultNew.navigationNodeNew form > fieldset {padding-bottom: 15px;}
+*/
 
-#content .defaultNew.navigationNodeNew fieldset h3,
+/*#content .defaultNew.navigationNodeNew fieldset h3,
 #content .defaultEdit.navigationNodeEdit fieldset h3 {border-top: 1px solid #aaaaaa; font-size: 0.8em; margin: 5px 0 20px; padding-bottom: 10px; padding-top: 7px; text-transform: uppercase;}
-
+*/
 
 #content .scene.navigationEdit .sortable ul.items li ul.items { border-top: 1px solid #dedede; margin-bottom: -1px;}
 #content .scene.navigationEdit .sortable ul.items > li h3 {padding: 15px 20px 15px 0; display: inline-block; vertical-align: bottom;}

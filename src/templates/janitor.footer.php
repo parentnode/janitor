@@ -1,4 +1,4 @@
-<? $navigation = $this->navigation("main-janitor"); ?>
+<? $navigation = navigation()->get("main-janitor"); ?>
 	</div>
 
 	<div id="navigation">

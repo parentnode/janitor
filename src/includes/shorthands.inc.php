@@ -129,6 +129,18 @@ function HTML() {
 	return $HTML;
 }
 
+
+$__navigation = false;
+function navigation() {
+	global $__navigation;
+	if(!$__navigation) {
+		include_once("classes/system/navigation.class.php");
+		$__navigation = new Navigation();
+	}
+	return $__navigation;
+}
+
+
 $__module = false;
 function module() {
 	global $__module;

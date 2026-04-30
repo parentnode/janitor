@@ -152,6 +152,10 @@ class UpgradeCore extends Model {
 
 				$this->updateModuleNames08();
 
+				$this->updateControllerAPIInterface08();
+
+				$this->updateNavigation08();
+
 			}
 
 			// Run any project specific post-upgade tasks
@@ -2377,6 +2381,45 @@ class UpgradeCore extends Model {
 
 	}
 
+	// Code update
+	function updateNavigation08() {
+
+
+		// Update module shorthand usage
+
+		$fs = new FileSystem();
+		// get all php files in theme
+		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php"]);
+		foreach($php_files as $php_file) {
+
+			$is_code_altered = false;
+			$code_lines = file($php_file);
+			foreach($code_lines as $line_no => $line) {
+
+				// Change mailer() to email()
+				if(preg_match("/\$this\-\>navigation\(/", $line)) {
+
+					$line = preg_replace("/$this\-\>navigation\(/", "navigation()->get(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (navigation()) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (navigation()) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+			}
+
+			// Should we write
+			if($is_code_altered) {
+				file_put_contents($php_file, implode("", $code_lines));
+			}
+
+		}
+
+	}
 
 
 

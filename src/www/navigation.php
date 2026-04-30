@@ -8,7 +8,7 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
-$model = new Navigation();
+$model = navigation();
 
 
 $page->bodyClass("navigation");

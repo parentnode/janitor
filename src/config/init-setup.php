@@ -121,7 +121,7 @@ if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 
 	include_once("classes/items/tag.class.php");
 
-	include_once("classes/system/navigation.class.php");
+	// include_once("classes/system/navigation.class.php");
 
 	include_once("classes/users/user.core.class.php");
 	include_once("classes/users/user.class.php");

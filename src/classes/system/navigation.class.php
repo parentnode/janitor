@@ -55,20 +55,23 @@ class Navigation extends Model {
 			"error_message" => ""
 		));
 
-		// node_page_id
-		$this->addToModel("node_item_id", array(
-			"type" => "integer",
-			"label" => "Page",
-			"hint_message" => "Select an existing page as link for this node",
+
+		// node_destination
+		$this->addToModel("node_destination", array(
+			"type" => "select",
+			"label" => "Destination",
+			"hint_message" => "Select destination",
 			"error_message" => ""
 		));
-		// node_page_controller
-		$this->addToModel("node_item_controller", array(
-			"type" => "string",
-			"label" => "Controller",
-			"hint_message" => "Select an existing controller to render this page",
-			"error_message" => ""
-		));
+
+		// // node_path (navigation path to be used as identification for this navigation node)
+		// $this->addToModel("node_path", array(
+		// 	"type" => "string",
+		// 	"label" => "Navigation path",
+		// 	"hint_message" => "",
+		// 	"error_message" => ""
+		// ));
+
 
 		// node_classname
 		$this->addToModel("node_classname", array(
@@ -92,7 +95,6 @@ class Navigation extends Model {
 			"error_message" => ""
 		));
 
-
 	}
 
 
@@ -104,67 +106,151 @@ class Navigation extends Model {
 	// save new navigation
 	// /janitor/admin/navigation/save
 	// gets values from posted model values
-	function save() {
+	function API_save($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
 		// does values validate
-		if($this->validateList(array("name"))) {
+		if(count($action) === 1 && $this->validateList(array("name"))) {
 
-			$query = new Query();
+			$name = $this->getProperty("name", "value");
 
-			// make sure type tables exist
-			$query->checkDbExistence($this->db);
-			$query->checkDbExistence($this->db_nodes);
 
-			$entities = $this->data_entities;
-			$names = array();
-			$values = array();
+			$result = $this->save([
+				"name" => $name,
+			]);
 
-			$name = $entities["name"]["value"];
+			if($result) {
+				message()->addMessage("Navigation added");
+				return $result;
+			}
+
+		}
+
+		message()->addMessage("Navigation could not be saved", array("type" => "error"));
+		return false;
+	}
+
+	function save($_options = false) {
+
+		$name = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "name"              : $name                 = $_value; break;
+
+				}
+			}
+		}
+
+
+		$query = new Query();
+
+		// make sure type tables exist
+		// Tables are handled at setup or upgrade to speed up runtime
+		// $query->checkDbExistence($this->db);
+		// $query->checkDbExistence($this->db_nodes);
+
+
+
+			// $entities = $this->data_entities;
+		// $names = array();
+		// $values = array();
+		if($name) {
+			// $name = $entities["name"]["value"];
 			$handle = superNormalize($name);
 
-			if($name && $handle) {
+
+			if($handle) {
+
+
 				$sql = "INSERT INTO ".$this->db." SET name = '$name', handle = '$handle'";
-//				print $sql;
+				// debug([$sql]);
 
 				if($query->sql($sql)) {
-					message()->addMessage("navigation created");
 					return array("item_id" => $query->lastInsertId());
 				}
 			}
+
 		}
 
 		message()->addMessage("Creating navigation failed", array("type" => "error"));
 		return false;
 	}
 
-	// delete navigation
-	// /janitor/admin/navigation/delete/#navigation_id#
-	function delete($action) {
+	// delete navigation API
+	function API_delete($action) {
 
-		if(count($action) == 2) {
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) === 1) {
+
+			$navigation_id = getPost("navigation_id");
+			if($navigation_id) {
+
+
+				$result = $this->delete([
+					"navigation_id" => $navigation_id,
+				]);
+
+				if($result) {
+					message()->addMessage("Navigation deleted");
+					return $result;
+				}
+
+			}
+
+		}
+
+		message()->addMessage("Navigation could not be deleted", array("type" => "error"));
+		return false;
+	}
+
+	// delete navigation
+	function delete($_options = false) {
+
+		$navigation_id = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "navigation_id"              : $navigation_id                 = $_value; break;
+
+				}
+			}
+		}
+
+		if($navigation_id) {
+
 			$query = new Query();
-			$navigation_id = $action[1];
 
 			// delete from cache
 			$sql = "SELECT handle FROM $this->db WHERE id = ".$navigation_id;
+			// debug([$sql]);
+
 			if($query->sql($sql)) {
+
 				$handle = $query->result(0, "handle");
 				cache()->reset("navigation-".$handle);
 			}
 
-
+			// Delete 
 			$sql = "DELETE FROM ".$this->db." WHERE id = ".$navigation_id;
-//			print $sql;
+			// debug([$sql]);
+
 			if($query->sql($sql)) {
-				message()->addMessage("Navigation deleted");
 				return true;
 			}
 		}
 
-		message()->addMessage("Deleting navigation failed", array("type" => "error"));
 		return false;
 	}
 
@@ -175,7 +261,8 @@ class Navigation extends Model {
 
 		$query = new Query();
 		$sql = "SELECT * FROM ".$this->db_nodes." WHERE id = $id";
-//		print $sql."<br>";
+		// debug([$sql]);
+
 		if($query->sql($sql)) {
 			return $query->result(0);
 		}
@@ -185,6 +272,20 @@ class Navigation extends Model {
 
 	// save node
 	// /janitor/admin/navigation/saveNode/#$navigation_id#
+	function API_saveNode($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 2 && $this->validateList(array("node_name"))) {
+
+			$node_name = $this->getProperty("node_name", "value");
+
+
+		}
+	}
+
 	function saveNode($action) {
 
 		// Get posted values to make them available for models
@@ -203,25 +304,23 @@ class Navigation extends Model {
 			foreach($entities as $name => $entity) {
 				if($name == "node_target") {
 					if($entity["value"]) {
-						$names[] = $name;
 						$values[] = $name."='_blank'";
 					}
+					
 				}
-				else if($name == "node_item_id") {
+				else if($name == "node_destination") {
 					if($entity["value"]) {
-						$names[] = $name;
 						$values[] = $name."='".$entity["value"]."'";
 					}
 				}
 				else if($entity["value"] !== false) {
-					$names[] = $name;
 					$values[] = $name."='".$entity["value"]."'";
 				}
 			}
 
 			if($values) {
 				$sql = "INSERT INTO ".$this->db_nodes." SET id = DEFAULT, navigation_id = $navigation_id, "  . implode(",", $values);
-//				print $sql;
+				// debug([$sql]);
 
 				if($query->sql($sql)) {
 
@@ -292,7 +391,7 @@ class Navigation extends Model {
 			if($values) {
 				$query = new Query();
 				$sql = "UPDATE ".$this->db_nodes." SET ".implode(",", $values)." WHERE id = ".$node_id;
-//				print $sql;
+				// debug([$sql]);
 
 				if($query->sql($sql)) {
 
@@ -328,6 +427,8 @@ class Navigation extends Model {
 
 				// delete from cache (will be respawned on next request)
 				$sql = "SELECT ".$this->db.".handle as handle FROM ".$this->db.", ".$this->db_nodes." WHERE ".$this->db_nodes.".id = ".$node_id." AND ".$this->db_nodes.".navigation_id = ".$this->db.".id";
+				// debug([$sql]);
+
 				if($query->sql($sql)) {
 					$handle = $query->result(0, "handle");
 					cache()->reset("navigation-".$handle);
@@ -414,25 +515,37 @@ class Navigation extends Model {
 
 
 		// handle is known
-		// translate handle into navigation_id
+		// and get sublevels if required
 		if($handle) {
 
-			$sql = "SELECT id FROM ".$this->db." WHERE handle = '$handle'";
-//			print $sql."<br>";
+			$navigation = false;
+
+			$sql = "SELECT * FROM ".$this->db." WHERE handle = '$handle'";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 
-				$navigation_id = $query->result(0, "id");
+				$navigation = $query->result(0);
+
+				// get children
+				if($levels === false || $levels) {
+					$navigation["nodes"] = $this->getNavigationNodes($navigation["id"], $_options);
+				}
+
 			}
+
+			// return navigation
+			return $navigation;
+
 		}
 
-		// looking for specific navigation id (possibly translated from handle)
+		// looking for specific navigation id
 		// and get sublevels if required
-		if($navigation_id) {
+		else if($navigation_id) {
 
 			$navigation = false;
 
 			$sql = "SELECT * FROM ".$this->db." WHERE id = '$navigation_id'";
-//			print $sql."<br>";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 
 				$navigation = $query->result(0);
@@ -445,6 +558,7 @@ class Navigation extends Model {
 
 			// return navigation
 			return $navigation;
+
 		}
 
 		// get all navigations
@@ -454,7 +568,7 @@ class Navigation extends Model {
 			$navigations = false;
 
 			$sql = "SELECT * FROM ".$this->db;
-//			print $sql."<br>";
+			// debug([$sql]);
 			if($query->sql($sql)) {
 				$navigations = $query->results();
 
@@ -503,7 +617,7 @@ class Navigation extends Model {
 		$this->level_iterator++;
 
 
-		$nodes = false;
+		$nodes = [];
 
 		// with or without relations
 		if(!$relation) {
@@ -512,14 +626,14 @@ class Navigation extends Model {
 		else {
 			$sql = "SELECT * FROM ".$this->db_nodes." WHERE navigation_id = $navigation_id AND relation = $relation ORDER BY position ASC, id ASC";
 		}
-//		print $sql."<br>";
+		// debug([$sql]);
 
 		// get media
 		if($query->sql($sql)) {
 
 			$results = $query->results();
 			if($results) {
-				$nodes = [];
+				// $nodes = [];
 
 				foreach($results as $i => $node) {
 					$nodes[$i]["id"] = $node["id"];
@@ -562,6 +676,32 @@ class Navigation extends Model {
 		$this->level_iterator--;
 
 		return $nodes;
+	}
+
+
+
+	/**
+	* Get navigation
+	*
+	* Get specific navigation based on handle to be used in website
+	* Will be returned from cache if available
+	*/
+	function get($handle) {
+ 
+		// is navigation handle specified and navigation already cached?
+		if(cache()->value("navigation-".$handle)) {
+			return cache()->value("navigation-".$handle);
+		}
+
+
+		$navigation = $this->getNavigations(["handle" => $handle]);
+		if($navigation) {
+			// update cache
+			cache()->value("navigation-".$handle, $navigation);
+		}
+
+		return $navigation;
+
 	}
 
 }
