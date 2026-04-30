@@ -1,5 +1,5 @@
 /* BASE FORM ELEMENTS */
-form {}
+form {max-width: 800px;}
 fieldset {border: none; display: block;}
 div.field {padding: 0 30px 40px; position: relative; font-size: 0; z-index: 1;}
 
@@ -26,7 +26,7 @@ div.field input {width: calc(100% - 20px); height: 40px; padding: 1px 12px 0;}
 
 div.field select {
 	width: calc(100% - 20px); height: 40px; color: #313942; padding: 3px 12px 4px 12px;
-	background-color: #ffffff; background-position: right 11px top 14px; background-size: 20px auto; background-repeat: no-repeat;
+	background-color: #ffffff; background-position: right 11px top 12px; background-size: 20px auto; background-repeat: no-repeat;
 	background-image: url(/janitor/admin/img/gx_select.svg);
 	appearance: none; -webkit-appearance: none;
 }
@@ -171,11 +171,11 @@ div.field.dropdown div.virtual div.button {z-index: 2; position: relative;
 div.field.dropdown div.virtual div.button svg {width: 24px; height: 24px; margin: 8px 0 0 3px;
 	fill: #aaaaaa; stroke: #aaaaaa; stroke-width: 2px; stroke-linecap: round;
 }
-div.field.dropdown div.virtual div.options {z-index: 1; margin: -6px -3px 0; position: relative; background-color: #ffffff; box-sizing: border-box; height: 0; overflow: hidden;
+div.field.dropdown div.virtual div.options {z-index: 1; margin: -10px -3px 0; position: relative; background-color: #ffffff; box-sizing: border-box; height: 0; overflow: hidden;
 }
 div.field.dropdown div.virtual div.options ul.options {border: 3px solid #5c5c5c; border-top: 1px solid #5c5c5c; display: block;}
 div.field.dropdown div.virtual div.options ul.options li {
-	padding: 12px 12px; text-align: right; cursor: pointer; font-size: 16px; display: block;
+	padding: 12px 12px; cursor: pointer; font-size: 16px; display: block;
 }
 div.field.dropdown div.virtual div.options ul.options li.hover {background-color: #dedede;}
 
@@ -453,7 +453,7 @@ div.field.focus textarea {
 }
 div.field.focus select {padding: 3px 10px 3px 10px;
 	background-image: url(/janitor/admin/img/gx_select_focus.svg);
-	background-position: right 9px top 12px;
+	background-position: right 9px top 10px;
 }
 div.field.focus input,
 div.field.focus select,

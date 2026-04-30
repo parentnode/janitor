@@ -18,7 +18,8 @@ document.write('<script type="text/javascript" src="/js/manipulator/src/u-date.j
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-overlay.js"></script>');
 document.write('<script type="text/javascript" src="/js/manipulator/src/u-sortable.js"></script>');
 
-document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/src/beta-u-form-onebuttonform.js"></script>');
+// document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/src/beta-u-form-onebuttonform.js"></script>');
+document.write('<script type="text/javascript" src="/js/manipulator/src/beta-u-form-onebuttonform.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/manipulator/v0_9_4-janitor/src/beta-u-notifier.js"></script>');
 
 

@@ -36,7 +36,8 @@
 
 
 /* EDIT VIEW - ITEM */
-#content .scene > div.item {padding: 0; border-bottom: 1px solid #bbbbbb;}
+#content .scene > div.item {padding: 0 0 15px; border-bottom: 1px solid #bbbbbb;}
+#content .scene > div.item:last-child {border: none;}
 #content .scene.defaultEdit > div.item .actions {text-align: left; padding-bottom: 10px;}
 #content .scene.defaultEdit > div.item .actions li {padding: 0 5px 10px;}
 

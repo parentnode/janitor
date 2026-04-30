@@ -34,7 +34,7 @@
 #content .scene.finish div.ready {padding: 20px 0 0;}
 
 #content .scene.finish .final_touches,
-#content .scene.finish .installing {display: none; padding: 20px 0 0;}
+#content .scene.finish .installing {display: none; padding: 0 0 20px;}
 
 #content .scene.finish .final_touches h2 {padding-top: 15px;}
 #content .scene.finish ul.tasks,
