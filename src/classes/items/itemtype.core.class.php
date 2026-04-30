@@ -2174,7 +2174,8 @@ class ItemtypeCore extends Model {
 			$query = new Query();
 			$IC = new Items();
 
-			$query->checkDbExistence(UT_ITEMS_MEDIAE);
+			// Tables are handled at setup or upgrade to speed up runtime
+			// $query->checkDbExistence(UT_ITEMS_MEDIAE);
 
 			// Append poster to existing media
 			if($variant && $type === "poster") {
