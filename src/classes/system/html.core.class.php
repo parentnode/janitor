@@ -1158,7 +1158,7 @@ class HTMLCore {
 			$_ .= ' data-button-value="'.$value.'"';
 			$_ .= $class ? ' data-button-class="'.$class.'"' : '';
 			$_ .= $name ? ' data-button-name="'.$name.'"' : '';
-			$_ .= $inputs ? ' data-inputs="'.json_encode($inputs).'"' : '';
+			$_ .= $inputs ? ' data-inputs="'.htmlspecialchars(json_encode($inputs)).'"' : '';
 
 			$_ .= ' data-form-action="'.$action.'"';
 			$_ .= $target ? ' data-form-target="'.$target.'"' : '';
