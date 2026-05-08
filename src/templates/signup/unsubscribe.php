@@ -35,7 +35,7 @@ if(count($action) == 4) {
 	<p>If you click the <em>unsubscribe</em> button below, <em><?= $username ?></em> will be permanently removed from the mailing list.</p>
 
 
-	<?= $HTML->renderSnippet("snippets/messaged.php", [
+	<?= $HTML->renderSnippet("snippets/messages.php", [
 		"type" => "error",
 	]) ?>
 

@@ -11,7 +11,7 @@ $this->pageTitle("Forgot password?");
 	<?= $model->formStart("requestReset", array("class" => "labelstyle:inject")) ?>
 
 
-		<?= $HTML->renderSnippet("snippets/messaged.php", [
+		<?= $HTML->renderSnippet("snippets/messages.php", [
 			"type" => "error",
 		]) ?>
 

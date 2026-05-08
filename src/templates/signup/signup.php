@@ -55,7 +55,7 @@ $email = $model->getProperty("email", "value");
 	<?= $model->formStart("save", array("class" => "signup labelstyle:inject")) ?>
 
 
-		<?= $HTML->renderSnippet("snippets/messaged.php", [
+		<?= $HTML->renderSnippet("snippets/messages.php", [
 			"type" => "error",
 		]) ?>
 	

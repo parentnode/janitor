@@ -61,7 +61,7 @@ if($page_item) {
 	<?= $model->formStart("/verify/confirm", ["class" => "verify_code"]) ?>
 
 
-		<?= $HTML->renderSnippet("snippets/messaged.php", [
+		<?= $HTML->renderSnippet("snippets/messages.php", [
 			"type" => "error",
 		]) ?>
 
