@@ -469,6 +469,16 @@ class Query {
 	}
 
 
+	/**
+	* Returns a database error no
+	*
+	* @return string
+	*/
+	function dbErrorNo() {
+		return $this->connection->errno;
+	}
+
+
 }
 
 ?>
