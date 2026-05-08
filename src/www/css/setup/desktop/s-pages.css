@@ -97,7 +97,9 @@ body.modules #content div.upgrade,
 body.modules #content div.modules.installed_items {border-bottom: none;}
 
 body.modules #content div.upgrade ul.actions,
-body.modules #content div.uninstall ul.actions {padding-bottom: 10px; text-align: right;}
+body.modules #content div.uninstall ul.actions {padding-bottom: 10px; 
+/*	text-align: right;*/
+}
 
 
 body.modules #content div.modules h3 {font-size: 20px; text-transform: uppercase; padding-top: 25px; padding-bottom: 5px;}
