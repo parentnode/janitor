@@ -1298,29 +1298,55 @@ class Security {
 
 
 	// API request handler, envoked from controllers designed to accept API requests
-	function API_request($model, $action) {
+	function API_request($model, $action, $_options = false) {
 
-		// Secure Class interface
-		if($this->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action[0])) {
+		$action_method_index = 0;
+		$action_count = false;
 
-			// check if custom function exists on User class
-			if($model && method_exists($model, "API_".$action[0])) {
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
 
-				$output = new Output();
-				$output->screen($model->{"API_".$action[0]}($action));
-				exit();
+					case "action_method_index"          : $action_method_index           = $_value; break;
+					case "action_count"                 : $action_count                  = $_value; break;
+				}
 			}
-
-			// Fallback Class interface [DEPRECATED] but available until all ItemType API methods have been updated
-			// check if custom function exists on User class
-			else if($model && method_exists($model, $action[0])) {
-
-				$output = new Output();
-				$output->screen($model->{$action[0]}($action));
-				exit();
-			}
-
 		}
+
+
+		$output = new Output();
+
+		if(($action_count === false || count($action) === $action_count) && count($action) >= $action_method_index) {
+
+			$action_method = $action[$action_method_index];
+
+			// Secure Class interface
+			if($this->validateCsrfToken() && preg_match("/[a-zA-Z]+/", $action_method)) {
+
+				// check if custom function exists on User class
+				if($model && method_exists($model, "API_".$action_method)) {
+
+					$output = new Output();
+					$output->screen($model->{"API_".$action_method}($action));
+					exit();
+				}
+
+				// Fallback Class interface [DEPRECATED] but available until all ItemType API methods have been updated
+				// check if custom function exists on User class
+				else if($model && method_exists($model, $action_method)) {
+
+					$output->screen($model->{$action_method}($action));
+					exit();
+				}
+
+			}
+	
+		}
+
+		message()->addMessage("Unknown endpoint", ["type" => "error"]);
+		$output->screen(false);
+		exit();
 
 	}
 
