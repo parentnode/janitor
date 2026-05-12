@@ -136,21 +136,25 @@ class ModuleCore extends Model {
 
 				foreach($manifest["files"] as $file) {
 
-					$destination = $file["dest"];
+					if(isset($file["dest"])) {
 
-					if(file_exists(LOCAL_PATH."/".$destination)) {
+						$destination = $file["dest"];
 
-						$digest = $this->getFileDigest(LOCAL_PATH."/".$destination);
-						// debug(["digest", preg_replace("/".$this->digest_algo."\:/", "", $file["digest"]), $digest]);
-						if($digest !== preg_replace("/".$this->digest_algo."\:/", "", $file["digest"])) {
-							$modified_files[] = $destination;
+						if(file_exists(LOCAL_PATH."/".$destination)) {
+
+							$digest = $this->getFileDigest(LOCAL_PATH."/".$destination);
+							// debug(["digest", preg_replace("/".$this->digest_algo."\:/", "", $file["digest"]), $digest]);
+							if($digest !== preg_replace("/".$this->digest_algo."\:/", "", $file["digest"])) {
+								$modified_files[] = $destination;
+							}
+
 						}
+						else {
 
-					}
-					else {
+							// debug(["missing file", LOCAL_PATH."/".$file]);
+							$modified_files[] = $destination;
 
-						// debug(["missing file", LOCAL_PATH."/".$file]);
-						$modified_files[] = $destination;
+						}
 
 					}
 
@@ -278,7 +282,7 @@ class ModuleCore extends Model {
 			// Do we have manifest file
 			if(file_exists($file_path."/main/manifest.json")) {
 
-				$install_messages[] = ["message" => "Module package unpacked.", "type" => "success"];
+				$install_messages[] = ["message" => "Module unpacked.", "type" => "success"];
 
 				// debug([file_get_contents($file_path."/main/manifest.json")]);
 				$manifest = json_decode(file_get_contents($file_path."/main/manifest.json"), true);
@@ -302,72 +306,208 @@ class ModuleCore extends Model {
 
 					foreach($manifest["files"] as $file_info) {
 
-						$source = $file_info["src"];
-						$destination = $file_info["dest"];
-						// debug(["install", $source, $destination]);
+						$type = $file_info["type"];
 
-						// Copy file if it exists
-						if(file_exists($file_path."/main/src/$source")) {
+						// File contains data model
+						if($type === "data-model") {
 
-							// Check if file already exists to avoid overwriting modified existing files
-							// debug(["digest", preg_replace("/".$this->digest_algo."\:/", "", $file["digest"]), $digest]);
-							if(file_exists(LOCAL_PATH."/$destination")) {
-								// Check file digest, no need to back up identical file
-								$digest = $this->getFileDigest(LOCAL_PATH."/".$destination);
-								// File does not match, rename file to avoid overwriting
-								if($digest !== preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
-									rename(LOCAL_PATH."/$destination", LOCAL_PATH."/$destination._original_".date("YmdHis"));
+							$source = $file_info["src"];
+
+							// Copy file if it exists
+							if(file_exists($file_path."/main/src/$source")) {
+
+								// Check file digest
+								$digest = $this->getFileDigest($file_path."/main/src/$source");
+								if($digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+
+									// Model sql file must be available for upgrade DB syncronization to work
+									// Install file
+									$fs->copy($file_path."/main/src/$source", LOCAL_PATH."/".$source);
+
+									// Run SQL
+									$result = $this->moduleSql(LOCAL_PATH."/".$source);
+									$install_messages[] = $result;
+
+									// Check result
+									if($result["type"] === "table_exists") {
+
+										// Sync DB, to apply any modifications
+										include_once("classes/system/upgrade.class.php");
+										$UpgradeClass = new Upgrade();
+										$sync_result = $UpgradeClass->synchronizeTable(basename($source, ".sql"));
+										if($sync_result && $sync_result["success"] === true) {
+											$install_messages[] = ["message" => "Table syncronized: ".basename($source, ".sql"), "type" => "success"];
+										}
+										else {
+											$install_messages[] = ["message" => "Table failed syncronization: ".basename($source, ".sql"), "type" => "error"];
+										}
+
+									}
+
 								}
+								else {
+									$install_messages[] = ["message" => "Digest mismatch for file: $source", "type" => "error"];
+								}
+
+							}
+							// File is missing in package
+							else {
+								// debug(["missing file", $file_path."/main/src/$source"]);
+								$install_messages[] = ["message" => "Module file is missing: $source", "type" => "error"];
 							}
 
-							$fs->copy($file_path."/main/src/$source", LOCAL_PATH."/$destination");
-						}
-						// File is missing in package
-						else {
-							// debug(["missing file", $file_path."/main/src/$source"]);
-							$install_messages[] = ["message" => "Module file is missing: $source", "type" => "error"];
 						}
 
-					}
+						// File contains data to be installed
+						else if($type === "data-install") {
 
-				}
+							$source = $file_info["src"];
 
-				// DATA to install
-				if(isset($manifest["data"]) && isset($manifest["data"]["install"])) {
+							// Copy file if it exists
+							if(file_exists($file_path."/main/src/$source")) {
 
-					foreach($manifest["data"]["install"] as $file) {
-						$install_messages[] = $this->moduleSql($file_path."/main/src/".$file);
-					}
+								// Check file digest
+								$digest = $this->getFileDigest($file_path."/main/src/$source");
+								if($digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
 
-				}
+									// No need to save this file – it is a oneway-onetimer
+									$install_messages[] = $this->moduleSql($file_path."/main/src/".$source);
 
-				// Save files for uninstall
-				// Currently only SQL files are supported
-				if(isset($manifest["data"]) && isset($manifest["data"]["uninstall"])) {
+								}
+								else {
+									$install_messages[] = ["message" => "Digest mismatch for file: $source", "type" => "error"];
+								}
 
-					foreach($manifest["data"]["uninstall"] as $file) {
+							}
+							// File is missing in package
+							else {
+								// debug(["missing file", $file_path."/main/src/$source"]);
+								$install_messages[] = ["message" => "Module file is missing: $source", "type" => "error"];
+							}
 
-						if($fs->copy($file_path."/main/src/".$file, $module_config_path."/uninstall/".$file)) {
-							$install_messages[] = ["message" => "Saved uninstall file: $file", "type" => "success"];
 						}
-						else {
-							$install_messages[] = ["message" => "Could not save uninstall file: $file", "type" => "error"];
+
+						// File contains basic uninstall queries
+						else if($type === "data-uninstall") {
+
+							$source = $file_info["src"];
+
+							// Copy file if it exists
+							if(file_exists($file_path."/main/src/$source")) {
+
+								// Check file digest
+								$digest = $this->getFileDigest($file_path."/main/src/$source");
+								if($digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+
+									// Copy file to designated module uninstall location 
+									if($fs->copy($file_path."/main/src/".$source, $module_config_path."/uninstall/".$source)) {
+										$install_messages[] = ["message" => "Saved uninstall file: $source", "type" => "success"];
+									}
+									else {
+										$install_messages[] = ["message" => "Could not save uninstall file: $source", "type" => "error"];
+									}
+
+								}
+								else {
+									$install_messages[] = ["message" => "Digest mismatch for file: $source", "type" => "error"];
+								}
+
+							}
+							// File is missing in package
+							else {
+								// debug(["missing file", $file_path."/main/src/$source"]);
+								$install_messages[] = ["message" => "Module file is missing: $source", "type" => "error"];
+							}
+
 						}
 
-					}
-				}
+						// File contains uninstall queries for removing all data
+						else if($type === "data-uninstall-all") {
 
-				// Save files for data uninstall
-				// Currently only SQL files are supported
-				if(isset($manifest["data"]) && isset($manifest["data"]["uninstall-data"])) {
+							$source = $file_info["src"];
 
-					foreach($manifest["data"]["uninstall-data"] as $file) {
+							// Copy file if it exists
+							if(file_exists($file_path."/main/src/$source")) {
 
-						if($fs->copy($file_path."/main/src/".$file, $module_config_path."/uninstall-data/".$file)) {
-							$install_messages[] = ["message" => "Saved uninstall data file: $file", "type" => "success"];
+								// Check file digest
+								$digest = $this->getFileDigest($file_path."/main/src/$source");
+								if($digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+
+									// Copy file to designated module uninstall location 
+									if($fs->copy($file_path."/main/src/".$source, $module_config_path."/uninstall-data/".$source)) {
+										$install_messages[] = ["message" => "Saved uninstall data file: $source", "type" => "success"];
+									}
+									else {
+										$install_messages[] = ["message" => "Could not save uninstall data file: $source", "type" => "error"];
+									}
+
+								}
+								else {
+									$install_messages[] = ["message" => "Digest mismatch for file: $source", "type" => "error"];
+								}
+
+							}
+							// File is missing in package
+							else {
+								// debug(["missing file", $file_path."/main/src/$source"]);
+								$install_messages[] = ["message" => "Module file is missing: $source", "type" => "error"];
+							}
+
 						}
-						else {
-							$install_messages[] = ["message" => "Could not save uninstall data file: $file", "type" => "error"];
+
+						// Standard file to be installed
+						else if(isset($file_info["dest"])){
+
+							$source = $file_info["src"];
+							$destination = $file_info["dest"];
+							// debug(["install", $source, $destination]);
+
+							// Copy file if it exists
+							if(file_exists($file_path."/main/src/$source")) {
+
+								// Check file digest
+								$digest = $this->getFileDigest($file_path."/main/src/$source");
+								if($digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+
+									// Check if file already exists to avoid overwriting modified existing files
+									// debug(["digest", preg_replace("/".$this->digest_algo."\:/", "", $file["digest"]), $digest]);
+									if(file_exists(LOCAL_PATH."/$destination")) {
+
+										// Check file digest, no need to back up identical file
+										$digest = $this->getFileDigest(LOCAL_PATH."/".$destination);
+										// File does not match, rename file to avoid overwriting important modifications
+										if($digest !== preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+											rename(LOCAL_PATH."/$destination", LOCAL_PATH."/$destination._original_".date("YmdHis"));
+										}
+
+									}
+
+									// Install file
+									$fs->copy($file_path."/main/src/$source", LOCAL_PATH."/$destination");
+
+
+
+									// Store default controller for potential duplication
+									if($type === "controller" && $module_group_id === "item") {
+
+										$fs->copy($file_path."/main/src/$source", "$module_config_path/controller.php");
+							
+									}
+
+
+
+								}
+								else {
+									$install_messages[] = ["message" => "Digest mismatch for file: $source", "type" => "error"];
+								}
+
+							}
+							// File is missing in package
+							else {
+								// debug(["missing file", $file_path."/main/src/$source"]);
+								$install_messages[] = ["message" => "Module file is missing: $source", "type" => "error"];
+							}
+
 						}
 
 					}
@@ -385,13 +525,12 @@ class ModuleCore extends Model {
 			$install_messages[] = ["message" => "Module package was not found.", "type" => "error"];
 		}
 
-
+		// Copy module files to 
 		// Clean up
 		$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$install_id");
 
 		// Check for errors
 		// debug(["install errors", $install_messages]);
-
 		$error = arrayKeyValue($install_messages, "type", "error");
 		// debug(["install error", $error]);
 		if($error !== false) {
@@ -470,62 +609,140 @@ class ModuleCore extends Model {
 				$uninstall_messages[] = ["message" => "Remove connect file.", "type" => "success"];
 			}
 
+
 			// Files to uninstall
 			if(isset($manifest["files"])) {
 
 				foreach($manifest["files"] as $file_info) {
 
-					$destination = $file_info["dest"];
+					$type = $file_info["type"];
 
-					if(file_exists(LOCAL_PATH."/".$destination)) {
-						// debug(["unlink", LOCAL_PATH."/".$file]);
-						$digest = $this->getFileDigest(LOCAL_PATH."/".$destination);
-						if($delete_modified_files || $digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
-							unlink(LOCAL_PATH."/".$destination);
+
+					// File contains data model
+					if($type === "data-model") {
+
+						$source = $file_info["src"];
+
+						// Uninstall files are stored in module config path at installation time
+						if(file_exists(LOCAL_PATH."/".$source)) {
+
+							$digest = $this->getFileDigest(LOCAL_PATH."/".$source);
+							if($delete_modified_files || $digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+								unlink(LOCAL_PATH."/".$source);
+							}
+							else {
+								$install_messages[] = ["message" => "Digest mismatch for file: $source", "type" => "error"];
+							}
+
 						}
-					}
-					// debug([dirname(LOCAL_PATH."/".$file), $fs->files(dirname(LOCAL_PATH."/".$file))]);
+						else {
+							$uninstall_messages[] = ["message" => "Model SQL is missing: ".$source, "type" => "error"];
 
-					// Is this leaving an empty folder, then delete it
-					if(!$fs->files(dirname(LOCAL_PATH."/".$destination))) {
-						// debug(["removeDirRecursively", dirname(LOCAL_PATH."/".$file)]);
-						$fs->removeDirRecursively(dirname(LOCAL_PATH."/".$destination));
+						}
+
+					}
+
+					// File contains uninstall queries
+					else if($type === "data-uninstall") {
+
+						$source = $file_info["src"];
+
+						// Uninstall files are stored in module config path at installation time
+						if(file_exists($module_config_path."/uninstall/".$source)) {
+
+							$digest = $this->getFileDigest($module_config_path."/uninstall/".$source);
+							if($delete_modified_files || $digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+								$uninstall_messages[] = $this->moduleSql($module_config_path."/uninstall/".$source);
+							}
+							else {
+								$install_messages[] = ["message" => "Digest mismatch for file: $source", "type" => "error"];
+							}
+
+						}
+						else {
+							$uninstall_messages[] = ["message" => "Uninstall SQL file is missing: ".$source, "type" => "error"];
+						}
+
+					}
+					
+					// File contains queries to delete all data – and delete all flag is set
+					else if($delete_data && $type === "data-uninstall-all") {
+
+						$source = $file_info["src"];
+
+						// Uninstall files are stored in module config path at installation time
+						if(file_exists($module_config_path."/uninstall-data/".$source)) {
+
+							$digest = $this->getFileDigest($module_config_path."/uninstall-data/".$source);
+							if($delete_modified_files || $digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+								$uninstall_messages[] = $this->moduleSql($module_config_path."/uninstall-data/".$source);
+							}
+							else {
+								$install_messages[] = ["message" => "Digest mismatch for file: $source", "type" => "error"];
+							}
+
+						}
+						else {
+							$uninstall_messages[] = ["message" => "Uninstall data SQL file is missing: ".$source, "type" => "error"];
+
+						}
+
+					}
+
+					// Standard installed file
+					else if(isset($file_info["dest"])) {
+
+						$destination = $file_info["dest"];
+
+						if(file_exists(LOCAL_PATH."/".$destination)) {
+							// debug(["unlink", LOCAL_PATH."/".$file]);
+							$digest = $this->getFileDigest(LOCAL_PATH."/".$destination);
+							if($delete_modified_files || $digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+								unlink(LOCAL_PATH."/".$destination);
+							}
+						}
+						// debug([dirname(LOCAL_PATH."/".$file), $fs->files(dirname(LOCAL_PATH."/".$file))]);
+
+						// Is this leaving an empty folder, then delete it
+						if(!$fs->files(dirname(LOCAL_PATH."/".$destination))) {
+							// debug(["removeDirRecursively", dirname(LOCAL_PATH."/".$file)]);
+							$fs->removeDirRecursively(dirname(LOCAL_PATH."/".$destination));
+						}
+
+
+						// Remove custom controllers if delete modified files flag is set
+						if($type === "controller" && $module_group_id === "item") {
+
+							$controllers = $fs->files(LOCAL_PATH."/www", [
+								"deny_folders" => "janitor,js,img,assets", 
+								"allow_extensions" => "php"
+							]);
+
+							$read_access = true;
+
+							foreach($controllers as $controller) {
+								$itemtype = false;
+
+								include($controller);
+								if($itemtype && $itemtype === $module_id) {
+
+									$digest = $this->getFileDigest($controller);
+									if($delete_modified_files || $digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
+										unlink($controller);
+									}
+
+								}
+
+							}
+
+						}
+
 					}
 
 				}
 
 			}
 
-			// System data to uninstall
-			if(isset($manifest["data"]) && isset($manifest["data"]["uninstall"])) {
-
-				foreach($manifest["data"]["uninstall"] as $file) {
-					// Uninstall files are stored in module config path at installation time
-					if(file_exists($module_config_path."/uninstall/".$file)) {
-						$uninstall_messages[] = $this->moduleSql($module_config_path."/uninstall/".$file);
-					}
-					else {
-						$uninstall_messages[] = ["message" => "Uninstall SQL file is missing: ".$file, "type" => "error"];
-					}
-				}
-
-			}
-
-			// Delete user data if requested
-			if($delete_data && isset($manifest["data"]) && isset($manifest["data"]["uninstall-data"])) {
-
-				foreach($manifest["data"]["uninstall-data"] as $file) {
-					// Uninstall files are stored in module config path at installation time
-					if(file_exists($module_config_path."/uninstall-data/".$file)) {
-						$uninstall_messages[] = $this->moduleSql($module_config_path."/uninstall-data/".$file);
-					}
-					else {
-						$uninstall_messages[] = ["message" => "Uninstall data SQL file is missing: ".$file, "type" => "error"];
-
-					}
-				}
-
-			}
 
 			// debug(["uninstall_messages", $uninstall_messages]);
 			$error = arrayKeyValue("type", "error", $uninstall_messages);
@@ -607,34 +824,36 @@ class ModuleCore extends Model {
 		if(count($action) === 4) {
 			$module_group_id = $action[2];
 			$module_id = $action[3];
-		}
 
-		// Do update via adapter – it knows the inputs required for it's settings file
-		if(file_exists(LOCAL_PATH."/classes/adapters/$module_group_id/$module_id.class.php")) {
-			@include_once("classes/adapters/$module_group_id/$module_id.class.php");
-			$class_name = "Janitor".ucfirst($module_id);
-			$module_class = new $class_name(false);
 
-			$module_model = $module_class->getModel();
-			$module_class->getPostedEntities();
+			// Do update via adapter – it knows the inputs required for it's settings file
+			if(file_exists(LOCAL_PATH."/classes/adapters/$module_group_id/$module_id.class.php")) {
+				@include_once("classes/adapters/$module_group_id/$module_id.class.php");
+				$class_name = "Janitor".ucfirst($module_id);
+				$module_class = new $class_name(false);
 
-			$values = [];
-			$entities = [];
-			foreach($module_model as $entity => $properties) {
-				if($entity !== "item_id" && $entity !== "user_id") {
-					$entities[] = $entity;
-					$values[$entity] = $module_class->getProperty($entity, "value");
+				$module_model = $module_class->getModel();
+				$module_class->getPostedEntities();
+
+				$values = [];
+				$entities = [];
+				foreach($module_model as $entity => $properties) {
+					if($entity !== "item_id" && $entity !== "user_id") {
+						$entities[] = $entity;
+						$values[$entity] = $module_class->getProperty($entity, "value");
+					}
 				}
-			}
 
 	
-			if($this->validateList($entities)) { 
-				$result = $this->updateSettings($module_group_id, $module_id, $values);
-				if($result) {
-					message()->addMessage("Settings updated");
-					return $result;
+				if($this->validateList($entities)) { 
+					$result = $this->updateSettings($module_group_id, $module_id, $values);
+					if($result) {
+						message()->addMessage("Settings updated");
+						return $result;
+					}
 				}
 			}
+
 		}
 
 		message()->addMessage("Settings could not be updated", ["type" => "error"]);
@@ -656,6 +875,174 @@ class ModuleCore extends Model {
 		return true;
 	}
 
+	// Get item controller by searching document root for matching php files
+	// Used in item module settings
+	function getItemControllers($module_id) {
+
+		$available_controllers = filesystem()->files(LOCAL_PATH."/www", [
+			"deny_folders" => "janitor,js,img,assets", 
+			"allow_extensions" => "php"
+		]);
+		$controllers = [];
+
+		$read_access = true;
+		foreach($available_controllers as $controller) {
+			$itemtype = false;
+
+			include($controller);
+			if($itemtype && $itemtype === $module_id) {
+				$controllers[] = str_replace(LOCAL_PATH."/www", "", $controller);
+			}
+		}
+
+		return $controllers;
+	}
+
+
+	function API_addController($action) {
+
+		$controller_path = getPost("controller_path");
+
+		if(count($action) === 4 && $controller_path) {
+
+			$module_group_id = $action[2];
+			$module_id = $action[3];
+
+
+			if($module_group_id && $module_id) {
+
+				$result = $this->addController([
+					"module_group_id" => $module_group_id,
+					"module_id" => $module_id,
+
+					"controller_path" => $controller_path
+				]);
+
+				if($result) {
+					message()->addMessage("Controller added");
+					return $result;
+				}
+
+			}
+
+		}
+
+		message()->addMessage("Controller could not be added", ["type" => "error"]);
+		return false;
+
+	}
+
+	function addController($_options = false) {
+
+		$module_group_id = false;
+		$module_id = false;
+
+		$controller_path = false;
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "module_group_id"          : $module_group_id           = $_value; break;
+					case "module_id"                : $module_id                 = $_value; break;
+
+					case "controller_path"          : $controller_path           = $_value; break;
+
+				}
+			}
+		}
+
+		if($module_group_id && $module_id && $controller_path) {
+
+			if(!preg_match("/\.php$/", $controller_path)) {
+				$controller_path .= ".php";
+			}
+
+			$module_config_path = LOCAL_PATH."/config/modules/$module_group_id/$module_id";
+			if(file_exists($module_config_path."/controller.php") && !file_exists(LOCAL_PATH."/www".$controller_path)) {
+				filesystem()->copy($module_config_path."/controller.php", LOCAL_PATH."/www".$controller_path);
+
+				return $controller_path;
+			}
+
+		}
+
+		return false;
+	}
+
+	function API_deleteController($action) {
+
+		$controller_path = getPost("controller_path");
+
+		if(count($action) === 4 && $controller_path) {
+
+			$module_group_id = $action[2];
+			$module_id = $action[3];
+
+			if($module_group_id && $module_id) {
+
+				$result = $this->deleteController([
+					"module_group_id" => $module_group_id,
+					"module_id" => $module_id,
+
+					"controller_path" => $controller_path
+				]);
+
+				if($result) {
+					message()->addMessage("Controller deleted");
+					return $result;
+				}
+
+			}
+
+		}
+
+		message()->addMessage("Controller could not be deleted", ["type" => "error"]);
+		return false;
+
+	}
+
+	function deleteController($_options = false) {
+
+		$module_group_id = false;
+		$module_id = false;
+
+		$controller_path = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "module_group_id"          : $module_group_id           = $_value; break;
+					case "module_id"                : $module_id                 = $_value; break;
+
+					case "controller_path"          : $controller_path           = $_value; break;
+
+				}
+			}
+		}
+
+		if($module_group_id && $module_id && $controller_path) {
+
+			if(file_exists(LOCAL_PATH."/www".$controller_path)) {
+				
+				$read_access = true;
+				include(LOCAL_PATH."/www".$controller_path);
+				if($itemtype && $itemtype === $module_id) {
+					unlink(LOCAL_PATH."/www".$controller_path);
+					return true;
+				}
+
+			}
+
+		}
+
+		return false;
+	}
+
 
 	// Execute module sql files
 	// Used for both install, upgrade and uninstall
@@ -670,17 +1057,21 @@ class ModuleCore extends Model {
 			$sql = str_replace("SITE_DB", SITE_DB, $sql);
 			// debug(["sql", $sql]);
 			if($query->sql($sql)) {
-				$message = "$sql_file imported";
+				$message = basename($sql_file)." imported";
 				$type = "success";
 			}
+			else if($query->dbErrorNo() === 1050) {
+				$message = basename($sql_file)." import skipped: Table already exists.";
+				$type = "table_exists";
+			}
 			else {
-				$message = "$sql_file import failed: ".$query->dbError();
+				$message = basename($sql_file)." import failed: ".$query->dbError();
 				$type = "error";
 			}
 		}
 		// could not find SQL file
 		else {
-			$message = "Could not find sql file, $sql_file.";
+			$message = "Could not find sql file, " . basename($sql_file) . ".";
 			$type = "error";
 		}
 
