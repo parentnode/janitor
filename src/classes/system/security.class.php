@@ -462,13 +462,13 @@ class Security {
 			if(!$query->sql("SELECT DISTINCT TABLE_NAME, COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE column_name = 'upgrade_password' AND TABLE_NAME = 'user_passwords' AND TABLE_SCHEMA = '".SITE_DB."'")) {
 
 				include_once("classes/system/upgrade.class.php");
-				$UG = new Upgrade();
+				$UpgradeClass = new Upgrade();
 
 				// move password to password_upgrade
-				$UG->renameColumn(SITE_DB.".user_passwords", "password", "upgrade_password");
+				$UpgradeClass->renameColumn(SITE_DB.".user_passwords", "password", "upgrade_password");
 				
 				// add new password column
-				$UG->addColumn(SITE_DB.".user_passwords", "password", "varchar(255) NOT NULL DEFAULT ''", "user_id");
+				$UpgradeClass->addColumn(SITE_DB.".user_passwords", "password", "varchar(255) NOT NULL DEFAULT ''", "user_id");
 
 			}
 
