@@ -40,7 +40,7 @@ if($module):
 	</div>
 <? endif; ?>
 
-	<?= HTML()->formStart("/janitor/admin/setup/modules/uninstall/".$module["group_id"]."/".$module["id"], [
+	<?= HTML()->formStart("/janitor/admin/setup/modules/uninstallModule/".$module["group_id"]."/".$module["id"], [
 		"class" => "uninstall"
 	]) ?>
 		<fieldset>

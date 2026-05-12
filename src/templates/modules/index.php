@@ -103,7 +103,7 @@ sudo chmod -R 770 <?= LOCAL_PATH ?>/library</code>
 				]) ?>
 
 				<ul class="actions">
-					<?= HTML()->oneButtonForm("Install", "/janitor/admin/setup/modules/install/$module_group_id/".$module["id"], array(
+					<?= HTML()->oneButtonForm("Install", "/janitor/admin/setup/modules/installModule/$module_group_id/".$module["id"], array(
 						"wrapper" => "li.install",
 						"confirm-value" => "Are you sure you want to install?",
 						"success-function" => "installed",

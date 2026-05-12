@@ -45,7 +45,10 @@ if($module):
 <?	endif; ?>
 
 <?	if($update_available): ?>
-	<?= HTML()->formStart("/janitor/admin/setup/modules/upgrade/".$module["group_id"]."/".$module["id"], [
+
+	<p>Version <?= $update_available ?> available.</p>
+
+	<?= HTML()->formStart("/janitor/admin/setup/modules/upgradeModule/".$module["group_id"]."/".$module["id"], [
 		"class" => "upgrade"
 	]) ?>
 		<fieldset>

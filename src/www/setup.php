@@ -129,56 +129,7 @@ if(is_array($action) && count($action)) {
 			exit();
 			
 		}
-		else if(count($action) == 4 && $action[1] === "install" && security()->validateCsrfToken()) {
-
-			// check if custom function exists on User class
-			if(module() && method_exists(module(), "API_installModule")) {
-
-				$output = new Output();
-				$output->screen(module()->API_installModule($action));
- 				exit();
-			}
-			exit();
-
-		}
-		else if(count($action) == 4 && $action[1] === "uninstall" && security()->validateCsrfToken()) {
-
-			// check if custom function exists on User class
-			if(module() && method_exists(module(), "API_uninstallModule")) {
-
-				$output = new Output();
-				$output->screen(module()->API_uninstallModule($action), [
-					"reset_messages" => false,
-				]);
-				exit();
-			}
-			exit();
-
-		}
-		else if(count($action) == 4 && $action[1] === "updateSettings" && security()->validateCsrfToken()) {
-
-			// check if custom function exists on User class
-			if(module() && method_exists(module(), "API_updateSettings")) {
-
-				$output = new Output();
-				$output->screen(module()->API_updateSettings($action));
-				exit();
-			}
-			exit();
-
-		}
-		else if(count($action) == 4 && $action[1] === "upgrade" && security()->validateCsrfToken()) {
-
-			// check if custom function exists on User class
-			if(module() && method_exists(module(), "API_upgradeModule")) {
-
-				$output = new Output();
-				$output->screen(module()->API_upgradeModule($action));
-				exit();
-			}
-			exit();
-
-		}
+		// Module settings
 		else if(count($action) == 3) {
 
 			$module_group_id = $action[1];
@@ -200,6 +151,14 @@ if(is_array($action) && count($action)) {
 				exit();
 			}
 
+		}
+
+		// Handle possible API request
+		else {
+			security()->API_request(module(), $action, [
+				"action_method_index" => 1,
+				"action_count" => 4
+			]);
 		}
 
 	}
