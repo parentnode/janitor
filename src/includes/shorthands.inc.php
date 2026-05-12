@@ -152,6 +152,17 @@ function module() {
 }
 
 
+$__filesystem = false;
+function filesystem() {
+	global $__filesystem;
+	if(!$__filesystem) {
+		include_once("classes/helpers/filesystem.class.php");
+		$__filesystem = new FileSystem();
+	}
+	return $__filesystem;
+}
+
+
 // Shorthand auto initializer for security access
 $__security = false;
 function security() {
