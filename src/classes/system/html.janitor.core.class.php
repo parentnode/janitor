@@ -428,133 +428,175 @@ class JanitorHTMLCore {
 		return $_;
 	}
 
+
+
+	// EDIT PANELS
+	// Sections for optional inclusion on the Janitor Item editing pages
+
+
 	// edit owner form for edit page
 	function editOwner($item, $_options = false) {
-		global $model;
 
 		$_ = '';
 
+		if(security()->validPath($this->path."/owner")) {
 
-		$IC = new Items();
-		$owner = $IC->getOwners(["item_id" => $item["id"]]);
-		$_ .= '<div class="owner i:defaultOwner i:collapseHeader item_id:'.$item["id"].'">';
-		$_ .= '<h2>Owner</h2>';
+			global $model;
 
-		$_ .= '<fieldset>';
-			$_ .= '<h3>Current owner</h3>';
-			$_ .= '<p class="current_owner">'.$owner["nickname"]."</p>";
-		$_ .= '</fieldset>';
+			$IC = new Items();
+			$owner = $IC->getOwners(["item_id" => $item["id"]]);
+			$_ .= '<div class="owner i:defaultOwner i:collapseHeader item_id:'.$item["id"].'">';
+			$_ .= '<h2>Owner</h2>';
 
-		if(security()->validPath($this->path."/updateOwner")) {
-			$owner_options = $model->toOptions($IC->getOwners(), "id", "nickname");
+			$_ .= '<fieldset>';
+				$_ .= '<h3>Current owner</h3>';
+				$_ .= '<p class="current_owner">'.$owner["nickname"]."</p>";
+			$_ .= '</fieldset>';
 
-			$_ .= '<div class="change_ownership">';
+			if(security()->validPath($this->path."/updateOwner")) {
+				$owner_options = $model->toOptions($IC->getOwners(), "id", "nickname");
+
+				$_ .= '<div class="change_ownership">';
 			
-				$_ .= $model->formStart($this->path."/updateOwner/".$item["id"], array("class" => "labelstyle:inject"));
-					$_ .= $model->input("return_to", array("type" => "hidden", "value" => $this->path."/edit/".$item["id"]));
-				$_ .= '<fieldset>';
-					$_ .= '<h3>Change owner</h3>';
-					$_ .= $model->input("item_ownership", array("type" => "select", "options" => $owner_options, "value" => $item["user_id"]));
-				$_ .= '</fieldset>';
+					$_ .= $model->formStart($this->path."/updateOwner/".$item["id"], array("class" => "labelstyle:inject"));
+						$_ .= $model->input("return_to", array("type" => "hidden", "value" => $this->path."/edit/".$item["id"]));
+					$_ .= '<fieldset>';
+						$_ .= '<h3>Change owner</h3>';
+						$_ .= $model->input("item_ownership", array("type" => "select", "options" => $owner_options, "value" => $item["user_id"]));
+					$_ .= '</fieldset>';
 
-				$_ .= '<ul class="actions">';
-					$_ .= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save"));
-				$_ .= '</ul>';
-				$_ .= $model->formEnd();
-			$_ .= '</div>';		
+					$_ .= '<ul class="actions">';
+						$_ .= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save"));
+					$_ .= '</ul>';
+					$_ .= $model->formEnd();
+				$_ .= '</div>';		
+
+			}
+
+			$_ .= '</div>';
 
 		}
-
-		$_ .= '</div>';
 
 		return $_;
 	}
 
 	// edit sindex form for edit page (Currently only showing sindex)
 	function editSindex($item, $_options = false) {
-		global $model;
 
 		$_ = '';
 
+		if(security()->validPath($this->path."/sindex")) {
 
-		$_ .= '<div class="sindex i:defaultSindex i:collapseHeader item_id:'.$item["id"].'" data-check-sindex="'.security()->validPath($this->path."/checkSindex/".$item["id"]).'">';
-		$_ .= '<h2>sindex</h2>';
-		$_ .= '<p>The <em>sindex</em> is a Search engine optimized item identified, typically used in URL\'s.</p>';
-		$_ .= '<p>The <em>sindex</em> value is deducted from the item <em>name</em> when you create a new item in Janitor. While the name of the item may be updated later, the <em>sindex</em> value remains the same to avoid breaking links.</p>';
-		$_ .= '<p>However, you can manually request an update of the <em>sindex</em> value – or specify a custom value for this item.</p>';
+			global $model;
 
 
-		// Update sindex
-		$_ .= '<fieldset>';
-			$_ .= '<h3>Current sindex value</h3>';
-			$_ .= '<p class="current_sindex">'.$item["sindex"]."</p>";
-		$_ .= '</fieldset>';
+			// No options specified, yet
+			// $paragraph = false;
 
-		$_ .= '<ul class="actions">';
-		$_ .= $model->oneButtonForm("Update sindex", "updateSindex/".$item["id"], array(
-				"class" => "primary",
-				 "wrapper" => "li.update", 
-				 "confirm-value" => false)
-			 );
-		$_ .= '</ul>';
+			// overwrite defaults
+			if($_options !== false) {
+				foreach($_options as $_option => $_value) {
+					switch($_option) {
+
+						// case "paragraph"         : $paragraph          = $_value; break;
+
+					}
+				}
+			}
 
 
-		// Set sindex manually
-		$_ .= $model->formStart($this->path."/updateSindex/".$item["id"], array("class" => "manual_sindex labelstyle:inject"));
-		$_ .= '<fieldset>';
-		$_ .= '<h3>Set sindex manually</h3>';
+			$_ .= '<div class="sindex i:defaultSindex i:collapseHeader item_id:'.$item["id"].'" data-check-sindex="'.security()->validPath($this->path."/checkSindex/".$item["id"]).'">';
+			$_ .= '<h2>sindex</h2>';
+			$_ .= '<p>The <em>sindex</em> is a Search engine optimized item identified, typically used in URL\'s.</p>';
+			$_ .= '<p>The <em>sindex</em> value is deducted from the item <em>name</em> when you create a new item in Janitor. While the name of the item may be updated later, the <em>sindex</em> value remains the same to avoid breaking links.</p>';
+			$_ .= '<p>However, you can manually request an update of the <em>sindex</em> value – or specify a custom value for this item.</p>';
 
-		$_ .= $model->input("item_sindex", array("value" => $item["sindex"]));
-		$_ .= '</fieldset>';
 
-		$_ .= '<ul class="actions">';
-		$_ .= $model->submit("Set custom sindex", array("class" => "primary", "wrapper" => "li.save"));
-		$_ .= '</ul>';
-		$_ .= $model->formEnd();
-		
-		$_ .= '</div>';
+			// Update sindex
+			$_ .= '<fieldset>';
+				$_ .= '<h3>Current sindex value</h3>';
+				$_ .= '<p class="current_sindex">'.$item["sindex"]."</p>";
+			$_ .= '</fieldset>';
+
+
+			if(security()->validPath($this->path."/updateSindex")) {
+
+				$_ .= '<ul class="actions">';
+				$_ .= $model->oneButtonForm("Update sindex", "updateSindex/".$item["id"], array(
+						"class" => "primary",
+						 "wrapper" => "li.update", 
+						 "confirm-value" => false)
+					 );
+				$_ .= '</ul>';
+
+
+				// Set sindex manually
+				$_ .= $model->formStart($this->path."/updateSindex/".$item["id"], array("class" => "manual_sindex labelstyle:inject"));
+				$_ .= '<fieldset>';
+				$_ .= '<h3>Set sindex manually</h3>';
+
+				$_ .= $model->input("item_sindex", array("value" => $item["sindex"]));
+				$_ .= '</fieldset>';
+
+				$_ .= '<ul class="actions">';
+				$_ .= $model->submit("Set custom sindex", array("class" => "primary", "wrapper" => "li.save"));
+				$_ .= '</ul>';
+				$_ .= $model->formEnd();
+
+			}
+
+			$_ .= '</div>';
+
+		}
 
 		return $_;
 	}
 
 	// edit sindex form for edit page (Currently only showing sindex)
 	function editDeveloperSettings($item, $_options = false) {
-		global $model;
-
-		$title = "Developer settings";
-		$paragraph = false;
-
-		// overwrite defaults
-		if($_options !== false) {
-			foreach($_options as $_option => $_value) {
-				switch($_option) {
-
-					case "title"             : $title              = $_value; break;
-					case "paragraph"         : $paragraph          = $_value; break;
-
-				}
-			}
-		}
 
 		$_ = '';
 
-		$_ .= '<div class="developer i:defaultDeveloper i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["comments"]).'>';
-		$_ .= '<h2>'.$title.'</h2>';
+		if(security()->validPath($this->path."/developer")) {
 
-		if($paragraph) {
-			$_ .= '<p>'.$paragraph.'</p>';
+			global $model;
+
+
+			$title = "Developer settings";
+			$paragraph = false;
+
+			// overwrite defaults
+			if($_options !== false) {
+				foreach($_options as $_option => $_value) {
+					switch($_option) {
+
+						case "title"             : $title              = $_value; break;
+						case "paragraph"         : $paragraph          = $_value; break;
+
+					}
+				}
+			}
+
+
+			$_ .= '<div class="developer i:defaultDeveloper i:collapseHeader item_id:'.$item["id"].'">';
+			$_ .= '<h2>'.$title.'</h2>';
+
+			if($paragraph) {
+				$_ .= '<p>'.$paragraph.'</p>';
+			}
+
+			$_ .= $model->formStart($this->path."/update/".$item["id"], array("class" => "labelstyle:inject"));
+			$_ .= '<fieldset>';
+			$_ .= $model->input("classname", array("value" => $item["classname"]));
+			$_ .= '</fieldset>';
+
+			$_ .= '<ul class="actions">';
+			$_ .= $model->submit("Save", array("class" => "primary", "wrapper" => "li.save"));
+			$_ .= '</ul>';
+			$_ .= $model->formEnd();
+			$_ .= '</div>';
+
 		}
-
-		$_ .= $model->formStart($this->path."/update/".$item["id"], array("class" => "labelstyle:inject"));
-		$_ .= '<fieldset>';
-		$_ .= $model->input("classname", array("value" => $item["classname"]));
-		$_ .= '</fieldset>';
-
-		$_ .= '<ul class="actions">';
-		$_ .= $model->submit("Save", array("class" => "primary", "wrapper" => "li.save"));
-		$_ .= '</ul>';
-		$_ .= $model->formEnd();
-		$_ .= '</div>';
 
 		return $_;
 
@@ -692,21 +734,46 @@ class JanitorHTMLCore {
 
 		$_ = '';
 
-		$_ .= '<div class="comments i:defaultComments i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["comments"]).'>';
-		$_ .= '<h2>Comments ('.($item["comments"] ? count($item["comments"]) : 0).')</h2>';
+		if(security()->validPath($this->path."/comments")) {
 
-		$_ .= $this->commentList($item["comments"]);
 
-		$_ .= $model->formStart($this->path."/addComment/".$item["id"], array("class" => "labelstyle:inject"));
-		$_ .= '<fieldset>';
-		$_ .= $model->input("item_comment", array("id" => "comment_".$item["id"]));
-		$_ .= '</fieldset>';
+			// No options specified, yet
+			// $paragraph = false;
 
-		$_ .= '<ul class="actions">';
-		$_ .= $model->submit("Add new comment", array("class" => "primary", "wrapper" => "li.save"));
-		$_ .= '</ul>';
-		$_ .= $model->formEnd();
-		$_ .= '</div>';
+			// overwrite defaults
+			if($_options !== false) {
+				foreach($_options as $_option => $_value) {
+					switch($_option) {
+
+						// case "paragraph"         : $paragraph          = $_value; break;
+
+					}
+				}
+			}
+
+
+			$_ .= '<div class="comments i:defaultComments i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["comments"]).'>';
+			$_ .= '<h2>Comments ('.($item["comments"] ? count($item["comments"]) : 0).')</h2>';
+
+			$_ .= $this->commentList($item["comments"]);
+
+
+			if(security()->validPath($this->path."/addComment")) {
+
+				$_ .= $model->formStart($this->path."/addComment/".$item["id"], array("class" => "labelstyle:inject"));
+				$_ .= '<fieldset>';
+				$_ .= $model->input("item_comment", array("id" => "comment_".$item["id"]));
+				$_ .= '</fieldset>';
+
+				$_ .= '<ul class="actions">';
+				$_ .= $model->submit("Add new comment", array("class" => "primary", "wrapper" => "li.save"));
+				$_ .= '</ul>';
+				$_ .= $model->formEnd();
+				$_ .= '</div>';
+
+			}
+
+		}
 
 		return $_;
 	}
