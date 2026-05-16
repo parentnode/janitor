@@ -149,13 +149,20 @@ class ItemtypeCore extends Model {
 			"hint_message" => "Choose new editor for item.",
 			"error_message" => "A valid new editor must be selected."
 		));
-		
+
 		// Sindex
 		$this->addToModel("item_sindex", array(
 			"type" => "string",
 			"label" => "Item sindex",
 			"hint_message" => "Choose a specific sindex for this item. Value must be available.",
 			"error_message" => "A valid and available sindex must be specified."
+		));
+		// Cannonical
+		$this->addToModel("item_cannonical", array(
+			"type" => "string",
+			"label" => "Cannonical item url",
+			"hint_message" => "Choose the cannonical url for this item.",
+			"error_message" => "A valid cannonical url must be selected."
 		));
 
 
@@ -424,7 +431,7 @@ class ItemtypeCore extends Model {
 		$user_id = stringOr(session()->value("user_id"), "DEFAULT");
 
 		// create item
-		$sql = "INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, 0, '$this->itemtype', ".$user_id.", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".$published_at.")";
+		$sql = "INSERT INTO ".UT_ITEMS." VALUES(DEFAULT, DEFAULT, DEFAULT, 0, '$this->itemtype', ".$user_id.", CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ".$published_at.")";
 		// debug(["saveItem", $sql]);
 
 		// save root item
@@ -1020,6 +1027,7 @@ class ItemtypeCore extends Model {
 	* Make a reference for old sindex' to enable lookup with old links
 	*/
 	function sindexHistory($item_id, $new_sindex) {
+		// debug(["sindexHistory"]);
 
 		$query = new Query();
 		$query->checkDbExistence(UT_ITEMS_SINDEX_HISTORY);
@@ -1031,6 +1039,7 @@ class ItemtypeCore extends Model {
 
 
 			$sindex = $query->result(0, "sindex");
+
 			// debug([$sindex]);
 			if($sindex && $sindex !== $new_sindex) {
 
@@ -1055,14 +1064,260 @@ class ItemtypeCore extends Model {
 
 			}
 
+			// Syncronize cannonical url with new sindex (if needed)
+			$this->syncCannonical([
+				"item_id" => $item_id,
+				"new_sindex" => $new_sindex,
+				"old_sindex" => $sindex
+			]);
+
 		}
 
 		// Remove any entries for item with new sindex (it is no longer obsolete for this item)
 		// A means for keeping sindex history reasonably trimmed
-		
 		$query->sql("DELETE FROM ".UT_ITEMS_SINDEX_HISTORY." WHERE sindex = '$new_sindex' AND item_id = $item_id");
 
+
 	}
+
+
+	function syncCannonical($_options = false) {
+		// debug(["syncCannonical", $_options]);
+
+		$item_id = false;
+		$new_sindex = false;
+		$old_sindex = false;
+
+		$controller_deleted = false;
+		$itemtype = false;
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"                 : $item_id                    = $_value; break;
+					case "new_sindex"              : $new_sindex                 = $_value; break;
+					case "old_sindex"              : $old_sindex                 = $_value; break;
+
+					case "controller_deleted"      : $controller_deleted         = $_value; break;
+					case "itemtype"                : $itemtype                   = $_value; break;
+
+				}
+			}
+		}
+
+		$query = new Query();
+
+
+		// If controller was deleted, then loop through all items and update cannonical urls where controller was referenced
+		if($controller_deleted) {
+
+			// Remove extension
+			$controller = preg_replace("/\.php$/", "", $controller_deleted);
+
+			$IC = new Items();
+			if($itemtype) {
+				$items = $IC->getItems(["itemtype" => $itemtype, "where" => "cannonical LIKE '$controller%'"]);
+			}
+			else {
+				$items = $IC->getItems(["where" => "cannonical LIKE '$controller%'"]);
+			}
+			// debug(["TODO - update cannonicals with deleted controllers", $items]);
+
+			// Reset cannonicals with best alternative for all 
+			foreach($items as $item) {
+
+				$options = $this->getCannonicalOptions($item, ["only_safe" => true]);
+				if($options) {
+					$this->setCannonicalUrl($item["id"], array_shift($options));
+				}
+
+			}
+
+		}
+
+		// If sindex was changed, then check if current cannonical value containes old sindex, and replace value with new sindex
+		else if($item_id && $new_sindex) {
+
+			// Get current values
+			$sql = "SELECT itemtype, sindex, cannonical FROM ".UT_ITEMS." WHERE id = $item_id";
+			// debug([$sql]);
+			if($query->sql($sql)) {
+
+				$itemtype = $query->result(0, "itemtype");
+				$cannonical = $query->result(0, "cannonical");
+
+				// If old sindex was not passed, check current value
+				if(!$old_sindex) {
+					$old_sindex = $query->result(0, "sindex");
+				}
+
+				// Is old sindex contained within the current cannonical
+				if($old_sindex && $old_sindex !== $new_sindex && preg_match("/".$old_sindex."($|\/)/", $cannonical)) {
+
+					// sindex in cannonical could theoretically be part of hardcoded controller name
+					// So we much disect cannonical and check if structure is based on controller/sindex
+					$possible_controller = preg_replace("/\/".$old_sindex."[^$]?/", "", $cannonical);
+
+					// Could it be mapped to index.php
+					if($possible_controller === "") {
+						$possible_controller = "/index";
+					}
+
+					$possible_controller = $possible_controller.".php";
+
+					if($possible_controller && file_exists(LOCAL_PATH."/www".$possible_controller)) {
+
+						$read_access = true;
+						$access_item = [];
+						$controller_itemtype = false;
+						
+						include(LOCAL_PATH."/www".$possible_controller);
+						if($controller_itemtype && $controller_itemtype === $itemtype) {
+
+							// Sindex is appended to valid controller
+							$updated_cannonical_url = str_replace($old_sindex, $new_sindex, $cannonical);
+
+							// Set updated value
+							$this->setCannonicalUrl($item_id, $updated_cannonical_url);
+						}
+
+					}
+
+				}
+				// No old index – this is a part of item creation process
+				else {
+
+					// Set cannonical url to first available option (which is also expected to be best option)
+					$options = $this->getCannonicalOptions(["id" => $item_id, "itemtype" => $itemtype, "sindex" => $new_sindex], ["only_safe" => true]);
+					if($options) {
+						$this->setCannonicalUrl($item_id, array_shift($options));
+					}
+
+				}
+
+			}
+
+		}
+
+	}
+
+	// Get cannonical options for selection on item
+	// Attempting to create a prioritized order
+	function getCannonicalOptions($item, $_options = false) {
+
+		$only_safe_cannonical = false;
+		
+		
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "only_safe"                 : $only_safe_cannonical                    = $_value; break;
+
+				}
+			}
+		}
+
+
+		$primary_options = [];
+		$secondary_options = [];
+		$tertiary_options = [];
+
+		$controllers = filesystem()->files(LOCAL_PATH."/www", [
+			"allow_extensions" => "php",
+			"deny_folders" => "js,css,img,assets,janitor",
+		]);
+
+		$IC = new Items();
+		$read_access = true;
+		foreach($controllers as $controller) {
+
+			$link = preg_replace("/\.php$/", "", str_replace(LOCAL_PATH."/www", "", $controller));
+
+			$access_item = [];
+			$controller_itemtype = false;
+			$controller_favors = false;
+			$controller_assignable = true;
+
+
+			include($controller);
+			if($controller_assignable !== false && $controller_itemtype && $item["itemtype"] === $controller_itemtype && $controller_favors && isset($controller_favors["view"])) {
+
+				// Nested structure
+				if(strpos(substr($link, 1), "/") !== false) {
+					$secondary_options[$link."/".$item["sindex"]] = $link."/".$item["sindex"];
+				}
+				// First level controller
+				else {
+					$primary_options[$link."/".$item["sindex"]] = $link."/".$item["sindex"];
+				}
+
+			}
+
+			// Unknown, but assignable controller (can be a hardcoded item viewer, so should be available for selection)
+			else if(!$only_safe_cannonical && $controller_assignable !== false && (!$controller_itemtype || $item["itemtype"] === $controller_itemtype)) {
+
+				$tertiary_options[$link] = $link;
+
+			}
+
+		}
+
+		return $primary_options+$secondary_options+$tertiary_options;
+	}
+
+	// API version of setCannonicalUrl
+	function API_setCannonicalUrl($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) === 1 && $this->validateList(array("item_id", "item_cannonical"))) {
+
+			$item_id = $this->getProperty("item_id", "value");
+			$cannonical_url = $this->getProperty("item_cannonical", "value");
+
+
+			$result = $this->setCannonicalUrl($item_id, $cannonical_url);
+
+			if($result) {
+				message()->addMessage("Cannonical Url updated");
+				return $result;
+			}
+
+		}
+
+		message()->addMessage("Cannonical Url could not be duplicated", ["type" => "error"]);
+		return false;
+
+	}
+
+	// Set cannonical url for item
+	function setCannonicalUrl($item_id, $cannonical_url) {
+		// debug(["setCannonicalUrl", $cannonical_url]);
+
+		if($item_id && $cannonical_url) {
+
+			$query = new Query();
+
+			$sql = "UPDATE ".UT_ITEMS." SET cannonical = '$cannonical_url' WHERE id = $item_id";
+			if($query->sql($sql)) {
+				return true;
+			}
+
+		}
+
+		return false;
+	}
+
+
+
+
 
 
 	// Update item order

@@ -51,6 +51,10 @@
 #content .scene.defaultEdit > div.sindex form {padding-bottom: 15px;}
 #content .scene.defaultEdit > div.sindex ul.actions + form {padding-top: 20px;}
 
+/* EDIT CANNONICAL */
+#content .scene.defaultEdit > div.cannonical {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.cannonical form {padding-bottom: 15px;}
+
 /* DEVELOPER SETTINGS */
 #content .scene.defaultEdit > div.developer {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.developer form {padding-bottom: 15px;}

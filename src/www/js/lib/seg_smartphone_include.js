@@ -31,6 +31,7 @@ document.write('<script type="text/javascript" src="/janitor/admin/js/lib/deskto
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_sindex.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_owner.js"></script>');
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_developer.js"></script>');
+document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-default_cannonical.js"></script>');
 
 document.write('<script type="text/javascript" src="/janitor/admin/js/lib/desktop/m-event_tickets.js"></script>');
 

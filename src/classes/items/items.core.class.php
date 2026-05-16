@@ -122,6 +122,7 @@ class ItemsCore {
 
 			$SELECT[] = "items.id";
 			$SELECT[] = "items.sindex";
+			$SELECT[] = "items.cannonical";
 			$SELECT[] = "items.status";
 			$SELECT[] = "items.itemtype";
 			$SELECT[] = "items.user_id";
@@ -465,6 +466,7 @@ class ItemsCore {
 
 		$SELECT[] = "items.id";
 		$SELECT[] = "items.sindex";
+		$SELECT[] = "items.cannonical";
 		$SELECT[] = "items.status";
 		$SELECT[] = "items.itemtype";
 		$SELECT[] = "items.user_id";
@@ -653,6 +655,7 @@ class ItemsCore {
 		// Add base select properties
 		$SELECT[] = "items.id";
 		$SELECT[] = "items.sindex";
+		$SELECT[] = "items.cannonical";
 		$SELECT[] = "items.status";
 		$SELECT[] = "items.itemtype";
 		$SELECT[] = "items.user_id";
@@ -987,6 +990,7 @@ class ItemsCore {
 				// Add base select properties
 				$SELECT[] = "items.id";
 				$SELECT[] = "items.sindex";
+				$SELECT[] = "items.cannonical";
 				$SELECT[] = "items.status";
 				$SELECT[] = "items.itemtype";
 				$SELECT[] = "items.user_id";

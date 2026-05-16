@@ -552,6 +552,56 @@ class JanitorHTMLCore {
 		return $_;
 	}
 
+	// edit cannonical url form for edit page
+	function editCannonicalUrl($item, $_options = false) {
+
+		$_ = '';
+
+		if(security()->validPath($this->path."/cannonical")) {
+
+			$model = new Itemtype($item["itemtype"]);
+
+			$_ .= '<div class="cannonical i:defaultCannonical i:collapseHeader item_id:'.$item["id"].'">';
+			$_ .= '<h2>Cannonical Url</h2>';
+			$_ .= '<p>The cannonical url is important to provide search engines with a unique url for this item. They require this to clearly identify the original vs. possible duplicates</p>';
+			$_ .= '<p>Select the preferred option as the cannonical url for this item below.</p>';
+			
+			$_ .= '<fieldset>';
+				$_ .= '<h3>Current cannonical url</h3>';
+				$_ .= '<p class="current_url">'.($item["cannonical"] ? $item["cannonical"] : "N/A")."</p>";
+			$_ .= '</fieldset>';
+
+
+			if(security()->validPath($this->path."/setCannonicalUrl")) {
+
+				$IC = new Items();
+				$cannonical_options = $model->getCannonicalOptions($item);
+
+				$_ .= '<div class="change_cannonical">';
+			
+					$_ .= $model->formStart($this->path."/setCannonicalUrl", array("class" => "labelstyle:inject"));
+						$_ .= $model->input("item_id", ["type" => "hidden", "value" => $item["id"]]);
+					$_ .= '<fieldset>';
+						$_ .= '<h3>Change cannonical Url</h3>';
+						$_ .= $model->input("item_cannonical", array("type" => "select", "options" => $cannonical_options, "value" => $item["cannonical"]));
+					$_ .= '</fieldset>';
+
+					$_ .= '<ul class="actions">';
+						$_ .= $model->submit("Update", array("class" => "primary", "wrapper" => "li.save"));
+					$_ .= '</ul>';
+					$_ .= $model->formEnd();
+				$_ .= '</div>';		
+
+			}
+
+			$_ .= '</div>';
+
+		}
+
+		return $_;
+	}
+
+
 	// edit sindex form for edit page (Currently only showing sindex)
 	function editDeveloperSettings($item, $_options = false) {
 

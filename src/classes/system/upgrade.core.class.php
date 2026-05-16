@@ -156,6 +156,8 @@ class UpgradeCore extends Model {
 
 				$this->updateNavigation08();
 
+				$this->updateCannonicals08();
+
 			}
 
 			// Run any project specific post-upgade tasks
@@ -2421,6 +2423,41 @@ class UpgradeCore extends Model {
 
 	}
 
+	// Add cannonical default data
+	function updateCannonicals08() {
+
+		$IC = new Items();
+		$items = $IC->getItems(["where" => "cannonical IS NULL"]);
+		foreach($items as $item) {
+
+			$model = new Itemtype($item["itemtype"]);
+
+			$options = $model->getCannonicalOptions($item, ["only_safe" => true]);
+			if($options) {
+				$cannonical_url = array_shift($options);
+				$model->setCannonicalUrl($item["id"], $cannonical_url);
+				$this->process(["success" => true, "message" => "Cannonical url updated to $cannonical_url, item_id:".$item["id"]], false);
+			}
+			else {
+				$this->process(["success" => false, "message" => "Cannonical url could not be updated, item_id:".$item["id"]], false);
+			}
+
+		}
+
+	}
+
+
+	// Latest version integrity check
+	// Check file relations, cannonical urls, etc
+	function integrityCheck() {
+
+		$this->process(["success" => false, "message" => "TODO: implement integrity check"], false);
+
+		// Find all uploaded files, and match them to items
+
+		// Check all cannonicals, to check if urls still match a meaningful controller
+
+	}
 
 
 

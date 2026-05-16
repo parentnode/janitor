@@ -2,6 +2,7 @@ CREATE TABLE `SITE_DB`.`items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
 
   `sindex` varchar(255) NULL DEFAULT NULL,
+  `cannonical` varchar(255) NULL DEFAULT NULL,
   `status` int(11) NOT NULL,
   `itemtype` varchar(40) NOT NULL,
 
