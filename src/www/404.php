@@ -4,7 +4,6 @@ if(isset($read_access) && $read_access) {
 	return;
 }
 
-
 // determine request type
 
 // JS
@@ -31,6 +30,8 @@ else if(preg_match("/^\/(img|images|media|videos|audios)|\.(jpg|png|gif|ogv|mp4|
 else {
 
 	include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
+
+	// debug([$_SERVER]);
 
 	$page->bodyClass("error");
 	$page->pageTitle(SITE_NAME." - 404");
