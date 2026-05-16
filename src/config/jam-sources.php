@@ -10,6 +10,7 @@ $jam_sources = [
 				"description" => "The simplest content item for creating pages.",
 				"info_link" => "https://github.com/parentnode/jam-item-page-simplest",
 				"repos" => "http://jam-item-page-simplest.local",
+				// "repos" => "https://github.com/parentnode/jam-item-page-simplest",
 			],
 			"service" => [
 				"name" => "Service itemtype",
