@@ -49,28 +49,11 @@ class Navigation extends Model {
 
 		// node_link
 		$this->addToModel("node_link", array(
-			"type" => "string",
-			"label" => "Static link",
-			"hint_message" => "Type absolute url, starting with / or http://",
+			"type" => "dropdown",
+			"label" => "Link",
+			"hint_message" => "Type or select link, starting with / or http://",
 			"error_message" => ""
 		));
-
-
-		// node_destination
-		$this->addToModel("node_destination", array(
-			"type" => "select",
-			"label" => "Destination",
-			"hint_message" => "Select destination",
-			"error_message" => ""
-		));
-
-		// // node_path (navigation path to be used as identification for this navigation node)
-		// $this->addToModel("node_path", array(
-		// 	"type" => "string",
-		// 	"label" => "Navigation path",
-		// 	"hint_message" => "",
-		// 	"error_message" => ""
-		// ));
 
 
 		// node_classname
@@ -257,7 +240,7 @@ class Navigation extends Model {
 
 
 	// get specific navigation node information (for edit_node template)
-	function getNode($id) {
+	function getNavigationNode($id) {
 
 		$query = new Query();
 		$sql = "SELECT * FROM ".$this->db_nodes." WHERE id = $id";
@@ -270,123 +253,317 @@ class Navigation extends Model {
 	}
 
 
+	function getLinkOptions() {
+		$IC = new Items();
+
+
+		$link_options = ["" => "Type the desired url or select an item or items list"];
+
+
+		$controllers = filesystem()->files(LOCAL_PATH."/www", [
+			"allow_extensions" => "php",
+			"deny_folders" => "js,css,img,assets,janitor",
+		]);
+
+		$IC = new Items();
+		$read_access = true;
+		foreach($controllers as $controller) {
+
+			$link = preg_replace("/\.php$/", "", str_replace(LOCAL_PATH."/www", "", $controller));
+
+			$access_item = [];
+			$controller_itemtype = false;
+			$controller_favors = false;
+
+			include($controller);
+			if($controller_itemtype && $controller_favors) {
+
+				$type_model = $IC->typeObject($controller_itemtype);
+				if($type_model) {
+
+					// debug([$link, $itemtype, $controller_favors]);
+
+					foreach($controller_favors as $view => $label) {
+
+						// Maybe exclude 
+						// Edit, view – sindex must be added to identify which
+						if($view === "view") {
+
+							$items = $IC->getItems([
+								"itemtype" => $controller_itemtype, 
+								"status" => 1, 
+								"order" => $controller_itemtype.".name ASC", 
+								"extend" => true
+							]);
+							foreach($items as $item) {
+								$link_options[$link."/".$item["sindex"]] = $item["name"]. " (".$link."/".$item["sindex"].", itemtype: ".$label.")";
+							}
+
+						}
+						// List, new
+						else if($view === "list") {
+							$link_options[$link] = $label . " (".$link.")";
+						}
+
+					}
+
+				}
+
+			}
+
+			// Unknown controller, expect it to be self-contained (can be called directly without parameters)
+			else {
+
+				if($controller_favors && isset($controller_favors["view"])) {
+					$link_options[$link] = $controller_favors["view"]."($link)";
+				}
+				else {
+					$link_options[$link] = $link;
+				}
+
+			}
+
+		}
+
+		return $link_options;
+	}
+
 	// save node
-	// /janitor/admin/navigation/saveNode/#$navigation_id#
+	// /janitor/admin/navigation/saveNode
 	function API_saveNode($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
 		// does values validate
-		if(count($action) == 2 && $this->validateList(array("node_name"))) {
+		if(count($action) == 1 && $this->validateList(array("node_name", "node_classname", "node_target", "node_link", "node_fallback"))) {
+
+			$navigation_id = getPost("navigation_id");
 
 			$node_name = $this->getProperty("node_name", "value");
+			$node_classname = $this->getProperty("node_classname", "value");
+			$node_target = $this->getProperty("node_target", "value");
 
+			$node_link = $this->getProperty("node_link", "value");
 
-		}
-	}
+			$node_fallback = $this->getProperty("node_fallback", "value");
 
-	function saveNode($action) {
+			$result = $this->saveNode([
+				"navigation_id" => $navigation_id,
 
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
+				"node_name" => $node_name,
+				"node_classname" => $node_classname,
+				"node_target" => $node_target,
 
-		// does values validate
-		if(count($action) == 2 && $this->validateList(array("node_name"))) {
+				"node_link" => $node_link,
 
-			$query = new Query();
-			$navigation_id = $action[1];
+				"node_fallback" => $node_fallback
+			]);
 
-			$entities = $this->data_entities;
-			$names = array();
-			$values = array();
-
-			foreach($entities as $name => $entity) {
-				if($name == "node_target") {
-					if($entity["value"]) {
-						$values[] = $name."='_blank'";
-					}
-					
-				}
-				else if($name == "node_destination") {
-					if($entity["value"]) {
-						$values[] = $name."='".$entity["value"]."'";
-					}
-				}
-				else if($entity["value"] !== false) {
-					$values[] = $name."='".$entity["value"]."'";
-				}
+			if($result) {
+				message()->addMessage("Navigation node created");
+				return $result;
 			}
 
-			if($values) {
-				$sql = "INSERT INTO ".$this->db_nodes." SET id = DEFAULT, navigation_id = $navigation_id, "  . implode(",", $values);
-				// debug([$sql]);
-
-				if($query->sql($sql)) {
-
-					// delete from cache (will be respawned on next request)
-					$sql = "SELECT handle FROM ".$this->db." WHERE id = ".$navigation_id;
-					if($query->sql($sql)) {
-						$handle = $query->result(0, "handle");
-						cache()->reset("navigation-".$handle);
-					}
-
-
-					message()->addMessage("Navigation node created");
-					return array("item_id" => $navigation_id);
-				}
-			}
 		}
 
 		message()->addMessage("Navigation node could not be created", array("type" => "error"));
+		return false;
+	}
+
+	function saveNode($_options = false) {
+		// debug(["saveNode", $_options]);
+
+		$navigation_id = false;
+
+		$node_name = false;
+		$node_classname = false;
+		$node_target = false;
+
+		$node_link = false;
+
+		$node_fallback = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "navigation_id"          : $navigation_id             = $_value; break;
+
+					case "node_name"              : $node_name                 = $_value; break;
+					case "node_classname"         : $node_classname            = $_value; break;
+					case "node_target"            : $node_target               = $_value; break;
+
+					case "node_link"              : $node_link                 = $_value; break;
+
+					case "node_fallback"          : $node_fallback             = $_value; break;
+
+				}
+			}
+		}
+
+		if($navigation_id && $node_name) {
+
+			$query = new Query();
+
+			$sql = "INSERT INTO ".$this->db_nodes." SET navigation_id = $navigation_id, node_name = '$node_name'";
+
+
+			if($node_classname !== false) {
+				$sql .= ", node_classname = '$node_classname'";
+			}
+			if($node_target !== false) {
+				$sql .= ", node_target = ".($node_target ? "'_blank'" : "NULL");
+			}
+
+			// Add static link if applicable
+			if($node_link !== false) {
+				$sql .= ", node_link = '$node_link'";
+			}
+			// Add fallback link if applicable
+			if($node_fallback !== false) {
+				$sql .= ", node_fallback = '$node_fallback'";
+			}
+
+			// debug([$sql]);
+
+			if($query->sql($sql)) {
+
+				// delete from cache (will be respawned on next request)
+				$sql = "SELECT handle FROM ".$this->db." WHERE id = ".$navigation_id;
+				// debug([$sql]);
+				if($query->sql($sql)) {
+					$handle = $query->result(0, "handle");
+					cache()->reset("navigation-".$handle);
+				}
+
+				return array("item_id" => $navigation_id);
+
+			}
+
+		}
+
 		return false;
 
 	}
 
 
 	// update node
-	// /janitor/admin/navigation/updateNode/#node_id#
-	function updateNode($action) {
+	// /janitor/admin/navigation/updateNode
+	function API_updateNode($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
-		$node_id = $action[1];
-		
+
+		$node_id = getPost("node_id");
+
 		// does values validate
-		if(count($action) == 2 && $this->validateList(array("node_name"), $node_id)) {
+		if(count($action) === 1 && $node_id && $this->validateList(array("node_name", "node_classname", "node_target", "node_link", "node_fallback"), $node_id)) {
 
-			// does values validate
-			$entities = $this->data_entities;
-			$names = array();
-			$values = array();
+			$node_name = $this->getProperty("node_name", "value");
+			$node_classname = $this->getProperty("node_classname", "value");
+			$node_target = $this->getProperty("node_target", "value");
 
-			foreach($entities as $name => $entity) {
-				// specific values for target and page references
-				if($name == "node_target") {
-					if($entity["value"]) {
-						$names[] = $name;
-						$values[] = $name."='_blank'";
-					}
-					else {
-						$names[] = $name;
-						$values[] = $name."=NULL";
-					}
-				}
-				else if($name == "node_item_id") {
-					if($entity["value"]) {
-						$names[] = $name;
-						$values[] = $name."='".$entity["value"]."'";
-					}
-					else {
-						$names[] = $name;
-						$values[] = $name."=NULL";
-					}
-				}
-				else if($entity["value"] !== false) {
-					$names[] = $name;
-					$values[] = $name."='".$entity["value"]."'";
+			$node_link = $this->getProperty("node_link", "value");
+
+			$node_fallback = $this->getProperty("node_fallback", "value");
+
+			$result = $this->updateNode([
+				"node_id" => $node_id,
+
+				"node_name" => $node_name,
+				"node_classname" => $node_classname,
+				"node_target" => $node_target,
+
+				"node_link" => $node_link,
+
+				"node_fallback" => $node_fallback
+			]);
+
+			if($result) {
+				message()->addMessage("Navigation node updated");
+				return $result;
+			}
+		}
+
+		message()->addMessage("Navigation node could not be updated", array("type" => "error"));
+		return false;
+
+	}
+
+	function updateNode($_options = false) {
+		// debug(["updateNode", $_options]);
+
+		$node_id = false;
+
+		$node_name = false;
+		$node_classname = false;
+		$node_target = false;
+
+		$node_link = false;
+
+		$node_fallback = false;
+
+		// $node_path = false;
+		$node_relation = false;
+		$node_position = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "node_id"                : $node_id                   = $_value; break;
+
+					case "node_name"              : $node_name                 = $_value; break;
+					case "node_classname"         : $node_classname            = $_value; break;
+					case "node_target"            : $node_target               = $_value; break;
+
+					case "node_link"              : $node_link                 = $_value; break;
+
+					case "node_fallback"          : $node_fallback             = $_value; break;
+
+					case "node_relation"          : $node_relation             = $_value; break;
+					case "node_position"          : $node_position             = $_value; break;
+
 				}
 			}
+		}
+
+		if($node_id) {
+
+			$query = new Query();
+			$values = [];
+
+
+			// Add path to extend identification possibilities of navigation nodes
+			if($node_name) {
+				$values[] = "node_name = '$node_name'";
+			}
+			if($node_classname !== false) {
+				$values[] = "node_classname = '$node_classname'";
+			}
+			if($node_target !== false) {
+				$values[] = "node_target = ".($node_target ? "'_blank'" : "NULL");
+			}
+
+
+			if($node_link !== false) {
+				$values[] = "node_link = '$node_link'";
+			}
+
+			if($node_fallback !== false) {
+				$values[] = "node_fallback = '$node_fallback'";
+			}
+
+			if($node_relation !== false) {
+				$values[] = "node_relation = $node_relation";
+			}
+			if($node_position !== false) {
+				$values[] = "node_position = $node_position";
+			}
+
 
 			if($values) {
 				$query = new Query();
@@ -395,7 +572,6 @@ class Navigation extends Model {
 
 				if($query->sql($sql)) {
 
-
 					// delete from cache (will be respawned on next request)
 					$sql = "SELECT ".$this->db.".handle as handle FROM ".$this->db.", ".$this->db_nodes." WHERE ".$this->db_nodes.".id = ".$node_id." AND ".$this->db_nodes.".navigation_id = ".$this->db.".id";
 					if($query->sql($sql)) {
@@ -403,80 +579,152 @@ class Navigation extends Model {
 						cache()->reset("navigation-".$handle);
 					}
 
-					message()->addMessage("Navigation node updated");
 					return array("item_id" => $query->lastInsertId());
 				}
 			}
 		}
 
-		message()->addMessage("Navigation node could not be updated", array("type" => "error"));
 		return false;
 	}
 
 
 	// delete navigation node - 2 parameters exactly
 	// /janitor/admin/navigation/deleteNode/#node_id#
-	function deleteNode($action) {
+	function API_deleteNode($action) {
 
-		if(count($action) == 2) {
+		if(count($action) == 1) {
 
-			$query = new Query();
-			$node_id = $action[1];
+			$node_id = getPost("node_id");
 
-			if($query->sql("DELETE FROM ".$this->db_nodes." WHERE id = ".$node_id)) {
-
-				// delete from cache (will be respawned on next request)
-				$sql = "SELECT ".$this->db.".handle as handle FROM ".$this->db.", ".$this->db_nodes." WHERE ".$this->db_nodes.".id = ".$node_id." AND ".$this->db_nodes.".navigation_id = ".$this->db.".id";
-				// debug([$sql]);
-
-				if($query->sql($sql)) {
-					$handle = $query->result(0, "handle");
-					cache()->reset("navigation-".$handle);
-				}
-
+			$result = $this->deleteNode([
+				"node_id" => $node_id
+			]);
+			if($result) {
 				message()->addMessage("Navigation node deleted");
-				return true;
+				return $result;
 			}
 
 		}
 
 		message()->addMessage("Navigation node could not be deleted - refresh your browser", array("type" => "error"));
 		return false;
+	
+	}
+
+	function deleteNode($_options = false) {
+
+		$node_fallback = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "node_id"          : $node_id             = $_value; break;
+
+				}
+			}
+		}
+
+		if($node_id) {
+
+			$query = new Query();
+
+			// delete from cache (will be respawned on next request)
+			$sql = "SELECT ".$this->db.".handle AS handle FROM ".$this->db.", ".$this->db_nodes." WHERE ".$this->db_nodes.".id = ".$node_id." AND ".$this->db_nodes.".navigation_id = ".$this->db.".id";
+			// debug([$sql]);
+			if($query->sql($sql)) {
+
+				$handle = $query->result(0, "handle");
+				cache()->reset("navigation-".$handle);
+
+				$sql = "DELETE FROM ".$this->db_nodes." WHERE id = ".$node_id;
+				// debug([$sql]);
+				if($query->sql($sql)) {
+					return true;
+				}
+
+			}
+
+		}
+
+		return false;
 
 	}
 
 
 	// update navigation node order
-	// /janitor/admin/navigation/updateOrder/".$navigation_id
-	function updateOrder($action) {
+	// /janitor/admin/navigation/updateOrder"
+	function API_updateOrder($action) {
 
-		if(count($action) == 2) {
+		if(count($action) == 1) {
 
-			$query = new Query();
-			$navigation_id = $action[1];
+			$navigation_id = getPost("navigation_id");
 			$structure = json_decode(prepareForHTML(getPost("structure")), true);
 
+			$result = $this->updateOrder([
+				"navigation_id" => $navigation_id,
+				"structure" => $structure
+			]);
+			if($result) {
+				message()->addMessage("Node order updated");
+				return $result;
+			}
+
+		}
+
+		message()->addMessage("Node order could not be updated", array("type" => "error"));
+		return false;
+
+	}
+
+	function updateOrder($_options = false) {
+		// debug(["updateOrder", $_options]);
+
+		$navigation_id = false;
+		$structure = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "navigation_id"          : $navigation_id             = $_value; break;
+					case "structure"              : $structure                 = $_value; break;
+
+				}
+			}
+		}
+
+		if($navigation_id && $structure) {
+
+			$query = new Query();
+
+			// Structure must be updated first, to easily resolve node paths based on relations
 			foreach($structure as $node) {
 				
 				$sql = "UPDATE ".$this->db_nodes." SET relation = ".$node["relation"].", position = ".$node["position"]." WHERE id = ".$node["id"];
+				// debug([$sql]);
 				if(!$query->sql($sql)) {
-					message()->addMessage("Node order update failed", array("type" => "error"));
 					return false;
 				}
 			}
 
-			// delete from cache (will be respawned on next request)
+			// delete from cache (will be rebuilt on next request)
 			$sql = "SELECT handle FROM ".$this->db." WHERE id = ".$navigation_id;
 			if($query->sql($sql)) {
 				$handle = $query->result(0, "handle");
 				cache()->reset("navigation-".$handle);
 			}
 
-			message()->addMessage("Node order updated");
+			// Reset url index cache to make sure any url changes are applied
+			// It will be rebuilt on next request
+			cache()->reset("url-index");
+
+
 			return true;
 		}
 
-		message()->addMessage("Node order could not be updated", array("type" => "error"));
 		return false;
 
 	}
@@ -485,7 +733,7 @@ class Navigation extends Model {
 
 
 	/**
-	* Get navigations
+	* Get navigations, used backend view
 	*
 	* Get list of all navigations/link-lists
 	* Get specific navigation based on handle or navigation_id
@@ -596,7 +844,7 @@ class Navigation extends Model {
 		// default values
 		$levels = false;
 		$relation = false;
-		$nested_path = "";
+		// $nested_path = "";
 
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -605,7 +853,7 @@ class Navigation extends Model {
 					case "levels"            : $levels             = $_value; break;
 					case "relation"          : $relation           = $_value; break;
 
-					case "nested_path"       : $nested_path        = $_value; break;
+					// case "nested_path"       : $nested_path        = $_value; break;
 				}
 			}
 		}
@@ -643,27 +891,17 @@ class Navigation extends Model {
 					$nodes[$i]["classname"] = $node["node_classname"];
 					$nodes[$i]["fallback"] = $node["node_fallback"];
 
-					// $nodes[$i]["item_id"] = $node["node_item_id"];
-					// $nodes[$i]["controller"] = $node["node_item_controller"];
 
-					// get create link for page
-					if($node["node_item_id"]) {
-						$page = $IC->getItem(array("id" => $node["node_item_id"]));
-
-						// create nested link structure
-						$nodes[$i]["link"] = $node["node_item_controller"].$nested_path."/".$page["sindex"];
-					}
 					// absolute static link
-					else {
-						$nodes[$i]["link"] = $node["node_link"];
-					}
+					$nodes[$i]["link"] = $node["node_link"];
+
+					// $nodes[$i]["path"] = $node["node_path"];
+					$nodes[$i]["relation"] = $node["relation"];
+					$nodes[$i]["position"] = $node["position"];
 
 					// go deeper?
 					if($levels === false || $levels > $this->level_iterator) {
 						$_options["relation"] = $node["id"];
-
-						// update nested paths
-						$_options["nested_path"] = $nested_path."/".superNormalize($node["node_name"]);
 
 						// get child nodes
 						$nodes[$i]["nodes"] = $this->getNavigationNodes($navigation_id, $_options);
@@ -705,5 +943,3 @@ class Navigation extends Model {
 	}
 
 }
-
-?>

@@ -5,10 +5,6 @@ CREATE TABLE `SITE_DB`.`navigation_nodes` (
   `node_name` varchar(255) NOT NULL,
   `node_link` varchar(255) DEFAULT NULL,
 
-  `node_item_id` int(11) DEFAULT NULL,
-  `node_itemtype` varchar(255) DEFAULT NULL,
-  `node_path` varchar(255) DEFAULT NULL,
-
   `node_classname` varchar(255) DEFAULT NULL,
   `node_target` varchar(255) DEFAULT NULL,
   `node_fallback` varchar(255) DEFAULT NULL,

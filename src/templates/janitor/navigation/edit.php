@@ -6,14 +6,10 @@ global $model;
 $navigation_id = $action[1];
 $item = $model->getNavigations(array("navigation_id" => $navigation_id));
 
-// global $indent;
-// $indent = 0;
-
 
 function recurseNodes($nodes) {
 	global $HTML;
 	global $JML;
-//	global $indent;
 
 	$IC = new Items();
 
@@ -22,42 +18,51 @@ function recurseNodes($nodes) {
 
 	foreach($nodes as $node) {
 
-		$att_class = $HTML->attribute("class", "item draggable item_id:".$node["id"], $node["classname"]);
+		// Validate internal links
+		$link_validation_class = "";
+		if($node["link"] && preg_match("/^\//", $node["link"])) {
+
+			$response = curl()->request(SITE_URL.$node["link"]);
+			if($response["http_code"] === 404) {
+				$link_validation_class = "link_error";
+			}
+			else if($response["http_code"] !== 200) {
+				$link_validation_class = "link_warning";
+			}
+
+		}
+
+
+		$att_class = $HTML->attribute("class", "item draggable item_id:".$node["id"], $node["classname"], $link_validation_class);
 		$_ .= '<li'.$att_class.'>';
 		$_ .= '<div class="drag"></div>';
 		$_ .= '<h3>'.$node["name"].'</h3>';
 
+
 		if($node["link"]) {
-			$_ .= '<span class="link">'.$node["link"].'</span>';
+			$_ .= '<span class="link">link: '.$node["link"].'</span>';
 		}
-// 		if($node["item_id"]) {
-// 			$pageitem = $IC->getItem(array("id" => $node["item_id"], "extend" => true));
-// //			$item_page = $IC->extendItem($item_page);
-// 			$_ .= '<span class="page"><a href="/janitor/page/edit/'.$pageitem["item_id"].'">'.$pageitem["name"].'</a></span>,';
-// 			$_ .= '<span class="controller">'.$node["controller"].'</span>';
-// 		}
 
 		if($node["classname"]) {
-			$_ .= '<span class="class">"'.$node["classname"].'"</span>';
+			$_ .= '<span class="class">classname: '.$node["classname"].'</span>';
 		}
 		if($node["target"]) {
-			$_ .= '<span class="target">'.$node["target"].'</span>';
+			$_ .= '<span class="target">target: '.$node["target"].'</span>';
 		}
 		if($node["fallback"]) {
-			$_ .= '<span class="fallback">('.$node["fallback"].')</span>';
+			$_ .= '<span class="fallback">fallback: '.$node["fallback"].'</span>';
 		}
 
 		$_ .= '<ul class="actions">';
 		$_ .= $HTML->link("Edit", "/janitor/admin/navigation/edit_node/".$node["id"], array("class" => "button", "wrapper" => "li.edit"));
-		$_ .= $HTML->oneButtonForm("Delete", "/janitor/admin/navigation/deleteNode/".$node["id"], array(
+		$_ .= $HTML->oneButtonForm("Delete", "/janitor/admin/navigation/deleteNode", array(
+			"inputs" => ["node_id" => $node["id"]],
 			"wrapper" => "li.delete"
 		));
 		$_ .= '</ul>';
 
 		if($node["nodes"]) {
-//			$indent++;
 			$_ .= recurseNodes($node["nodes"]);
-//			$indent--;
 		}
 		$_ .= '</li>';
 	}
@@ -88,20 +93,17 @@ function recurseNodes($nodes) {
 	</div>
 
 	<div class="all_items sortable i:navigationNodes"
-		data-item-order="<?= security()->validPath("/janitor/admin/navigation/updateOrder/".$navigation_id) ?>" 
+		data-item-order="<?= security()->validPath("/janitor/admin/navigation/updateOrder") ?>" 
 		data-csrf-token="<?= session()->value("csrf") ?>"
+		data-navigation-id="<?= $navigation_id ?>"
 	>
 		<h2>Navigation nodes</h2>
 
 <?		if($item["nodes"]): ?>
 		<p>Drag and drop nodes to reorder structure</p>
-		<!--ul class="nodes"-->
 <?= 		recurseNodes($item["nodes"]); ?>
-		<!--/ul-->
 <?		else: ?>
-
 		<p>No navigation nodes exists.</p>
-
 <?		endif; ?>
 	</div>
 

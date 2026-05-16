@@ -7,6 +7,8 @@ Util.Modules["navigationNodes"] = new function() {
 
 			div.list.update_order_url = div.getAttribute("data-item-order");
 			div.list.csrf_token = div.getAttribute("data-csrf-token");
+			div.list.navigation_id = div.getAttribute("data-navigation-id");
+
 			div.list.nodes = u.qsa("li.item", div.list);
 
 
@@ -48,15 +50,17 @@ Util.Modules["navigationNodes"] = new function() {
 
 			// save structure and update button states
 			div.list.updateNodeStructure = function() {
-				u.bug("updateNodeStructure");
+				// u.bug("updateNodeStructure");
 
 				var structure = this.getNodeRelations();
+				// u.bug(structure);
 
-				u.bug(structure);
 				this.response = function(response) {
 					page.notify(response);
 				}
-				u.request(this, this.update_order_url, {"method":"post", "data":"csrf-token="+this.csrf_token+"&structure="+JSON.stringify(structure)});
+				u.request(this, this.update_order_url, {
+					"method":"post", 
+					"data":"csrf-token="+this.csrf_token+"&navigation_id="+this.navigation_id+"&structure="+JSON.stringify(structure)});
 
 
 				var i, node;
@@ -89,25 +93,16 @@ Util.Modules["newNavigationNode"] = new function() {
 
 		u.f.init(form);
 
-		// form.actions["cancel"].clicked = function(event) {
-		// 	location.href = this.url;
-		// }
-
 		form.submitted = function(iN) {
 
 			this.response = function(response) {
 				if(response.cms_status == "success" && response.cms_object) {
-
-					//alert("this.action:" + this.action)
-//					alert(response);
 					location.href = this.actions["cancel"].url;
-//					location.href = this.actions["cancel"].url.replace("\/list", "/edit/"+response.cms_object.item_id);
 				}
 				else {
 					page.notify(response);
 				}
 			}
-			// u.bug("data:", this.getData());
 			u.request(this, this.action, {"method":"post", "data" : this.getData({"format":"formdata"})});
 
 		}

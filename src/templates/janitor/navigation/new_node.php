@@ -4,41 +4,7 @@ global $model;
 
 $navigation_id = $action[1];
 
-$IC = new Items();
-
-// find controllers
-$fs = new FileSystem();
-$itemtype_classes = $fs->files(LOCAL_PATH."/classes/items", [
-	"allow_extensions" => "php"
-]);
-
-$destinations = ["" => "Select item or items list"];
-
-foreach($itemtype_classes as $itemtype_class) {
-
-	if(!preg_match("/\.core\./", basename($itemtype_class))) {
-		$itemtype = preg_replace("/type\.([a-z]+)\.class\.php/", "$1", basename($itemtype_class));
-
-		$type_model = $IC->typeObject($itemtype);
-		if($type_model && property_exists($type_model, "views")) {
-
-			if($type_model->views["list"]) {
-				$destinations[$itemtype] = $type_model->views["list"]["label"];
-			}
-
-			if($type_model->views["view"]) {
-				$items = $IC->getItems(["itemtype" => $itemtype, "status" => 1, "order" => $itemtype.".name ASC", "extend" => true]);
-				foreach($items as $item) {
-					$destinations[$item["id"]] = $item["name"]. " (".$type_model->views["view"]["label"].")";
-				}
-				// debug(["items", $items, $model->toOptions($items, "id", "name")]);
-				// $destinations = $destinations + $type_model->toOptions($items, "id", "name");
-			}
-
-		}
-	}
-
-}
+$link_options = $model->getLinkOptions();
 
 ?>
 <div class="scene i:scene defaultNew navigationNodeNew">
@@ -50,29 +16,30 @@ foreach($itemtype_classes as $itemtype_class) {
 
 	<div class="item">
 		<h2>Create a new navigation node</h2>
-		<?= $model->formStart("/janitor/admin/navigation/saveNode/".$navigation_id, ["class" => "i:newNavigationNode labelstyle:inject"]) ?>
-			<fieldset>
+		<?= $model->formStart("/janitor/admin/navigation/saveNode", ["class" => "i:newNavigationNode labelstyle:inject"]) ?>
+			<?= $model->input("navigation_id", ["type" => "hidden", "value" => $navigation_id]) ?>
 
+			<p>
+				A navigation node can point to a specific controller, that enables viewing or listing
+				available Items (posts, pages, events etc.), or otherwise provides pages and functionality related to Modules.
+				Options may vary depending on the ItemType and Theme.
+			</p>
+			<p>
+				The controllers are able to render templates in accordance with your current Theme and
+				they are created and maintained via the related Module settings panel.<br />
+				Below you will find the list of availble Items, Item lists and other views that can be linked to.
+			</p>
+			<p>
+				A navigation node can also be a static internal or external link or even work as a "folder" in your navigation structure.
+				<br />
+				Just type your link below or eave the Link field empty to create folder.
+			</p>
+
+			<fieldset>
 				<?= $model->input("node_name") ?>
 				<?= $model->input("node_classname") ?>
+				<?= $model->input("node_link", ["options" => $link_options]) ?>
 				<?= $model->input("node_target", array("type" => "checkbox")) ?>
-			</fieldset>
-
-			<fieldset>
-				<h3>Link to an ItemType or list of ItemTypes</h3>
-				<p>
-					A navigation node can point to a specific ItemType (a post, page, event etc.), or to a list of ItemTypes (when allowed by your theme).
-				</p>
-				<?= $model->input("node_destination", ["options" => $destinations]) ?>
-			</fieldset>
-
-			<fieldset>
-				<h3>Link to a static url</h3>
-				<p>
-					Or it can be a static internal or external link or work as a linkless "folder" containing other "sub" navigation nodes.<br />
-					Leave the inputs empty to create folder.
-				</p>
-				<?= $model->input("node_link") ?>
 			</fieldset>
 
 			<fieldset>
