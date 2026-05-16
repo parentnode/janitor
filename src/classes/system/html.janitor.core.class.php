@@ -780,7 +780,7 @@ class JanitorHTMLCore {
 
 	// edit Comments form for edit page
 	function editComments($item, $_options = false) {
-		global $model;
+		// global $model;
 
 		$_ = '';
 
@@ -802,15 +802,18 @@ class JanitorHTMLCore {
 			}
 
 
-			$_ .= '<div class="comments i:defaultComments i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["comments"]).'>';
+			$_ .= '<div class="comments i:defaultComments i:collapseHeader item_id:'.$item["id"].'"'.HTML()->jsData(["comments"]).'>';
 			$_ .= '<h2>Comments ('.($item["comments"] ? count($item["comments"]) : 0).')</h2>';
 
 			$_ .= $this->commentList($item["comments"]);
 
 
-			if(security()->validPath($this->path."/addComment")) {
+			if(security()->validPath("/janitor/admin/items/addComment")) {
+				$model = new Itemtype($item["itemtype"]);
 
-				$_ .= $model->formStart($this->path."/addComment/".$item["id"], array("class" => "labelstyle:inject"));
+				$_ .= $model->formStart("/janitor/admin/items/addComment", array("class" => "labelstyle:inject"));
+				$_ .= $model->input("item_id", ["type" => "hidden", "value" => $item["id"]]);
+
 				$_ .= '<fieldset>';
 				$_ .= $model->input("item_comment", array("id" => "comment_".$item["id"]));
 				$_ .= '</fieldset>';

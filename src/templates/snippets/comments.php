@@ -12,11 +12,12 @@ $no_comments_yet = "No comments yet";
 
 $login_to_comment = '<a href="'.SITE_LOGIN_URL.'">Login</a>'.(SITE_SIGNUP ? ' or <a href="'.SITE_SIGNUP_URL.'">Sign up</a>' : '').' to comment';
 
-$form_action = false;
+$form_action = "/janitor/admin/items/addComment";
 $form_class = "add labelstyle:inject";
-$form_comment_label = "Add your comment";
-$form_comment_hint = "Add your comment";
-$form_comment_error = "Your comment must contain text";
+
+$form_comment_label = false;
+$form_comment_hint = false;
+$form_comment_error = false;
 
 $form_bn_add = "Add comment";
 $form_bn_cancel = "Cancel";
@@ -46,7 +47,21 @@ if($_options !== false) {
 }
 
 
-if($item): ?>
+if($item):
+
+	// Enable textarea property override
+	$textarea_options = [];
+	if($form_comment_label) {
+		$textarea_options["label"] = $form_comment_label;
+	}
+	if($form_comment_hint) {
+		$textarea_options["hint_message"] = $form_comment_hint;
+	}
+	if($form_comment_error) {
+		$textarea_options["error_message"] = $form_comment_error;
+	}
+
+?>
 
 <div class="comments i:comments item_id:<?= $item["item_id"] ?>">
 	<h2 class="comments"><?= $header ?></h2>
@@ -69,27 +84,28 @@ if($item): ?>
 <? 
 	endif;
 
-	if($form_action):
+
+	if(security()->validatePath($form_action)):
+		$model = new Itemtype($item["itemtype"]);
 ?>
-	<?= HTML()->formStart($form_action."/". $item["item_id"], ["method" => "post", "class" => $form_class]); ?>
-		<?= HTML()->input("item_id", ["type" => "hidden", "value" => $item["item_id"]]); ?>
+
+	<?= $model->formStart($form_action, ["method" => "post", "class" => $form_class]); ?>
+		<?= $model->input("item_id", ["type" => "hidden", "value" => $item["item_id"]]); ?>
 		<fieldset>
-			<?= HTML()->input("item_comment", [
-				"type" => "text",
-				"label" => $form_comment_label,
-				"required" => true,
-				"hint_message" => $form_comment_hint,
-				"error_message" => $form_comment_error,
-			]) ?>
+			<?= $model->input("item_comment", $textarea_options) ?>
 		</fieldset>
 		<ul class="actions">
-			<?= HTML()->submit($form_bn_add, ["class" => "primary", "wrapper" => "li.submit"]); ?>
-			<?= HTML()->button($form_bn_cancel, ["class" => "cancel", "wrapper" => "li.cancel"]); ?>
+			<?= $model->submit($form_bn_add, ["class" => "primary", "wrapper" => "li.submit"]); ?>
+			<?= $model->button($form_bn_cancel, ["class" => "cancel", "wrapper" => "li.cancel"]); ?>
 		</ul>
-	<?= HTML()->formEnd(); ?>
+	<?= $model->formEnd(); ?>
+
 <?	else: ?>
+
 	<p><?= $login_to_comment ?></p>
+
 <? 	endif; ?>
+
 </div>
 <?
 endif;

@@ -60,6 +60,7 @@ class ItemtypeCore extends Model {
 		$this->addToModel("item_comment", array(
 			"type" => "text",
 			"label" => "New comment",
+			"required" => true,
 			"class" => "autoexpand",
 			"hint_message" => "Leave a new comment.",
 			"error_message" => "Comment cannot be empty."
@@ -2913,45 +2914,76 @@ class ItemtypeCore extends Model {
 	}
 
 
+	function API_addComment($action) {
+		// debug(["API_addComment", $action]);
 
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+
+		if(count($action) == 1 && $this->validateList(array("item_id", "item_comment"))) {
+
+			$item_id = $this->getProperty("item_id", "value");
+			$item_comment = $this->getProperty("item_comment", "value");
+
+			if($item_id && $item_comment) {
+				$result = $this->addComment([
+					"item_id" => $item_id,
+					"item_comment" => $item_comment,
+				]);
+
+				if($result) {
+					message()->addMessage("Comment added");
+					return $result;
+				}
+			}
+
+		}
+
+		message()->addMessage("Comment could not be added", array("type" => "error"));
+		return false;
+	}
 
 	// COMMENTS
 
 	// add comment to item
 	// comment is sent in $_POST
 	// /janitor/[admin/]#itemtype#/addComment/#item_id#
-	function addComment($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
+	function addComment($_options = false) {
 
 
-		if(count($action) == 2) {
+		$user_id = session()->value("user_id");
+		$item_id = false;
+		$item_comment = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item_id"            : $item_id             = $_value; break;
+					case "item_comment"       : $item_comment        = $_value; break;
+					case "user_id"            : $user_id             = $_value; break;
+
+				}
+			}
+		}
+
+		if($item_id && $user_id && $item_comment) {
 
 			$query = new Query();
-			$item_id = $action[1];
 
-			if($this->validateList(array("item_comment"), $item_id)) {
+			if($query->sql("INSERT INTO ".UT_ITEMS_COMMENTS." VALUES(DEFAULT, $item_id, $user_id, '$item_comment', DEFAULT)")) {
 
-				$user_id = session()->value("user_id");
-				$comment = $this->getProperty("item_comment", "value");
-
-				if($query->sql("INSERT INTO ".UT_ITEMS_COMMENTS." VALUES(DEFAULT, $item_id, $user_id, '$comment', DEFAULT)")) {
-					message()->addMessage("Comment added");
-
-					$comment_id = $query->lastInsertId();
-					$IC = new Items();
-					$new_comment = $IC->getComments(array("comment_id" => $comment_id));
-					$new_comment["created_at"] = date("Y-m-d, H:i", strtotime($new_comment["created_at"]));
-					return $new_comment;
-				}
-
-
+				$comment_id = $query->lastInsertId();
+				$IC = new Items();
+				$new_comment = $IC->getComments(array("comment_id" => $comment_id));
+				$new_comment["created_at"] = date("Y-m-d, H:i", strtotime($new_comment["created_at"]));
+				return $new_comment;
 			}
 
 		}
 
-		message()->addMessage("Comment could not be added", array("type" => "error"));
 		return false;
 	}
 

@@ -41,7 +41,8 @@ Util.Modules["defaultComments"] = new function() {
 						this.div.initComment(comment_li);
 
 						// reset form input
-						this.inputs["item_comment"].val("");
+						// this.inputs["item_comment"].val("");
+						this.reset();
 
 					}
 				}
