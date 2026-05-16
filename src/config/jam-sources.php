@@ -5,6 +5,12 @@ $jam_sources = [
 		"name" => "Itemtypes",
 		"description" => "Itemtypes define the data structure for basic content items in Janitor.",
 		"modules" => [
+			"page" => [
+				"name" => "Page itemtype",
+				"description" => "The simplest content item for creating pages.",
+				"info_link" => "https://github.com/parentnode/jam-item-page-simplest",
+				"repos" => "http://jam-item-page-simplest.local",
+			],
 			"service" => [
 				"name" => "Service itemtype",
 				"description" => "The simplest content item for describing the services offered.",
