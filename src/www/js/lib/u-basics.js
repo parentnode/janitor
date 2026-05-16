@@ -174,7 +174,7 @@ u.defaultFilters = function(div) {
 
 			for(i = 0; i < used_tags.length; i++) {
 				tag = used_tags[i];
-				li = u.ae(this._tags, "li", {"html":tag});
+				li = u.ae(this._tags, "li", {"class":"tag", "html":tag});
 				li.tag = tag.toLowerCase();
 				li.div_filter = div.div_filter;
 
@@ -494,7 +494,8 @@ u.activateTagging = function(node) {
 					if(tag_node._id == new_tag.tag_id) {
 
 						// move tag from new tags to existing tags
-						u.ae(this.node._tags, tag_node);
+						// u.ae(this.node._tags, tag_node);
+						this.node._tags.insertBefore(tag_node, this.node._bn_add);
 						return;
 					}
 				}
@@ -519,6 +520,8 @@ u.activateTagging = function(node) {
 				tag_node._id = new_tag.tag_id;
 				tag_node.node = this.node;
 
+				this.node._tags.insertBefore(tag_node, this.node._bn_add);
+
 
 				// activate tag
 				u.activateTag(tag_node);
@@ -533,12 +536,14 @@ u.activateTagging = function(node) {
 
 
 	// add list with available tag options
+	u.ae(node._tag_options, "label", {"class":"tags", "html":"Existing tags"});
 	node._new_tags = u.ae(node._tag_options, "ul", {"class":"tags"});
+	u.ae(node._new_tags, "li", {"class":"empty", "html":"No tags available"});
 
 
 	// index existing tags to create a clear over view of ununsed tags
 	var used_tags = {};
-	var item_tags = u.qsa("li:not(.add)", node._tags);
+	var item_tags = u.qsa("li:not(.add,.empty)", node._tags);
 	var i, tag_node, tag, context, value;
 	for(i = 0; tag_node = item_tags[i]; i++) {
 		tag_node._context = u.qs(".context", tag_node).innerHTML;
@@ -601,8 +606,17 @@ u.activateTagging = function(node) {
 
 	}
 
-}
+	u.updateTagListState(node._new_tags);
 
+}
+u.updateTagListState = function(list) {
+	if(u.qs("li:not(.empty)", list)) {
+		u.ac(list, "has_options");
+	}
+	else {
+		u.rc(list, "has_options");
+	}
+}
 // activate tag node - applies click event handler
 // used for both new tags, existing tags and newly added tags
 u.activateTag = function(tag_node) {
@@ -629,6 +643,7 @@ u.activateTag = function(tag_node) {
 						// add tag to new tags list
 						u.ae(this.node._new_tags, this);
 					}
+					u.updateTagListState(this.node._new_tags);
 				}
 				// delete tag request
 				u.request(this, this.node.data_div.delete_tag_url+"/"+this.node._item_id+"/" + this._id, {"method":"post", "data":"csrf-token=" + this.node.data_div.csrf_token});
@@ -644,8 +659,11 @@ u.activateTag = function(tag_node) {
 
 					if(response.cms_status == "success") {
 						// add tag to tags
-						u.ie(this.node._tags, this)
+						// u.ie(this.node._tags, this)
+						this.node._tags.insertBefore(this, this.node._bn_add);
+						
 					}
+					u.updateTagListState(this.node._new_tags);
 				}
 				// add tag request
 				u.request(this, this.node.data_div.add_tag_url+"/"+this.node._item_id, {"method":"post", "data":"tags="+this._id+"&csrf-token=" + this.node.data_div.csrf_token});

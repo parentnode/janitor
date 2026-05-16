@@ -35,7 +35,7 @@ div.field select option {padding: 3px 12px 4px 12px;}
 
 div.field textarea {width: calc(100% - 46px); min-height: 100px; box-sizing: unset; overflow: auto; padding: 6px 12px 2px;}
 div.field.short textarea {min-height: 60px;}
-div.field textarea.autoexpand {overflow: hidden;}
+div.field.autoexpand textarea {overflow: hidden; box-sizing: border-box; width: calc(100% - 20px);}
 
 
 

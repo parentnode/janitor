@@ -1,45 +1,60 @@
 /* BASIC TAGS */
 #content ul.tags {padding: 0 125px 4px 30px;}
-#content ul.tags li {display: inline-block; vertical-align: top; margin: 0 6px 6px 0; border-radius: 13px; background-color: #313942; padding: 6px 14px 8px; color: #ffffff; font-size: 0;}
-#content ul.tags li.add {padding: 6px 4px 8px; cursor: pointer; width: 19px; text-align: center;}
+#content ul.tags li{user-select: none;}
+#content ul.tags li.tag {margin: 0 6px 6px 0; border-radius: 13px; background-color: #313942; padding: 6px 14px 8px; color: #ffffff; font-size: 0;}
+#content ul.tags li.tag span {font-size: 13px; line-height: 1em; color: #ffffff;}
+#content ul.tags li.tag span.context {text-transform: lowercase;}
+#content ul.tags li.tag span.context:after {content: ":";}
+#content ul.tags li.tag span.value {}
+#content ul.tags li.add {margin: 0 6px 6px 0; padding: 6px 4px 8px; border-radius: 13px; cursor: pointer; width: 19px; text-align: center; font-size: 13px; background-color: #dedede; color: #333333;}
 #content ul.tags li.add:hover {background-color: #64ad8e; color: #ffffff;}
-#content ul.tags li span {font-size: 13px; line-height: 1em; color: #ffffff;}
-#content ul.tags li span.context {text-transform: lowercase;}
-#content ul.tags li span.context:after {content: ":";}
-#content ul.tags li span.value {}
-#content ul.tags li.add {font-size: 13px; background-color: #dedede; color: #333333;}
-
+#content ul.tags li.empty {padding: 5px 14px 8px 0;/*background: none; color: #313942; font-size: 15px;*/}
+#content ul.tags.editable li.empty {display: none;}
 
 #content .scene > div.tags {padding: 0; border-bottom: 1px solid #aaaaaa; overflow: hidden;}
+#content .scene > div.tags label.tags {display: block; font-size: 11px; padding: 0 0 5px 30px; margin: 0;
+	font-weight: bold; text-transform: uppercase; 
+
+	color: #aaaaaa; line-height: 16px;}
 #content .scene > div.tags ul.tags {padding: 0 125px 14px 30px;}
 
 
 /* ADD TAG FORM */
 #content div.tagoptions fieldset {display: inline-block; vertical-align: top;}
 #content div.tagoptions fieldset .field {padding-right: 12px;}
-#content div.tagoptions fieldset .field input[type=text] {width: 262px;}
+#content div.tagoptions fieldset .field input[type=text] {min-width: 362px;}
 
 #content div.tagoptions ul.actions {display: inline-block; vertical-align: top; padding: 3px 0 0;}
-#content div.tagoptions ul.actions li {padding-left: 0; padding-top: 13px;}
+#content div.tagoptions ul.actions li {padding-left: 0; padding-top: 11px;}
 #content div.tagoptions ul.actions li input {margin-top: 4px;}
 
 
 /* TAGGABLE */
 /* ADD TAGS ACTIVE */
-#content .edittags ul.tags li {cursor: pointer;}
-#content .edittags ul.tags li:hover,
+#content .edittags ul.tags li.tag {cursor: pointer;}
+#content .edittags ul.tags li.tag:hover,
 #content .edittags ul.tags li.add:hover {background-color: #df0000; color: #ffffff;}
 #content .edittags div.tagoptions ul.tags {display: block;}
 
 /* NEW TAGS LIST */
 #content div.tagoptions ul.tags {position: relative; z-index: 10; display: none;}
-#content div.tagoptions ul.tags li {background-color: #dedede;}
-#content div.tagoptions ul.tags li span {color: #333333;}
-#content div.tagoptions ul.tags li:hover {background-color: #64ad8e;}
-#content div.tagoptions ul.tags li:hover span {color: #ffffff;}
+#content div.tagoptions ul.tags li.tag {background-color: #dedede;}
+#content div.tagoptions ul.tags li.tag span {color: #333333;}
+#content div.tagoptions ul.tags li.tag:hover {background-color: #64ad8e;}
+#content div.tagoptions ul.tags li.tag:hover span {color: #ffffff;}
+#content div.tagoptions ul.tags.has_options li.empty {display: none;}
 
 /* TAGGABLE LIST ADJUSTMENTS */
 #content div.all_items div.tagoptions {padding-top: 8px;}
+#content div.all_items ul.tags {min-height: 37px;}
+#content div.all_items label.tags {
+	font-size: 11px; padding: 0 0 5px 30px; margin: 0;
+	font-weight: bold; text-transform: uppercase; color: #aaaaaa; line-height: 16px;
+}
+#content div.all_items li:not(.edittags) label.tags {display: none;}
+/*#content div.all_items li.edittags label.tags {display: block;}*/
+#content div.all_items div.text > ul.tags li.empty {display: none;}
+
 #content div.all_items ul.items > li div.tagoptions ul.actions {position: static; right: auto; top: auto;}
 #content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 14px;}
 #content div.sortable div.tagoptions .field {padding-left: 55px; padding-bottom: 25px;}

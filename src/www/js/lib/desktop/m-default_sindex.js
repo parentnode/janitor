@@ -3,19 +3,49 @@ Util.Modules["defaultSindex"] = new function() {
 	this.init = function(div) {
 		// u.bug("defaultSindex:", form);
 
-		div.current_sindex = u.qs(".current_sindex", div);
+		div.updateView = function() {
+
+			this.updateViewResponse = function(response) {
+				// u.bug(response);
+
+				if(response.isHTML) {
+					var view = u.qs("div.sindex", response);
+					if(view) {
+						this.replaceWith(view);
+						u.init(view.parentNode);
+
+						// Cannonical must also be updated
+						var cannonical = u.qs("div.cannonical");
+						if(cannonical && fun(cannonical.updateView)) {
+							cannonical.updateView();
+						}
+
+					}
+				}
+				
+			}
+			u.request(this, location, {
+				"callback": "updateViewResponse"
+			});
+
+		}
+
+
+		// div.current_sindex = u.qs(".current_sindex", div);
 
 		div.li_update = u.qs("li.update", div);
 		div.li_update.div = div;
 		div.li_update.confirmed = function(response) {
 
+			this.div.updateView();
+
 			// Update sindex
-			if(this.div.current_sindex && response.cms_object) {
-				this.div.current_sindex.innerHTML = response.cms_object;
-			}
-			if(this.div.current_sindex_input && response.cms_object) {
-				this.div.current_sindex_input.val(response.cms_object);
-			}
+			// if(this.div.current_sindex && response.cms_object) {
+			// 	this.div.current_sindex.innerHTML = response.cms_object;
+			// }
+			// if(this.div.current_sindex_input && response.cms_object) {
+			// 	this.div.current_sindex_input.val(response.cms_object);
+			// }
 
 		}
 
@@ -36,13 +66,15 @@ Util.Modules["defaultSindex"] = new function() {
 				this.response = function(response) {
 					page.notify(response);
 
-					// Update sindex
-					if(this.div.current_sindex && response.cms_object) {
-						this.div.current_sindex.innerHTML = response.cms_object;
-					}
-					if(this.div.current_sindex_input && response.cms_object) {
-						this.div.current_sindex_input.val(response.cms_object);
-					}
+					this.div.updateView();
+
+					// // Update sindex
+					// if(this.div.current_sindex && response.cms_object) {
+					// 	this.div.current_sindex.innerHTML = response.cms_object;
+					// }
+					// if(this.div.current_sindex_input && response.cms_object) {
+					// 	this.div.current_sindex_input.val(response.cms_object);
+					// }
 
 				}
 

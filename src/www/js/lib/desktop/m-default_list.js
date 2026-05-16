@@ -178,8 +178,14 @@ Util.Modules["defaultList"] = new function() {
 				});
 
 				// get image data
-				node._format = u.cv(node, "format");
-				node._variant = u.cv(node, "variant");
+				// node._format = u.cv(node, "format");
+				// node._variant = u.cv(node, "variant");
+				node._format = node.getAttribute("data-format");
+				node._variant = node.getAttribute("data-variant");
+				if(!node._format || !node._variant) {
+					node._format = u.cv(node, "format");
+					node._variant = u.cv(node, "variant");
+				}
 
 				// create image path
 				if(node._format && node.div._media_width) {
@@ -205,8 +211,14 @@ Util.Modules["defaultList"] = new function() {
 				});
 
 				// get image data
-				node._format = u.cv(node, "format");
-				node._variant = u.cv(node, "variant");
+				node._format = node.getAttribute("data-format");
+				node._variant = node.getAttribute("data-variant");
+
+				if(!node._format || !node._variant) {
+					node._format = u.cv(node, "format");
+					node._variant = u.cv(node, "variant");
+				}
+
 				if(node._format) {
 
 					// inject audio player div

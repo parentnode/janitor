@@ -441,7 +441,7 @@ class JanitorHTMLCore {
 
 		if(security()->validPath($this->path."/owner")) {
 
-			global $model;
+			$model = new Itemtype($item["itemtype"]);
 
 			$IC = new Items();
 			$owner = $IC->getOwners(["item_id" => $item["id"]]);
@@ -1179,6 +1179,7 @@ class JanitorHTMLCore {
 			}
 		}
 
+		$_ .= '<label class="tags">Selected tags</label>';
 		$_ .= '<ul class="tags" data-context="'.$context.'">';
 		if($tags) {
 			foreach($tags as $tag) {
@@ -1188,6 +1189,9 @@ class JanitorHTMLCore {
 
 				}
 			}
+		}
+		else {
+			$_ .= '<li class="empty">No tags added</li>';
 		}
 		$_ .= '</ul>';
 

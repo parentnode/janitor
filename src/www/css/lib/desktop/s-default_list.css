@@ -25,7 +25,7 @@
 
 
 /* LIST WITH IMAGE - PADDING CALCULATED BY JS */
-#content div.all_items.images ul.items > li {background-repeat: no-repeat; background-position: 0px center;}
+#content div.all_items.images ul.items > li {background-repeat: no-repeat; background-position: 0px top;}
 
 /* LIST WITH AUDIOPLAYER - PADDING CALCULATED BY JS */
 #content div.all_items.audios ul.items > li {}
@@ -51,11 +51,12 @@
 #content p + div.all_items {border-top: 1px solid #bbbbbb;}
 #content div.all_items ul.items > li ul.actions li {padding: 5px 0 5px 5px;}
 /* MORE ACTION PADDING IF ROW CONTAINS ADDITIONAL INFO */
-#content div.all_items ul.items > li dl.info+ul.actions li,
+
+/*#content div.all_items ul.items > li dl.info+ul.actions li,
 #content div.all_items ul.items > li ul.info+ul.actions li,
 #content div.all_items ul.items > li p+ul.actions li,
 #content div.all_items ul.items > li ul.tags+ul.actions li {padding-top: 10px;}
-
+*/
 
 
 /* FILTERS */

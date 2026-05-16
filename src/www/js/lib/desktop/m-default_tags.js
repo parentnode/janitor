@@ -22,6 +22,7 @@ Util.Modules["defaultTags"] = new function() {
 				div._tags = u.ae(div._tags, "ul", {"class":"tags"});
 			}
 			div._tags.div = div;
+			u.ac(div._tags, "editable");
 
 
 			// Only get tags with allowed contexts

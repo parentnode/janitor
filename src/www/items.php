@@ -1,5 +1,10 @@
 <?php
 $access_item["/"] = true;
+
+$access_item["/tags"] = true;
+
+$access_item["/addComment"] = true;
+
 if(isset($read_access) && $read_access) {
 	return;
 }
@@ -92,7 +97,13 @@ if(security()->validateCsrfToken() && isset($action)) {
 		exit();
 	}
 
-	// Class interface
+	// Handle possible API request
+	else {
+		$model = new Itemtype("generic");
+		security()->API_request($model, $action);
+	}
+
+	// // Class interface
 	// else if(preg_match("/[a-zA-Z]+/", $action[0])) {
 	//
 	// 	$ITC = new Itemtype();
