@@ -512,7 +512,7 @@ class Model extends HTML {
 		$value = $this->getProperty($name, "value");
 
 		$IC = new Items();
-		if(!$IC->getItem(array("id" => $value))) {
+		if(!is_numeric($value) || !$IC->getItem(array("id" => $value))) {
 			$this->setProperty($name, "error", true);
 			return false;
 		}
