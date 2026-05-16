@@ -14,7 +14,7 @@ if($_options !== false) {
 		switch($_option) {
 			case "item"              : $item                = $_value; break;
 
-			case "media"             : $context             = $_value; break;
+			case "media"             : $media               = $_value; break;
 
 			case "class"             : $class               = $_value; break;
 			case "variant"           : $variant             = $_value; break;
@@ -25,14 +25,11 @@ if($_options !== false) {
 	}
 }
 
-
 // No media passed, try standard media
 if(!$media && $item) {
 	$IC = new Items();
 	$media = $IC->sliceMediae($item, "main_media|single_media|mediae");
 }
-
-// debug([$item, $media]);
 
 if($media) {
 

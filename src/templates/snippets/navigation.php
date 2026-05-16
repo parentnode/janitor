@@ -6,9 +6,10 @@ $levels = 1;
 if($_options !== false) {
 	foreach($_options as $_option => $_value) {
 		switch($_option) {
-			case "handle"                  : $handle                  = $_value; break;
 
+			case "handle"                  : $handle                  = $_value; break;
 			case "levels"                  : $levels                  = $_value; break;
+
 		}
 	}
 }
