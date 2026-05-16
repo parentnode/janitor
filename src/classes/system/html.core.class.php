@@ -1330,24 +1330,70 @@ class HTMLCore {
 	* @param $node Array Navigation node data array
 	* @return String HTML element as string
 	*/
-	function navigationLink($node) {
+	function navigationLink($node, $levels = false) {
 
-		if(!preg_match("/^http[s]?\:\/\//", $node["link"]) && !security()->validatePath($node["link"])) {
-			if($node["fallback"] && security()->validatePath($node["fallback"])) {
-				$node["link"] = $node["fallback"];
-			} 
-			else {
-				return "";
-			}
+		$link = "";
+
+		// debug([$node]);
+
+		if($node["link"] && (preg_match("/^http[s]?\:\/\//", $node["link"]) || security()->validatePath($node["link"]))) {
+			$link = $node["link"];
+		}
+		else if($node["fallback"] && security()->validatePath($node["fallback"])) {
+			$link = $node["fallback"];
 		}
 
 
 		$_ = "";
 
-		$att_class = $this->attribute("class", $node["classname"], $this->selectedNavigation($node["link"]));
-		$att_target = $this->attribute("target", $node["target"]);
+		if($link || !$node["link"]) {
 
-		$_ .= '<li'.$att_class.'><a href="'.$node["link"].'"'.$att_target.'>'.$node["name"].'</a></li>'."\n";
+			$selection_class = "";
+			$selected_child_class = "";
+			if($link) {
+				$selection_class = $this->selectedNavigation($link);
+			}
+
+
+			// Check for children
+			$children = '';
+			if(($levels === false || $levels-- > 1) && isset($node["nodes"])) {
+				foreach($node["nodes"] as $child_node) {
+					$children .= $this->navigationLink($child_node, $levels);
+				}
+				if($children) {
+					if(preg_match("/class\=\"selected/", $children)) {
+						$selected_child_class = "trail";
+					}
+				}
+			}
+
+
+			// Created element
+			$att_class = $this->attribute("class", $selection_class, $selected_child_class, $node["classname"]);
+			$att_target = $this->attribute("target", $node["target"]);
+
+			$_ .= '<li'.$att_class.'>';
+
+			// Link type
+			if($link) {
+				$_ .= '<a href="'.$link.'"'.$att_target.'>'.$node["name"].'</a>';
+			}
+			// Folder type
+			else {
+				$_ .= '<span>'.$node["name"].'</span>';
+			}
+
+
+			if($children) {
+				$_ .= '<ul class="sub">';
+				$_ .= $children;
+				$_ .= '</ul>';
+			}
+
+			$_ .= '</li>';
+
+		}
 
 		return $_;
 	}
