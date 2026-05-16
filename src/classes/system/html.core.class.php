@@ -96,9 +96,33 @@ class HTMLCore {
 		return $media ? (" format:".$media["format"]." variant:".$media["variant"]) : "";
 	}
 
+		// provide media info as classvars for JS
+	function mediaData($item, $variant=false) {
+
+		$IC = new Items();
+		$media = $IC->getFirstMedia($item, $variant);
+
+		return $media ? (' data-format="'.$media["format"].' " data-variant="'.$media["variant"].'"') : "";
+	}
+
 	// data elements for JS interaction
 	// Using default data paths
 	function jsData($_filter = false, $_options = false) {
+
+		// Custom datasets
+		$item = false;
+
+ 
+		// overwrite model/defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "item"           : $item            = $_value; break;
+
+				}
+			}
+		}
 
 		$_ = '';
 
@@ -120,6 +144,12 @@ class HTMLCore {
 		// 	$_ .= ' data-media-name="'.security()->validPath($this->path."/updateMediaName").'"';
 		// 	$_ .= ' data-media-info="'.security()->validPath($this->path."/getMediaInfo").'"';
 		// }
+
+		if(!$_filter || array_search("readstate", $_filter) !== false) {
+			$_ .= ' data-readstate="'.($item && isset($item["readstate"]) ? $item["readstate"] : "") .'"';
+			$_ .= ' data-readstate-add="'.security()->validPath("/janitor/admin/profile/addReadstate").'"';
+			$_ .= ' data-readstate-delete="'.security()->validPath("/janitor/admin/profile/deleteReadstate").'"';
+		}
 
 		if(!$_filter || array_search("comments", $_filter) !== false) {
 			$_ .= ' data-comment-update="'.security()->validPath($this->path."/updateComment").'"';
