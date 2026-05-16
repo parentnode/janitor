@@ -714,17 +714,17 @@ class ModuleCore extends Model {
 						if($type === "controller" && $module_group_id === "item") {
 
 							$controllers = $fs->files(LOCAL_PATH."/www", [
-								"deny_folders" => "janitor,js,img,assets", 
+								"deny_folders" => "js,css,img,assets,janitor", 
 								"allow_extensions" => "php"
 							]);
 
 							$read_access = true;
 
 							foreach($controllers as $controller) {
-								$itemtype = false;
+								$controller_itemtype = false;
 
 								include($controller);
-								if($itemtype && $itemtype === $module_id) {
+								if($controller_itemtype && $controller_itemtype === $module_id) {
 
 									$digest = $this->getFileDigest($controller);
 									if($delete_modified_files || $digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
@@ -880,17 +880,19 @@ class ModuleCore extends Model {
 	function getItemControllers($module_id) {
 
 		$available_controllers = filesystem()->files(LOCAL_PATH."/www", [
-			"deny_folders" => "janitor,js,img,assets", 
+			"deny_folders" => "js,css,img,assets,janitor", 
 			"allow_extensions" => "php"
 		]);
 		$controllers = [];
 
 		$read_access = true;
 		foreach($available_controllers as $controller) {
-			$itemtype = false;
+
+			$access_item = [];
+			$controller_itemtype = false;
 
 			include($controller);
-			if($itemtype && $itemtype === $module_id) {
+			if($controller_itemtype && $controller_itemtype === $module_id) {
 				$controllers[] = str_replace(LOCAL_PATH."/www", "", $controller);
 			}
 		}
@@ -1028,11 +1030,21 @@ class ModuleCore extends Model {
 		if($module_group_id && $module_id && $controller_path) {
 
 			if(file_exists(LOCAL_PATH."/www".$controller_path)) {
-				
+
 				$read_access = true;
+				$controller_itemtype = false;
+
 				include(LOCAL_PATH."/www".$controller_path);
-				if($itemtype && $itemtype === $module_id) {
+				if($controller_itemtype && $controller_itemtype === $module_id) {
 					unlink(LOCAL_PATH."/www".$controller_path);
+
+					// Update cannonical urls
+					$model = new Itemtype($controller_itemtype);
+					$model->syncCannonical([
+						"itemtype" => $controller_itemtype,
+						"controller_deleted" => $controller_path,
+					]);
+
 					return true;
 				}
 
