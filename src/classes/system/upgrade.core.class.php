@@ -18,30 +18,54 @@ class UpgradeCore extends Model {
 
 		// Critical task failed
 		if(!$result["success"] && $critical) {
-
+			$class = "error";
+			$post_text = "";
 			// print message
-			print '<li class="error">'.$result["message"].'</li>'."\n";
+			// print '<li class="error">'.$result["message"].'</li>'."\n";
 		}
 		// Non-critical task failed
 		else if(!$result["success"]) {
+			$class = "notice";
+			$post_text = " – AND THAT IS OK";
 
 			// print message
-			print '<li class="notice">'.$result["message"].' – AND THAT IS OK</li>'."\n";
 		}
 		// Task successful
 		else {
+			$class = "";
+			$post_text = "";
 
-			print '<li>'.$result["message"].'</li>'."\n";
+			// print '<li>'.$result["message"].'</li>'."\n";
+		}
+
+		if(!isset($result["messages"])) {
+			$result["messages"] = [];
+		}
+
+		if(isset($result["message"])) {
+			$result["messages"][] = $result["message"];
+		}
+
+		foreach($result["messages"] as $message) {
+			$success = true;
+			if(is_array($message)) {
+				$success = $message["success"];
+				$message = $message["message"];
+			}
+
+			// debug([$message]);
+			print '<li'.($class ? ' class="'.$class.'"' : '').'>'.$message.($post_text ? $post_text : '').'</li>'."\n";
+
+			// end process on critical error
+			if(!$success && $critical) {
+
+				print '<li class="error fatal">UPGRADE PROCESS STOPPED DUE TO CRITICAL ERRORS</li>';
+
+				throw new Exception();
+			}
 		}
 
 
-		// end process on critical error
-		if(!$result["success"] && $critical) {
-
-			print '<li class="error fatal">UPGRADE PROCESS STOPPED DUE TO CRITICAL ERRORS</li>';
-
-			throw new Exception();
-		}
 	}
 
 
@@ -252,6 +276,12 @@ class UpgradeCore extends Model {
 					$this->process($this->synchronizeTable($table));
 				}
 			}
+
+
+
+			// Integrity check
+			// Evaluates available data and files to see if anything seems off
+			$this->integrityCheck();
 
 
 
@@ -1643,7 +1673,7 @@ class UpgradeCore extends Model {
 				$mediae = $query->results();
 
 				// Ensure items_mediae variant definition has been updated to fit the new variant names
-				$this->synchronizeTable("items_mediae");
+				$this->process($this->synchronizeTable("items_mediae"), true);
 
 				// $this->dump($mediae);
 
@@ -1993,7 +2023,7 @@ class UpgradeCore extends Model {
 						}
 					}
 			
-					$this->synchronizeTable("items_prices");
+					$this->process($this->synchronizeTable("items_prices"), true);
 
 					$sql = "SELECT id, type_id FROM ".UT_ITEMS_PRICES;
 					if($query->sql($sql)) {
@@ -2804,6 +2834,7 @@ class UpgradeCore extends Model {
 	function synchronizeTable($table) {
 
 		// print "SYNC table:$table<br>\n";
+		$process = [];
 
 		// Deal with versions-tables
 		if(preg_match("/_versions$/", $table)) {
@@ -2891,7 +2922,11 @@ class UpgradeCore extends Model {
 
 
 				// Drop contraints, to be able to update keys and columns freely
-				$this->process($this->dropConstraints(SITE_DB.".".$table), true);
+				$process[] = $this->dropConstraints(SITE_DB.".".$table);
+				if($process[count($process)-1]["success"] === "error") {
+					return array("success" => false, "messages" => $process);
+				}
+				// $this->process($this->dropConstraints(SITE_DB.".".$table), true);
 
 
 				// Columns are out of sync
@@ -2915,14 +2950,22 @@ class UpgradeCore extends Model {
 							if(isset($table_info["columns"][$column])) {
 
 								// move column and update declaration
-								$this->process($this->modifyColumn(SITE_DB.".".$table, $column, $reference_info["columns"][$column], $reference_column_index[$index-1]), true);
+								$process[] = $this->modifyColumn(SITE_DB.".".$table, $column, $reference_info["columns"][$column], $reference_column_index[$index-1]);
+								if($process[count($process)-1]["success"] === "error") {
+									return array("success" => false, "messages" => $process);
+								}
+								// $this->process($this->modifyColumn(SITE_DB.".".$table, $column, $reference_info["columns"][$column], $reference_column_index[$index-1]), true);
 
 							}
 							// column does not exist in current table
 							else {
 
 								// insert column
-								$this->process($this->addColumn(SITE_DB.".".$table, $column, $reference_info["columns"][$column], $reference_column_index[$index-1]), true);
+								$process[] = $this->addColumn(SITE_DB.".".$table, $column, $reference_info["columns"][$column], $reference_column_index[$index-1]);
+								if($process[count($process)-1]["success"] === "error") {
+									return array("success" => false, "messages" => $process);
+								}
+								// $this->process($this->addColumn(SITE_DB.".".$table, $column, $reference_info["columns"][$column], $reference_column_index[$index-1]), true);
 
 							}
 
@@ -2933,7 +2976,11 @@ class UpgradeCore extends Model {
 //							print "column in right place: $column<br>\n";
 
 							// update declaration
-							$this->process($this->modifyColumn(SITE_DB.".".$table, $column, $reference_info["columns"][$column]), true);
+							$process[] = $this->modifyColumn(SITE_DB.".".$table, $column, $reference_info["columns"][$column]);
+							if($process[count($process)-1]["success"] === "error") {
+								return array("success" => false, "messages" => $process);
+							}
+							// $this->process($this->modifyColumn(SITE_DB.".".$table, $column, $reference_info["columns"][$column]), true);
 
 						}
 
@@ -2952,7 +2999,11 @@ class UpgradeCore extends Model {
 //							print "should delete $column<br>\n";
 
 							// delete column
- 							$this->process($this->dropColumn(SITE_DB.".".$table, $column), true);
+							$process[] = $this->dropColumn(SITE_DB.".".$table, $column);
+							if($process[count($process)-1]["success"] === "error") {
+								return array("success" => false, "messages" => $process);
+							}
+ 							// $this->process($this->dropColumn(SITE_DB.".".$table, $column), true);
 
 						}
 
@@ -2968,8 +3019,8 @@ class UpgradeCore extends Model {
 				if($table_info["primary_key"] !== $reference_info["primary_key"]) {
 
 //					print "primary_key DIFFERS<br>\n";
-
-					return array("success" => false, "message" => "PRIMARY KEY CANNOT BE CHANGED AUTOMATICALLY");
+					$process[] = "PRIMARY KEY CANNOT BE CHANGED AUTOMATICALLY";
+					return array("success" => false, "messages" => $process);
 				}
 
 
@@ -2985,7 +3036,13 @@ class UpgradeCore extends Model {
 					if($reference_info["unique_keys"]) {
 						foreach($reference_info["unique_keys"] as $column => $key_names) {
 							foreach($key_names as $key_name) {
-								$this->process($this->addUniqueKey(SITE_DB.".".$table, $column, $key_name), true);
+
+								$process[] = $this->addUniqueKey(SITE_DB.".".$table, $column, $key_name);
+								if($process[count($process)-1]["success"] === "error") {
+									return array("success" => false, "messages" => $process);
+								}
+								// $this->process($this->addUniqueKey(SITE_DB.".".$table, $column, $key_name), true);
+
 							}
 						}
 					}
@@ -3003,14 +3060,24 @@ class UpgradeCore extends Model {
 //					print "keys DIFFERS<br>\n";
 
 					// Drop keys
-					$this->process($this->dropKeys(SITE_DB.".".$table), true);
+					$process[] = $this->dropKeys(SITE_DB.".".$table);
+					if($process[count($process)-1]["success"] === "error") {
+						return array("success" => false, "messages" => $process);
+					}
+					// $this->process($this->dropKeys(SITE_DB.".".$table), true);
 
 
 					// Add all keys from reference table
 					if($reference_info["keys"]) {
 						foreach($reference_info["keys"] as $column => $key_names) {
 							foreach($key_names as $key_name) {
-								$this->process($this->addKey(SITE_DB.".".$table, $column, $key_name), true);
+
+								$process[] = $this->addKey(SITE_DB.".".$table, $column, $key_name);
+								if($process[count($process)-1]["success"] === "error") {
+									return array("success" => false, "messages" => $process);
+								}
+								// $this->process($this->addKey(SITE_DB.".".$table, $column, $key_name), true);
+
 							}
 						}
 					}
@@ -3026,7 +3093,13 @@ class UpgradeCore extends Model {
 					foreach($reference_info["constraints"] as $column => $key_names) {
 						foreach($key_names as $key_name => $constraint) {
 							foreach($constraint as $ref_column => $action) {
-								$this->process($this->addConstraint(SITE_DB.".".$table.".".$column, SITE_DB.".".$ref_column, $action, $key_name), true);
+
+								$process[] = $this->addConstraint(SITE_DB.".".$table.".".$column, SITE_DB.".".$ref_column, $action, $key_name);
+								if($process[count($process)-1]["success"] === "error") {
+									return array("success" => false, "messages" => $process);
+								}
+								// $this->process($this->addConstraint(SITE_DB.".".$table.".".$column, SITE_DB.".".$ref_column, $action, $key_name), true);
+
 							}
 						}
 					}
@@ -3037,12 +3110,13 @@ class UpgradeCore extends Model {
 				$query->sql("SET SESSION foreign_key_checks=ON");
 
 			}
-
-			return array("success" => true, "message" => "$table synchronized: OK");
+			$process[] = "$table synchronized: OK";
+			return array("success" => true, "messages" => $process);
 
 		}
 		else {
-			return array("success" => false, "message" => "$table: REFERENCE SQL FILE NOT FOUND");
+			$process[] = "$table: REFERENCE SQL FILE NOT FOUND";
+			return array("success" => false, "messages" => $process);
 		}
 
 	}
