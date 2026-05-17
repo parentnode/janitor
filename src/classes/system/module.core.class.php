@@ -255,7 +255,7 @@ class ModuleCore extends Model {
 		$file_path = PRIVATE_FILE_PATH."/$install_id/$module_group_id/$module_id";
 
 		// Create download folder
-		$fs->makeDirRecursively($file_path);
+		filesystem()->makeDirRecursively($file_path);
 
 		// Download file
 		$response = curl()->request($module_source, [
@@ -267,7 +267,7 @@ class ModuleCore extends Model {
 			$install_messages[] = ["message" => "Downloaded module package.", "type" => "success"];
 
 			// Create unpacking folder
-			$fs->makeDirRecursively($file_path."/main");
+			filesystem()->makeDirRecursively($file_path."/main");
 
 
 			// Extraction on Windows
@@ -293,14 +293,14 @@ class ModuleCore extends Model {
 
 				// Install manifest and connect template file
 				$module_config_path = LOCAL_PATH."/config/modules/$module_group_id/$module_id";
-				$fs->makeDirRecursively($module_config_path);
-				$fs->copy($file_path."/main/manifest.json", $module_config_path."/manifest.json");
+				filesystem()->makeDirRecursively($module_config_path);
+				filesystem()->copy($file_path."/main/manifest.json", $module_config_path."/manifest.json");
 
 				$install_messages[] = ["message" => "Module manifest installed.", "type" => "success"];
 
 				// Copy connect template file, if it exists
 				if(file_exists($file_path."/main/src/config/connect_".$module_group_id.".php")) {
-					$fs->copy($file_path."/main/src/config/connect_".$module_group_id.".php", $module_config_path."/connect_".$module_group_id.".php");
+					filesystem()->copy($file_path."/main/src/config/connect_".$module_group_id.".php", $module_config_path."/connect_".$module_group_id.".php");
 				}
 
 
@@ -325,7 +325,7 @@ class ModuleCore extends Model {
 
 									// Model sql file must be available for upgrade DB syncronization to work
 									// Install file
-									$fs->copy($file_path."/main/src/$source", LOCAL_PATH."/".$source);
+									filesystem()->copy($file_path."/main/src/$source", LOCAL_PATH."/".$source);
 
 									// Run SQL
 									$result = $this->moduleSql(LOCAL_PATH."/".$source);
@@ -403,7 +403,7 @@ class ModuleCore extends Model {
 								if($digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
 
 									// Copy file to designated module uninstall location 
-									if($fs->copy($file_path."/main/src/".$source, $module_config_path."/uninstall/".$source)) {
+									if(filesystem()->copy($file_path."/main/src/".$source, $module_config_path."/uninstall/".$source)) {
 										$install_messages[] = ["message" => "Saved uninstall file: $source", "type" => "success"];
 									}
 									else {
@@ -437,7 +437,7 @@ class ModuleCore extends Model {
 								if($digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
 
 									// Copy file to designated module uninstall location 
-									if($fs->copy($file_path."/main/src/".$source, $module_config_path."/uninstall-data/".$source)) {
+									if(filesystem()->copy($file_path."/main/src/".$source, $module_config_path."/uninstall-data/".$source)) {
 										$install_messages[] = ["message" => "Saved uninstall data file: $source", "type" => "success"];
 									}
 									else {
@@ -486,14 +486,14 @@ class ModuleCore extends Model {
 									}
 
 									// Install file
-									$fs->copy($file_path."/main/src/$source", LOCAL_PATH."/$destination");
+									filesystem()->copy($file_path."/main/src/$source", LOCAL_PATH."/$destination");
 
 
 
 									// Store default controller for potential duplication
 									if($type === "controller" && $module_group_id === "item") {
 
-										$fs->copy($file_path."/main/src/$source", "$module_config_path/controller.php");
+										filesystem()->copy($file_path."/main/src/$source", "$module_config_path/controller.php");
 							
 									}
 
@@ -530,7 +530,7 @@ class ModuleCore extends Model {
 
 		// Copy module files to 
 		// Clean up
-		$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$install_id");
+		filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/$install_id");
 
 		// Check for errors
 		// debug(["install errors", $install_messages]);
@@ -706,19 +706,19 @@ class ModuleCore extends Model {
 								unlink(LOCAL_PATH."/".$destination);
 							}
 						}
-						// debug([dirname(LOCAL_PATH."/".$file), $fs->files(dirname(LOCAL_PATH."/".$file))]);
+						// debug([dirname(LOCAL_PATH."/".$file), filesystem()->files(dirname(LOCAL_PATH."/".$file))]);
 
 						// Is this leaving an empty folder, then delete it
-						if(!$fs->files(dirname(LOCAL_PATH."/".$destination))) {
+						if(!filesystem()->files(dirname(LOCAL_PATH."/".$destination))) {
 							// debug(["removeDirRecursively", dirname(LOCAL_PATH."/".$file)]);
-							$fs->removeDirRecursively(dirname(LOCAL_PATH."/".$destination));
+							filesystem()->removeDirRecursively(dirname(LOCAL_PATH."/".$destination));
 						}
 
 
 						// Remove custom controllers if delete modified files flag is set
 						if($type === "controller" && $module_group_id === "item") {
 
-							$controllers = $fs->files(LOCAL_PATH."/www", [
+							$controllers = filesystem()->files(LOCAL_PATH."/www", [
 								"deny_folders" => "js,css,img,assets,janitor", 
 								"allow_extensions" => "php"
 							]);
@@ -758,7 +758,7 @@ class ModuleCore extends Model {
 			}
 
 			// debug(["removeDirRecursively", $module_config_path]);
-			$removed = $fs->removeDirRecursively($module_config_path);
+			$removed = filesystem()->removeDirRecursively($module_config_path);
 			// debug(["removed", $removed]);
 
 			return true;
