@@ -232,7 +232,10 @@ class ModuleCore extends Model {
 		}
 
 
-		$fs = new FileSystem();
+
+		// Reset navigation cache in all scenarios
+		cache()->reset("navigation-main-janitor");
+
 
 		$install_messages = [];
 
@@ -593,7 +596,9 @@ class ModuleCore extends Model {
 		$uninstall_messages = [];
 
 
-		$fs = new FileSystem();
+		// Reset navigation cache in all scenarios
+		cache()->reset("navigation-main-janitor");
+
 
 		$module_config_path = LOCAL_PATH."/config/modules/$module_group_id/$module_id";
 		if(file_exists($module_config_path."/manifest.json")) {
