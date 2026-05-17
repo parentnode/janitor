@@ -924,7 +924,7 @@ class Navigation extends Model {
 	* Get specific navigation based on handle to be used in website
 	* Will be returned from cache if available
 	*/
-	function get($handle) {
+	function get($handle, $levels = false) {
  
 		// is navigation handle specified and navigation already cached?
 		if(cache()->value("navigation-".$handle)) {
@@ -932,7 +932,7 @@ class Navigation extends Model {
 		}
 
 
-		$navigation = $this->getNavigations(["handle" => $handle]);
+		$navigation = $this->getNavigations(["handle" => $handle, "levels" => $levels]);
 		if($navigation) {
 			// update cache
 			cache()->value("navigation-".$handle, $navigation);

@@ -17,7 +17,7 @@ if($_options !== false) {
 
 if($handle):
 
-	$navigation = navigation()->get($handle);
+	$navigation = navigation()->get($handle, $levels);
 ?>
 
 	<div id="navigation">
