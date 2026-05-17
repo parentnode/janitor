@@ -1,6 +1,6 @@
 <?php
 $access_item["/"] = true;
-$access_item["/janitor-main"] = true;
+$access_item["/main-janitor"] = true;
 if(isset($read_access) && $read_access) {
 	return;
 }
