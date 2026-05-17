@@ -115,12 +115,18 @@ class Security {
 	* Validate access permission for full /controller/action path
 	* Used to check if a path is valid when generating links, form actions, etc
 	*
-	* @param $path String containing full /controller/action path
+	* @param $path String containing full /controller/action path (optionally relative path, being appended to current controller)
 	* @return boolean Allowed or not
 	*/
 	function validatePath($path) {
 		// debug(["validatePath", $path]);
 		// return true;
+
+		// If relative path, then append to current controller path
+		if(!preg_match("/^(http[s]?\:\/\/|mailto\:|tel\:|\/)/", $path)) {
+			$path = HTML()->path."/".$path;
+		}
+
 
 		// remove GET parameters from $actions string
 		$path = preg_replace("/\?.+$/", "", $path);
