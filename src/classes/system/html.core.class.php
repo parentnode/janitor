@@ -661,10 +661,21 @@ class HTMLCore {
 
 					$att_max = $this->attribute("data-maxlength", stringOr($max, 255));
 					$att_min = $this->attribute("data-minlength", $min);
+					$value_found = false;
 
 					$_ .= '<select'.$att_name.$att_id.$att_disabled.$att_readonly.$att_max.$att_min.$att_pattern.'>';
 					foreach($options as $select_option => $select_value) {
-						$_ .= '<option value="'.$select_option.'"'.($value == $select_option ? ' selected="selected"' : '').'>'.$select_value.'</option>';
+						$selected = "";
+						if($value === $select_option) {
+							$value_found = true;
+							$selected = ' selected="selected"';
+						}
+						$_ .= '<option value="'.$select_option.'"'.($selected).'>'.$select_value.'</option>';
+					}
+					// Dropdown allows free text input
+					// if value was not found in default options, then add value option to enable correct view
+					if($value && !$value_found) {
+						$_ .= '<option value="'.$value.'" selected="selected">'.$value.'</option>';
 					}
 					$_ .= '</select>';
 
