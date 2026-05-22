@@ -1,12 +1,12 @@
 /* BASIC TAGS */
 #content ul.tags {padding: 0 125px 4px 30px;}
 #content ul.tags li{user-select: none;}
-#content ul.tags li.tag {margin: 0 6px 6px 0; border-radius: 13px; background-color: #313942; padding: 6px 14px 8px; color: #ffffff; font-size: 0;}
+#content ul.tags li.tag {margin: 0 6px 6px 0; border-radius: 3px; background-color: #313942; padding: 6px 14px 8px; color: #ffffff; font-size: 0;}
 #content ul.tags li.tag span {font-size: 13px; line-height: 1em; color: #ffffff;}
 #content ul.tags li.tag span.context {text-transform: lowercase;}
 #content ul.tags li.tag span.context:after {content: ":";}
 #content ul.tags li.tag span.value {}
-#content ul.tags li.add {margin: 0 6px 6px 0; padding: 6px 4px 8px; border-radius: 13px; cursor: pointer; width: 19px; text-align: center; font-size: 13px; background-color: #dedede; color: #333333;}
+#content ul.tags li.add {margin: 0 6px 6px 0; padding: 6px 4px 8px; border-radius: 3px; cursor: pointer; width: 19px; text-align: center; font-size: 13px; background-color: #dedede; color: #333333;}
 #content ul.tags li.add:hover {background-color: #64ad8e; color: #ffffff;}
 #content ul.tags li.empty {padding: 5px 14px 8px 0;/*background: none; color: #313942; font-size: 15px;*/}
 #content ul.tags.editable li.empty {display: none;}

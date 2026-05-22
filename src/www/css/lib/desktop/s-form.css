@@ -168,14 +168,17 @@ div.field.dropdown div.virtual div.input.selection:not(.default) {color: #313942
 div.field.dropdown div.virtual div.button {z-index: 2; position: relative;
 	vertical-align: top; display: inline-block; margin: 0; padding: 2px 0 0; width: 36px; height: 44px; cursor: pointer;
 }
-div.field.dropdown div.virtual div.button svg {width: 24px; height: 24px; margin: 8px 0 0 3px;
+div.field.dropdown div.virtual div.button svg {width: 24px; height: 24px; margin: 6px 0 0 3px;
 	fill: #aaaaaa; stroke: #aaaaaa; stroke-width: 2px; stroke-linecap: round;
 }
-div.field.dropdown div.virtual div.options {z-index: 1; margin: -10px -3px 0; position: relative; background-color: #ffffff; box-sizing: border-box; height: 0; overflow: hidden;
+div.field.dropdown div.virtual div.options {z-index: 10; margin: -10px -3px 0; position: relative; background-color: #ffffff; box-sizing: border-box; height: 0; overflow: hidden;
 }
-div.field.dropdown div.virtual div.options ul.options {border: 3px solid #5c5c5c; border-top: 1px solid #5c5c5c; display: block;}
+div.field.dropdown div.virtual div.options ul.options {border: 3px solid #5c5c5c; border-top: 1px solid #5c5c5c; display: block;
+	max-height: 225px; border-bottom-left-radius: 3px; border-bottom-right-radius: 3px;
+	overflow: auto;
+}
 div.field.dropdown div.virtual div.options ul.options li {
-	padding: 12px 12px; cursor: pointer; font-size: 16px; display: block;
+	padding: 12px 12px; cursor: pointer; font-size: 16px; display: block; color: #313942;
 }
 div.field.dropdown div.virtual div.options ul.options li.hover {background-color: #dedede;}
 

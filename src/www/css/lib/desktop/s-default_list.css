@@ -21,7 +21,7 @@
 /* LIST */
 #content div.all_items ul.items > li {display: block; position: relative; border-bottom: 1px solid #dedede; overflow: hidden;}
 #content div.all_items ul.items > li:hover {background-color: #edf0f2;}
-#content div.all_items ul.items > li h3 {padding: 15px 250px 15px 30px; font-size: 16px;}
+#content div.all_items ul.items > li h3 {padding: 18px 250px 18px 30px; font-size: 16px;}
 
 
 /* LIST WITH IMAGE - PADDING CALCULATED BY JS */
@@ -47,7 +47,7 @@
 #content div.all_items ul.items > li dl.info {margin-top: -5px; padding-bottom: 10px;}
 
 /* ACTIONS ALIGN RIGHT */
-#content div.all_items ul.items > li ul.actions {position: absolute; top: 0px; padding: 0; right: 30px;}
+#content div.all_items ul.items > li ul.actions {position: absolute; top: 3px; padding: 0; right: 30px;}
 #content p + div.all_items {border-top: 1px solid #bbbbbb;}
 #content div.all_items ul.items > li ul.actions li {padding: 5px 0 5px 5px;}
 /* MORE ACTION PADDING IF ROW CONTAINS ADDITIONAL INFO */
@@ -74,7 +74,7 @@
 
 
 /* SORTABLE */
-#content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 0px; left: 15px; 
+#content div.all_items.sortable ul.items > li.item div.drag {width: 30px; height: 30px; position: absolute; top: 3px; left: 18px; 
 	background-color: transparent;
 	background-image: url("/janitor/admin/img/gx_drag-ns.svg");
 	background-repeat: no-repeat;
@@ -85,7 +85,8 @@
 #content div.all_items.sortable ul.items > li.item h3,
 #content div.all_items.sortable ul.items > li.item p,
 #content div.all_items.sortable ul.items > li.item ul.tags,
-#content div.all_items.sortable ul.items > li.item dl {padding-left: 50px;}
+#content div.all_items.sortable ul.items > li.item label.tags,
+#content div.all_items.sortable ul.items > li.item dl {padding-left: 53px;}
 
 #content div.all_items.sortable.images ul.items > li.item h3,
 #content div.all_items.sortable.images ul.items > li.item p,
