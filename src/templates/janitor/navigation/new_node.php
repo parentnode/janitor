@@ -14,9 +14,9 @@ $link_options = $model->getLinkOptions();
 		<?= $model->link("Node list", "/janitor/admin/navigation/edit/".$navigation_id, ["class" => "button", "wrapper" => "li.cancel"]) ?>
 	</ul>
 
-	<div class="item">
+	<div class="item i:newNavigationNode" data-validate-link="<?= security()->validPath("/janitor/admin/navigation/validateNodeLink") ?>">
 		<h2>Create a new navigation node</h2>
-		<?= $model->formStart("/janitor/admin/navigation/saveNode", ["class" => "i:newNavigationNode labelstyle:inject"]) ?>
+		<?= $model->formStart("/janitor/admin/navigation/saveNode", ["class" => "labelstyle:inject"]) ?>
 			<?= $model->input("navigation_id", ["type" => "hidden", "value" => $navigation_id]) ?>
 
 			<p>

@@ -296,7 +296,7 @@ class Navigation extends Model {
 								"extend" => true
 							]);
 							foreach($items as $item) {
-								$link_options[$link."/".$item["sindex"]] = $item["name"]. " (".$link."/".$item["sindex"].", itemtype: ".$label.")";
+								$link_options[$link."/".$item["sindex"]] = $item["name"]. " (".$link."/".$item["sindex"].") (".$label.")";
 							}
 
 						}
@@ -327,6 +327,77 @@ class Navigation extends Model {
 
 		return $link_options;
 	}
+
+	function API_validateNodeLink($action) {
+
+		// Get posted values to make them available for models
+		$this->getPostedEntities();
+
+		// does values validate
+		if(count($action) == 1 && $this->validateList(array("node_link"))) {
+
+			$node_link = $this->getProperty("node_link", "value");
+
+			$result = $this->validateNodeLink($node_link);
+
+			if($result && isset($result["code"]) && isset($result["status"])) {
+
+				if($result["code"] === "external") {
+					message()->addMessage("External Link (not validated)");
+					return $result;
+				}
+				else if($result["status"] === "success") {
+					message()->addMessage("Link OK");
+					return $result;
+				}
+				else if($result["status"] === "warning") {
+					message()->addMessage("Link returned unexpected http code: $result", ["type" => "warning"]);
+					return $result;
+				}
+				else {
+					message()->addMessage("Link not found", ["type" => "error"]);
+					return $result;
+				}
+
+			}
+
+		}
+
+		message()->addMessage("Link not found", array("type" => "error"));
+		return false;
+	}
+
+	function validateNodeLink($node_link) {
+		// debug([$node_link]);
+
+		// Absolute link
+		if($node_link && preg_match("/^\//", $node_link)) {
+
+			$response = curl()->request(SITE_URL.$node_link);
+			if($response["http_code"] === 200) {
+				return ["status" => "success", "code" => $response["http_code"]];
+			}
+			else if(preg_match("/^4/", $response["http_code"])) {
+				return ["status" => "error", "code" => $response["http_code"]];
+			}
+			else {
+				return ["status" => "warning", "code" => $response["http_code"]];
+			}
+
+		}
+		// Anchor
+		else if($node_link && preg_match("/^#/", $node_link)) {
+			return ["status" => "success", "code" => "anchor"];
+		}
+		// Relative link
+		else if($node_link && !preg_match("/^(http\:|mailto\:|tel\:)/", $node_link)) {
+			return ["status" => "error", "code" => "relative"];
+		}
+
+		return ["status" => "success", "code" => "external"];
+
+	}
+
 
 	// save node
 	// /janitor/admin/navigation/saveNode

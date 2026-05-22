@@ -25,7 +25,7 @@ if($navigation_node) {
 		<?= $model->link("List", "/janitor/admin/navigation/edit/".$navigation_id, array("class" => "button", "wrapper" => "li.cancel")) ?>
 	</ul>
 
-	<div class="item i:editNavigationNode">
+	<div class="item i:editNavigationNode" data-validate-link="<?= security()->validPath("/janitor/admin/navigation/validateNodeLink") ?>">
 		<h2>Edit navigation node</h2>
 		<?= $model->formStart("/janitor/admin/navigation/updateNode", array("class" => "labelstyle:inject")) ?>
 			<?= $model->input("node_id", array("type" => "hidden", "value" => $node_id)) ?>
@@ -36,16 +36,6 @@ if($navigation_node) {
 				<?= $model->input("node_link", ["value" => $navigation_node["node_link"], "options" => $link_options]) ?>
 				<?= $model->input("node_target", ["type" => "checkbox", "value" => $navigation_node["node_target"]]) ?>
 			</fieldset>
-
-			<? /*fieldset>
-				<h3>Link to an ItemType or list of ItemTypes</h3>
-				<?= $model->input("node_destination", ["options" => $destinations, "value" => ($navigation_node["node_itemtype"] ? $navigation_node["node_itemtype"].($navigation_node["node_item_id"] ? ",".$navigation_node["node_item_id"] : "") : "")]) ?>
-			</fieldset>
-
-			<fieldset>
-				<h3>Link to a static url</h3>
-				<?= $model->input("node_link", ["value" => $navigation_node["node_link"]]) ?>
-			</fieldset*/ ?>
 
 			<fieldset>
 				<h3>Fallback link</h3>

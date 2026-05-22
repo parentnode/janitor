@@ -20,16 +20,9 @@ function recurseNodes($nodes) {
 
 		// Validate internal links
 		$link_validation_class = "";
-		if($node["link"] && preg_match("/^\//", $node["link"])) {
-
-			$response = curl()->request(SITE_URL.$node["link"]);
-			if($response["http_code"] === 404) {
-				$link_validation_class = "link_error";
-			}
-			else if($response["http_code"] !== 200) {
-				$link_validation_class = "link_warning";
-			}
-
+		$valid_link = navigation()->validateNodeLink($node["link"]);
+		if($valid_link && isset($valid_link["status"])) {
+			$link_validation_class = "link_".$valid_link["status"];
 		}
 
 

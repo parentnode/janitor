@@ -1,7 +1,7 @@
 #content .scene.navigationEdit {padding-bottom: 30px;}
 
-#content .scene.navigationEdit .sortable ul.items li ul.items { border-top: 1px solid #dedede; margin-bottom: -1px;}
-#content .scene.navigationEdit .sortable ul.items > li h3 {padding: 15px 20px 15px 0; display: inline-block; vertical-align: bottom;}
+#content .scene.navigationEdit .sortable ul.items li ul.items {border-top: 1px solid #dedede; margin-bottom: -1px;}
+#content .scene.navigationEdit .sortable ul.items > li h3 {padding-right: 20px; display: inline-block; vertical-align: bottom;}
 #content .scene.navigationEdit .sortable ul.items > li.item li.item h3 {margin-left: 30px; padding-left: 40px;}
 #content .scene.navigationEdit .sortable ul.items > li.item li.item li.item h3 {margin-left: 50px;}
 #content .scene.navigationEdit .sortable ul.items > li.item li.item li.item li.item h3 {margin-left: 70px;}
@@ -10,34 +10,34 @@
 #content .scene.navigationEdit .sortable ul.items > li li h3 {
 	background-image: url("/janitor/admin/img/gx_angle.svg");
 	background-size: 10px auto;
-	background-position: 23px 15px;
+	background-position: 23px 18px;
 	background-color: transparent;
 	background-repeat: no-repeat;
 }
-#content .scene.navigationEdit div.all_items ul.items li.item {overflow: visible;}
+#content .scene.navigationEdit div.all_items ul.items li.item {overflow: visible; background-color: #f5f7f8;}
 
 /* AVOID HOVER ON NESTED LI'S */
-#content .scene.navigationEdit div.all_items ul.items > li.item:hover:not(.shadow) {background-color: transparent;}
+#content .scene.navigationEdit div.all_items ul.items > li.item:hover:not(.shadow) {background-color: #f5f7f8;}
 
 #content .scene.navigationEdit ul.items > li span {padding: 10px 10px 15px 0; display: inline-block; vertical-align: bottom;}
 #content .defaultEdit.navigationEdit ul.items > li.dragged .drag {background-image: none;}
 
 #content .scene.navigationEdit div.all_items ul.items li.item.link_error,
 #content .scene.navigationEdit div.all_items ul.items li.item.link_error:hover,
-#content .scene.navigationEdit div.all_items ul.items li.item.link_error h3 {
+#content .scene.navigationEdit div.all_items ul.items li.item.link_error > h3 {
 	background-color: #df0000; color: #ffffff;
 }
 #content .scene.navigationEdit div.all_items ul.items li.item.link_warning,
 #content .scene.navigationEdit div.all_items ul.items li.item.link_warning:hover,
-#content .scene.navigationEdit div.all_items ul.items li.item.link_warning h3 {
+#content .scene.navigationEdit div.all_items ul.items li.item.link_warning > h3 {
 	background-color: orange; color: #ffffff;
 }
 
-#content .scene.navigationEdit div.all_items ul.items li.item.link_error div.drag,
-#content .scene.navigationEdit div.all_items ul.items li.item.link_warning div.drag {
+#content .scene.navigationEdit div.all_items ul.items li.item.link_error > div.drag,
+#content .scene.navigationEdit div.all_items ul.items li.item.link_warning > div.drag {
 	background-image: url("/janitor/admin/img/gx_drag-ns_white.svg");
 }
-#content .scene.navigationEdit .sortable ul.items > li li.link_error h3,
-#content .scene.navigationEdit .sortable ul.items > li li.link_warning h3 {
+#content .scene.navigationEdit .sortable ul.items > li li.link_error > h3,
+#content .scene.navigationEdit .sortable ul.items > li li.link_warning > h3 {
 	background-image: url("/janitor/admin/img/gx_angle_white.svg");
 }
