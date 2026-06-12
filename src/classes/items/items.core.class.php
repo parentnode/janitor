@@ -77,7 +77,7 @@ class ItemsCore {
 		$itemtype = false;
 
 		// Use historic sindex' if item could not be found with sindex (only with sindex)
-		$historic = false;
+		$historic = true;
 
 		// Dont declare status – less chars to detect 0 value
 		// $status = false;
