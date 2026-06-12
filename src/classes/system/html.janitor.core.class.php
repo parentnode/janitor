@@ -602,6 +602,24 @@ class JanitorHTMLCore {
 	}
 
 
+
+	// view preview url for edit page
+	function previewUrl($item, $_options = false) {
+
+		$_ = '';
+
+		$_ .= '<div class="previewurl i:defaultpreviewurl i:collapseHeader item_id:'.$item["id"].'">';
+		$_ .= '<h2>Preview</h2>';
+		$_ .= '<p>Preview this page here: <br />';
+		$_ .= '<a href="'.$item["cannonical"].'" target="_blank">'.$item["cannonical"].'</a>';
+		$_ .= '</p>';
+		$_ .= '<p class="note">The item must be enabled to be previewed.</p>';
+		$_ .= '</div>';
+
+		return $_;
+	}
+
+
 	// edit sindex form for edit page (Currently only showing sindex)
 	function editDeveloperSettings($item, $_options = false) {
 
