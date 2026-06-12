@@ -55,6 +55,10 @@
 #content .scene.defaultEdit > div.cannonical {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.cannonical form {padding-bottom: 15px;}
 
+/* EDIT PREVIEW */
+#content .scene.defaultEdit > div.previewurl {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.previewurl form {padding-bottom: 15px;}
+
 /* DEVELOPER SETTINGS */
 #content .scene.defaultEdit > div.developer {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
 #content .scene.defaultEdit > div.developer form {padding-bottom: 15px;}
