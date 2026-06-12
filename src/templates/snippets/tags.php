@@ -12,7 +12,9 @@ $item = false;
 
 $context = [];
 $default = false;
-$url = false;
+
+$base_path = HTML()->path;
+$tag_namespace = "tag";
 
 $editing = true;
 $editing_text = "Work in progress";
@@ -29,8 +31,9 @@ if($_options !== false) {
 			case "context"               : $context                = $_value; break;
 			case "default"               : $default                = $_value; break;
 
-			case "url"                   : $url                    = $_value; break;
-			
+			case "base_path"             : $base_path              = $_value; break;
+			case "tag_namespace"         : $tag_namespace          = $_value; break;
+
 			case "editing"               : $editing                = $_value; break;
 			case "editing_text"          : $editing_text           = $_value; break;
 			case "editing_title_text"    : $editing_title_text     = $_value; break;
@@ -93,8 +96,8 @@ if($editing_tag || $default_tag || $item_tags):
 		foreach($item_tags as $item_tag):
 ?>
 	<li<?= ($schema ? ' itemprop="'.$schema.'"' : '') ?>>
-<?			if($url): ?>
-		<a href="<?= $url ?>/<?= urlencode($item_tag["value"]) ?>"><?= $item_tag["value"] ?></a>
+<?			if($base_path): ?>
+		<a href="<?= $base_path ?>/<?= $tag_namespace ?>/<?= urlencode($item_tag["value"]) ?>"><?= $item_tag["value"] ?></a>
 <?			else: ?>
 		<?= $item_tag["value"] ?>
 <?			endif; ?>
