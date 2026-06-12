@@ -94,7 +94,6 @@ if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 
 	// page class + extension
 	include_once("classes/system/queryi.class.php");
-	include_once("classes/helpers/filesystem.class.php");
 	include_once("classes/system/output.class.php");
 
 	include_once("classes/system/page.core.class.php");

@@ -679,7 +679,6 @@ class ItemtypeCore extends Model {
 
 
 			$query = new Query();
-			$fs = new FileSystem();
 
 			// delete item + itemtype + files
 			$sql = "SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'";
@@ -701,8 +700,8 @@ class ItemtypeCore extends Model {
 					// debug([$sql]);
 					if($query->sql($sql)) {
 						
-						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
-						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
+						filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/$item_id");
+						filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/$item_id");
 
 						// itemtype post delete handler?
 						if(method_exists($this, "deleted")) {
@@ -1407,7 +1406,7 @@ class ItemtypeCore extends Model {
 
 			if($item) {
 				$query = new Query();
-				$fs = new FileSystem();
+
 
 				unset($_POST);
 				// Compile new POST array for item
@@ -1525,7 +1524,7 @@ class ItemtypeCore extends Model {
 								// debug(["copy file", PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"]]);
 
 								// Copy media
-								$fs->copy(
+								filesystem()->copy(
 									PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"], 
 									PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant."/".$media["format"]
 								);
@@ -1535,7 +1534,7 @@ class ItemtypeCore extends Model {
 
 									// debug(["copy poster", PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"]]);
 
-									$fs->copy(
+									filesystem()->copy(
 										PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["poster"], 
 										PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant."/".$media["poster"]
 									);
@@ -1614,7 +1613,7 @@ class ItemtypeCore extends Model {
 												// debug(["copy html media", PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"]]);
 
 												// Copy media
-												$fs->copy(
+												filesystem()->copy(
 													PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"], 
 													PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant."/".$media["format"]
 												);
@@ -1624,7 +1623,7 @@ class ItemtypeCore extends Model {
 
 													// debug(["copy poster", PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["format"]]);
 
-													$fs->copy(
+													filesystem()->copy(
 														PRIVATE_FILE_PATH."/".$item_id."/".$media["variant"]."/".$media["poster"], 
 														PRIVATE_FILE_PATH."/".$new_item_id."/".$new_variant."/".$media["poster"]
 													);
@@ -1957,14 +1956,14 @@ class ItemtypeCore extends Model {
 			$variant = $action[2];
 
 			$query = new Query();
-			$fs = new FileSystem();
+
 
 			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
 //			print $sql."<br>\n";
 			if($query->sql($sql)) {
 
-				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
-				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+				filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+				filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
 
 				message()->addMessage("Media deleted");
 				return true;
@@ -2142,7 +2141,7 @@ class ItemtypeCore extends Model {
 		if($this->validateList([$input_name], $item_id)) {
 			// debug(["validated", $input_name, $_FILES, $_FILES[$input_name]]);
 
-			$fs = new FileSystem();
+
 
 			// Get upload information
 			$identified_uploads = $this->identifyUploads($input_name);
@@ -2176,11 +2175,11 @@ class ItemtypeCore extends Model {
 
 					// Only delete existing files if this is NOT a poster upload
 					if(!$append_to_variant) {
-						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
-						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+						filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+						filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
 					}
 
-					$fs->makeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+					filesystem()->makeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
 					copy($upload["file"], $output_file);
 					unlink($upload["file"]);
 
@@ -2198,11 +2197,11 @@ class ItemtypeCore extends Model {
 
 					// Only delete existing files if this is NOT a poster upload
 					if(!$append_to_variant) {
-						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
-						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+						filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+						filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
 					}
 
-					$fs->makeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+					filesystem()->makeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
 
 					$zip = new ZipArchive();
 					$zip->open($output_file, ZipArchive::CREATE);
@@ -2313,15 +2312,15 @@ class ItemtypeCore extends Model {
 		if(count($action) == 3) {
 
 			$query = new Query();
-			$fs = new FileSystem();
+
 			$item_id = $action[1];
 			$variant = $action[2];
 
 
 			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
 			if($query->sql($sql)) {
-				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
-				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+				filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+				filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
 
 				message()->addMessage("Media deleted");
 				return true;
@@ -2559,15 +2558,15 @@ class ItemtypeCore extends Model {
 		if(count($action) == 3) {
 
 			$query = new Query();
-			$fs = new FileSystem();
+
 			$item_id = $action[1];
 			$variant = $action[2];
 
 
 			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
 			if($query->sql($sql)) {
-				$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
-				$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+				filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+				filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
 
 				message()->addMessage("File deleted");
 				return true;
@@ -2640,7 +2639,7 @@ class ItemtypeCore extends Model {
 		if($item_id && $variant) {
 
 			$query = new Query();
-			$fs = new FileSystem();
+
 
 			// Only delete poster file
 			if($poster_only) {
@@ -2660,7 +2659,7 @@ class ItemtypeCore extends Model {
 							unlink(PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$poster);
 
 							// Clean up public files
-							$files = $fs->files(PUBLIC_FILE_PATH."/".$item_id."/".$variant, [
+							$files = filesystem()->files(PUBLIC_FILE_PATH."/".$item_id."/".$variant, [
 								"allow_extensions" => "png,jpg,gif"
 							]);
 							foreach($files as $file) {
@@ -2680,8 +2679,8 @@ class ItemtypeCore extends Model {
 
 				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
 				if($query->sql($sql)) {
-					$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
-					$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+					filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+					filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
 
 					return true;
 				}

@@ -51,7 +51,6 @@ include_once("includes/shorthands.inc.php");
 
 // page class + extension
 include_once("classes/system/queryi.class.php");
-include_once("classes/helpers/filesystem.class.php");
 include_once("classes/system/output.class.php");
 
 include_once("classes/system/page.core.class.php");

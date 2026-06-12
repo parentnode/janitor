@@ -2522,7 +2522,6 @@ class SuperUserCore extends User {
 		}
 
 		// get all controllers
-		$fs = new FileSystem();
 
 		// indicate access read state (used when parsing controllers)
 		$read_access = true;
@@ -2533,7 +2532,7 @@ class SuperUserCore extends User {
 
 
 		// get and index local controllers
-		$controllers = $fs->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
+		$controllers = filesystem()->files(LOCAL_PATH."/www", array("allow_extensions" => "php"));
 //		print_r($controllers);
 
 		foreach($controllers as $controller) {
@@ -2558,7 +2557,7 @@ class SuperUserCore extends User {
 
 
 		// get and index framework controllers
-		$controllers = $fs->files(FRAMEWORK_PATH."/www", array("allow_extensions" => "php"));
+		$controllers = filesystem()->files(FRAMEWORK_PATH."/www", array("allow_extensions" => "php"));
 //		print_r($controllers);
 
 		foreach($controllers as $controller) {

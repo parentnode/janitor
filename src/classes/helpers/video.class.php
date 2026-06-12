@@ -1,13 +1,11 @@
 <?php
-include_once("classes/helpers/filesystem.class.php");
-include_once("includes/functions.inc.php");
+
 
 class Video {
 
 
 	function convert($input_file, $output_file, $_options = false) {
 
-		$fs = new FileSystem();
 
 		$output_width = false;
 		$output_height = false;
@@ -308,7 +306,7 @@ class Video {
 
 
 			// make sure output path exists
-			$fs->makeDirRecursively(dirname($output_file));
+			filesystem()->makeDirRecursively(dirname($output_file));
 
 
 			// make crop/pad setting

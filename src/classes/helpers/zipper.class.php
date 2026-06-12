@@ -108,8 +108,6 @@ class Zipper {
 		// delete after zipping?
 		if($delete) {
 
-			$fs = new FileSystem();
-
 			foreach($delete_files as $file) {
 				unlink($file);
 			}
@@ -119,14 +117,14 @@ class Zipper {
 
 				foreach($delete_files as $file) {
 					
-					$fs->removeEmptyDirRecursively(dirname($file));
+					filesystem()->removeEmptyDirRecursively(dirname($file));
 				}
 
 			}
 			else if($paths != false) {
 				// remove empty folders
 				foreach($paths as $path) {
-					$fs->removeEmptyDirRecursively($path);
+					filesystem()->removeEmptyDirRecursively($path);
 				}
 			}
 

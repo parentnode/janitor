@@ -421,7 +421,6 @@ class UpgradeCore extends Model {
 
 		$query = new Query();
 		$IC = new Items();
-		$fs = new FileSystem();
 
 		$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
@@ -628,7 +627,7 @@ class UpgradeCore extends Model {
 	function updatePHPSyntaxToPHP7() {
 
 		// Updating controller code syntax to work with PHP7
-		$fs = new FileSystem();
+
 		$controllers = $fs->files(LOCAL_PATH."/www", ["allow_extensions" => "php", "include_tempfiles" => true]);
 		$file = "";
 		foreach($controllers as $controller) {
@@ -660,7 +659,7 @@ class UpgradeCore extends Model {
 	// Code update
 	function updateSyntaxTo078() {
 
-		$fs = new FileSystem();
+
 		// get all php files in theme
 		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
@@ -926,7 +925,7 @@ class UpgradeCore extends Model {
 	// Code update
 	function updateConstantUsageSyntax08() {
 
-		$fs = new FileSystem();
+
 		// get all php files in theme
 		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
@@ -1012,7 +1011,7 @@ class UpgradeCore extends Model {
 	// Code update
 	function moveJanitorIndexToTemplate08() {
 
-		$fs = new FileSystem();
+
 
 		if(file_exists(LOCAL_PATH."/www/janitor/index.php")) {
 
@@ -1248,7 +1247,7 @@ class UpgradeCore extends Model {
 	function updateModelDeclarations08() {
 
 		$IC = new Items();
-		$fs = new FileSystem();
+
 
 		// Look through itemtype classes and check that model is wellformed
 		$itemtype_classes = $fs->files(LOCAL_PATH."/classes/items", ["allow_extensions" => "php"]);
@@ -1476,7 +1475,7 @@ class UpgradeCore extends Model {
 	// Code update
 	function updateSyntaxTo08() {
 
-		$fs = new FileSystem();
+
 		// get all php files in theme
 		$php_files = $fs->files(LOCAL_PATH."/templates", ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
@@ -1658,7 +1657,7 @@ class UpgradeCore extends Model {
 
 			$query = new Query();
 			$IC = new Items();
-			$fs = new FileSystem();
+
 
 
 			// Update mediae table
@@ -2186,7 +2185,7 @@ class UpgradeCore extends Model {
 	// Moved security methods to separate class
 	function updateSecurityModel08() {
 	
-		$fs = new FileSystem();
+
 		// get all php files in theme
 		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
@@ -2261,7 +2260,7 @@ class UpgradeCore extends Model {
 		
 		// $page->collectNotification
 
-		$fs = new FileSystem();
+
 		// get all php files in theme
 		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
@@ -2313,7 +2312,7 @@ class UpgradeCore extends Model {
 	// Code update
 	function updateModuleNames08() {
 
-		$fs = new FileSystem();
+
 
 		// correct mail config
 		if(file_exists(LOCAL_PATH."/config/connect_mail.php")) {
@@ -2336,7 +2335,7 @@ class UpgradeCore extends Model {
 
 		// Update module shorthand usage
 
-		$fs = new FileSystem();
+
 		// get all php files in theme
 		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
@@ -2387,7 +2386,7 @@ class UpgradeCore extends Model {
 	// Code update
 	function updateControllerAPIInterface08() {
 
-		$fs = new FileSystem();
+
 
 
 		$match_string = "\t// Class interface\n\telse if(security()->validateCsrfToken() && preg_match(\"/[a-zA-Z]+/\", \$action[0])) {\n\n\t\t// check if custom function exists on User class\n\t\tif(\$model && method_exists(\$model, \$action[0])) {\n\n\t\t\t\$output = new Output();\n\t\t\t\$output->screen(\$model->{\$action[0]}(\$action));\n\t\t\texit();\n\t\t}\n\t}";
@@ -2419,7 +2418,7 @@ class UpgradeCore extends Model {
 
 		// Update module shorthand usage
 
-		$fs = new FileSystem();
+
 		// get all php files in theme
 		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php"]);
 		foreach($php_files as $php_file) {

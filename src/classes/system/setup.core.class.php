@@ -1530,8 +1530,6 @@ class SetupCore extends Itemtype {
 			$tasks = array("completed" => array(), "failed" => array());
 
 
-			$fs = new FileSystem();
-
 			include_once("classes/system/upgrade.class.php");
 			$UP = new Upgrade();
 
@@ -1574,11 +1572,11 @@ class SetupCore extends Itemtype {
 					}
 
 					// Replace existing theme
-					$fs->removeDirRecursively(PROJECT_PATH."/theme");
-					$fs->copy(PROJECT_PATH."/janitor-theme-minimal-main", PROJECT_PATH."/theme");
+					filesystem()->removeDirRecursively(PROJECT_PATH."/theme");
+					filesystem()->copy(PROJECT_PATH."/janitor-theme-minimal-main", PROJECT_PATH."/theme");
 
 					// Clean up
-					$fs->removeDirRecursively(PROJECT_PATH."/janitor-theme-minimal-main");
+					filesystem()->removeDirRecursively(PROJECT_PATH."/janitor-theme-minimal-main");
 					unlink(PROJECT_PATH."/theme.tar.gz");
 
 
@@ -1615,7 +1613,7 @@ class SetupCore extends Itemtype {
 					$file_apache = preg_replace("/###LOG_NAME###/", superNormalize($_SERVER["SERVER_NAME"]), $file_apache);
 					$file_apache = preg_replace("/###MODULES_PATH###/", (preg_match("/\/submodules\//", FRAMEWORK_PATH) ? "submodules" : "core"), $file_apache);
 
-					$fs->makeDirRecursively(PROJECT_PATH."/apache");
+					filesystem()->makeDirRecursively(PROJECT_PATH."/apache");
 					file_put_contents(PROJECT_PATH."/apache/httpd-vhosts.conf", $file_apache);
 
 //					unlink(LOCAL_PATH."/config/httpd-vhosts.template.conf");
@@ -1651,12 +1649,12 @@ class SetupCore extends Itemtype {
 
 			// Make sure config path exists
 			if(!file_exists(LOCAL_PATH."/config")) {
-				$fs->makeDirRecursively(LOCAL_PATH."/config");
+				filesystem()->makeDirRecursively(LOCAL_PATH."/config");
 			}
 
 			// Make sure templates path exists
 			if(!file_exists(LOCAL_PATH."/templates")) {
-				$fs->makeDirRecursively(LOCAL_PATH."/templates");
+				filesystem()->makeDirRecursively(LOCAL_PATH."/templates");
 			}
 
 
@@ -2013,8 +2011,8 @@ class SetupCore extends Itemtype {
 			// DEFAULT DATA
 
 			// always make sure public and private folder exists
-			$fs->makeDirRecursively(LOCAL_PATH."/library/private");
-			$fs->makeDirRecursively(LOCAL_PATH."/library/public");
+			filesystem()->makeDirRecursively(LOCAL_PATH."/library/private");
+			filesystem()->makeDirRecursively(LOCAL_PATH."/library/public");
 
 			$tasks["completed"][] = "Library created";
 

@@ -1,12 +1,12 @@
 <?php
-include_once("classes/helpers/filesystem.class.php");
+
 
 class Audio {
 
 
 	function convert($input_file, $output_file, $_options = false) {
 
-		$fs = new FileSystem();
+
 		$output_format = false;
 		$output_bitrate = 128;
 
@@ -30,7 +30,7 @@ class Audio {
 		if(file_exists($input_file) && $ffmpeg_path) {
 
 			// make sure output path exists
-			$fs->makeDirRecursively(dirname($output_file));
+			filesystem()->makeDirRecursively(dirname($output_file));
 
 			// read input file
 			if($output_format == "mp3") {

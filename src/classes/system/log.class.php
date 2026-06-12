@@ -37,8 +37,6 @@ class Log {
 		}
 
 
-		$fs = new FileSystem();
-
 		$timestamp = time();
 		$user_ip = security()->getRequestIp();
 		$user_id = session()->value("user_id");
@@ -49,7 +47,7 @@ class Log {
 		// day as file
 		$log_location = LOG_FILE_PATH."/".$collection;
 		$log_cursor = LOG_FILE_PATH."/".$collection."/".date("Y-m-d", $timestamp).".log";
-		$fs->makeDirRecursively($log_location);
+		filesystem()->makeDirRecursively($log_location);
 
 		$fp = fopen($log_cursor, "a+");
 		fwrite($fp, $log."\n");
@@ -73,10 +71,9 @@ class Log {
 		}
 
 
-		$fs = new FileSystem();
 
 		$collection_path = LOG_FILE_PATH."/notifications/";
-		$fs->makeDirRecursively($collection_path);
+		filesystem()->makeDirRecursively($collection_path);
 
 
 		// notifications file
@@ -171,10 +168,9 @@ class Log {
 
 		// debug(["getLogs", $from, $to, $type]);
 
-		$fs = new FileSystem();
 
 		// Do not include notification logs in regular log listing
-		$all_log_files = $fs->files(LOG_FILE_PATH, [
+		$all_log_files = filesystem()->files(LOG_FILE_PATH, [
 			"deny_folders" => "notifications",
 		]);
 		// debug(["all_log_files", $all_log_files]);

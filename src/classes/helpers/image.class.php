@@ -1,6 +1,4 @@
 <?php
-include_once("classes/helpers/filesystem.class.php");
-include_once("includes/functions.inc.php");
 
 
 // ImageMagick interface
@@ -9,8 +7,6 @@ class Image {
 
 	// allow conversion false = only scale
 	function convert($input_file, $output_file, $_options = false) {
-
-		$fs = new FileSystem();
 
 		$output_width = false;
 		$output_height = false;
@@ -291,7 +287,7 @@ class Image {
 //		$output_image = imagecreatetruecolor($canvas_width, $canvas_height);
 
 		// make sure output path exists
-		$fs->makeDirRecursively(dirname($output_file));
+		filesystem()->makeDirRecursively(dirname($output_file));
 
 
 
