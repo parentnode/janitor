@@ -1477,15 +1477,20 @@ class ItemsCore {
 			else if($page) {
 
 				$start_index = ($page-1) * $limit;
-				if(count($items) >= $start_index) {
+
+				// Do we have content for requested page?
+				if(count($items) > $start_index) {
 
 					// Find item_id of first element of page 
 					$index_item = $items[$start_index];
 
-					// Include index item (specified by passed sindex or item_id)
-					// Reduce limit to make room
-					// (for page based pagination it doesn't make sense to exclude item)
-					$range_items = $this->getNext($index_item["id"], ["items" => $items, "limit" => $limit-1]);
+					// Only get next if more than one result is needed
+					if($limit > 1) {
+						// Reduce limit to make room
+						// (for page based pagination it doesn't make sense to exclude item)
+						$range_items = $this->getNext($index_item["id"], ["items" => $items, "limit" => $limit-1]);
+					}
+					// Include index item
 					array_unshift($range_items, $index_item);
 
 				}
