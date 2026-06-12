@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<?= $this->language() ?>">
 <head>
-	<!-- (c) & (p) think.dk 2002-2019 -->
+	<!-- (c) & (p) think.dk 2002-2026 -->
 	<!-- For detailed copyright license, see /terms -->
 	<!-- If you want to use or contribute to this code, Visit https://parentnode.dk -->
 	<title><?= $this->pageTitle() ?></title>
@@ -21,6 +21,7 @@
 <? } ?>
 
 	<?= $this->headerIncludes() ?>
+
 </head>
 
 <body<?= $HTML->attribute("class", $this->bodyClass()) ?>>
