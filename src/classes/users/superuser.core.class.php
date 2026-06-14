@@ -322,7 +322,6 @@ class SuperUserCore extends User {
 	function delete($action) {
 
 		if(count($action) == 2) {
-			$IC = new Items();
 			$query = new Query();
 			$user_id = $action[1];
 
@@ -388,10 +387,9 @@ class SuperUserCore extends User {
 					$membership = $MC->getMembers(["user_id" => $user_id]);
 				}
 
-				$IC = new Items();
 
-				$items = $IC->getItems(["user_id" => $user_id]);
-				$comments = $IC->getComments(["user_id" => $user_id]);
+				$items = items()->getItems(["user_id" => $user_id]);
+				$comments = items()->getComments(["user_id" => $user_id]);
 
 
 				if(!$orders && !$payments && !$items && !$comments && !$membership) {

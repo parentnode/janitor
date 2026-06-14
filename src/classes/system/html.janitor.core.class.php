@@ -443,8 +443,7 @@ class JanitorHTMLCore {
 
 			$model = new Itemtype($item["itemtype"]);
 
-			$IC = new Items();
-			$owner = $IC->getOwners(["item_id" => $item["id"]]);
+			$owner = items()->getOwners(["item_id" => $item["id"]]);
 			$_ .= '<div class="owner i:defaultOwner i:collapseHeader item_id:'.$item["id"].'">';
 			$_ .= '<h2>Owner</h2>';
 
@@ -454,7 +453,7 @@ class JanitorHTMLCore {
 			$_ .= '</fieldset>';
 
 			if(security()->validPath($this->path."/updateOwner")) {
-				$owner_options = $model->toOptions($IC->getOwners(), "id", "nickname");
+				$owner_options = $model->toOptions(items()->getOwners(), "id", "nickname");
 
 				$_ .= '<div class="change_ownership">';
 			
@@ -574,7 +573,6 @@ class JanitorHTMLCore {
 
 			if(security()->validPath($this->path."/setCannonicalUrl")) {
 
-				$IC = new Items();
 				$cannonical_options = $model->getCannonicalOptions($item);
 
 				$_ .= '<div class="change_cannonical">';
@@ -719,8 +717,7 @@ class JanitorHTMLCore {
 			}
 		}
 
-		$IC = new Items();
-		$file_input_value = $IC->filterMediae($item, $variant);
+		$file_input_value = items()->filterMediae($item, $variant);
 
 
 		$_ = '';
@@ -767,8 +764,7 @@ class JanitorHTMLCore {
 		}
 
 		// check if value exists
-		$IC = new Items();
-		$file_input_value = $IC->filterMediae($item, $variant);
+		$file_input_value = items()->filterMediae($item, $variant);
 
 
 		$_ = "";
@@ -852,19 +848,19 @@ class JanitorHTMLCore {
 
 	// edit Prices form for edit page
 	function editPrices($item, $_options = false) {
-		global $model;
-		global $page;
+
 		$query = new Query();
+		$model = new Itemtype($item["itemtype"]);
 
 
-		$currency_options = $model->toOptions($page->currencies(), "id", "id");
-		$default_currency = $page->currency();
+		$currency_options = $model->toOptions(page()->currencies(), "id", "id");
+		$default_currency = page()->currency();
 
-		$vatrate_options = $model->toOptions($page->vatrates(), "id", "name");
+		$vatrate_options = $model->toOptions(page()->vatrates(), "id", "name");
 
-		$type_options = $model->toOptions($page->priceTypes(["exclude_id" => $item["id"]]), "id", "description");
+		$type_options = $model->toOptions(page()->priceTypes(["exclude_id" => $item["id"]]), "id", "description");
 
-		
+
 
 
 		$_ = '';
@@ -901,11 +897,11 @@ class JanitorHTMLCore {
 		$_ = '';
 
 		if(defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS) {
-			global $model;
-			global $page;
+
+			$model = new Itemtype($item["itemtype"]);
 
 
-			$subscription_options = $model->toOptions($page->subscriptionMethods(), "id", "name", array("add" => array("" => " - ")));
+			$subscription_options = $model->toOptions(page()->subscriptionMethods(), "id", "name", array("add" => array("" => " - ")));
 
 			$_ .= '<div class="subscription_method i:defaultSubscriptionmethod i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["subscriptions"]).'>';
 			$_ .= '<h2>Subscription settings</h2>';
@@ -948,8 +944,6 @@ class JanitorHTMLCore {
 
 	// edit Editors form for edit page
 	function editEditors($item, $_options = false) {
-		global $IC;
-		global $model;
 
 		$class = "all_items editors i:defaultEditors i:collapseHeader";
 
@@ -971,8 +965,10 @@ class JanitorHTMLCore {
 		}
 
 		if(!isset($item["editors"])) {
-			$item["editors"] = $IC->getEditors(["item_id" => $item["id"]]);
+			$item["editors"] = items()->getEditors(["item_id" => $item["id"]]);
 		}
+
+		$model = new Itemtype($item["itemtype"]);
 
 		if(!$users_options) {
 
@@ -1043,12 +1039,11 @@ class JanitorHTMLCore {
 			}
 		}
 
-		$IC = new Items();
 
-		$event_model = $IC->typeObject("event");
-		$ticket_model = $IC->typeObject("ticket");
+		$event_model = items()->typeObject("event");
+		$ticket_model = items()->typeObject("ticket");
 
-		$event_items = $IC->getItems(array("itemtype" => "event", "where" => "event.starting_at > (NOW() - INTERVAL 5 HOUR)", "order" => "event.starting_at ASC", "extend" => true));
+		$event_items = items()->getItems(array("itemtype" => "event", "where" => "event.starting_at > (NOW() - INTERVAL 5 HOUR)", "order" => "event.starting_at ASC", "extend" => true));
 		$event_options = ["" => "Choose event for this ticket"];
 		foreach($event_items as $event_item) {
 			$event_options[$event_item["item_id"]] = $event_item["name"]." (".date("Y-m-d", strtotime($event_item["starting_at"])).")";
@@ -1106,11 +1101,10 @@ class JanitorHTMLCore {
 			}
 		}
 
-		$IC = new Items();
 		$query = new Query();
 
-		$event_model = $IC->typeObject("event");
-		$ticket_model = $IC->typeObject("ticket");
+		$event_model = items()->typeObject("event");
+		$ticket_model = items()->typeObject("ticket");
 
 
 		// Find available tickets
@@ -1129,7 +1123,7 @@ class JanitorHTMLCore {
 
 		}
 
-		$ticket_items = $IC->getItems($ticket_query);
+		$ticket_items = items()->getItems($ticket_query);
 
 		// debug(["u",$used_tickets, "t", $ticket_items]);
 		$ticket_options = ["" => "Choose ticket for this event"];
@@ -1242,9 +1236,7 @@ class JanitorHTMLCore {
 
 	// simple price list
 	function priceList($item_id) {
-
-		$IC = new Items();
-		$prices = $IC->getPrices(array("item_id" => $item_id));
+		$prices = items()->getPrices(array("item_id" => $item_id));
 
 		$_ = '';
 
@@ -1276,60 +1268,19 @@ class JanitorHTMLCore {
 
 
 
-	// DEPRECATED: used to be possible to map todos to items via tags – but it doesn't really make sense
-	// function listTodos($item) {
-	// 	global $model;
-	//
-	// 	$IC = new Items();
-	//
-	// 	$_ = '';
-	// 	$_ .= '<div class="todos i:defaultTodos item_id:'.$item["id"].'"'.$model->jsData(["todos]).'>';
-	// 	$_ .= '<h2>TODOs</h2>';
-	//
-	// 	$todo_tag = $IC->getTags(array("item_id" => $item["item_id"], "context" => "todo"));
-	// 	if($todo_tag) {
-	// 		$todos = $IC->getItems(array("itemtype" => "todo", "status" => 1, "tags" => $todo_tag[0]["context"].":".$todo_tag[0]["value"], "extend" => array("user" => true)));
-	//
-	// 		if($todos) {
-	// 		$_ .= '<ul class="todos">';
-	// 			foreach($todos as $todo) {
-	// 				$_ .= '<li class="todo todo_id:'.$todo["id"].'">';
-	// 					$_ .= stringOr($model->link($todo["name"], "/janitor/admin/todo/edit/".$todo["id"], array("target" => "_blank")), $todo["name"]);
-	// 					$_ .= ", Assigned to: ".$todo["user_nickname"];
-	// 				$_ .= '</li>';
-	// 			}
-	// 		$_ .= '</ul>';
-	// 		}
-	// 		else {
-	// 			$_ .= '<p>No TODOs</p>';
-	// 		}
-	//
-	// 	}
-	// 	else {
-	// 		$_ .= '<p>No TODOs</p>';
-	// 	}
-	//
-	// 	$_ .= '</div>';
-	//
-	// 	return $_;
-	// }
-
-
 	// simple QnA list
 	// QnA list is different because it links to separate item
 	function listQnas($item) {
-		global $model;
 
 		// look for QnA tag on item
 		// if QnA tag exists, find QnA items and list them
-		$IC = new Items();
 
 		$_ = '';
-		$_ .= '<div class="qnas i:defaultQnas item_id:'.$item["id"].'"'.$model->jsData(["qna"]).'>';
+		$_ .= '<div class="qnas i:defaultQnas item_id:'.$item["id"].'"'.HTML()->jsData(["qna"]).'>';
 		$_ .= '<h2>Questions and Answers</h2>';
 
 
-		$qnas = $IC->getItems(array("itemtype" => "qna", "status" => 1, "where" => "qna.about_item_id = ".$item["id"], "extend" => array("user" => true)));
+		$qnas = items()->getItems(array("itemtype" => "qna", "status" => 1, "where" => "qna.about_item_id = ".$item["id"], "extend" => array("user" => true)));
 
 		if($qnas) {
 		$_ .= '<ul class="qnas">';
@@ -1528,9 +1479,8 @@ class JanitorHTMLCore {
 		// only show todos if user has access
 		if(security()->validatePath("/janitor/admin/todo")) {
 			
-			$IC = new Items();
-			$model = $IC->typeObject("todo");
-			$todos = $IC->getItems(array("itemtype" => "todo", "where" => "todo.priority = 20", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
+			$model = items()->typeObject("todo");
+			$todos = items()->getItems(array("itemtype" => "todo", "where" => "todo.priority = 20", "user_id" => session()->value("user_id"), "extend" => array("tags" => true)));
 
 			$_ .= '<div class="todos">';
 			$_ .= '<h2>TODOs</h2>';
@@ -1566,8 +1516,7 @@ class JanitorHTMLCore {
 		// only show todos if user has access
 		if(security()->validatePath("/janitor/admin/qna")) {
 
-			$IC = new Items();
-			$qnas = $IC->getItems(array("itemtype" => "qna", "where" => "qna.answer IS NULL", "extend" => true));
+			$qnas = items()->getItems(array("itemtype" => "qna", "where" => "qna.answer IS NULL", "extend" => true));
 
 			$_ .= '<div class="qnas">';
 			$_ .= '<h2>Unanswered questions</h2>';
@@ -1579,7 +1528,7 @@ class JanitorHTMLCore {
 					$_ .= '<li class="qna qna_id:'.$qna["id"].'">';
 						$_ .= '<h3>'.stringOr($HTML->link($qna["name"], "/janitor/admin/qna/edit/".$qna["id"], array("target" => "_blank")), $qna["name"]).'</h3>';
 						if($qna["about_item_id"]):
-							$related_item = $IC->getItem(array("id" => $qna["about_item_id"], "extend" => true));
+							$related_item = items()->getItem(array("id" => $qna["about_item_id"], "extend" => true));
 							$_ .= '<p>Asked about: '. strip_tags($related_item["name"]).'</p>';
 						endif;
 					$_ .= '</li>';
@@ -1650,10 +1599,9 @@ class JanitorHTMLCore {
 			include_once("classes/users/superuser.class.php");
 			include_once("classes/users/supermember.class.php");
 			$model = new SuperUser();
-			$IC = new Items();
 			$MC = new SuperMember();
 
-			$memberships = $IC->getItems(array("itemtype" => "membership", "status" => 1, "extend" => true));
+			$memberships = items()->getItems(array("itemtype" => "membership", "status" => 1, "extend" => true));
 
 			$_ .= '<div class="members">';
 			$_ .= '<h2>Member status</h2>';

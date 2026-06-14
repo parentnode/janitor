@@ -3,9 +3,6 @@ global $action;
 global $model;
 
 
-$IC = new Items();
-
-
 $item = $model->getUser();
 
 // get maillists

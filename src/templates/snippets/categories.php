@@ -40,8 +40,7 @@ if(!$categories):
 	}
 
 	// Get categories
-	$IC = new Items();
-	$categories = $IC->getTags($category_options);
+	$categories = items()->getTags($category_options);
 endif;
 
 

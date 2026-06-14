@@ -27,8 +27,7 @@ if($_options !== false) {
 
 // No media passed, try standard media
 if(!$media && $item) {
-	$IC = new Items();
-	$media = $IC->sliceMediae($item, "main_media|single_media|mediae");
+	$media = items()->sliceMediae($item, "main_media|single_media|mediae");
 }
 
 if($media) {

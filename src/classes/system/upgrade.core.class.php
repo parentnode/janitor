@@ -83,7 +83,6 @@ class UpgradeCore extends Model {
 		global $model;
 
 		$query = new Query();
-		$IC = new Items();
 		include_once("classes/users/superuser.class.php");
 
 		if((defined("SITE_SHOP") && SITE_SHOP)) {
@@ -420,7 +419,6 @@ class UpgradeCore extends Model {
 	function restructureItemsMediae() {
 
 		$query = new Query();
-		$IC = new Items();
 
 		$query->checkDbExistence(UT_ITEMS_MEDIAE);
 
@@ -1246,8 +1244,6 @@ class UpgradeCore extends Model {
 	// Code update
 	function updateModelDeclarations08() {
 
-		$IC = new Items();
-
 
 		// Look through itemtype classes and check that model is wellformed
 		$itemtype_classes = $fs->files(LOCAL_PATH."/classes/items", ["allow_extensions" => "php"]);
@@ -1265,7 +1261,7 @@ class UpgradeCore extends Model {
 				$itemtype["name"] = $match[1];
 				$itemtype["classfile"] = $itemtype_class;
 
-				$model = $IC->typeObject($itemtype["name"]);
+				$model = items()->typeObject($itemtype["name"]);
 				$model_entities = $model->getModel();
 
 				$class_content = file_get_contents($itemtype["classfile"]);
@@ -1541,7 +1537,6 @@ class UpgradeCore extends Model {
 		
 		if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 
-			$IC = new Items();
 			$query = new Query();
 
 			// Move payment method from user subscriptions table to payment methods
@@ -1586,10 +1581,9 @@ class UpgradeCore extends Model {
 		if((defined("SITE_SHOP") && SITE_SHOP)) {
 
 			$query = new Query();
-			$IC = new Items();
 
 			// create price types for existing membership items
-			$membership_items = $IC->getItems(["itemtype" => "membership", "extend" => true]);
+			$membership_items = items()->getItems(["itemtype" => "membership", "extend" => true]);
 			foreach($membership_items as $membership_item) {
 				$membership_item_id = $membership_item["id"];
 				$membership_item_name = $membership_item["name"];
@@ -1611,7 +1605,6 @@ class UpgradeCore extends Model {
 		if((defined("SITE_SHOP") && SITE_SHOP)) {
 
 			$query = new Query();
-			$IC = new Items();
 
 			$payment_method_table = $this->tableInfo(UT_PAYMENT_METHODS);
 			if($payment_method_table && !isset($payment_method_table["columns"]["state"])) {
@@ -1656,7 +1649,6 @@ class UpgradeCore extends Model {
 		if((defined("SITE_ITEMS") && SITE_ITEMS)) {
 
 			$query = new Query();
-			$IC = new Items();
 
 
 
@@ -1682,10 +1674,10 @@ class UpgradeCore extends Model {
 					// $this->dump($media);
 
 					// Get related item
-					$item = $IC->getItem(["id" => $media["item_id"], "extend" => true]);
+					$item = items()->getItem(["id" => $media["item_id"], "extend" => true]);
 
 					// Get model for related item
-					$item_model = $IC->typeObject($item["itemtype"]);
+					$item_model = items()->typeObject($item["itemtype"]);
 					$model_entities = $item_model->getModel();
 					// $this->dump($model_entities);
 
@@ -1997,7 +1989,6 @@ class UpgradeCore extends Model {
 		// Update item prices with new type_id's for membership prices
 		if((defined("SITE_SHOP") && SITE_SHOP)) {
 
-			$IC = new Items();
 			$query = new Query();
 
 			// Move payment method from user subscriptions table to payment methods
@@ -2105,7 +2096,6 @@ class UpgradeCore extends Model {
 		// Add billing_name from user info if not already set
 		if((defined("SITE_SHOP") && SITE_SHOP)) {
 
-			$IC = new Items();
 			$query = new Query();
 			$UC = new SuperUser();
 			$SC = new SuperShop();
@@ -2455,8 +2445,7 @@ class UpgradeCore extends Model {
 	// Add cannonical default data
 	function updateCannonicals08() {
 
-		$IC = new Items();
-		$items = $IC->getItems(["where" => "cannonical IS NULL"]);
+		$items = items()->getItems(["where" => "cannonical IS NULL"]);
 		foreach($items as $item) {
 
 			$model = new Itemtype($item["itemtype"]);
@@ -2580,12 +2569,11 @@ class UpgradeCore extends Model {
 			$options["itemtype"] = $itemtype;
 		}
 
-		$IC = new Items();
 		$query = new Query();
 
 
 		// $time = time();
-		$items = $IC->getItems($options);
+		$items = items()->getItems($options);
 		// $t2 = time() - $time;
 		// print $t2."<br>\n";
 
@@ -2618,7 +2606,7 @@ class UpgradeCore extends Model {
 		if($real) {
 
 			foreach($items as $item) {
-				$model = $IC->typeObject($item["itemtype"]);
+				$model = items()->typeObject($item["itemtype"]);
 				$model->delete(["delete", $item["id"]]);
 				unset($_POST);
 			}

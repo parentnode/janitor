@@ -254,7 +254,6 @@ class Navigation extends Model {
 
 
 	function getLinkOptions() {
-		$IC = new Items();
 
 
 		$link_options = ["" => "Type the desired url or select an item or items list"];
@@ -265,7 +264,6 @@ class Navigation extends Model {
 			"deny_folders" => "js,css,img,assets,janitor",
 		]);
 
-		$IC = new Items();
 		$read_access = true;
 		foreach($controllers as $controller) {
 
@@ -278,7 +276,7 @@ class Navigation extends Model {
 			include($controller);
 			if($controller_itemtype && $controller_favors) {
 
-				$type_model = $IC->typeObject($controller_itemtype);
+				$type_model = items()->typeObject($controller_itemtype);
 				if($type_model) {
 
 					// debug([$link, $itemtype, $controller_favors]);
@@ -289,7 +287,7 @@ class Navigation extends Model {
 						// Edit, view – sindex must be added to identify which
 						if($view === "view") {
 
-							$items = $IC->getItems([
+							$items = items()->getItems([
 								"itemtype" => $controller_itemtype, 
 								"status" => 1, 
 								"order" => $controller_itemtype.".name ASC", 
@@ -930,7 +928,7 @@ class Navigation extends Model {
 		}
 
 		$query = new Query();
-		$IC = new Items();
+
 
 		// level iterator checker
 		$this->level_iterator++;

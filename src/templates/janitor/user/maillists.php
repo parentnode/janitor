@@ -4,7 +4,6 @@ global $model;
 
 
 $user_id = $action[1];
-$IC = new Items();
 
 
 $user = $model->getUsers(array("user_id" => $user_id));

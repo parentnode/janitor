@@ -112,24 +112,13 @@ if($_SERVER["LOCAL_PATH"] && $_SERVER["FRAMEWORK_PATH"]) {
 	include_once("classes/system/html.janitor.core.class.php");
 	include_once("classes/system/html.janitor.class.php");
 
-	include_once("classes/items/items.core.class.php");
-	include_once("classes/items/items.class.php");
-
 	include_once("classes/items/itemtype.core.class.php");
 	include_once("classes/items/itemtype.class.php");
 
 	include_once("classes/items/tag.class.php");
 
-	// include_once("classes/system/navigation.class.php");
-
 	include_once("classes/users/user.core.class.php");
 	include_once("classes/users/user.class.php");
-
-	include_once("classes/shop/shop.core.class.php");
-	include_once("classes/shop/shop.class.php");
-
-	include_once("classes/users/member.core.class.php");
-	include_once("classes/users/member.class.php");
 
 }
 // Invalid conditions for setup

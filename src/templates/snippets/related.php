@@ -33,7 +33,6 @@ if($_options !== false) {
 
 
 if($items):
-	$IC = new Items();
 
 ?>
 	<div class="related">
@@ -41,7 +40,7 @@ if($items):
 
 		<ul class="<?= $list_class ?>">
 <?		foreach($items as $item): 
-			$media = $IC->sliceMediae($item, "mediae"); ?>
+			$media = items()->sliceMediae($item, "mediae"); ?>
 			<li class="<?= $item_class ?>" itemscope itemtype="http://schema.org/<?= $schema ?>"<?= HTML()->jsData(["readstate"]) ?>>
 
 				<?= HTML()->renderSnippet("snippets/media.php", [

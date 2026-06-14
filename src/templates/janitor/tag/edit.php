@@ -2,9 +2,7 @@
 global $action;
 global $model;
 
-$IC = new Items();
-
-$tag = $IC->getTags(array("tag_id" => $action[1]));
+$tag = items()->getTags(array("tag_id" => $action[1]));
 ?>
 <div class="scene i:scene defaultEdit tagEdit">
 	<h1>Edit tag</h1>
@@ -35,7 +33,7 @@ $tag = $IC->getTags(array("tag_id" => $action[1]));
 <? 		if($tag["items"]): ?>
 		<ul class="items">
 <? 			foreach($tag["items"] as $item):
-				$item = $IC->extendItem($item);
+				$item = items()->extendItem($item);
 				
 				// find path to itemtype
 				// We don know whether it is an inherited controller or a local one

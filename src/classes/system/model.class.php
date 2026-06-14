@@ -511,8 +511,7 @@ class Model extends HTML {
 
 		$value = $this->getProperty($name, "value");
 
-		$IC = new Items();
-		if(!is_numeric($value) || !$IC->getItem(array("id" => $value))) {
+		if(!is_numeric($value) || !items()->getItem(array("id" => $value))) {
 			$this->setProperty($name, "error", true);
 			return false;
 		}
@@ -534,8 +533,7 @@ class Model extends HTML {
 		$item_id = $this->getProperty("item_id", "value");
 
 		if($value && $item_id) {
-			$IC = new Items();
-			if(!$IC->getMediae([
+			if(!items()->getMediae([
 				"variant" => $value,
 				"item_id" => $item_id
 			])) {
@@ -579,8 +577,7 @@ class Model extends HTML {
 
 		// Enable correct file count, including already existing uploads
 		if($item_id) {
-			$IC = new Items();
-			$mediae = $IC->getMediae(["item_id" => $item_id, "variant_filter" => $name]);
+			$mediae = items()->getMediae(["item_id" => $item_id, "variant_filter" => $name]);
 			if($mediae) {
 				$total_files += count($mediae);
 			}

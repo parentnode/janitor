@@ -218,10 +218,10 @@ class ItemtypeCore extends Model {
 			$status = $action[2];
 
 			$query = new Query();
-			$IC = new Items();
 
-			$model = $IC->typeObject($this->itemtype);
-			$item = $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
+
+			$model = items()->typeObject($this->itemtype);
+			$item = items()->getItem(array("id" => $item_id, "extend" => array("all" => true)));
 			
 			// delete item + itemtype + files
 			if(isset($this->status_states[$status]) && $query->sql("SELECT id FROM ".UT_ITEMS." WHERE id = $item_id AND itemtype = '$this->itemtype'")) {
@@ -395,8 +395,8 @@ class ItemtypeCore extends Model {
 						logger()->addLog("ItemType->save ($item_id)");
 
 						// return selected data array
-						$IC = new Items();
-						return $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
+
+						return items()->getItem(array("id" => $item_id, "extend" => array("all" => true)));
 					}
 				}
 			}
@@ -583,8 +583,8 @@ class ItemtypeCore extends Model {
 					// add log
 					logger()->addLog("ItemType->update ($item_id)");
 
-					$IC = new Items();
-					return $IC->getItem(array("id" => $item_id, "extend" => array("all" => true)));
+
+					return items()->getItem(array("id" => $item_id, "extend" => array("all" => true)));
 
 				}
 			}
@@ -971,8 +971,8 @@ class ItemtypeCore extends Model {
 				// Use name as default
 				else {
 
-					$IC = new Items();
-					$item = $IC->getItem(["id" => $item_id, "extend" => true]);
+
+					$item = items()->getItem(["id" => $item_id, "extend" => true]);
 
 					// debug([$item]);
 					$sindex = $item["name"];
@@ -1117,12 +1117,12 @@ class ItemtypeCore extends Model {
 			// Remove extension
 			$controller = preg_replace("/\.php$/", "", $controller_deleted);
 
-			$IC = new Items();
+
 			if($itemtype) {
-				$items = $IC->getItems(["itemtype" => $itemtype, "where" => "cannonical LIKE '$controller%'"]);
+				$items = items()->getItems(["itemtype" => $itemtype, "where" => "cannonical LIKE '$controller%'"]);
 			}
 			else {
-				$items = $IC->getItems(["where" => "cannonical LIKE '$controller%'"]);
+				$items = items()->getItems(["where" => "cannonical LIKE '$controller%'"]);
 			}
 			// debug(["TODO - update cannonicals with deleted controllers", $items]);
 
@@ -1232,7 +1232,7 @@ class ItemtypeCore extends Model {
 			"deny_folders" => "js,css,img,assets,janitor",
 		]);
 
-		$IC = new Items();
+
 		$read_access = true;
 		foreach($controllers as $controller) {
 
@@ -1401,8 +1401,8 @@ class ItemtypeCore extends Model {
 
 		if($item_id) {
 
-			$IC = new Items();
-			$item = $IC->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true, "prices" => true, "subscription_method" => true)));
+
+			$item = items()->getItem(array("id" => $item_id, "extend" => array("tags" => true, "mediae" => true, "prices" => true, "subscription_method" => true)));
 
 			if($item) {
 				$query = new Query();
@@ -1546,14 +1546,14 @@ class ItemtypeCore extends Model {
 
 					}
 
-					$html_mediae = $IC->getMediae(["item_id" => $item_id, "variant_filter" => "HTMLEDITOR"]);
+					$html_mediae = items()->getMediae(["item_id" => $item_id, "variant_filter" => "HTMLEDITOR"]);
 					if($html_mediae) {
 						// debug(["found html mediae", $html_mediae]);
 
 
 						// Copy/add "dynamic" mediae
 						// We need model to find HTML input types
-						$model = $IC->typeObject($item["itemtype"]);
+						$model = items()->typeObject($item["itemtype"]);
 
 						// Prepare POST array for updating HTML
 						unset($_POST);
@@ -1670,7 +1670,7 @@ class ItemtypeCore extends Model {
 
 
 					// get and return new device (id will be used to redirect to new item page)
-					$item = $IC->getItem(array("id" => $cloned_item["id"]));
+					$item = items()->getItem(array("id" => $cloned_item["id"]));
 					return $item;
 
 				}
@@ -1887,7 +1887,7 @@ class ItemtypeCore extends Model {
 
 		if(count($action) == 3) {
 			$query = new Query();
-			$IC = new Items();
+
 			$item_id = $action[1];
 			$variant = $action[2];
 
@@ -2085,9 +2085,9 @@ class ItemtypeCore extends Model {
 		if($item_id && $variant) {
 
 			$query = new Query();
-			$IC = new Items();
 
-			return $IC->getMediae([
+
+			return items()->getMediae([
 				"item_id" => $item_id,
 				"variant" => $variant
 			]);
@@ -2242,7 +2242,7 @@ class ItemtypeCore extends Model {
 
 		if(count($action) == 2) {
 			$query = new Query();
-			$IC = new Items();
+
 			$item_id = $action[1];
 
 			$query->checkDbExistence(UT_ITEMS_MEDIAE);
@@ -2427,7 +2427,7 @@ class ItemtypeCore extends Model {
 		if($item_id && $input_name) {
 
 			$query = new Query();
-			$IC = new Items();
+
 
 			// Tables are handled at setup or upgrade to speed up runtime
 			// $query->checkDbExistence(UT_ITEMS_MEDIAE);
@@ -2502,7 +2502,7 @@ class ItemtypeCore extends Model {
 				// Adding new media, file or ext_video poster
 				else {
 
-					$IC = new Items();
+
 					$completed_uploads = [];
 
 					foreach($uploads as $i => $upload) {
@@ -2530,15 +2530,15 @@ class ItemtypeCore extends Model {
 						// debug(["sql", $sql]);
 
 						if($query->sql($sql)) {
-							$completed_uploads[] = $IC->getMediae(["media_id" => $query->lastInsertId()]);
+							$completed_uploads[] = items()->getMediae(["media_id" => $query->lastInsertId()]);
 						}
 
 					}
 
 					return $completed_uploads;
 					// $uploads;
-					// $IC->getMediae(["item_id" => $item_id]);
-					// $IC->getItem([
+					// items()->getMediae(["item_id" => $item_id]);
+					// items()->getItem([
 					// 	"item_id" => $item_id, "extend" => ["mediae" => true]
 					// ]);
 
@@ -2820,7 +2820,7 @@ class ItemtypeCore extends Model {
 
 		if($item_id && $variant && $name) {
 
-			$IC = new Items();
+
 
 			$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET name = '$name'";
 			$sql .= ($description !== false ? ", description = '$description'" : "");
@@ -2839,7 +2839,7 @@ class ItemtypeCore extends Model {
 					]);
 				}
 
-				return $IC->getMediae(["variant" => $variant, "item_id" => $item_id]);
+				return items()->getMediae(["variant" => $variant, "item_id" => $item_id]);
 			}
 
 		}
@@ -2975,8 +2975,8 @@ class ItemtypeCore extends Model {
 			if($query->sql("INSERT INTO ".UT_ITEMS_COMMENTS." VALUES(DEFAULT, $item_id, $user_id, '$item_comment', DEFAULT)")) {
 
 				$comment_id = $query->lastInsertId();
-				$IC = new Items();
-				$new_comment = $IC->getComments(array("comment_id" => $comment_id));
+
+				$new_comment = items()->getComments(array("comment_id" => $comment_id));
 				$new_comment["created_at"] = date("Y-m-d, H:i", strtotime($new_comment["created_at"]));
 				return $new_comment;
 			}
@@ -3068,8 +3068,8 @@ class ItemtypeCore extends Model {
 					message()->addMessage("Rating added");
 
 					$rating_id = $query->lastInsertId();
-					$IC = new Items();
-					$new_rating = $IC->getRatings(array("rating_id" => $rating_id));
+
+					$new_rating = items()->getRatings(array("rating_id" => $rating_id));
 					$new_rating["created_at"] = date("Y-m-d, H:i", strtotime($new_rating["created_at"]));
 					return $new_rating;
 				}
@@ -3236,8 +3236,8 @@ class ItemtypeCore extends Model {
 
 		if($favorite_id) {
 
-			$IC = new Items();
-			return $IC->getFavorites(array("favorite_id" => $favorite_id));
+
+			return items()->getFavorites(array("favorite_id" => $favorite_id));
 
 		}
 
@@ -3363,8 +3363,8 @@ class ItemtypeCore extends Model {
 					message()->addMessage("Price added");
 					
 					$price_id = $query->lastInsertId();
-					$IC = new Items();
-					$new_price = $IC->getPrices(array("price_id" => $price_id));
+
+					$new_price = items()->getPrices(array("price_id" => $price_id));
 					// add default formatted price to return result for ease of use
 					$new_price["formatted_price"] = formatPrice($new_price, array("vat" => true));
 					return $new_price;
@@ -3433,8 +3433,8 @@ class ItemtypeCore extends Model {
 						if($query->sql("UPDATE ".UT_ITEMS_SUBSCRIPTION_METHOD." SET subscription_method_id = '$subscription_method' WHERE item_id = $item_id")) {
 							message()->addMessage("Subscription method updated");
 
-							$IC = new Items();
-							$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
+
+							$subscription_method = items()->getSubscriptionMethod(array("item_id" => $item_id));
 							return $subscription_method;
 						}
 
@@ -3447,8 +3447,8 @@ class ItemtypeCore extends Model {
 						if($query->sql($sql)) {
 							message()->addMessage("Subscription method added");
 
-							$IC = new Items();
-							$subscription_method = $IC->getSubscriptionMethod(array("item_id" => $item_id));
+
+							$subscription_method = items()->getSubscriptionMethod(array("item_id" => $item_id));
 							return $subscription_method;
 						}
 					
@@ -3552,59 +3552,62 @@ class ItemtypeCore extends Model {
 
 	function ordered($order_item, $order){
 
-		include_once("classes/shop/supersubscription.class.php");
-		$SuperSubscriptionClass = new SuperSubscription();
-		$IC = new Items();
+		if(SITE_SUBSCRIPTIONS) {
 
-		$item = $IC->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
-		$item_id = $order_item["item_id"];
+			include_once("classes/shop/supersubscription.class.php");
+			$SuperSubscriptionClass = new SuperSubscription();
 
-		if(isset($order_item["custom_price"]) && $order_item["custom_price"] !== false) {
-			$custom_price = $order_item["custom_price"];
-		}
 
-		// order item can be subscribed to
-		if(SITE_SUBSCRIPTIONS && isset($item["subscription_method"]) && $item["subscription_method"]) {
+			$item = items()->getItem(["id" => $order_item["item_id"], "extend" => ["subscription_method" => true]]);
+			$item_id = $order_item["item_id"];
 
-			$order_id = $order["id"];
-			$user_id = $order["user_id"];
-
-			$subscription = $SuperSubscriptionClass->getSubscriptions(array("user_id" => $user_id, "item_id" => $item_id));
-
-			// user already subscribes to item
-			if($subscription) {
-
-				// update existing subscription
-				// makes callback to 'subscribed' if item_id changes
-				$_POST["order_id"] = $order["id"];
-				$_POST["item_id"] = $item_id;
-				if(isset($custom_price) && ($custom_price || $custom_price === "0")) {
-					$_POST["custom_price"] = $custom_price;
-				}
-				else {
-					$_POST["custom_price"] = null;
-				}
-				
-				$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription["id"]]);
-				unset($_POST);
-
+			if(isset($order_item["custom_price"]) && $order_item["custom_price"] !== false) {
+				$custom_price = $order_item["custom_price"];
 			}
-			else {
-				// add new subscription
-				// makes callback to 'subscribed'
-				$_POST["item_id"] = $item_id;
-				$_POST["user_id"] = $user_id;
-				$_POST["order_id"] = $order_id;
-				if(isset($custom_price) && ($custom_price || $custom_price === "0")) {
-					$_POST["custom_price"] = $custom_price;
+
+			// order item can be subscribed to
+			if(isset($item["subscription_method"]) && $item["subscription_method"]) {
+
+				$order_id = $order["id"];
+				$user_id = $order["user_id"];
+
+				$subscription = $SuperSubscriptionClass->getSubscriptions(array("user_id" => $user_id, "item_id" => $item_id));
+
+				// user already subscribes to item
+				if($subscription) {
+
+					// update existing subscription
+					// makes callback to 'subscribed' if item_id changes
+					$_POST["order_id"] = $order["id"];
+					$_POST["item_id"] = $item_id;
+					if(isset($custom_price) && ($custom_price || $custom_price === "0")) {
+						$_POST["custom_price"] = $custom_price;
+					}
+					else {
+						$_POST["custom_price"] = null;
+					}
+				
+					$subscription = $SuperSubscriptionClass->updateSubscription(["updateSubscription", $subscription["id"]]);
+					unset($_POST);
+
 				}
 				else {
-					$_POST["custom_price"] = null;
-				}				
+					// add new subscription
+					// makes callback to 'subscribed'
+					$_POST["item_id"] = $item_id;
+					$_POST["user_id"] = $user_id;
+					$_POST["order_id"] = $order_id;
+					if(isset($custom_price) && ($custom_price || $custom_price === "0")) {
+						$_POST["custom_price"] = $custom_price;
+					}
+					else {
+						$_POST["custom_price"] = null;
+					}				
 				
-				$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
-				unset($_POST);
+					$subscription = $SuperSubscriptionClass->addSubscription(["addSubscription"]);
+					unset($_POST);
 
+				}
 			}
 		}
 	}

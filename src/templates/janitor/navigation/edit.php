@@ -11,8 +11,6 @@ function recurseNodes($nodes) {
 	global $HTML;
 	global $JML;
 
-	$IC = new Items();
-
 	$_ = "";
 	$_ .= '<ul class="items">';
 

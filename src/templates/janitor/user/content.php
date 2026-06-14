@@ -4,13 +4,12 @@ global $model;
 
 
 $user_id = $action[1];
-$IC = new Items();
 
 
 $user = $model->getUsers(array("user_id" => $user_id));
 $readstates = $model->getReadstates(array("user_id" => $user_id));
-$items = $IC->getItems(array("user_id" => $user_id, "extend" => true));
-$comments = $IC->getComments(array("user_id" => $user_id));
+$items = items()->getItems(array("user_id" => $user_id, "extend" => true));
+$comments = items()->getComments(array("user_id" => $user_id));
 
 
 ?>
@@ -33,7 +32,7 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 	<? 		if($readstates): ?>
 			<ul class="items">
 	<? 			foreach($readstates as $item):
-					$item = $IC->getItem(array("id" => $item["item_id"], "extend" => true)); ?>
+					$item = items()->getItem(array("id" => $item["item_id"], "extend" => true)); ?>
 				<li class="item item_id:<?= $item["item_id"] ?>">
 					<h3><?= $item["name"] ?> (<?= $item["itemtype"] ?>)</h3>
 				</li>

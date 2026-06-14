@@ -834,8 +834,6 @@ class PageCore {
 	*/
 	function priceTypes($_options = false) {
 
-		$IC = new Items();
-
 		$id = false;
 		$exclude_id = false;
 
@@ -869,7 +867,6 @@ class PageCore {
 		}
 		// exclude price_type of a specific item_id 
 		else if($exclude_id !== false) {
-			$IC = new Items();
 
 			$price_types = cache()->value("price_types");
 
@@ -888,7 +885,7 @@ class PageCore {
 		foreach($price_types as $key => $price_type) {
 
 			if(isset($price_type["item_id"])) {
-				$item = $IC->getItem(["id" => $price_type["item_id"]]);
+				$item = items()->getItem(["id" => $price_type["item_id"]]);
 				
 				if($item && $item["status"] === "0") {
 					unset($price_types[$key]);

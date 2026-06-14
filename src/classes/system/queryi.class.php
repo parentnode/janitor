@@ -253,11 +253,9 @@ class Query {
 	function versionControl($item_id, $new_values) {
 		// debug(["versionControl"]);
 
-
-		$IC = new Items();
-		$item = $IC->getItem(array("id" => $item_id));
+		$item = items()->getItem(array("id" => $item_id));
 		$itemtype = $item["itemtype"];
-		$model = $IC->typeObject($itemtype);
+		$model = items()->typeObject($itemtype);
 
 		// custom versionControl for model?
 		if(method_exists($model, "versionControl")) {

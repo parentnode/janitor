@@ -87,8 +87,6 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 	include_once("classes/system/html.janitor.class.php");
 
 
-	include_once("classes/items/items.core.class.php");
-	include_once("classes/items/items.class.php");
 	include_once("classes/items/itemtype.core.class.php");
 	include_once("classes/items/itemtype.class.php");
 
@@ -99,26 +97,11 @@ if(defined("SITE_ITEMS") && SITE_ITEMS) {
 	include_once("classes/users/user.core.class.php");
 	include_once("classes/users/user.class.php");
 
-	include_once("classes/users/member.core.class.php");
-	include_once("classes/users/member.class.php");
-
 
 	// now only included for user controller
 	// include_once("classes/users/superuser.class.php");
 
 	//include_once("classes/system/performance.class.php");
-
-
-	// Extend with cart and order
-	if(defined("SITE_SHOP") && SITE_SHOP) {
-
-		include_once("classes/shop/shop.core.class.php");
-		include_once("classes/shop/shop.class.php");
-
-		include_once("classes/shop/subscription.core.class.php");
-		include_once("classes/shop/subscription.class.php");
-
-	}
 
 }
 

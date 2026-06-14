@@ -17,7 +17,6 @@ include_once($_SERVER["FRAMEWORK_PATH"]."/config/init.php");
 
 
 $action = $page->actions();
-$IC = new Items();
 $output = new Output();
 
 
@@ -93,7 +92,7 @@ if(security()->validateCsrfToken() && isset($action)) {
 			$_options["context"] = $action[1];
 		}
 
-		$output->screen($IC->getTags($_options));
+		$output->screen(items()->getTags($_options));
 		exit();
 	}
 

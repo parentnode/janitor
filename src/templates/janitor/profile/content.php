@@ -4,7 +4,6 @@ global $model;
 
 
 $user_id = session()->value("user_id");
-$IC = new Items();
 
 
 // get current user
@@ -12,8 +11,8 @@ $item = $model->getUser();
 
 //$user = $model->getUsers(array("user_id" => $user_id));
 $readstates = $model->getReadstates();
-$items = $IC->getItems(array("user_id" => $user_id, "extend" => true));
-$comments = $IC->getComments(array("user_id" => $user_id));
+$items = items()->getItems(array("user_id" => $user_id, "extend" => true));
+$comments = items()->getComments(array("user_id" => $user_id));
 
 ?>
 <div class="scene i:scene defaultList userContentList profileContentList">
@@ -31,7 +30,7 @@ $comments = $IC->getComments(array("user_id" => $user_id));
 	<? 		if($readstates): ?>
 			<ul class="items">
 	<? 			foreach($readstates as $item):
-					$item = $IC->getItem(array("id" => $item["item_id"], "extend" => true)); ?>
+					$item = items()->getItem(array("id" => $item["item_id"], "extend" => true)); ?>
 				<li class="item item_id:<?= $item["item_id"] ?>">
 					<h3><?= $item["name"] ?> (<?= $item["itemtype"] ?>)</h3>
 				</li>

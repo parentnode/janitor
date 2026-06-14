@@ -90,8 +90,7 @@ class HTMLCore {
 	// provide media info as classvars for JS
 	function jsMedia($item, $variant=false) {
 
-		$IC = new Items();
-		$media = $IC->getFirstMedia($item, $variant);
+		$media = items()->getFirstMedia($item, $variant);
 
 		return $media ? (" format:".$media["format"]." variant:".$media["variant"]) : "";
 	}
@@ -99,8 +98,7 @@ class HTMLCore {
 		// provide media info as classvars for JS
 	function mediaData($item, $variant=false) {
 
-		$IC = new Items();
-		$media = $IC->getFirstMedia($item, $variant);
+		$media = items()->getFirstMedia($item, $variant);
 
 		return $media ? (' data-format="'.$media["format"].' " data-variant="'.$media["variant"].'"') : "";
 	}
