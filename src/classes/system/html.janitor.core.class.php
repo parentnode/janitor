@@ -152,7 +152,6 @@ class JanitorHTMLCore {
 
 	// default actions for list item on list page
 	function listActions($item, $_options = false) {
-		global $model;
 
 		// standard settings
 		$standard = array(
@@ -234,26 +233,26 @@ class JanitorHTMLCore {
 		foreach($standard as $button => $data) {
 			if(!preg_match("/edit|delete|status/", $button)) {
 				if(isset($data["type"]) && $data["type"] == "onebuttonform") {
-					$_ .= $model->oneButtonForm($data["label"], $data["url"], array(
+					$_ .= HTML()->oneButtonForm($data["label"], $data["url"], array(
 						"wrapper" => $data["wrapper"],
 						"inputs" => isset($data["inputs"]) ? $data["inputs"] : false,
 						"success-function" => $data["success-function"]
 					));
 				}
 				else {
-					$_ .= $model->link($data["label"], $data["url"], $data["options"]);
+					$_ .= HTML()->link($data["label"], $data["url"], $data["options"]);
 				}
 			}
 		}
 
 		// Edit button
 		if($standard["edit"]) {
-			$_ .= $model->link($standard["edit"]["label"], $standard["edit"]["url"], $standard["edit"]["options"]);
+			$_ .= HTML()->link($standard["edit"]["label"], $standard["edit"]["url"], $standard["edit"]["options"]);
 		}
 
 		// Delete button
 		if($standard["delete"]) {
-			$_ .= $model->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
+			$_ .= HTML()->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
 				"js" => true,
 				"wrapper" => $standard["delete"]["wrapper"],
 				"static" => $standard["delete"]["static"],
