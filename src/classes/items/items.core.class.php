@@ -35,15 +35,29 @@ class ItemsCore {
 
 		if(!isset($this->itemtypes["class"][$itemtype])) {
 
-			// TODO: this allows for gradual extension of type classes, to introduce core version along the way
-			// The core model allow for smaller overrides in local projects
-			if(file_exists(FRAMEWORK_PATH."/classes/items/type.$itemtype.core.class.php")) {
+			// Itemtype classes are removed from framework
+
+			// // TODO: this allows for gradual extension of type classes, to introduce core version along the way
+			// // The core model allow for smaller overrides in local projects
+			// if(file_exists(FRAMEWORK_PATH."/classes/items/type.$itemtype.core.class.php")) {
+			// 	include_once("classes/items/type.$itemtype.core.class.php");
+			// }
+			// else 
+
+			if(file_exists(LOCAL_PATH."/classes/items/type.$itemtype.core.class.php")) {
 				include_once("classes/items/type.$itemtype.core.class.php");
 			}
-			include_once("classes/items/type.$itemtype.class.php");
 
-			$class = "Type".ucfirst($itemtype);
-			$this->itemtypes["class"][$itemtype] = new $class();
+			if(file_exists(LOCAL_PATH."/classes/items/type.$itemtype.class.php")) {
+				include_once("classes/items/type.$itemtype.class.php");
+
+				$class = "Type".ucfirst($itemtype);
+				$this->itemtypes["class"][$itemtype] = new $class();
+
+			}
+			else {
+				$this->itemtypes["class"][$itemtype] = false;
+			}
 
 		}
 		return $this->itemtypes["class"][$itemtype];
@@ -149,14 +163,17 @@ class ItemsCore {
 			if($itemtype) {
 				$WHERE[] = "items.itemtype = '$itemtype'";
 
-				// add main itemtype table to enable sorting based on local values
-				$LEFTJOIN[] = $this->typeObject($itemtype)->db." as ".$itemtype." ON items.id = ".$itemtype.".item_id";
+				$model = $this->typeObject($itemtype);
+				if($model && $model->db) {
+					// add main itemtype table to enable sorting based on local values
+					$LEFTJOIN[] = $model->db." AS ".$itemtype." ON items.id = ".$itemtype.".item_id";
+				}
 			}
 
 			if($tags) {
 				// tag query
-				$LEFTJOIN[] = UT_TAGGINGS." as taggings ON taggings.item_id = items.id";
-				$LEFTJOIN[] = UT_TAG." as tags ON tags.id = taggings.tag_id";
+				$LEFTJOIN[] = UT_TAGGINGS." AS taggings ON taggings.item_id = items.id";
+				$LEFTJOIN[] = UT_TAG." AS tags ON tags.id = taggings.tag_id";
 
 				$tag_array = explode(";", $tags);
 
