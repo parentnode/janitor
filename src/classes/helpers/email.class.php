@@ -60,12 +60,11 @@ class EmailGateway {
 	*/
 	function send($_options = false) {
 
-
 		// only load mail adapter when needed
 		$this->init_adapter();
 
 		// Only attempt sending with valid adapter
-		if($this->adapter && defined("ADMIN_EMAIL")) {
+		if($this->adapter) {
 
 			$subject = false;
 
@@ -182,10 +181,10 @@ class EmailGateway {
 
 			// prepare default values for merging - but don't overwrite
 			$values["SITE_URL"] = isset($values["SITE_URL"]) ? $values["SITE_URL"] : SITE_URL;
-			$values["SITE_SIGNUP_URL"] = isset($values["SITE_SIGNUP_URL"]) ? $values["SITE_SIGNUP_URL"] : SITE_SIGNUP_URL;
+			$values["SITE_SIGNUP_URL"] = isset($values["SITE_SIGNUP_URL"]) ? $values["SITE_SIGNUP_URL"] : (defined("SITE_SIGNUP_URL") ? SITE_SIGNUP_URL : "");
 			$values["SITE_NAME"] = isset($values["SITE_NAME"]) ? $values["SITE_NAME"] : SITE_NAME;
-			$values["ADMIN_EMAIL"] = isset($values["ADMIN_EMAIL"]) ? $values["ADMIN_EMAIL"] : ADMIN_EMAIL;
 			$values["SITE_EMAIL"] = isset($values["SITE_EMAIL"]) ? $values["SITE_EMAIL"] : SITE_EMAIL;
+			$values["ADMIN_EMAIL"] = isset($values["ADMIN_EMAIL"]) ? $values["ADMIN_EMAIL"] : (defined("ADMIN_EMAIL") ? ADMIN_EMAIL : SITE_EMAIL);
 
 			// add message to merging array
 			if($message && !isset($values["message"])) {
@@ -261,7 +260,7 @@ class EmailGateway {
 		$this->init_adapter();
 
 		// Only attempt sending with valid adapter
-		if($this->adapter && defined("ADMIN_EMAIL")) {
+		if($this->adapter) {
 
 			$subject = false;
 
@@ -377,10 +376,10 @@ class EmailGateway {
 
 				// prepare default values for merging - but don't overwrite
 				$values[$recipient]["SITE_URL"] = isset($values[$recipient]["SITE_URL"]) ? $values[$recipient]["SITE_URL"] : SITE_URL;
-				$values[$recipient]["SITE_SIGNUP_URL"] = isset($values[$recipient]["SITE_SIGNUP_URL"]) ? $values[$recipient]["SITE_SIGNUP_URL"] : SITE_SIGNUP_URL;
+				$values[$recipient]["SITE_SIGNUP_URL"] = isset($values[$recipient]["SITE_SIGNUP_URL"]) ? $values[$recipient]["SITE_SIGNUP_URL"] : (defined("SITE_SIGNUP_URL") ? SITE_SIGNUP_URL : "");
 				$values[$recipient]["SITE_NAME"] = isset($values[$recipient]["SITE_NAME"]) ? $values[$recipient]["SITE_NAME"] : SITE_NAME;
 				$values[$recipient]["SITE_EMAIL"] = isset($values[$recipient]["SITE_EMAIL"]) ? $values[$recipient]["SITE_EMAIL"] : SITE_EMAIL;
-				$values[$recipient]["ADMIN_EMAIL"] = isset($values[$recipient]["ADMIN_EMAIL"]) ? $values[$recipient]["ADMIN_EMAIL"] : ADMIN_EMAIL;
+				$values[$recipient]["ADMIN_EMAIL"] = isset($values[$recipient]["ADMIN_EMAIL"]) ? $values[$recipient]["ADMIN_EMAIL"] : (defined("ADMIN_EMAIL") ? ADMIN_EMAIL : SITE_EMAIL);
 
 				// add message to merging array
 				if($message && !isset($values[$recipient]["message"])) {
