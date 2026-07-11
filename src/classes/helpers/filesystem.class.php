@@ -144,13 +144,13 @@ class FileSystem {
 	*/
 	function removeDirRecursively($path) {
 
-		if(basename($path) != "." && basename($path) != ".." && file_exists($path)) {
+		if(basename($path) !== "." && basename($path) !== ".." && file_exists($path)) {
 			$dir = opendir($path);
 			while(false !== ($entry = readdir($dir))) {
 				if(is_file("$path/$entry")) {
 					unlink("$path/$entry");
 				}
-				else if(is_dir("$path/$entry") && $entry != '.' && $entry != '..') {
+				else if(is_dir("$path/$entry") && $entry !== '.' && $entry !== '..') {
 					$this->removeDirRecursively("$path/$entry");
 				}
 			}
