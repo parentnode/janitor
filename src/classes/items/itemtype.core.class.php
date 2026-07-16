@@ -1239,13 +1239,14 @@ class ItemtypeCore extends Model {
 			$link = preg_replace("/\.php$/", "", str_replace(LOCAL_PATH."/www", "", $controller));
 
 			$access_item = [];
+			$controller_type = false;
 			$controller_itemtype = false;
 			$controller_favors = false;
 			$controller_assignable = true;
 
 
 			include($controller);
-			if($controller_assignable !== false && $controller_itemtype && $item["itemtype"] === $controller_itemtype && $controller_favors && isset($controller_favors["view"])) {
+			if($controller_assignable !== false && $controller_type === "item" && $controller_itemtype && $item["itemtype"] === $controller_itemtype && $controller_favors && isset($controller_favors["view"])) {
 
 				// Nested structure
 				if(strpos(substr($link, 1), "/") !== false) {
