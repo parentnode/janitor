@@ -1255,7 +1255,6 @@ class HTMLCore {
 	*/
 	function link($value, $action, $_options = false) {
 
-
 		// relative paths are allowed for ease of use
 		// construct absolute path using current controller path
 		if($action && !preg_match("/^\//", $action)) {

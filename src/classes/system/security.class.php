@@ -126,7 +126,7 @@ class Security {
 		if(!preg_match("/^(http[s]?\:\/\/|mailto\:|tel\:|\/)/", $path)) {
 			$path = HTML()->path."/".$path;
 		}
-
+		// debug(["modified path:", $path]);
 
 		// remove GET parameters from $actions string
 		$path = preg_replace("/\?.+$/", "", $path);
