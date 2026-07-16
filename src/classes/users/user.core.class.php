@@ -231,7 +231,7 @@ class UserCore extends Model {
 			"label" => "Address label",
 			// "required" => true,
 			"hint_message" => "Give this address a label (home, office, parents, etc.)",
-			"error_message" => "Invalid label"
+			"error_message" => "Invalid address label"
 		));
 		// address name
 		$this->addToModel("address_name", array(
@@ -239,7 +239,7 @@ class UserCore extends Model {
 			"label" => "Name/Company",
 			"required" => true,
 			"hint_message" => "Name on door at address, your name or company name",
-			"error_message" => "Invalid name"
+			"error_message" => "Invalid address name"
 		));
 		// att
 		$this->addToModel("att", array(
@@ -268,7 +268,7 @@ class UserCore extends Model {
 			"type" => "string",
 			"label" => "City",
 			"required" => true,
-			"hint_message" => "Write your city",
+			"hint_message" => "Your city",
 			"error_message" => "Invalid city"
 		));
 		// postal code
@@ -276,7 +276,7 @@ class UserCore extends Model {
 			"type" => "string",
 			"label" => "Postal code",
 			"required" => true,
-			"hint_message" => "Postalcode of your city",
+			"hint_message" => "Your postal code",
 			"error_message" => "Invalid postal code"
 		));
 		// state
@@ -465,17 +465,39 @@ class UserCore extends Model {
 
 				$email = $this->getProperty("email", "value");
 
-				logger()->addLog("user->newUser: signup identified as BOT: $email");
+				logger()->addLog("user->newUser: signup identified as BOT via it_nato_bor: $email");
 
 				// send notification email to admin
 				admin()->notify(array(
 					"subject" => SITE_URL . " - BOT SIGNUP DETECTED: " . $email, 
-					"message" => "no user was created",
+					"message" => "BOT detected via $it_nato_bor. No user was created.",
 					"tracking" => false,
 					"template" => "system"
 				));
 
 				return ["status" => "BOT_SIGNUP"];
+			}
+
+			// Module fraudprotection
+			if(defined("SITE_FRAUDPROTECTION") && SITE_FRAUDPROTECTION) {
+
+				$evaluation = fraudProtection()->getEvaluation();
+				if($evaluation["status"] !== "valid") {
+
+					$email = $this->getProperty("email", "value");
+
+					logger()->addLog("user->newUser: signup identified as BOT via fraudProtection: $email, ".print_r($evaluation, true));
+
+					// send notification email to admin
+					admin()->notify(array(
+						"subject" => SITE_URL . " - BOT SIGNUP DETECTED: " . $email, 
+						"message" => "BOT detected via fraudProtection. No user was created, ".print_r($evaluation, true),
+						"tracking" => false,
+						"template" => "system",
+					));
+
+					return ["status" => "BOT_SIGNUP"];
+				}
 			}
 
 
@@ -710,7 +732,11 @@ class UserCore extends Model {
 							message()->resetMessages();
 
 							// return enough information to the frontend
-							return array("user_id" => $user_id, "nickname" => $nickname, "email" => $email);
+							return [
+								"user_id" => $user_id, 
+								"nickname" => $nickname, 
+								"email" => $email
+							];
 
 						}
 					}
@@ -1686,8 +1712,7 @@ class UserCore extends Model {
 
 				if($extend) {
 
-					global $page;
-					$payment_methods = $page->paymentMethods();
+					$payment_methods = page()->paymentMethods();
 
 					foreach($results as $index => $result) {
 
@@ -2076,7 +2101,7 @@ class UserCore extends Model {
 		$user_id = session()->value("user_id");
 
 
-		if(count($action) == 1 && $user_id && $this->validateList(array("address_label","address_name","address1","postal","city","country"))) {
+		if(count($action) == 1 && $user_id && $this->validateList(array("address_label","address_name","address1","address2","postal","city","state","country"))) {
 
 			$query = new Query();
 
