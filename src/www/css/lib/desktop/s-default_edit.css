@@ -1,4 +1,4 @@
-#content .scene div > h2 {font-size: 1.9em; text-transform: uppercase; padding-top: 17px; padding-bottom: 15px; margin: 0 0 20px;
+#content .scene div > h2 {font-size: 24px; text-transform: uppercase; padding-top: 17px; padding-bottom: 15px; margin: 0 0 20px;
 	background: #efefef;
 }
 
@@ -21,7 +21,7 @@
 #content .scene div.togglable > h4 svg,
 #content .scene li.togglable > h2 svg,
 #content .scene li.togglable > h3 svg,
-#content .scene li.togglable > h4 svg {position: absolute; top: 21px; right: 25px; stroke: #313942; stroke-width: 3px;}
+#content .scene li.togglable > h4 svg {position: absolute; top: 24px; right: 25px; stroke: #313942; stroke-width: 3px;}
 
 
 
@@ -87,8 +87,8 @@
 
 /* PRICES */
 #content .scene.defaultEdit > div.prices {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
-#content .scene.defaultEdit > div.prices > form {padding-bottom: 10px; padding-top: 5px;}
-#content .scene.defaultEdit > div.prices .field {display: inline-block; vertical-align: top; padding-right: 5px;}
+#content .scene.defaultEdit > div.prices > div > form {padding-bottom: 10px; padding-top: 5px;}
+#content .scene.defaultEdit > div.prices .field {display: inline-block; vertical-align: top; padding: 0 5px 30px 0; position: static;}
 #content .scene.defaultEdit > div.prices .field .indicator {display: none;}
 
 #content .scene.defaultEdit > div.prices .field.currency,
@@ -98,26 +98,26 @@
 
 #content .scene.defaultEdit > div.prices .field.quantity {display: none;}
 
-#content .scene.defaultEdit > div.prices .field.price .help {left: 610px;}
-#content .scene.defaultEdit > div.prices .field.currency .help {left: 489px;}
-#content .scene.defaultEdit > div.prices .field.vatrate .help {left: 425px;}
-#content .scene.defaultEdit > div.prices .field.type .help {left: 341px;}
-#content .scene.defaultEdit > div.prices .field.quantity .help {left: 197px;}
+#content .scene.defaultEdit > div.prices .field.price .help {left: 30px;}
+#content .scene.defaultEdit > div.prices .field.currency .help {left: 30px;}
+#content .scene.defaultEdit > div.prices .field.vatrate .help {left: 30px;}
+#content .scene.defaultEdit > div.prices .field.type .help {left: 30px;}
+#content .scene.defaultEdit > div.prices .field.quantity .help {left: 30px;}
 
-#content .scene.defaultEdit > div.prices .field.price input[type=text] {width: 70px;}
-#content .scene.defaultEdit > div.prices .field.currency select {width: 55px;}
-#content .scene.defaultEdit > div.prices .field.vatrate select {width: 75px;}
-#content .scene.defaultEdit > div.prices .field.type select {width: 135px;}
-#content .scene.defaultEdit > div.prices .field.quantity input {width: 30px;}
+#content .scene.defaultEdit > div.prices .field.price input[type=text] {width: 110px;}
+#content .scene.defaultEdit > div.prices .field.currency select {width: 90px;}
+#content .scene.defaultEdit > div.prices .field.vatrate select {width: 110px;}
+#content .scene.defaultEdit > div.prices .field.type select {width: 170px;}
+#content .scene.defaultEdit > div.prices .field.quantity input {width: 60px;}
 
-#content .scene.defaultEdit > div.prices fieldset {display: inline-block; vertical-align: top; font-size: 0;}
+#content .scene.defaultEdit > div.prices fieldset {display: inline-block; vertical-align: top; font-size: 0; position: relative; padding-left: 30px;}
 #content .scene.defaultEdit > div.prices > form .actions {display: inline-block; vertical-align: top; padding: 0;}
 #content .scene.defaultEdit > div.prices > form .actions li {padding-left: 0;}
 #content .scene.defaultEdit > div.prices > form .actions li input {margin-top: 4px;}
 
 #content .scene.defaultEdit > div.prices ul.prices {padding: 0 0 15px;}
 #content .scene.defaultEdit > div.prices ul.prices li.pricedetails {display: block; position: relative; border-bottom: 1px solid #dedede;}
-#content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li {display: inline-block; vertical-align: top; padding: 10px 5px 10px 0; line-height: 1em;}
+#content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li {display: inline-block; vertical-align: top; padding: 15px 5px 15px 0; font-size: 16px; line-height: 1em;}
 #content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li.custom_price:before,
 #content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li.offer:before,
 #content .scene.defaultEdit > div.prices ul.prices li.pricedetails ul.info li.bulk:before{content: "- ";}

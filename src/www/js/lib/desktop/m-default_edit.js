@@ -307,10 +307,10 @@ Util.Modules["sendMessage"] = new function() {
 
 				}
 				u.request(this, this.action, {"method":"post", "data" : this.getData({"format":"formdata"})});
-				
+
 			}
 			else {
-				
+
 				u.f.inputHasError(this.inputs["recipients"]);
 				u.f.inputHasError(this.inputs["maillist_id"]);
 
