@@ -28,6 +28,54 @@ function DOM() {
 	return $__dom;
 }
 
+function model($itemtype) {
+	return items()->typeObject($itemtype);
+}
+
+
+$__shop = false;
+function shop() {
+	global $__shop;
+	if(!$__shop) {
+		include_once("classes/shop/shop.core.class.php");
+		include_once("classes/shop/shop.class.php");
+		$__shop = new Shop();
+	}
+	return $__shop;
+}
+
+$__supershop = false;
+function supershop() {
+	global $__supershop;
+	if(!$__supershop) {
+		shop();
+		include_once("classes/shop/supershop.class.php");
+		include_once("classes/shop/supershop.core.class.php");
+		$__supershop = new SuperShop();
+	}
+	return $__supershop;
+}
+$__member = false;
+function member() {
+	global $__member;
+	if(!$__member) {
+		include_once("classes/member/member.core.class.php");
+		include_once("classes/member/member.class.php");
+		$__member = new Member();
+	}
+	return $__member;
+}
+
+$__supermember = false;
+function supermember() {
+	global $__supermember;
+	if(!$__supermember) {
+		include_once("classes/supermember/supermember.class.php");
+		include_once("classes/supermember/supermember.core.class.php");
+		$__supermember = new SuperMember();
+	}
+	return $__supermember;
+}
 
 // Shorthand auto initializer for payment access
 $__payment = false;
@@ -127,6 +175,15 @@ function page() {
 function HTML() {
 	global $HTML;
 	return $HTML;
+}
+function items() {
+	global $__items;
+	if(!$__items) {
+		include_once("classes/items/items.core.class.php");
+		include_once("classes/items/items.class.php");
+		$__items = new Items();
+	}
+	return $__items;
 }
 
 

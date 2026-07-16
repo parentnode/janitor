@@ -36,9 +36,7 @@ $addresses = $item["addresses"];
 // check for unpaid orders
 $unpaid_orders = false;
 if(defined("SITE_SHOP") && SITE_SHOP) {
-	include_once("classes/shop/shop.core.class.php");
-	$SC = new Shop();
-	$unpaid_orders = $SC->getUnpaidOrders();
+	$unpaid_orders = shop()->getUnpaidOrders();
 
 }
 

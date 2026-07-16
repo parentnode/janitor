@@ -374,10 +374,8 @@ class SuperUserCore extends User {
 				$orders = false;
 				$payments = false;
 				if(defined("SITE_SHOP") && SITE_SHOP) {
-					include_once("classes/shop/supershop.class.php");
-					$SC = new SuperShop();
-					$orders = $SC->getOrders(["user_id" => $user_id]);
-					$payments = $SC->getpayments(["user_id" => $user_id]);
+					$orders = supershop()->getOrders(["user_id" => $user_id]);
+					$payments = supershop()->getpayments(["user_id" => $user_id]);
 				}
 
 				$membership = false;

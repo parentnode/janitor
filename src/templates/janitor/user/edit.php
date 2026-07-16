@@ -75,10 +75,10 @@ if($item && $item["status"] >= 0) {
 
 	$unpaid_orders = false;
 	if(defined("SITE_SHOP") && SITE_SHOP) {
-		include_once("classes/shop/supershop.class.php");
-		$SC = new SuperShop();
+		// include_once("classes/shop/supershop.class.php");
+		// $SC = new SuperShop();
 
-		$unpaid_orders = $SC->getUnpaidOrders(["user_id" => $user_id]);
+		$unpaid_orders = supershop()->getUnpaidOrders(["user_id" => $user_id]);
 	}
 	
 }
