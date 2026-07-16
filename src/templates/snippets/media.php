@@ -72,7 +72,7 @@ if($media) {
 	?>
 	<div class="media <?= $class ?> item_id:<?= $item_id ?> format:<?= $media["format"] ?> variant:<?= $media["variant"] ?>">
 <? 	if($schema): ?>
-		<ul class="metadata" data-variant="<?= $media["variant"] ?>" data-format="<?= $media["format"] ?>" data-poster="<?= $media["poster"] ?>"<?= $schema ? ' itemprop="'.$schema_prop.'" itemscope itemtype="http://schema.org/'.$schema_type.'"' : '' ?>>
+		<ul class="metadata" data-item-id="<?= $item_id ?>" data-variant="<?= $media["variant"] ?>" data-format="<?= $media["format"] ?>" data-poster="<?= $media["poster"] ?>"<?= $schema ? ' itemprop="'.$schema_prop.'" itemscope itemtype="http://schema.org/'.$schema_type.'"' : '' ?>>
 			<li itemprop="name"><?= $name ?></li>
 			<li itemprop="description"><?= $description ?></li>
 			<li itemprop="width"><?= $media["width"] ?></li>

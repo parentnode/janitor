@@ -1,7 +1,7 @@
 <?php
 
 
-$SC = new Shop();
+// $SC = new Shop();
 
 $item = false;
 $url = false;
@@ -70,23 +70,24 @@ if($item) {
 
 	}
 
+	if($item["stock"] === 0) {
+		$availability = "SoldOut";
+	}
+	else {
+		$availability = "InStock";
+	}
+
 ?>
 <ul class="offer" itemprop="offers" itemscope itemtype="http://schema.org/Offer">
 	<li class="name" itemprop="name" content="<?= $item["name"] ?>"></li>
-<? 
+	<li class="availability" itemprop="availability" content="https://schema.org/<?= $availability ?>"></li>
 
-	if($best_price):
-?>
+<? if($best_price): ?>
 	<li class="currency" itemprop="priceCurrency" content="<?= $best_price["currency"] ?>"></li>
-<?
-
-		if($default_price && $best_price !== $default_price):
-?>
+<?		if($default_price && $best_price !== $default_price): ?>
 	<li class="price default"><?= formatPrice($default_price).(isset($item["subscription_method"]) && $item["subscription_method"] && $default_price["price"] ? ' / '.$item["subscription_method"]["name"] : '') ?></li>
 	<li class="price offer" itemprop="price" content="<?= $best_price["price"] ?>"><?= formatPrice($best_price).(isset($item["subscription_method"]) && $item["subscription_method"] && $best_price ? ' / '.$item["subscription_method"]["name"] : '') ?></li>
-<?
-		else:
-?>
+<?		else: ?>
 	<li class="price" itemprop="price" content="<?= $best_price["price"] ?>"><?= formatPrice($best_price).(isset($item["subscription_method"]) && $item["subscription_method"] && $best_price ? ' / '.$item["subscription_method"]["name"] : '') ?></li>
 <?	
 		endif;
@@ -95,20 +96,11 @@ if($item) {
 
 ?>
 	<li class="price" itemprop="price" content="0">Free</li>
-<?
-	endif;
-
-?>
+<?	endif; ?>
 	<li class="url" itemprop="url" content="<?= $url ?>"></li>
-<?
-
-	if($description):
-?>
+<?	if($description): ?>
 	<li class="description" itemprop="description"><?= $description ?></li>
-<?
-	endif;
-
-?>
+<?	endif; ?>
 </ul>
 <?
 }
