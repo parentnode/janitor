@@ -1,5 +1,11 @@
 <?php
 $access_item["/"] = true;
+$access_item["/countries"] = true;
+$access_item["/languages"] = true;
+$access_item["/currencies"] = true;
+$access_item["/vatrates"] = true;
+$access_item["/payment_methods"] = true;
+$access_item["/subscription_methods"] = true;
 
 if(isset($read_access) && $read_access) {
 	return;

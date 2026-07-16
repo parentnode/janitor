@@ -17,9 +17,9 @@ endif; ?>
 			<li class="shop">
 				<h3>Shop</h3>
 				<ul class="subjects">
-					<?= $HTML->link("Orders", "/janitor/admin/shop/order/list", array("wrapper" => "li.orders")) ?>
-					<?= $HTML->link("Carts", "/janitor/admin/shop/cart/list", array("wrapper" => "li.carts")) ?>
-					<?= $HTML->link("Payments", "/janitor/admin/shop/payment/list", array("wrapper" => "li.payments")) ?>
+					<?= $HTML->link("Orders", "/janitor/shop/order/list", array("wrapper" => "li.orders")) ?>
+					<?= $HTML->link("Carts", "/janitor/shop/cart/list", array("wrapper" => "li.carts")) ?>
+					<?= $HTML->link("Payments", "/janitor/shop/payment/list", array("wrapper" => "li.payments")) ?>
 				</ul>
 			</li>
 <? endif; ?>
@@ -27,15 +27,8 @@ endif; ?>
 			<li class="members">
 				<h3>Members</h3>
 				<ul class="subjects">
-					<? 
-					// prioritize local controller
-					if(file_exists(LOCAL_PATH."/www/janitor/membership.php")): ?>
 					<?= $HTML->link("Memberships", "/janitor/membership/list", array("wrapper" => "li.membership")) ?>
-					<? else: ?>
-					<?= $HTML->link("Memberships", "/janitor/admin/membership/list", array("wrapper" => "li.membership")) ?>
-					<? endif; ?>
-
-					<?= $HTML->link("Members", "/janitor/admin/member/list", array("wrapper" => "li.members")) ?>
+					<?= $HTML->link("Members", "/janitor/member/list", array("wrapper" => "li.members")) ?>
 				</ul>
 			</li>
 <? endif; ?>
@@ -50,6 +43,12 @@ endif; ?>
 			<li class="system">
 				<h3>System</h3>
 				<ul class="subjects">
+					<?= $HTML->link("Countries", "/janitor/admin/system/countries", array("wrapper" => "li.countries")) ?>
+					<?= $HTML->link("Languages", "/janitor/admin/system/languages", array("wrapper" => "li.languages")) ?>
+					<?= $HTML->link("Currencies", "/janitor/admin/system/currencies", array("wrapper" => "li.currencies")) ?>
+					<?= $HTML->link("Vatrates", "/janitor/admin/system/vatrates", array("wrapper" => "li.vatrates")) ?>
+					<?= $HTML->link("Payment methodss", "/janitor/admin/system/payment_methods", array("wrapper" => "li.payment_methods")) ?>
+					<?= $HTML->link("Subscription methodss", "/janitor/admin/system/subscription_methods", array("wrapper" => "li.subscription_methods")) ?>
 					<?= $HTML->link("Log", "/janitor/admin/log/list", array("wrapper" => "li.logs")) ?>
 					<?= $HTML->link("Cache", "/janitor/admin/system/cache", array("wrapper" => "li.cache")) ?>
 					<?= $HTML->link("Setup", "/janitor/admin/setup", array("wrapper" => "li.setup")) ?>
