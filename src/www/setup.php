@@ -37,7 +37,7 @@ if(!security()->validateAuthetication("setup")) {
 if(is_array($action) && count($action)) {
 
 	// Setup process
-	if(preg_match("/^(software|config|account|database|mail|payment|finish)$/", $action[0])) {
+	if(preg_match("/^(software|config|account|database|finish)$/", $action[0])) {
 
 		// Basic install process
 		if(count($action) == 1) {
