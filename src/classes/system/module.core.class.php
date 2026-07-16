@@ -517,6 +517,34 @@ class ModuleCore extends Model {
 
 				}
 
+				// Get library with composer
+				if(isset($manifest["composer"])) {
+
+					// debug([$manifest["composer"]]);
+
+					foreach($manifest["composer"] as $composer_info) {
+
+						$destination = $composer_info["dest"];
+						$json = $composer_info["json"];
+					
+						$compuser_result = $this->composer($json, LOCAL_PATH."/".$destination);
+						if(!$compuser_result || isset($compuser_result["status"]) && $compuser_result["status"] === "error") {
+							// $install_messages[] = ["message" => "Composer error: ".print_r($json["require"], true), "type" => "error"];
+							$install_messages[] = ["message" => $compuser_result["message"], "type" => "error"];
+						}
+						else {
+							$install_messages[] = ["message" => "$module_id dependencies installed with Composer", "type" => "success"];
+						}
+
+					}
+
+				}
+
+
+				// Check Module constant
+				$this->updateModuleGroupConstant($module_group_id);
+
+
 			}
 			// manifest file is missing
 			else {
@@ -533,20 +561,62 @@ class ModuleCore extends Model {
 		filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/$install_id");
 
 		// Check for errors
-		// debug(["install errors", $install_messages]);
 		$error = arrayKeyValue($install_messages, "type", "error");
+		// debug(["install errors", $install_messages]);
 		// debug(["install error", $error]);
 		if($error !== false) {
+			// debug(["install errors", $install_messages]);
 
 			// Uninstall any partial installation
 			$this->uninstallModule($module_group_id, $module_id);
-			return false;
+			return $install_messages;
 
 		}
 
 		return true;
 
 	}
+
+	function composer($json, $destination) {
+		// debug(["composer", $json, $destination]);
+
+		// Test for composer
+
+		$composer_exists = shell_exec('export PATH="/usr/local/bin:/usr/bin:/opt/local/bin"; php /usr/local/bin/composer.phar --version');
+		// debug(["composer_exists", $composer_exists]);
+
+
+		// Composer does not exist
+		if(!$composer_exists || !preg_match("/Composer version/", $composer_exists)) {
+			return ["status" => "error", "message" => "Composer is missing:".$composer_exists];
+		}
+
+
+		// Clear the stage
+		filesystem()->removeDirRecursively($destination);
+		filesystem()->makeDirRecursively($destination);
+
+		// Create composer.json with install information
+		file_put_contents($destination."/composer.json", json_encode($json, true));
+
+		// Set export path to find PHP when calling composer
+		$command = 'export PATH="/usr/local/bin:/usr/bin:/opt/local/bin"; export HOME='.escapeshellarg($destination."/composer_home").'; php /usr/local/bin/composer.phar install -d '.escapeshellarg($destination).' 2>&1';
+		// $result = shell_exec($command);
+		exec($command, $result, $result_code);
+		// debug(["composer command", $command, $result, $result_code]);
+
+
+		// Clean up composer install dir
+		filesystem()->removeDirRecursively($destination."/composer_home");
+
+		if($result && $result_code === 0) {
+			return true;
+		}
+
+		return ["status" => "error", "message" => "Composer install error:".print_r($result, true)];
+
+	}
+
 
 
 
@@ -722,19 +792,28 @@ class ModuleCore extends Model {
 								"deny_folders" => "js,css,img,assets,janitor", 
 								"allow_extensions" => "php"
 							]);
+							// debug(["controllers to check for deletion", $controllers]);
 
 							$read_access = true;
 
 							foreach($controllers as $controller) {
+								$controller_type = false;
 								$controller_itemtype = false;
 
 								include($controller);
-								if($controller_itemtype && $controller_itemtype === $module_id) {
+
+								// debug(["controller to check", $controller, $controller_type, $controller_itemtype, $module_id]);
+								if($controller_type === "item" && $controller_itemtype && $controller_itemtype === $module_id) {
+
+									// debug(["controller to delete", $controller, $delete_modified_files]);
 
 									$digest = $this->getFileDigest($controller);
 									if($delete_modified_files || $digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
 										unlink($controller);
 									}
+
+									// Clean out empty folders
+									filesystem()->removeEmptyDirRecursively(LOCAL_PATH."/www");
 
 								}
 
@@ -743,6 +822,20 @@ class ModuleCore extends Model {
 						}
 
 					}
+
+				}
+
+			}
+
+			// Get library with composer
+			if(isset($manifest["composer"])) {
+
+				// debug([$manifest["composer"]]);
+
+				foreach($manifest["composer"] as $composer_info) {
+
+					$destination = $composer_info["dest"];
+					filesystem()->removeDirRecursively(dirname(LOCAL_PATH."/".$destination));
 
 				}
 
@@ -759,12 +852,57 @@ class ModuleCore extends Model {
 
 			// debug(["removeDirRecursively", $module_config_path]);
 			$removed = filesystem()->removeDirRecursively($module_config_path);
-			// debug(["removed", $removed]);
+			// debug(["removed", $removed, $module_config_path]);
+
+			// Check Module constant
+			$this->updateModuleGroupConstant($module_group_id, "unin");
+
 
 			return true;
 		}
 
 		return false;
+	}
+
+
+	function updateModuleGroupConstant($module_group_id, $state = "ins") {
+		// debug(["updateModuleGroupConstant", $state]);
+
+		if($module_group_id) {
+
+			$constants = [
+				"item" => "SITE_ITEMS",
+				"shop" => "SITE_SHOP",
+				"payment" => "SITE_PAYMENTS"
+			];
+
+			$constant = isset($constants[$module_group_id]) ? $constants[$module_group_id] : false;
+			// debug(["constant", $constant, defined($constant) ? constant($constant) : "undefined"]);
+			if($constant) {
+
+				$files = filesystem()->files(LOCAL_PATH."/config/modules/$module_group_id");
+				$current_constant_value = $this->getConstant($constant);
+
+
+				// Constant exists, but no modules exist
+				// Deactivate module group constant
+				if($current_constant_value && !$files) {
+
+					$this->setConstant($constant, 0);
+		
+				}
+				// Files exist, but no constant exists
+				// Activate module group constant
+				else if(!$current_constant_value && $files) {
+
+					$this->setConstant($constant, 1);
+
+				}
+
+			}
+
+		}
+
 	}
 
 
@@ -798,9 +936,8 @@ class ModuleCore extends Model {
 		if($uninstall_success === true) {
 
 			// Reinstall module
-			$this->installModule($module_group_id, $module_id, $_options);
+			return $this->installModule($module_group_id, $module_id, $_options);
 
-			return true;
 		}
 
 		return false;
@@ -857,6 +994,12 @@ class ModuleCore extends Model {
 						return $result;
 					}
 				}
+
+				// TODO:
+				// Validation failed
+				// Should constants and connect files be disabled, until settings are valid??
+
+
 			}
 
 		}
@@ -868,17 +1011,80 @@ class ModuleCore extends Model {
 
 	// Generic updater – gets values based on module adapter class and just updates these values
 	function updateSettings($module_group_id, $module_id, $values) {
+		// debug(["updateSettings", $values]);
 
-		$config_file = file_get_contents(LOCAL_PATH."/config/modules/$module_group_id/$module_id/connect_$module_group_id.php");
+		$connect_info = file_get_contents(LOCAL_PATH."/config/modules/$module_group_id/$module_id/connect_$module_group_id.php");
 
 		foreach($values as $key => $value) {
-			$config_file = preg_replace("/###".strtoupper($key)."###/", $value, $config_file);
+			if(preg_match("/###".strtoupper($key)."###/", $connect_info)) {
+				$connect_info = preg_replace("/###".strtoupper($key)."###/", $value, $connect_info);
+				unset($values[$key]);
+			}
+		}
+		// debug([$values, $connect_info]);
+		$connect_info = file_put_contents(LOCAL_PATH."/config/connect_$module_group_id.php", $connect_info);
+
+
+		// Add remaining values as constants in config
+		foreach($values as $key => $value) {
+			$this->setConstant($key, $value);
 		}
 
-		$config_file = file_put_contents(LOCAL_PATH."/config/connect_$module_group_id.php", $config_file);
 
 		return true;
 	}
+
+
+	// Set constant in config.php
+	function setConstant($name, $value) {
+
+
+		// Get config
+		$config_info = file_get_contents(LOCAL_PATH."/config/config.php");
+
+
+		// Constant does not exist
+		if(!defined($name)) {
+
+			// debug(["constant missing"]);
+
+			// Line is commented out
+			if(preg_match("/\/\/[ ]*define\(\"".$name."\", [\"]?(0|1|true|false)[\"]?/", $config_info, $matches)) {
+				// debug(["matches", $matches]);
+				$config_info = preg_replace("/\/\/[ ]*define\(\"".$name."\", [\"]?(0|1|true|false)[\"]?/", "define(\"".$name."\", $1", $config_info);
+				define($name, $matches[1]);
+			}
+			// Append constant to end of file
+			else {
+				$config_info .= "\ndefine(\"".$name."\", 0);\n";
+				define($name, 0);
+			}
+
+		}
+
+		$proper_value = is_numeric($value) || is_bool($value) ? $value : '"'.$value.'"';
+
+		$config_info = preg_replace("/define\(\"".$name."\"[^\n]+/", "define(\"".$name."\", $proper_value);" , $config_info);
+
+		// Remove excessive linebreaks
+		$config_info = preg_replace("/[\n]{3,}/", "\n\n" , $config_info);
+
+
+		// Write config file
+		file_put_contents(LOCAL_PATH."/config/config.php", trim($config_info)."\n\n");
+
+	}
+	// Read value of constant in config.php (could be rewritten during runtime, so that it differs from current runtime constant)
+	function getConstant($name) {
+
+		$config_info = file_get_contents(LOCAL_PATH."/config/config.php");
+		if(preg_match("/define\(\"".$name."\", [\"]?([a-zA-Z0-9\-_\/\.])[\"]?/", $config_info, $constant_matches)) {
+			return $constant_matches[1];
+		}
+
+		return "";
+	}
+
 
 	// Get item controller by searching document root for matching php files
 	// Used in item module settings
@@ -898,14 +1104,27 @@ class ModuleCore extends Model {
 
 			include($controller);
 			if($controller_itemtype && $controller_itemtype === $module_id) {
-				$controllers[] = str_replace(LOCAL_PATH."/www", "", $controller);
+				$controllers[] = str_replace(".php", "", str_replace(LOCAL_PATH."/www", "", $controller));
 			}
 		}
 
 		return $controllers;
 	}
 
+	// Get main item controller, which is currently the first one found
+	function getMainControllerPath($module_id) {
 
+		$product_controllers = module()->getItemControllers($module_id);
+		if($product_controllers) {
+			return $product_controllers[0];
+		}
+
+		return false;
+	}
+
+
+	// Add an additional item controller
+	// For items where more than one endpoint may be relevant from a seo perspective, such as pages
 	function API_addController($action) {
 
 		$controller_path = getPost("controller_path");
@@ -979,6 +1198,9 @@ class ModuleCore extends Model {
 		return false;
 	}
 
+
+	// Delete an item controller
+	// Only available for multi controller items
 	function API_deleteController($action) {
 
 		$controller_path = getPost("controller_path");
@@ -1044,8 +1266,7 @@ class ModuleCore extends Model {
 					unlink(LOCAL_PATH."/www".$controller_path);
 
 					// Update cannonical urls
-					$model = new Itemtype($controller_itemtype);
-					$model->syncCannonical([
+					model($controller_itemtype)->syncCannonical([
 						"itemtype" => $controller_itemtype,
 						"controller_deleted" => $controller_path,
 					]);
@@ -1059,6 +1280,103 @@ class ModuleCore extends Model {
 
 		return false;
 	}
+
+
+	// For one controller items, allow renaming existing controller
+	// For items where only one controller is meaningful seo wise
+	function API_renameController($action) {
+
+		$controller_path = getPost("controller_path");
+
+		if(count($action) === 4 && $controller_path) {
+
+			$module_group_id = $action[2];
+			$module_id = $action[3];
+
+
+			if($module_group_id && $module_id) {
+
+				$result = $this->renameController([
+					"module_group_id" => $module_group_id,
+					"module_id" => $module_id,
+
+					"controller_path" => $controller_path
+				]);
+
+				if($result) {
+					message()->addMessage("Controller renamed");
+					return $result;
+				}
+
+			}
+
+		}
+
+		message()->addMessage("Controller could not be renamed", ["type" => "error"]);
+		return false;
+
+	}
+
+	function renameController($_options = false) {
+
+		$module_group_id = false;
+		$module_id = false;
+
+		$controller_path = false;
+
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "module_group_id"          : $module_group_id           = $_value; break;
+					case "module_id"                : $module_id                 = $_value; break;
+
+					case "controller_path"          : $controller_path           = $_value; break;
+
+				}
+			}
+		}
+
+		if($module_group_id && $module_id && $controller_path) {
+
+			if(!preg_match("/\.php$/", $controller_path)) {
+				$controller_path .= ".php";
+			}
+
+
+			// Get existing controllers to remove
+			$existing_controllers = $this->getItemControllers($module_id);
+
+
+			// Create new controller before deleting, since it will be needed for syncing existing cannonical urls
+			$module_config_path = LOCAL_PATH."/config/modules/$module_group_id/$module_id";
+			if(file_exists($module_config_path."/controller.php") && !file_exists(LOCAL_PATH."/www".$controller_path)) {
+				filesystem()->copy($module_config_path."/controller.php", LOCAL_PATH."/www".$controller_path);
+			}
+
+
+			foreach($existing_controllers as $existing_controller) {
+				// debug(["remove existing controller", LOCAL_PATH."/www".$existing_controller]);
+				unlink(LOCAL_PATH."/www".$existing_controller);
+
+				model($module_id)->syncCannonical([
+					"itemtype" => $module_id,
+					"controller_deleted" => $existing_controller,
+				]);
+
+			}
+
+
+
+			return str_replace(".php", "", $controller_path);
+
+		}
+
+		return false;
+	}
+
 
 
 	// Execute module sql files
