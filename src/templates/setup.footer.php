@@ -12,8 +12,6 @@ global $model;
 					<li class="config<?= $model->get("config", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/config">Basic configuration</a></li>
 					<li class="database<?= $model->get("database", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/database">Database connection</a></li>
 					<li class="account<?= $model->get("account", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/account">Admin account</a></li>
-					<li class="mail<?= $model->get("mail", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/mail">Mail gateway</a></li>
-					<li class="payment<?= $model->get("payment", "passed") ? " done" : "" ?>"><a href="/janitor/admin/setup/payment">Payment gateway</a></li>
 					<li class="finish"><a href="/janitor/admin/setup/finish">Finish installation</a></li>
 				</ul>
 			</li>
