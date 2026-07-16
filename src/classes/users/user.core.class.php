@@ -1697,7 +1697,6 @@ class UserCore extends Model {
 						$results[$index]["description"] = $payment_methods[$key]["description"];
 						$results[$index]["gateway"] = $payment_methods[$key]["gateway"];
 
-
 						if($results[$index]["gateway"]) {
 							$cards = payments()->getPaymentMethods($user_id);
 							if($cards) {
@@ -2055,7 +2054,7 @@ class UserCore extends Model {
 		else {
 
 			$sql = "SELECT * FROM ".$this->db_addresses." WHERE user_id = $user_id";
-//			print $sql;
+			// debug([$sql]);
 
 			if($query->sql($sql)) {
 				$results = $query->results();
@@ -2097,7 +2096,7 @@ class UserCore extends Model {
 
 			if($values) {
 				$sql = "INSERT INTO ".$this->db_addresses." SET user_id=$user_id," . implode(",", $values);
-//				print $sql;
+				debug([$sql]);
 
 				if($query->sql($sql)) {
 
@@ -2138,7 +2137,7 @@ class UserCore extends Model {
 
 			if($values) {
 				$sql = "UPDATE ".$this->db_addresses." SET ".implode(",", $values).",modified_at=CURRENT_TIMESTAMP WHERE id = $address_id AND user_id = $user_id";
-//				print $sql;
+				// debug([$sql]);
 			}
 
 			if(!$values || $query->sql($sql)) {
@@ -2163,7 +2162,8 @@ class UserCore extends Model {
 			$address_id = $action[1];
 
 			$sql = "DELETE FROM $this->db_addresses WHERE id = $address_id AND user_id = $user_id";
-//			print $sql;
+			// debug([$sql]);
+
 			if($query->sql($sql)) {
 				message()->addMessage("Address deleted");
 				return true;
@@ -2240,6 +2240,8 @@ class UserCore extends Model {
 			$maillist_id = $this->getProperty("maillist_id", "value");
 			// already signed up (to avoid faulty double entries)
 			$sql = "SELECT id FROM $this->db_maillists WHERE user_id = $user_id AND maillist_id = $maillist_id";
+			// debug([$sql]);
+
 			if(!$query->sql($sql)) {
 				$sql = "INSERT INTO ".$this->db_maillists." SET user_id=$user_id, maillist_id=$maillist_id";
 				$query->sql($sql);
