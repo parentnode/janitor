@@ -42,7 +42,7 @@ class SetupCore extends Itemtype {
 			"label" => "Unique ID",
 			"pattern" => "[A-Z0-9]+",
 			"required" => true,
-			"hint_message" => "3-8 character ID (A-Z, 0-9) used to identify your current project. Used for cross-project communication and logging.", 
+			"hint_message" => "3-8 character ID (A-Z, 0-9) used to identify this project in core system logs.", 
 			"error_message" => "Unique ID can only contain uppercase characters from A-Z or the numbers 0-9."
 		));
 		// site_name
@@ -78,41 +78,41 @@ class SetupCore extends Itemtype {
 			"error_message" => "Invalid deployment environment."
 		));
 
-		// site_signup
-		$this->addToModel("site_signup", array(
-			"type" => "checkbox",
-			"label" => "Install signup",
-			"hint_message" => "Install signup model.", 
-			"error_message" => "Invalid choice."
-		));
-		// site_items
-		$this->addToModel("site_items", array(
-			"type" => "checkbox",
-			"label" => "Install items",
-			"hint_message" => "Install items model.", 
-			"error_message" => "Invalid choice."
-		));
-		// site_shop
-		$this->addToModel("site_shop", array(
-			"type" => "checkbox",
-			"label" => "Install shop",
-			"hint_message" => "Install shop model.", 
-			"error_message" => "Invalid choice."
-		));
-		// site_subscriptions
-		$this->addToModel("site_subscriptions", array(
-			"type" => "checkbox",
-			"label" => "Install subscriptions",
-			"hint_message" => "Install subscriptions model.", 
-			"error_message" => "Invalid choice."
-		));
-		// site_items
-		$this->addToModel("site_members", array(
-			"type" => "checkbox",
-			"label" => "Install members",
-			"hint_message" => "Install members model.", 
-			"error_message" => "Invalid choice."
-		));
+		// // site_signup
+		// $this->addToModel("site_signup", array(
+		// 	"type" => "checkbox",
+		// 	"label" => "Install signup",
+		// 	"hint_message" => "Install signup model.",
+		// 	"error_message" => "Invalid choice."
+		// ));
+		// // site_items
+		// $this->addToModel("site_items", array(
+		// 	"type" => "checkbox",
+		// 	"label" => "Install items",
+		// 	"hint_message" => "Install items model.",
+		// 	"error_message" => "Invalid choice."
+		// ));
+		// // site_shop
+		// $this->addToModel("site_shop", array(
+		// 	"type" => "checkbox",
+		// 	"label" => "Install shop",
+		// 	"hint_message" => "Install shop model.",
+		// 	"error_message" => "Invalid choice."
+		// ));
+		// // site_subscriptions
+		// $this->addToModel("site_subscriptions", array(
+		// 	"type" => "checkbox",
+		// 	"label" => "Install subscriptions",
+		// 	"hint_message" => "Install subscriptions model.",
+		// 	"error_message" => "Invalid choice."
+		// ));
+		// // site_items
+		// $this->addToModel("site_members", array(
+		// 	"type" => "checkbox",
+		// 	"label" => "Install members",
+		// 	"hint_message" => "Install members model.",
+		// 	"error_message" => "Invalid choice."
+		// ));
 
 
 
@@ -200,130 +200,12 @@ class SetupCore extends Itemtype {
 			"type" => "password",
 			"label" => "Password",
 			"required" => true,
-			"hint_message" => "Type password for new database user. Cannot be left blank because empty passwords are a bad habit you should end right now :-)",
+			"hint_message" => "Type password for new database user. Cannot be left blank. Empty passwords are a bad habit you should end right now :-)",
 			"error_message" => "Project database password must be filled out."
 		));
 
 
 
-
-		// MAIL MODEL
-
-		// admin_email
-		$this->addToModel("mail_admin", array(
-			"type" => "email",
-			"label" => "Admin email",
-			"autocomplete" => true,
-			"required" => true,
-			"hint_message" => "Email to send system notifications to.", 
-			"error_message" => "Admin email must be filled out."
-		));
-
-		// mail_type
-		$this->addToModel("mail_type", array(
-			"type" => "select",
-			"label" => "Mail type",
-			"options" => ["smtp" => "SMTP Service", "mailgun" => "Mailgun API"],
-			"required" => true,
-			"hint_message" => "Select your type of mail endpoint.", 
-			"error_message" => "Mail type must be filled out."
-		));
-
-		// SMTP
-		// mail_smtp_host
-		$this->addToModel("mail_smtp_host", array(
-			"type" => "string",
-			"label" => "Mail host",
-			"autocomplete" => true,
-			"required" => true,
-			"hint_message" => "Mail host like smtp.gmail.com or smtp.mailgun.org.", 
-			"error_message" => "Mail host must be filled out."
-		));
-		// mail_smtp_port
-		$this->addToModel("mail_smtp_port", array(
-			"type" => "string",
-			"label" => "Mail port",
-			"autocomplete" => true,
-			"required" => true,
-			"hint_message" => "Mail connection port like 587 or 465.", 
-			"error_message" => "Mail port must be filled out."
-		));
-		// mail_smtp_username
-		$this->addToModel("mail_smtp_username", array(
-			"type" => "string",
-			"label" => "Mail username",
-			"autocomplete" => true,
-			"required" => true,
-			"hint_message" => "Username for the outgoing mail account.", 
-			"error_message" => "Mail username must be filled out."
-		));
-		// mail_smtp_password
-		$this->addToModel("mail_smtp_password", array(
-			"type" => "password",
-			"label" => "Mail password",
-			"required" => true,
-			"hint_message" => "Password for the outgoing mail account.", 
-			"error_message" => "Mail password must be filled out."
-		));
-
-		// MAILGUN
-		// mail_mailgun_api_key
-		$this->addToModel("mail_mailgun_api_key", array(
-			"type" => "string",
-			"label" => "API key",
-			"required" => true,
-			"hint_message" => "API key for the Mailgun account.", 
-			"error_message" => "API key must be filled out."
-		));
-		// mail_mailgun_domain
-		$this->addToModel("mail_mailgun_domain", array(
-			"type" => "string",
-			"label" => "Mail domain",
-			"required" => true,
-			"hint_message" => "Mail account domain to use when sending emails.", 
-			"error_message" => "API key must be filled out."
-		));
-		// mail_mailgun_region
-		$this->addToModel("mail_mailgun_region", array(
-			"type" => "select",
-			"label" => "Region",
-			"options" => ["US" => "US region", "EU" => "EU region"],
-			"required" => true,
-			"hint_message" => "Select your Mailgun region.", 
-			"error_message" => "Region must be filled out."
-		));
-
-
-
-		// PAYMENT MODEL
-
-		// payment_type
-		$this->addToModel("payment_type", array(
-			"type" => "select",
-			"label" => "Payment type",
-			"options" => ["stripe" => "Stripe"],
-			"required" => true,
-			"hint_message" => "Select your payment gateway.", 
-			"error_message" => "Payment gateway must be filled out."
-		));
-
-		// STRIPE
-		// payment_stripe_private_key
-		$this->addToModel("payment_stripe_private_key", array(
-			"type" => "string",
-			"label" => "Private API key",
-			"required" => true,
-			"hint_message" => "Private API key for the Stripe account.", 
-			"error_message" => "Private API key must be filled out."
-		));
-		// payment_stripe_public_key
-		$this->addToModel("payment_stripe_public_key", array(
-			"type" => "string",
-			"label" => "Publishable API key",
-			"required" => true,
-			"hint_message" => "Publishable API key for the Stripe account.", 
-			"error_message" => "Publishable API key must be filled out."
-		));
 
 
 	}
@@ -369,7 +251,7 @@ class SetupCore extends Itemtype {
 		// try first possible command
 		$command = array_shift($commands);
 
-		// print escapeshellcmd($command)."\n";
+		// debug([escapeshellcmd($command)]);
 		if($escape) {
 			$cmd_output = shell_exec(escapeshellcmd($command)." 2>&1");
 		}
@@ -377,7 +259,7 @@ class SetupCore extends Itemtype {
 			$cmd_output = shell_exec($command." 2>&1");
 		}
 	
-		// print $cmd_output;
+		// debug([$cmd_output]);
 
 		foreach($valid_responses as $valid_response) {
 			if(preg_match("/".$valid_response."/", $cmd_output)) {
@@ -693,7 +575,7 @@ class SetupCore extends Itemtype {
 
 			preg_match("/\n[ \t]*define\(\"DEFAULT_PAGE_DESCRIPTION\",[ ]*\"(.+)\"\);/", $config_info, $matches);
 			if($matches) {
-				$this->set("config", "site_description", $matches[1]);
+				$this->set("config", "site_description", stripslashes($matches[1]));
 			}
 
 			preg_match("/\n[ \t]*define\(\"SITE_SIGNUP\",[ ]*\"(.+)\"\);/", $config_info, $matches);
@@ -701,22 +583,22 @@ class SetupCore extends Itemtype {
 				$this->set("config", "site_signup", $matches[1]);
 			}
 
-			preg_match("/\n[ \t]*define\(\"SITE_ITEMS\",[ ]*\"(.+)\"\);/", $config_info, $matches);
-			if($matches) {
-				$this->set("config", "site_items", $matches[1]);
-			}
-			preg_match("/\n[ \t]*define\(\"SITE_SHOP\",[ ]*\"(.+)\"\);/", $config_info, $matches);
-			if($matches) {
-				$this->set("config", "site_shop", $matches[1]);
-			}
-			preg_match("/\n[ \t]*define\(\"SITE_SUBSCRIPTIONS\",[ ]*\"(.+)\"\);/", $config_info, $matches);
-			if($matches) {
-				$this->set("config", "site_subscriptions", $matches[1]);
-			}
-			preg_match("/\n[ \t]*define\(\"SITE_MEMBERS\",[ ]*\"(.+)\"\);/", $config_info, $matches);
-			if($matches) {
-				$this->set("config", "site_members", $matches[1]);
-			}
+			// preg_match("/\n[ \t]*define\(\"SITE_ITEMS\",[ ]*\"(.+)\"\);/", $config_info, $matches);
+			// if($matches) {
+			// 	$this->set("config", "site_items", $matches[1]);
+			// }
+			// preg_match("/\n[ \t]*define\(\"SITE_SHOP\",[ ]*\"(.+)\"\);/", $config_info, $matches);
+			// if($matches) {
+			// 	$this->set("config", "site_shop", $matches[1]);
+			// }
+			// preg_match("/\n[ \t]*define\(\"SITE_SUBSCRIPTIONS\",[ ]*\"(.+)\"\);/", $config_info, $matches);
+			// if($matches) {
+			// 	$this->set("config", "site_subscriptions", $matches[1]);
+			// }
+			// preg_match("/\n[ \t]*define\(\"SITE_MEMBERS\",[ ]*\"(.+)\"\);/", $config_info, $matches);
+			// if($matches) {
+			// 	$this->set("config", "site_members", $matches[1]);
+			// }
 
 			// deployment setting
 			$this->set("config", "site_deployment", stringOr($this->get("config", "site_deployment"), (preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL) ? "dev" : "live")));
@@ -729,16 +611,16 @@ class SetupCore extends Itemtype {
 			$this->set("config", "site_name", stringOr($this->get("config", "site_name"), defined("SITE_NAME") ? SITE_NAME : preg_replace("/\.[^\.]*$/", "", $_SERVER["SERVER_NAME"])));
 			$this->set("config", "site_uid", stringOr($this->get("config", "site_uid"), defined("SITE_UID") ? SITE_UID : substr(strtoupper(preg_replace("/[AEIOUYaeiouy-]/", "", superNormalize($this->get("config", "site_name")))), 0, 8)));
 			$this->set("config", "site_email", stringOr($this->get("config", "site_email"), defined("SITE_EMAIL") ? SITE_EMAIL : ""));
-			$this->set("config", "site_description", stringOr($this->get("config", "site_description"), defined("DEFAULT_PAGE_DESCRIPTION") ? DEFAULT_PAGE_DESCRIPTION : ""));
+			$this->set("config", "site_description", stringOr($this->get("config", "site_description"), defined("DEFAULT_PAGE_DESCRIPTION") ? stripslashes(DEFAULT_PAGE_DESCRIPTION) : ""));
 
 			// deployment setting
 			$this->set("config", "site_deployment", stringOr($this->get("config", "site_deployment"), (preg_match("/(^http[s]?\:\/\/test\.)|(\.local$)/", SITE_URL) ? "dev" : "live")));
 
-			$this->set("config", "site_signup", stringOr($this->get("config", "site_signup"), 1));
-			$this->set("config", "site_items", stringOr($this->get("config", "site_items"), 1));
-			$this->set("config", "site_shop", stringOr($this->get("config", "site_shop"), 0));
-			$this->set("config", "site_subscriptions", stringOr($this->get("config", "site_subscriptions"), 0));
-			$this->set("config", "site_members", stringOr($this->get("config", "site_members"), 0));
+			// $this->set("config", "site_signup", stringOr($this->get("config", "site_signup"), 1));
+			// $this->set("config", "site_items", stringOr($this->get("config", "site_items"), 1));
+			// $this->set("config", "site_shop", stringOr($this->get("config", "site_shop"), 0));
+			// $this->set("config", "site_subscriptions", stringOr($this->get("config", "site_subscriptions"), 0));
+			// $this->set("config", "site_members", stringOr($this->get("config", "site_members"), 0));
 
 		}
 
@@ -769,7 +651,7 @@ class SetupCore extends Itemtype {
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
-		if(SETUP_TYPE == "new" && $this->validateList(array("site_uid", "site_name", "site_email"))) {
+		if($this->validateList(array("site_uid", "site_name", "site_email", "site_description", "site_deployment"))) {
 
 			$this->set("config", "site_uid", $this->getProperty("site_uid", "value"));
 			$this->set("config", "site_name", $this->getProperty("site_name", "value"));
@@ -779,11 +661,11 @@ class SetupCore extends Itemtype {
 
 			$this->set("config", "site_deployment", $this->getProperty("site_deployment", "value"));
 
-			$this->set("config", "site_signup", $this->getProperty("site_signup", "value"));
-			$this->set("config", "site_items", $this->getProperty("site_items", "value"));
-			$this->set("config", "site_shop", $this->getProperty("site_shop", "value"));
-			$this->set("config", "site_subscriptions", $this->getProperty("site_subscriptions", "value"));
-			$this->set("config", "site_members", $this->getProperty("site_members", "value"));
+			// $this->set("config", "site_signup", $this->getProperty("site_signup", "value"));
+			// $this->set("config", "site_items", $this->getProperty("site_items", "value"));
+			// $this->set("config", "site_shop", $this->getProperty("site_shop", "value"));
+			// $this->set("config", "site_subscriptions", $this->getProperty("site_subscriptions", "value"));
+			// $this->set("config", "site_members", $this->getProperty("site_members", "value"));
 
 		}
 		// On existing projects, we only allow site_deployment to be changed
@@ -905,6 +787,7 @@ class SetupCore extends Itemtype {
 			catch (mysqli_sql_exception $e) {
 				// Exception is not error – just a result of how we test credentials
 				// error_log("Setup user test project user: " . $e->__toString());
+				// debug(["existing db credentials error", $e->__toString()]);
 			}
 
 			if($mysqli && !$mysqli->connect_errno) {
@@ -925,7 +808,7 @@ class SetupCore extends Itemtype {
 					// check if database exists
 					if($query->sql("SHOW DATABASES LIKE '".$db_janitor_db."'")) {
 
-						$query->sql("USE '".$db_janitor_db."'");
+						$query->sql("USE `".$db_janitor_db."`");
 
 
 						$this->set("database", "exists", true);
@@ -933,7 +816,7 @@ class SetupCore extends Itemtype {
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-						// debug([$sql]);
+						// debug([$sql, $query->sql($sql), $query->dbError()]);
 						if($query->sql($sql)) {
 
 							// Creation was successful, clean up again
@@ -950,7 +833,7 @@ class SetupCore extends Itemtype {
 
 						// test if we can create new table in database
 						$sql = "CREATE TABLE `".$db_janitor_db."`.`janitor_db_test` (`id` int(11) NOT NULL AUTO_INCREMENT, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-						// debug([$sql]);
+						debug([$sql]);
 						if($query->sql($sql)) {
 
 							// Creation successful, clean up again
@@ -1166,7 +1049,7 @@ class SetupCore extends Itemtype {
 			if($query->sql("SHOW DATABASES LIKE '".SITE_DB."'")) {
 
 				// USE DB for SHWO TABLES to work without throwing exception
-				$query->sql("USE '".SITE_DB."'");
+				$query->sql("USE `".SITE_DB."`");
 
 				// Does users table exist
 				if($query->sql("SHOW TABLES LIKE 'users'")) {
@@ -1219,275 +1102,275 @@ class SetupCore extends Itemtype {
 
 	// MAIL
 
-	// check mail settings
-	function checkMailSettings() {
-
-
-		// reset mail checks
-		$this->set("mail", "passed", false);
-		$this->set("mail", "skipped", false);
-
-
-		// if we do not have stored mail info, attempt to read existing connect_db.php
-		if(!$this->get("mail", "mail_type") && file_exists(LOCAL_PATH."/config/connect_email.php")) {
-
-			$connection_info = file_get_contents(LOCAL_PATH."/config/connect_email.php");
-
-			preg_match("/\"ADMIN_EMAIL\", \"([a-zA-Z0-9\.\-\_\@]+)\"/", $connection_info, $matches);
-			if($matches) {
-				$this->set("mail", "mail_admin", $matches[1]);
-			}
-
-			preg_match("/\"type\" \=\> \"([a-zA-Z0-9]+)\"/", $connection_info, $matches);
-			if($matches) {
-				$this->set("mail", "mail_type", $matches[1]);
-			}
-
-
-			// MAILGUN
-			if($this->get("mail", "mail_type") == "mailgun") {
-
-				preg_match("/\"api-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
-				if($matches) {
-					$this->set("mail", "mail_mailgun_api_key", $matches[1]);
-				}
-
-				preg_match("/\"domain\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
-				if($matches) {
-					$this->set("mail", "mail_mailgun_domain", $matches[1]);
-				}
-
-				preg_match("/\"region\" \=\> \"([a-zA-Z]+)\"/", $connection_info, $matches);
-				if($matches) {
-					$this->set("mail", "mail_mailgun_region", $matches[1]);
-				}
-
-			}
-
-			// SMTP
-			else {
-
-				preg_match("/\"host\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
-				if($matches) {
-					$this->set("mail", "mail_smtp_host", $matches[1]);
-				}
-
-				preg_match("/\"port\" \=\> \"([0-9]+)\"/", $connection_info, $matches);
-				if($matches) {
-					$this->set("mail", "mail_smtp_port", $matches[1]);
-				}
-
-				preg_match("/\"username\" \=\> \"([a-zA-Z0-9\.\_\@\-]+)\"/", $connection_info, $matches);
-				if($matches) {
-					$this->set("mail", "mail_smtp_username", $matches[1]);
-				}
-
-				preg_match("/\"password\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
-				if($matches) {
-					$this->set("mail", "mail_smtp_password", $matches[1]);
-				}
-
-			}
-
-		}
-
-		// set default values
-		else {
-
-			$this->set("mail", "mail_admin", stringOr($this->get("mail", "mail_admin"), $this->get("account", "account_username")));
-			$this->set("mail", "mail_type", stringOr($this->get("mail", "mail_type"), "smtp"));
-
-			$this->set("mail", "mail_smtp_host", stringOr($this->get("mail", "mail_smtp_host"), "smtp.gmail.com"));
-			$this->set("mail", "mail_smtp_port", stringOr($this->get("mail", "mail_smtp_port"), "587"));
-
-		}
-
-
-		// check if we have sufficient information
- 		if($this->get("mail", "mail_admin") && 
-			($this->get("mail", "mail_type") == "smtp" && (	
-				$this->get("mail", "mail_smtp_host") && 
-				$this->get("mail", "mail_smtp_port") && 
-				$this->get("mail", "mail_smtp_username") && 
-				$this->get("mail", "mail_smtp_password")
-			))
-				||
-			($this->get("mail", "mail_type") == "mailgun" && (
-				$this->get("mail", "mail_mailgun_api_key") && 
-				$this->get("mail", "mail_mailgun_domain")
-			))
-		
-		) {
-
-			// set mail check
-			$this->set("mail", "passed", true);
-			return true;
-		}
-
-		return false;
-	}
-
-	// update the mail settings
- 	function updateMailSettings() {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-		// Mail set up is optional
-		if(getPost("skip_mail")) {
-
-			$this->set("mail", "skipped", true);
-			$this->set("mail", "passed", true);
-			return true;
-
-		}
-		// Did we receive admin mail and setup type?
-		else if($this->validateList(array("mail_admin", "mail_type"))) {
-
-			$this->set("mail", "mail_admin", $this->getProperty("mail_admin", "value"));
-			$this->set("mail", "mail_type", $this->getProperty("mail_type", "value"));
-
-			// Mailgun account
-			if($this->get("mail", "mail_type") == "mailgun") {
-
-				if($this->validateList(array("mail_mailgun_api_key", "mail_mailgun_domain", "mail_mailgun_region"))) {
-
-					$this->set("mail", "mail_mailgun_api_key", $this->getProperty("mail_mailgun_api_key", "value"));
-					$this->set("mail", "mail_mailgun_domain", $this->getProperty("mail_mailgun_domain", "value"));
-					$this->set("mail", "mail_mailgun_region", $this->getProperty("mail_mailgun_region", "value"));
-
-				}
-			}
-
-			// SMTP account
-			else {
-
-				if($this->validateList(array("mail_smtp_host", "mail_smtp_port", "mail_smtp_username", "mail_smtp_password"))) {
-
-					$this->set("mail", "mail_smtp_host", $this->getProperty("mail_smtp_host", "value"));
-					$this->set("mail", "mail_smtp_port", $this->getProperty("mail_smtp_port", "value"));
-					$this->set("mail", "mail_smtp_username", $this->getProperty("mail_smtp_username", "value"));
-					$this->set("mail", "mail_smtp_password", $this->getProperty("mail_smtp_password", "value"));
-
-				}
-
-			} 
-
-		}
-
-		return $this->checkMailSettings();
-
-	}
-
-
-
-	// PAYMENT GATEWAY
-
-	// check payment settings
-	function checkPaymentSettings() {
-
-
-		// reset payment checks
-		$this->set("payment", "passed", false);
-		$this->set("payment", "skipped", false);
-
-
-		// if we do not have stored payment info, attempt to read existing connect_payment.php
-		if(!$this->get("payment", "payment_type") && file_exists(LOCAL_PATH."/config/connect_payment.php")) {
-
-			$connection_info = file_get_contents(LOCAL_PATH."/config/connect_payment.php");
-
-			preg_match("/\"type\" \=\> \"([a-zA-Z0-9]+)\"/", $connection_info, $matches);
-			if($matches) {
-				$this->set("payment", "payment_type", $matches[1]);
-			}
-
-
-			// STRIPE
-			if($this->get("payment", "payment_type") == "stripe") {
-
-				preg_match("/\"secret-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
-				if($matches) {
-					$this->set("payment", "payment_stripe_private_key", $matches[1]);
-				}
-
-				preg_match("/\"public-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
-				if($matches) {
-					$this->set("payment", "payment_stripe_public_key", $matches[1]);
-				}
-
-			}
-
-		}
-
-		// set default values
-		else {
-
-			$this->set("payment", "payment_type", stringOr($this->get("payment", "payment_type"), "stripe"));
-
-			$this->set("payment", "payment_stripe_private_key", stringOr($this->get("payment", "payment_stripe_private_key"), ""));
-			$this->set("payment", "payment_stripe_public_key", stringOr($this->get("payment", "payment_stripe_public_key"), ""));
-
-		}
-
-
-		// check if we have sufficient information
- 		if(
-			($this->get("payment", "payment_type") == "stripe" && (	
-				$this->get("payment", "payment_stripe_private_key") && 
-				$this->get("payment", "payment_stripe_public_key")
-			))
-		) {
-
-			// set payment check
-			$this->set("payment", "passed", true);
-			return true;
-		}
-
-		return false;
-	}
-
-	// update the payment settings
- 	function updatePaymentSettings() {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-		// Mail set up is optional
-		if(getPost("skip_payment")) {
-
-			$this->set("payment", "skipped", true);
-			$this->set("payment", "passed", true);
-			return true;
-
-		}
-		// Did we receive admin mail and setup type?
-		else if($this->validateList(array("payment_type"))) {
-
-			$this->set("payment", "payment_type", $this->getProperty("payment_type", "value"));
-
-			// Mailgun account
-			if($this->get("payment", "payment_type") == "stripe") {
-
-				if($this->validateList(array("payment_stripe_private_key", "payment_stripe_public_key"))) {
-
-					$this->set("payment", "payment_stripe_private_key", $this->getProperty("payment_stripe_private_key", "value"));
-					$this->set("payment", "payment_stripe_public_key", $this->getProperty("payment_stripe_public_key", "value"));
-
-				}
-			}
-
-			// Other account
-			else {
-
-
-			} 
-
-		}
-
-		return $this->checkPaymentSettings();
-
-	}
+	// // check mail settings
+	// function checkMailSettings() {
+	//
+	//
+	// 	// reset mail checks
+	// 	$this->set("mail", "passed", false);
+	// 	$this->set("mail", "skipped", false);
+	//
+	//
+	// 	// if we do not have stored mail info, attempt to read existing connect_db.php
+	// 	if(!$this->get("mail", "mail_type") && file_exists(LOCAL_PATH."/config/connect_email.php")) {
+	//
+	// 		$connection_info = file_get_contents(LOCAL_PATH."/config/connect_email.php");
+	//
+	// 		preg_match("/\"ADMIN_EMAIL\", \"([a-zA-Z0-9\.\-\_\@]+)\"/", $connection_info, $matches);
+	// 		if($matches) {
+	// 			$this->set("mail", "mail_admin", $matches[1]);
+	// 		}
+	//
+	// 		preg_match("/\"type\" \=\> \"([a-zA-Z0-9]+)\"/", $connection_info, $matches);
+	// 		if($matches) {
+	// 			$this->set("mail", "mail_type", $matches[1]);
+	// 		}
+	//
+	//
+	// 		// MAILGUN
+	// 		if($this->get("mail", "mail_type") == "mailgun") {
+	//
+	// 			preg_match("/\"api-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+	// 			if($matches) {
+	// 				$this->set("mail", "mail_mailgun_api_key", $matches[1]);
+	// 			}
+	//
+	// 			preg_match("/\"domain\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+	// 			if($matches) {
+	// 				$this->set("mail", "mail_mailgun_domain", $matches[1]);
+	// 			}
+	//
+	// 			preg_match("/\"region\" \=\> \"([a-zA-Z]+)\"/", $connection_info, $matches);
+	// 			if($matches) {
+	// 				$this->set("mail", "mail_mailgun_region", $matches[1]);
+	// 			}
+	//
+	// 		}
+	//
+	// 		// SMTP
+	// 		else {
+	//
+	// 			preg_match("/\"host\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+	// 			if($matches) {
+	// 				$this->set("mail", "mail_smtp_host", $matches[1]);
+	// 			}
+	//
+	// 			preg_match("/\"port\" \=\> \"([0-9]+)\"/", $connection_info, $matches);
+	// 			if($matches) {
+	// 				$this->set("mail", "mail_smtp_port", $matches[1]);
+	// 			}
+	//
+	// 			preg_match("/\"username\" \=\> \"([a-zA-Z0-9\.\_\@\-]+)\"/", $connection_info, $matches);
+	// 			if($matches) {
+	// 				$this->set("mail", "mail_smtp_username", $matches[1]);
+	// 			}
+	//
+	// 			preg_match("/\"password\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+	// 			if($matches) {
+	// 				$this->set("mail", "mail_smtp_password", $matches[1]);
+	// 			}
+	//
+	// 		}
+	//
+	// 	}
+	//
+	// 	// set default values
+	// 	else {
+	//
+	// 		$this->set("mail", "mail_admin", stringOr($this->get("mail", "mail_admin"), $this->get("account", "account_username")));
+	// 		$this->set("mail", "mail_type", stringOr($this->get("mail", "mail_type"), "smtp"));
+	//
+	// 		$this->set("mail", "mail_smtp_host", stringOr($this->get("mail", "mail_smtp_host"), "smtp.gmail.com"));
+	// 		$this->set("mail", "mail_smtp_port", stringOr($this->get("mail", "mail_smtp_port"), "587"));
+	//
+	// 	}
+	//
+	//
+	// 	// check if we have sufficient information
+	//  		if($this->get("mail", "mail_admin") &&
+	// 		($this->get("mail", "mail_type") == "smtp" && (
+	// 			$this->get("mail", "mail_smtp_host") &&
+	// 			$this->get("mail", "mail_smtp_port") &&
+	// 			$this->get("mail", "mail_smtp_username") &&
+	// 			$this->get("mail", "mail_smtp_password")
+	// 		))
+	// 			||
+	// 		($this->get("mail", "mail_type") == "mailgun" && (
+	// 			$this->get("mail", "mail_mailgun_api_key") &&
+	// 			$this->get("mail", "mail_mailgun_domain")
+	// 		))
+	//
+	// 	) {
+	//
+	// 		// set mail check
+	// 		$this->set("mail", "passed", true);
+	// 		return true;
+	// 	}
+	//
+	// 	return false;
+	// }
+	//
+	// // update the mail settings
+	//  	function updateMailSettings() {
+	//
+	// 	// Get posted values to make them available for models
+	// 	$this->getPostedEntities();
+	//
+	// 	// Mail set up is optional
+	// 	if(getPost("skip_mail")) {
+	//
+	// 		$this->set("mail", "skipped", true);
+	// 		$this->set("mail", "passed", true);
+	// 		return true;
+	//
+	// 	}
+	// 	// Did we receive admin mail and setup type?
+	// 	else if($this->validateList(array("mail_admin", "mail_type"))) {
+	//
+	// 		$this->set("mail", "mail_admin", $this->getProperty("mail_admin", "value"));
+	// 		$this->set("mail", "mail_type", $this->getProperty("mail_type", "value"));
+	//
+	// 		// Mailgun account
+	// 		if($this->get("mail", "mail_type") == "mailgun") {
+	//
+	// 			if($this->validateList(array("mail_mailgun_api_key", "mail_mailgun_domain", "mail_mailgun_region"))) {
+	//
+	// 				$this->set("mail", "mail_mailgun_api_key", $this->getProperty("mail_mailgun_api_key", "value"));
+	// 				$this->set("mail", "mail_mailgun_domain", $this->getProperty("mail_mailgun_domain", "value"));
+	// 				$this->set("mail", "mail_mailgun_region", $this->getProperty("mail_mailgun_region", "value"));
+	//
+	// 			}
+	// 		}
+	//
+	// 		// SMTP account
+	// 		else {
+	//
+	// 			if($this->validateList(array("mail_smtp_host", "mail_smtp_port", "mail_smtp_username", "mail_smtp_password"))) {
+	//
+	// 				$this->set("mail", "mail_smtp_host", $this->getProperty("mail_smtp_host", "value"));
+	// 				$this->set("mail", "mail_smtp_port", $this->getProperty("mail_smtp_port", "value"));
+	// 				$this->set("mail", "mail_smtp_username", $this->getProperty("mail_smtp_username", "value"));
+	// 				$this->set("mail", "mail_smtp_password", $this->getProperty("mail_smtp_password", "value"));
+	//
+	// 			}
+	//
+	// 		}
+	//
+	// 	}
+	//
+	// 	return $this->checkMailSettings();
+	//
+	// }
+
+
+	//
+	// // PAYMENT GATEWAY
+	//
+	// // check payment settings
+	// function checkPaymentSettings() {
+	//
+	//
+	// 	// reset payment checks
+	// 	$this->set("payment", "passed", false);
+	// 	$this->set("payment", "skipped", false);
+	//
+	//
+	// 	// if we do not have stored payment info, attempt to read existing connect_payment.php
+	// 	if(!$this->get("payment", "payment_type") && file_exists(LOCAL_PATH."/config/connect_payment.php")) {
+	//
+	// 		$connection_info = file_get_contents(LOCAL_PATH."/config/connect_payment.php");
+	//
+	// 		preg_match("/\"type\" \=\> \"([a-zA-Z0-9]+)\"/", $connection_info, $matches);
+	// 		if($matches) {
+	// 			$this->set("payment", "payment_type", $matches[1]);
+	// 		}
+	//
+	//
+	// 		// STRIPE
+	// 		if($this->get("payment", "payment_type") == "stripe") {
+	//
+	// 			preg_match("/\"secret-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+	// 			if($matches) {
+	// 				$this->set("payment", "payment_stripe_private_key", $matches[1]);
+	// 			}
+	//
+	// 			preg_match("/\"public-key\" \=\> \"([a-zA-Z0-9\.\-]+)\"/", $connection_info, $matches);
+	// 			if($matches) {
+	// 				$this->set("payment", "payment_stripe_public_key", $matches[1]);
+	// 			}
+	//
+	// 		}
+	//
+	// 	}
+	//
+	// 	// set default values
+	// 	else {
+	//
+	// 		$this->set("payment", "payment_type", stringOr($this->get("payment", "payment_type"), "stripe"));
+	//
+	// 		$this->set("payment", "payment_stripe_private_key", stringOr($this->get("payment", "payment_stripe_private_key"), ""));
+	// 		$this->set("payment", "payment_stripe_public_key", stringOr($this->get("payment", "payment_stripe_public_key"), ""));
+	//
+	// 	}
+	//
+	//
+	// 	// check if we have sufficient information
+	//  		if(
+	// 		($this->get("payment", "payment_type") == "stripe" && (
+	// 			$this->get("payment", "payment_stripe_private_key") &&
+	// 			$this->get("payment", "payment_stripe_public_key")
+	// 		))
+	// 	) {
+	//
+	// 		// set payment check
+	// 		$this->set("payment", "passed", true);
+	// 		return true;
+	// 	}
+	//
+	// 	return false;
+	// }
+	//
+	// // update the payment settings
+	//  	function updatePaymentSettings() {
+	//
+	// 	// Get posted values to make them available for models
+	// 	$this->getPostedEntities();
+	//
+	// 	// Mail set up is optional
+	// 	if(getPost("skip_payment")) {
+	//
+	// 		$this->set("payment", "skipped", true);
+	// 		$this->set("payment", "passed", true);
+	// 		return true;
+	//
+	// 	}
+	// 	// Did we receive admin mail and setup type?
+	// 	else if($this->validateList(array("payment_type"))) {
+	//
+	// 		$this->set("payment", "payment_type", $this->getProperty("payment_type", "value"));
+	//
+	// 		// Mailgun account
+	// 		if($this->get("payment", "payment_type") == "stripe") {
+	//
+	// 			if($this->validateList(array("payment_stripe_private_key", "payment_stripe_public_key"))) {
+	//
+	// 				$this->set("payment", "payment_stripe_private_key", $this->getProperty("payment_stripe_private_key", "value"));
+	// 				$this->set("payment", "payment_stripe_public_key", $this->getProperty("payment_stripe_public_key", "value"));
+	//
+	// 			}
+	// 		}
+	//
+	// 		// Other account
+	// 		else {
+	//
+	//
+	// 		}
+	//
+	// 	}
+	//
+	// 	return $this->checkPaymentSettings();
+	//
+	// }
 
 
 
@@ -1501,8 +1384,8 @@ class SetupCore extends Itemtype {
 			$this->get("config", "passed") &&
 			$this->get("database", "passed") &&
 			$this->get("account", "passed") &&
-			$this->get("mail", "passed") &&
-			$this->get("payment", "passed") &&
+			// $this->get("mail", "passed") &&
+			// $this->get("payment", "passed") &&
 			defined("LOCAL_PATH") &&
 			defined("FRAMEWORK_PATH")
 		) {
@@ -1674,11 +1557,11 @@ class SetupCore extends Itemtype {
 				$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_EMAIL\",[ ]*\".+\"\);/", "\ndefine(\"SITE_EMAIL\", \"".$this->get("config", "site_email")."\");", $file_config);
 				$file_config = preg_replace("/(\n)[ \t]*define\(\"DEFAULT_PAGE_DESCRIPTION\",[ ]*\".+\"\);/", "\ndefine(\"DEFAULT_PAGE_DESCRIPTION\", \"".$this->get("config", "site_description")."\");", $file_config);
 
-				$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_SIGNUP\",[ ]*\".+\"\);/", "\ndefine(\"SITE_SIGNUP\", \"".$this->get("config", "site_signup")."\");", $file_config);
-				$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_ITEMS\",[ ]*\".+\"\);/", "\ndefine(\"SITE_ITEMS\", \"".$this->get("config", "site_items")."\");", $file_config);
-				$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_SHOP\",[ ]*\".+\"\);/", "\ndefine(\"SITE_SHOP\", \"".$this->get("config", "site_shop")."\");", $file_config);
-				$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_SUBSCRIPTIONS\",[ ]*\".+\"\);/", "\ndefine(\"SITE_SUBSCRIPTIONS\", \"".$this->get("config", "site_subscriptions")."\");", $file_config);
-				$file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_MEMBERS\",[ ]*\".+\"\);/", "\ndefine(\"SITE_MEMBERS\", \"".$this->get("config", "site_members")."\");", $file_config);
+				// $file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_SIGNUP\",[ ]*\".+\"\);/", "\ndefine(\"SITE_SIGNUP\", \"".$this->get("config", "site_signup")."\");", $file_config);
+				// $file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_ITEMS\",[ ]*\".+\"\);/", "\ndefine(\"SITE_ITEMS\", \"".$this->get("config", "site_items")."\");", $file_config);
+				// $file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_SHOP\",[ ]*\".+\"\);/", "\ndefine(\"SITE_SHOP\", \"".$this->get("config", "site_shop")."\");", $file_config);
+				// $file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_SUBSCRIPTIONS\",[ ]*\".+\"\);/", "\ndefine(\"SITE_SUBSCRIPTIONS\", \"".$this->get("config", "site_subscriptions")."\");", $file_config);
+				// $file_config = preg_replace("/(\n)[ \t]*define\(\"SITE_MEMBERS\",[ ]*\".+\"\);/", "\ndefine(\"SITE_MEMBERS\", \"".$this->get("config", "site_members")."\");", $file_config);
 
 				file_put_contents(LOCAL_PATH."/config/config.php", $file_config);
 
@@ -1808,161 +1691,161 @@ class SetupCore extends Itemtype {
 
 
 
-			// MAIL
-			// connect_email.php
-			if(!$this->get("mail", "skipped")) {
-
-				// Use existing connect_email.php
-				if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
-
-					$file_mail = file_get_contents(LOCAL_PATH."/config/connect_email.php");
-					$existing_mail_conf = true;
-
-				}
-				// If template exists, use that
-				else if(file_exists(FRAMEWORK_PATH."/config/connect_email.template.php")) {
-
-					$file_mail = file_get_contents(FRAMEWORK_PATH."/config/connect_email.template.php");
-					$existing_mail_conf = false;
-
-				}
-				else {
-
-					// Status for updating config.php
-					$tasks["failed"][] = "connect_email.php not found (FAILED)";
-					return $tasks;
-
-				}
-
-				// Replace admin email
-				$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->get("mail", "mail_admin")."\");", $file_mail);
-
-				// Create new settings
-				$file_mail_settings = "array(\n";
-				$file_mail_settings .= "\t\t\"type\" => \"".$this->get("mail", "mail_type")."\",\n";
-
-				// mailgun settings
-				if($this->get("mail", "mail_type") == "mailgun") {
-					$file_mail_settings .= "\t\t\"api-key\" => \"".$this->get("mail", "mail_mailgun_api_key")."\",\n";
-					$file_mail_settings .= "\t\t\"domain\" => \"".$this->get("mail", "mail_mailgun_domain")."\",\n";
-					$file_mail_settings .= "\t\t\"region\" => \"".$this->get("mail", "mail_mailgun_region")."\",\n";
-				
-				}
-				// SMTP settings
-				else {
-					$file_mail_settings .= "\t\t\"host\" => \"".$this->get("mail", "mail_smtp_host")."\",\n";
-					$file_mail_settings .= "\t\t\"username\" => \"".$this->get("mail", "mail_smtp_username")."\",\n";
-					$file_mail_settings .= "\t\t\"password\" => \"".$this->get("mail", "mail_smtp_password")."\",\n";
-					$file_mail_settings .= "\t\t\"port\" => \"".$this->get("mail", "mail_smtp_port")."\",\n";
-
-					// fixed values
-					$file_mail_settings .= "\t\t\"smtpauth\" => true,\n";
-					if($this->get("mail", "mail_smtp_port") == "587") {
-						$file_mail_settings .= "\t\t\"secure\" => \"tls\",\n";
-					}
-					else {
-						$file_mail_settings .= "\t\t\"secure\" => \"ssl\",\n";
-					}
-				}
-
-				$file_mail_settings .= "\t)";
-
-				// Replace settings
-				$file_mail = preg_replace("/array\([^$]+\t\)/", $file_mail_settings, $file_mail);
-
-				file_put_contents(LOCAL_PATH."/config/connect_email.php", $file_mail);
-
-				// Make sure file remains writeable even if it is edited manually
-				chmod(LOCAL_PATH."/config/connect_email.php", 0777);
-
-
-				// Status for creating connect_email.php
-				$tasks["completed"][] = "Project connect_email.php " . ($existing_mail_conf ? "updated" : "created");
-
-			}
-			// Skip mail setup
-			else {
-
-				// Delete existing connect_email.php
-				if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
-					unlink(LOCAL_PATH."/config/connect_email.php");
-				}
-
-				$tasks["completed"][] = "Mail setup skipped";
-
-			}
-
-
-
-			// PAYMENT
-			// connect_payment.php
-			if(!$this->get("payment", "skipped")) {
-
-				// Use existing connect_payment.php
-				if(file_exists(LOCAL_PATH."/config/connect_payment.php")) {
-
-					$file_payment = file_get_contents(LOCAL_PATH."/config/connect_payment.php");
-					$existing_payment_conf = true;
-
-				}
-				// If template exists, use that
-				else if(file_exists(FRAMEWORK_PATH."/config/connect_payment.template.php")) {
-
-					$file_payment = file_get_contents(FRAMEWORK_PATH."/config/connect_payment.template.php");
-					$existing_payment_conf = false;
-
-				}
-				else {
-
-					// Status for updating config.php
-					$tasks["failed"][] = "connect_payment.php not found (FAILED)";
-					return $tasks;
-
-				}
-
-				// Create new settings
-				$file_payment_settings = "array(\n";
-				$file_payment_settings .= "\t\t\"type\" => \"".$this->get("payment", "payment_type")."\",\n";
-
-				// mailgun settings
-				if($this->get("payment", "payment_type") == "stripe") {
-					$file_payment_settings .= "\t\t\"secret-key\" => \"".$this->get("payment", "payment_stripe_private_key")."\",\n";
-					$file_payment_settings .= "\t\t\"public-key\" => \"".$this->get("payment", "payment_stripe_public_key")."\",\n";
-				
-				}
-				// Other gateway
-				else {
-
-				}
-
-				$file_payment_settings .= "\t)";
-
-				// Replace settings
-				$file_payment = preg_replace("/array\([^$]+\t\)/", $file_payment_settings, $file_payment);
-
-				file_put_contents(LOCAL_PATH."/config/connect_payment.php", $file_payment);
+			// // MAIL
+			// // connect_email.php
+			// if(!$this->get("mail", "skipped")) {
+			//
+			// 	// Use existing connect_email.php
+			// 	if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
+			//
+			// 		$file_mail = file_get_contents(LOCAL_PATH."/config/connect_email.php");
+			// 		$existing_mail_conf = true;
+			//
+			// 	}
+			// 	// If template exists, use that
+			// 	else if(file_exists(FRAMEWORK_PATH."/config/connect_email.template.php")) {
+			//
+			// 		$file_mail = file_get_contents(FRAMEWORK_PATH."/config/connect_email.template.php");
+			// 		$existing_mail_conf = false;
+			//
+			// 	}
+			// 	else {
+			//
+			// 		// Status for updating config.php
+			// 		$tasks["failed"][] = "connect_email.php not found (FAILED)";
+			// 		return $tasks;
+			//
+			// 	}
+			//
+			// 	// Replace admin email
+			// 	$file_mail = preg_replace("/(\n)[ \t]*define\(\"ADMIN_EMAIL\",[ ]*\".*\"\);/", "\ndefine(\"ADMIN_EMAIL\", \"".$this->get("mail", "mail_admin")."\");", $file_mail);
+			//
+			// 	// Create new settings
+			// 	$file_mail_settings = "array(\n";
+			// 	$file_mail_settings .= "\t\t\"type\" => \"".$this->get("mail", "mail_type")."\",\n";
+			//
+			// 	// mailgun settings
+			// 	if($this->get("mail", "mail_type") == "mailgun") {
+			// 		$file_mail_settings .= "\t\t\"api-key\" => \"".$this->get("mail", "mail_mailgun_api_key")."\",\n";
+			// 		$file_mail_settings .= "\t\t\"domain\" => \"".$this->get("mail", "mail_mailgun_domain")."\",\n";
+			// 		$file_mail_settings .= "\t\t\"region\" => \"".$this->get("mail", "mail_mailgun_region")."\",\n";
+			//
+			// 	}
+			// 	// SMTP settings
+			// 	else {
+			// 		$file_mail_settings .= "\t\t\"host\" => \"".$this->get("mail", "mail_smtp_host")."\",\n";
+			// 		$file_mail_settings .= "\t\t\"username\" => \"".$this->get("mail", "mail_smtp_username")."\",\n";
+			// 		$file_mail_settings .= "\t\t\"password\" => \"".$this->get("mail", "mail_smtp_password")."\",\n";
+			// 		$file_mail_settings .= "\t\t\"port\" => \"".$this->get("mail", "mail_smtp_port")."\",\n";
+			//
+			// 		// fixed values
+			// 		$file_mail_settings .= "\t\t\"smtpauth\" => true,\n";
+			// 		if($this->get("mail", "mail_smtp_port") == "587") {
+			// 			$file_mail_settings .= "\t\t\"secure\" => \"tls\",\n";
+			// 		}
+			// 		else {
+			// 			$file_mail_settings .= "\t\t\"secure\" => \"ssl\",\n";
+			// 		}
+			// 	}
+			//
+			// 	$file_mail_settings .= "\t)";
+			//
+			// 	// Replace settings
+			// 	$file_mail = preg_replace("/array\([^$]+\t\)/", $file_mail_settings, $file_mail);
+			//
+			// 	file_put_contents(LOCAL_PATH."/config/connect_email.php", $file_mail);
+			//
+			// 	// Make sure file remains writeable even if it is edited manually
+			// 	chmod(LOCAL_PATH."/config/connect_email.php", 0777);
+			//
+			//
+			// 	// Status for creating connect_email.php
+			// 	$tasks["completed"][] = "Project connect_email.php " . ($existing_mail_conf ? "updated" : "created");
+			//
+			// }
+			// // Skip mail setup
+			// else {
+			//
+			// 	// Delete existing connect_email.php
+			// 	if(file_exists(LOCAL_PATH."/config/connect_email.php")) {
+			// 		unlink(LOCAL_PATH."/config/connect_email.php");
+			// 	}
+			//
+			// 	$tasks["completed"][] = "Mail setup skipped";
+			//
+			// }
 
 
-				// Make sure file remains writeable even if it is edited manually
-				chmod(LOCAL_PATH."/config/connect_payment.php", 0777);
-			
 
-
-				// Status for creating connect_payment.php
-				$tasks["completed"][] = "Project connect_payment.php " . ($existing_payment_conf ? "updated" : "created");
-
-			}
-			// Skip payment setup
-			else {
-
-				// Delete existing connect_payment.php
-				if(file_exists(LOCAL_PATH."/config/connect_payment.php")) {
-					unlink(LOCAL_PATH."/config/connect_payment.php");
-				}
-
-				$tasks["completed"][] = "Payment setup skipped";
-
-			}
+			// // PAYMENT
+			// // connect_payment.php
+			// if(!$this->get("payment", "skipped")) {
+			//
+			// 	// Use existing connect_payment.php
+			// 	if(file_exists(LOCAL_PATH."/config/connect_payment.php")) {
+			//
+			// 		$file_payment = file_get_contents(LOCAL_PATH."/config/connect_payment.php");
+			// 		$existing_payment_conf = true;
+			//
+			// 	}
+			// 	// If template exists, use that
+			// 	else if(file_exists(FRAMEWORK_PATH."/config/connect_payment.template.php")) {
+			//
+			// 		$file_payment = file_get_contents(FRAMEWORK_PATH."/config/connect_payment.template.php");
+			// 		$existing_payment_conf = false;
+			//
+			// 	}
+			// 	else {
+			//
+			// 		// Status for updating config.php
+			// 		$tasks["failed"][] = "connect_payment.php not found (FAILED)";
+			// 		return $tasks;
+			//
+			// 	}
+			//
+			// 	// Create new settings
+			// 	$file_payment_settings = "array(\n";
+			// 	$file_payment_settings .= "\t\t\"type\" => \"".$this->get("payment", "payment_type")."\",\n";
+			//
+			// 	// mailgun settings
+			// 	if($this->get("payment", "payment_type") == "stripe") {
+			// 		$file_payment_settings .= "\t\t\"secret-key\" => \"".$this->get("payment", "payment_stripe_private_key")."\",\n";
+			// 		$file_payment_settings .= "\t\t\"public-key\" => \"".$this->get("payment", "payment_stripe_public_key")."\",\n";
+			//
+			// 	}
+			// 	// Other gateway
+			// 	else {
+			//
+			// 	}
+			//
+			// 	$file_payment_settings .= "\t)";
+			//
+			// 	// Replace settings
+			// 	$file_payment = preg_replace("/array\([^$]+\t\)/", $file_payment_settings, $file_payment);
+			//
+			// 	file_put_contents(LOCAL_PATH."/config/connect_payment.php", $file_payment);
+			//
+			//
+			// 	// Make sure file remains writeable even if it is edited manually
+			// 	chmod(LOCAL_PATH."/config/connect_payment.php", 0777);
+			//
+			//
+			//
+			// 	// Status for creating connect_payment.php
+			// 	$tasks["completed"][] = "Project connect_payment.php " . ($existing_payment_conf ? "updated" : "created");
+			//
+			// }
+			// // Skip payment setup
+			// else {
+			//
+			// 	// Delete existing connect_payment.php
+			// 	if(file_exists(LOCAL_PATH."/config/connect_payment.php")) {
+			// 		unlink(LOCAL_PATH."/config/connect_payment.php");
+			// 	}
+			//
+			// 	$tasks["completed"][] = "Payment setup skipped";
+			//
+			// }
 
 
 
@@ -1985,9 +1868,9 @@ class SetupCore extends Itemtype {
 			}
 
 			// Define SITE_SIGNUP_URL if not already defined (needed by mailer class, value not relevant)
-			if(!defined("SITE_SIGNUP_URL")) {
-				define("SITE_SIGNUP_URL", "/signup");
-			}
+			// if(!defined("SITE_SIGNUP_URL")) {
+			// 	define("SITE_SIGNUP_URL", "/signup");
+			// }
 
 
 			// Check needed constants
@@ -2027,12 +1910,12 @@ class SetupCore extends Itemtype {
 			$query->checkDbExistence($UC->db);
 
 
-			if($this->get("config", "site_signup")) {
-				$query->checkDbExistence(UT_MAILLISTS);
-				$query->checkDbExistence(SITE_DB.".user_maillists");
-			}
+			// if($this->get("config", "site_signup")) {
+			// 	$query->checkDbExistence(UT_MAILLISTS);
+			// 	$query->checkDbExistence(SITE_DB.".user_maillists");
+			// }
 
-			if($this->get("config", "site_items")) {
+			// if($this->get("config", "site_items")) {
 				$query->checkDbExistence(UT_ITEMS);
 				$query->checkDbExistence(UT_TAG);
 				$query->checkDbExistence(UT_TAGGINGS);
@@ -2044,36 +1927,36 @@ class SetupCore extends Itemtype {
 				$query->checkDbExistence(UT_ITEMS_EDITORS);
 
 				$query->checkDbExistence(SITE_DB.".user_item_readstates");
-			}
+			// }
 
-			if($this->get("config", "site_shop")) {
-				$query->checkDbExistence(UT_CURRENCIES);
-				$query->checkDbExistence(UT_COUNTRIES);
-				$query->checkDbExistence(UT_VATRATES);
-				$query->checkDbExistence(UT_PRICE_TYPES);
-				$query->checkDbExistence(UT_PAYMENT_METHODS);
-				$query->checkDbExistence(SITE_DB.".user_payment_methods");
+			// if($this->get("config", "site_shop")) {
+			// 	$query->checkDbExistence(UT_CURRENCIES);
+			// 	$query->checkDbExistence(UT_COUNTRIES);
+			// 	$query->checkDbExistence(UT_VATRATES);
+			// 	$query->checkDbExistence(UT_PRICE_TYPES);
+			// 	$query->checkDbExistence(UT_PAYMENT_METHODS);
+			// 	$query->checkDbExistence(SITE_DB.".user_payment_methods");
+			//
+			// 	$query->checkDbExistence(SITE_DB.".user_addresses");
+			// 	$query->checkDbExistence(SITE_DB.".shop_carts");
+			// 	$query->checkDbExistence(SITE_DB.".shop_cart_items");
+			// 	$query->checkDbExistence(SITE_DB.".shop_orders");
+			// 	$query->checkDbExistence(SITE_DB.".shop_order_items");
+			// 	$query->checkDbExistence(SITE_DB.".shop_payments");
+			//
+			// 	$query->checkDbExistence(UT_ITEMS_PRICES);
+			// }
 
-				$query->checkDbExistence(SITE_DB.".user_addresses");
-				$query->checkDbExistence(SITE_DB.".shop_carts");
-				$query->checkDbExistence(SITE_DB.".shop_cart_items");
-				$query->checkDbExistence(SITE_DB.".shop_orders");
-				$query->checkDbExistence(SITE_DB.".shop_order_items");
-				$query->checkDbExistence(SITE_DB.".shop_payments");
-
-				$query->checkDbExistence(UT_ITEMS_PRICES);
-			}
-
-			if($this->get("config", "site_subscriptions")) {
-				$query->checkDbExistence(UT_SUBSCRIPTION_METHODS);
-				$query->checkDbExistence(UT_ITEMS_SUBSCRIPTION_METHOD);
-
-				$query->checkDbExistence(SITE_DB.".user_item_subscriptions");
-			}
-
-			if($this->get("config", "site_members")) {
-				$query->checkDbExistence(SITE_DB.".user_members");
-			}
+			// if($this->get("config", "site_subscriptions")) {
+			// 	$query->checkDbExistence(UT_SUBSCRIPTION_METHODS);
+			// 	$query->checkDbExistence(UT_ITEMS_SUBSCRIPTION_METHOD);
+			//
+			// 	$query->checkDbExistence(SITE_DB.".user_item_subscriptions");
+			// }
+			//
+			// if($this->get("config", "site_members")) {
+			// 	$query->checkDbExistence(SITE_DB.".user_members");
+			// }
 
 			// navigation requires items - must be run after items
 			$query->checkDbExistence(UT_NAV);
@@ -2094,17 +1977,17 @@ class SetupCore extends Itemtype {
 				$UP->checkDefaultValues(UT_LANGUAGES);
 			}
 
-			if($this->get("config", "site_shop")) {
-				$UP->checkDefaultValues(UT_CURRENCIES);
-				$UP->checkDefaultValues(UT_COUNTRIES);
-				$UP->checkDefaultValues(UT_VATRATES);
-				$UP->checkDefaultValues(UT_PAYMENT_METHODS);
-				$UP->checkDefaultValues(UT_PRICE_TYPES);
-			}
+			// if($this->get("config", "site_shop")) {
+			// 	$UP->checkDefaultValues(UT_CURRENCIES);
+			// 	$UP->checkDefaultValues(UT_COUNTRIES);
+			// 	$UP->checkDefaultValues(UT_VATRATES);
+			// 	$UP->checkDefaultValues(UT_PAYMENT_METHODS);
+			// 	$UP->checkDefaultValues(UT_PRICE_TYPES);
+			// }
 
-			if($this->get("config", "site_subscriptions")) {
-				$UP->checkDefaultValues(UT_SUBSCRIPTION_METHODS);
-			}
+			// if($this->get("config", "site_subscriptions")) {
+			// 	$UP->checkDefaultValues(UT_SUBSCRIPTION_METHODS);
+			// }
 
 			// CREATE BASE NAVIGATION
 			$UP->checkDefaultValues(UT_NAV);
@@ -2268,12 +2151,12 @@ class SetupCore extends Itemtype {
 			// Tell git to ignore file permission changes
 			exec("cd ".PROJECT_PATH." && git config core.filemode false");
 			exec("cd ".PROJECT_PATH."/submodules/janitor && git config core.filemode false");
-			if(file_exists(PROJECT_PATH."/submodules/js-merger")) {
-				exec("cd ".PROJECT_PATH."/submodules/js-merger && git config core.filemode false");
-			}
-			if(file_exists(PROJECT_PATH."/submodules/css-merger")) {
-				exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode false");
-			}
+			// if(file_exists(PROJECT_PATH."/submodules/js-merger")) {
+			// 	exec("cd ".PROJECT_PATH."/submodules/js-merger && git config core.filemode false");
+			// }
+			// if(file_exists(PROJECT_PATH."/submodules/css-merger")) {
+			// 	exec("cd ".PROJECT_PATH."/submodules/css-merger && git config core.filemode false");
+			// }
 			if(file_exists(PROJECT_PATH."/submodules/asset-builder")) {
 				exec("cd ".PROJECT_PATH."/submodules/asset-builder && git config core.filemode false");
 			}
@@ -2338,13 +2221,13 @@ class SetupCore extends Itemtype {
 
 			// If this is a new setup
 			// Send welcome email with password 
-			if(SETUP_TYPE == "new" && $this->get("account", "account_username") && $this->get("account", "account_password")) {
-				admin()->notify(array(
-					"subject" => "Welcome to Janitor", 
-					"message" => "Your Janitor project is ready.\n\nLog in to your new Janitor project: ".SITE_URL."/janitor\n\nUsername: ".$this->get("account", "account_username")."\nPassword: ".$this->get("account", "account_password")."\n\nSee you soon,\n\nJanitor",
-					"tracking" => false
-				));
-			}
+			// if(SETUP_TYPE == "new" && $this->get("account", "account_username") && $this->get("account", "account_password")) {
+			// 	admin()->notify(array(
+			// 		"subject" => "Welcome to Janitor",
+			// 		"message" => "Your Janitor project is ready.\n\nLog in to your new Janitor project: ".SITE_URL."/janitor\n\nUsername: ".$this->get("account", "account_username")."\nPassword: ".$this->get("account", "account_password")."\n\nSee you soon,\n\nJanitor",
+			// 		"tracking" => false
+			// 	));
+			// }
 
 			
 //			$this->reset();
