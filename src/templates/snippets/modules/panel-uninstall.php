@@ -22,6 +22,15 @@ if(!$module && $module_group_id && $module_id) {
 
 if($module):
 	$digest_test = module()->checkDigest($module["group_id"], $module["id"]);
+	$controller_duplicates = false;
+
+	if($module["group_id"] === "item") {
+		$controller = module()->getMainControllerPath($module_id);
+		$item_controllers = module()->getItemControllers($module["id"]);
+		if(count($item_controllers) > 1) {
+			$controller_duplicates = true;
+		}
+	}
 ?>
 <div class="uninstall i:collapseHeader">
 	<h2>Uninstall module</h2>
@@ -44,10 +53,10 @@ if($module):
 		"class" => "uninstall"
 	]) ?>
 		<fieldset>
-<? if($digest_test !== true): ?>
+<? if($digest_test !== true || $controller_duplicates): ?>
 			<?= HTML()->input("delete_modified_files", [
 				"type" => "checkbox",
-				"label" => "Also delete modified files",
+				"label" => "Also delete modified files".($controller_duplicates ? " and duplicate controllers" : ""),
 				"hint_message" => "This action cannot be undone.",
 			]) ?>
 <? endif; ?>
