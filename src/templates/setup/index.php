@@ -40,7 +40,7 @@ else: ?>
 	<div class="option">
 		<h3>Change configuration</h3>
 		<p>
-			Choose this option to change database/mail/payment configuration.
+			Choose this option to change core info and database configuration.
 		</p>
 		<ul class="actions">
 			<li class="config"><a href="/janitor/admin/setup/software" class="button primary">Edit configuration</a></li>

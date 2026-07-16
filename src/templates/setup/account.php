@@ -22,10 +22,15 @@ $account_check = $model->checkAccountSettings();
 <?	if($model->get("account", "exists")): ?>
 
 	<h3>Admin account status: OK</h3>
-	<p>Your janitor account is already set up correctly. You cannot modify existing accounts during the set up process.</p>
+	<p>
+		Your janitor account is already set up correctly. You cannot modify existing accounts in the setup process.
+<?		if(security()->validatePath("/janitor/admin/user/list")): ?>
+		Please use the <a href="/janitor/admin/user/list">Users page</a> to edit users.
+<?		endif; ?>
+	</p>
 
 	<ul class="actions">
-		<li class="continue"><a href="/janitor/admin/setup/mail" class="button primary">Continue</a></li>
+		<li class="continue"><a href="/janitor/admin/setup/finish" class="button primary">Continue</a></li>
 	</ul>
 
 <? 	else: ?>

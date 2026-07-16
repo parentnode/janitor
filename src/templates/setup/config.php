@@ -39,32 +39,19 @@ $config_check = $model->checkConfigSettings();
 <?		if(SETUP_TYPE == "existing"): ?>
 
 	<p>
-		It's all good.
+		You are currently editing the configuration of an <strong>existing project</strong> in <br /><em><?= PROJECT_PATH ?></em>. 
 	</p>
-	<p>
-		You are currently setting up an existing project in <em><?= PROJECT_PATH ?></em>. The project configuration values can only be 
-		defined on the initial set up of a new project. 
-	</p>
-	<p>
-		The values are stored in theme/config/config.php – you can change them by editing the file manually.
-	</p>
-
-	<?= $model->formStart("/janitor/admin/setup/config/updateConfigSettings", array("class" => "config labelstyle:inject")) ?>
-
-		<p>Select the deployment type for this setup.</p>
-		<fieldset>
-			<?= $model->input("site_deployment", array("value" => $model->get("config", "site_deployment"))) ?>
-		</fieldset>
-
-		<ul class="actions">
-			<?= $model->submit("Continue", array("wrapper" => "li.save", "class" => "primary")) ?>
-		</ul>
-
-	<?= $model->formEnd() ?>
-
+	
 <?		else: ?>
 
-	<p>Define your core Janitor default values.</p>
+	<p>
+		You are currently setting up a <strong>new project</strong> in <br /><em><?= PROJECT_PATH ?></em>. 
+	</p>
+
+<?		endif; ?>
+
+
+	<h3>Define your core Janitor default values.</h3>
 	<?= $model->formStart("/janitor/admin/setup/config/updateConfigSettings", array("class" => "config labelstyle:inject")) ?>
 
 		<fieldset>
@@ -74,14 +61,14 @@ $config_check = $model->checkConfigSettings();
 			<?= $model->input("site_description", array("value" => $model->get("config", "site_description"))) ?>
 		</fieldset>
 
-		<fieldset>
+		<? /*fieldset>
 			<h3>Janitor core</h3>
 			<?= $model->input("site_signup", array("value" => $model->get("config", "site_signup"))) ?>
 			<?= $model->input("site_items", array("value" => $model->get("config", "site_items"))) ?>
 			<?= $model->input("site_shop", array("value" => $model->get("config", "site_shop"))) ?>
 			<?= $model->input("site_subscriptions", array("value" => $model->get("config", "site_subscriptions"))) ?>
 			<?= $model->input("site_members", array("value" => $model->get("config", "site_members"))) ?>
-		</fieldset>
+		</fieldset */?>
 
 		<fieldset>
 			<h3>Environment</h3>
@@ -92,11 +79,8 @@ $config_check = $model->checkConfigSettings();
 			<?= $model->submit("Update and continue", array("wrapper" => "li.save", "class" => "primary")) ?>
 		</ul>
 
-		<p>These values are written into theme/config/config.php – you can change them later by editing the file manually.</p>
-
 	<?= $model->formEnd() ?>
 
-<?		endif; ?>
 
 <? endif; ?>
 

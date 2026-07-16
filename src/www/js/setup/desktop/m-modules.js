@@ -21,13 +21,25 @@ Util.Modules["modules"] = new function() {
 					// u.bug("installed", response);
 
 					// On success, move module to installed list
-					if(response && response.cms_status === "success") {
+					if(response && response.cms_object && response.cms_object.length) {
+
+						var i, message;
+						for(i = 0; i < response.cms_object.length; i++) {
+							message = response.cms_object[i];
+							u.bug(message);
+							if(message.type === "error") {
+								page.notify(message);
+							}
+						}
+
+					}
+					else if(response && response.cms_status === "success") {
 
 						// Show updating indicator
 						u.ae(this.module, "div", {"class": "updating"});
 
 						this.response = function(response) {
-							// u.bug("installed", response);
+							// u.bug("installed, get module", response);
 
 							if(response && response.isHTML) {
 
@@ -72,6 +84,8 @@ Util.Modules["module"] = new function() {
 	this.init = function(scene) {
 		// u.bug("init module");
 
+
+		// Upgrade module
 		scene.form_upgrade = u.qs("form.upgrade", scene);
 		// u.bug(module.bn_upgrade);
 		if(scene.form_upgrade) {
@@ -113,6 +127,8 @@ Util.Modules["module"] = new function() {
 			}
 		}
 
+
+		// Uninstall module
 		scene.form_uninstall = u.qs("form.uninstall", scene);
 		// u.bug(scene.form_uninstall);
 		if(scene.form_uninstall) {
@@ -154,5 +170,200 @@ Util.Modules["module"] = new function() {
 			}
 
 		}
+
+
+		// Add new / delete controller
+		scene.form_new_controller = u.qs("form.new_controller", scene);
+		if(scene.form_new_controller) {
+			scene.form_new_controller.scene = scene;
+
+			u.f.init(scene.form_new_controller);
+
+			scene.form_new_controller.submitted = function() {
+
+				u.ac(this, "submitting");
+
+				this.response = function(response) {
+					// u.bug("response", response);
+
+					page.notify(response);
+					u.rc(this, "submitting");
+
+					if(response.cms_status === "success" && response.cms_object) {
+						this.scene.initController(u.ae(this.scene.ul_controllers, "li", {"html": "<h4>"+response.cms_object+"</h4>"}));
+
+						this.scene.updateControllerDeleteState();
+
+						this.reset();
+					}
+
+				}
+
+				u.request(this, this.action, {
+					"method": this.method,
+					"data": this.getData()
+				});
+				
+			}
+
+
+			// Existing controllers
+			scene.ul_controllers = u.qs("ul.controllers", scene);
+
+			scene.csrf_token = scene.ul_controllers.getAttribute("data-csrf-token");
+			scene.delete_url = scene.ul_controllers.getAttribute("data-delete-action");
+			scene.confirm_value = scene.ul_controllers.getAttribute("data-confirm-value");
+			scene.button_value = scene.ul_controllers.getAttribute("data-button-value");
+			scene.button_name = scene.ul_controllers.getAttribute("data-button-name");
+
+			if(scene.delete_url && scene.csrf_token) {
+
+				// Inject delete button
+				scene.initController = function(li) {
+
+					if(!li.is_ready) {
+						li.is_ready = true;
+						li.scene = this;
+
+						var ul_actions = u.ae(li, "ul", {"class": "actions"});
+						var li_delete = u.ae(ul_actions, "li", {
+							"class": "delete",
+							"data-csrf-token": this.csrf_token,
+							"data-form-action": this.delete_url,
+							"data-inputs": encodeURI(JSON.stringify({"controller_path": u.text(li).trim()})),
+							"data-confirm-value": this.confirm_value,
+							"data-button-value": this.button_value,
+							"data-button-name": this.button_name,
+						});
+						li_delete.li = li;
+
+						u.m.oneButtonForm.init(li_delete);
+
+						li_delete.confirmed = function(response) {
+							// u.bug("res", response);
+
+							if(response.cms_status === "success") {
+								this.li.parentNode.removeChild(this.li);
+
+								this.li.scene.updateControllerDeleteState();
+							}
+
+						}
+
+					}
+
+				}
+
+				// Disable delete when only one controller is left
+				scene.updateControllerDeleteState = function() {
+					if(this.ul_controllers.children.length > 1) {
+						u.rc(this.ul_controllers, "no_delete");
+					}
+					else {
+						u.ac(this.ul_controllers, "no_delete");
+					}
+				}
+
+
+				// Find existing controllers and initialize
+				var existing_controllers = u.qsa("li", scene.ul_controllers);
+				var i, li;
+				for(i = 0; i < existing_controllers.length; i++) {
+					li = existing_controllers[i];
+					scene.initController(li);
+				}
+
+				// Update delete state
+				scene.updateControllerDeleteState();
+
+			}
+
+		}
+
+
+		// Rename controller
+		scene.form_rename_controller = u.qs("form.rename_controller", scene);
+		if(scene.form_rename_controller) {
+			scene.form_rename_controller.scene = scene;
+
+			u.f.init(scene.form_rename_controller);
+
+			scene.form_rename_controller.submitted = function() {
+
+				u.ac(this, "submitting");
+
+				this.response = function(response) {
+					// u.bug("response", response);
+
+					page.notify(response);
+					u.rc(this, "submitting");
+
+					if(response.cms_status === "success" && response.cms_object) {
+
+						// Update controller values
+						var i, span_controller;
+						for(i = 0; i < this.scene.span_controllers.length; i++) {
+							span_controller = this.scene.span_controllers[i];
+							span_controller.innerHTML = response.cms_object;
+						}
+
+						this.reset();
+					}
+
+				}
+
+				u.request(this, this.action, {
+					"method": this.method,
+					"data": this.getData()
+				});
+				
+			}
+
+			scene.span_controllers = u.qsa("span.controller", scene);
+
+		}
+
+
+		// Settings
+		scene.form_settings = u.qs("form.settings", scene);
+		if(scene.form_settings) {
+			scene.form_settings.scene = scene;
+
+			u.f.init(scene.form_settings);
+
+			scene.form_settings.submitted = function() {
+
+				u.ac(this, "submitting");
+
+				this.response = function(response) {
+					// u.bug("response", response);
+
+					page.notify(response);
+					u.rc(this, "submitting");
+
+					if(response.cms_status === "success" && response.cms_object) {
+
+						// // Update controller values
+						// var i, span_controller;
+						// for(i = 0; i < this.scene.span_controllers.length; i++) {
+						// 	span_controller = this.scene.span_controllers[i];
+						// 	span_controller.innerHTML = response.cms_object;
+						// }
+						//
+						// this.reset();
+					}
+
+				}
+
+				u.request(this, this.action, {
+					"method": this.method,
+					"data": this.getData()
+				});
+				
+			}
+
+		}
+
+
 	}
 }
