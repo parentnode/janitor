@@ -157,7 +157,7 @@ class PaymentGateway {
 
 
 	function createCartPaymentSession($cart, $success_url, $cancel_url, $_options = false) {
-		// debug(["createCartPaymentSession payments"]);
+		// debug(["createCartPaymentSession payments", $_options]);
 
 		// only load payment adapter when needed
 		$this->init_adapter();
