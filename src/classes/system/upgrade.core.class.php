@@ -197,6 +197,11 @@ class UpgradeCore extends Model {
 
 			// CREATE ANY MISSING SYSTEM TABLES (CRITICAL)
 			$this->process($this->createTableIfMissing(UT_LANGUAGES), true);
+			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
+			$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
+			$this->process($this->createTableIfMissing(UT_PRICE_TYPES), true);
+			$this->process($this->createTableIfMissing(UT_VATRATES), true);
+			$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
 
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 				$this->process($this->createTableIfMissing(UT_MAILLISTS), true);
@@ -217,15 +222,10 @@ class UpgradeCore extends Model {
 				$this->process($this->createTableIfMissing(SITE_DB.".user_item_readstates"), true);
 			}
 
-			if((defined("SITE_SHOP") && SITE_SHOP)) {
-				$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
-				$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
-				$this->process($this->createTableIfMissing(UT_PRICE_TYPES), true);
-				$this->process($this->createTableIfMissing(UT_VATRATES), true);
-				$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
-				$this->process($this->createTableIfMissing(SITE_DB.".user_payment_methods"), true);
+			$this->process($this->createTableIfMissing(SITE_DB.".user_payment_methods"), true);
+			$this->process($this->createTableIfMissing(SITE_DB.".user_addresses"), true);
 
-				$this->process($this->createTableIfMissing(SITE_DB.".user_addresses"), true);
+			if((defined("SITE_SHOP") && SITE_SHOP)) {
 				$this->process($this->createTableIfMissing(SITE_DB.".shop_carts"), true);
 				$this->process($this->createTableIfMissing(SITE_DB.".shop_cart_items"), true);
 				$this->process($this->createTableIfMissing(SITE_DB.".shop_orders"), true);
@@ -249,17 +249,17 @@ class UpgradeCore extends Model {
 
 
 			// CHECK DEFAULT VALUES
-			if((defined("SITE_SIGNUP") && SITE_SIGNUP)) {
+			// if((defined("SITE_SIGNUP") && SITE_SIGNUP)) {
 				$this->process($this->checkDefaultValues(UT_LANGUAGES), true);
-			}
+			// }
 
-			if((defined("SITE_SHOP") && SITE_SHOP)) {
+			// if((defined("SITE_SHOP") && SITE_SHOP)) {
 				$this->process($this->checkDefaultValues(UT_CURRENCIES), true);
 				$this->process($this->checkDefaultValues(UT_COUNTRIES), true);
 				$this->process($this->checkDefaultValues(UT_PRICE_TYPES), true);
 				$this->process($this->checkDefaultValues(UT_VATRATES), true);
 				$this->process($this->checkDefaultValues(UT_PAYMENT_METHODS), true);
-			}
+			// }
 
 			if((defined("SITE_SUBSCRIPTIONS") && SITE_SUBSCRIPTIONS)) {
 				$this->process($this->checkDefaultValues(UT_SUBSCRIPTION_METHODS), true);

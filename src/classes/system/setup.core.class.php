@@ -1906,8 +1906,15 @@ class SetupCore extends Itemtype {
 			$query->checkDbExistence(UT_VERSION);
 
 			$query->checkDbExistence(UT_LANGUAGES);
+			$query->checkDbExistence(UT_CURRENCIES);
+			$query->checkDbExistence(UT_COUNTRIES);
+			$query->checkDbExistence(UT_VATRATES);
+			$query->checkDbExistence(UT_PRICE_TYPES);
+			$query->checkDbExistence(UT_PAYMENT_METHODS);
+
 			$query->checkDbExistence($UC->db_user_groups);
 			$query->checkDbExistence($UC->db);
+			$query->checkDbExistence($UC->db_addresses);
 
 
 			// if($this->get("config", "site_signup")) {
@@ -1930,14 +1937,8 @@ class SetupCore extends Itemtype {
 			// }
 
 			// if($this->get("config", "site_shop")) {
-			// 	$query->checkDbExistence(UT_CURRENCIES);
-			// 	$query->checkDbExistence(UT_COUNTRIES);
-			// 	$query->checkDbExistence(UT_VATRATES);
-			// 	$query->checkDbExistence(UT_PRICE_TYPES);
-			// 	$query->checkDbExistence(UT_PAYMENT_METHODS);
 			// 	$query->checkDbExistence(SITE_DB.".user_payment_methods");
 			//
-			// 	$query->checkDbExistence(SITE_DB.".user_addresses");
 			// 	$query->checkDbExistence(SITE_DB.".shop_carts");
 			// 	$query->checkDbExistence(SITE_DB.".shop_cart_items");
 			// 	$query->checkDbExistence(SITE_DB.".shop_orders");
@@ -1978,11 +1979,11 @@ class SetupCore extends Itemtype {
 			}
 
 			// if($this->get("config", "site_shop")) {
-			// 	$UP->checkDefaultValues(UT_CURRENCIES);
-			// 	$UP->checkDefaultValues(UT_COUNTRIES);
-			// 	$UP->checkDefaultValues(UT_VATRATES);
-			// 	$UP->checkDefaultValues(UT_PAYMENT_METHODS);
-			// 	$UP->checkDefaultValues(UT_PRICE_TYPES);
+				$UP->checkDefaultValues(UT_CURRENCIES);
+				$UP->checkDefaultValues(UT_COUNTRIES);
+				$UP->checkDefaultValues(UT_VATRATES);
+				$UP->checkDefaultValues(UT_PAYMENT_METHODS);
+				$UP->checkDefaultValues(UT_PRICE_TYPES);
 			// }
 
 			// if($this->get("config", "site_subscriptions")) {
