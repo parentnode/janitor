@@ -277,7 +277,12 @@ class UpgradeCore extends Model {
 			}
 
 
+			// TODO
+			// check if all local config/db tables are created
+			// Include default data
 
+
+			// TODO
 			// Integrity check
 			// Evaluates available data and files to see if anything seems off
 			$this->integrityCheck();
@@ -504,7 +509,7 @@ class UpgradeCore extends Model {
 						$query->sql($sql);
 
 						// move image to new folder
-						$fs->makeDirRecursively(dirname($new_file));
+						filesystem()->makeDirRecursively(dirname($new_file));
 
 						if($file != $new_file) {
 							copy($file, PRIVATE_FILE_PATH."/".$item_id."/".$variant."/".$format);
@@ -512,7 +517,7 @@ class UpgradeCore extends Model {
 
 							$this->process(["message" => "Media for item_id: $item_id transferred to items_mediae", "success" => true], true);
 						}
-						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id);
+						filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id);
 
 					}
 				}
@@ -572,10 +577,10 @@ class UpgradeCore extends Model {
 
 						$new_file = PRIVATE_FILE_PATH."/".$item_id."/".$new_item_variant."/".$item_format;
 
-						$fs->makeDirRecursively(dirname($new_file));
+						filesystem()->makeDirRecursively(dirname($new_file));
 
 						if(copy($file, $new_file)) {
-							$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$item_variant);
+							filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$item_variant);
 
 							// $sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET item_id=$item_id, format='$item_format', variant='$new_item_variant', name='$item_name', filesize=$item_filesize, width=$item_width, height=$item_height, position='$item_position'";
 							// $this->dump($sql);
@@ -594,7 +599,7 @@ class UpgradeCore extends Model {
 
 							$this->process(["message" => "Media for item_id: $item_id, variant: $item_variant transferred to items_mediae", "success" => true], true);
 						}
-						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id);
+						filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id);
 
 					}
 					else {
@@ -626,7 +631,7 @@ class UpgradeCore extends Model {
 
 		// Updating controller code syntax to work with PHP7
 
-		$controllers = $fs->files(LOCAL_PATH."/www", ["allow_extensions" => "php", "include_tempfiles" => true]);
+		$controllers = filesystem()->files(LOCAL_PATH."/www", ["allow_extensions" => "php", "include_tempfiles" => true]);
 		$file = "";
 		foreach($controllers as $controller) {
 
@@ -659,7 +664,7 @@ class UpgradeCore extends Model {
 
 
 		// get all php files in theme
-		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+		$php_files = filesystem()->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
 
 			$is_code_altered = false;
@@ -925,7 +930,7 @@ class UpgradeCore extends Model {
 
 
 		// get all php files in theme
-		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+		$php_files = filesystem()->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
 
 			$is_code_altered = false;
@@ -1038,7 +1043,7 @@ class UpgradeCore extends Model {
 					// Non standard content – move it to local template file
 					if(preg_replace("/[\n\r\t ]+/", "", trim($match[1])) != "<divclass=\"scenefront\"><h1><?=SITE_NAME?>Admin</h1></div>") {
 
-						$fs->makeDirRecursively(LOCAL_PATH."/templates/janitor/front");
+						filesystem()->makeDirRecursively(LOCAL_PATH."/templates/janitor/front");
 						if(file_put_contents(LOCAL_PATH."/templates/janitor/front/index.php", $match[1])) {
 							$this->process(["success" => false, "message" => "/www/janitor/index.php converted to controller using template templates/janitor/front/index.php"], false);
 						}
@@ -1246,7 +1251,7 @@ class UpgradeCore extends Model {
 
 
 		// Look through itemtype classes and check that model is wellformed
-		$itemtype_classes = $fs->files(LOCAL_PATH."/classes/items", ["allow_extensions" => "php"]);
+		$itemtype_classes = filesystem()->files(LOCAL_PATH."/classes/items", ["allow_extensions" => "php"]);
 		$models_changed = false;
 
 		if($itemtype_classes) {
@@ -1473,7 +1478,7 @@ class UpgradeCore extends Model {
 
 
 		// get all php files in theme
-		$php_files = $fs->files(LOCAL_PATH."/templates", ["allow_extensions" => "php", "include_tempfiles" => true]);
+		$php_files = filesystem()->files(LOCAL_PATH."/templates", ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
 
 			$is_code_altered = false;
@@ -1708,9 +1713,9 @@ class UpgradeCore extends Model {
 					// 					// $this->dump($sql);
 					// 					if($query->sql($sql)) {
 					//
-					// 						$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
-					// 						$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-					// 						$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 						filesystem()->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
+					// 						filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 						filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 					// 					}
 					// 				}
 					//
@@ -1729,8 +1734,8 @@ class UpgradeCore extends Model {
 					// 		$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
 					// 		// debug([$sql]);
 					// 		if($query->sql($sql)) {
-					// 			$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-					// 			$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 			filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 			filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 					//
 					// 			$this->process(array("success" => true, "message" => "Deleted HTML media remnant: " . $media["id"]), true);
 					// 			$media = false;
@@ -1772,9 +1777,9 @@ class UpgradeCore extends Model {
 
 								// Copy to new location and remove old
 								// debug([PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant]);
-								$fs->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
-								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								filesystem()->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
+								filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 
 								$this->process(array("success" => true, "message" => "Assign media to mediae-variant (this should not occur on repeated upgrades), media_id: ".$media["id"].", variant: ".$media["variant"]), true);
 
@@ -1812,8 +1817,8 @@ class UpgradeCore extends Model {
 							$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
 							// debug([$sql]);
 							if($query->sql($sql)) {
-								$fs->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-								$fs->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+								filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 
 								$this->process(array("success" => true, "message" => "Deleted HTMLEDITOR media remnant, media_id: " . $media["id"].", variant: ".$media["variant"]), true);
 								$media = false;
@@ -1846,7 +1851,7 @@ class UpgradeCore extends Model {
 
 
 					// Cross-reference existing files
-					$files = $fs->files(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					$files = filesystem()->files(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
 					// $this->dump("files:");
 					// $this->dump($files);
 
@@ -1881,7 +1886,7 @@ class UpgradeCore extends Model {
 							// Format is stated, but file does not match
 							else if($media["format"] && !file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
 
-								if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
+								if(filesystem()->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
 									unlink($file);
 
 									// Just rename
@@ -1896,7 +1901,7 @@ class UpgradeCore extends Model {
 							// Poster is stated, but file does not match
 							else if($media["poster"] && !file_exists(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["poster"])) {
 
-								if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["poster"])) {
+								if(filesystem()->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["poster"])) {
 									unlink($file);
 
 									// Just rename
@@ -1931,7 +1936,7 @@ class UpgradeCore extends Model {
 					// 	if(preg_match("/\.(zip|pdf|png|gif|jpg)$/", $file, $match)) {
 					//
 					// 		// Rename
-					// 		if($fs->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
+					// 		if(filesystem()->copy($file, PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]."/".$media["format"])) {
 					// 			unlink($file);
 					//
 					// 			// Just rename
@@ -2177,7 +2182,7 @@ class UpgradeCore extends Model {
 	
 
 		// get all php files in theme
-		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+		$php_files = filesystem()->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
 
 			$is_code_altered = false;
@@ -2252,7 +2257,7 @@ class UpgradeCore extends Model {
 
 
 		// get all php files in theme
-		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+		$php_files = filesystem()->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
 
 			$is_code_altered = false;
@@ -2327,7 +2332,7 @@ class UpgradeCore extends Model {
 
 
 		// get all php files in theme
-		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+		$php_files = filesystem()->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
 		foreach($php_files as $php_file) {
 
 			$is_code_altered = false;
@@ -2383,7 +2388,7 @@ class UpgradeCore extends Model {
 		$replace_string = "\t// Handle possible API request\n\telse {\n\t\tsecurity()->API_request(\$model, \$action);\n\t}";
 
 		// get all php files in theme
-		$controllers = $fs->files(LOCAL_PATH."/www", ["allow_extensions" => "php"]);
+		$controllers = filesystem()->files(LOCAL_PATH."/www", ["allow_extensions" => "php"]);
 		foreach($controllers as $controller) {
 
 			$is_code_altered = false;
@@ -2410,7 +2415,7 @@ class UpgradeCore extends Model {
 
 
 		// get all php files in theme
-		$php_files = $fs->files(LOCAL_PATH, ["allow_extensions" => "php"]);
+		$php_files = filesystem()->files(LOCAL_PATH, ["allow_extensions" => "php"]);
 		foreach($php_files as $php_file) {
 
 			$is_code_altered = false;
