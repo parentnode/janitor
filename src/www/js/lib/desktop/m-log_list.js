@@ -15,14 +15,13 @@ Util.Modules["logList"] = new function() {
 				log_file = li;
 			}
 			else {
-				li.log_file = log_file;				
+				li.log_file = log_file;
 			}
 		}
 
 		
 	
 		div.filtered = function() {
-			u.bug
 			var log_files = u.qsa("li.log_file", div.list);
 			var log_lines = u.qsa("li.item.log_line:not(.hidden)", div.list);
 
