@@ -373,7 +373,12 @@ class ModuleCore extends Model {
 								$digest = $this->getFileDigest($file_path."/main/src/$source");
 								if($digest === preg_replace("/".$this->digest_algo."\:/", "", $file_info["digest"])) {
 
-									// No need to save this file – it is a oneway-onetimer
+									// Data sql file must be available for upgrade DB syncronization to work
+									// Install file
+									filesystem()->copy($file_path."/main/src/$source", LOCAL_PATH."/".$source);
+
+
+									// Run SQL
 									$install_messages[] = $this->moduleSql($file_path."/main/src/".$source);
 
 								}
