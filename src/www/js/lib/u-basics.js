@@ -8,7 +8,7 @@ Util.Modules["collapseHeader"] = new function() {
 
 		if(div._toggle_header) {
 
-			u.wc(div, "div", {"class":"togglable_content"});
+			div.div_togglable_content = u.wc(div, "div", {"class":"togglable_content"});
 			u.ie(div, div._toggle_header);
 
 			div._toggle_header.div = div;
@@ -411,36 +411,102 @@ u.enableTagging = function(node) {
 // inject add tag form and new tags list
 // activate edittags mode
 u.activateTagging = function(node) {
+	// u.bug("u.activateTagging", node);
 
 	// inject tag options wrapper
-	if(node._text) {
+	if(node.div_togglable_content) {
+		node._tag_options = u.ae(node.div_togglable_content, "div", {"class":"tagoptions"});
+	}
+	else if(node._text) {
 		node._tag_options = u.ae(node._text, "div", {"class":"tagoptions"});
 	}
 	else {
 		node._tag_options = u.ae(node, "div", {"class":"tagoptions"});
 	}
 
-	// Tag context filter
-	node._tags_context = node._tags.getAttribute("data-context");
+
+	// reset tag list – remove all selected tags
+	// typically used for 1-tag-only setup, where existing tags must be removed to add a new one
+	node.resetTagList = function() {
+		// u.bug("delete existing tags");
+
+		var item_tags = u.qsa("li:not(.add,.empty)", node._tags);
+		// u.bug("item_tags", item_tags);
+
+		var i, tag;
+		for(i = 0; i < item_tags.length; i++) {
+			tag = item_tags[i];
+
+			// Since tag is in active tags list, simply clicking it will remove it
+			tag.clicked();
+		}
+	}
+
+
 
 	// create add tag form
 	node._tag_form = u.f.addForm(node._tag_options, {"action": node.data_div.add_tag_url});
 	u.f.addField(node._tag_form, {"type":"hidden", "name":"csrf-token", "value":node.data_div.csrf_token});
 
+
+	var input_label = node.getAttribute("data-input-label") || "Taga";
+	var input_hint_message = node.getAttribute("data-input-hint-message") || "Type to filter existing options or add a new";
+	var input_error_message = node.getAttribute("data-input-error-message") || (node.single_context ? "Value must be unique, containing only letters and hypens." : "Tag must be unique and conform to tag format: context:value");
+	var button_text = node.getAttribute("data-button-text") || "Add new tag";
+
+	var label_available = node.getAttribute("data-label-available") || "Existing tags";
+	var label_no_available = node.getAttribute("data-label-no-available") || "No tags available";
+
+	var pattern = node.single_context ? "[^:]+" : (node._tags_context ? "^("+node._tags_context.split(/,|;/).join("|")+")\:[^$]+" : "[^$]+\:[^$]+");
+
+
 	// add fieldset
 	var fieldset = u.f.addFieldset(node._tag_form);
 	// add input field
 	u.f.addField(fieldset, {
-		"name":"tags", 
-		"value":"", 
-		"id":"tag_input_"+node._item_id, 
-		"label":"Tag", 
-		"hint_message":"Type to filter existing tags or add a new tag", 
-		"error_message":"Tag must conform to tag value: context:value", 
-		"pattern":(node._tags_context ? "^("+node._tags_context.split(/,|;/).join("|")+")\:[^$]+" : "[^$]+\:[^$]+")
+		"name": "tags", 
+		"class": "newtag",
+		"value": "", 
+		"id": "tag_input_"+node._item_id, 
+		"label": input_label, 
+		"hint_message": input_hint_message, 
+		"error_message": input_error_message, 
+		"pattern": pattern
 	});
 	// add submit button
-	u.f.addAction(node._tag_form, {"class":"button primary", "value":"Add new tag"});
+	u.f.addAction(node._tag_form, {"class": "button primary", "value": button_text});
+
+	// Create custom validation to enable comparing with existing tag list
+	Util.Form.customValidate["newtag"] = function(iN) {
+		// u.bug("validate", iN, iN._form.node.data_div.all_tags);
+
+		var existing_tags = [];
+		var i, tag;
+		for(i = 0; i < iN._form.node.data_div.all_tags.length; i++) {
+			tag = iN._form.node.data_div.all_tags[i];
+			if(node.single_context) {
+				existing_tags.push(tag["value"]);
+			}
+			else {
+				existing_tags.push(tag["context"]+":"+tag["value"]);
+			}
+		}
+		pattern = iN.getAttribute("pattern");
+		// u.bug(pattern, "^("+existing_tags.join("|")+")$", iN.val());
+
+		if(
+			iN.val() &&
+			!iN.val().match("^("+existing_tags.join("|")+")$") && 
+			(!pattern || iN.val().match("^"+pattern+"$"))
+		) {
+			u.f.inputIsCorrect(iN);
+		}
+		else {
+			u.f.inputHasError(iN);
+		}
+
+	}
+
 
 	// initialize form
 	u.f.init(node._tag_form);
@@ -480,6 +546,14 @@ u.activateTagging = function(node) {
 				this.inputs["tags"].val("");
 				this.inputs["tags"].updated();
 				this.inputs["tags"].focus();
+
+
+				// New tag was added successfully
+				// If tag limit is 1, then delete existing tags, before updating list with new tag
+
+				if(this.node.tag_limit === "1") {
+					this.node.resetTagList();
+				}
 
 
 				// shorter reference
@@ -529,16 +603,24 @@ u.activateTagging = function(node) {
 			}
 
 		}
-		u.request(this, this.action+"/"+this.node._item_id, {"method":"post", "data" : this.getData()});
+
+		var data = this.getData();
+
+		// Append context to single_context tags, to fulfill serverside validation
+		if(this.node.single_context) {
+			data.set("tags", this.node._tags_context+":"+data.get("tags"));
+		}
+
+		u.request(this, this.action+"/"+this.node._item_id, {"method": "post", "data": data});
 	}
 	// add focus to tag field
 	node._tag_form.inputs["tags"].focus();
 
 
 	// add list with available tag options
-	u.ae(node._tag_options, "label", {"class":"tags", "html":"Existing tags"});
-	node._new_tags = u.ae(node._tag_options, "ul", {"class":"tags"});
-	u.ae(node._new_tags, "li", {"class":"empty", "html":"No tags available"});
+	u.ae(node._tag_options, "label", {"class": "tags", "html": label_available});
+	node._new_tags = u.ae(node._tag_options, "ul", {"class": "tags"});
+	u.ae(node._new_tags, "li", {"class": "empty", "html": label_no_available});
 
 
 	// index existing tags to create a clear over view of ununsed tags
@@ -626,7 +708,7 @@ u.activateTag = function(tag_node) {
 	tag_node.clicked = function() {
 //		u.bug("tag clicked:" + tag_node._context+":"+tag_node._value);
 
-		// only do anything if in addTags mode
+		// only do anything if in edittags mode
 		if(u.hc(this.node, "edittags")) {
 
 			// tag is in existing tags list
@@ -658,10 +740,18 @@ u.activateTag = function(tag_node) {
 					page.notify(response);
 
 					if(response.cms_status == "success") {
+
+						// Tag added, observe special conditions
+						// Reset list before adding if only one tag is allowed
+						if(this.node.tag_limit === "1") {
+							this.node.resetTagList();
+						}
+
+
 						// add tag to tags
 						// u.ie(this.node._tags, this)
 						this.node._tags.insertBefore(this, this.node._bn_add);
-						
+
 					}
 					u.updateTagListState(this.node._new_tags);
 				}

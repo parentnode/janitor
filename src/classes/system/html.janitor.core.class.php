@@ -673,23 +673,78 @@ class JanitorHTMLCore {
 		global $HTML;
 
 		$title = "Tags";
-		$class = "i:defaultTags i:collapseHeader";
+
+		$class = "";
+		$class_init = "i:defaultTags i:collapseHeader";
+
+		$limit = false;
+
+		$context = [];
+
+
+		$input_label = "Tag";
+		$input_hint_message = "Type to filter existing options or add a new";
+		$input_error_message = false;
+		$button_text = "Add new tag";
+		
+		$label_available = "Existing tags";
+		$label_no_available = "No tags available";
 
 		// overwrite defaults
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "class"             : $class              = $_value; break;
-					case "title"             : $title              = $_value; break;
+					case "title"                 : $title                   = $_value; break;
+
+					case "class"                 : $class                   = $_value; break;
+					case "class_init"            : $class_init              = $_value; break;
+
+					case "limit"                 : $limit                   = $_value; break;
+					case "context"               : $context                 = $_value; break;
+
+					case "input_label"           : $input_label             = $_value; break;
+					case "input_hint_message"    : $input_hint_message      = $_value; break;
+					case "input_error_message"   : $input_error_message     = $_value; break;
+					case "button_text"           : $button_text             = $_value; break;
+
+					case "label_available"       : $label_available         = $_value; break;
+					case "label_no_available"    : $label_no_available      = $_value; break;
 
 				}
 			}
 		}
 
+		$context_type = "";
+		if($context && count(explode($context, ",|;")) === 1) {
+			$context_type = "single_context";
+		}
+
+
+		if(!$input_error_message) {
+			if($context_type === "single_context") {
+				$input_error_message = "Value must be unique, containing only letters and hypens.";
+			}
+			else {
+				$input_error_message = "Tag must be unique and conform to tag format: context:value";
+			}
+		}
+
 		$_ = '';
-		$_ .= '<div class="tags item_id:'.$item["id"].' '.$class.'"'.$HTML->jsData(["tags"]).'>';
-		$_ .= '<h2>'.$title.' ('.($item["tags"] ? count($item["tags"]) : 0).')</h2>';
+		$_ .= '<div';
+			$_ .= HTML()->attribute("class", "tags", "item_id:".$item["id"], $class, $class_init, $context_type);
+			$_ .= HTML()->jsData(["tags", "custom" => [
+				"limit" => $limit,
+				"input-label" => $input_label,
+				"input-hint-message" => $input_hint_message,
+				"input-error-message" => $input_error_message,
+				"button-text" => $button_text,
+				"label-available" => $label_available,
+				"label-no-available" => $label_no_available,
+			]]);
+			// .($limit ? ' data-limit="'.$limit.'"' : '').
+		$_ .= '>';
+		$_ .= '<h2>'.$title.(!$limit || $limit > 1 ? ' ('.($item["tags"] ? count($item["tags"]) : 0).')' : '').'</h2>';
 		$_ .= $this->tagList($item["tags"], $_options);
 		$_ .= '</div>';
 
@@ -1020,7 +1075,6 @@ class JanitorHTMLCore {
 		return $_;
 	}
 
-
 	// edit event for ticket
 	function editTicketEvent($item, $_options = false) {
 		global $model;
@@ -1176,8 +1230,10 @@ class JanitorHTMLCore {
 
 		$_ = '';
 
-
 		$context = false;
+
+		$label_selected = "Selected tags";
+		$label_empty = "No tags added";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -1186,11 +1242,14 @@ class JanitorHTMLCore {
 
 					case "context"              : $context               = $_value; break;
 
+					case "label_selected"       : $label_selected        = $_value; break;
+					case "label_empty"          : $label_empty           = $_value; break;
+
 				}
 			}
 		}
 
-		$_ .= '<label class="tags">Selected tags</label>';
+		$_ .= '<label class="tags">'.$label_selected.'</label>';
 		$_ .= '<ul class="tags" data-context="'.$context.'">';
 		if($tags) {
 			foreach($tags as $tag) {
@@ -1202,7 +1261,7 @@ class JanitorHTMLCore {
 			}
 		}
 		else {
-			$_ .= '<li class="empty">No tags added</li>';
+			$_ .= '<li class="empty">'.$label_empty.'</li>';
 		}
 		$_ .= '</ul>';
 

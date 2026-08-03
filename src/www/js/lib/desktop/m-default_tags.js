@@ -9,6 +9,8 @@ Util.Modules["defaultTags"] = new function() {
 		div.delete_tag_url = div.getAttribute("data-tag-delete");
 		div.get_tags_url = div.getAttribute("data-tag-get");
 
+		div.tag_limit = div.getAttribute("data-limit");
+
 		// map a data-div reference to share tag-functionality between edit and list pages
 		div.data_div = div;
 
@@ -27,7 +29,13 @@ Util.Modules["defaultTags"] = new function() {
 
 			// Only get tags with allowed contexts
 			div._tags_context = div._tags.getAttribute("data-context");
-			
+
+
+			// Identify conditions
+			div.single_context = u.hc(div, "single_context")
+
+
+
 			// tags received
 			div.tagsResponse = function(response) {
 

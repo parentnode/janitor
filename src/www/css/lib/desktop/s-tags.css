@@ -12,12 +12,15 @@
 #content ul.tags.editable li.empty {display: none;}
 
 #content .scene > div.tags {padding: 0; border-bottom: 1px solid #aaaaaa; overflow: hidden;}
-#content .scene > div.tags label.tags {display: block; font-size: 11px; padding: 0 0 5px 30px; margin: 0;
+#content .scene > div.tags label.tags {display: none; font-size: 11px; padding: 0 0 5px 30px; margin: 0;
 	font-weight: bold; text-transform: uppercase; 
 
 	color: #aaaaaa; line-height: 16px;}
+#content .scene > div.tags.edittags label.tags {display: block;}
 #content .scene > div.tags ul.tags {padding: 0 125px 14px 30px;}
 
+
+#content div.single_context ul.tags li.tag span.context {display: none;}
 
 /* ADD TAG FORM */
 #content div.tagoptions fieldset {display: inline-block; vertical-align: top;}
