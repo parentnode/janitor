@@ -189,6 +189,15 @@ class HTMLCore {
 
 		}
 
+
+		// Add custom data attributes
+		if($_filter && isset($_filter["custom"])) {
+			foreach($_filter["custom"] as $name => $value) {
+				$_ .= ' data-'.$name.'="'.$value.'"';
+			}
+		}
+
+
 		return $_;
 	}
 
