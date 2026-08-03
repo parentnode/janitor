@@ -47,8 +47,8 @@ endif; ?>
 					<?= $HTML->link("Languages", "/janitor/admin/system/languages", array("wrapper" => "li.languages")) ?>
 					<?= $HTML->link("Currencies", "/janitor/admin/system/currencies", array("wrapper" => "li.currencies")) ?>
 					<?= $HTML->link("Vatrates", "/janitor/admin/system/vatrates", array("wrapper" => "li.vatrates")) ?>
-					<?= $HTML->link("Payment methodss", "/janitor/admin/system/payment_methods", array("wrapper" => "li.payment_methods")) ?>
-					<?= $HTML->link("Subscription methodss", "/janitor/admin/system/subscription_methods", array("wrapper" => "li.subscription_methods")) ?>
+					<?= $HTML->link("Payment methods", "/janitor/admin/system/payment_methods", array("wrapper" => "li.payment_methods")) ?>
+					<?= $HTML->link("Subscription methods", "/janitor/admin/system/subscription_methods", array("wrapper" => "li.subscription_methods")) ?>
 					<?= $HTML->link("Log", "/janitor/admin/log/list", array("wrapper" => "li.logs")) ?>
 					<?= $HTML->link("Cache", "/janitor/admin/system/cache", array("wrapper" => "li.cache")) ?>
 					<?= $HTML->link("Setup", "/janitor/admin/setup", array("wrapper" => "li.setup")) ?>
