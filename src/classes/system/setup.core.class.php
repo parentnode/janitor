@@ -1905,6 +1905,10 @@ class SetupCore extends Itemtype {
 			$query = new Query();
 			$query->checkDbExistence(UT_VERSION);
 
+			$query->checkDbExistence(UT_LANGUAGES);
+			$query->checkDbExistence(UT_CURRENCIES);
+			$query->checkDbExistence(UT_COUNTRIES);
+
 			$query->checkDbExistence($UC->db_user_groups);
 			$query->checkDbExistence($UC->db);
 			$query->checkDbExistence($UC->db_addresses);
@@ -1920,9 +1924,6 @@ class SetupCore extends Itemtype {
 			$query->checkDbExistence(UT_ITEMS_EDITORS);
 
 
-			$query->checkDbExistence(UT_LANGUAGES);
-			$query->checkDbExistence(UT_CURRENCIES);
-			$query->checkDbExistence(UT_COUNTRIES);
 			$query->checkDbExistence(UT_VATRATES);
 			$query->checkDbExistence(UT_PRICE_TYPES);
 			$query->checkDbExistence(UT_PAYMENT_METHODS);
