@@ -1978,9 +1978,9 @@ class SetupCore extends Itemtype {
 
 			$UP->checkDefaultValues(UT_NAV);
 
-			if($this->get("config", "site_items")) {
+			// if($this->get("config", "site_items")) {
 				$UP->checkDefaultValues(UT_LANGUAGES);
-			}
+			// }
 
 			// if($this->get("config", "site_shop")) {
 				$UP->checkDefaultValues(UT_CURRENCIES);
