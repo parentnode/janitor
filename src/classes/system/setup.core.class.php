@@ -1905,6 +1905,18 @@ class SetupCore extends Itemtype {
 			$query = new Query();
 			$query->checkDbExistence(UT_VERSION);
 
+
+			$query->checkDbExistence(UT_ITEMS);
+			$query->checkDbExistence(UT_TAG);
+			$query->checkDbExistence(UT_TAGGINGS);
+		
+			$query->checkDbExistence(UT_ITEMS_MEDIAE);
+			$query->checkDbExistence(UT_ITEMS_COMMENTS);
+			$query->checkDbExistence(UT_ITEMS_RATINGS);
+			$query->checkDbExistence(UT_ITEMS_FAVORITES);
+			$query->checkDbExistence(UT_ITEMS_EDITORS);
+
+
 			$query->checkDbExistence(UT_LANGUAGES);
 			$query->checkDbExistence(UT_CURRENCIES);
 			$query->checkDbExistence(UT_COUNTRIES);
@@ -1923,15 +1935,6 @@ class SetupCore extends Itemtype {
 			// }
 
 			// if($this->get("config", "site_items")) {
-				$query->checkDbExistence(UT_ITEMS);
-				$query->checkDbExistence(UT_TAG);
-				$query->checkDbExistence(UT_TAGGINGS);
-			
-				$query->checkDbExistence(UT_ITEMS_MEDIAE);
-				$query->checkDbExistence(UT_ITEMS_COMMENTS);
-				$query->checkDbExistence(UT_ITEMS_RATINGS);
-				$query->checkDbExistence(UT_ITEMS_FAVORITES);
-				$query->checkDbExistence(UT_ITEMS_EDITORS);
 
 				$query->checkDbExistence(SITE_DB.".user_item_readstates");
 			// }
