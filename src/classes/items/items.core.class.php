@@ -723,7 +723,7 @@ class ItemsCore {
 		// 	$WHERE[] = "items.published_at = $published_at";
 		// }
 
-		if(isset($itemtype)) {
+		if(isset($itemtype) && $this->typeObject($itemtype)) {
 			$WHERE[] = "items.itemtype = '$itemtype'";
 
 			// add main itemtype table to enable sorting based on local values
