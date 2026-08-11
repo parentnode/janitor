@@ -146,7 +146,7 @@ if(is_array($action) && count($action)) {
 			}
 			// Returning to module setting after deletion (browser back) – go to main modules page
 			else {
-				message()->addMessage("Module $module_id was not found");
+				message()->addMessage("Module $module_id was not found", ["type" => "error"]);
 				header("Location: /janitor/admin/setup/modules");
 				exit();
 			}
