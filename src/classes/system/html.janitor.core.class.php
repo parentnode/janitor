@@ -759,6 +759,8 @@ class JanitorHTMLCore {
 		$label = "Mediae";
 		$class = "media i:addMedia i:collapseHeader";
 
+		$text = false;
+
 		// overwrite defaults
 		if($_options !== false) {
 			foreach($_options as $_option => $_value) {
@@ -767,6 +769,8 @@ class JanitorHTMLCore {
 					case "variant"           : $variant            = $_value; break;
 					case "label"             : $label              = $_value; break;
 					case "class"             : $class              = $_value; break;
+
+					case "text"                 : $text                   = $_value; break;
 				}
 			}
 		}
@@ -778,6 +782,10 @@ class JanitorHTMLCore {
 
 		$_ .= '<div class="'.$class.'">';
 		$_ .= '<h2>'.$label.' ('.count($file_input_value).')</h2>';
+
+		if($text) {
+			$_ .= '<div class="text"><p>'.$text.'</p></div>';
+		}
 
 		$_ .= $model->formStart($this->path."/addFile", ["class" => "upload labelstyle:inject", "item_id" => $item["id"]]);
 		$_ .= $model->input("item_id", ["type" => "hidden", "value" => $item["id"]]);
@@ -904,8 +912,20 @@ class JanitorHTMLCore {
 	function editPrices($item, $_options = false) {
 
 		$query = new Query();
-		$model = new Itemtype($item["itemtype"]);
+		$model = model($item["itemtype"]);
 
+		$text = false;
+
+		// overwrite defaults
+		if($_options !== false) {
+			foreach($_options as $_option => $_value) {
+				switch($_option) {
+
+					case "text"                 : $text                   = $_value; break;
+
+				}
+			}
+		}
 
 		$currency_options = $model->toOptions(page()->currencies(), "id", "id");
 		$default_currency = page()->currency();
@@ -916,11 +936,14 @@ class JanitorHTMLCore {
 
 
 
-
 		$_ = '';
 
 		$_ .= '<div class="prices i:defaultPrices i:collapseHeader item_id:'.$item["id"].'"'.$model->jsData(["prices"]).'>';
 		$_ .= '<h2>Prices (' . ((isset($item["prices"]) && $item["prices"]) ? count($item["prices"]) : 0) .')</h2>';
+
+		if($text) {
+			$_ .= '<div class="text"><p>'.$text.'</p></div>';
+		}
 
 		$_ .= $this->priceList($item["item_id"]);
 
