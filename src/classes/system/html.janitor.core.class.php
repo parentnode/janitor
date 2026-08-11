@@ -716,7 +716,7 @@ class JanitorHTMLCore {
 		}
 
 		$context_type = "";
-		if($context && count(explode($context, ",|;")) === 1) {
+		if($context && count(preg_split("/,|;/", $context)) === 1) {
 			$context_type = "single_context";
 		}
 
