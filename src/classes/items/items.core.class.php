@@ -311,7 +311,7 @@ class ItemsCore {
 			// get the specific type data
 			$typeObject = $this->TypeObject($item["itemtype"]);
 			if(method_exists($typeObject, "get")) {
-				$item = array_merge($item, $typeObject->get($item["id"]));
+				$item = array_merge($item, $typeObject->get($item["id"], $_options));
 			}
 			else {
 				$item = array_merge($item, $this->getSimpleType($item["id"], $typeObject));
