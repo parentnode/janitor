@@ -85,9 +85,9 @@ class UpgradeCore extends Model {
 		$query = new Query();
 		include_once("classes/users/superuser.class.php");
 
-		if((defined("SITE_SHOP") && SITE_SHOP)) {
-			include_once("classes/shop/supershop.class.php");
-		}
+		// if((defined("SITE_SHOP") && SITE_SHOP)) {
+		// 	include_once("classes/shop/supershop.class.php");
+		// }
 
 
 		try {
@@ -199,9 +199,6 @@ class UpgradeCore extends Model {
 			$this->process($this->createTableIfMissing(UT_LANGUAGES), true);
 			$this->process($this->createTableIfMissing(UT_CURRENCIES), true);
 			$this->process($this->createTableIfMissing(UT_COUNTRIES), true);
-			$this->process($this->createTableIfMissing(UT_PRICE_TYPES), true);
-			$this->process($this->createTableIfMissing(UT_VATRATES), true);
-			$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
 
 			if(defined("SITE_SIGNUP") && SITE_SIGNUP) {
 				$this->process($this->createTableIfMissing(UT_MAILLISTS), true);
@@ -221,6 +218,10 @@ class UpgradeCore extends Model {
 
 				$this->process($this->createTableIfMissing(SITE_DB.".user_item_readstates"), true);
 			}
+
+			$this->process($this->createTableIfMissing(UT_PRICE_TYPES), true);
+			$this->process($this->createTableIfMissing(UT_VATRATES), true);
+			$this->process($this->createTableIfMissing(UT_PAYMENT_METHODS), true);
 
 			$this->process($this->createTableIfMissing(SITE_DB.".user_payment_methods"), true);
 			$this->process($this->createTableIfMissing(SITE_DB.".user_addresses"), true);
@@ -2103,7 +2104,7 @@ class UpgradeCore extends Model {
 
 			$query = new Query();
 			$UC = new SuperUser();
-			$SC = new SuperShop();
+			// $SC = new SuperShop();
 
 			$count = 0;
 			$limit = 5000;
@@ -2120,7 +2121,7 @@ class UpgradeCore extends Model {
 						$user = $UC->getUsers(["user_id" => $order["user_id"]]);
 
 						// create base data update sql
-						$sql = "UPDATE ".$SC->db_orders." SET ";
+						$sql = "UPDATE ".supershop()->db_orders." SET ";
 
 						if($user["firstname"] && $user["lastname"]) {
 							$sql .= "billing_name='".prepareForDB($user["firstname"]) ." ". prepareForDB($user["lastname"])."'";
