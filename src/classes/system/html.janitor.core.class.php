@@ -288,6 +288,11 @@ class JanitorHTMLCore {
 				"url" => $this->path."/list",
 				"options" => array("class" => "button", "wrapper" => "li.cancel")
 			),
+			"new" => array(
+				"label" => "New",
+				"url" => $this->path."/new",
+				"options" => array("class" => "button", "wrapper" => "li.new")
+			),
 			"duplicate" => array(
 				"label" => "Duplicate",
 				"wrapper" => "li.duplicate",
@@ -368,6 +373,10 @@ class JanitorHTMLCore {
 			$_ .= $model->link($standard["list"]["label"], $standard["list"]["url"], $standard["list"]["options"]);
 		}
 
+		if($standard["new"]) {
+			$_ .= $model->link($standard["new"]["label"], $standard["new"]["url"], $standard["new"]["options"]);
+		}
+
 		if($standard["delete"]) {
 			$_ .= $model->oneButtonForm($standard["delete"]["label"], $standard["delete"]["url"], array(
 				"wrapper" => $standard["delete"]["wrapper"],
@@ -386,7 +395,7 @@ class JanitorHTMLCore {
 		}
 
 		foreach($standard as $button => $data) {
-			if(!preg_match("/list|delete|duplicate|status/", $button)) {
+			if(!preg_match("/list|new|delete|duplicate|status/", $button)) {
 				if(isset($data["type"]) && $data["type"] == "onebuttonform") {
 					$_ .= $model->oneButtonForm($data["label"], $data["url"], array(
 						"wrapper" => $data["wrapper"],
