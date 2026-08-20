@@ -289,7 +289,7 @@ class JanitorHTMLCore {
 				"options" => array("class" => "button", "wrapper" => "li.cancel")
 			),
 			"new" => array(
-				"label" => "New",
+				"label" => "New ".$item["itemtype"],
 				"url" => $this->path."/new",
 				"options" => array("class" => "button", "wrapper" => "li.new")
 			),
