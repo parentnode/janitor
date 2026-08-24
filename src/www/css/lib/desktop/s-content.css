@@ -146,7 +146,7 @@ body #content div.warning ul.modified_files li {display: list-item; padding-bott
 #content .scene.login form {
 	max-width: 450px;
 }
-#content .scene.login form:first-child {
+#content .scene.login h1 + form {
 	padding-top: 30px;
 }
 #content .scene.login form div.field.checkbox div.indicator {display: none;}
