@@ -38,14 +38,14 @@ endif; ?>
 					<?= $HTML->link("Navigations", "/janitor/admin/navigation/list", array("wrapper" => "li.navigation")) ?>
 					<?= $HTML->link("Tags", "/janitor/admin/tag/list", array("wrapper" => "li.tags")) ?>
 					<?= $HTML->link("Taglists", "/janitor/admin/taglist/list", array("wrapper" => "li.taglists")) ?>
-					<?= $HTML->link("Countries", "/janitor/admin/system/countries", array("wrapper" => "li.countries")) ?>
-					<?= $HTML->link("Languages", "/janitor/admin/system/languages", array("wrapper" => "li.languages")) ?>
-					<?= $HTML->link("Currencies", "/janitor/admin/system/currencies", array("wrapper" => "li.currencies")) ?>
 				</ul>
 			</li>
 			<li class="system">
 				<h3>System</h3>
 				<ul class="subjects">
+					<?= $HTML->link("Countries", "/janitor/admin/system/countries", array("wrapper" => "li.countries")) ?>
+					<?= $HTML->link("Languages", "/janitor/admin/system/languages", array("wrapper" => "li.languages")) ?>
+					<?= $HTML->link("Currencies", "/janitor/admin/system/currencies", array("wrapper" => "li.currencies")) ?>
 					<?= $HTML->link("Vatrates", "/janitor/admin/system/vatrates", array("wrapper" => "li.vatrates")) ?>
 					<?= $HTML->link("Payment methods", "/janitor/admin/system/payment_methods", array("wrapper" => "li.payment_methods")) ?>
 					<?= $HTML->link("Subscription methods", "/janitor/admin/system/subscription_methods", array("wrapper" => "li.subscription_methods")) ?>
