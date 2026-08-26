@@ -186,6 +186,15 @@ function items() {
 	return $__items;
 }
 
+function systemdata() {
+	global $__system;
+	if(!$__system) {
+		include_once("classes/system/system.class.php");
+		$__system = new System();
+	}
+	return $__system;
+}
+
 
 $__navigation = false;
 function navigation() {
