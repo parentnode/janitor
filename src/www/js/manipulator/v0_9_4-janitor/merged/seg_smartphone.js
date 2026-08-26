@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.4-janitor Copyright 2023 https://manipulator.parentnode.dk
-js-merged @ 2026-06-15 07:28:52
+js-merged @ 2026-08-26 11:31:20
 */
 
 /*seg_smartphone_include.js*/
@@ -4272,7 +4272,7 @@ Util.Form.customHintPosition["html"] = function(field) {
 	});
 }
 u.f.textEditor = function(field) {
-	field.text_support = "h1,h2,h3,h4,h5,h6,p";
+	field.text_support = "h1,h2,h3,h4,h5,h6,p,label";
 	field.code_support = "code";
 	field.list_support = "ul,ol";
 	field.media_support = "png,jpg,mp4";
@@ -4413,7 +4413,7 @@ u.f.textEditor = function(field) {
 				value = tag.virtual_input.val();
 				html += '<div class="'+type+" ext_video"+(tag._classname ? " "+tag._classname : "")+'">\n';
 				if(value.video_url) {
-					html += '\t<ul class="metadata" data-variant="'+(value.variant ? value.variant : "")+'" data-poster-format="'+(value.poster_format ? value.poster_format : "")+'" itemprop="video" itemscope itemtype="http://schema.org/VideoObject">\n';
+					html += '\t<ul class="metadata" data-item-id="'+this._item_id+'" data-variant="'+(value.variant ? value.variant : "")+'" data-poster-format="'+(value.poster_format ? value.poster_format : "")+'" itemprop="video" itemscope itemtype="http://schema.org/VideoObject">\n';
 					html += '\t\t<li itemprop="contentUrl">'+value.video_url+'</li>\n';
 					if(value.variant && value.poster_format) {
 						html += '\t\t<li itemprop="thumbnailUrl">/images/'+this._item_id+'/'+value.variant+'/1200x.'+value.poster_format+'</li>\n';
@@ -4449,7 +4449,7 @@ u.f.textEditor = function(field) {
 				}
 				html += '<div class="'+type+(tag._classname ? " "+tag._classname : "")+(media_type ? " "+media_type : "")+'">\n';
 				if(media_type) {
-					html += '\t<ul class="metadata" data-variant="'+value.variant+'" data-format="'+value.format+'" data-poster="'+(value.poster ? value.poster : "")+'" itemprop="'+media_type+'" itemscope itemtype="http://schema.org/'+media_type.replace(/^([a-z])/, function(a){return a.toUpperCase()})+'Object">\n';
+					html += '\t<ul class="metadata" data-item-id="'+this._item_id+'" data-variant="'+value.variant+'" data-format="'+value.format+'" data-poster="'+(value.poster ? value.poster : "")+'" itemprop="'+media_type+'" itemscope itemtype="http://schema.org/'+media_type.replace(/^([a-z])/, function(a){return a.toUpperCase()})+'Object">\n';
 					html += '\t\t<li itemprop="contentUrl">/'+media_type+"s/"+this._item_id+"/"+value.variant+'/1200x.'+value.format+'</li>\n';
 					if(value.poster && media_type === "video") {
 						html += '\t\t<li itemprop="thumbnailUrl">/images/'+this._item_id+'/'+value.variant+'/1200x.'+value.poster+'</li>\n';
@@ -4480,7 +4480,7 @@ u.f.textEditor = function(field) {
 				html += '<div class="'+type+(tag._classname ? " "+tag._classname : "")+'">\n';
 				if(value.url && value.url && value.file_name) {
 					html += '\t<p><a href="'+value.url+'">'+value.file_name+'</a></p>\n';
-					html += '\t<ul class="metadata" data-variant="'+value.variant+'" data-format="'+value.format+'" itemprop="associatedMedia" itemscope itemtype="http://schema.org/MediaObject">\n';
+					html += '\t<ul class="metadata" data-item-id="'+this._item_id+'" data-variant="'+value.variant+'" data-format="'+value.format+'" itemprop="associatedMedia" itemscope itemtype="http://schema.org/MediaObject">\n';
 					html += '\t\t<li itemprop="contentUrl">'+value.url+'</li>\n';
 					if(value.file_name) {
 						html += '\t\t<li itemprop="name">'+value.file_name+'</li>\n';

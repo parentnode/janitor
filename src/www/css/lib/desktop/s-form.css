@@ -916,6 +916,7 @@ div.field.html .editor div.tag ul.type li.media {font-size: 8px; padding-top: 15
 div.field.html .editor div.tag ul.type li.youtube {font-size: 8px; padding: 12px 9px; max-width: 4.5ch; word-wrap: break-word;}
 div.field.html .editor div.tag ul.type li.vimeo {font-size: 8px; padding-top: 15px;}
 div.field.html .editor div.tag ul.type li.button {font-size: 7px; padding: 16px 6px;}
+div.field.html .editor div.tag ul.type li.label {font-size: 8px; padding-top: 15px;}
 
 
 div.field.html .editor div.tag.focus ul.type li {color: #ffffff; 
@@ -926,6 +927,7 @@ div.field.html .editor div.tag.focus ul.type li.media {padding-top: 13px;}
 div.field.html .editor div.tag.focus ul.type li.vimeo {padding-top: 13px;}
 div.field.html .editor div.tag.focus ul.type li.youtube {padding: 10px 9px;}
 div.field.html .editor div.tag.focus ul.type li.button {padding: 14px 4px;}
+div.field.html .editor div.tag.focus ul.type li.label {padding-top: 13px;}
 
 
 /* REMOVE CURSOR ON TYPE SELECTOR WHEN IN INLINEFORMATING MODE */
