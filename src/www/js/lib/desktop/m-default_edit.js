@@ -37,6 +37,7 @@ Util.Modules["defaultEdit"] = new function() {
 			u.t.resetTimer(page.t_autosave);
 
 			this.response = function(response) {
+				u.bug("response", response);
 				// restart autosave
 //				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
 
@@ -67,7 +68,7 @@ Util.Modules["defaultEdit"] = new function() {
 		}
 
 		form.updated = function() {
-//			u.bug("form has been updated")
+			u.bug("form has been updated")
 
 			this.change_state = true;
 			u.t.resetTimer(page.t_autosave);
@@ -313,6 +314,207 @@ Util.Modules["sendMessage"] = new function() {
 
 				u.f.inputHasError(this.inputs["recipients"]);
 				u.f.inputHasError(this.inputs["maillist_id"]);
+
+			}
+
+		}
+
+	}
+
+}
+
+Util.Modules["defaultEditItems"] = new function() {
+	this.init = function(div) {
+
+		div.updateNodes = function(div) {
+			div.nodes = u.qsa("li.item", div.list);
+
+			if(!div.nodes.length) {
+				u.ac(div, "empty");
+			}
+			else {
+				u.rc(div, "empty");
+			}
+		}
+
+		div.initNode = function(node) {
+
+			node.div = div;
+
+			node.bn_add = u.qs("li.add", node);
+			node.bn_add.node = node;
+			node.bn_add.added = function(event) {
+				// u.bug("added", event);
+
+
+				// Move node to collection list
+				this.node.div.list.appendChild(node);
+
+
+				// Remove drag element
+				u.ac(this.node, "draggable");
+				if(!u.qs(".drag", this.node)) {
+					u.ie(this.node, "div", {"class":"drag"});
+				}
+
+
+				// Update nodes
+				this.node.div.updateNodes(this.node.div);
+				if(this.node.div.div_available) {
+					this.node.div.updateNodes(this.node.div.div_available);
+				}
+
+
+				// Update draggables
+				this.node.div.list.updateDraggables();
+
+			}
+
+			node.bn_remove = u.qs("li.remove", node);
+			node.bn_remove.node = node;
+			node.bn_remove.removed = function() {
+				// u.bug("removed", event);
+
+
+				// Move node to available list
+				this.node.div.div_available.list.appendChild(node);
+
+
+				// Remove drag element
+				u.rc(this.node, "draggable");
+				if(this.node.drag) {
+					this.node.removeChild(this.node.drag);
+				}
+
+
+				// Update nodes
+				this.node.div.updateNodes(this.node.div);
+				if(this.node.div.div_available) {
+					this.node.div.updateNodes(this.node.div.div_available);
+				}
+
+
+				// Update draggables
+				this.node.div.list.updateDraggables();
+
+			}
+
+		}
+
+		// CMS interaction urls
+		div.csrf_token = div.getAttribute("data-csrf-token");
+
+
+		div.list = u.qs("ul.items", div);
+		if(!div.list) {
+			div.list = u.ae(div, "ul", {"class":"items"});
+		}
+		div.list.div = div;
+
+		// get all items from list
+		div.updateNodes(div);
+
+
+		var i, node;
+		for(i = 0; i < div.nodes.length; i++) {
+			node = div.nodes[i];
+			div.initNode(node);
+		}
+
+
+		// add filters to list
+		if(u.hc(div, "filters") && !div.div_filter) {
+
+			u.defaultFilters(div);
+
+			// callback from list filter
+			div.filtered = function() {
+				this.scrolled();
+
+				// If list is selectable
+				if(this.bn_all) {
+					this.bn_all.updateState();
+					this.bn_range._to.value = "";
+					this.bn_range._from.value = "";
+				}
+			}
+
+
+		}
+
+
+		// sortable list
+		if(u.hc(div, "sortable")) {
+			u.defaultSortableList(div.list, {
+				"save_order_url": "nodes-order",
+				"item_id_data_attribute": "item-id",
+			});
+		}
+
+
+		// selectable list
+		if(u.hc(div, "selectable")) {
+			u.defaultSelectable(div);
+		}
+
+
+
+		// Get list of available items
+		div.div_available = u.qs(".all_items.available");
+		if(div.div_available) {
+
+
+			// CMS interaction urls
+			div.div_available.csrf_token = div.csrf_token;
+
+			div.div_available.list = u.qs("ul.items", div.div_available);
+			if(!div.div_available.list) {
+				div.div_available.list = u.ae(div.div_available, "ul", {"class":"items"});
+			}
+			div.div_available.list.div = div.div_available;
+
+			// get all items from available list
+			div.updateNodes(div.div_available);
+
+			for(i = 0; i < div.div_available.nodes.length; i++) {
+				node = div.div_available.nodes[i];
+				div.initNode(node);
+			}
+
+
+			// add filters to list of available
+			if(u.hc(div.div_available, "filters") && !div.div_available.div_filter) {
+
+				u.defaultFilters(div.div_available);
+
+				// callback from list filter
+				div.div_available.filtered = function() {
+					this.scrolled();
+
+					// If list is selectable
+					if(this.bn_all) {
+						this.bn_all.updateState();
+						this.bn_range._to.value = "";
+						this.bn_range._from.value = "";
+					}
+				}
+
+			}
+
+			// sortable list
+			if(u.hc(div.div_available, "sortable")) {
+
+				u.defaultSortableList(div.div_available.list, {
+					"save_order_url": "nodes-order",
+					"item_id_data_attribute": "item-id",
+				});
+
+			}
+
+			// selectable list
+			if(u.hc(div.div_available, "selectable")) {
+
+				u.defaultSelectable(div.div_available);
 
 			}
 

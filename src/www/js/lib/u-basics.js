@@ -322,9 +322,27 @@ u.defaultFilters = function(div) {
 
 // SORTABLE
 
-u.defaultSortableList = function(list) {
-	// u.bug("defaultSortableList");
-	list.div.save_order_url = list.div.getAttribute("data-item-order");
+u.defaultSortableList = function(list, _options) {
+	u.bug("defaultSortableList", list, _options);
+
+	var save_order_url = "item-order";
+	list.item_id_data_attribute = false;
+
+	// additional info passed to function as JSON object
+	if(obj(_options)) {
+		var _argument;
+		for(_argument in _options) {
+
+			switch(_argument) {
+				case "save_order_url"				: save_order_url					= _options[_argument]; break;
+
+				case "item_id_data_attribute"		: list.item_id_data_attribute		= _options[_argument]; break;
+			}
+		}
+	}
+	
+
+	list.div.save_order_url = list.div.getAttribute("data-"+save_order_url);
 
 	if(list.div.save_order_url && list.div.csrf_token) {
 
@@ -340,9 +358,15 @@ u.defaultSortableList = function(list) {
 		u.sortable(list, {"targets":".items", "draggables":".draggable"});
 		list.picked = function() {}
 		list.dropped = function() {
+			
+			var options = {};
+			if(this.item_id_data_attribute) {
+				options["data_attribute"] = this.item_id_data_attribute;
+			}
+			u.bug("dropped", this.item_id_data_attribute, options);
 
 			// Get node order
-			var order = this.getNodeOrder();
+			var order = this.getNodeOrder(options);
 
 			this.orderResponse = function(response) {
 				// Notify of event
@@ -359,7 +383,7 @@ u.defaultSortableList = function(list) {
 	else {
 		u.rc(list.div, "sortable");
 	}
-	
+
 }
 
 
@@ -449,7 +473,7 @@ u.activateTagging = function(node) {
 	u.f.addField(node._tag_form, {"type":"hidden", "name":"csrf-token", "value":node.data_div.csrf_token});
 
 
-	var input_label = node.getAttribute("data-input-label") || "Taga";
+	var input_label = node.getAttribute("data-input-label") || "Tag";
 	var input_hint_message = node.getAttribute("data-input-hint-message") || "Type to filter existing options or add a new";
 	var input_error_message = node.getAttribute("data-input-error-message") || (node.single_context ? "Value must be unique, containing only letters and hypens." : "Tag must be unique and conform to tag format: context:value");
 	var button_text = node.getAttribute("data-button-text") || "Add new tag";

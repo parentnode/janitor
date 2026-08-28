@@ -169,3 +169,13 @@
 #content .scene.defaultEdit > div.editors ul.editors {border-top: 1px solid #dedede; padding-bottom: 30px;}
 #content .scene.defaultEdit > div.editors form.editors {padding-bottom: 15px;}
 
+
+/* ITEMS LIST */
+#content .scene.defaultEdit > div.all_items {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.all_items ul.items {margin-bottom: 20px;}
+#content .scene.defaultEdit > div.all_items.collection ul.actions li.add {display: none;}
+#content .scene.defaultEdit > div.all_items.available ul.actions li.remove {display: none;}
+
+#content .scene.defaultEdit >  div.all_items ul.items > li h3 span.price {margin: 0 0 6px 6px; font-style: italic; font-size: 13px;}
+
+#content .scene.defaultEdit > div.all_items.available p.empty + ul.actions {padding-bottom: 10px;}

@@ -302,6 +302,7 @@ Util.Modules["defaultList"] = new function() {
 			div.get_tags_url = div.getAttribute("data-tag-get");
 
 
+
 			// do we have required info 
 			if(div.csrf_token && div.get_tags_url && div.delete_tag_url && div.add_tag_url) {
 			
@@ -340,6 +341,14 @@ Util.Modules["defaultList"] = new function() {
 						// inject add button
 						node._bn_add = u.ae(node._tags, "li", {"class":"add","html":"+"});
 						node._bn_add.node = node;
+
+
+						// Only get tags with allowed contexts
+						node._tags_context = node._tags.getAttribute("data-context");
+
+						// Identify conditions
+						node.single_context = u.hc(node, "single_context")
+
 
 						// enable tagging
 						u.enableTagging(node);
