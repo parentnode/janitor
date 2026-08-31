@@ -742,6 +742,17 @@ class PageCore {
 			else {
 				session()->value("currency", defined("DEFAULT_CURRENCY_ISO") ? DEFAULT_CURRENCY_ISO : "DKK");
 			}
+
+			// Update current cart currency
+			if(defined("SITE_SHOP") && SITE_SHOP) {
+				// TODO: update when API version of updateCart is added
+				$post = $_POST;
+				unset($_POST);
+				$_POST["currency"] = session()->value("currency");
+				shop()->updateCart(["updateCart"]);
+				$_POST = $post;
+			}
+
 		}
 
 		// get
