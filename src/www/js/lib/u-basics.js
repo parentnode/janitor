@@ -164,7 +164,7 @@ u.defaultFilters = function(div) {
 				// node = tags[i];
 				// tag = u.text(node);
 				tag = tags[i];
-				if((!this.filter_tag_contexts || this.filter_tag_contexts.match(tag.context)) && used_tags.indexOf(tag.context+":"+tag.value) == -1) {
+				if((!this.filter_tag_contexts || this.filter_tag_contexts.match('(^|,)'+tag.context+'($|,)')) && used_tags.indexOf(tag.context+":"+tag.value) == -1) {
 					used_tags.push(tag.context+":"+tag.value);
 				}
 
