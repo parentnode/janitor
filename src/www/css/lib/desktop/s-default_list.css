@@ -67,6 +67,13 @@
 #content div.all_items ul.items > li ul.tags+ul.actions li {padding-top: 10px;}
 */
 
+#content div.all_items li.item div.prices ul.prices {}
+#content div.all_items li.item div.prices ul.prices li.pricedetails {display: block; position: relative;}
+#content div.all_items li.item div.prices ul.prices li.pricedetails ul.info li {display: inline-block; vertical-align: top; padding: 3px 5px 3px 0; font-size: 13px; font-style: italic; line-height: 1em;}
+#content div.all_items li.item div.prices ul.prices li.pricedetails ul.info li.custom_price:before,
+#content div.all_items li.item div.prices ul.prices li.pricedetails ul.info li.offer:before,
+#content div.all_items li.item div.prices ul.prices li.pricedetails ul.info li.bulk:before{content: "- ";}
+#content div.all_items li.item div.prices ul.prices li.pricedetails:last-child {padding-bottom: 15px;}
 
 /* FILTERS */
 #content div.filter {padding: 10px 0 4px; min-height: 32px; background: #f5f7f8; border-bottom: 1px solid #bbbbbb; position: relative; overflow: hidden;}
@@ -95,7 +102,8 @@
 #content div.all_items.sortable ul.items > li.item p,
 #content div.all_items.sortable ul.items > li.item ul.tags,
 #content div.all_items.sortable ul.items > li.item label.tags,
-#content div.all_items.sortable ul.items > li.item dl {padding-left: 53px;}
+#content div.all_items.sortable ul.items > li.item dl,
+#content div.all_items.sortable ul.items > li.item ul.info {padding-left: 53px;}
 
 #content div.all_items.sortable.images ul.items > li.item h3,
 #content div.all_items.sortable.images ul.items > li.item p,
