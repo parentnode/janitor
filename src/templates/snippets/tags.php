@@ -95,7 +95,7 @@ if($editing_tag || $default_tag || $item_tags):
 	if($item_tags):
 		foreach($item_tags as $item_tag):
 ?>
-	<li<?= ($schema ? ' itemprop="'.$schema.'"' : '') ?>>
+	<li<?= ($schema ? ' itemprop="'.$schema.'"' : '') ?> data-context="<?= $item_tag["context"] ?>" data-value="<?= $item_tag["value"] ?>">
 <?			if($base_path): ?>
 		<a href="<?= $base_path ?>/<?= $tag_namespace ?>/<?= urlencode($item_tag["value"]) ?>"><?= $item_tag["value"] ?></a>
 <?			else: ?>
