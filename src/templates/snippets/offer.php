@@ -7,6 +7,8 @@ $item = false;
 $url = false;
 $description = false;
 
+$collection = false;
+
 
 if($_options !== false) {
 	foreach($_options as $_option => $_value) {
@@ -14,6 +16,8 @@ if($_options !== false) {
 			case "item"               : $item            = $_value; break;
 			case "url"                : $url             = $_value; break;
 			case "description"        : $description     = $_value; break;
+
+			case "collection"         : $collection      = $_value; break;
 		}
 	}
 }
@@ -23,6 +27,9 @@ if($_options !== false) {
 if($item) {
 
 	$best_price = false;
+	if(!$item["prices"] && $collection) {
+		$item["prices"] = $collection["prices"];
+	}
 
 
 	$default_price = false;
