@@ -119,8 +119,8 @@ class UserCore extends Model {
 		$this->addToModel("email", array(
 			"type" => "email",
 			"label" => "Your email",
-			"hint_message" => "Your email",
-			"error_message" => "Invalid email"
+			"hint_message" => "Your email.",
+			"error_message" => "Invalid email."
 		));
 		// confirm email
 		$this->addToModel("confirm_email", array(
@@ -128,7 +128,7 @@ class UserCore extends Model {
 			"label" => "Confirm your email",
 			"compare_to" => "email",
 			"hint_message" => "Your email again, to make sure your didin't mistype it.",
-			"error_message" => "Email mismatch"
+			"error_message" => "Email mismatch."
 		));
 
 		// mobile
@@ -144,23 +144,23 @@ class UserCore extends Model {
 			"label" => "Confirm your mobile",
 			"compare_to" => "mobile",
 			"hint_message" => "Write your mobile number again, to make sure your didin't mistype it.",
-			"error_message" => "Number mismatch"
+			"error_message" => "Number mismatch."
 		));
 
 		// password
 		$this->addToModel("password", array(
 			"type" => "password",
 			"label" => "Password",
-			"hint_message" => "Type your password - must be more than 8 characters",
-			"error_message" => "Invalid password"
+			"hint_message" => "Type your password - must be more than 8 characters.",
+			"error_message" => "Invalid password."
 		));
 
 		// new_password
 		$this->addToModel("new_password", array(
 			"type" => "password",
 			"label" => "New password",
-			"hint_message" => "Type your new password - must be more than 8 characters",
-			"error_message" => "Invalid password"
+			"hint_message" => "Type your new password - must be more than 8 characters.",
+			"error_message" => "Invalid password."
 		));
 
 		// confirm_password
@@ -168,16 +168,16 @@ class UserCore extends Model {
 			"type" => "password",
 			"label" => "Repeat password",
 			"compare_to" => "new_password",
-			"hint_message" => "Type your new password again to verify",
-			"error_message" => "Passwords do not match"
+			"hint_message" => "Type your new password again to verify.",
+			"error_message" => "Passwords do not match."
 		));
 
 		// old_password
 		$this->addToModel("old_password", array(
 			"type" => "password",
 			"label" => "Existing password",
-			"hint_message" => "Type your existing password - must be more than 8 characters",
-			"error_message" => "Invalid password"
+			"hint_message" => "Type your existing password - must be more than 8 characters.",
+			"error_message" => "Invalid password."
 		));
 
 
@@ -204,13 +204,13 @@ class UserCore extends Model {
 		$this->addToModel("verification_status", array(
 			"type" => "checkbox",
 			"label" => 'Verified',
-			"hint_message" => "Check to verify the user"
+			"hint_message" => "Check to verify the user."
 		));
 
 		// Auto login option
 		$this->addToModel("auto_login", array(
 			"type" => "checkbox",
-			"label" => 'Keep me logged in on this device and network',
+			"label" => 'Keep me logged in on this device and network.',
 			"hint_message" => "If your device or network profile changes, you will be required to login again."
 		));
 		// Public token
@@ -218,8 +218,8 @@ class UserCore extends Model {
 			"type" => "string",
 			"required" => true,
 			"label" => 'Public access token',
-			"hint_message" => "Public token",
-			"error_message" => "Public token must be filled out"
+			"hint_message" => "Public token.",
+			"error_message" => "Public token must be filled out."
 		));
 
 
@@ -230,69 +230,69 @@ class UserCore extends Model {
 			"type" => "string",
 			"label" => "Address label",
 			// "required" => true,
-			"hint_message" => "Give this address a label (home, office, parents, etc.)",
-			"error_message" => "Invalid address label"
+			"hint_message" => "Give this address a label (home, office, parents, etc.).",
+			"error_message" => "Invalid address label."
 		));
 		// address name
 		$this->addToModel("address_name", array(
 			"type" => "string",
 			"label" => "Name/Company",
 			"required" => true,
-			"hint_message" => "Name on door at address, your name or company name",
-			"error_message" => "Invalid address name"
+			"hint_message" => "Name on door at address, your name or company name.",
+			"error_message" => "Invalid address name."
 		));
 		// att
 		$this->addToModel("att", array(
 			"type" => "string",
 			"label" => "Att",
-			"hint_message" => "Att for address",
-			"error_message" => "Invalid att"
+			"hint_message" => "Att for address.",
+			"error_message" => "Invalid att."
 		));
 		// address 1
 		$this->addToModel("address1", array(
 			"type" => "string",
 			"label" => "Address",
 			"required" => true,
-			"hint_message" => "Address",
-			"error_message" => "Invalid address"
+			"hint_message" => "Address.",
+			"error_message" => "Invalid address."
 		));
 		// address 2
 		$this->addToModel("address2", array(
 			"type" => "string",
 			"label" => "Additional address",
-			"hint_message" => "Additional address info",
-			"error_message" => "Invalid address"
+			"hint_message" => "Additional address info.",
+			"error_message" => "Invalid address."
 		));
 		// city
 		$this->addToModel("city", array(
 			"type" => "string",
 			"label" => "City",
 			"required" => true,
-			"hint_message" => "Your city",
-			"error_message" => "Invalid city"
+			"hint_message" => "Your city.",
+			"error_message" => "Invalid city."
 		));
 		// postal code
 		$this->addToModel("postal", array(
 			"type" => "string",
 			"label" => "Postal code",
 			"required" => true,
-			"hint_message" => "Your postal code",
-			"error_message" => "Invalid postal code"
+			"hint_message" => "Your postal code.",
+			"error_message" => "Invalid postal code."
 		));
 		// state
 		$this->addToModel("state", array(
 			"type" => "string",
 			"label" => "State/region",
-			"hint_message" => "Write your state/region, if applicaple",
-			"error_message" => "Invalid state/region"
+			"hint_message" => "Write your state/region, if applicaple.",
+			"error_message" => "Invalid state/region."
 		));
 		// country
 		$this->addToModel("country", array(
 			"type" => "string",
 			"label" => "Country",
 			"required" => true,
-			"hint_message" => "Country",
-			"error_message" => "Invalid country"
+			"hint_message" => "Country.",
+			"error_message" => "Invalid country."
 		));
 
 
@@ -301,8 +301,8 @@ class UserCore extends Model {
 			"type" => "string",
 			"label" => "Maillist",
 			"required" => true,
-			"hint_message" => "Maillist",
-			"error_message" => "Invalid maillist"
+			"hint_message" => "Maillist.",
+			"error_message" => "Invalid maillist."
 		));
 
 

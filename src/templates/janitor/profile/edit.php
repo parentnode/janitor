@@ -310,7 +310,7 @@ if(defined("SITE_SHOP") && SITE_SHOP) {
 		<?= $model->formStart("cancel", array("class" => "cancelaccount")) ?>
 
 			<fieldset>
-				<?= $model->input("password", array("label" => "Please type your password to confirm cancellation", "required" => true)) ?>
+				<?= $model->input("password", array("label" => "Please type your password to confirm cancellation.", "required" => true)) ?>
 			</fieldset>
 
 			<ul class="actions">
