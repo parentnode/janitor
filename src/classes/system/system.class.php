@@ -176,7 +176,7 @@ class System extends Model {
 
 		// Convert $data to JSON if passed as array
 		if(is_array($data)) {
-			$data = json_encode($data);
+			$data = json_encode($data, JSON_UNESCAPED_UNICODE);
 		}
 
 		// Check if data row already exists

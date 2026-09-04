@@ -31,7 +31,7 @@ $class = (isset($dataset["class"]) ? $dataset["class"] : $id);
 			</fieldset>
 
 			<ul class="actions">
-				<?= $model->submit("Save", ["wrapper" => "li.save", "class" => "button primary"]); ?>
+				<?= $model->submit("Save", ["wrapper" => "li.save", "class" => "key:s button primary"]); ?>
 			</ul>
 
 		<?= $model->formEnd() ?>
