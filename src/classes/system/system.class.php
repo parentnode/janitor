@@ -200,6 +200,30 @@ class System extends Model {
 	}
 
 
+	function getDatasets() {
+
+		$datasets = [];
+		$dataset_filepaths = filesystem()->files(LOCAL_PATH."/templates/janitor/system/data", [
+			"allow_extensions" => "php",
+		]);
+
+		foreach($dataset_filepaths as $dataset_filepath) {
+			// Get file name to enable access permissions (requires local system data controller)
+			include($dataset_filepath);
+
+			$filename = str_replace(".php", "", basename($dataset_filepath));
+			if($dataset) {
+				$dataset["filename"] = $filename;
+			}
+
+			$datasets[] = $dataset;
+		}
+
+		return $datasets;
+
+	}
+
+
 	// TODO: add language, country, currency, vatrate, etc maintenance functions here
 
 

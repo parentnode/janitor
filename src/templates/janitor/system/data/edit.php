@@ -20,7 +20,20 @@ $class = (isset($dataset["class"]) ? $dataset["class"] : $id);
 	<p><?= $description ?></p>
 <?	endif; ?>
 
+<?	if(isset($dataset["pages"])): ?>
+	<div class="pages all_items i:defaultList">
+		<h2>Pages</h2>
+		<ul class="items">
+<?		foreach($dataset["pages"] as $page): ?>
+			<li class="item page"><?= debug($page) ?></li>
+<?		endforeach; ?>
+		</ul>
+	</div>
+<?	endif; ?>
+
 	<div class="item i:defaultEdit">
+		<h2>Data, phrases and files</h2>
+
 		<?= $model->formStart("updateData", ["class" => "labelstyle:inject ".$class]) ?>
 			<?= $model->input("id", ["type" => "hidden", "value" => $id]) ?>
 
