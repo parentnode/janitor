@@ -22,10 +22,32 @@ $class = (isset($dataset["class"]) ? $dataset["class"] : $id);
 
 <?	if(isset($dataset["pages"])): ?>
 	<div class="pages all_items i:defaultList">
-		<h2>Pages</h2>
+		<h2>Page intros</h2>
 		<ul class="items">
 <?		foreach($dataset["pages"] as $page): ?>
-			<li class="item page"><?= debug($page) ?></li>
+			<li class="item page">
+				<h3><?= $page["name"] ?></h3>
+<?
+			if(isset($page["tag"])):
+				$pageitem = items()->getItem(["itemtype" => "page", "tags" => $page["tag"]]);
+				if($pageitem):
+
+					print $JML->listActions($pageitem, [
+						"modify" => [
+							"delete" => false,
+							"status" => false,
+							"edit" => [
+								"url" => "/janitor/page/edit/".$pageitem["id"],
+							]
+						]
+					]);
+			
+				else: ?>
+				<p>Page with tag <em><?= $page["tag"] ?></em> is missing.</p>
+				
+			<? endif;
+			endif; ?>
+			</li>
 <?		endforeach; ?>
 		</ul>
 	</div>
