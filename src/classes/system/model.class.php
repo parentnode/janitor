@@ -587,7 +587,7 @@ class Model extends HTML {
 			$uploads &&
 			(!$min || $total_files >= $min) && 
 			// Max defaults to one file on file inputs
-			((!$max && $total_files <= 1)|| $total_files <= $max) &&
+			((!$max && $total_files <= 1) || $total_files <= $max || ($max === 1 && count($uploads) === 1)) &&
 
 			(!$min_width || $this->filesMinWidthTest($uploads, $min_width)) &&
 			(!$min_height || $this->filesMinHeightTest($uploads, $min_height)) &&
@@ -600,6 +600,7 @@ class Model extends HTML {
 			return true;
 		}
 		else {
+			debug(["error here"]);
 			$this->setProperty($name, "error", true);
 			return false;
 		}
@@ -637,7 +638,7 @@ class Model extends HTML {
 
 		$proportion_array = explode(",", $proportions);
 		foreach($proportion_array as $i => $proportion) {
-			$proportion_array[$i] = $proportion;
+			$proportion_array[$i] = round($proportion, 4);
 		}
 		foreach($uploads as $upload) {
 			// if uploaded proportion is not allowed
