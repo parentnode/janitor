@@ -13,6 +13,7 @@ $url = false;
 $media = false;
 $sharing = false;
 
+$published_at = false;
 
 if($_options !== false) {
 	foreach($_options as $_option => $_value) {
@@ -23,6 +24,8 @@ if($_options !== false) {
 
 			case "media"             : $media               = $_value; break;
 			case "sharing"           : $sharing             = $_value; break;
+
+			case "published_at"      : $published_at        = $_value; break;
 		}
 	}
 }
@@ -30,7 +33,7 @@ if($_options !== false) {
 
 if($item): ?>
 <ul class="info">
-	<li class="published_at" itemprop="datePublished" content="<?= date("Y-m-d H:i:s T", strtotime($item["published_at"])) ?>"><?= date("Y-m-d, H:i", strtotime($item["published_at"])) ?></li>
+	<li class="published_at" itemprop="datePublished" content="<?= date("Y-m-d H:i:s T", strtotime($item["published_at"])) ?>"><?= $published_at ? $published_at : date("Y-m-d, H:i", strtotime($item["published_at"])) ?></li>
 	<li class="modified_at" itemprop="dateModified" content="<?= date("Y-m-d H:i:s T", strtotime($item["modified_at"])) ?>"></li>
 	<li class="author" itemprop="author"><?= (isset($item["user_nickname"]) ? $item["user_nickname"] : SITE_NAME) ?></li>
 	<li class="main_entity<?= ($sharing ? ' share' : '') ?>" itemprop="mainEntityOfPage" content="<?= SITE_URL.($url ? $url : ($item["cannonical"] ? $item["cannonical"] : page()->url)) ?>"></li>
