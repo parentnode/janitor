@@ -2,11 +2,8 @@
 global $action;
 global $model;
 
-systemdata()->getDatasets();
+$datasets = systemdata()->getDatasets();
 
-// $datasets = filesystem()->files(LOCAL_PATH."/templates/janitor/system/data", [
-// 	"allow_extensions" => "php",
-// ]);
 ?>
 <div class="scene i:scene defaultList dataList">
 	<h1>System datasets</h1>

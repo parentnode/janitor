@@ -16,6 +16,10 @@ $class = (isset($dataset["class"]) ? $dataset["class"] : $id);
 <div class="scene i:systemData defaultEdit dataEdit">
 	<h1><?= $name ?></h1>
 
+	<ul class="actions i:defaultEditActions">
+		<?= $HTML->link("All datasets", "/janitor/admin/system/data", array("class" => "button", "wrapper" => "li.datasets")) ?>
+	</ul>
+
 <?	if($description): ?>
 	<p><?= $description ?></p>
 <?	endif; ?>
