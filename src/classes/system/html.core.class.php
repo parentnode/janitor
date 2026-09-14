@@ -1374,7 +1374,7 @@ class HTMLCore {
 
 			// Check for children
 			$children = '';
-			if(($levels === false || $levels-- > 1) && isset($node["nodes"])) {
+			if(($levels === false || $levels-- > 1) && isset($node["nodes"]) && $node["nodes"]) {
 				foreach($node["nodes"] as $child_node) {
 					$children .= $this->navigationLink($child_node, $levels);
 				}
