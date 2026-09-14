@@ -1669,6 +1669,8 @@ class UpgradeCore extends Model {
 
 			$query = new Query();
 
+			// Make sure table is updated before looking for canonical null values
+			$this->process($this->synchronizeTable("items_mediae"));
 
 
 			// Update mediae table
