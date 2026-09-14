@@ -310,7 +310,8 @@ class ItemsCore {
 
 			// get the specific type data
 			$typeObject = $this->TypeObject($item["itemtype"]);
-			if(method_exists($typeObject, "get")) {
+			// debug([$typeObject, $item]);
+			if($typeObject && method_exists($typeObject, "get")) {
 				$item = array_merge($item, $typeObject->get($item["id"], $_options));
 			}
 			else {
@@ -1105,7 +1106,7 @@ class ItemsCore {
 				// Remove view after search
 				$query->sql("DROP VIEW IF EXISTS ".SITE_DB.".".$search_view_id);
 
-				// print_r($results);
+				// debug([$results]);
 				return $results;
 			}
 
