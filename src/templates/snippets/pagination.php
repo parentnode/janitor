@@ -51,7 +51,7 @@ $_ = '';
 // No pagination unless matching elements
 if(($items["next"] && ($direction === "next" || !$direction)) || ($items["prev"] && ($direction === "prev" || !$direction))): ?>
 
-	<div class="'<?= $class ?>">
+	<div class="<?= $class ?>">
 		<ul>
 <?	if(($direction === "prev" || !$direction) && $items["prev"]):
 		$labels["prev"] = preg_replace("/\{name\}/", $items["prev"]["name"], $labels["prev"]);
