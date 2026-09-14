@@ -2695,7 +2695,17 @@ class UpgradeCore extends Model {
 							$updated_variant = preg_replace("/^".$current_variant."/", $new_variant, $variant);
 							$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '$updated_variant' WHERE id = $id";
 							// debug([$sql]);
-							$query->sql($sql);
+							if($query->sql($sql)) {
+								// debug(["ok", PRIVATE_FILE_PATH."/".$item_id."/".$variant, PRIVATE_FILE_PATH."/".$item_id."/".$updated_variant]);
+								if(filesystem()->copy(PRIVATE_FILE_PATH."/".$item_id."/".$variant, PRIVATE_FILE_PATH."/".$item_id."/".$updated_variant)) {
+
+									filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
+									filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
+
+								}
+
+							}
+
 
 						}
 
