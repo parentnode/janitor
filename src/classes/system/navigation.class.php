@@ -274,7 +274,22 @@ class Navigation extends Model {
 			$controller_favors = false;
 
 			include($controller);
-			if($controller_itemtype && $controller_favors) {
+
+			// Special page
+			if($controller_type === "page") {
+
+				if($controller_favors && isset($controller_favors["name"])) {
+					$link_options[$link] = $controller_favors["name"]." ($link)";
+				}
+				else {
+					$link_options[$link] = $link;
+				}
+
+			}
+			// Ignore sitemaps
+			else if($controller_itemtype === "sitemap") {}
+
+			else if($controller_itemtype && $controller_favors) {
 
 				$type_model = items()->typeObject($controller_itemtype);
 				if($type_model) {
