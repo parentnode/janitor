@@ -22,6 +22,31 @@ global $upgrade_model;
 
 	</div>
 
+
+	<div class="option">
+		<h3>Update mediae variant name</h3>
+		<p>
+			Changing default mediae variant for itemtype. Typically needed if model has been updated and using new default variant name.
+		</p>
+		<ul class="actions">
+			<li class="check"><a href="/janitor/admin/setup/upgrade/update-mediae-variant" class="button primary">Update mediae variant</a></li>
+		</ul>
+
+	</div>
+
+<? /* ?>
+	<div class="option">
+		<h3>Update canonical urls</h3>
+		<p>
+			Updating canonical urls for all items at once.
+		</p>
+		<ul class="actions">
+			<li class="check"><a href="/janitor/admin/setup/upgrade/update-canonical" class="button primary">Update canonical urls</a></li>
+		</ul>
+
+	</div>
+<? */ ?>
+
 	<div class="option">
 		<h3>Reduce version history</h3>
 		<p>

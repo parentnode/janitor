@@ -51,9 +51,9 @@
 #content .scene.defaultEdit > div.sindex form {padding-bottom: 15px;}
 #content .scene.defaultEdit > div.sindex ul.actions + form {padding-top: 20px;}
 
-/* EDIT CANNONICAL */
-#content .scene.defaultEdit > div.cannonical {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
-#content .scene.defaultEdit > div.cannonical form {padding-bottom: 15px;}
+/* EDIT CANONICAL */
+#content .scene.defaultEdit > div.canonical {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}
+#content .scene.defaultEdit > div.canonical form {padding-bottom: 15px;}
 
 /* EDIT PREVIEW */
 #content .scene.defaultEdit > div.previewurl {padding: 0; border-bottom: 1px solid #bbbbbb; position: relative;}

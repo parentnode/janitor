@@ -136,7 +136,7 @@ class ItemsCore {
 
 			$SELECT[] = "items.id";
 			$SELECT[] = "items.sindex";
-			$SELECT[] = "items.cannonical";
+			$SELECT[] = "items.canonical";
 			$SELECT[] = "items.status";
 			$SELECT[] = "items.itemtype";
 			$SELECT[] = "items.user_id";
@@ -482,7 +482,7 @@ class ItemsCore {
 
 		$SELECT[] = "items.id";
 		$SELECT[] = "items.sindex";
-		$SELECT[] = "items.cannonical";
+		$SELECT[] = "items.canonical";
 		$SELECT[] = "items.status";
 		$SELECT[] = "items.itemtype";
 		$SELECT[] = "items.user_id";
@@ -671,7 +671,7 @@ class ItemsCore {
 		// Add base select properties
 		$SELECT[] = "items.id";
 		$SELECT[] = "items.sindex";
-		$SELECT[] = "items.cannonical";
+		$SELECT[] = "items.canonical";
 		$SELECT[] = "items.status";
 		$SELECT[] = "items.itemtype";
 		$SELECT[] = "items.user_id";
@@ -917,7 +917,7 @@ class ItemsCore {
 					}
 
 					if($searchable_column) {
-						$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$pattern["itemtype"]." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
+						$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.canonical AS canonical, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$pattern["itemtype"]." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
 
 						if(isset($pattern["status"])) {
 							$sql .= " AND items.status = " .$pattern["status"];
@@ -961,7 +961,7 @@ class ItemsCore {
 							}
 
 							if($searchable_column) {
-								$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$itemtype." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
+								$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.canonical AS canonical, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$itemtype." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
 
 								if(isset($pattern["status"])) {
 									$sql .= " AND items.status = " .$pattern["status"];
@@ -1006,7 +1006,7 @@ class ItemsCore {
 				// Add base select properties
 				$SELECT[] = "items.id";
 				$SELECT[] = "items.sindex";
-				$SELECT[] = "items.cannonical";
+				$SELECT[] = "items.canonical";
 				$SELECT[] = "items.status";
 				$SELECT[] = "items.itemtype";
 				$SELECT[] = "items.user_id";

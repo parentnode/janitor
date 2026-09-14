@@ -1,7 +1,7 @@
 // default sindex form
-Util.Modules["defaultCannonical"] = new function() {
+Util.Modules["defaultCanonical"] = new function() {
 	this.init = function(div) {
-		// u.bug("defaultCannonical:", div);
+		// u.bug("defaultCanonical:", div);
 
 		div.updateView = function() {
 
@@ -9,7 +9,7 @@ Util.Modules["defaultCannonical"] = new function() {
 				// u.bug(response);
 
 				if(response.isHTML) {
-					var view = u.qs("div.cannonical", response);
+					var view = u.qs("div.canonical", response);
 					if(view) {
 						this.replaceWith(view);
 						u.init(view.parentNode);

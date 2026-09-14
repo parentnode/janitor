@@ -14,10 +14,10 @@ Util.Modules["defaultSindex"] = new function() {
 						this.replaceWith(view);
 						u.init(view.parentNode);
 
-						// Cannonical must also be updated
-						var cannonical = u.qs("div.cannonical");
-						if(cannonical && fun(cannonical.updateView)) {
-							cannonical.updateView();
+						// Canonical must also be updated
+						var canonical = u.qs("div.canonical");
+						if(canonical && fun(canonical.updateView)) {
+							canonical.updateView();
 						}
 
 					}

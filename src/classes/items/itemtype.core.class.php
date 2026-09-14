@@ -158,12 +158,12 @@ class ItemtypeCore extends Model {
 			"hint_message" => "Choose a specific sindex for this item. Value must be available.",
 			"error_message" => "A valid and available sindex must be specified."
 		));
-		// Cannonical
-		$this->addToModel("item_cannonical", array(
+		// Canonical
+		$this->addToModel("item_canonical", array(
 			"type" => "string",
-			"label" => "Cannonical item url",
-			"hint_message" => "Choose the cannonical url for this item.",
-			"error_message" => "A valid cannonical url must be selected."
+			"label" => "Canonical item url",
+			"hint_message" => "Choose the canonical url for this item.",
+			"error_message" => "A valid canonical url must be selected."
 		));
 
 
@@ -1064,8 +1064,8 @@ class ItemtypeCore extends Model {
 
 			}
 
-			// Syncronize cannonical url with new sindex (if needed)
-			$this->syncCannonical([
+			// Syncronize canonical url with new sindex (if needed)
+			$this->syncCanonical([
 				"item_id" => $item_id,
 				"new_sindex" => $new_sindex,
 				"old_sindex" => $sindex
@@ -1081,8 +1081,8 @@ class ItemtypeCore extends Model {
 	}
 
 
-	function syncCannonical($_options = false) {
-		// debug(["syncCannonical", $_options]);
+	function syncCanonical($_options = false) {
+		// debug(["syncCanonical", $_options]);
 
 		$item_id = false;
 		$new_sindex = false;
@@ -1111,7 +1111,7 @@ class ItemtypeCore extends Model {
 		$query = new Query();
 
 
-		// If controller was deleted, then loop through all items and update cannonical urls where controller was referenced
+		// If controller was deleted, then loop through all items and update canonical urls where controller was referenced
 		if($controller_deleted) {
 
 			// Remove extension
@@ -1119,47 +1119,47 @@ class ItemtypeCore extends Model {
 
 
 			if($itemtype) {
-				$items = items()->getItems(["itemtype" => $itemtype, "where" => "cannonical LIKE '$controller%'"]);
+				$items = items()->getItems(["itemtype" => $itemtype, "where" => "canonical LIKE '$controller%'"]);
 			}
 			else {
-				$items = items()->getItems(["where" => "cannonical LIKE '$controller%'"]);
+				$items = items()->getItems(["where" => "canonical LIKE '$controller%'"]);
 			}
-			// debug(["TODO - update cannonicals with deleted controllers", $items]);
+			// debug(["TODO - update canonicals with deleted controllers", $items]);
 
-			// Reset cannonicals with best alternative for all 
+			// Reset canonicals with best alternative for all 
 			foreach($items as $item) {
 
-				$options = $this->getCannonicalOptions($item, ["only_safe" => true]);
+				$options = $this->getCanonicalOptions($item, ["only_safe" => true]);
 				if($options) {
-					$this->setCannonicalUrl($item["id"], array_shift($options));
+					$this->setCanonicalUrl($item["id"], array_shift($options));
 				}
 
 			}
 
 		}
 
-		// If sindex was changed, then check if current cannonical value containes old sindex, and replace value with new sindex
+		// If sindex was changed, then check if current canonical value containes old sindex, and replace value with new sindex
 		else if($item_id && $new_sindex) {
 
 			// Get current values
-			$sql = "SELECT itemtype, sindex, cannonical FROM ".UT_ITEMS." WHERE id = $item_id";
+			$sql = "SELECT itemtype, sindex, canonical FROM ".UT_ITEMS." WHERE id = $item_id";
 			// debug([$sql]);
 			if($query->sql($sql)) {
 
 				$itemtype = $query->result(0, "itemtype");
-				$cannonical = $query->result(0, "cannonical");
+				$canonical = $query->result(0, "canonical");
 
 				// If old sindex was not passed, check current value
 				if(!$old_sindex) {
 					$old_sindex = $query->result(0, "sindex");
 				}
 
-				// Is old sindex contained within the current cannonical
-				if($old_sindex && $old_sindex !== $new_sindex && preg_match("/".$old_sindex."($|\/)/", $cannonical)) {
+				// Is old sindex contained within the current canonical
+				if($old_sindex && $old_sindex !== $new_sindex && preg_match("/".$old_sindex."($|\/)/", $canonical)) {
 
-					// sindex in cannonical could theoretically be part of hardcoded controller name
-					// So we much disect cannonical and check if structure is based on controller/sindex
-					$possible_controller = preg_replace("/\/".$old_sindex."[^$]?/", "", $cannonical);
+					// sindex in canonical could theoretically be part of hardcoded controller name
+					// So we much disect canonical and check if structure is based on controller/sindex
+					$possible_controller = preg_replace("/\/".$old_sindex."[^$]?/", "", $canonical);
 
 					// Could it be mapped to index.php
 					if($possible_controller === "") {
@@ -1178,10 +1178,10 @@ class ItemtypeCore extends Model {
 						if($controller_itemtype && $controller_itemtype === $itemtype) {
 
 							// Sindex is appended to valid controller
-							$updated_cannonical_url = str_replace($old_sindex, $new_sindex, $cannonical);
+							$updated_canonical_url = str_replace($old_sindex, $new_sindex, $canonical);
 
 							// Set updated value
-							$this->setCannonicalUrl($item_id, $updated_cannonical_url);
+							$this->setCanonicalUrl($item_id, $updated_canonical_url);
 						}
 
 					}
@@ -1190,10 +1190,10 @@ class ItemtypeCore extends Model {
 				// No old index – this is a part of item creation process
 				else {
 
-					// Set cannonical url to first available option (which is also expected to be best option)
-					$options = $this->getCannonicalOptions(["id" => $item_id, "itemtype" => $itemtype, "sindex" => $new_sindex], ["only_safe" => true]);
+					// Set canonical url to first available option (which is also expected to be best option)
+					$options = $this->getCanonicalOptions(["id" => $item_id, "itemtype" => $itemtype, "sindex" => $new_sindex], ["only_safe" => true]);
 					if($options) {
-						$this->setCannonicalUrl($item_id, array_shift($options));
+						$this->setCanonicalUrl($item_id, array_shift($options));
 					}
 
 				}
@@ -1204,11 +1204,11 @@ class ItemtypeCore extends Model {
 
 	}
 
-	// Get cannonical options for selection on item
+	// Get canonical options for selection on item
 	// Attempting to create a prioritized order
-	function getCannonicalOptions($item, $_options = false) {
+	function getCanonicalOptions($item, $_options = false) {
 
-		$only_safe_cannonical = false;
+		$only_safe_canonical = false;
 		
 		
 		// overwrite defaults
@@ -1216,7 +1216,7 @@ class ItemtypeCore extends Model {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "only_safe"                 : $only_safe_cannonical                    = $_value; break;
+					case "only_safe"                 : $only_safe_canonical                    = $_value; break;
 
 				}
 			}
@@ -1260,8 +1260,12 @@ class ItemtypeCore extends Model {
 			}
 
 			// Unknown, but assignable controller (can be a hardcoded item viewer, so should be available for selection)
-			else if(!$only_safe_cannonical && $controller_assignable !== false && (!$controller_itemtype || $item["itemtype"] === $controller_itemtype)) {
+			else if(!$only_safe_canonical && $controller_assignable !== false && (!$controller_itemtype || $item["itemtype"] === $controller_itemtype)) {
 
+				// Remove index fragment from url
+				if($link === "/index") {
+					$link = "/";
+				}
 				$tertiary_options[$link] = $link;
 
 			}
@@ -1271,42 +1275,42 @@ class ItemtypeCore extends Model {
 		return $primary_options+$secondary_options+$tertiary_options;
 	}
 
-	// API version of setCannonicalUrl
-	function API_setCannonicalUrl($action) {
+	// API version of setCanonicalUrl
+	function API_setCanonicalUrl($action) {
 
 		// Get posted values to make them available for models
 		$this->getPostedEntities();
 
 		// does values validate
-		if(count($action) === 1 && $this->validateList(array("item_id", "item_cannonical"))) {
+		if(count($action) === 1 && $this->validateList(array("item_id", "item_canonical"))) {
 
 			$item_id = $this->getProperty("item_id", "value");
-			$cannonical_url = $this->getProperty("item_cannonical", "value");
+			$canonical_url = $this->getProperty("item_canonical", "value");
 
 
-			$result = $this->setCannonicalUrl($item_id, $cannonical_url);
+			$result = $this->setCanonicalUrl($item_id, $canonical_url);
 
 			if($result) {
-				message()->addMessage("Cannonical Url updated");
+				message()->addMessage("Canonical Url updated");
 				return $result;
 			}
 
 		}
 
-		message()->addMessage("Cannonical Url could not be duplicated", ["type" => "error"]);
+		message()->addMessage("Canonical Url could not be duplicated", ["type" => "error"]);
 		return false;
 
 	}
 
-	// Set cannonical url for item
-	function setCannonicalUrl($item_id, $cannonical_url) {
-		// debug(["setCannonicalUrl", $cannonical_url]);
+	// Set canonical url for item
+	function setCanonicalUrl($item_id, $canonical_url) {
+		// debug(["setCanonicalUrl", $canonical_url]);
 
-		if($item_id && $cannonical_url) {
+		if($item_id && $canonical_url) {
 
 			$query = new Query();
 
-			$sql = "UPDATE ".UT_ITEMS." SET cannonical = '$cannonical_url' WHERE id = $item_id";
+			$sql = "UPDATE ".UT_ITEMS." SET canonical = '$canonical_url' WHERE id = $item_id";
 			if($query->sql($sql)) {
 				return true;
 			}

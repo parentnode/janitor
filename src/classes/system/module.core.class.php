@@ -1270,8 +1270,8 @@ class ModuleCore extends Model {
 				if($controller_itemtype && $controller_itemtype === $module_id) {
 					unlink(LOCAL_PATH."/www".$controller_path);
 
-					// Update cannonical urls
-					model($controller_itemtype)->syncCannonical([
+					// Update canonical urls
+					model($controller_itemtype)->syncCanonical([
 						"itemtype" => $controller_itemtype,
 						"controller_deleted" => $controller_path,
 					]);
@@ -1355,7 +1355,7 @@ class ModuleCore extends Model {
 			$existing_controllers = $this->getItemControllers($module_id);
 
 
-			// Create new controller before deleting, since it will be needed for syncing existing cannonical urls
+			// Create new controller before deleting, since it will be needed for syncing existing canonical urls
 			$module_config_path = LOCAL_PATH."/config/modules/$module_group_id/$module_id";
 			if(file_exists($module_config_path."/controller.php") && !file_exists(LOCAL_PATH."/www".$controller_path)) {
 				filesystem()->copy($module_config_path."/controller.php", LOCAL_PATH."/www".$controller_path);
@@ -1366,7 +1366,7 @@ class ModuleCore extends Model {
 				// debug(["remove existing controller", LOCAL_PATH."/www".$existing_controller]);
 				unlink(LOCAL_PATH."/www".$existing_controller);
 
-				model($module_id)->syncCannonical([
+				model($module_id)->syncCanonical([
 					"itemtype" => $module_id,
 					"controller_deleted" => $existing_controller,
 				]);

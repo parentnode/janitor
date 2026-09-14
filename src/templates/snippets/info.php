@@ -1,7 +1,7 @@
 <?php
 
 // $item should be the item represented in the schema
-// $url should be the cannonical url for this item
+// $url should be the canonical url for this item
 // $media should be the main media associated with the schema item
 // $sharing defines whether to add share class to main entity
 
@@ -36,7 +36,7 @@ if($item): ?>
 	<li class="published_at" itemprop="datePublished" content="<?= date("Y-m-d H:i:s T", strtotime($item["published_at"])) ?>"><?= $published_at ? $published_at : date("Y-m-d, H:i", strtotime($item["published_at"])) ?></li>
 	<li class="modified_at" itemprop="dateModified" content="<?= date("Y-m-d H:i:s T", strtotime($item["modified_at"])) ?>"></li>
 	<li class="author" itemprop="author"><?= (isset($item["user_nickname"]) ? $item["user_nickname"] : SITE_NAME) ?></li>
-	<li class="main_entity<?= ($sharing ? ' share' : '') ?>" itemprop="mainEntityOfPage" content="<?= SITE_URL.($url ? $url : ($item["cannonical"] ? $item["cannonical"] : page()->url)) ?>"></li>
+	<li class="main_entity<?= ($sharing ? ' share' : '') ?>" itemprop="mainEntityOfPage" content="<?= SITE_URL.($url ? $url : ($item["canonical"] ? $item["canonical"] : page()->url)) ?>"></li>
 	<li class="publisher" itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
 		<ul class="publisher_info">
 			<li class="name" itemprop="name"><?= SITE_NAME ?></li>

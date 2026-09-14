@@ -559,37 +559,37 @@ class JanitorHTMLCore {
 		return $_;
 	}
 
-	// edit cannonical url form for edit page
-	function editCannonicalUrl($item, $_options = false) {
+	// edit canonical url form for edit page
+	function editCanonicalUrl($item, $_options = false) {
 
 		$_ = '';
 
-		if(security()->validPath($this->path."/cannonical")) {
+		if(security()->validPath($this->path."/canonical")) {
 
 			$model = new Itemtype($item["itemtype"]);
 
-			$_ .= '<div class="cannonical i:defaultCannonical i:collapseHeader item_id:'.$item["id"].'">';
-			$_ .= '<h2>Cannonical Url</h2>';
-			$_ .= '<p>The cannonical url is important to provide search engines with a unique url for this item. They require this to clearly identify the original vs. possible duplicates</p>';
-			$_ .= '<p>Select the preferred option as the cannonical url for this item below.</p>';
+			$_ .= '<div class="canonical i:defaultCanonical i:collapseHeader item_id:'.$item["id"].'">';
+			$_ .= '<h2>Canonical Url</h2>';
+			$_ .= '<p>The canonical url is important to provide search engines with a unique url for this item. They require this to clearly identify the original vs. possible duplicates</p>';
+			$_ .= '<p>Select the preferred option as the canonical url for this item below.</p>';
 			
 			$_ .= '<fieldset>';
-				$_ .= '<h3>Current cannonical url</h3>';
-				$_ .= '<p class="current_url">'.($item["cannonical"] ? $item["cannonical"] : "N/A")."</p>";
+				$_ .= '<h3>Current canonical url</h3>';
+				$_ .= '<p class="current_url">'.($item["canonical"] ? $item["canonical"] : "N/A")."</p>";
 			$_ .= '</fieldset>';
 
 
-			if(security()->validPath($this->path."/setCannonicalUrl")) {
+			if(security()->validPath($this->path."/setCanonicalUrl")) {
 
-				$cannonical_options = $model->getCannonicalOptions($item);
+				$canonical_options = $model->getCanonicalOptions($item);
 
-				$_ .= '<div class="change_cannonical">';
+				$_ .= '<div class="change_canonical">';
 			
-					$_ .= $model->formStart($this->path."/setCannonicalUrl", array("class" => "labelstyle:inject"));
+					$_ .= $model->formStart($this->path."/setCanonicalUrl", array("class" => "labelstyle:inject"));
 						$_ .= $model->input("item_id", ["type" => "hidden", "value" => $item["id"]]);
 					$_ .= '<fieldset>';
-						$_ .= '<h3>Change cannonical Url</h3>';
-						$_ .= $model->input("item_cannonical", array("type" => "select", "options" => $cannonical_options, "value" => $item["cannonical"]));
+						$_ .= '<h3>Change canonical Url</h3>';
+						$_ .= $model->input("item_canonical", array("type" => "select", "options" => $canonical_options, "value" => $item["canonical"]));
 					$_ .= '</fieldset>';
 
 					$_ .= '<ul class="actions">';
@@ -617,7 +617,7 @@ class JanitorHTMLCore {
 		$_ .= '<div class="previewurl i:defaultpreviewurl i:collapseHeader item_id:'.$item["id"].'">';
 		$_ .= '<h2>Preview</h2>';
 		$_ .= '<p>Preview this page here: <br />';
-		$_ .= '<a href="'.$item["cannonical"].'" target="_blank">'.$item["cannonical"].'</a>';
+		$_ .= '<a href="'.$item["canonical"].'" target="_blank">'.$item["canonical"].'</a>';
 		$_ .= '</p>';
 		$_ .= '<p class="note">The item must be enabled to be previewed.</p>';
 		$_ .= '</div>';

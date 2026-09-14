@@ -179,9 +179,15 @@ class UpgradeCore extends Model {
 
 				$this->updateNavigation08();
 
-				$this->updateCannonicals08();
+				$this->updateCanonicals08();
 
 			}
+
+			if(version_compare($db_version, "0.8.1") < 0) {
+
+			}
+
+
 
 			// Run any project specific post-upgade tasks
 			if(method_exists($this, "postUpgrade")) {
@@ -2448,22 +2454,26 @@ class UpgradeCore extends Model {
 
 	}
 
-	// Add cannonical default data
-	function updateCannonicals08() {
+	// Add canonical default data
+	function updateCanonicals08() {
 
-		$items = items()->getItems(["where" => "cannonical IS NULL"]);
+		// Make sure table is updated before looking for canonical null values
+		$this->process($this->synchronizeTable("items"));
+
+		$items = items()->getItems(["where" => "canonical IS NULL"]);
+
 		foreach($items as $item) {
 
 			$model = new Itemtype($item["itemtype"]);
 
-			$options = $model->getCannonicalOptions($item, ["only_safe" => true]);
+			$options = $model->getCanonicalOptions($item, ["only_safe" => true]);
 			if($options) {
-				$cannonical_url = array_shift($options);
-				$model->setCannonicalUrl($item["id"], $cannonical_url);
-				$this->process(["success" => true, "message" => "Cannonical url updated to $cannonical_url, item_id:".$item["id"]], false);
+				$canonical_url = array_shift($options);
+				$model->setCanonicalUrl($item["id"], $canonical_url);
+				$this->process(["success" => true, "message" => "Canonical url updated to $canonical_url, item_id:".$item["id"]], false);
 			}
 			else {
-				$this->process(["success" => false, "message" => "Cannonical url could not be updated, item_id:".$item["id"]], false);
+				$this->process(["success" => false, "message" => "Canonical url could not be updated, item_id:".$item["id"]], false);
 			}
 
 		}
@@ -2479,7 +2489,7 @@ class UpgradeCore extends Model {
 
 		// Find all uploaded files, and match them to items
 
-		// Check all cannonicals, to check if urls still match a meaningful controller
+		// Check all canonicals, to check if urls still match a meaningful controller
 
 	}
 
