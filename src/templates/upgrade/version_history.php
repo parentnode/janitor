@@ -11,6 +11,9 @@ $tables = $query->results("tables");
 ?>
 <div class="scene i:scene defaultList">
 	<h1>Version history overview</h1>
+	<ul class="actions">
+		<li class="update_tools"><a href="/janitor/admin/setup/upgrade" class="button">Update tools</a></li>
+	</ul>
 
 	<p>Version history may grow over time – and it might also be ok to delete old versions with enough time passed.</p>
 	<p>You decide.</p>

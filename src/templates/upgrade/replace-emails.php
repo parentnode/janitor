@@ -6,6 +6,9 @@ email();
 ?>
 <div class="scene i:scene">
 	<h1>Replace emails</h1>
+	<ul class="actions">
+		<li class="update_tools"><a href="/janitor/admin/setup/upgrade" class="button">Update tools</a></li>
+	</ul>
 
 	<h3>Settings</h3>
 

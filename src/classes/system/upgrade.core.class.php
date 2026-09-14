@@ -138,6 +138,13 @@ class UpgradeCore extends Model {
 
 			}
 
+			// Codebase less than 0.8.1
+			if(version_compare(VERSION, "0.8.1") < 0) {
+
+				$this->updateSyntaxTo081();
+
+			}
+
 
 
 			// Gradual database upgrade
@@ -1690,68 +1697,14 @@ class UpgradeCore extends Model {
 
 					// Get model for related item
 					$item_model = items()->typeObject($item["itemtype"]);
+
+					// Model does not exist
+					if(!$item_model) {
+						$this->process(array("success" => false, "message" => "Model for ".$item["itemtype"]." could not be found!"), true);
+					}
+
+
 					$model_entities = $item_model->getModel();
-					// $this->dump($model_entities);
-
-
-					// // OLD HTML editor media
-					// if(preg_match("/^HTML\-/", $media["variant"])) {
-					//
-					// 	$found = false;
-					// 	// debug([$item]);
-					//
-					// 	// Look for HTML inputs to check values for media occurence
-					// 	foreach($item as $name => $value) {
-					//
-					//
-					// 		if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
-					//
-					// 			// Is variant used in this HTML input (item can have several HTML inputs)
-					// 			if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
-					//
-					// 				$new_variant = "HTMLEDITOR-".$name."-".randomKey(8);
-					// 				$new_value = str_replace($media["variant"], $new_variant, $value);
-					// 				$new_value = str_replace($media["name"], urlencode($media["name"]), $new_value);
-					// 				$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
-					// 				// $this->dump($sql);
-					// 				if($query->sql($sql)) {
-					//
-					// 					$sql = "UPDATE ".$item_model->db." SET $name = '".preg_replace("/'/", "\'", $new_value)."' WHERE item_id = ".$media["item_id"];
-					// 					// $this->dump($sql);
-					// 					if($query->sql($sql)) {
-					//
-					// 						filesystem()->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
-					// 						filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-					// 						filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-					// 					}
-					// 				}
-					//
-					// 				$media["variant"] = $new_variant;
-					// 				$found = true;
-					//
-					// 			}
-					//
-					// 		}
-					//
-					// 	}
-					//
-					// 	// Media not found – must be a leftover – clean up
-					// 	if(!$found) {
-					//
-					// 		$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
-					// 		// debug([$sql]);
-					// 		if($query->sql($sql)) {
-					// 			filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-					// 			filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
-					//
-					// 			$this->process(array("success" => true, "message" => "Deleted HTML media remnant: " . $media["id"]), true);
-					// 			$media = false;
-					// 			continue;
-					// 		}
-					//
-					// 	}
-					//
-					// }
 
 					// Regular media
 					// else
@@ -1759,7 +1712,7 @@ class UpgradeCore extends Model {
 
 						$found = false;
 						// $file_inputs = [];
-					
+				
 						// Look for HTML inputs to check values for media occurence
 						foreach($model_entities as $name => $model) {
 
@@ -1772,7 +1725,7 @@ class UpgradeCore extends Model {
 							}
 
 						}
-					
+				
 						if(!$found) {
 
 							// If not found, then assign media to mediae input
@@ -1839,6 +1792,69 @@ class UpgradeCore extends Model {
 						//
 						// }
 					}
+
+					// $this->dump($model_entities);
+
+
+					// // OLD HTML editor media
+					// if(preg_match("/^HTML\-/", $media["variant"])) {
+					//
+					// 	$found = false;
+					// 	// debug([$item]);
+					//
+					// 	// Look for HTML inputs to check values for media occurence
+					// 	foreach($item as $name => $value) {
+					//
+					//
+					// 		if(isset($model_entities[$name]) && $model_entities[$name]["type"] === "html") {
+					//
+					// 			// Is variant used in this HTML input (item can have several HTML inputs)
+					// 			if(preg_match("/variant:".$media["variant"]."( |$)/", $value)) {
+					//
+					// 				$new_variant = "HTMLEDITOR-".$name."-".randomKey(8);
+					// 				$new_value = str_replace($media["variant"], $new_variant, $value);
+					// 				$new_value = str_replace($media["name"], urlencode($media["name"]), $new_value);
+					// 				$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '".$new_variant."' WHERE id = ".$media["id"];
+					// 				// $this->dump($sql);
+					// 				if($query->sql($sql)) {
+					//
+					// 					$sql = "UPDATE ".$item_model->db." SET $name = '".preg_replace("/'/", "\'", $new_value)."' WHERE item_id = ".$media["item_id"];
+					// 					// $this->dump($sql);
+					// 					if($query->sql($sql)) {
+					//
+					// 						filesystem()->copy(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"], PRIVATE_FILE_PATH."/".$media["item_id"]."/".$new_variant);
+					// 						filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 						filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 					}
+					// 				}
+					//
+					// 				$media["variant"] = $new_variant;
+					// 				$found = true;
+					//
+					// 			}
+					//
+					// 		}
+					//
+					// 	}
+					//
+					// 	// Media not found – must be a leftover – clean up
+					// 	if(!$found) {
+					//
+					// 		$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE id = ".$media["id"];
+					// 		// debug([$sql]);
+					// 		if($query->sql($sql)) {
+					// 			filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					// 			filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$media["item_id"]."/".$media["variant"]);
+					//
+					// 			$this->process(array("success" => true, "message" => "Deleted HTML media remnant: " . $media["id"]), true);
+					// 			$media = false;
+					// 			continue;
+					// 		}
+					//
+					// 	}
+					//
+					// }
+
 
 
 					// ADJUST 0 WIDTH AND HEIGHT VALUES TO DEFAULT (NULL)
@@ -2481,8 +2497,118 @@ class UpgradeCore extends Model {
 	}
 
 
+
+	// Version 0.8.1
+
+	// Code update
+	function updateSyntaxTo081() {
+
+
+		// get all php files in theme
+		$php_files = filesystem()->files(LOCAL_PATH, ["allow_extensions" => "php", "include_tempfiles" => true]);
+		foreach($php_files as $php_file) {
+
+			$is_code_altered = false;
+			$code_lines = file($php_file);
+			foreach($code_lines as $line_no => $line) {
+
+				// Change $IC-> to items()
+				if(preg_match("/\\\$IC\-\>/", $line)) {
+
+					$line = preg_replace("/\\\$IC\-\>/", "items()->", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (\$IC-> to items()->) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (\$IC-> to items()->) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Remove $IC = new Items()
+				if(preg_match("/^[ \t]*\\\$IC = new Items\(\);/", $line)) {
+
+					$line = preg_replace("/^[ \t]*\\\$IC = new Items\(\);[ \t]*\n/", "", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REMOVED OLD CODE (\$IC = new Items()) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (\$IC = new Items\(\)) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Remove global $IC;
+				if(preg_match("/^[ \t]*global \\\$IC;/", $line)) {
+
+					$line = preg_replace("/^[ \t]*global \\\$IC;[ \t]*\n/", "", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REMOVED OLD CODE (global \$IC;) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (global \$IC;) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Change $this->navigation to navigation()
+				if(preg_match("/= \\\$this-\>navigation\(\"([a-z\-]+)\"\)/", $line)) {
+
+					$line = preg_replace("/\\\$this-\>navigation\(\"([a-z\-]+)\"\)/", "navigation()->get(\"$1\")", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (\$this->navigation()) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (\$this->navigation()) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Change TypeObject to TypeObject
+				if(preg_match("/TypeObject/", $line)) {
+
+					$line = preg_replace("/TypeObject/", "typeObject", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (TypeObject to typeObject) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (TypeObject to typeObject) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+				// Change items()->typeObject( to model(
+				if(preg_match("/items\(\)-\>typeObject/", $line)) {
+
+					$line = preg_replace("/items\(\)-\>typeObject\(/", "model(", $line);
+					if($code_lines[$line_no] != $line) {
+						$code_lines[$line_no] = $line;
+						$this->process(["success" => false, "message" => "FOUND AND REPLACED OLD CODE (typeObject to model) IN " . $php_file . " in line " . ($line_no+1)]);
+						$is_code_altered = true;
+					}
+					else {
+						$this->process(["success" => false, "message" => "FOUND OLD CODE (typeObject to model) IN " . $php_file . " in line " . ($line_no+1)], true);
+					}
+				}
+
+			}
+
+			// Should we write
+			if($is_code_altered) {
+				file_put_contents($php_file, implode("", $code_lines));
+			}
+
+		}
+
+	}
+
 	// Latest version integrity check
-	// Check file relations, cannonical urls, etc
+	// Check file relations, canonical urls, etc
 	function integrityCheck() {
 
 		$this->process(["success" => false, "message" => "TODO: implement integrity check"], false);
@@ -2532,6 +2658,65 @@ class UpgradeCore extends Model {
 
 	// Replace all user-emails with ADMIN_EMAIL
 	// to create local dev version without triggering emails to real users
+	function updateMediaeVariant($action) {
+
+		$query = new Query();
+
+		$itemtype = getPost("itemtype");
+		$current_variant = getPost("current_variant");
+		$new_variant = getPost("new_variant");
+		$update_all = getPost("update_all");
+
+		if($itemtype && $current_variant && $new_variant) {
+
+			// Find all items
+			$sql = "SELECT id FROM ".UT_ITEMS." WHERE itemtype = '$itemtype'";
+			if($query->sql($sql)) {
+
+				$item_ids = $query->results("id");
+				foreach($item_ids as $item_id) {
+
+					$limit = "";
+					if(!$update_all) {
+						$limit = " LIMIT 1";
+					}
+
+					// Find any mediae for this item
+					$sql = "SELECT id, variant FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant LIKE '$current_variant%'$limit";
+					// debug([$sql]);
+					if($query->sql($sql)) {
+						$results = $query->results();
+
+						foreach($results as $result) {
+
+							$id = $result["id"];
+							$variant = $result["variant"];
+
+							$updated_variant = preg_replace("/^".$current_variant."/", $new_variant, $variant);
+							$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET variant = '$updated_variant' WHERE id = $id";
+							// debug([$sql]);
+							$query->sql($sql);
+
+						}
+
+
+					}
+				}
+
+				return array("message" => "Success! Variants updated.");
+			}
+
+
+			return ["message" => "No variants found."];
+
+		}
+
+		return false;
+
+	}
+
+
+
 	function replaceEmails($action) {
 
 		$query = new Query();
