@@ -804,6 +804,7 @@ class ModuleCore extends Model {
 							foreach($controllers as $controller) {
 								$controller_type = false;
 								$controller_itemtype = false;
+								$access_item = [];
 
 								include($controller);
 
