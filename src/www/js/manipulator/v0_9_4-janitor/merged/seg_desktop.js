@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.4-janitor Copyright 2023 https://manipulator.parentnode.dk
-js-merged @ 2026-08-26 11:31:19
+js-merged @ 2026-09-15 17:40:32
 */
 
 /*seg_desktop_include.js*/
@@ -3764,7 +3764,7 @@ Util.Form = u.f = new function() {
 		var textareas = u.qsa("textarea", _form)
 		for(i = 0; i < inputs.length; i++) {
 			input = inputs[i];
-			if(!u.hc(input, ignore_inputs)) {
+			if(!u.hc(input, ignore_inputs) && input.form === _form) {
 				if((input.type == "checkbox" || input.type == "radio") && input.checked) {
 					if(fun(input.val)) {
 						params.append(input.name, input.val());
@@ -3803,7 +3803,7 @@ Util.Form = u.f = new function() {
 		}
 		for(i = 0; i < selects.length; i++) {
 			select = selects[i];
-			if(!u.hc(select, ignore_inputs)) {
+			if(!u.hc(select, ignore_inputs) && select.form === _form) {
 				if(fun(select.val)) {
 					params.append(select.name, select.val());
 				}
@@ -3814,7 +3814,7 @@ Util.Form = u.f = new function() {
 		}
 		for(i = 0; i < textareas.length; i++) {
 			textarea = textareas[i];
-			if(!u.hc(textarea, ignore_inputs)) {
+			if(!u.hc(textarea, ignore_inputs) && textarea.form === _form) {
 				if(fun(textarea.val)) {
 					params.append(textarea.name, textarea.val());
 				}
@@ -4559,11 +4559,9 @@ u.f.textEditor = function(field) {
 				u.rc(this.tag.bn_classname, "open");
 				u.rc(this.tag, "classname_open");
 				if(classname && classname != "") {
-					u.ac(this.tag.bn_classname, "modified");
 					this.tag.updateClassName(classname);
 				}
 				else {
-					u.rc(this.tag.bn_classname, "modified");
 					this.tag.updateClassName();
 				}
 				this.tag.field.update();
@@ -4928,16 +4926,18 @@ u.f.textEditor = function(field) {
 			this.field.deleteTag(this.tag);
 		}
 		tag.bn_classname = u.ae(tag.ul_tag_options, "li", {"class":"classname"});
-		tag.bn_classname.default_test = "CSS classname";
-		tag.bn_classname.span = u.ae(tag.bn_classname, "span", {"html": tag.bn_classname.default_test});
+		tag.bn_classname.default_text = "CSS classname";
+		tag.bn_classname.span = u.ae(tag.bn_classname, "span", {"html": tag.bn_classname.default_text});
 		tag.updateClassName = function(classname) {
 			if(classname) {
 				this._classname = classname;
 				this.bn_classname.span.innerHTML = classname;
+				u.ac(this.bn_classname, "modified");
 			}
 			else {
 				this._classname = "";
-				this.bn_classname.span.innerHTML = this.bn_classname.default_test
+				this.bn_classname.span.innerHTML = this.bn_classname.default_text
+				u.rc(this.bn_classname, "modified");
 			}
 		}
 		tag.bn_classname.field = this;

@@ -37,7 +37,7 @@ Util.Modules["defaultEdit"] = new function() {
 			u.t.resetTimer(page.t_autosave);
 
 			this.response = function(response) {
-				u.bug("response", response);
+				// u.bug("response", response);
 				// restart autosave
 //				page.t_autosave = u.t.setTimer(this, "autosave", page._autosave_interval);
 
@@ -68,7 +68,7 @@ Util.Modules["defaultEdit"] = new function() {
 		}
 
 		form.updated = function() {
-			u.bug("form has been updated")
+			// u.bug("form has been updated")
 
 			this.change_state = true;
 			u.t.resetTimer(page.t_autosave);
