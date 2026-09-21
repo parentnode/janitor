@@ -1424,12 +1424,13 @@ class HTMLCore {
 	*/
 	function selectedNavigation($link) {
 
-		global $page;
+		global $match_navigation;
 
-		if($link === $page->url) {
+
+		if($link === page()->url || ($match_navigation && $link === $match_navigation)) {
 			return "selected";
 		}
-		else if($link && $link !== "/" && strpos($page->url, $link) !== false) {
+		else if($link && $link !== "/" && strpos(page()->url, $link) !== false) {
 			return "path";
 		}
 		return "";
