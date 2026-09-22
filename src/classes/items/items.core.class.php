@@ -899,7 +899,7 @@ class ItemsCore {
 			// debug([$pattern]);
 
 			// Specific itemtype
-			if($pattern && $pattern["itemtype"]) {
+			if($pattern && isset($pattern["itemtype"]) && $pattern["itemtype"]) {
 
 				// Collect data for this itemtype
 				$model = $this->typeObject($pattern["itemtype"]);
@@ -918,7 +918,9 @@ class ItemsCore {
 					}
 
 					if($searchable_column) {
-						$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.canonical AS canonical, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$pattern["itemtype"]." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
+						// Remove HTML, including metadata UL
+						$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.canonical AS canonical, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<ul class=\"metadata\"[^$]+</ul>|<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$pattern["itemtype"]." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
+						// debug([$sql]);
 
 						if(isset($pattern["status"])) {
 							$sql .= " AND items.status = " .$pattern["status"];
@@ -962,7 +964,9 @@ class ItemsCore {
 							}
 
 							if($searchable_column) {
-								$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.canonical AS canonical, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$itemtype." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
+								// Remove HTML, including metadata UL
+								$sql = "SELECT DISTINCT items.id AS id, items.status AS status, items.itemtype AS itemtype, items.sindex AS sindex, items.canonical AS canonical, items.published_at AS published_at, items.modified_at AS modified_at, items.created_at AS created_at, items.user_id AS user_id, itemtypes.name AS name, REGEXP_REPLACE(REGEXP_REPLACE(CONCAT_WS('###', ".implode(",", $searchable_column)."), '<ul class=\"metadata\"[^$]+</ul>|<[^>]+>|\\\n|\\\r',' '), '[\\\s]+', ' ') AS searchable_string FROM ".SITE_DB.".item_".$itemtype." AS itemtypes, ".UT_ITEMS." AS items WHERE items.id = itemtypes.item_id";
+								// debug([$sql]);
 
 								if(isset($pattern["status"])) {
 									$sql .= " AND items.status = " .$pattern["status"];
@@ -1015,6 +1019,8 @@ class ItemsCore {
 				$SELECT[] = "items.created_at";
 				$SELECT[] = "items.modified_at";
 				$SELECT[] = "items.published_at";
+
+				$SELECT[] = "items.name";
 
 				$SELECT[] = "searchable_string";
 
@@ -1104,7 +1110,7 @@ class ItemsCore {
 
 
 				// Remove view after search
-				$query->sql("DROP VIEW IF EXISTS ".SITE_DB.".".$search_view_id);
+				// $query->sql("DROP VIEW IF EXISTS ".SITE_DB.".".$search_view_id);
 
 				// debug([$results]);
 				return $results;
