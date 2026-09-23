@@ -1110,7 +1110,7 @@ class ItemsCore {
 
 
 				// Remove view after search
-				// $query->sql("DROP VIEW IF EXISTS ".SITE_DB.".".$search_view_id);
+				$query->sql("DROP VIEW IF EXISTS ".SITE_DB.".".$search_view_id);
 
 				// debug([$results]);
 				return $results;
