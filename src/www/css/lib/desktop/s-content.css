@@ -17,6 +17,7 @@
 #content .scene h1 + h2 + ul.actions li {padding-bottom: 0;}
 
 /* DELETE BUTTON */
+#content .scene > ul.actions li.convert,
 #content .scene > ul.actions li.delete,
 #content .scene > ul.actions li.unpaid,
 #content .scene > ul.actions li.duplicate {float: right; padding: 0 0 10px 10px;}

@@ -59,49 +59,55 @@ class System extends Model {
 	function getDataset($id) {
 		// debug(["getDataset", $id, LOCAL_PATH."/templates/janitor/system/data/".$id.".php"]);
 
+		$dataset = false;
 		$complete_model = [];
 
+
+		// Get data set, if exists
 		if(file_exists(LOCAL_PATH."/templates/janitor/system/data/".$id.".php")) {
 			include(LOCAL_PATH."/templates/janitor/system/data/".$id.".php");
-
 
 			$data = $this->getData($id);
 			// debug(["getData", $data]);
 
-			foreach($dataset["model"] as $entity => $properties) {
+			if(isset($dataset["model"])) {
+				foreach($dataset["model"] as $entity => $properties) {
 
-				if(!is_array($dataset["model"][$entity])) {
-					$entity = $properties;
-					$complete_model[$entity] = [];
-				}
-				else {
-					$complete_model[$entity] = $properties;
+					if(!is_array($dataset["model"][$entity])) {
+						$entity = $properties;
+						$complete_model[$entity] = [];
+					}
+					else {
+						$complete_model[$entity] = $properties;
+					}
+
+					if($data && isset($data[$entity])) {
+						$complete_model[$entity]["value"] = $data;
+					}
+
+					if(!isset($dataset["model"][$entity]["type"])) {
+						$complete_model[$entity]["type"] = "string";
+					}
+					if(!isset($dataset["model"][$entity]["label"])) {
+						$complete_model[$entity]["label"] = $entity;
+					}
+
+					if(!isset($dataset["model"][$entity]["hint_message"])) {
+						$complete_model[$entity]["hint_message"] = "$entity";
+					}
+					if(!isset($dataset["model"][$entity]["error_message"])) {
+						$complete_model[$entity]["error_message"] = "Invalid $entity";
+					}
+
+					if(isset($data[$entity])) {
+						$complete_model[$entity]["value"] = $data[$entity];
+					}
 				}
 
-				if($data && isset($data[$entity])) {
-					$complete_model[$entity]["value"] = $data;
-				}
-
-				if(!isset($dataset["model"][$entity]["type"])) {
-					$complete_model[$entity]["type"] = "string";
-				}
-				if(!isset($dataset["model"][$entity]["label"])) {
-					$complete_model[$entity]["label"] = $entity;
-				}
-
-				if(!isset($dataset["model"][$entity]["hint_message"])) {
-					$complete_model[$entity]["hint_message"] = "$entity";
-				}
-				if(!isset($dataset["model"][$entity]["error_message"])) {
-					$complete_model[$entity]["error_message"] = "Invalid $entity";
-				}
-
-				if(isset($data[$entity])) {
-					$complete_model[$entity]["value"] = $data[$entity];
-				}
+				$dataset["model"] = $complete_model;
 			}
 
-			$dataset["model"] = $complete_model;
+			
 
 		}
 		

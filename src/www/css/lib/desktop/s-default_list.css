@@ -29,6 +29,10 @@
 #content div.all_items ul.items > li h3 {padding: 18px 250px 18px 30px; font-size: 16px;}
 
 
+/* SPECIEL LISTING WITH BOTH STANDARD AND CUSTOM ITEMS */
+#content div.all_items ul.items.standard + h2 {margin-top: 30px; margin-bottom: 0;}
+
+
 #content div.all_items ul.items > li h3 span.tag {margin: 0 0 6px 6px; border-radius: 3px; background-color: #313942; padding: 3px 7px 5px; color: #ffffff; font-size: 13px;}
 #content div.all_items ul.items > li h3 span.tag:first-child {margin-left: 12px;}
 

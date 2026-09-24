@@ -18,6 +18,7 @@ $class = (isset($dataset["class"]) ? $dataset["class"] : $id);
 
 	<ul class="actions i:defaultEditActions">
 		<?= $HTML->link("All datasets", "/janitor/admin/system/data", array("class" => "button", "wrapper" => "li.datasets")) ?>
+		<?= $HTML->link("Janitor overview", "/janitor", array("class" => "button", "wrapper" => "li.front")) ?>
 	</ul>
 
 <?	if($description): ?>
@@ -57,6 +58,7 @@ $class = (isset($dataset["class"]) ? $dataset["class"] : $id);
 	</div>
 <?	endif; ?>
 
+<?	if(isset($dataset["model"])): ?>
 	<div class="item i:defaultEdit">
 		<h2>Data, phrases and files</h2>
 
@@ -75,5 +77,6 @@ $class = (isset($dataset["class"]) ? $dataset["class"] : $id);
 
 		<?= $model->formEnd() ?>
 	</div>
+<?	endif; ?>
 
 </div>
