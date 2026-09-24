@@ -399,7 +399,8 @@ class JanitorHTMLCore {
 				if(isset($data["type"]) && $data["type"] == "onebuttonform") {
 					$_ .= $model->oneButtonForm($data["label"], $data["url"], array(
 						"wrapper" => $data["wrapper"],
-						"success-function" => $data["success-function"],
+						"success-function" => isset($data["success-function"]) ? $data["success-function"] : false,
+						"success-location" => isset($data["success-location"]) ? $data["success-location"] : false,
 						"inputs" => isset($data["inputs"]) ? $data["inputs"] : false,
 					));
 				}
