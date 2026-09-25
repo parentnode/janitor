@@ -29,11 +29,13 @@ Util.Modules["defaultTags"] = new function() {
 
 			// Only get tags with allowed contexts
 			div._tags_context = div._tags.getAttribute("data-context");
+			div.tag_contexts = div._tags_context ? div._tags_context.split(/;|,/) : [];
 
-
-			// Identify conditions
-			div.single_context = u.hc(div, "single_context")
-
+			// Identify context conditions
+			div.single_context = (div.tag_contexts.length === 1);
+			if(div.single_context) {
+				u.ac(div, "single_context");
+			}
 
 
 			// tags received

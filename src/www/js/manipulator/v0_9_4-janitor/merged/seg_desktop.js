@@ -1,6 +1,6 @@
 /*
 Manipulator v0.9.4-janitor Copyright 2023 https://manipulator.parentnode.dk
-js-merged @ 2026-09-15 17:40:32
+js-merged @ 2026-09-25 21:33:59
 */
 
 /*seg_desktop_include.js*/
@@ -2375,8 +2375,8 @@ Util.Form = u.f = new function() {
 			if (this.inputs[name] && this.inputs[name].field && this.inputs[name].type != "hidden" && !this.inputs[name].getAttribute("readonly")) {
 				this.inputs[name]._used = false;
 				this.inputs[name].val("");
-				if(fun(u.f.updateDefaultState)) {
-					u.f.updateDefaultState(this.inputs[name]);
+				if(fun(this.inputs[name].updateDefaultState)) {
+					this.inputs[name].updateDefaultState();
 				}
 			}
 		}
@@ -3884,7 +3884,7 @@ u.f.addField = function(node, _options) {
 	var field_label = "Label";
 	var field_type = "string";
 	var field_value = "";
-	var field_options = [];
+	var field_input_options = [];
 	var field_checked = false;
 	var field_class = "";
 	var field_id = "";
@@ -3908,7 +3908,7 @@ u.f.addField = function(node, _options) {
 				case "label"				: field_label				= _options[_argument]; break;
 				case "type"					: field_type				= _options[_argument]; break;
 				case "value"				: field_value				= _options[_argument]; break;
-				case "options"				: field_options				= _options[_argument]; break;
+				case "options"				: field_input_options		= _options[_argument]; break;
 				case "checked"				: field_checked				= _options[_argument]; break;
 				case "class"				: field_class				= _options[_argument]; break;
 				case "id"					: field_id					= _options[_argument]; break;
@@ -4056,10 +4056,10 @@ u.f.addField = function(node, _options) {
 		};
 		u.ae(field, "label", {"for":field_id, "html":field_label});
 		var select = u.ae(field, "select", u.f.verifyAttributes(attributes));
-		if(field_options) {
+		if(field_input_options) {
 			var i, option;
-			for(i = 0; i < field_options.length; i++) {
-				option = field_options[i];
+			for(i = 0; i < field_input_options.length; i++) {
+				option = field_input_options[i];
 				if(option.value == field_value) {
 					u.ae(select, "option", {"value":option.value, "html":option.text, "selected":"selected"});
 				}
@@ -4071,10 +4071,10 @@ u.f.addField = function(node, _options) {
 	}
 	else if(field_type == "radiobuttons") {
 		u.ae(field, "label", {"html":field_label});
-		if(field_options) {
+		if(field_input_options) {
 			var i, option;
-			for(i = 0; i < field_options.length; i++) {
-				option = field_options[i];
+			for(i = 0; i < field_input_options.length; i++) {
+				option = field_input_options[i];
 				var div = u.ae(field, "div", {"class":"item"});
 				if(option.value == field_value) {
 					u.ae(div, "input", {"value":option.value, "id":field_id+"-"+i, "type":"radio", "name":field_name, "checked":"checked"});
@@ -4116,6 +4116,14 @@ u.f.addField = function(node, _options) {
 				u.ae(ul, "li", options);
 			}
 		}
+	}
+	else if(field_type == "output") {
+		attributes = {
+			"id":field_id,
+			"html": field_value,
+		};
+		u.ae(field, "label", {"html":field_label});
+		u.ae(field, "p", u.f.verifyAttributes(attributes));
 	}
 	else {
 		u.bug("input type not implemented")
@@ -4177,10 +4185,32 @@ u.f.addAction = function(node, _options) {
 /*u-form-labelstyle-inject.js*/
 Util.Form.customLabelStyle["inject"] = function(iN) {
 	if(!iN.type || !iN.type.match(/file|radio|checkbox/)) {
+		iN.updateDefaultState = function() {
+			if(this.is_focused || this.val() !== "") {
+				u.rc(this, "default");
+				if(this.field.virtual_input) {
+					u.rc(this.field.virtual_input, "default");
+				}
+				if(this.val() === "" && !this.type.match(/date|datetime|select/)) {
+					this.val("");
+				}
+			}
+			else {
+				if(this.val() === "") {
+					u.ac(this, "default");
+					if(obj(this.field.virtual_input)) {
+						u.ac(this.field.virtual_input, "default");
+					}
+					if(!this.type.match(/date|datetime|select/)) {
+						this.val(this.default_value);
+					}
+				}
+			}
+		}
 		iN.default_value = u.text(iN.label);
-		u.e.addEvent(iN, "focus", u.f._changed_state);
-		u.e.addEvent(iN, "blur", u.f._changed_state);
-		u.e.addEvent(iN, "change", u.f._changed_state);
+		u.e.addEvent(iN, "focus", iN.updateDefaultState);
+		u.e.addEvent(iN, "blur", iN.updateDefaultState);
+		u.e.addEvent(iN, "change", iN.updateDefaultState);
 		if(iN.type.match(/number|integer|password/)) {
 			iN.pseudolabel = u.ae(iN.parentNode, "span", {"class":"pseudolabel", "html":iN.default_value});
 			iN.pseudolabel.iN = iN;
@@ -4192,32 +4222,7 @@ Util.Form.customLabelStyle["inject"] = function(iN) {
 				this.iN.focus();
 			}
 		}
-		u.f.updateDefaultState(iN);
-	}
-}
-u.f._changed_state = function() {
-	u.f.updateDefaultState(this);
-}
-u.f.updateDefaultState = function(iN) {
-	if(iN.is_focused || iN.val() !== "") {
-		u.rc(iN, "default");
-		if(iN.field.virtual_input) {
-			u.rc(iN.field.virtual_input, "default");
-		}
-		if(iN.val() === "" && !iN.type.match(/date|datetime|select/)) {
-			iN.val("");
-		}
-	}
-	else {
-		if(iN.val() === "") {
-			u.ac(iN, "default");
-			if(obj(iN.field.virtual_input)) {
-				u.ac(iN.field.virtual_input, "default");
-			}
-			if(!iN.type.match(/date|datetime|select/)) {
-				iN.val(iN.default_value);
-			}
-		}
+		iN.updateDefaultState(iN);
 	}
 }
 

@@ -54,7 +54,13 @@ div.field.paragraph label {display: inline-block; vertical-align: top; line-heig
 div.field.paragraph label:after {content: ":";}
 div.field.paragraph p {display: inline-block; vertical-align: top; padding: 0 0 0 2px;} 
 
-div.field.output p {padding: 5px 6px; width: 366px !important; border-radius: 3px; margin: 3px; background: #ffffff;}
+
+
+div.field.output p {padding: 12px !important; font-size: 16px;
+/*	width: 366px !important;*/
+	width: auto !important;
+	line-height: 1em;
+	border-radius: 3px; background: #ffffff;}
 
 
 div.field.list label {} 
@@ -684,8 +690,8 @@ ul.actions a.button.secondary.focus,
 #content ul.actions li.status input.button {font-size: 0; height: 36px; width: 36px; padding: 0 18px;}
 #content ul.actions li.status form.disable input.button {background-color: #f4f5f5; border-left: 3px solid #8c9399; border-top: 3px solid #8c9399; border-right: 36px solid #8c9399; border-bottom: 3px solid #8c9399;}
 #content ul.actions li.status form.enable input.button {background-color: #f4f5f5; border-right: 3px solid orange; border-top: 3px solid orange; border-left: 36px solid orange; border-bottom: 3px solid orange;}
-#content ul.actions li.status form.disable:after {content: "ON"; font-size: 12px; font-weight: 700; color: #8c9399; display: block; width: 20px; height: 20px; position: relative; top: -25px; left: 10px;}
-#content ul.actions li.status form.enable:after {content: "OFF"; font-size: 12px; font-weight: 700; color: orange; display: block; width: 20px; height: 20px; position: relative; top: -25px; left: 42px;}
+#content ul.actions li.status form.disable:after {content: "ON"; font-size: 12px; font-weight: 700; color: #8c9399; display: block; width: 20px; height: 20px; position: relative; margin-top: -25px; left: 10px;}
+#content ul.actions li.status form.enable:after {content: "OFF"; font-size: 12px; font-weight: 700; color: orange; display: block; width: 20px; height: 20px; position: relative; margin-top: -25px; left: 42px;}
 #content ul.actions li.status.enabled form.enable {display: none;}
 #content ul.actions li.status.disabled form.disable {display: none;}
 

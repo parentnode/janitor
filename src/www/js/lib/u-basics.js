@@ -470,33 +470,90 @@ u.activateTagging = function(node) {
 
 	// create add tag form
 	node._tag_form = u.f.addForm(node._tag_options, {"action": node.data_div.add_tag_url});
+	node._tag_form.node = node;
+
 	u.f.addField(node._tag_form, {"type":"hidden", "name":"csrf-token", "value":node.data_div.csrf_token});
 
 
-	var input_label = node.getAttribute("data-input-label") || "Tag";
-	var input_hint_message = node.getAttribute("data-input-hint-message") || "Type to filter existing options or add a new";
-	var input_error_message = node.getAttribute("data-input-error-message") || (node.single_context ? "Value must be unique, containing only letters and hypens." : "Tag must be unique and conform to tag format: context:value");
+	var context_input_label = node.getAttribute("data-context-input-label") || "Context";
+	var value_input_label = node.getAttribute("data-value-input-label") || "Value";
+
+	var context_input_hint_message = node.getAttribute("data-context-input-hint-message") || "Context value";
+	var context_input_error_message = node.getAttribute("data-context-input-error-message") || "Lowercase letters only.";
+
+	var value_input_hint_message = node.getAttribute("data-value-input-hint-message") || "Tag value";
+	var value_input_error_message = node.getAttribute("data-value-input-error-message") || "Context:value must be unique.";
+
 	var button_text = node.getAttribute("data-button-text") || "Add new tag";
 
 	var label_available = node.getAttribute("data-label-available") || "Existing tags";
 	var label_no_available = node.getAttribute("data-label-no-available") || "No tags available";
 
-	var pattern = node.single_context ? "[^:]+" : (node._tags_context ? "^("+node._tags_context.split(/,|;/).join("|")+")\:[^$]+" : "[^$]+\:[^$]+");
+	// // var tag_contexts = node._tags_context ? node._tags_context.split(/,|;/) : [];
+	// var pattern = node.single_context ? "[^:]+" : (node.tag_contexts ? "^("+node.tag_contexts.join("|")+")\:[^$]+" : "[^$]+\:[^$]+");
 
 
 	// add fieldset
 	var fieldset = u.f.addFieldset(node._tag_form);
+
+	// Single tag context
+	if(node.single_context) {
+
+		u.f.addField(fieldset, {
+			"type": "output",
+			"value": node.tag_contexts[0],
+			"label": context_input_label,
+			"hint_message": context_input_hint_message, 
+			"error_message": context_input_error_message, 
+		});
+
+	}
+	// Multiple tag options
+	else if(node.tag_contexts.length) {
+
+		var i, tag_context, options = [];
+		for(i = 0; i < node.tag_contexts.length; i++) {
+			tag_context = node.tag_contexts[i];
+			options.push({"text":tag_context, "value":tag_context});
+		}
+		u.f.addField(fieldset, {
+			"name": "tag_context",
+			"type": "select",
+			"options": options,
+			"label": context_input_label,
+			"hint_message": context_input_hint_message, 
+			"error_message": context_input_error_message, 
+		});
+
+	}
+	// No context restrictions
+	else {
+
+		u.f.addField(fieldset, {
+			"name": "tag_context",
+			"type": "string",
+			"pattern": "[a-z]+",
+			"label": context_input_label,
+			"hint_message": context_input_hint_message, 
+			"error_message": context_input_error_message, 
+		});
+
+	}
+
+	u.ae(fieldset, "span", {"class":"colon", "html": ":"});
+
 	// add input field
 	u.f.addField(fieldset, {
-		"name": "tags", 
+		"name": "tag_value", 
 		"class": "newtag",
 		"value": "", 
 		"id": "tag_input_"+node._item_id, 
-		"label": input_label, 
-		"hint_message": input_hint_message, 
-		"error_message": input_error_message, 
-		"pattern": pattern
+		"label": value_input_label, 
+		"hint_message": value_input_hint_message, 
+		"error_message": value_input_error_message, 
+		"pattern": "[^\:]+",
 	});
+
 	// add submit button
 	u.f.addAction(node._tag_form, {"class": "button primary", "value": button_text});
 
@@ -508,19 +565,17 @@ u.activateTagging = function(node) {
 		var i, tag;
 		for(i = 0; i < iN._form.node.data_div.all_tags.length; i++) {
 			tag = iN._form.node.data_div.all_tags[i];
-			if(node.single_context) {
-				existing_tags.push(tag["value"]);
-			}
-			else {
-				existing_tags.push(tag["context"]+":"+tag["value"]);
-			}
+			existing_tags.push(tag["context"]+":"+tag["value"]);
 		}
 		pattern = iN.getAttribute("pattern");
-		// u.bug(pattern, "^("+existing_tags.join("|")+")$", iN.val());
+
+		// Combine current tag 
+		tag = (iN._form.inputs["tag_context"] ? iN._form.inputs["tag_context"].val() : iN._form.node.tag_contexts[0]) + ":" + iN.val();
+		// u.bug("tag", tag);
 
 		if(
 			iN.val() &&
-			!iN.val().match("^("+existing_tags.join("|")+")$") && 
+			!tag.match("^("+existing_tags.join("|")+")$") && 
 			(!pattern || iN.val().match("^"+pattern+"$"))
 		) {
 			u.f.inputIsCorrect(iN);
@@ -537,16 +592,43 @@ u.activateTagging = function(node) {
 	node._tag_form.node = node;
 
 	// filter tags when typing
-	node._tag_form.inputs["tags"].updated = function() {
+
+	// If context input is available (only if context is not single context)
+	if(node._tag_form.inputs["tag_context"]) {
+
+		// Filter existing tags based on context
+		node._tag_form.inputs["tag_context"].updated = function() {
+
+			this._form.filterTags();
+
+		}
+	}
+
+	// Filter existing tags based on values
+	node._tag_form.inputs["tag_value"].updated = function() {
+
+		this._form.filterTags();
+
+	}
+
+
+	node._tag_form.filterTags = function() {
 
 		// only filter if new tags list exists
-		if(this._form.node._new_tags) {
+		if(this.node._new_tags) {
+
+			var context = this.inputs["tag_context"] ? this.inputs["tag_context"].val() : "";
+			var value = this.inputs["tag_value"].val();
+
 			// get all new tags
-			var tags = u.qsa(".tag", this.form.node._new_tags);
-			var i, tag;
-			// loop through all new tags and hide tag if it doesn't match field value
-			for(i = 0; tag = tags[i]; i++) {
-				if(u.text(tag).toLowerCase().match(this.val().toLowerCase())) {
+			var tags = u.qsa(".tag", this.node._new_tags);
+			var i;
+			// value = u.qs("span.value", tag);
+			// loop through all new values and hide value if it doesn't match field value
+			for(i = 0; i < tags.length; i++) {
+				tag = tags[i];
+
+				if((!context || tag._context.toLowerCase().match('^'+context)) && (!value || tag._value.toLowerCase().match(value))) {
 					u.as(tag, "display", "inline-block");
 				}
 				else {
@@ -554,6 +636,7 @@ u.activateTagging = function(node) {
 				}
 			}
 		}
+
 	}
 
 	// New tag submitted
@@ -567,9 +650,17 @@ u.activateTagging = function(node) {
 			if(response.cms_status == "success") {
 
 				// clear tag field and update filtering
-				this.inputs["tags"].val("");
-				this.inputs["tags"].updated();
-				this.inputs["tags"].focus();
+				this.reset();
+				this.filterTags();
+				// this.inputs["tag_value"].val("");
+				// this.inputs["tags"].updated();
+				if(this.inputs["tag_context"]) {
+					this.inputs["tag_context"].focus();
+				}
+				else {
+					this.inputs["tag_value"].focus();
+				}
+
 
 
 				// New tag was added successfully
@@ -632,13 +723,23 @@ u.activateTagging = function(node) {
 
 		// Append context to single_context tags, to fulfill serverside validation
 		if(this.node.single_context) {
-			data.set("tags", this.node._tags_context+":"+data.get("tags"));
+			data.set("tags", this.node.tag_contexts[0]+":"+data.get("tag_value"));
+		}
+		else {
+			data.set("tags", data.get("tag_context")+":"+data.get("tag_value"));
 		}
 
 		u.request(this, this.action+"/"+this.node._item_id, {"method": "post", "data": data});
 	}
+
+
 	// add focus to tag field
-	node._tag_form.inputs["tags"].focus();
+	if(node._tag_form.inputs["tag_context"]) {
+		node._tag_form.inputs["tag_context"].focus();
+	}
+	else {
+		node._tag_form.inputs["tag_value"].focus();
+	}
 
 
 	// add list with available tag options

@@ -1,5 +1,5 @@
 /* BASIC TAGS */
-#content ul.tags {padding: 0 125px 4px 30px;}
+#content ul.tags {padding: 0 30px 4px;}
 #content ul.tags li{user-select: none;}
 #content ul.tags li.tag {margin: 0 6px 6px 0; border-radius: 3px; background-color: #313942; padding: 6px 14px 8px; color: #ffffff; font-size: 0;}
 #content ul.tags li.tag span {font-size: 13px; line-height: 1em; color: #ffffff;}
@@ -17,17 +17,50 @@
 
 	color: #aaaaaa; line-height: 16px;}
 #content .scene > div.tags.edittags label.tags {display: block;}
-#content .scene > div.tags ul.tags {padding: 0 125px 14px 30px;}
+#content .scene > div.tags ul.tags {padding: 0 30px 14px;}
 
 
+#content li.item.single_context ul.tags li.tag span.context,
 #content div.single_context ul.tags li.tag span.context {display: none;}
 
 /* ADD TAG FORM */
-#content div.tagoptions fieldset {display: inline-block; vertical-align: top;}
-#content div.tagoptions fieldset .field {padding-right: 12px;}
-#content div.tagoptions fieldset .field input[type=text] {min-width: 362px;}
+#content div.tagoptions form {display: flex; max-width: 600px;}
+#content div.tagoptions fieldset {
+	flex: 80% 1 1;
+/*	display: inline-block; vertical-align: top;*/
+}
+#content div.tagoptions fieldset .field {padding-right: 0;
+	display: inline-block; vertical-align: top;
+	width: calc(40% - ((30px + 27px) / 2) );
+}
+#content div.tagoptions fieldset .field + span.colon {
+	display: inline-block; vertical-align: top;
+	padding: 26px 5px 0;
+	content: ":";
+	font-size: 16px;
+	font-weight: bold;
+}
+#content div.tagoptions fieldset .field + span.colon + .field {padding-left: 0 !important; padding-right: 12px;
+	width: calc(60% - ((30px + 27px) / 2) );
+}
+#content div.tagoptions fieldset .field select,
+#content div.tagoptions fieldset .field input[type=text] {
+	width: calc( 100% );
+/*	min-width: 362px;*/
+}
+#content div.tagoptions fieldset .field div.help {
+	width: calc(100% - 30px);
+}
 
-#content div.tagoptions ul.actions {display: inline-block; vertical-align: top; padding: 3px 0 0;}
+#content div.tagoptions fieldset .field + span.colon + .field div.help {
+	width: calc(100% - 12px);
+}
+
+
+#content div.tagoptions ul.actions {
+	flex: 60px 1 1;
+/*	display: inline-block; vertical-align: top;*/
+	padding: 3px 30px 0 0 !important;}
 #content div.tagoptions ul.actions li {padding-left: 0; padding-top: 11px;}
 #content div.tagoptions ul.actions li input {margin-top: 4px;}
 
@@ -59,8 +92,14 @@
 #content div.all_items div.text > ul.tags li.empty {display: none;}
 
 #content div.all_items ul.items > li div.tagoptions ul.actions {position: static; right: auto; top: auto;}
-#content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 14px;}
-#content div.sortable div.tagoptions .field {padding-left: 55px; padding-bottom: 25px;}
+#content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 11px;}
+
+#content div.sortable div.tagoptions .field {padding-left: 55px; padding-bottom: 25px;
+	width: calc(40% - ((55px + 27px) / 2) );
+}
+#content div.tagoptions fieldset .field + span.colon + .field {
+	width: calc(60% - ((55px + 27px) / 2) );
+}
 
 
 

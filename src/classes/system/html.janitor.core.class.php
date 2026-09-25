@@ -692,9 +692,15 @@ class JanitorHTMLCore {
 		$context = [];
 
 
-		$input_label = "Tag";
-		$input_hint_message = "Type to filter existing options or add a new";
-		$input_error_message = false;
+		$context_input_label = "Context";
+		$value_input_label = "Value";
+
+		$context_input_hint_message = "Lowercase letters only.";
+		$context_input_error_message = "Lowercase letters only.";
+
+		$value_input_hint_message = "Context:value must be unique.";
+		$value_input_error_message = "Context:value must be unique.";
+
 		$button_text = "Add new tag";
 		
 		$label_available = "Existing tags";
@@ -705,49 +711,44 @@ class JanitorHTMLCore {
 			foreach($_options as $_option => $_value) {
 				switch($_option) {
 
-					case "title"                 : $title                   = $_value; break;
+					case "title"                         : $title                           = $_value; break;
 
-					case "class"                 : $class                   = $_value; break;
-					case "class_init"            : $class_init              = $_value; break;
+					case "class"                         : $class                           = $_value; break;
+					case "class_init"                    : $class_init                      = $_value; break;
 
-					case "limit"                 : $limit                   = $_value; break;
-					case "context"               : $context                 = $_value; break;
+					case "limit"                         : $limit                           = $_value; break;
+					case "context"                       : $context                         = $_value; break;
 
-					case "input_label"           : $input_label             = $_value; break;
-					case "input_hint_message"    : $input_hint_message      = $_value; break;
-					case "input_error_message"   : $input_error_message     = $_value; break;
-					case "button_text"           : $button_text             = $_value; break;
+					case "context_input_label"           : $context_input_label             = $_value; break;
+					case "value_input_label"             : $value_input_label               = $_value; break;
 
-					case "label_available"       : $label_available         = $_value; break;
-					case "label_no_available"    : $label_no_available      = $_value; break;
+					case "context_input_hint_message"    : $context_input_hint_message      = $_value; break;
+					case "context_input_error_message"   : $context_input_error_message     = $_value; break;
+
+					case "input_hint_message"            : $input_hint_message              = $_value; break;
+					case "input_error_message"           : $input_error_message             = $_value; break;
+
+					case "button_text"                   : $button_text                     = $_value; break;
+
+					case "label_available"               : $label_available                 = $_value; break;
+					case "label_no_available"            : $label_no_available              = $_value; break;
 
 				}
 			}
 		}
 
-		$context_type = "";
-		if($context && count(preg_split("/,|;/", $context)) === 1) {
-			$context_type = "single_context";
-		}
-
-
-		if(!$input_error_message) {
-			if($context_type === "single_context") {
-				$input_error_message = "Value must be unique, containing only letters and hypens.";
-			}
-			else {
-				$input_error_message = "Tag must be unique and conform to tag format: context:value";
-			}
-		}
 
 		$_ = '';
 		$_ .= '<div';
-			$_ .= HTML()->attribute("class", "tags", "item_id:".$item["id"], $class, $class_init, $context_type);
+			$_ .= HTML()->attribute("class", "tags", "item_id:".$item["id"], $class, $class_init);
 			$_ .= HTML()->jsData(["tags", "custom" => [
 				"limit" => $limit,
-				"input-label" => $input_label,
-				"input-hint-message" => $input_hint_message,
-				"input-error-message" => $input_error_message,
+				"context-input-label" => $context_input_label,
+				"value-input-label" => $value_input_label,
+				"context-input-hint-message" => $context_input_hint_message,
+				"context-input-error-message" => $context_input_error_message,
+				"value-input-hint-message" => $value_input_hint_message,
+				"value-input-error-message" => $value_input_error_message,
 				"button-text" => $button_text,
 				"label-available" => $label_available,
 				"label-no-available" => $label_no_available,

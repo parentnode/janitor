@@ -345,9 +345,13 @@ Util.Modules["defaultList"] = new function() {
 
 						// Only get tags with allowed contexts
 						node._tags_context = node._tags.getAttribute("data-context");
+						node.tag_contexts = node._tags_context ? node._tags_context.split(/;|,/) : [];
 
-						// Identify conditions
-						node.single_context = u.hc(node, "single_context")
+						// Identify context conditions
+						node.single_context = (node.tag_contexts.length === 1);
+						if(node.single_context) {
+							u.ac(node, "single_context");
+						}
 
 
 						// enable tagging
