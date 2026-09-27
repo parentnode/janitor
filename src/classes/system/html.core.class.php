@@ -275,7 +275,11 @@ class HTMLCore {
 		$att_item_id = $this->attribute("data-item_id", $item_id);
 
 		$_ .= '<form'.$att_action.$att_method.$att_target.$att_class.$att_id.$att_enctype.$att_item_id.'>'."\n";
-		$_ .= '<input type="hidden" name="csrf-token" value="'.security()->getValue("csrf").'" />'."\n";
+
+		// GETs will not use csrf-token
+		if($method !== "get") {
+			$_ .= '<input type="hidden" name="csrf-token" value="'.security()->getValue("csrf").'" />'."\n";
+		}
 
 
 		return $_;
