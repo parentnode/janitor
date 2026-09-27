@@ -1805,236 +1805,6 @@ class ItemtypeCore extends Model {
 	// MEDIA 
 
 
-	// custom function to add media
-	// /#controller#/addMedia/#item_id#/#variant#
-	function _addMedia($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-
-		if(count($action) == 3) {
-
-			$query = new Query();
-			$item_id = $action[1];
-			$variant = $action[2];
-
-			$query->checkDbExistence(UT_ITEMS_MEDIAE);
-
-
-			// Attempt to upload (upload will validate input)
-			$uploads = $this->upload($item_id, [
-				"input_name" => $variant, 
-				"auto_add_variant" => true
-			]);
-
-			// Successful upload
-			if($uploads) {
-
-				$return_values = array();
-
-				foreach($uploads as $upload) {
-
-					$name = $upload["name"];
-					$variant = $upload["variant"];
-					$format = $upload["format"];
-					$width = $upload["width"];
-					$height = $upload["height"];
-					$filesize = $upload["filesize"];
-
-					// Add new assets
-					// $query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$upload["name"]."', '".$upload["format"]."', '".$upload["variant"]."', '".$upload["width"]."', '".$upload["height"]."', '".$upload["filesize"]."', 0)");
-					// $query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', ".($width ? "'$width'" : "DEFAULT").", ".($height ? "'$height'" : "DEFAULT").", '$filesize', 0)");
-
-					$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
-					$sql .= "item_id='".$item_id."',";
-					$sql .= "name='".$name."',";
-					$sql .= "format='".$format."',";
-					$sql .= "variant='".$variant."',";
-					$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
-					$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
-					$sql .= "filesize='".$filesize."',";
-					$sql .= "position=0";
-
-					$query->sql($sql);
-
-					// return upload data in standard mediae array
-					$return_values[$variant] = array(
-						"id" => $query->lastInsertId(), 
-						"item_id" => $item_id, 
-						"name" => $name, 
-						"variant" => $variant, 
-						"format" => $format, 
-						"width" => $width, 
-						"height" => $height,
-						"filesize" => $filesize
-					);
-
-				}
-
-				// return upload data
-				return ["mediae" => $return_values];
-			}
-
-		}
-
-		return false;
-	}
-
-
-	// custom function to add single media
-	// /#controller#/addSingleMedia/#item_id#/#variant#
-	function _addSingleMedia($action) {
-
-		// Get posted values to make them available for models
-		$this->getPostedEntities();
-
-
-		if(count($action) == 3) {
-			$query = new Query();
-
-			$item_id = $action[1];
-			$variant = $action[2];
-
-			$query->checkDbExistence(UT_ITEMS_MEDIAE);
-
-			// Attempt to upload (upload will validate input)
-			$uploads = $this->upload($item_id, [
-				"input_name" => $variant
-			]);
-
-			// Successful upload
-			if($uploads) {
-
-				$name = $uploads[0]["name"];
-				$variant = $uploads[0]["variant"];
-				$format = $uploads[0]["format"];
-				$width = $uploads[0]["width"];
-				$height = $uploads[0]["height"];
-				$filesize = $uploads[0]["filesize"];
-
-				// Replace assets
-				$query->sql("DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '$variant'");
-				// $query->sql("INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '$name', '$format', '$variant', ".($width ? "'$width'" : "DEFAULT").", ".($height ? "'$height'" : "DEFAULT").", '$filesize', 0)");
-
-				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
-				$sql .= "item_id='".$item_id."',";
-				$sql .= "name='".$name."',";
-				$sql .= "format='".$format."',";
-				$sql .= "variant='".$variant."',";
-				$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
-				$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
-				$sql .= "filesize='".$filesize."',";
-				$sql .= "position=0";
-				debug(["addSingleMedia", $sql]);
-				$query->sql($sql);
-
-				// return upload data in standard mediae array
-				return ["mediae" => [$variant => [
-					"id" => $query->lastInsertId(), 
-					"item_id" => $item_id, 
-					"name" => $name,
-					"variant" => $variant, 
-					"format" => $format, 
-					"width" => $width,
-					"height" => $height,
-					"filesize" => $filesize
-				]]];
-
-			}
-
-		}
-
-		return false;
-	}
-
-
-	// delete image - 3 parameters exactly
-	// /janitor/[admin/]#itemtype#/deleteImage/#item_id#/#variant#
-	// TODO: implement itemtype checks
-	// DEBATE: PROS/CONS of itemtype checks
-	function _deleteMedia($action) {
-
-		if(count($action) == 3) {
-
-			$item_id = $action[1];
-			$variant = $action[2];
-
-			$query = new Query();
-
-
-			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
-//			print $sql."<br>\n";
-			if($query->sql($sql)) {
-
-				filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
-				filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
-
-				message()->addMessage("Media deleted");
-				return true;
-			}
-		}
-
-		message()->addMessage("Media could not be deleted", array("type" => "error"));
-		return false;
-	}
-
-
-	// Update media name
-	// /janitor/post/updateMediaName
-	// TODO: implement itemtype checks
-	// /janitor/[admin/]#itemtype#/updateMediaName/#item_id#/#variant#
-	function _updateMediaName($action) {
-
-		if(count($action) == 3) {
-
-			$item_id = $action[1];
-			$variant = $action[2];
-
-			$query = new Query();
-			$name = getPost("name");
-
-			$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET name = '$name', modified_at = CURRENT_TIMESTAMP WHERE item_id = ".$item_id." AND variant = '".$variant."'";
-			// debug([$sql]);
-			if($query->sql($sql)) {
-				message()->addMessage("Media name updated");
-				return true;
-			}
-		}
-
-		message()->addMessage("Media name could not be updated - please refresh your browser", array("type" => "error"));
-		return false;
-	}
-
-
-	// update media order
-	// TODO: implement itemtype checks
-	// /janitor/[admin/]#itemtype#/updateMediaOrder (comma-separated order in POST)
-	function _updateMediaOrder($action) {
-
-		$order_list = getPost("order");
-		if(count($action) == 2 && $order_list) {
-
-			$item_id = $action[1];
-
-			$query = new Query();
-			$order = explode(",", $order_list);
-
-			for($i = 0; $i < count($order); $i++) {
-				$media_id = $order[$i];
-				$sql = "UPDATE ".UT_ITEMS_MEDIAE." SET position = ".($i+1)." WHERE id = $media_id AND item_id = $item_id";
-				$query->sql($sql);
-			}
-
-			message()->addMessage("Media order updated");
-			return true;
-		}
-
-		message()->addMessage("Media order could not be updated - refresh your browser", array("type" => "error"));
-		return false;
-
-	}
-
 	// API to get file info
 	// to validate files which cannot be validated clientside
 	// - .mov missing width height
@@ -2236,108 +2006,6 @@ class ItemtypeCore extends Model {
 
 
 
-
-	// HTML EDITOR
-
-
-	// custom function to add html media
-	// TODO: implement itemtype checks
-	// /janitor/[admin/]#itemtype#/addHTMLMedia/#item_id#
-	function _addHTMLMedia($action) {
-
-		if(count($action) == 2) {
-			$query = new Query();
-
-			$item_id = $action[1];
-
-			$query->checkDbExistence(UT_ITEMS_MEDIAE);
-
-
-			// Get name of related HTML input
-			$input_name = getPost("input-name");
-
-
-			// Upload media
-			$uploads = $this->upload($item_id, [
-				"input_name" => "htmleditor_media", 
-				"variant" => "HTMLEDITOR-".$input_name."-".randomKey(8)
-			]);
-
-			// Successful upload
-			if($uploads) {
-
-				$name = $uploads[0]["name"];
-				$variant = $uploads[0]["variant"];
-				$format = $uploads[0]["format"];
-				$width = $uploads[0]["width"];
-				$height = $uploads[0]["height"];
-				$filesize = $uploads[0]["filesize"];
-
-
-				$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = $item_id AND variant = '$variant'";
-				$query->sql($sql);
-
-
-
-				// $sql = "INSERT INTO ".UT_ITEMS_MEDIAE." VALUES(DEFAULT, $item_id, '".$uploads[0]["name"]."', '".$uploads[0]["format"]."', '".$uploads[0]["variant"]."', '".$uploads[0]["width"]."', '".$uploads[0]["height"]."', '".$uploads[0]["filesize"]."', 0)";
-
-				$sql = "INSERT INTO ".UT_ITEMS_MEDIAE." SET ";
-				$sql .= "item_id='".$item_id."',";
-				$sql .= "name='".$name."',";
-				$sql .= "format='".$format."',";
-				$sql .= "variant='".$variant."',";
-				$sql .= "width=".($width ? "'$width'" : "DEFAULT").",";
-				$sql .= "height=".($height ? "'$height'" : "DEFAULT").",";
-				$sql .= "filesize='".$filesize."',";
-				$sql .= "position=0";
-
-				$query->sql($sql);
-
-				return array(
-					"id" => $query->lastInsertId(), 
-					"item_id" => $item_id, 
-					"name" => $name,
-					"variant" => $variant, 
-					"format" => $format, 
-					"width" => $width,
-					"height" => $height,
-					"filesize" => $filesize
-				);
-			}
-		}
-
-		return false;
-	}
-
-	// delete media from HTML editor - 3 parameters exactly
-	// TODO: implement itemtype checks
-	// /janitor/[admin/]#itemtype#/deleteHTMLMedia/#item_id#/#variant#
-	function _deleteHTMLMedia($action) {
-
-		if(count($action) == 3) {
-
-			$query = new Query();
-
-			$item_id = $action[1];
-			$variant = $action[2];
-
-
-			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
-			if($query->sql($sql)) {
-				filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
-				filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
-
-				message()->addMessage("Media deleted");
-				return true;
-			}
-		}
-
-		message()->addMessage("Media could not be deleted", array("type" => "error"));
-		return false;
-	}
-
-
-
 	// custom function to add file
 	// Can upload files and media for HTML input
 	// – poster for external video tag
@@ -2400,6 +2068,7 @@ class ItemtypeCore extends Model {
 
 
 	function addFile($_options = false) {
+		// debug(["addFile", $_options]);
 
 		$item_id = false;
 		$input_name = false;
@@ -2507,7 +2176,6 @@ class ItemtypeCore extends Model {
 				// Adding new media, file or ext_video poster
 				else {
 
-
 					$completed_uploads = [];
 
 					foreach($uploads as $i => $upload) {
@@ -2540,48 +2208,42 @@ class ItemtypeCore extends Model {
 
 					}
 
+
+					// Identify extra conditions, 
+					// file max = 1, existing files must be deleted (after successful upload)
+					$item = items()->getItem(["id" => $item_id]);
+					$model = model($item["itemtype"])->getModel();
+					// Max 1 file and 1 file uploaded
+					if($model[$input_name]["type"] === "files" && isset($model[$input_name]["max"]) && $model[$input_name]["max"] === 1 && count($completed_uploads) === 1) {
+
+						// Find existing mediae
+						$mediae = items()->getMediae(["item_id" => $item_id, "variant_filter" => $input_name]);
+						// More than one media
+						if(count($mediae) > 1) {
+							foreach($mediae as $media) {
+								// Not current upload, must be deleted
+								if($media["variant"] !== $completed_uploads[0]["variant"]) {
+									$this->deleteFile([
+										"item_id" => $item_id,
+										"variant" => $media["variant"]
+									]);
+								}
+							}
+						}
+
+					}
+
+
 					return $completed_uploads;
-					// $uploads;
-					// items()->getMediae(["item_id" => $item_id]);
-					// items()->getItem([
-					// 	"item_id" => $item_id, "extend" => ["mediae" => true]
-					// ]);
 
 				}
 
 			}
+
 		}
 
 		return false;
 	}
-
-	// delete file from HTML editor - 3 parameters exactly
-	// TODO: implement itemtype checks
-	// /janitor/[admin/]#itemtype#/deleteHTMLFile/#item_id#/#variant#
-	function _deleteHTMLFile($action) {
-
-		if(count($action) == 3) {
-
-			$query = new Query();
-
-			$item_id = $action[1];
-			$variant = $action[2];
-
-
-			$sql = "DELETE FROM ".UT_ITEMS_MEDIAE." WHERE item_id = ".$item_id." AND variant = '".$variant."'";
-			if($query->sql($sql)) {
-				filesystem()->removeDirRecursively(PUBLIC_FILE_PATH."/".$item_id."/".$variant);
-				filesystem()->removeDirRecursively(PRIVATE_FILE_PATH."/".$item_id."/".$variant);
-
-				message()->addMessage("File deleted");
-				return true;
-			}
-		}
-
-		message()->addMessage("File could not be deleted", array("type" => "error"));
-		return false;
-	}
-
 
 	// API Method
 	// delete file from HTML editor
