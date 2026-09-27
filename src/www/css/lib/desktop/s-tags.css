@@ -30,20 +30,20 @@
 	flex: 1 1 100%;
 	display: flex;
 }
-#content div.tagoptions fieldset .field:first-child {padding-right: 0; 
+#content div.tagoptions fieldset div.field:first-child {padding-right: 0; 
 	flex: 0 1 40%;
 }
 #content div.tagoptions fieldset span.colon {padding: 26px 5px 0; font-size: 16px; font-weight: bold;
 	content: ":";
 	flex: 0 0;
 }
-#content div.tagoptions fieldset .field:nth-child(3) {padding-left: 0; padding-right: 12px;
+#content div.tagoptions fieldset div.field:nth-child(3) {padding-left: 0; padding-right: 12px;
 	flex: 0 1 60%;
 }
-#content div.tagoptions fieldset .field select,
-#content div.tagoptions fieldset .field input[type=text] {width: calc( 100% ); min-width: 110px;}
-#content div.tagoptions fieldset .field div.help {width: calc(100% - 30px);}
-#content div.tagoptions fieldset .field:nth-child(3) div.help {width: calc(100% - 12px);}
+#content div.tagoptions fieldset div.field select,
+#content div.tagoptions fieldset div.field input[type=text] {width: calc( 100% ); min-width: 110px;}
+#content div.tagoptions fieldset div.field div.help {width: calc(100% - 30px);}
+#content div.tagoptions fieldset div.field:nth-child(3) div.help {width: calc(100% - 12px);}
 
 #content .single_context form fieldset div.field:first-child {
 	flex: 0 0;
@@ -98,7 +98,7 @@
 #content div.all_items ul.items > li div.tagoptions ul.actions li {padding-top: 11px;}
 
 
-#content div.sortable div.tagoptions .field,
+#content div.sortable div.tagoptions div.field,
 #content div.sortable.hide_context form fieldset div.field:nth-child(3) {padding-left: 55px;}
 
 
