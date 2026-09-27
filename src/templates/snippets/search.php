@@ -9,6 +9,7 @@ $init_class = "i:search";
 $form_class = "labelstyle:inject search";
 
 $url = HTML()->path."/search";
+$method = "post";
 
 $pattern = false;
 $query = "";
@@ -29,6 +30,7 @@ if($_options !== false) {
 			case "form_class"         : $form_class           = $_value; break;
 
 			case "url"                : $url                  = $_value; break;
+			case "method"             : $method               = $_value; break;
 
 			case "pattern"            : $pattern              = $_value; break;
 			case "query"              : $query                = $_value; break;
@@ -43,9 +45,9 @@ if($_options !== false) {
 	<div <?= HTML()->attribute("class", $class, $init_class) ?>>
 		<h2><?= $title ?></h2>
 
-		<?= HTML()->formStart($url, ["class" => $form_class]) ?>
-			<?= HTML()->input("pattern", ["type" => "hidden", "value" => ($pattern ? json_encode($pattern) : "")]) ?>
-			<?= HTML()->input("tag", ["type" => "hidden", "value" => $tag]) ?>
+		<?= HTML()->formStart($url, ["class" => $form_class, "method" => $method]) ?>
+			<?= $pattern ? HTML()->input("pattern", ["type" => "hidden", "value" => json_encode($pattern)]) : "" ?>
+			<?= $tag ? HTML()->input("tag", ["type" => "hidden", "value" => $tag]) : "" ?>
 
 			<fieldset>
 				<?= HTML()->input("query", ["type" => "string", "label" => $label, "min" => $min_query, "required" => true, "value" => $query]) ?>
