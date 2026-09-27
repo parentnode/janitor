@@ -467,280 +467,282 @@ u.activateTagging = function(node) {
 	}
 
 
-
-	// create add tag form
-	node._tag_form = u.f.addForm(node._tag_options, {"action": node.data_div.add_tag_url});
-	node._tag_form.node = node;
-
-	u.f.addField(node._tag_form, {"type":"hidden", "name":"csrf-token", "value":node.data_div.csrf_token});
-
-
-	var context_input_label = node.getAttribute("data-context-input-label") || "Context";
-	var value_input_label = node.getAttribute("data-value-input-label") || "Value";
-
-	var context_input_hint_message = node.getAttribute("data-context-input-hint-message") || "Context value";
-	var context_input_error_message = node.getAttribute("data-context-input-error-message") || "Lowercase letters only.";
-
-	var value_input_hint_message = node.getAttribute("data-value-input-hint-message") || "Tag value";
-	var value_input_error_message = node.getAttribute("data-value-input-error-message") || "Context:value must be unique.";
-
-	var button_text = node.getAttribute("data-button-text") || "Add new tag";
-
 	var label_available = node.getAttribute("data-label-available") || "Existing tags";
 	var label_no_available = node.getAttribute("data-label-no-available") || "No tags available";
 
-	// // var tag_contexts = node._tags_context ? node._tags_context.split(/,|;/) : [];
-	// var pattern = node.single_context ? "[^:]+" : (node.tag_contexts ? "^("+node.tag_contexts.join("|")+")\:[^$]+" : "[^$]+\:[^$]+");
+
+	// Only enable selection of existing tags
+	if(!u.hc(node, "select_only")) {
+
+		// create add tag form
+		node._tag_form = u.f.addForm(node._tag_options, {"action": node.data_div.add_tag_url});
+		node._tag_form.node = node;
+
+		u.f.addField(node._tag_form, {"type":"hidden", "name":"csrf-token", "value":node.data_div.csrf_token});
 
 
-	// add fieldset
-	var fieldset = u.f.addFieldset(node._tag_form);
+		var context_input_label = node.getAttribute("data-context-input-label") || "Context";
+		var value_input_label = node.getAttribute("data-value-input-label") || "Value";
 
-	// Single tag context
-	if(node.single_context) {
+		var context_input_hint_message = node.getAttribute("data-context-input-hint-message") || "Context value";
+		var context_input_error_message = node.getAttribute("data-context-input-error-message") || "Lowercase letters only.";
 
-		u.f.addField(fieldset, {
-			"type": "output",
-			"value": node.tag_contexts[0],
-			"label": context_input_label,
-			"hint_message": context_input_hint_message, 
-			"error_message": context_input_error_message, 
-		});
+		var value_input_hint_message = node.getAttribute("data-value-input-hint-message") || "Tag value";
+		var value_input_error_message = node.getAttribute("data-value-input-error-message") || "Context:value combi must be unique.";
 
-	}
-	// Multiple tag options
-	else if(node.tag_contexts.length) {
+		var button_text = node.getAttribute("data-button-text") || "Add new tag";
 
-		var i, tag_context, options = [];
-		for(i = 0; i < node.tag_contexts.length; i++) {
-			tag_context = node.tag_contexts[i];
-			options.push({"text":tag_context, "value":tag_context});
+		// // var tag_contexts = node._tags_context ? node._tags_context.split(/,|;/) : [];
+		// var pattern = node.single_context ? "[^:]+" : (node.tag_contexts ? "^("+node.tag_contexts.join("|")+")\:[^$]+" : "[^$]+\:[^$]+");
+
+
+		// add fieldset
+		var fieldset = u.f.addFieldset(node._tag_form);
+
+		// Single tag context
+		if(node.single_context) {
+
+			u.f.addField(fieldset, {
+				"type": "output",
+				"value": node.tag_contexts[0],
+				"label": context_input_label,
+				"hint_message": context_input_hint_message, 
+				"error_message": context_input_error_message, 
+			});
+
 		}
-		u.f.addField(fieldset, {
-			"name": "tag_context",
-			"type": "select",
-			"options": options,
-			"label": context_input_label,
-			"hint_message": context_input_hint_message, 
-			"error_message": context_input_error_message, 
-		});
+		// Multiple tag options
+		else if(node.tag_contexts.length) {
 
-	}
-	// No context restrictions
-	else {
+			var i, tag_context, options = [];
+			for(i = 0; i < node.tag_contexts.length; i++) {
+				tag_context = node.tag_contexts[i];
+				options.push({"text":tag_context, "value":tag_context});
+			}
+			u.f.addField(fieldset, {
+				"name": "tag_context",
+				"type": "select",
+				"options": options,
+				"label": context_input_label,
+				"hint_message": context_input_hint_message, 
+				"error_message": context_input_error_message, 
+			});
 
-		u.f.addField(fieldset, {
-			"name": "tag_context",
-			"type": "string",
-			"pattern": "[a-z]+",
-			"label": context_input_label,
-			"hint_message": context_input_hint_message, 
-			"error_message": context_input_error_message, 
-		});
-
-	}
-
-	u.ae(fieldset, "span", {"class":"colon", "html": ":"});
-
-	// add input field
-	u.f.addField(fieldset, {
-		"name": "tag_value", 
-		"class": "newtag",
-		"value": "", 
-		"id": "tag_input_"+node._item_id, 
-		"label": value_input_label, 
-		"hint_message": value_input_hint_message, 
-		"error_message": value_input_error_message, 
-		"pattern": "[^\:]+",
-	});
-
-	// add submit button
-	u.f.addAction(node._tag_form, {"class": "button primary", "value": button_text});
-
-	// Create custom validation to enable comparing with existing tag list
-	Util.Form.customValidate["newtag"] = function(iN) {
-		// u.bug("validate", iN, iN._form.node.data_div.all_tags);
-
-		var existing_tags = [];
-		var i, tag;
-		for(i = 0; i < iN._form.node.data_div.all_tags.length; i++) {
-			tag = iN._form.node.data_div.all_tags[i];
-			existing_tags.push(tag["context"]+":"+tag["value"]);
 		}
-		pattern = iN.getAttribute("pattern");
-
-		// Combine current tag 
-		tag = (iN._form.inputs["tag_context"] ? iN._form.inputs["tag_context"].val() : iN._form.node.tag_contexts[0]) + ":" + iN.val();
-		// u.bug("tag", tag);
-
-		if(
-			iN.val() &&
-			!tag.match("^("+existing_tags.join("|")+")$") && 
-			(!pattern || iN.val().match("^"+pattern+"$"))
-		) {
-			u.f.inputIsCorrect(iN);
-		}
+		// No context restrictions
 		else {
-			u.f.inputHasError(iN);
+
+			u.f.addField(fieldset, {
+				"name": "tag_context",
+				"type": "string",
+				"pattern": "[a-z]+",
+				"label": context_input_label,
+				"hint_message": context_input_hint_message, 
+				"error_message": context_input_error_message, 
+			});
+
 		}
 
-	}
+		u.ae(fieldset, "span", {"class":"colon", "html": ":"});
+
+		// add input field
+		u.f.addField(fieldset, {
+			"name": "tag_value", 
+			"class": "newtag",
+			"value": "", 
+			"id": "tag_input_"+node._item_id, 
+			"label": value_input_label, 
+			"hint_message": value_input_hint_message, 
+			"error_message": value_input_error_message, 
+			"pattern": "[^\:]+",
+		});
+
+		// add submit button
+		u.f.addAction(node._tag_form, {"class": "button primary", "value": button_text});
+
+		// Create custom validation to enable comparing with existing tag list
+		Util.Form.customValidate["newtag"] = function(iN) {
+			// u.bug("validate", iN, iN._form.node.data_div.all_tags);
+
+			var existing_tags = [];
+			var i, tag;
+			for(i = 0; i < iN._form.node.data_div.all_tags.length; i++) {
+				tag = iN._form.node.data_div.all_tags[i];
+				existing_tags.push(tag["context"]+":"+tag["value"]);
+			}
+			pattern = iN.getAttribute("pattern");
+
+			// Combine current tag 
+			tag = (iN._form.inputs["tag_context"] ? iN._form.inputs["tag_context"].val() : iN._form.node.tag_contexts[0]) + ":" + iN.val();
+			// u.bug("tag", tag);
+
+			if(
+				iN.val() &&
+				!tag.match("^("+existing_tags.join("|")+")$") && 
+				(!pattern || iN.val().match("^"+pattern+"$"))
+			) {
+				u.f.inputIsCorrect(iN);
+			}
+			else {
+				u.f.inputHasError(iN);
+			}
+
+		}
 
 
-	// initialize form
-	u.f.init(node._tag_form);
-	node._tag_form.node = node;
+		// initialize form
+		u.f.init(node._tag_form);
+		node._tag_form.node = node;
 
-	// filter tags when typing
+		// filter tags when typing
 
-	// If context input is available (only if context is not single context)
-	if(node._tag_form.inputs["tag_context"]) {
+		// If context input is available (only if context is not single context)
+		if(node._tag_form.inputs["tag_context"]) {
 
-		// Filter existing tags based on context
-		node._tag_form.inputs["tag_context"].updated = function() {
+			// Filter existing tags based on context
+			node._tag_form.inputs["tag_context"].updated = function() {
+
+				this._form.filterTags();
+
+			}
+		}
+
+		// Filter existing tags based on values
+		node._tag_form.inputs["tag_value"].updated = function() {
 
 			this._form.filterTags();
 
 		}
-	}
-
-	// Filter existing tags based on values
-	node._tag_form.inputs["tag_value"].updated = function() {
-
-		this._form.filterTags();
-
-	}
 
 
-	node._tag_form.filterTags = function() {
+		node._tag_form.filterTags = function() {
 
-		// only filter if new tags list exists
-		if(this.node._new_tags) {
+			// only filter if new tags list exists
+			if(this.node._new_tags) {
 
-			var context = this.inputs["tag_context"] ? this.inputs["tag_context"].val() : "";
-			var value = this.inputs["tag_value"].val();
+				var context = this.inputs["tag_context"] ? this.inputs["tag_context"].val() : "";
+				var value = this.inputs["tag_value"].val();
 
-			// get all new tags
-			var tags = u.qsa(".tag", this.node._new_tags);
-			var i;
-			// value = u.qs("span.value", tag);
-			// loop through all new values and hide value if it doesn't match field value
-			for(i = 0; i < tags.length; i++) {
-				tag = tags[i];
+				// get all new tags
+				var tags = u.qsa(".tag", this.node._new_tags);
+				var i;
+				// value = u.qs("span.value", tag);
+				// loop through all new values and hide value if it doesn't match field value
+				for(i = 0; i < tags.length; i++) {
+					tag = tags[i];
 
-				if((!context || tag._context.toLowerCase().match('^'+context)) && (!value || tag._value.toLowerCase().match(value))) {
-					u.as(tag, "display", "inline-block");
-				}
-				else {
-					u.as(tag, "display", "none");
-				}
-			}
-		}
-
-	}
-
-	// New tag submitted
-	node._tag_form.submitted = function(iN) {
-
-		// add tag response
-		this.response = function(response) {
-			page.notify(response);
-
-			// success
-			if(response.cms_status == "success") {
-
-				// clear tag field and update filtering
-				this.reset();
-				this.filterTags();
-				// this.inputs["tag_value"].val("");
-				// this.inputs["tags"].updated();
-				if(this.inputs["tag_context"]) {
-					this.inputs["tag_context"].focus();
-				}
-				else {
-					this.inputs["tag_value"].focus();
-				}
-
-
-
-				// New tag was added successfully
-				// If tag limit is 1, then delete existing tags, before updating list with new tag
-
-				if(this.node.tag_limit === "1") {
-					this.node.resetTagList();
-				}
-
-
-				// shorter reference
-				var new_tag = response.cms_object;
-
-				// check if tag already exists in tags options
-				var i, tag_node;
-				var new_tags = u.qsa("li", this.node._new_tags);
-				for(i = 0; tag_node = new_tags[i]; i++) {
-
-					// tag found
-					if(tag_node._id == new_tag.tag_id) {
-
-						// move tag from new tags to existing tags
-						// u.ae(this.node._tags, tag_node);
-						this.node._tags.insertBefore(tag_node, this.node._bn_add);
-						return;
+					if((!context || tag._context.toLowerCase().match('^'+context)) && (!value || tag._value.toLowerCase().match(value))) {
+						u.as(tag, "display", "inline-block");
+					}
+					else {
+						u.as(tag, "display", "none");
 					}
 				}
-
-				// tag not found in new tags - it is a brand new tag
-				// add it to all_tags list
-				this.node.data_div.all_tags.push({
-					"id":new_tag.tag_id, 
-					"context":new_tag.context, 
-					"value":new_tag.value
-				});
-
-				// add it to existing tags
-				tag_node = u.ae(this.node._tags, "li", {"class":"tag "+new_tag.context});
-				u.ae(tag_node, "span", {"class":"context", "html":new_tag.context});
-				u.ae(tag_node, document.createTextNode(":"));
-				u.ae(tag_node, "span", {"class":"value", "html":new_tag.value});
-
-				// map values to tag node
-				tag_node._context = new_tag.context;
-				tag_node._value = new_tag.value;
-				tag_node._id = new_tag.tag_id;
-				tag_node.node = this.node;
-
-				this.node._tags.insertBefore(tag_node, this.node._bn_add);
-
-
-				// activate tag
-				u.activateTag(tag_node);
-
 			}
 
 		}
 
-		var data = this.getData();
+		// New tag submitted
+		node._tag_form.submitted = function(iN) {
 
-		// Append context to single_context tags, to fulfill serverside validation
-		if(this.node.single_context) {
-			data.set("tags", this.node.tag_contexts[0]+":"+data.get("tag_value"));
+			// add tag response
+			this.response = function(response) {
+				page.notify(response);
+
+				// success
+				if(response.cms_status == "success") {
+
+					// clear tag field and update filtering
+					this.reset();
+					this.filterTags();
+					if(this.inputs["tag_context"]) {
+						this.inputs["tag_context"].focus();
+					}
+					else {
+						this.inputs["tag_value"].focus();
+					}
+
+
+
+					// New tag was added successfully
+					// If tag limit is 1, then delete existing tags, before updating list with new tag
+
+					if(this.node.tag_limit === "1") {
+						this.node.resetTagList();
+					}
+
+
+					// shorter reference
+					var new_tag = response.cms_object;
+
+					// check if tag already exists in tags options
+					var i, tag_node;
+					var new_tags = u.qsa("li", this.node._new_tags);
+					for(i = 0; tag_node = new_tags[i]; i++) {
+
+						// tag found
+						if(tag_node._id == new_tag.tag_id) {
+
+							// move tag from new tags to existing tags
+							// u.ae(this.node._tags, tag_node);
+							this.node._tags.insertBefore(tag_node, this.node._bn_add);
+							return;
+						}
+					}
+
+					// tag not found in new tags - it is a brand new tag
+					// add it to all_tags list
+					this.node.data_div.all_tags.push({
+						"id":new_tag.tag_id, 
+						"context":new_tag.context, 
+						"value":new_tag.value
+					});
+
+					// add it to existing tags
+					tag_node = u.ae(this.node._tags, "li", {"class":"tag "+new_tag.context});
+					u.ae(tag_node, "span", {"class":"context", "html":new_tag.context});
+					u.ae(tag_node, document.createTextNode(":"));
+					u.ae(tag_node, "span", {"class":"value", "html":new_tag.value});
+
+					// map values to tag node
+					tag_node._context = new_tag.context;
+					tag_node._value = new_tag.value;
+					tag_node._id = new_tag.tag_id;
+					tag_node.node = this.node;
+
+					this.node._tags.insertBefore(tag_node, this.node._bn_add);
+
+
+					// activate tag
+					u.activateTag(tag_node);
+
+				}
+
+			}
+
+			var data = this.getData();
+
+			// Append context to single_context tags, to fulfill serverside validation
+			if(this.node.single_context) {
+				data.set("tags", this.node.tag_contexts[0]+":"+data.get("tag_value"));
+			}
+			else {
+				data.set("tags", data.get("tag_context")+":"+data.get("tag_value"));
+			}
+
+			u.request(this, this.action+"/"+this.node._item_id, {"method": "post", "data": data});
+		}
+
+
+		// add focus to tag field
+		if(node._tag_form.inputs["tag_context"]) {
+			node._tag_form.inputs["tag_context"].focus();
 		}
 		else {
-			data.set("tags", data.get("tag_context")+":"+data.get("tag_value"));
+			node._tag_form.inputs["tag_value"].focus();
 		}
 
-		u.request(this, this.action+"/"+this.node._item_id, {"method": "post", "data": data});
 	}
-
-
-	// add focus to tag field
-	if(node._tag_form.inputs["tag_context"]) {
-		node._tag_form.inputs["tag_context"].focus();
-	}
-	else {
-		node._tag_form.inputs["tag_value"].focus();
-	}
-
 
 	// add list with available tag options
 	u.ae(node._tag_options, "label", {"class": "tags", "html": label_available});

@@ -692,19 +692,19 @@ class JanitorHTMLCore {
 		$context = [];
 
 
+		$label_available = "Existing tags";
+		$label_no_available = "No tags available";
+
 		$context_input_label = "Context";
 		$value_input_label = "Value";
 
 		$context_input_hint_message = "Lowercase letters only.";
 		$context_input_error_message = "Lowercase letters only.";
 
-		$value_input_hint_message = "Context:value must be unique.";
-		$value_input_error_message = "Context:value must be unique.";
+		$value_input_hint_message = "Context:value combi must be unique.";
+		$value_input_error_message = "Context:value combi must be unique.";
 
 		$button_text = "Add new tag";
-		
-		$label_available = "Existing tags";
-		$label_no_available = "No tags available";
 
 		// overwrite defaults
 		if($_options !== false) {
@@ -719,6 +719,9 @@ class JanitorHTMLCore {
 					case "limit"                         : $limit                           = $_value; break;
 					case "context"                       : $context                         = $_value; break;
 
+					case "label_available"               : $label_available                 = $_value; break;
+					case "label_no_available"            : $label_no_available              = $_value; break;
+
 					case "context_input_label"           : $context_input_label             = $_value; break;
 					case "value_input_label"             : $value_input_label               = $_value; break;
 
@@ -730,11 +733,26 @@ class JanitorHTMLCore {
 
 					case "button_text"                   : $button_text                     = $_value; break;
 
-					case "label_available"               : $label_available                 = $_value; break;
-					case "label_no_available"            : $label_no_available              = $_value; break;
-
 				}
 			}
+		}
+
+
+		$count = 0;
+		if($item["tags"]) {
+
+			if(!$context) {
+				$count = count($item["tags"]);
+			}
+			else {
+				$context_exp = implode("|", preg_split("/,|;/", $context));
+				foreach($item["tags"] as $tag) {
+					if(preg_match("/".$context_exp."/", $tag["context"])) {
+						$count++;
+					}
+				}
+			}
+			
 		}
 
 
@@ -755,7 +773,7 @@ class JanitorHTMLCore {
 			]]);
 			// .($limit ? ' data-limit="'.$limit.'"' : '').
 		$_ .= '>';
-		$_ .= '<h2>'.$title.(!$limit || $limit > 1 ? ' ('.($item["tags"] ? count($item["tags"]) : 0).')' : '').'</h2>';
+		$_ .= '<h2>'.$title.(!$limit || $limit > 1 ? ' ('.$count.')' : '').'</h2>';
 		$_ .= $this->tagList($item["tags"], $_options);
 		$_ .= '</div>';
 
