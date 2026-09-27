@@ -17,7 +17,10 @@ Util.Modules["defaultList"] = new function() {
 		div.csrf_token = div.getAttribute("data-csrf-token");
 
 		// get all items from list
-		div.nodes = u.qsa("li.item", div.list);
+		// div.nodes = u.qsa("li.item", div.list);
+		// Accept nodes in multiple lists, 
+		// but maintain list reference, needed for sortable lists
+		div.nodes = u.qsa("li.item", div);
 
 		// initial item preparation
 		var i, node;
