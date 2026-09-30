@@ -1245,30 +1245,128 @@ class ItemtypeCore extends Model {
 			$controller_assignable = true;
 
 
+			$controller_flavors = false;
+
+
 			include($controller);
-			if($controller_assignable !== false && $controller_type === "item" && $controller_itemtype && $item["itemtype"] === $controller_itemtype && $controller_favors && isset($controller_favors["view"])) {
 
-				// Nested structure
-				if(strpos(substr($link, 1), "/") !== false) {
-					$secondary_options[$link."/".$item["sindex"]] = $link."/".$item["sindex"];
-				}
-				// First level controller
-				else {
-					$primary_options[$link."/".$item["sindex"]] = $link."/".$item["sindex"];
-				}
-
-			}
-
-			// Unknown, but assignable controller (can be a hardcoded item viewer, so should be available for selection)
-			else if(!$only_safe_canonical && $controller_assignable !== false && (!$controller_itemtype || $item["itemtype"] === $controller_itemtype)) {
+			if($controller_flavors) {
 
 				// Remove index fragment from url
-				if($link === "/index") {
-					$link = "/";
-				}
-				$tertiary_options[$link] = $link;
+				$link = preg_replace("/index$/", "", $link);
 
+				foreach($controller_flavors as $path => $flavor) {
+					if(is_array($flavor)) {
+
+						$itemtype = isset($flavor["itemtype"]) ? $flavor["itemtype"] : "";
+						$tag = isset($flavor["tag"]) ? $flavor["tag"] : "";
+						$template = isset($flavor["template"]) ? $flavor["template"] : "";
+
+					}
+					else if(is_string($flavor)) {
+						if(preg_match("/\[(?P<itemtype>\w+):?(?P<tag>[^\]]*)](\[template:)?(?P<template>[^\]]*)?\]?/i", $flavor, $matches)) {
+							// debug([$matches]);
+
+							$itemtype = $matches["itemtype"];
+							$tag = $matches["tag"];
+							$template = $matches["template"];
+						}
+
+					}
+
+
+					// Flavor can show this item
+					if($itemtype && $itemtype === $item["itemtype"]) {
+
+						// If tag is stated, then extend check
+						if($tag && !isset($item["tags"])) {
+							$item["tags"] = items()->getTags(["item_id" => $item["item_id"], "context" => $itemtype]);
+						}
+
+						$relevant_tags = [];
+						if($tag && $item["tags"]) {
+							foreach($item["tags"] as $item_tag) {
+								if($item_tag["context"] === $itemtype) {
+									$relevant_tags[] = $item_tag["value"];
+								}
+							}
+							
+						}
+
+						if(!$tag || array_search($tag, $relevant_tags) !== false) {
+
+							if(!$path) {
+								$primary_options[$link] = $link;
+							}
+							else if(preg_match("/\[sindex\]/", $path)) {
+								$combined_path = $link.preg_replace("/\[sindex\]/", $item["sindex"], $path);
+								$primary_options[$combined_path] = $combined_path;
+							}
+							else if(preg_match("/\[item_id\]/", $path)) {
+								$combined_path = $link.preg_replace("/\[item_id\]/", $item["item_id"], $path);
+								$primary_options[$combined_path] = $combined_path;
+							}
+							// fixed path element
+							else if(!preg_match("/^\[[.]+\]$/", $path)) {
+								$primary_options[$link.$path] = $link.$path;
+							}
+
+						}
+
+
+
+					}
+					// if(preg_match("/^\[".$item["itemtype"]."\]/", $flavor)) {
+					// 	debug(["matching flavor", $flavor, $path]);
+					//
+					//
+					//
+					//
+					// 	if(!$path) {
+					// 		$primary_options[$link] = $link;
+					// 	}
+					// 	else if(preg_match("/\[sindex\]/", $path)) {
+					// 		$path = preg_replace("/\[sindex\]/", $item["sindex"], $path);
+					// 		$primary_options[$link.$path] = $link.$path;
+					// 	}
+					// 	else if($path === "[item_id]") {
+					// 		$primary_options[$link."/".$item["item_id"]] = $link."/".$item["item_id"];
+					// 	}
+					// 	// fixed path element
+					// 	else if(!preg_match("/^\[[.]+\]$/", $path)) {
+					// 		$primary_options[$link.$path] = $link.$path;
+					// 	}
+					//
+					// }
+				}
 			}
+
+			// if($controller_assignable !== false && $controller_type === "item" && $controller_itemtype && $item["itemtype"] === $controller_itemtype && $controller_favors && isset($controller_favors["view"])) {
+			//
+			// 	// item controller, that matches current itemtype
+			// if($controller_assignable !== false && $controller_type === "item" && $controller_itemtype && $item["itemtype"] === $controller_itemtype && $controller_favors && isset($controller_favors["view"])) {
+			//
+			// 	// Nested structure
+			// 	if(strpos(substr($link, 1), "/") !== false) {
+			// 		$secondary_options[$link."/".$item["sindex"]] = $link."/".$item["sindex"];
+			// 	}
+			// 	// First level controller
+			// 	else {
+			// 		$primary_options[$link."/".$item["sindex"]] = $link."/".$item["sindex"];
+			// 	}
+			//
+			// }
+			//
+			// // Unknown, but assignable controller (can be a hardcoded item viewer, so should be available for selection)
+			// else if(!$only_safe_canonical && $controller_assignable !== false && (!$controller_itemtype || $item["itemtype"] === $controller_itemtype)) {
+			//
+			// 	// Remove index fragment from url
+			// 	if($link === "/index") {
+			// 		$link = "/";
+			// 	}
+			// 	$tertiary_options[$link] = $link;
+			//
+			// }
 
 		}
 
