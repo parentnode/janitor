@@ -136,7 +136,7 @@
 
 
 /* SELECTABLE LIST */
-#content div.all_items.selectable ul.items > li > input {position: absolute; top: 10px; left: 30px; cursor: pointer;}
+#content div.all_items.selectable ul.items > li > input {position: absolute; top: 19px; left: 30px; cursor: pointer;}
 #content div.all_items.selectable ul.items > li.all {padding: 10px 30px 10px 50px;}
 #content div.all_items.selectable ul.items > li.all > input {position: absolute; top: 9px; left: 30px;}
 #content div.all_items.selectable ul.items > li.all.deselect input[type=checkbox] {opacity: 0.4;}

@@ -54,25 +54,25 @@ $jam_sources = [
 	// 		],
 	// 	]
 	// ],
-	// "email" => [
-	// 	"name" => "Email gateways",
-	// 	"description" => "Modules to send email notifications and messages.",
-	// 	"modules" => [
-	// 		"mailgun" => [
-	// 			"name" => "Mailgun",
-	// 			"description" => "Mailgun email gateway integration",
-	// 			"info_link" => "https://mailgun.com",
-	// 			"repos" => "https://github.com/parentnode/jam-email-mailgun",
-	// 		],
-	// 		"smtp" => [
-	// 			"name" => "SMTP with PHPMailer",
-	// 			"description" => "SMTP email gateway using PHPMailer library",
-	// 			"info_link" => "https://github.com/PHPMailer/PHPMailer",
-	// 			"repos" => "https://github.com/parentnode/jam-email-smtp",
-	// 		],
-	// 	]
-	//
-	// ],
+	"email" => [
+		"name" => "Email gateways",
+		"description" => "Modules to send email notifications and messages.",
+		"modules" => [
+			"mailgun" => [
+				"name" => "Mailgun",
+				"description" => "Mailgun email gateway integration",
+				"info_link" => "https://mailgun.com",
+				"repos" => "https://github.com/parentnode/jam-email-mailgun",
+			],
+			"smtp" => [
+				"name" => "SMTP with PHPMailer",
+				"description" => "SMTP email gateway using PHPMailer library",
+				"info_link" => "https://github.com/PHPMailer/PHPMailer",
+				"repos" => "https://github.com/parentnode/jam-email-smtp",
+			],
+		]
+
+	],
 	// "sms" => [
 	// 	"name" => "SMS message gateways",
 	// 	"description" => "Modules to send SMS messages via popular SMS platforms.",
