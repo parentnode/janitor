@@ -1191,7 +1191,7 @@ class ItemtypeCore extends Model {
 				else {
 
 					// Set canonical url to first available option (which is also expected to be best option)
-					$options = $this->getCanonicalOptions(["id" => $item_id, "itemtype" => $itemtype, "sindex" => $new_sindex], ["only_safe" => true]);
+					$options = $this->getCanonicalOptions(["item_id" => $item_id, "itemtype" => $itemtype, "sindex" => $new_sindex], ["only_safe" => true]);
 					if($options) {
 						$this->setCanonicalUrl($item_id, array_shift($options));
 					}
