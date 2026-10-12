@@ -270,6 +270,7 @@ class Navigation extends Model {
 			$link = preg_replace("/\.php$/", "", str_replace(LOCAL_PATH."/www", "", $controller));
 
 			$access_item = [];
+			$controller_type = false;
 			$controller_itemtype = false;
 			$controller_favors = false;
 
