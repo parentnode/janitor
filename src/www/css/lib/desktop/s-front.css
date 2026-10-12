@@ -50,3 +50,39 @@
 #content .scene.front div.qnas ul.qnas > li.qna:last-child {border: none;}
 #content .scene.front div.qnas ul.qnas h3 {font-size: 14px; padding-bottom: 3px;}
 #content .scene.front div.qnas ul.qnas p {padding-bottom: 0;}
+
+
+#content .scene.front div.shortcuts ul.shortcuts {
+	display: flex;
+	flex-wrap: wrap;
+	margin: 0 20px;
+}
+#content .scene.front div.shortcuts ul.shortcuts > li {
+	width: calc( 33.3333% - 22px );
+	margin: 0 10px 20px;
+	padding: 20px 0 40px;
+	position: relative;
+	border: 1px solid #dedede;
+}
+
+#content .scene.front div.shortcuts ul.shortcuts > li h3 {
+	font-size: 18px;
+}
+
+#content .scene.front div.shortcuts ul.shortcuts > li h3,
+#content .scene.front div.shortcuts ul.shortcuts > li p {
+	width: unset;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+#content .scene.front div.shortcuts ul.shortcuts > li ul {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	padding-left: 15px;
+	padding-right: 15px;
+}
+
+#content .scene.front div.shortcuts ul.shortcuts > li ul.actions {
+	text-align: right;
+}
