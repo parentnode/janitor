@@ -2312,7 +2312,7 @@ class ItemtypeCore extends Model {
 					$item = items()->getItem(["id" => $item_id]);
 					$model = model($item["itemtype"])->getModel();
 					// Max 1 file and 1 file uploaded
-					if($model[$input_name]["type"] === "files" && isset($model[$input_name]["max"]) && $model[$input_name]["max"] === 1 && count($completed_uploads) === 1) {
+					if(isset($model[$input_name]) && $model[$input_name]["type"] === "files" && isset($model[$input_name]["max"]) && $model[$input_name]["max"] === 1 && count($completed_uploads) === 1) {
 
 						// Find existing mediae
 						$mediae = items()->getMediae(["item_id" => $item_id, "variant_filter" => $input_name]);
