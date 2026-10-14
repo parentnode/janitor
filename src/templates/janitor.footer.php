@@ -35,6 +35,7 @@ endif; ?>
 			<li class="site">
 				<h3>Site</h3>
 				<ul class="subjects">
+					<?= $HTML->link("Data", "/janitor/admin/system/data", array("wrapper" => "li.data")) ?>
 					<?= $HTML->link("Navigations", "/janitor/admin/navigation/list", array("wrapper" => "li.navigation")) ?>
 					<?= $HTML->link("Tags", "/janitor/admin/tag/list", array("wrapper" => "li.tags")) ?>
 					<?= $HTML->link("Taglists", "/janitor/admin/taglist/list", array("wrapper" => "li.taglists")) ?>
@@ -51,7 +52,7 @@ endif; ?>
 					<?= $HTML->link("Subscription methods", "/janitor/admin/system/subscription_methods", array("wrapper" => "li.subscription_methods")) ?>
 					<?= $HTML->link("Log", "/janitor/admin/log/list", array("wrapper" => "li.logs")) ?>
 					<?= $HTML->link("Cache", "/janitor/admin/system/cache", array("wrapper" => "li.cache")) ?>
-					<?= $HTML->link("Setup", "/janitor/admin/setup", array("wrapper" => "li.setup")) ?>
+					<?= $HTML->link("Maintenance", "/janitor/admin/setup", array("wrapper" => "li.setup")) ?>
 				</ul>
 			</li>
 			<li class="users">
