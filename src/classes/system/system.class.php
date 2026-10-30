@@ -10,7 +10,7 @@ class System extends Model {
 
 	function __construct() {
 
-		parent::__construct(get_class());
+		parent::__construct(get_class($this));
 
 
 		$this->db_data = SITE_DB.".system_data";
@@ -154,8 +154,27 @@ class System extends Model {
 			if($this->validateAll()) {
 
 				$data = [];
+				$files = [];
 				foreach($dataset["model"] as $entity => $properties) {
-					$data[$entity] = $this->data_entities[$entity]["value"];
+
+					if($properties["type"] === "files") {
+
+						debug(["found file", $entity, $properties]);
+						if(isset($_FILES[$entity])) {
+							$files[$entity]["file"] = $_FILES[$entity]["tmp_name"][0];
+							$files[$entity]["destination"] = $properties["destination"];
+						}
+						// Not sure??
+						// Would be nice with an delete file option, but maybe rather a delete button on the file input
+						else {
+							$files[$entity]["file"] = false;
+						}
+
+					}
+					else {
+						$data[$entity] = $this->data_entities[$entity]["value"];
+					}
+
 				}
 
 				$result = $this->updateData($id, $data);
@@ -174,11 +193,22 @@ class System extends Model {
 	}
 
 
-	function updateData($id, $data) {
+	function updateData($id, $data, $files = false) {
 		// debug(["updateData", $id, $data]);
 
 		$query = new Query();
 		$query->checkDbExistence($this->db_data);
+
+
+		// Files were passed
+		if($files && is_array($files)) {
+
+			foreach($files as $file) {
+				if($file) {}
+			}
+
+		}
+
 
 		// Convert $data to JSON if passed as array
 		if(is_array($data)) {

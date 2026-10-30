@@ -16,7 +16,7 @@ class SuperUserCore extends User {
 	*/
 	function __construct() {
 
-		parent::__construct(get_class());
+		parent::__construct(get_class($this));
 
 
 		// Extended privilege user tables

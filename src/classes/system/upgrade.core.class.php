@@ -142,6 +142,7 @@ class UpgradeCore extends Model {
 			if(version_compare(VERSION, "0.8.1") < 0) {
 
 				$this->updateSyntaxTo081();
+				$this->updatePHPSyntaxToPHP85();
 
 			}
 
@@ -2608,6 +2609,41 @@ class UpgradeCore extends Model {
 		}
 
 	}
+
+
+	// Code update
+	function updatePHPSyntaxToPHP85() {
+
+		// Updating controller code syntax to work with PHP7
+
+		$classes = filesystem()->files(LOCAL_PATH."/classes", ["allow_extensions" => "php", "include_tempfiles" => true]);
+		$file = "";
+		foreach($classes as $class) {
+
+			$file = @file_get_contents($class);
+			if($file) {
+
+				if(preg_match("/__construct\(get_class\(\)/", $file, $matches)) {
+					// replace with valid syntax
+					$file = preg_replace("/__construct\(get_class\(\)\)/", "__construct\(get_class\(\\\$this\)\)", $file);
+					// save file
+					if(@file_put_contents($class, $file)) {
+						$this->process(array("success" => true, "message" => "Class updated to PHP85 syntax: ".basename($class)), true);
+					}
+					else {
+						$this->process(array("success" => false, "message" => "Write permission denied in controller: ".basename($class)), true);
+					}
+
+				}
+			}
+			else {
+				$this->process(array("success" => false, "message" => "Read permission denied in controller: ".basename($class)), true);
+			}
+
+		}
+
+	}
+
 
 	// Latest version integrity check
 	// Check file relations, canonical urls, etc

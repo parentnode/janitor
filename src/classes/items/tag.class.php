@@ -24,7 +24,7 @@ class Tag extends Model {
 	*/
 	function __construct() {
 
-		parent::__construct(get_class());
+		parent::__construct(get_class($this));
 
 		$this->db = SITE_DB.".tags";
 		$this->db_taggings = SITE_DB.".taggings";

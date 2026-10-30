@@ -20,7 +20,7 @@ class Navigation extends Model {
 	*/
 	function __construct() {
 
-		parent::__construct(get_class());
+		parent::__construct(get_class($this));
 
 
 		$this->db = UT_NAV; //SITE_DB.".navigation";

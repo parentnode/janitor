@@ -7,7 +7,7 @@ include_once("classes/system/setup.core.class.php");
 class Setup extends SetupCore {
 
 	function __construct() {
-		parent::__construct(get_class());
+		parent::__construct(get_class($this));
 	}
 
 }
