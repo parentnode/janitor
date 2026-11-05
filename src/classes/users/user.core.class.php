@@ -1423,6 +1423,9 @@ class UserCore extends Model {
 		$this->getPostedEntities();
 		$username = $this->getProperty("username", "value");
 
+
+		logger()->addLog("requestPasswordReset: $username");
+
 		// correct information available
 		if(count($action) == 1 && $username) {
 
@@ -1462,7 +1465,7 @@ class UserCore extends Model {
 							$nickname = $query->result(0, "nickname");
 
 							// send email
-							email()->send(array(
+							$result = email()->send(array(
 								"values" => array(
 									"TOKEN" => $reset_token,
 									"USERNAME" => $username,
@@ -1472,6 +1475,9 @@ class UserCore extends Model {
 								"recipients" => $email,
 								"template" => "reset_password"
 							));
+
+
+							logger()->addLog("User found – reset email sent to $email (email status: $result)");
 
 							// send notification email to admin
 							// TODO: consider disabling this once it has proved itself worthy
@@ -1492,6 +1498,8 @@ class UserCore extends Model {
 
 		}
 
+		logger()->addLog("User not found");
+
 		// user could not be found or reset request could not be satisfied
 		// - but this is not reflected towards to user to avoid revealing user existence
 		// - standard error message created in login-controller
@@ -1501,6 +1509,8 @@ class UserCore extends Model {
 
 	// reset password using reset-token
 	function resetPassword($action) {
+
+		logger()->addLog("Reset password attempted");
 
 		// perform cleanup routine
 		$this->cleanUpResetRequests();
@@ -1541,6 +1551,7 @@ class UserCore extends Model {
 						// Delete all access tokens on password reset
 						security()->deleteAccessTokens(["user_id" => $user_id]);
 
+						logger()->addLog("Password resat");
 
 						// send notification email to admin
 						// TODO: consider disabling this once it has proved itself worthy
@@ -1557,6 +1568,8 @@ class UserCore extends Model {
 			}
 
 		}
+
+		logger()->addLog("Password NOT resat – conditions failed");
 
 		return false;
 	}
