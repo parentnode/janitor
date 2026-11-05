@@ -1477,7 +1477,7 @@ class UserCore extends Model {
 							));
 
 
-							logger()->addLog("User found – reset email sent to $email (email status: $result)");
+							logger()->addLog("User found – reset email sent to $email (email status: ".print_r($result, true).")");
 
 							// send notification email to admin
 							// TODO: consider disabling this once it has proved itself worthy
