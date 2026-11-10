@@ -26,16 +26,17 @@ if($handle):
 	$navigation = navigation()->get($handle, $levels);
 ?>
 
-	<div<?= HTML()->attribute("id", $id) ?><?= HTML()->attribute("class", $class) ?>>
-		<ul>
-		<? if($navigation): ?>
-			<? foreach($navigation["nodes"] as $node): ?>
-			<?= HTML()->navigationLink($node, $levels); ?>
-			<? endforeach; ?>
-	 	<? endif; ?>
-		</ul>
-	</div>
-
+	<nav role="navigation">
+		<div<?= HTML()->attribute("id", $id) ?><?= HTML()->attribute("class", $class) ?>>
+			<ul>
+			<? if($navigation): ?>
+				<? foreach($navigation["nodes"] as $node): ?>
+				<?= HTML()->navigationLink($node, $levels); ?>
+				<? endforeach; ?>
+		 	<? endif; ?>
+			</ul>
+		</div>
+	</nav>
 <?
 endif;
 
