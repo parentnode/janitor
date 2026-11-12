@@ -81,9 +81,6 @@ class System extends Model {
 						$complete_model[$entity] = $properties;
 					}
 
-					if($data && isset($data[$entity])) {
-						$complete_model[$entity]["value"] = $data;
-					}
 
 					if(!isset($dataset["model"][$entity]["type"])) {
 						$complete_model[$entity]["type"] = "string";
@@ -91,7 +88,6 @@ class System extends Model {
 					if(!isset($dataset["model"][$entity]["label"])) {
 						$complete_model[$entity]["label"] = $entity;
 					}
-
 					if(!isset($dataset["model"][$entity]["hint_message"])) {
 						$complete_model[$entity]["hint_message"] = "$entity";
 					}
@@ -99,7 +95,17 @@ class System extends Model {
 						$complete_model[$entity]["error_message"] = "Invalid $entity";
 					}
 
-					if(isset($data[$entity])) {
+					// Value
+					if(isset($dataset["model"][$entity]["type"]) && $dataset["model"][$entity]["type"] === "files") {
+						// debug(["bla", $dataset["model"][$entity], LOCAL_PATH."/library/data/".$dataset["model"][$entity]["destination"]]);
+						if(isset($dataset["model"][$entity]["destination"]) && file_exists(LOCAL_PATH."/library/data/".$dataset["model"][$entity]["destination"])) {
+							$complete_model[$entity]["value"] = [["name" => "/asset/data/".$dataset["model"][$entity]["destination"], "format" => $dataset["model"][$entity]["allowed_formats"]]];
+						}
+					}
+					// else if($data && !isset($data[$entity])) {
+					// 		$complete_model[$entity]["value"] = $data;
+					// }
+					else if(isset($data[$entity])) {
 						$complete_model[$entity]["value"] = $data[$entity];
 					}
 				}
@@ -159,15 +165,14 @@ class System extends Model {
 
 					if($properties["type"] === "files") {
 
-						debug(["found file", $entity, $properties]);
-						if(isset($_FILES[$entity])) {
-							$files[$entity]["file"] = $_FILES[$entity]["tmp_name"][0];
+						$uploaded_files = $this->getProperty($entity, "value");
+						// debug(["found file", $entity, $properties, $this->getProperty($entity, "value")]);
+						if(count($uploaded_files) === 1 && file_exists($uploaded_files[0])) {
+
+							// Upload via Data model will always only be one-file uploads
+							$files[$entity]["src"] = $uploaded_files[0];
 							$files[$entity]["destination"] = $properties["destination"];
-						}
-						// Not sure??
-						// Would be nice with an delete file option, but maybe rather a delete button on the file input
-						else {
-							$files[$entity]["file"] = false;
+
 						}
 
 					}
@@ -177,7 +182,7 @@ class System extends Model {
 
 				}
 
-				$result = $this->updateData($id, $data);
+				$result = $this->updateData($id, $data, $files);
 
 				if($result) {
 					message()->addMessage("Data updated");
@@ -194,7 +199,7 @@ class System extends Model {
 
 
 	function updateData($id, $data, $files = false) {
-		// debug(["updateData", $id, $data]);
+		// debug(["updateData", $id, $data, $files]);
 
 		$query = new Query();
 		$query->checkDbExistence($this->db_data);
@@ -204,7 +209,20 @@ class System extends Model {
 		if($files && is_array($files)) {
 
 			foreach($files as $file) {
-				if($file) {}
+
+				if($file && isset($file["src"]) && file_exists($file["src"]) && isset($file["destination"])) {
+
+					// Avoid deleting any folders by accident
+					if(file_exists(LOCAL_PATH."/library/data/".$file["destination"]) && is_file(LOCAL_PATH."/library/data/".$file["destination"])) {
+						unlink(LOCAL_PATH."/library/data/".$file["destination"]);
+					}
+
+					filesystem()->makeDirRecursively(dirname(LOCAL_PATH."/library/data/".$file["destination"]));
+					$result = filesystem()->copy($file["src"], LOCAL_PATH."/library/data/".$file["destination"]);
+					unlink($file["src"]);
+
+				}
+
 			}
 
 		}
