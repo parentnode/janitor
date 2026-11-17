@@ -78,7 +78,7 @@ if($media) {
 
 
 		if($load === "bg") {
-			$bg_attribute = HTML()->attribute("style", "background-image(/images/".$item_id."/".$media["variant"]."/".$size.".".($avif ? "avif" : $media["format"]).")");
+			$bg_attribute = HTML()->attribute("style", "background-image: url(/images/".$item_id."/".$media["variant"]."/".$size.".".($avif ? "avif" : $media["format"]).")");
 			
 		}
 		else if($load === "img") {
