@@ -2625,7 +2625,7 @@ class UpgradeCore extends Model {
 
 				if(preg_match("/__construct\(get_class\(\)/", $file, $matches)) {
 					// replace with valid syntax
-					$file = preg_replace("/__construct\(get_class\(\)\)/", "__construct\(get_class\(\\\$this\)\)", $file);
+					$file = preg_replace("/__construct\(get_class\(\)\)/", "__construct(get_class(\$this))", $file);
 					// save file
 					if(@file_put_contents($class, $file)) {
 						$this->process(array("success" => true, "message" => "Class updated to PHP85 syntax: ".basename($class)), true);
